@@ -41,9 +41,8 @@ public final class ExtendsUnknownDerivedAsyncClient {
     /**
      * Get call.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     name: String (Required)
      *      (Optional): {
@@ -52,8 +51,8 @@ public final class ExtendsUnknownDerivedAsyncClient {
      *     index: int (Required)
      *     age: Double (Optional)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -71,9 +70,8 @@ public final class ExtendsUnknownDerivedAsyncClient {
     /**
      * Put operation.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     name: String (Required)
      *      (Optional): {
@@ -82,8 +80,8 @@ public final class ExtendsUnknownDerivedAsyncClient {
      *     index: int (Required)
      *     age: Double (Optional)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param body body.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.

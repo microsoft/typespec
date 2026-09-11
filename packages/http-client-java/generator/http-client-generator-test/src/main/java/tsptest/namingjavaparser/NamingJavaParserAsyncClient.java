@@ -47,34 +47,31 @@ public final class NamingJavaParserAsyncClient {
      * description of POST op.
      * <p><strong>Header Parameters</strong></p>
      * <table border="1">
-     * <caption>Header Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>etag</td><td>String</td><td>No</td><td>summary of etag header parameter
+     *     <caption>Header Parameters</caption>
+     *     <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     *     <tr><td>etag</td><td>String</td><td>No</td><td>summary of etag header parameter
      * 
      * description of etag header parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addHeader}
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     parameters (Optional): {
      *         type: String(Type1/Type2) (Required)
      *     }
      * }
-     * }
-     * </pre>
-     * 
+     * }</pre>
+     * <!-- @formatter:on -->
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     name: String (Required)
      *     data (Required): {
      *         data (Required): {
-     *             &#64;data.kind: String (Required)
+     *             @data.kind: String (Required)
      *         }
      *     }
      *     type: String(Blob/File) (Required)
@@ -85,8 +82,8 @@ public final class NamingJavaParserAsyncClient {
      *         }
      *     }
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param name summary of name query parameter
      * 
@@ -108,14 +105,13 @@ public final class NamingJavaParserAsyncClient {
     /**
      * The getAnonymous operation.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     name: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.

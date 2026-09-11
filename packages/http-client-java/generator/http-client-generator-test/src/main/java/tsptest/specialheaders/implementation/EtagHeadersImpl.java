@@ -170,49 +170,41 @@ public final class EtagHeadersImpl {
      * Create or replace operation template.
      * <p><strong>Header Parameters</strong></p>
      * <table border="1">
-     * <caption>Header Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>If-Match</td><td>String</td><td>No</td><td>The request should only proceed if an entity matches this
-     * string.</td></tr>
-     * <tr><td>If-None-Match</td><td>String</td><td>No</td><td>The request should only proceed if no entity matches this
-     * string.</td></tr>
-     * <tr><td>If-Unmodified-Since</td><td>OffsetDateTime</td><td>No</td><td>The request should only proceed if the
-     * entity was not modified after this time.</td></tr>
-     * <tr><td>If-Modified-Since</td><td>OffsetDateTime</td><td>No</td><td>The request should only proceed if the entity
-     * was modified after this time.</td></tr>
+     *     <caption>Header Parameters</caption>
+     *     <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     *     <tr><td>If-Match</td><td>String</td><td>No</td><td>The request should only proceed if an entity matches this string.</td></tr>
+     *     <tr><td>If-None-Match</td><td>String</td><td>No</td><td>The request should only proceed if no entity matches this string.</td></tr>
+     *     <tr><td>If-Unmodified-Since</td><td>OffsetDateTime</td><td>No</td><td>The request should only proceed if the entity was not modified after this time.</td></tr>
+     *     <tr><td>If-Modified-Since</td><td>OffsetDateTime</td><td>No</td><td>The request should only proceed if the entity was modified after this time.</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addHeader}
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: String (Required)
      *     name: String (Required)
      *     description: String (Optional)
      *     type: String (Optional, Required on create)
      * }
-     * }
-     * </pre>
-     * 
+     * }</pre>
+     * <!-- @formatter:on -->
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: String (Required)
      *     name: String (Required)
      *     description: String (Optional)
      *     type: String (Optional, Required on create)
      * }
-     * }
-     * </pre>
-     * 
+     * }</pre>
+     * <!-- @formatter:on -->
      * <p><strong>Response Headers</strong></p>
      * <table border="1">
-     * <caption>Response Headers</caption>
-     * <tr><th>Name</th><th>Type</th><th>Description</th></tr>
-     * <tr><td>ETag</td><td>String</td><td>The entity tag for the response.</td></tr>
+     *     <caption>Response Headers</caption>
+     *     <tr><th>Name</th><th>Type</th><th>Description</th></tr>
+     *     <tr><td>ETag</td><td>String</td><td>The entity tag for the response.</td></tr>
      * </table>
      * 
      * @param name The name parameter.
@@ -238,49 +230,41 @@ public final class EtagHeadersImpl {
      * Create or replace operation template.
      * <p><strong>Header Parameters</strong></p>
      * <table border="1">
-     * <caption>Header Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>If-Match</td><td>String</td><td>No</td><td>The request should only proceed if an entity matches this
-     * string.</td></tr>
-     * <tr><td>If-None-Match</td><td>String</td><td>No</td><td>The request should only proceed if no entity matches this
-     * string.</td></tr>
-     * <tr><td>If-Unmodified-Since</td><td>OffsetDateTime</td><td>No</td><td>The request should only proceed if the
-     * entity was not modified after this time.</td></tr>
-     * <tr><td>If-Modified-Since</td><td>OffsetDateTime</td><td>No</td><td>The request should only proceed if the entity
-     * was modified after this time.</td></tr>
+     *     <caption>Header Parameters</caption>
+     *     <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     *     <tr><td>If-Match</td><td>String</td><td>No</td><td>The request should only proceed if an entity matches this string.</td></tr>
+     *     <tr><td>If-None-Match</td><td>String</td><td>No</td><td>The request should only proceed if no entity matches this string.</td></tr>
+     *     <tr><td>If-Unmodified-Since</td><td>OffsetDateTime</td><td>No</td><td>The request should only proceed if the entity was not modified after this time.</td></tr>
+     *     <tr><td>If-Modified-Since</td><td>OffsetDateTime</td><td>No</td><td>The request should only proceed if the entity was modified after this time.</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addHeader}
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: String (Required)
      *     name: String (Required)
      *     description: String (Optional)
      *     type: String (Optional, Required on create)
      * }
-     * }
-     * </pre>
-     * 
+     * }</pre>
+     * <!-- @formatter:on -->
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: String (Required)
      *     name: String (Required)
      *     description: String (Optional)
      *     type: String (Optional, Required on create)
      * }
-     * }
-     * </pre>
-     * 
+     * }</pre>
+     * <!-- @formatter:on -->
      * <p><strong>Response Headers</strong></p>
      * <table border="1">
-     * <caption>Response Headers</caption>
-     * <tr><th>Name</th><th>Type</th><th>Description</th></tr>
-     * <tr><td>ETag</td><td>String</td><td>The entity tag for the response.</td></tr>
+     *     <caption>Response Headers</caption>
+     *     <tr><th>Name</th><th>Type</th><th>Description</th></tr>
+     *     <tr><td>ETag</td><td>String</td><td>The entity tag for the response.</td></tr>
      * </table>
      * 
      * @param name The name parameter.
@@ -306,45 +290,39 @@ public final class EtagHeadersImpl {
      * Create or update operation template.
      * <p><strong>Header Parameters</strong></p>
      * <table border="1">
-     * <caption>Header Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>If-Match</td><td>String</td><td>No</td><td>The request should only proceed if an entity matches this
-     * string.</td></tr>
-     * <tr><td>If-None-Match</td><td>String</td><td>No</td><td>The request should only proceed if no entity matches this
-     * string.</td></tr>
+     *     <caption>Header Parameters</caption>
+     *     <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     *     <tr><td>If-Match</td><td>String</td><td>No</td><td>The request should only proceed if an entity matches this string.</td></tr>
+     *     <tr><td>If-None-Match</td><td>String</td><td>No</td><td>The request should only proceed if no entity matches this string.</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addHeader}
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: String (Required)
      *     name: String (Required)
      *     description: String (Optional)
      *     type: String (Optional, Required on create)
      * }
-     * }
-     * </pre>
-     * 
+     * }</pre>
+     * <!-- @formatter:on -->
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: String (Required)
      *     name: String (Required)
      *     description: String (Optional)
      *     type: String (Optional, Required on create)
      * }
-     * }
-     * </pre>
-     * 
+     * }</pre>
+     * <!-- @formatter:on -->
      * <p><strong>Response Headers</strong></p>
      * <table border="1">
-     * <caption>Response Headers</caption>
-     * <tr><th>Name</th><th>Type</th><th>Description</th></tr>
-     * <tr><td>ETag</td><td>String</td><td>The entity tag for the response.</td></tr>
+     *     <caption>Response Headers</caption>
+     *     <tr><th>Name</th><th>Type</th><th>Description</th></tr>
+     *     <tr><td>ETag</td><td>String</td><td>The entity tag for the response.</td></tr>
      * </table>
      * 
      * @param name The name parameter.
@@ -370,45 +348,39 @@ public final class EtagHeadersImpl {
      * Create or update operation template.
      * <p><strong>Header Parameters</strong></p>
      * <table border="1">
-     * <caption>Header Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>If-Match</td><td>String</td><td>No</td><td>The request should only proceed if an entity matches this
-     * string.</td></tr>
-     * <tr><td>If-None-Match</td><td>String</td><td>No</td><td>The request should only proceed if no entity matches this
-     * string.</td></tr>
+     *     <caption>Header Parameters</caption>
+     *     <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     *     <tr><td>If-Match</td><td>String</td><td>No</td><td>The request should only proceed if an entity matches this string.</td></tr>
+     *     <tr><td>If-None-Match</td><td>String</td><td>No</td><td>The request should only proceed if no entity matches this string.</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addHeader}
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: String (Required)
      *     name: String (Required)
      *     description: String (Optional)
      *     type: String (Optional, Required on create)
      * }
-     * }
-     * </pre>
-     * 
+     * }</pre>
+     * <!-- @formatter:on -->
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: String (Required)
      *     name: String (Required)
      *     description: String (Optional)
      *     type: String (Optional, Required on create)
      * }
-     * }
-     * </pre>
-     * 
+     * }</pre>
+     * <!-- @formatter:on -->
      * <p><strong>Response Headers</strong></p>
      * <table border="1">
-     * <caption>Response Headers</caption>
-     * <tr><th>Name</th><th>Type</th><th>Description</th></tr>
-     * <tr><td>ETag</td><td>String</td><td>The entity tag for the response.</td></tr>
+     *     <caption>Response Headers</caption>
+     *     <tr><th>Name</th><th>Type</th><th>Description</th></tr>
+     *     <tr><td>ETag</td><td>String</td><td>The entity tag for the response.</td></tr>
      * </table>
      * 
      * @param name The name parameter.
@@ -433,25 +405,23 @@ public final class EtagHeadersImpl {
     /**
      * Resource list operation template.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: String (Required)
      *     name: String (Required)
      *     description: String (Optional)
      *     type: String (Optional, Required on create)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return paged collection of Resource items along with {@link PagedResponse} on successful completion of
-     * {@link Mono}.
+     * @return paged collection of Resource items along with {@link PagedResponse} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<PagedResponse<BinaryData>> listWithEtagSinglePageAsync(RequestOptions requestOptions) {
@@ -466,17 +436,16 @@ public final class EtagHeadersImpl {
     /**
      * Resource list operation template.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: String (Required)
      *     name: String (Required)
      *     description: String (Optional)
      *     type: String (Optional, Required on create)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -497,17 +466,16 @@ public final class EtagHeadersImpl {
     /**
      * Resource list operation template.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: String (Required)
      *     name: String (Required)
      *     description: String (Optional)
      *     type: String (Optional, Required on create)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -528,17 +496,16 @@ public final class EtagHeadersImpl {
     /**
      * Resource list operation template.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: String (Required)
      *     name: String (Required)
      *     description: String (Optional)
      *     type: String (Optional, Required on create)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -559,17 +526,16 @@ public final class EtagHeadersImpl {
     /**
      * Get the next page of items.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: String (Required)
      *     name: String (Required)
      *     description: String (Optional)
      *     type: String (Optional, Required on create)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param nextLink The URL to get the next list of items.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -577,8 +543,7 @@ public final class EtagHeadersImpl {
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return paged collection of Resource items along with {@link PagedResponse} on successful completion of
-     * {@link Mono}.
+     * @return paged collection of Resource items along with {@link PagedResponse} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     private Mono<PagedResponse<BinaryData>> listWithEtagNextSinglePageAsync(String nextLink,
@@ -593,17 +558,16 @@ public final class EtagHeadersImpl {
     /**
      * Get the next page of items.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: String (Required)
      *     name: String (Required)
      *     description: String (Optional)
      *     type: String (Optional, Required on create)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param nextLink The URL to get the next list of items.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.

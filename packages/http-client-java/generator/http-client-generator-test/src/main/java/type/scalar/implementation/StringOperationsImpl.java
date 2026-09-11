@@ -100,12 +100,11 @@ public final class StringOperationsImpl {
     /**
      * get string value.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * String
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -123,12 +122,11 @@ public final class StringOperationsImpl {
     /**
      * get string value.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * String
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -146,12 +144,11 @@ public final class StringOperationsImpl {
     /**
      * put string value.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * String
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param body _.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -171,12 +168,11 @@ public final class StringOperationsImpl {
     /**
      * put string value.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * String
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param body _.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.

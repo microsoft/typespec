@@ -328,9 +328,8 @@ public final class BasicClientImpl {
      * 
      * Creates or updates a User.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: int (Required)
      *     name: String (Optional, Required on create)
@@ -343,13 +342,11 @@ public final class BasicClientImpl {
      *     ]
      *     etag: String (Required)
      * }
-     * }
-     * </pre>
-     * 
+     * }</pre>
+     * <!-- @formatter:on -->
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: int (Required)
      *     name: String (Optional, Required on create)
@@ -362,8 +359,8 @@ public final class BasicClientImpl {
      *     ]
      *     etag: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param id The user's id.
      * @param resource The resource instance.
@@ -388,9 +385,8 @@ public final class BasicClientImpl {
      * 
      * Creates or updates a User.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: int (Required)
      *     name: String (Optional, Required on create)
@@ -403,13 +399,11 @@ public final class BasicClientImpl {
      *     ]
      *     etag: String (Required)
      * }
-     * }
-     * </pre>
-     * 
+     * }</pre>
+     * <!-- @formatter:on -->
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: int (Required)
      *     name: String (Optional, Required on create)
@@ -422,8 +416,8 @@ public final class BasicClientImpl {
      *     ]
      *     etag: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param id The user's id.
      * @param resource The resource instance.
@@ -448,9 +442,8 @@ public final class BasicClientImpl {
      * 
      * Creates or replaces a User.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: int (Required)
      *     name: String (Optional, Required on create)
@@ -463,13 +456,11 @@ public final class BasicClientImpl {
      *     ]
      *     etag: String (Required)
      * }
-     * }
-     * </pre>
-     * 
+     * }</pre>
+     * <!-- @formatter:on -->
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: int (Required)
      *     name: String (Optional, Required on create)
@@ -482,8 +473,8 @@ public final class BasicClientImpl {
      *     ]
      *     etag: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param id The user's id.
      * @param resource The resource instance.
@@ -508,9 +499,8 @@ public final class BasicClientImpl {
      * 
      * Creates or replaces a User.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: int (Required)
      *     name: String (Optional, Required on create)
@@ -523,13 +513,11 @@ public final class BasicClientImpl {
      *     ]
      *     etag: String (Required)
      * }
-     * }
-     * </pre>
-     * 
+     * }</pre>
+     * <!-- @formatter:on -->
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: int (Required)
      *     name: String (Optional, Required on create)
@@ -542,8 +530,8 @@ public final class BasicClientImpl {
      *     ]
      *     etag: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param id The user's id.
      * @param resource The resource instance.
@@ -568,9 +556,8 @@ public final class BasicClientImpl {
      * 
      * Gets a User.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: int (Required)
      *     name: String (Optional, Required on create)
@@ -583,8 +570,8 @@ public final class BasicClientImpl {
      *     ]
      *     etag: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param id The user's id.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -608,9 +595,8 @@ public final class BasicClientImpl {
      * 
      * Gets a User.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: int (Required)
      *     name: String (Optional, Required on create)
@@ -623,8 +609,8 @@ public final class BasicClientImpl {
      *     ]
      *     etag: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param id The user's id.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -649,24 +635,20 @@ public final class BasicClientImpl {
      * Lists all Users.
      * <p><strong>Query Parameters</strong></p>
      * <table border="1">
-     * <caption>Query Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>top</td><td>Integer</td><td>No</td><td>The number of result items to return.</td></tr>
-     * <tr><td>skip</td><td>Integer</td><td>No</td><td>The number of result items to skip.</td></tr>
-     * <tr><td>maxpagesize</td><td>Integer</td><td>No</td><td>The maximum number of result items per page.</td></tr>
-     * <tr><td>orderby</td><td>List&lt;String&gt;</td><td>No</td><td>Expressions that specify the order of returned
-     * results. Call {@link RequestOptions#addQueryParam} to add string to array.</td></tr>
-     * <tr><td>filter</td><td>String</td><td>No</td><td>Filter the result list using the given expression.</td></tr>
-     * <tr><td>select</td><td>List&lt;String&gt;</td><td>No</td><td>Select the specified fields to be included in the
-     * response. Call {@link RequestOptions#addQueryParam} to add string to array.</td></tr>
-     * <tr><td>expand</td><td>List&lt;String&gt;</td><td>No</td><td>Expand the indicated resources into the response.
-     * Call {@link RequestOptions#addQueryParam} to add string to array.</td></tr>
+     *     <caption>Query Parameters</caption>
+     *     <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     *     <tr><td>top</td><td>Integer</td><td>No</td><td>The number of result items to return.</td></tr>
+     *     <tr><td>skip</td><td>Integer</td><td>No</td><td>The number of result items to skip.</td></tr>
+     *     <tr><td>maxpagesize</td><td>Integer</td><td>No</td><td>The maximum number of result items per page.</td></tr>
+     *     <tr><td>orderby</td><td>List&lt;String&gt;</td><td>No</td><td>Expressions that specify the order of returned results. Call {@link RequestOptions#addQueryParam} to add string to array.</td></tr>
+     *     <tr><td>filter</td><td>String</td><td>No</td><td>Filter the result list using the given expression.</td></tr>
+     *     <tr><td>select</td><td>List&lt;String&gt;</td><td>No</td><td>Select the specified fields to be included in the response. Call {@link RequestOptions#addQueryParam} to add string to array.</td></tr>
+     *     <tr><td>expand</td><td>List&lt;String&gt;</td><td>No</td><td>Expand the indicated resources into the response. Call {@link RequestOptions#addQueryParam} to add string to array.</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: int (Required)
      *     name: String (Optional, Required on create)
@@ -679,8 +661,8 @@ public final class BasicClientImpl {
      *     ]
      *     etag: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -705,24 +687,20 @@ public final class BasicClientImpl {
      * Lists all Users.
      * <p><strong>Query Parameters</strong></p>
      * <table border="1">
-     * <caption>Query Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>top</td><td>Integer</td><td>No</td><td>The number of result items to return.</td></tr>
-     * <tr><td>skip</td><td>Integer</td><td>No</td><td>The number of result items to skip.</td></tr>
-     * <tr><td>maxpagesize</td><td>Integer</td><td>No</td><td>The maximum number of result items per page.</td></tr>
-     * <tr><td>orderby</td><td>List&lt;String&gt;</td><td>No</td><td>Expressions that specify the order of returned
-     * results. Call {@link RequestOptions#addQueryParam} to add string to array.</td></tr>
-     * <tr><td>filter</td><td>String</td><td>No</td><td>Filter the result list using the given expression.</td></tr>
-     * <tr><td>select</td><td>List&lt;String&gt;</td><td>No</td><td>Select the specified fields to be included in the
-     * response. Call {@link RequestOptions#addQueryParam} to add string to array.</td></tr>
-     * <tr><td>expand</td><td>List&lt;String&gt;</td><td>No</td><td>Expand the indicated resources into the response.
-     * Call {@link RequestOptions#addQueryParam} to add string to array.</td></tr>
+     *     <caption>Query Parameters</caption>
+     *     <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     *     <tr><td>top</td><td>Integer</td><td>No</td><td>The number of result items to return.</td></tr>
+     *     <tr><td>skip</td><td>Integer</td><td>No</td><td>The number of result items to skip.</td></tr>
+     *     <tr><td>maxpagesize</td><td>Integer</td><td>No</td><td>The maximum number of result items per page.</td></tr>
+     *     <tr><td>orderby</td><td>List&lt;String&gt;</td><td>No</td><td>Expressions that specify the order of returned results. Call {@link RequestOptions#addQueryParam} to add string to array.</td></tr>
+     *     <tr><td>filter</td><td>String</td><td>No</td><td>Filter the result list using the given expression.</td></tr>
+     *     <tr><td>select</td><td>List&lt;String&gt;</td><td>No</td><td>Select the specified fields to be included in the response. Call {@link RequestOptions#addQueryParam} to add string to array.</td></tr>
+     *     <tr><td>expand</td><td>List&lt;String&gt;</td><td>No</td><td>Expand the indicated resources into the response. Call {@link RequestOptions#addQueryParam} to add string to array.</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: int (Required)
      *     name: String (Optional, Required on create)
@@ -735,8 +713,8 @@ public final class BasicClientImpl {
      *     ]
      *     etag: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -780,24 +758,20 @@ public final class BasicClientImpl {
      * Lists all Users.
      * <p><strong>Query Parameters</strong></p>
      * <table border="1">
-     * <caption>Query Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>top</td><td>Integer</td><td>No</td><td>The number of result items to return.</td></tr>
-     * <tr><td>skip</td><td>Integer</td><td>No</td><td>The number of result items to skip.</td></tr>
-     * <tr><td>maxpagesize</td><td>Integer</td><td>No</td><td>The maximum number of result items per page.</td></tr>
-     * <tr><td>orderby</td><td>List&lt;String&gt;</td><td>No</td><td>Expressions that specify the order of returned
-     * results. Call {@link RequestOptions#addQueryParam} to add string to array.</td></tr>
-     * <tr><td>filter</td><td>String</td><td>No</td><td>Filter the result list using the given expression.</td></tr>
-     * <tr><td>select</td><td>List&lt;String&gt;</td><td>No</td><td>Select the specified fields to be included in the
-     * response. Call {@link RequestOptions#addQueryParam} to add string to array.</td></tr>
-     * <tr><td>expand</td><td>List&lt;String&gt;</td><td>No</td><td>Expand the indicated resources into the response.
-     * Call {@link RequestOptions#addQueryParam} to add string to array.</td></tr>
+     *     <caption>Query Parameters</caption>
+     *     <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     *     <tr><td>top</td><td>Integer</td><td>No</td><td>The number of result items to return.</td></tr>
+     *     <tr><td>skip</td><td>Integer</td><td>No</td><td>The number of result items to skip.</td></tr>
+     *     <tr><td>maxpagesize</td><td>Integer</td><td>No</td><td>The maximum number of result items per page.</td></tr>
+     *     <tr><td>orderby</td><td>List&lt;String&gt;</td><td>No</td><td>Expressions that specify the order of returned results. Call {@link RequestOptions#addQueryParam} to add string to array.</td></tr>
+     *     <tr><td>filter</td><td>String</td><td>No</td><td>Filter the result list using the given expression.</td></tr>
+     *     <tr><td>select</td><td>List&lt;String&gt;</td><td>No</td><td>Select the specified fields to be included in the response. Call {@link RequestOptions#addQueryParam} to add string to array.</td></tr>
+     *     <tr><td>expand</td><td>List&lt;String&gt;</td><td>No</td><td>Expand the indicated resources into the response. Call {@link RequestOptions#addQueryParam} to add string to array.</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: int (Required)
      *     name: String (Optional, Required on create)
@@ -810,8 +784,8 @@ public final class BasicClientImpl {
      *     ]
      *     etag: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -835,24 +809,20 @@ public final class BasicClientImpl {
      * Lists all Users.
      * <p><strong>Query Parameters</strong></p>
      * <table border="1">
-     * <caption>Query Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>top</td><td>Integer</td><td>No</td><td>The number of result items to return.</td></tr>
-     * <tr><td>skip</td><td>Integer</td><td>No</td><td>The number of result items to skip.</td></tr>
-     * <tr><td>maxpagesize</td><td>Integer</td><td>No</td><td>The maximum number of result items per page.</td></tr>
-     * <tr><td>orderby</td><td>List&lt;String&gt;</td><td>No</td><td>Expressions that specify the order of returned
-     * results. Call {@link RequestOptions#addQueryParam} to add string to array.</td></tr>
-     * <tr><td>filter</td><td>String</td><td>No</td><td>Filter the result list using the given expression.</td></tr>
-     * <tr><td>select</td><td>List&lt;String&gt;</td><td>No</td><td>Select the specified fields to be included in the
-     * response. Call {@link RequestOptions#addQueryParam} to add string to array.</td></tr>
-     * <tr><td>expand</td><td>List&lt;String&gt;</td><td>No</td><td>Expand the indicated resources into the response.
-     * Call {@link RequestOptions#addQueryParam} to add string to array.</td></tr>
+     *     <caption>Query Parameters</caption>
+     *     <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     *     <tr><td>top</td><td>Integer</td><td>No</td><td>The number of result items to return.</td></tr>
+     *     <tr><td>skip</td><td>Integer</td><td>No</td><td>The number of result items to skip.</td></tr>
+     *     <tr><td>maxpagesize</td><td>Integer</td><td>No</td><td>The maximum number of result items per page.</td></tr>
+     *     <tr><td>orderby</td><td>List&lt;String&gt;</td><td>No</td><td>Expressions that specify the order of returned results. Call {@link RequestOptions#addQueryParam} to add string to array.</td></tr>
+     *     <tr><td>filter</td><td>String</td><td>No</td><td>Filter the result list using the given expression.</td></tr>
+     *     <tr><td>select</td><td>List&lt;String&gt;</td><td>No</td><td>Select the specified fields to be included in the response. Call {@link RequestOptions#addQueryParam} to add string to array.</td></tr>
+     *     <tr><td>expand</td><td>List&lt;String&gt;</td><td>No</td><td>Expand the indicated resources into the response. Call {@link RequestOptions#addQueryParam} to add string to array.</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: int (Required)
      *     name: String (Optional, Required on create)
@@ -865,8 +835,8 @@ public final class BasicClientImpl {
      *     ]
      *     etag: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -947,9 +917,8 @@ public final class BasicClientImpl {
      * 
      * Exports a User.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: int (Required)
      *     name: String (Optional, Required on create)
@@ -962,8 +931,8 @@ public final class BasicClientImpl {
      *     ]
      *     etag: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param id The user's id.
      * @param format The format of the data.
@@ -987,9 +956,8 @@ public final class BasicClientImpl {
      * 
      * Exports a User.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: int (Required)
      *     name: String (Optional, Required on create)
@@ -1002,8 +970,8 @@ public final class BasicClientImpl {
      *     ]
      *     etag: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param id The user's id.
      * @param format The format of the data.
@@ -1026,9 +994,8 @@ public final class BasicClientImpl {
      * 
      * Exports all users.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     users (Required): [
      *          (Required){
@@ -1045,8 +1012,8 @@ public final class BasicClientImpl {
      *         }
      *     ]
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param format The format of the data.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -1069,9 +1036,8 @@ public final class BasicClientImpl {
      * 
      * Exports all users.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     users (Required): [
      *          (Required){
@@ -1088,8 +1054,8 @@ public final class BasicClientImpl {
      *         }
      *     ]
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param format The format of the data.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -1111,9 +1077,8 @@ public final class BasicClientImpl {
      * 
      * Get the next page of items.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: int (Required)
      *     name: String (Optional, Required on create)
@@ -1126,8 +1091,8 @@ public final class BasicClientImpl {
      *     ]
      *     etag: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param nextLink The URL to get the next list of items.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -1151,9 +1116,8 @@ public final class BasicClientImpl {
      * 
      * Get the next page of items.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: int (Required)
      *     name: String (Optional, Required on create)
@@ -1166,8 +1130,8 @@ public final class BasicClientImpl {
      *     ]
      *     etag: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param nextLink The URL to get the next list of items.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.

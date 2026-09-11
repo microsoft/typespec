@@ -18,7 +18,17 @@ public abstract class Customization {
      * @return the map of files after customization
      */
     public final Map<String, String> run(Map<String, String> files, Logger logger) {
-        Editor editor = new Editor(files);
+        return run(new Editor(files), logger);
+    }
+
+    /**
+     * Applies customization while retaining parsed files for partial update and formatting.
+     *
+     * @param editor the editor shared by the postprocessing stages
+     * @param logger the logger
+     * @return the customized file contents
+     */
+    public final Map<String, String> run(Editor editor, Logger logger) {
         customize(new LibraryCustomization(editor), logger);
         return editor.getContents();
     }

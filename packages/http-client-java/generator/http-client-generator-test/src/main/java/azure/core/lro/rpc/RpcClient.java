@@ -41,19 +41,16 @@ public final class RpcClient {
     /**
      * Generate data.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     prompt: String (Required)
      * }
-     * }
-     * </pre>
-     * 
+     * }</pre>
+     * <!-- @formatter:on -->
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: String (Required)
      *     status: String(NotStarted/Running/Succeeded/Failed/Canceled) (Required)
@@ -73,8 +70,8 @@ public final class RpcClient {
      *         data: String (Required)
      *     }
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param body The body parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.

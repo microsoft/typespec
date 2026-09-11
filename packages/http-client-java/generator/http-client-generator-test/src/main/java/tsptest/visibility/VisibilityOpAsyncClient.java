@@ -44,16 +44,15 @@ public final class VisibilityOpAsyncClient {
     /**
      * The get operation.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: int (Required)
      *     secretName: String (Required)
      *     name: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -71,27 +70,24 @@ public final class VisibilityOpAsyncClient {
     /**
      * The create operation.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     secretName: String (Required)
      *     name: String (Required)
      * }
-     * }
-     * </pre>
-     * 
+     * }</pre>
+     * <!-- @formatter:on -->
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: int (Required)
      *     secretName: String (Required)
      *     name: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param dog The dog parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -110,26 +106,23 @@ public final class VisibilityOpAsyncClient {
     /**
      * The query operation.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     secretName: String (Required)
      *     name: String (Required)
      * }
-     * }
-     * </pre>
-     * 
+     * }</pre>
+     * <!-- @formatter:on -->
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: int (Required)
      *     name: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param dog The dog parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -148,26 +141,23 @@ public final class VisibilityOpAsyncClient {
     /**
      * The roundtrip operation.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     name: String (Required)
      *     secretName: String (Required)
      * }
-     * }
-     * </pre>
-     * 
+     * }</pre>
+     * <!-- @formatter:on -->
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     name: String (Required)
      *     secretName: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param body The body parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.

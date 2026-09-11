@@ -41,20 +41,17 @@ public final class ExtensibleStringsAsyncClient {
     /**
      * The putExtensibleStringValue operation.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * String(and/as/assert/async/await/break/class/constructor/continue/def/del/elif/else/except/exec/finally/for/from/global/if/import/in/is/lambda/not/or/pass/raise/return/try/while/with/yield)
-     * }
-     * </pre>
-     * 
+     * }</pre>
+     * <!-- @formatter:on -->
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * String(and/as/assert/async/await/break/class/constructor/continue/def/del/elif/else/except/exec/finally/for/from/global/if/import/in/is/lambda/not/or/pass/raise/return/try/while/with/yield)
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param body The body parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -62,8 +59,7 @@ public final class ExtensibleStringsAsyncClient {
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return verify enum member names that are special words using extensible enum (union) along with {@link Response}
-     * on successful completion of {@link Mono}.
+     * @return verify enum member names that are special words using extensible enum (union) along with {@link Response} on successful completion of {@link Mono}.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)

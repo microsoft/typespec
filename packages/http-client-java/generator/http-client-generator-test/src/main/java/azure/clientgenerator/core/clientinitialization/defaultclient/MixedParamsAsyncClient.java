@@ -59,14 +59,13 @@ public final class MixedParamsAsyncClient {
     /**
      * The withBody operation.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     name: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param region The region parameter.
      * @param body The body parameter.

@@ -180,14 +180,13 @@ public final class AliasImpl {
     /**
      * The spreadAsRequestBody operation.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     name: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param spreadAsRequestBodyRequest The spreadAsRequestBodyRequest parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -208,14 +207,13 @@ public final class AliasImpl {
     /**
      * The spreadAsRequestBody operation.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     name: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param spreadAsRequestBodyRequest The spreadAsRequestBodyRequest parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -236,14 +234,13 @@ public final class AliasImpl {
     /**
      * The spreadParameterWithInnerModel operation.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     name: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param id The id parameter.
      * @param xMsTestHeader The xMsTestHeader parameter.
@@ -266,14 +263,13 @@ public final class AliasImpl {
     /**
      * The spreadParameterWithInnerModel operation.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     name: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param id The id parameter.
      * @param xMsTestHeader The xMsTestHeader parameter.
@@ -296,14 +292,13 @@ public final class AliasImpl {
     /**
      * The spreadAsRequestParameter operation.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     name: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param id The id parameter.
      * @param xMsTestHeader The xMsTestHeader parameter.
@@ -326,14 +321,13 @@ public final class AliasImpl {
     /**
      * The spreadAsRequestParameter operation.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     name: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param id The id parameter.
      * @param xMsTestHeader The xMsTestHeader parameter.
@@ -356,9 +350,8 @@ public final class AliasImpl {
     /**
      * The spreadWithMultipleParameters operation.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     requiredString: String (Required)
      *     optionalInt: Integer (Optional)
@@ -369,8 +362,8 @@ public final class AliasImpl {
      *         String (Optional)
      *     ]
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param id The id parameter.
      * @param xMsTestHeader The xMsTestHeader parameter.
@@ -393,9 +386,8 @@ public final class AliasImpl {
     /**
      * The spreadWithMultipleParameters operation.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     requiredString: String (Required)
      *     optionalInt: Integer (Optional)
@@ -406,8 +398,8 @@ public final class AliasImpl {
      *         String (Optional)
      *     ]
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param id The id parameter.
      * @param xMsTestHeader The xMsTestHeader parameter.
@@ -430,15 +422,14 @@ public final class AliasImpl {
     /**
      * spread an alias with contains another alias property as body.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     name: String (Required)
      *     age: int (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param id The id parameter.
      * @param xMsTestHeader The xMsTestHeader parameter.
@@ -461,15 +452,14 @@ public final class AliasImpl {
     /**
      * spread an alias with contains another alias property as body.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     name: String (Required)
      *     age: int (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param id The id parameter.
      * @param xMsTestHeader The xMsTestHeader parameter.

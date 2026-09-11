@@ -42,9 +42,8 @@ public final class AzureExampleAsyncClient {
     /**
      * The basicAction operation.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     stringProperty: String (Required)
      *     modelProperty (Optional): {
@@ -59,13 +58,11 @@ public final class AzureExampleAsyncClient {
      *         String: String (Required)
      *     }
      * }
-     * }
-     * </pre>
-     * 
+     * }</pre>
+     * <!-- @formatter:on -->
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     stringProperty: String (Required)
      *     modelProperty (Optional): {
@@ -80,8 +77,8 @@ public final class AzureExampleAsyncClient {
      *         String: String (Required)
      *     }
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param queryParam The queryParam parameter.
      * @param headerParam The headerParam parameter.
