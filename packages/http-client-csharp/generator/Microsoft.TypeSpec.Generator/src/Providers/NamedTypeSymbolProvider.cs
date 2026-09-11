@@ -57,6 +57,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
             !_namedTypeSymbol.IsSealed &&
             !_namedTypeSymbol.IsStatic;
 
+        internal bool HasExplicitBaseTypeDeclaration => _namedTypeSymbol.DeclaringSyntaxReferences
+            .Select(reference => reference.GetSyntax())
+            .OfType<TypeDeclarationSyntax>()
+            .Any(declaration => declaration.BaseList is not null);
+
+        internal bool IsFromCurrentAssembly =>
+            SymbolEqualityComparer.Default.Equals(_namedTypeSymbol.ContainingAssembly, _compilation.Assembly);
+
         internal bool IsAccessibleFromGeneratedType(CSharpType constructedType, bool requiresPublicAccessibility)
         {
             if (!IsNamedTypeAccessible(_namedTypeSymbol, requiresPublicAccessibility) ||
@@ -152,10 +160,21 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         return false;
                     }
 
+                    var substitutions = new Dictionary<ISymbol, ITypeSymbol>(SymbolEqualityComparer.Default);
+                    for (var substitutionIndex = 0; substitutionIndex < _namedTypeSymbol.TypeParameters.Length; substitutionIndex++)
+                    {
+                        var substitution = ResolveTypeSymbol(constructedType.Arguments[substitutionIndex]);
+                        if (substitution is not null)
+                        {
+                            substitutions[_namedTypeSymbol.TypeParameters[substitutionIndex]] = substitution;
+                        }
+                    }
                     foreach (var constraintType in parameter.ConstraintTypes)
                     {
-                        if (_compilation is not CSharpCompilation csharpCompilation ||
-                            !csharpCompilation.ClassifyConversion(argumentSymbol, constraintType).IsImplicit)
+                        var substitutedConstraint = SubstituteTypeParameters(constraintType, substitutions);
+                        if (substitutedConstraint is null ||
+                            _compilation is not CSharpCompilation csharpCompilation ||
+                            !csharpCompilation.ClassifyConversion(argumentSymbol, substitutedConstraint).IsImplicit)
                         {
                             return false;
                         }
@@ -164,6 +183,40 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             return true;
+        }
+
+        private ITypeSymbol? SubstituteTypeParameters(
+            ITypeSymbol type,
+            IReadOnlyDictionary<ISymbol, ITypeSymbol> substitutions)
+        {
+            if (type is ITypeParameterSymbol typeParameter)
+            {
+                return substitutions.TryGetValue(typeParameter, out var substitution) ? substitution : typeParameter;
+            }
+
+            if (type is IArrayTypeSymbol arrayType)
+            {
+                var elementType = SubstituteTypeParameters(arrayType.ElementType, substitutions);
+                return elementType is null ? null : _compilation.CreateArrayTypeSymbol(elementType, arrayType.Rank);
+            }
+
+            if (type is not INamedTypeSymbol namedType || namedType.TypeArguments.Length == 0)
+            {
+                return type;
+            }
+
+            var arguments = new ITypeSymbol[namedType.TypeArguments.Length];
+            for (var i = 0; i < arguments.Length; i++)
+            {
+                var argument = SubstituteTypeParameters(namedType.TypeArguments[i], substitutions);
+                if (argument is null)
+                {
+                    return null;
+                }
+                arguments[i] = argument;
+            }
+
+            return namedType.ConstructedFrom.Construct(arguments);
         }
 
         private ITypeSymbol? ResolveTypeSymbol(CSharpType type)

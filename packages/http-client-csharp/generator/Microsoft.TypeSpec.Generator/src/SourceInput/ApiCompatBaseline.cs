@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Xml.Linq;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -261,7 +262,8 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
                 return false;
             }
 
-            if (IsTypeSuppressed(type.FullyQualifiedName))
+            if (IsTypeSuppressed(type.FullyQualifiedName) ||
+                GetSuppressionTypeNames(type).Any(IsTypeSuppressed))
             {
                 return true;
             }
@@ -274,7 +276,40 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
                 }
             }
 
-            return false;
+            return type.DeclaringType is not null && ReferencesSuppressedType(type.DeclaringType);
+        }
+
+        private static IEnumerable<string> GetSuppressionTypeNames(CSharpType type)
+        {
+            var outermost = type;
+            while (outermost.DeclaringType is not null)
+            {
+                outermost = outermost.DeclaringType;
+            }
+
+            var metadataName = RemoveMetadataArity(type.ClrMetadataName);
+            var prefix = string.IsNullOrEmpty(outermost.Namespace) ? string.Empty : $"{outermost.Namespace}.";
+            yield return $"{prefix}{metadataName}";
+            yield return $"{prefix}{metadataName.Replace('+', '.')}";
+        }
+
+        private static string RemoveMetadataArity(string name)
+        {
+            var builder = new StringBuilder(name.Length);
+            for (var i = 0; i < name.Length; i++)
+            {
+                if (name[i] == '`')
+                {
+                    while (i + 1 < name.Length && char.IsDigit(name[i + 1]))
+                    {
+                        i++;
+                    }
+                    continue;
+                }
+
+                builder.Append(name[i]);
+            }
+            return builder.ToString();
         }
 
         private static bool TryExtractQuoted(string message, out string value)

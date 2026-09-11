@@ -281,7 +281,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // A generated partial cannot replace a different base declared by custom code: all partial
             // declarations must specify the same base class. Keep the custom base authoritative and
             // report that the previous inheritance relationship could not be restored.
-            if (CustomCodeView?.BaseType is not null)
+            if (CustomCodeView is { } customCodeView &&
+                (customCodeView.BaseType is not null ||
+                    customCodeView is NamedTypeSymbolProvider { HasExplicitBaseTypeDeclaration: true }))
             {
                 ReportIncompatibleBackcompatBaseType(
                     previousBase,
@@ -293,7 +295,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 CodeModelGenerator.Instance.Emitter.ReportDiagnostic(
                     DiagnosticCodes.UnavailableBackcompatType,
-                    $"Could not preserve base type '{previousBase.FullyQualifiedName}' on model '{BuildNamespace()}.{BuildName()}' because the previous base is unavailable or does not expose an accessible parameterless constructor in the current build.");
+                    $"Could not preserve base type '{previousBase.FullyQualifiedName}' on model '{BuildNamespace()}.{BuildName()}' because it cannot be resolved as an accessible, inheritable base with valid generic arguments and constructor chaining in the current build.");
                 return currentBase;
             }
 
@@ -407,24 +409,34 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private bool WouldCreateBaseTypeCycle(TypeProvider previousBase)
         {
-            var visited = new HashSet<ModelProvider>();
-            for (var model = previousBase as ModelProvider; model is not null && visited.Add(model);)
+            var currentNamespace = CustomCodeView?.Type.Namespace ?? BuildNamespace();
+            var currentName = CustomCodeView?.Name ?? BuildName();
+            var visited = new HashSet<TypeProvider>();
+            for (TypeProvider? provider = previousBase; provider is not null && visited.Add(provider);)
             {
-                if (ReferenceEquals(model, this))
+                if (ReferenceEquals(provider, this) ||
+                    string.Equals(provider.Type.Namespace, currentNamespace, StringComparison.Ordinal) &&
+                    string.Equals(provider.Name, currentName, StringComparison.Ordinal))
                 {
                     return true;
                 }
 
-                var customBase = model.CustomCodeView?.BaseType;
-                if (customBase is not null)
+                if (provider is ModelProvider model)
                 {
-                    model = ResolveGeneratedModel(customBase);
+                    var customBase = model.CustomCodeView?.BaseType;
+                    if (customBase is not null)
+                    {
+                        provider = ResolveGeneratedModel(customBase) ?? model.BaseTypeProvider;
+                        continue;
+                    }
+
+                    provider = model._inputModel.BaseModel is null
+                        ? model.BaseTypeProvider
+                        : CodeModelGenerator.Instance.TypeFactory.CreateModel(model._inputModel.BaseModel);
                     continue;
                 }
 
-                model = model._inputModel.BaseModel is null
-                    ? null
-                    : CodeModelGenerator.Instance.TypeFactory.CreateModel(model._inputModel.BaseModel);
+                provider = provider.BaseTypeProvider;
             }
 
             return false;
@@ -451,16 +463,28 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private bool HasPropertyNameCollisionInCurrentHierarchy(TypeProvider previousBase)
         {
-            var inheritedPropertyNames = new HashSet<string>(StringComparer.Ordinal);
+            var inheritedMemberNames = new HashSet<string>(StringComparer.Ordinal);
             var visitedBases = new HashSet<TypeProvider>();
             for (TypeProvider? provider = previousBase; provider is not null && visitedBases.Add(provider); provider = provider.BaseTypeProvider)
             {
-                inheritedPropertyNames.UnionWith(provider.Properties
-                    .Where(IsInheritedProperty)
+                inheritedMemberNames.UnionWith(provider.Properties
+                    .Where(property => IsInheritedMember(property.Modifiers, provider))
                     .Select(property => property.Name));
+                inheritedMemberNames.UnionWith(provider.Fields
+                    .Where(field => IsInheritedMember((MethodSignatureModifiers)field.Modifiers, provider))
+                    .Select(field => field.Name));
+                if (provider.CustomCodeView is { } customView)
+                {
+                    inheritedMemberNames.UnionWith(customView.Properties
+                        .Where(property => IsInheritedMember(property.Modifiers, customView))
+                        .Select(property => property.Name));
+                    inheritedMemberNames.UnionWith(customView.Fields
+                        .Where(field => IsInheritedMember((MethodSignatureModifiers)field.Modifiers, customView))
+                        .Select(field => field.Name));
+                }
             }
 
-            if (inheritedPropertyNames.Count == 0)
+            if (inheritedMemberNames.Count == 0)
             {
                 return false;
             }
@@ -476,13 +500,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     continue;
                 }
 
-                var enclosingTypeName = model.BuildName();
+                var enclosingTypeName = model.CustomCodeView?.Name ?? model.BuildName();
                 if (model._inputModel.Properties
                     .Select(property => model.GetGeneratedPropertyName(property, enclosingTypeName))
                     .Concat(model.GetGeneratedAdditionalPropertyNames(previousBase))
                     .Concat(model.CustomCodeView?.Properties.Select(property => property.Name) ?? [])
                     .Concat(model.CustomCodeView?.Fields.Select(field => field.Name) ?? [])
-                    .Any(inheritedPropertyNames.Contains))
+                    .Any(inheritedMemberNames.Contains))
                 {
                     return true;
                 }
@@ -496,9 +520,18 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return false;
         }
 
-        private static bool IsInheritedProperty(PropertyProvider property)
-            => !property.Modifiers.HasFlag(MethodSignatureModifiers.Private) ||
-                property.Modifiers.HasFlag(MethodSignatureModifiers.Protected);
+        private static bool IsInheritedMember(MethodSignatureModifiers modifiers, TypeProvider declaringProvider)
+        {
+            if (modifiers.HasFlag(MethodSignatureModifiers.Public) ||
+                modifiers.HasFlag(MethodSignatureModifiers.Protected) &&
+                !modifiers.HasFlag(MethodSignatureModifiers.Private))
+            {
+                return true;
+            }
+
+            var sameAssembly = declaringProvider is not NamedTypeSymbolProvider namedType || namedType.IsFromCurrentAssembly;
+            return sameAssembly && modifiers.HasFlag(MethodSignatureModifiers.Internal);
+        }
 
         private string GetGeneratedPropertyName(InputModelProperty property, string enclosingTypeName)
         {
@@ -668,19 +701,22 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // Generated model bases already participate in ModelProvider's constructor chaining. A
             // symbol-backed base does not, so generated constructors can only rely on an accessible
             // parameterless constructor (explicit or implicit).
-            if (provider is ModelProvider modelProvider
-                    ? CanUseGeneratedModelAsBase(modelProvider)
-                    : provider is NamedTypeSymbolProvider namedType
-                        ? namedType.CanBeInherited &&
+            if (provider is SystemObjectModelProvider systemModel
+                    ? CanUseSystemObjectModelAsBase(systemModel, requestedType)
+                    : provider is ModelProvider modelProvider
+                        ? CanUseGeneratedModelAsBase(modelProvider)
+                        : provider is NamedTypeSymbolProvider namedType
+                            ? !DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct) &&
+                                namedType.CanBeInherited &&
                             namedType.HasAccessibleParameterlessConstructor &&
                             AreTypeArgumentsAvailableInCurrentBuild(requestedType) &&
                             namedType.IsAccessibleFromGeneratedType(
                                 requestedType,
                                 DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public)) &&
-                            namedType.SatisfiesGenericConstraints(requestedType)
-                        : provider.Constructors.Any(c =>
-                            c.Signature.Parameters.Count == 0 &&
-                            MethodSignatureHelper.IsPublicApi(c.Signature.Modifiers)))
+                                namedType.SatisfiesGenericConstraints(requestedType)
+                            : provider.Constructors.Any(c =>
+                                c.Signature.Parameters.Count == 0 &&
+                                MethodSignatureHelper.IsPublicApi(c.Signature.Modifiers)))
             {
                 resolvedProvider = provider;
                 return true;
@@ -688,6 +724,39 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             resolvedProvider = null;
             return false;
+        }
+
+        private bool CanUseSystemObjectModelAsBase(SystemObjectModelProvider provider, CSharpType requestedType)
+        {
+            if (DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct))
+            {
+                return false;
+            }
+
+            var systemType = provider.SystemType;
+            if (systemType.IsFrameworkType)
+            {
+                var frameworkType = systemType.FrameworkType;
+                return frameworkType.IsClass && !frameworkType.IsSealed &&
+                    (!DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public) || frameworkType.IsPublic || frameworkType.IsNestedPublic) &&
+                    (frameworkType.IsAbstract && frameworkType.IsSealed ? false :
+                        frameworkType.GetConstructor(System.Type.EmptyTypes) is not null ||
+                        frameworkType.GetConstructors(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic)
+                            .Any(constructor => constructor.GetParameters().Length == 0 &&
+                                (constructor.IsPublic || constructor.IsFamily || constructor.IsFamilyOrAssembly)));
+            }
+
+            var currentProvider = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(
+                GetMetadataNamespace(systemType),
+                GetMetadataSimpleName(systemType),
+                systemType.DeclaringType?.ClrMetadataName,
+                includeReferencedAssemblies: true);
+            return currentProvider is NamedTypeSymbolProvider namedType &&
+                namedType.CanBeInherited &&
+                namedType.HasAccessibleParameterlessConstructor &&
+                namedType.IsAccessibleFromGeneratedType(
+                    requestedType,
+                    DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
         }
 
         private bool CanUseGeneratedModelAsBase(ModelProvider provider)
@@ -728,9 +797,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     continue;
                 }
 
-                return provider is NamedTypeSymbolProvider namedType
-                    ? namedType.IsAccessibleFromGeneratedType(type, requiresPublicAccessibility)
-                    : !requiresPublicAccessibility || provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public);
+                if (provider is NamedTypeSymbolProvider namedType &&
+                    namedType.IsAccessibleFromGeneratedType(type, requiresPublicAccessibility))
+                {
+                    return true;
+                }
+
+                if (provider is ModelProvider modelProvider && provider is not SystemObjectModelProvider &&
+                    (!requiresPublicAccessibility || modelProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public)))
+                {
+                    return true;
+                }
             }
 
             var currentProvider = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(

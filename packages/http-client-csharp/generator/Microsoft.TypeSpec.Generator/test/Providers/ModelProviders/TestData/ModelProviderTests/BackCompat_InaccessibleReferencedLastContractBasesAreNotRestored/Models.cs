@@ -50,4 +50,16 @@ namespace Sample.Models
     public partial class InvalidConstraintDerived : StructGenericBase<ConstraintArgument>
     {
     }
+
+    public class ComparableGenericBase<T>
+    {
+    }
+
+    public partial class ComparableDerived : ComparableGenericBase<string>
+    {
+    }
+
+    public partial class SymbolStructDerived : ExternalBase
+    {
+    }
 }

@@ -22,9 +22,6 @@ namespace Microsoft.TypeSpec.Generator.EmitterRpc
         /// <summary>A property type was preserved from the last contract.</summary>
         PropertyTypePreserved,
 
-        /// <summary>A model base type was preserved from the last contract.</summary>
-        ModelBaseTypePreserved,
-
         /// <summary>A constructor modifier (e.g. <c>private protected</c> -&gt; <c>public</c>) was preserved from the last contract.</summary>
         ConstructorModifierPreserved,
 
@@ -63,5 +60,8 @@ namespace Microsoft.TypeSpec.Generator.EmitterRpc
 
         /// <summary>A back-compat model constructor could not be reconstructed from the last contract and was skipped.</summary>
         ConstructorAddedFromLastContractSkipped,
+
+        /// <summary>A model base type was preserved from the last contract.</summary>
+        ModelBaseTypePreserved,
     }
 }

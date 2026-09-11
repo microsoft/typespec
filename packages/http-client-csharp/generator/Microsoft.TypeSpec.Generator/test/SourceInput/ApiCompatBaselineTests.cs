@@ -435,6 +435,18 @@ namespace Microsoft.TypeSpec.Generator.Tests.SourceInput
         }
 
         [Test]
+        public void ReferencesSuppressedTypeMatchesCompleteNestedTypeIdentity()
+        {
+            var baseline = ApiCompatBaseline.Parse(
+                ["TypesMustExist: Type 'Sample.Models.Outer+Middle+NestedBase' does not exist"]);
+            var outer = new CSharpType("Outer", "Sample.Models", false, false, null, [], true, false);
+            var middle = new CSharpType("Middle", "Sample.Models", false, false, outer, [], true, false);
+            var nested = new CSharpType("NestedBase", "Sample.Models", false, false, middle, [], true, false);
+
+            Assert.IsTrue(baseline.ReferencesSuppressedType(nested));
+        }
+
+        [Test]
         public void ReferencesSuppressedTypeReturnsFalseForNullOrEmptyBaseline()
         {
             Assert.IsFalse(ApiCompatBaseline.Empty.ReferencesSuppressedType(new CSharpType(typeof(string))));
