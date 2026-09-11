@@ -63,13 +63,19 @@ $generateScript = {
 
 function Generate-Compile ($folder) {
   npx --no tsp compile "smoke/$folder/main.tsp" --option "@typespec/http-client-java.emitter-output-dir={project-root}/$folder"
+  if ($LASTEXITCODE -ne 0) {
+    throw "Failed to generate smoke test of $folder"
+  }
 
   Push-Location $folder
-  mvn package
-  if ($LASTEXITCODE -ne 0) {
-    throw "Failed to compile smoke test of $folder"
+  try {
+    mvn package
+    if ($LASTEXITCODE -ne 0) {
+      throw "Failed to compile smoke test of $folder"
+    }
+  } finally {
+    Pop-Location
   }
-  Pop-Location
 
   Remove-Item $folder -Recurse -Force
 }
@@ -115,7 +121,14 @@ try {
   }
 
   # smoke test, generate Java project and verify compilation pass
-  Copy-Item -Path node_modules/@typespec/http-specs/smoke -Destination ./smoke -Recurse -Force
+  $smokeSource = "node_modules/@typespec/http-specs/smoke"
+  if (!(Test-Path $smokeSource)) {
+    $smokeSource = "../../../http-specs/smoke"
+  }
+  if (!(Test-Path $smokeSource)) {
+    throw "Cannot find http-specs smoke tests"
+  }
+  Copy-Item -Path $smokeSource -Destination ./smoke -Recurse -Force
   Generate-Compile todoapp
   Generate-Compile petstore
   Remove-Item ./smoke -Recurse -Force
