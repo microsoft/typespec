@@ -5,6 +5,7 @@ import type { JSONSchemaEmitterOptions } from "../src/lib.js";
 
 export const ApiTester = createTester(resolvePath(import.meta.dirname, ".."), {
   libraries: ["@typespec/json-schema"],
+  features: ["declaration-expressions"],
 })
   .import("@typespec/json-schema")
   .using("JsonSchema");
