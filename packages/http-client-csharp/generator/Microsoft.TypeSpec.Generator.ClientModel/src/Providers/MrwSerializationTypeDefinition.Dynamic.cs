@@ -110,10 +110,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var indexDeclaration = Declare<int>("i", out var indexVar);
             var allIndices = new List<ValueExpression>(parentIndices) { indexVar };
             var jsonPathTemplate = BuildJsonPathForElement(serializedName, parentIndices);
-            var patchIsRemovedCondition = patchSnippet.IsRemoved(
+            // The prefix overload includes indexed descendants, unlike an exact-path Contains check.
+            var hasPatchDeclaration = Declare(
+                "hasPatch",
+                typeof(bool),
+                patchSnippet.Contains(LiteralU8("$"), LiteralU8(serializedName.Split('.')[0])),
+                out var hasPatch);
+            var patchIsRemovedCondition = hasPatch.As<bool>().And(patchSnippet.IsRemoved(
                 Utf8Snippets.GetBytes(
                     new FormattableStringExpression(jsonPathTemplate + $"[{{{parentIndices.Count}}}]", allIndices)
-                .As<string>()));
+                .As<string>())));
 
             // Handle model types with their own patch property
             if (ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(type, out var provider) &&
@@ -158,6 +164,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return new[]
             {
                 _utf8JsonWriterSnippet.WriteStartArray(),
+                hasPatchDeclaration,
                 forStatement,
                 writeToPatchStatement,
                 _utf8JsonWriterSnippet.WriteEndArray()
@@ -605,10 +612,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 isActive = item.Equal(Null).Or(isActive);
             }
+            var serializedName = GetJsonSerializedName(property.WireInfo!);
+            var hasPatchDeclaration = Declare(
+                "hasPatch",
+                typeof(bool),
+                _jsonPatchProperty!.As<JsonPatch>().Contains(LiteralU8("$"), LiteralU8(serializedName.Split('.')[0])),
+                out var hasPatch);
             var itemPath = Utf8Snippets.GetBytes(new FormattableStringExpression(
-                BuildJsonPathForElement(GetJsonSerializedName(property.WireInfo!), [indexVar]),
+                BuildJsonPathForElement(serializedName, [indexVar]),
                 [indexVar]).As<string>());
-            isActive = Not(_jsonPatchProperty!.As<JsonPatch>().IsRemoved(itemPath)).And(isActive);
+            isActive = Not(hasPatch).Or(Not(_jsonPatchProperty!.As<JsonPatch>().IsRemoved(itemPath))).And(isActive);
             var forStatement = new ForStatement(
                 indexDeclaration.Assign(Literal(0)),
                 indexVar.LessThan(((ValueExpression)property).Property(lengthPropertyName)),
@@ -626,6 +639,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 {
                     YieldBreak()
                 },
+                hasPatchDeclaration,
                 forStatement
             };
 

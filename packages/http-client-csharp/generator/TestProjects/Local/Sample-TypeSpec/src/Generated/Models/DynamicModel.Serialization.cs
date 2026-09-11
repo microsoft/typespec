@@ -133,9 +133,10 @@ namespace SampleTypeSpec
             {
                 writer.WritePropertyName("optionalNullableList"u8);
                 writer.WriteStartArray();
+                bool hasPatch = Patch.Contains("$"u8, "optionalNullableList"u8);
                 for (int i = 0; i < OptionalNullableList.Count; i++)
                 {
-                    if (Patch.IsRemoved(Encoding.UTF8.GetBytes($"$.optionalNullableList[{i}]")))
+                    if (hasPatch && Patch.IsRemoved(Encoding.UTF8.GetBytes($"$.optionalNullableList[{i}]")))
                     {
                         continue;
                     }
@@ -156,9 +157,10 @@ namespace SampleTypeSpec
             {
                 writer.WritePropertyName("requiredNullableList"u8);
                 writer.WriteStartArray();
+                bool hasPatch = Patch.Contains("$"u8, "requiredNullableList"u8);
                 for (int i = 0; i < RequiredNullableList.Count; i++)
                 {
-                    if (Patch.IsRemoved(Encoding.UTF8.GetBytes($"$.requiredNullableList[{i}]")))
+                    if (hasPatch && Patch.IsRemoved(Encoding.UTF8.GetBytes($"$.requiredNullableList[{i}]")))
                     {
                         continue;
                     }
@@ -267,9 +269,10 @@ namespace SampleTypeSpec
             {
                 writer.WritePropertyName("listFoo"u8);
                 writer.WriteStartArray();
+                bool hasPatch = Patch.Contains("$"u8, "listFoo"u8);
                 for (int i = 0; i < ListFoo.Count; i++)
                 {
-                    if (Patch.IsRemoved(Encoding.UTF8.GetBytes($"$.listFoo[{i}]")) || ListFoo[i] != null && ListFoo[i].Patch.IsRemoved("$"u8))
+                    if (hasPatch && Patch.IsRemoved(Encoding.UTF8.GetBytes($"$.listFoo[{i}]")) || ListFoo[i] != null && ListFoo[i].Patch.IsRemoved("$"u8))
                     {
                         continue;
                     }
@@ -290,9 +293,10 @@ namespace SampleTypeSpec
             {
                 writer.WritePropertyName("listOfListFoo"u8);
                 writer.WriteStartArray();
+                bool hasPatch = Patch.Contains("$"u8, "listOfListFoo"u8);
                 for (int i = 0; i < ListOfListFoo.Count; i++)
                 {
-                    if (Patch.IsRemoved(Encoding.UTF8.GetBytes($"$.listOfListFoo[{i}]")))
+                    if (hasPatch && Patch.IsRemoved(Encoding.UTF8.GetBytes($"$.listOfListFoo[{i}]")))
                     {
                         continue;
                     }
@@ -302,9 +306,10 @@ namespace SampleTypeSpec
                         continue;
                     }
                     writer.WriteStartArray();
+                    bool hasPatch0 = Patch.Contains("$"u8, "listOfListFoo"u8);
                     for (int i0 = 0; i0 < ListOfListFoo[i].Count; i0++)
                     {
-                        if (Patch.IsRemoved(Encoding.UTF8.GetBytes($"$.listOfListFoo[{i}][{i0}]")) || ListOfListFoo[i][i0] != null && ListOfListFoo[i][i0].Patch.IsRemoved("$"u8))
+                        if (hasPatch0 && Patch.IsRemoved(Encoding.UTF8.GetBytes($"$.listOfListFoo[{i}][{i0}]")) || ListOfListFoo[i][i0] != null && ListOfListFoo[i][i0].Patch.IsRemoved("$"u8))
                         {
                             continue;
                         }
@@ -415,9 +420,10 @@ namespace SampleTypeSpec
                             continue;
                         }
                         writer.WriteStartArray();
+                        bool hasPatch = Patch.Contains("$"u8, "dictionaryListFoo"u8);
                         for (int i = 0; i < item.Value.Count; i++)
                         {
-                            if (Patch.IsRemoved(Encoding.UTF8.GetBytes($"$.dictionaryListFoo[\"{item.Key}\"][{i}]")) || item.Value[i] != null && item.Value[i].Patch.IsRemoved("$"u8))
+                            if (hasPatch && Patch.IsRemoved(Encoding.UTF8.GetBytes($"$.dictionaryListFoo[\"{item.Key}\"][{i}]")) || item.Value[i] != null && item.Value[i].Patch.IsRemoved("$"u8))
                             {
                                 continue;
                             }
@@ -443,9 +449,10 @@ namespace SampleTypeSpec
             {
                 writer.WritePropertyName("listOfDictionaryFoo"u8);
                 writer.WriteStartArray();
+                bool hasPatch = Patch.Contains("$"u8, "listOfDictionaryFoo"u8);
                 for (int i = 0; i < ListOfDictionaryFoo.Count; i++)
                 {
-                    if (Patch.IsRemoved(Encoding.UTF8.GetBytes($"$.listOfDictionaryFoo[{i}]")))
+                    if (hasPatch && Patch.IsRemoved(Encoding.UTF8.GetBytes($"$.listOfDictionaryFoo[{i}]")))
                     {
                         continue;
                     }
@@ -1130,9 +1137,10 @@ namespace SampleTypeSpec
             {
                 yield break;
             }
+            bool hasPatch = Patch.Contains("$"u8, "listFoo"u8);
             for (int i = 0; i < ListFoo.Count; i++)
             {
-                if (!Patch.IsRemoved(Encoding.UTF8.GetBytes($"$.listFoo[{i}]")) && (ListFoo[i] == null || !ListFoo[i].Patch.IsRemoved("$"u8)))
+                if ((!hasPatch || !Patch.IsRemoved(Encoding.UTF8.GetBytes($"$.listFoo[{i}]"))) && (ListFoo[i] == null || !ListFoo[i].Patch.IsRemoved("$"u8)))
                 {
                     yield return ListFoo[i];
                 }

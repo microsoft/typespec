@@ -49,9 +49,10 @@ namespace Sample.Models
             {
                 writer.WritePropertyName("someSpan"u8);
                 writer.WriteStartArray();
+                bool hasPatch = Patch.Contains("$"u8, "someSpan"u8);
                 for (int i = 0; (i < SomeSpan.Span.Length); i++)
                 {
-                    if (Patch.IsRemoved(global::System.Text.Encoding.UTF8.GetBytes($"$.someSpan[{i}]")))
+                    if ((hasPatch && Patch.IsRemoved(global::System.Text.Encoding.UTF8.GetBytes($"$.someSpan[{i}]"))))
                     {
                         continue;
                     }
