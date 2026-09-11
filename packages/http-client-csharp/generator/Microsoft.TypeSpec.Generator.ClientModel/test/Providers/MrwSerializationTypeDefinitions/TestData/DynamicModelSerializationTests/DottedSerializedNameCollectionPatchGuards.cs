@@ -21,12 +21,12 @@ namespace Sample
                 throw new global::System.FormatException($"The model {nameof(global::Sample.Models.DynamicModel)} does not support writing '{format}' format.");
             }
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-            if (Patch.Contains("$.foo.bar"u8))
+            if (Patch.Contains("$[\"foo.bar\"]"u8))
             {
-                if (!Patch.IsRemoved("$.foo.bar"u8))
+                if (!Patch.IsRemoved("$[\"foo.bar\"]"u8))
                 {
                     writer.WritePropertyName("foo.bar"u8);
-                    Patch.WriteTo(writer, "$.foo.bar"u8);
+                    Patch.WriteTo(writer, "$[\"foo.bar\"]"u8);
                 }
             }
             else if (global::Sample.Optional.IsCollectionDefined(Children))
@@ -36,13 +36,13 @@ namespace Sample
                 bool hasPatch = Patch.Contains("$"u8, "foo.bar"u8);
                 for (int i = 0; (i < Children.Count); i++)
                 {
-                    if (((hasPatch && Patch.IsRemoved(global::System.Text.Encoding.UTF8.GetBytes($"$.foo.bar[{i}]"))) || ((Children[i] != null) && Children[i].Patch.IsRemoved("$"u8))))
+                    if (((hasPatch && Patch.IsRemoved(global::System.Text.Encoding.UTF8.GetBytes($"$[\"foo.bar\"][{i}]"))) || ((Children[i] != null) && Children[i].Patch.IsRemoved("$"u8))))
                     {
                         continue;
                     }
                     writer.WriteObjectValue<global::Sample.Models.AnotherDynamic>(Children[i], options);
                 }
-                Patch.WriteTo(writer, "$.foo.bar"u8);
+                Patch.WriteTo(writer, "$[\"foo.bar\"]"u8);
                 writer.WriteEndArray();
             }
 
@@ -60,7 +60,7 @@ namespace Sample
             bool hasPatch = Patch.Contains("$"u8, "foo.bar"u8);
             for (int i = 0; (i < Children.Count); i++)
             {
-                if (((!hasPatch || !Patch.IsRemoved(global::System.Text.Encoding.UTF8.GetBytes($"$.foo.bar[{i}]"))) && ((Children[i] == null) || !Children[i].Patch.IsRemoved("$"u8))))
+                if (((!hasPatch || !Patch.IsRemoved(global::System.Text.Encoding.UTF8.GetBytes($"$[\"foo.bar\"][{i}]"))) && ((Children[i] == null) || !Children[i].Patch.IsRemoved("$"u8))))
                 {
                     yield return Children[i];
                 }
