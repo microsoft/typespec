@@ -864,19 +864,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private MethodBodyStatement[] GetResultConversionStatements(ClientResponseApi result, HttpResponseApi response, CSharpType responseBodyType, Dictionary<string, ValueExpression> declarations)
         {
-            if (!responseBodyType.Equals(typeof(string)) && IsPlainTextParsableType(responseBodyType) && HasOnlyPlainTextContentType())
+            var plainTextParseType = GetPlainTextParseType(responseBodyType, out var enumType);
+            if (!responseBodyType.Equals(typeof(string)) && plainTextParseType is not null && HasOnlyPlainTextContentType())
             {
                 var contentExpression = response.Content().InvokeToString().Invoke(nameof(string.TrimStart), Literal('\uFEFF')).As<string>();
-                var contentDeclaration = Declare("content", typeof(string), contentExpression, out var content);
-                if (GetPlainTextValueConversion(responseBodyType, content) is { } valueExpression)
-                {
-                    return
-                    [
-                        contentDeclaration,
-                        Declare("value", responseBodyType, valueExpression, out var value),
-                        Return(result.FromValue(value, response))
-                    ];
-                }
+                return
+                [
+                    Declare("content", typeof(string), contentExpression, out var content),
+                    Declare("value", responseBodyType, GetPlainTextValueConversion(responseBodyType, plainTextParseType, enumType, content), out var value),
+                    Return(result.FromValue(value, response))
+                ];
             }
 
             var isSpecialCaseType = responseBodyType.Equals(typeof(BinaryData))
@@ -933,14 +930,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return result.CastTo(responseBodyType);
         }
 
-        private ValueExpression? GetPlainTextValueConversion(CSharpType responseBodyType, ValueExpression content)
+        private ValueExpression GetPlainTextValueConversion(CSharpType responseBodyType, Type parseType, CSharpType? enumType, ValueExpression content)
         {
-            var parseType = GetPlainTextParseType(responseBodyType, out var enumType);
-            if (parseType is null)
-            {
-                return null;
-            }
-
             var invariantCulture = new MemberExpression(typeof(CultureInfo), nameof(CultureInfo.InvariantCulture));
             var deserializedValue = parseType switch
             {
