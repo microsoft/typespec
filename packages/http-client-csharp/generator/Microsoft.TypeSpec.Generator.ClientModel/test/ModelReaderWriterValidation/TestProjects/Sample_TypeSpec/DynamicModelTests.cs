@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Buffers;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Linq;
@@ -367,6 +368,65 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ModelReaderWriterValida
 #pragma warning restore SCME0001
 
             Assert.That(Encoding.UTF8.GetString(json), Is.EqualTo(onlyNull ? "[]" : """[{"bar":"present"},null]"""));
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void JsonModelWrite_UnpatchedCollectionDoesNotAllocatePerElement(bool unrelatedPatch)
+        {
+            var model = new NullableDynamicModel
+            {
+                Children = new AnotherDynamicModel[256]
+            };
+#pragma warning disable SCME0001
+            if (unrelatedPatch)
+            {
+                model.Patch.Set("$.unrelated"u8, 1);
+            }
+#pragma warning restore SCME0001
+
+            var buffer = new ArrayBufferWriter<byte>();
+            using var writer = new Utf8JsonWriter(buffer);
+            var jsonModel = (IJsonModel<NullableDynamicModel>)model;
+            jsonModel.Write(writer, ModelReaderWriterOptions.Json);
+            writer.Flush();
+            buffer.Clear();
+            writer.Reset(buffer);
+
+            long before = GC.GetAllocatedBytesForCurrentThread();
+            jsonModel.Write(writer, ModelReaderWriterOptions.Json);
+            writer.Flush();
+            long allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+
+            Assert.That(allocated, Is.LessThan(1024), "Indexed patch paths must not allocate for each unpatched element.");
+            using var document = JsonDocument.Parse(buffer.WrittenMemory);
+            Assert.That(document.RootElement.GetProperty("children").GetArrayLength(), Is.EqualTo(256));
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void JsonPatchRemove_ChildRootWithUnpatchedParentCollection(bool unrelatedPatch)
+        {
+            var removed = new AnotherDynamicModel("removed");
+            var model = new NullableDynamicModel
+            {
+                Children = [null, removed, new AnotherDynamicModel("present")]
+            };
+
+#pragma warning disable SCME0001
+            removed.Patch.Remove("$"u8);
+            if (unrelatedPatch)
+            {
+                model.Patch.Set("$.unrelated"u8, 1);
+            }
+            Assert.That(model.Patch.Contains("$"u8, "children"u8), Is.False);
+            var snapshot = model.Patch.GetJson("$.children"u8);
+#pragma warning restore SCME0001
+
+            Assert.That(Encoding.UTF8.GetString(snapshot), Is.EqualTo("""[null,{"bar":"present"}]"""));
+            var data = ModelReaderWriter.Write(model, ModelReaderWriterOptions.Json, SampleTypeSpecContext.Default);
+            using var document = JsonDocument.Parse(data);
+            Assert.That(document.RootElement.GetProperty("children").GetRawText(), Is.EqualTo("""[null,{"bar":"present"}]"""));
         }
 
         private static NullableDynamicModel CreateModelWithRemovedDynamicListElements(string propertyName, bool onlyNull)

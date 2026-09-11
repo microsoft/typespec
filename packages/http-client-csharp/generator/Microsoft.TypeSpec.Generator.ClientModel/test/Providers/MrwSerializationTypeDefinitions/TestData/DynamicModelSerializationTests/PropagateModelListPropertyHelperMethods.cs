@@ -30,9 +30,10 @@ namespace Sample
             {
                 yield break;
             }
+            bool hasPatch = Patch.Contains("$"u8, "p1"u8);
             for (int i = 0; (i < P1.Count); i++)
             {
-                if ((!Patch.IsRemoved(global::System.Text.Encoding.UTF8.GetBytes($"$.p1[{i}]")) && ((P1[i] == null) || !P1[i].Patch.IsRemoved("$"u8))))
+                if (((!hasPatch || !Patch.IsRemoved(global::System.Text.Encoding.UTF8.GetBytes($"$.p1[{i}]"))) && ((P1[i] == null) || !P1[i].Patch.IsRemoved("$"u8))))
                 {
                     yield return P1[i];
                 }
