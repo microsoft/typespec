@@ -33,6 +33,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ValueExpression jsonPath = parentIndices.Count > 0
                 ? Utf8Snippets.GetBytes(new FormattableStringExpression(jsonPathTemplate, [.. parentIndices]).As<string>())
                 : LiteralU8($"$.{serializedName}");
+            var hasPatchDeclaration = Declare(
+                "hasPatch",
+                typeof(bool),
+                patchSnippet.Contains(LiteralU8("$"), LiteralU8(serializedName.Split('.')[0])),
+                out var hasPatch);
 
             var foreachStatement = new ForEachStatement("item", dictionary, out KeyValuePairExpression keyValuePair);
 
@@ -48,23 +53,25 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 Utf8Snippets.GetBytes(keyValuePair.Key.Invoke("AsSpan"), bufferVar),
                 out var bytesWrittenVar);
             var patchContainsKey = patchSnippet.Contains(jsonPath, Utf8Snippets.GetBytes(keyValuePair.Key.As<string>()));
-            var patchContainsNet8Declaration = Declare(
+            var patchContainsDeclaration = Declare(
                 "patchContains",
                 typeof(bool),
+                False,
+                out var patchContains);
+            var patchContainsNet8Assignment = patchContains.Assign(
                 new TernaryConditionalExpression(
                     bytesWrittenVar.Equal(Int(BufferSize)),
                     patchContainsKey,
                     patchSnippet.Contains(
                         jsonPath,
-                        ReadOnlySpanSnippets.Slice(bufferVar, Int(0), bytesWrittenVar))),
-                out var patchContainsNet8Var);
+                        ReadOnlySpanSnippets.Slice(bufferVar, Int(0), bytesWrittenVar)))).Terminate();
 
             List<ValueExpression> childIndices = keyValuePair.ValueType.IsCollection
                 ? [.. parentIndices, keyValuePair.Key]
                 : parentIndices;
 
             // Process key-value pair if patch doesn't contain it
-            var ifPatchDoesNotContainStatement = new IfStatement(Not(patchContainsNet8Var))
+            var ifPatchDoesNotContainStatement = new IfStatement(Not(patchContains))
             {
                 _utf8JsonWriterSnippet.WritePropertyName(keyValuePair.Key),
                 CreateElementSerializationWithPatch(
@@ -78,21 +85,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             var innerIfElseProcessorStatement = new IfElsePreprocessorStatement(
                 "NET8_0_OR_GREATER",
-                new MethodBodyStatement[] { bytesWrittenDeclaration, patchContainsNet8Declaration },
-                new DeclarationExpression(new VariableExpression(patchContainsNet8Var.Type, patchContainsNet8Var.Declaration))
-                    .Assign(patchContainsKey)
-                    .Terminate());
+                new MethodBodyStatement[] { bytesWrittenDeclaration, patchContainsNet8Assignment },
+                patchContains.Assign(patchContainsKey).Terminate());
 
-            foreachStatement.Add(innerIfElseProcessorStatement);
+            foreachStatement.Add(patchContainsDeclaration);
+            foreachStatement.Add(new IfStatement(hasPatch) { innerIfElseProcessorStatement });
             foreachStatement.Add(ifPatchDoesNotContainStatement);
 
             return new[]
             {
                 _utf8JsonWriterSnippet.WriteStartObject(),
+                hasPatchDeclaration,
                 new IfElsePreprocessorStatement("NET8_0_OR_GREATER", bufferDeclaration),
                 foreachStatement,
                 MethodBodyStatement.EmptyLine,
-                patchSnippet.WriteTo(_utf8JsonWriterSnippet, jsonPath).Terminate(),
+                new IfStatement(hasPatch) { patchSnippet.WriteTo(_utf8JsonWriterSnippet, jsonPath).Terminate() },
                 _utf8JsonWriterSnippet.WriteEndObject(),
             };
         }
@@ -159,7 +166,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             var writeToPatchStatement = parentIndices.Count == 0
                 ? patchSnippet.WriteTo(_utf8JsonWriterSnippet, LiteralU8(jsonPathTemplate)).Terminate()
-                : patchSnippet.WriteTo(_utf8JsonWriterSnippet, Utf8Snippets.GetBytes(new FormattableStringExpression(jsonPathTemplate, parentIndices).As<string>())).Terminate();
+                : new IfStatement(hasPatch)
+                {
+                    patchSnippet.WriteTo(_utf8JsonWriterSnippet, Utf8Snippets.GetBytes(new FormattableStringExpression(jsonPathTemplate, parentIndices).As<string>())).Terminate()
+                };
 
             return new[]
             {
