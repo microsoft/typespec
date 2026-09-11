@@ -5,6 +5,7 @@ using System;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Text.Json;
 using Microsoft.TypeSpec.Generator.ClientModel.Snippets;
 using Microsoft.TypeSpec.Generator.Expressions;
@@ -676,18 +677,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// <summary>
         /// Builds a JSONPath. Set <paramref name="escapeForCSharpInterpolatedString"/> when the path is written into a <see cref="FormattableStringExpression"/> template.
         /// </summary>
+        /// <param name="propertySerializedName">The JSON property name to use as the root path segment.</param>
+        /// <param name="indices">Collection indices to append to the property path.</param>
+        /// <param name="escapeForCSharpInterpolatedString">Whether to escape the result for raw insertion into a C# interpolated string literal.</param>
+        /// <returns>A JSONPath using dot notation for simple identifiers and bracket notation for property names that require escaping.</returns>
         private static string BuildJsonPathForElement(string propertySerializedName, List<ValueExpression> indices, bool escapeForCSharpInterpolatedString = false)
         {
             var count = indices.Count;
-            var result = BuildJsonPathForProperty(propertySerializedName, escapeForCSharpInterpolatedString);
+            var result = new StringBuilder(BuildJsonPathForProperty(propertySerializedName, escapeForCSharpInterpolatedString));
             for (int i = 0; i < count; i++)
             {
-                result += indices[i] is MemberExpression
+                result.Append(indices[i] is MemberExpression
                     ? $"[\\\"{{{i}}}\\\"]"
-                    : $"[{{{i}}}]";
+                    : $"[{{{i}}}]");
             }
 
-            return result;
+            return result.ToString();
         }
 
         private static string BuildJsonPathForProperty(string propertySerializedName, bool escapeForCSharpInterpolatedString)
