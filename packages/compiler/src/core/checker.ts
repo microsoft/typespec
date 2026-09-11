@@ -7279,13 +7279,17 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     ctx: CheckContext,
     targetType: Type,
     node: Node & { decorators: readonly DecoratorExpressionNode[] },
+    options: { includeAugmentDecorators?: boolean } = {},
   ) {
+    const { includeAugmentDecorators = true } = options;
     const sym = isMemberNode(node)
       ? (getSymbolForMember(node) ?? node.symbol)
       : getMergedSymbol(node.symbol);
     const decorators: DecoratorApplication[] = [];
 
-    const augmentDecoratorNodes = resolver.getAugmentDecoratorsForSym(sym);
+    const augmentDecoratorNodes = includeAugmentDecorators
+      ? resolver.getAugmentDecoratorsForSym(sym)
+      : [];
     const decoratorNodes = [
       ...augmentDecoratorNodes, // the first decorator will be executed at last, so augmented decorator should be placed at first.
       ...node.decorators,
@@ -7298,19 +7302,23 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
 
     // Doc comment should always be the first decorator in case an explicit @doc must override it.
-    const docComment = extractMainDoc(targetType);
-    if (docComment) {
-      decorators.unshift(createDocFromCommentDecorator("self", docComment));
-    }
-    if (targetType.kind === "Operation") {
-      const returnTypesDocs = extractReturnsDocs(targetType);
-      if (returnTypesDocs.returns) {
-        decorators.unshift(createDocFromCommentDecorator("returns", returnTypesDocs.returns));
+    // Like augment decorators, this is derived from `targetType.node` which is shared across all
+    // partial declarations, so only add it once to avoid duplicate applications.
+    if (includeAugmentDecorators) {
+      const docComment = extractMainDoc(targetType);
+      if (docComment) {
+        decorators.unshift(createDocFromCommentDecorator("self", docComment));
       }
-      if (returnTypesDocs.errors) {
-        decorators.unshift(createDocFromCommentDecorator("errors", returnTypesDocs.errors));
+      if (targetType.kind === "Operation") {
+        const returnTypesDocs = extractReturnsDocs(targetType);
+        if (returnTypesDocs.returns) {
+          decorators.unshift(createDocFromCommentDecorator("returns", returnTypesDocs.returns));
+        }
+        if (returnTypesDocs.errors) {
+          decorators.unshift(createDocFromCommentDecorator("errors", returnTypesDocs.errors));
+        }
+      } else if (targetType.kind === "ModelProperty") {
       }
-    } else if (targetType.kind === "ModelProperty") {
     }
     return decorators;
   }
@@ -7640,7 +7648,8 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   function checkInterface(ctx: CheckContext, node: InterfaceStatementNode): Interface {
-    const links = getSymbolLinks(node.symbol);
+    const mergedSymbol = getMergedSymbol(node.symbol);
+    const links = getSymbolLinks(mergedSymbol);
 
     if (ctx.mapper === undefined && node.templateParameters.length > 0) {
       // This is a templated declaration and we are not instantiating it, so we need to update the flags.
@@ -7651,8 +7660,28 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       // we're not instantiating this interface and we've already checked it
       return links.declaredType as Interface;
     }
+
+    // All of the declarations that make up this interface. For a normal (non-partial)
+    // interface this is just `[node]`; for a `partial interface` this includes every
+    // declaration sharing the same symbol, potentially spread across multiple files.
+    const declarations = mergedSymbol.declarations as InterfaceStatementNode[];
+
     if (ctx.mapper === undefined) {
-      checkModifiers(program, node);
+      for (const declNode of declarations) {
+        checkModifiers(program, declNode);
+        if (
+          declNode.modifierFlags & ModifierFlags.Partial &&
+          declNode.templateParameters.length > 0
+        ) {
+          reportCheckerDiagnostic(
+            createDiagnostic({
+              code: "partial-interface-template",
+              format: { name: declNode.id.sv },
+              target: declNode,
+            }),
+          );
+        }
+      }
     }
     checkTemplateDeclaration(ctx, node);
 
@@ -7668,44 +7697,59 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
     linkType(ctx, links, interfaceType);
 
-    interfaceType.decorators = checkDecorators(ctx, interfaceType, node);
+    for (const [index, declNode] of declarations.entries()) {
+      // Augment decorators (`@@dec(Foo, ...)`) target the merged symbol shared by every
+      // partial declaration, so only resolve/apply them once (on the first declaration)
+      // to avoid re-running the same augment decorator once per partial declaration.
+      interfaceType.decorators = interfaceType.decorators.concat(
+        checkDecorators(ctx, interfaceType, declNode, {
+          includeAugmentDecorators: index === 0,
+        }),
+      );
+    }
 
-    const ownMembers = checkInterfaceMembers(ctx, node, interfaceType);
+    const ownMembers = checkInterfaceMembers(ctx, declarations, interfaceType);
 
-    for (const extendsNode of node.extends) {
-      const extendsType = getTypeForNode(extendsNode, ctx);
-      if (extendsType.kind !== "Interface") {
-        reportCheckerDiagnostic(
-          createDiagnostic({ code: "extends-interface", target: extendsNode }),
-        );
-        continue;
-      }
-
-      for (const member of extendsType.operations.values()) {
-        if (interfaceType.operations.has(member.name)) {
+    for (const declNode of declarations) {
+      for (const extendsNode of declNode.extends) {
+        const extendsType = getTypeForNode(extendsNode, ctx);
+        if (extendsType.kind !== "Interface") {
           reportCheckerDiagnostic(
-            createDiagnostic({
-              code: "extends-interface-duplicate",
-              format: { name: member.name },
-              target: extendsNode,
-            }),
+            createDiagnostic({ code: "extends-interface", target: extendsNode }),
           );
+          continue;
         }
 
-        const newMember = cloneTypeForSymbol(getMemberSymbol(node.symbol, member.name)!, member, {
-          interface: interfaceType,
-        });
-        // Don't link it it is overritten
-        if (!ownMembers.has(member.name)) {
-          linkIndirectMember(ctx, node, newMember);
+        for (const member of extendsType.operations.values()) {
+          if (interfaceType.operations.has(member.name)) {
+            reportCheckerDiagnostic(
+              createDiagnostic({
+                code: "extends-interface-duplicate",
+                format: { name: member.name },
+                target: extendsNode,
+              }),
+            );
+          }
+
+          const newMember = cloneTypeForSymbol(
+            getMemberSymbol(mergedSymbol, member.name)!,
+            member,
+            {
+              interface: interfaceType,
+            },
+          );
+          // Don't link it it is overritten
+          if (!ownMembers.has(member.name)) {
+            linkIndirectMember(ctx, declNode, newMember);
+          }
+
+          // Clone deprecation information
+          copyDeprecation(member, newMember);
+
+          interfaceType.operations.set(newMember.name, newMember);
         }
-
-        // Clone deprecation information
-        copyDeprecation(member, newMember);
-
-        interfaceType.operations.set(newMember.name, newMember);
+        interfaceType.sourceInterfaces.push(extendsType);
       }
-      interfaceType.sourceInterfaces.push(extendsType);
     }
 
     for (const [key, value] of ownMembers) {
@@ -7727,32 +7771,36 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
   function checkInterfaceMembers(
     ctx: CheckContext,
-    node: InterfaceStatementNode,
+    declarations: readonly InterfaceStatementNode[],
     interfaceType: Interface,
   ): Map<string, Operation> {
     const ownMembers = new Map<string, Operation>();
 
     // Preregister each operation sym links instantiation to make sure there is no race condition when instantiating templated interface
-    for (const opNode of node.operations) {
-      const symbol = getSymbolForMember(opNode);
-      const links = symbol && getSymbolLinks(symbol);
-      if (links) {
-        links.instantiations = new TypeInstantiationMap();
+    for (const declNode of declarations) {
+      for (const opNode of declNode.operations) {
+        const symbol = getSymbolForMember(opNode);
+        const links = symbol && getSymbolLinks(symbol);
+        if (links) {
+          links.instantiations = new TypeInstantiationMap();
+        }
       }
     }
-    for (const opNode of node.operations) {
-      const opType = checkOperation(ctx, opNode, interfaceType);
-      if (ownMembers.has(opType.name)) {
-        reportCheckerDiagnostic(
-          createDiagnostic({
-            code: "interface-duplicate",
-            format: { name: opType.name },
-            target: opNode,
-          }),
-        );
-        continue;
+    for (const declNode of declarations) {
+      for (const opNode of declNode.operations) {
+        const opType = checkOperation(ctx, opNode, interfaceType);
+        if (ownMembers.has(opType.name)) {
+          reportCheckerDiagnostic(
+            createDiagnostic({
+              code: "interface-duplicate",
+              format: { name: opType.name },
+              target: opNode,
+            }),
+          );
+          continue;
+        }
+        ownMembers.set(opType.name, opType);
       }
-      ownMembers.set(opType.name, opType);
     }
     return ownMembers;
   }
@@ -8017,7 +8065,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       return undefined;
     }
     const name = node.id.sv;
-    const parentSym = node.parent?.symbol;
+    const parentSym = node.parent?.symbol && getMergedSymbol(node.parent.symbol);
     return parentSym ? getMemberSymbol(parentSym, name) : undefined;
   }
 

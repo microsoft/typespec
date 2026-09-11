@@ -35,12 +35,17 @@ const NO_MODIFIERS: ModifierCompatibility = {
   required: ModifierFlags.None,
 };
 
+const INTERFACE_COMPATIBILITY: ModifierCompatibility = {
+  allowed: ModifierFlags.Internal | ModifierFlags.Partial,
+  required: ModifierFlags.None,
+};
+
 const SYNTAX_MODIFIERS: Readonly<Record<Declaration["kind"], ModifierCompatibility>> = {
   [SyntaxKind.NamespaceStatement]: NO_MODIFIERS,
   [SyntaxKind.OperationStatement]: DEFAULT_COMPATIBILITY,
   [SyntaxKind.ModelStatement]: DEFAULT_COMPATIBILITY,
   [SyntaxKind.ScalarStatement]: DEFAULT_COMPATIBILITY,
-  [SyntaxKind.InterfaceStatement]: DEFAULT_COMPATIBILITY,
+  [SyntaxKind.InterfaceStatement]: INTERFACE_COMPATIBILITY,
   [SyntaxKind.UnionStatement]: DEFAULT_COMPATIBILITY,
   [SyntaxKind.EnumStatement]: DEFAULT_COMPATIBILITY,
   [SyntaxKind.AliasStatement]: DEFAULT_COMPATIBILITY,
@@ -170,6 +175,8 @@ function modifierToFlag(modifier: Modifier): ModifierFlags {
       return ModifierFlags.Internal;
     case SyntaxKind.AutoKeyword:
       return ModifierFlags.Auto;
+    case SyntaxKind.PartialKeyword:
+      return ModifierFlags.Partial;
     default:
       compilerAssert(false, `Unknown modifier kind: ${(modifier as Modifier).kind}`);
   }
@@ -183,6 +190,8 @@ function getTextForModifier(modifier: Modifier): string {
       return "internal";
     case SyntaxKind.AutoKeyword:
       return "auto";
+    case SyntaxKind.PartialKeyword:
+      return "partial";
     default:
       compilerAssert(false, `Unknown modifier kind: ${(modifier as Modifier).kind}`);
   }
@@ -198,6 +207,9 @@ function getNamesOfModifierFlags(flags: ModifierFlags): string[] {
   }
   if (flags & ModifierFlags.Auto) {
     names.push("auto");
+  }
+  if (flags & ModifierFlags.Partial) {
+    names.push("partial");
   }
   return names;
 }

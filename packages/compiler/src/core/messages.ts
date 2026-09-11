@@ -544,6 +544,18 @@ const diagnostics = {
       default: paramMessage`Interface already has a member named ${"name"}`,
     },
   },
+  "partial-interface-mismatch": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Interface '${"name"}' is declared multiple times but not all declarations are marked 'partial'. Add the 'partial' modifier to every declaration of '${"name"}'.`,
+    },
+  },
+  "partial-interface-template": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Partial interface '${"name"}' cannot have template parameters.`,
+    },
+  },
   "union-duplicate": {
     severity: "error",
     messages: {

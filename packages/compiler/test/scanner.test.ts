@@ -398,6 +398,7 @@ it("provides friendly token display and classification", () => {
     Token.ExternKeyword,
     Token.InternalKeyword,
     Token.AutoKeyword,
+    Token.PartialKeyword,
     Token.ValueOfKeyword,
     Token.TypeOfKeyword,
     // `fn` can be either a statement or the start of an expr depending on context.

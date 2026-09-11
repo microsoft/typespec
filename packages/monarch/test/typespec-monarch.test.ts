@@ -149,6 +149,16 @@ it(
 );
 
 it(
+  "partial interface Foo {}",
+  tokenizeTo([
+    Token.keyword("partial"),
+    Token.keyword("interface"),
+    Token.identifier("Foo"),
+    Token.default("{}"),
+  ]),
+);
+
+it(
   "union Foo {}",
   tokenizeTo([Token.keyword("union"), Token.identifier("Foo"), Token.default("{}")]),
 );

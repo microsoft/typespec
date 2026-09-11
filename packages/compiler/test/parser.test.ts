@@ -48,7 +48,7 @@ describe("future reserved keywords", () => {
 });
 
 describe("modifier keywords as identifiers", () => {
-  const modifiers = ["internal", "extern"];
+  const modifiers = ["internal", "extern", "partial"];
 
   // Allowed as members
   parseEach(modifiers.map((x) => `model Foo { ${x}: string }`));
@@ -229,6 +229,8 @@ describe("interface statements", () => {
     "interface Foo { foo(): int32; }",
     "interface Foo { foo(): int32; bar(): int32; }",
     "interface Foo { op foo(): int32; op bar(): int32; baz(): int32; }",
+    "partial interface Foo { }",
+    "partial interface Foo { foo(): int32; }",
   ]);
 
   parseErrorEach([

@@ -260,6 +260,8 @@ export function printNode(
       return "internal";
     case SyntaxKind.AutoKeyword:
       return "auto";
+    case SyntaxKind.PartialKeyword:
+      return "partial";
     case SyntaxKind.VoidKeyword:
       return "void";
     case SyntaxKind.NeverKeyword:

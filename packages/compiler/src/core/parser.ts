@@ -82,6 +82,7 @@ import type {
   OperationStatementNode,
   ParenthesizedExpression,
   ParseOptions,
+  PartialKeywordNode,
   PositionDetail,
   ScalarConstructorNode,
   ScalarStatementNode,
@@ -461,6 +462,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
         case Token.ExternKeyword:
         case Token.InternalKeyword:
         case Token.AutoKeyword:
+        case Token.PartialKeyword:
         case Token.FnKeyword:
         case Token.DecKeyword:
           item = parseDeclaration(pos, decorators, docs, directives);
@@ -533,6 +535,7 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
         case Token.ExternKeyword:
         case Token.InternalKeyword:
         case Token.AutoKeyword:
+        case Token.PartialKeyword:
         case Token.FnKeyword:
         case Token.DecKeyword:
           item = parseDeclaration(pos, decorators, docs, directives);
@@ -1791,6 +1794,15 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
     };
   }
 
+  function parsePartialKeyword(): PartialKeywordNode {
+    const pos = tokenPos();
+    parseExpected(Token.PartialKeyword);
+    return {
+      kind: SyntaxKind.PartialKeyword,
+      ...finishNode(pos),
+    };
+  }
+
   function parseVoidKeyword(): VoidKeywordNode {
     const pos = tokenPos();
     parseExpected(Token.VoidKeyword);
@@ -2113,6 +2125,8 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
         return parseInternalKeyword();
       case Token.AutoKeyword:
         return parseAutoKeyword();
+      case Token.PartialKeyword:
+        return parsePartialKeyword();
       default:
         return undefined;
     }
@@ -3192,6 +3206,7 @@ export function visitChildren<T>(node: Node, cb: NodeCallback<T>): T | undefined
     case SyntaxKind.ExternKeyword:
     case SyntaxKind.InternalKeyword:
     case SyntaxKind.AutoKeyword:
+    case SyntaxKind.PartialKeyword:
     case SyntaxKind.UnknownKeyword:
     case SyntaxKind.JsSourceFile:
     case SyntaxKind.JsNamespaceDeclaration:

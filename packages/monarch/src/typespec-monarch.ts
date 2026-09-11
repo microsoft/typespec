@@ -30,6 +30,7 @@ const keywords = [
   "dec",
   "extern",
   "internal",
+  "partial",
   "fn",
 ];
 const namedLiterals = ["true", "false", "null", "unknown", "never"];

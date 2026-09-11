@@ -142,6 +142,7 @@ export enum Token {
   ExternKeyword = __StartModifierKeyword,
   InternalKeyword,
   AutoKeyword,
+  PartialKeyword,
 
   /** @internal */ __EndModifierKeyword,
   ///////////////////////////////////////////////////////////////
@@ -197,7 +198,6 @@ export enum Token {
   ImplKeyword,
   SatisfiesKeyword,
   FlagKeyword,
-  PartialKeyword,
   PrivateKeyword,
   PublicKeyword,
   ProtectedKeyword,
@@ -311,6 +311,7 @@ export const TokenDisplay = getTokenDisplayTable([
   [Token.UnknownKeyword, "'unknown'"],
   [Token.ExternKeyword, "'extern'"],
   [Token.AutoKeyword, "'auto'"],
+  [Token.PartialKeyword, "'partial'"],
 
   // Reserved keywords
   [Token.StatemachineKeyword, "'statemachine'"],
@@ -343,7 +344,6 @@ export const TokenDisplay = getTokenDisplayTable([
   [Token.ImplKeyword, "'impl'"],
   [Token.SatisfiesKeyword, "'satisfies'"],
   [Token.FlagKeyword, "'flag'"],
-  [Token.PartialKeyword, "'partial'"],
   [Token.PrivateKeyword, "'private'"],
   [Token.PublicKeyword, "'public'"],
   [Token.ProtectedKeyword, "'protected'"],
@@ -385,6 +385,7 @@ export const Keywords: ReadonlyMap<string, Token> = new Map([
   ["extern", Token.ExternKeyword],
   ["auto", Token.AutoKeyword],
   ["internal", Token.InternalKeyword],
+  ["partial", Token.PartialKeyword],
 
   // Reserved keywords
   ["statemachine", Token.StatemachineKeyword],
@@ -417,7 +418,6 @@ export const Keywords: ReadonlyMap<string, Token> = new Map([
   ["impl", Token.ImplKeyword],
   ["satisfies", Token.SatisfiesKeyword],
   ["flag", Token.FlagKeyword],
-  ["partial", Token.PartialKeyword],
   ["private", Token.PrivateKeyword],
   ["public", Token.PublicKeyword],
   ["protected", Token.ProtectedKeyword],
@@ -455,7 +455,6 @@ export const ReservedKeywords: ReadonlyMap<string, Token> = new Map([
   ["impl", Token.ImplKeyword],
   ["satisfies", Token.SatisfiesKeyword],
   ["flag", Token.FlagKeyword],
-  ["partial", Token.PartialKeyword],
   ["private", Token.PrivateKeyword],
   ["public", Token.PublicKeyword],
   ["protected", Token.ProtectedKeyword],
