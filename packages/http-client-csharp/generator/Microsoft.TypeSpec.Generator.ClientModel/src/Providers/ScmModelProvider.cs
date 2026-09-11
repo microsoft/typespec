@@ -79,6 +79,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var previousBase = LastContractView?.BaseType;
             if (_inputModel.DiscriminatorValue is not null &&
                 previousBase is not null &&
+                CodeModelGenerator.Instance.SourceInputModel?.ApiCompatBaseline.ReferencesSuppressedType(previousBase) != true &&
                 !IsInBaseTypeHierarchy(currentBase, previousBase))
             {
                 CodeModelGenerator.Instance.Emitter.ReportDiagnostic(

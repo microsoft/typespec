@@ -4,15 +4,20 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
+using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Snippets;
+using Microsoft.TypeSpec.Generator.SourceInput;
 using Microsoft.TypeSpec.Generator.Tests.Common;
+using Moq;
 using NUnit.Framework;
 using ScmModel = Microsoft.TypeSpec.Generator.ClientModel.Providers.ScmModelProvider;
 
@@ -326,6 +331,57 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
                 compilation.GetDiagnostics().Where(d => d.Severity is DiagnosticSeverity.Warning or DiagnosticSeverity.Error),
                 Is.Empty,
                 "The discriminator deserializer should compile after incompatible base restoration is skipped");
+        }
+
+        [Test]
+        public async Task BackCompat_SuppressedPreviousBaseInDiscriminatorHierarchyUsesBaselineAcceptedPath()
+        {
+            const string lastContractSource = """
+                namespace Sample.Models
+                {
+                    public class PreviousBase { }
+                    public class DerivedModel : PreviousBase { }
+                }
+                """;
+            var previousBase = InputFactory.Model("previousBase", properties: []);
+            var derivedModel = InputFactory.Model(
+                "derivedModel",
+                discriminatedKind: "derived",
+                properties: []);
+            var currentBase = InputFactory.Model(
+                "currentBase",
+                properties:
+                [
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true)
+                ],
+                discriminatedModels: new Dictionary<string, InputModelType> { ["derived"] = derivedModel });
+            var baseline = ApiCompatBaseline.Parse(
+                ["TypesMustExist: Type 'Sample.Models.PreviousBase' does not exist"]);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                lastContractCompilation: async () => await Helpers.GetCompilationFromSourceFilesAsync([("LastContract.cs", lastContractSource)]),
+                inputModels: () => [previousBase, currentBase, derivedModel],
+                apiCompatBaseline: baseline);
+            using var emitterStream = new MemoryStream();
+            using var emitter = new Emitter(emitterStream);
+            mockGenerator.Setup(generator => generator.Emitter).Returns(emitter);
+
+            var derivedProvider = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ScmModel>()
+                .Single(model => model.Name == "DerivedModel");
+            derivedProvider.ProcessTypeForBackCompatibility();
+            emitter.WriteBufferedMessages();
+            emitterStream.Position = 0;
+            using var reader = new StreamReader(emitterStream, Encoding.UTF8, leaveOpen: true);
+            var emitterOutput = await reader.ReadToEndAsync();
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual("CurrentBase", derivedProvider.BaseType?.Name);
+                Assert.That(emitterOutput,
+                    Does.Contain("Back-Compat Skipped For ApiCompat Baseline Accepted Removal"));
+                Assert.That(emitterOutput, Does.Not.Contain("incompatible-backcompat-base-type"));
+            });
         }
 
         [Test]

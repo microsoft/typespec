@@ -1097,6 +1097,15 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                     internal class GenericArgument
                     {
                     }
+
+                    public class StructGenericBase<T> where T : struct
+                    {
+                        public StructGenericBase() { }
+                    }
+
+                    public class ConstraintArgument
+                    {
+                    }
                 }
                 """;
             var externalCompilation = CSharpCompilation.Create(
@@ -1113,9 +1122,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var inaccessibleDerived = InputFactory.Model("InaccessibleDerived", properties: [], baseModel: currentBase);
             var nestedDerived = InputFactory.Model("NestedDerived", properties: [], baseModel: currentBase);
             var genericDerived = InputFactory.Model("GenericDerived", properties: [], baseModel: currentBase);
+            var missingArgumentDerived = InputFactory.Model("MissingArgumentDerived", properties: [], baseModel: currentBase);
+            var invalidConstraintDerived = InputFactory.Model("InvalidConstraintDerived", properties: [], baseModel: currentBase);
 
             await MockHelpers.LoadMockGeneratorAsync(
-                inputModelTypes: [currentBase, inaccessibleDerived, nestedDerived, genericDerived],
+                inputModelTypes: [currentBase, inaccessibleDerived, nestedDerived, genericDerived, missingArgumentDerived, invalidConstraintDerived],
                 additionalMetadataReferences: [externalReference],
                 compilation: async () =>
                 {
@@ -1131,10 +1142,14 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var inaccessibleProvider = modelProviders.Single(t => t.Name == "InaccessibleDerived");
             var nestedProvider = modelProviders.Single(t => t.Name == "NestedDerived");
             var genericProvider = modelProviders.Single(t => t.Name == "GenericDerived");
+            var missingArgumentProvider = modelProviders.Single(t => t.Name == "MissingArgumentDerived");
+            var invalidConstraintProvider = modelProviders.Single(t => t.Name == "InvalidConstraintDerived");
 
             inaccessibleProvider.ProcessTypeForBackCompatibility();
             nestedProvider.ProcessTypeForBackCompatibility();
             genericProvider.ProcessTypeForBackCompatibility();
+            missingArgumentProvider.ProcessTypeForBackCompatibility();
+            invalidConstraintProvider.ProcessTypeForBackCompatibility();
 
             var syntaxTrees = modelProviders.Select(provider =>
                 CSharpSyntaxTree.ParseText(new TypeProviderWriter(provider).Write().Content));
@@ -1161,6 +1176,133 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                     "A base nested in an inaccessible declaring type must not be restored");
                 Assert.AreEqual(currentBase.Name, genericProvider.BaseType?.Name,
                     "A constructed base with an inaccessible generic argument must not be restored");
+                Assert.AreEqual(currentBase.Name, missingArgumentProvider.BaseType?.Name,
+                    "A constructed base with an unavailable generic argument must not be restored");
+                Assert.AreEqual(currentBase.Name, invalidConstraintProvider.BaseType?.Name,
+                    "A constructed base with an argument that violates current constraints must not be restored");
+            });
+        }
+
+        [Test]
+        public async Task BackCompat_InvalidGeneratedLastContractBasesAreNotRestored()
+        {
+            const string customizationSource = """
+                namespace Sample.Models
+                {
+                    public sealed partial class SealedBase
+                    {
+                    }
+                }
+                """;
+            const string lastContractSource = """
+                namespace Sample.Models
+                {
+                    public class InternalBase { }
+                    public class StructBase { }
+                    public class SealedBase { }
+                    public class PreviousBase { }
+                    public class InternalBaseDerived : InternalBase { }
+                    public class StructBaseDerived : StructBase { }
+                    public class SealedBaseDerived : SealedBase { }
+                    public class CurrentStruct : PreviousBase { }
+                }
+                """;
+            var internalBase = InputFactory.Model("InternalBase", access: "internal", properties: []);
+            var structBase = InputFactory.Model("StructBase", properties: [], modelAsStruct: true);
+            var sealedBase = InputFactory.Model("SealedBase", properties: []);
+            var previousBase = InputFactory.Model("PreviousBase", properties: []);
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var internalBaseDerived = InputFactory.Model("InternalBaseDerived", properties: [], baseModel: currentBase);
+            var structBaseDerived = InputFactory.Model("StructBaseDerived", properties: [], baseModel: currentBase);
+            var sealedBaseDerived = InputFactory.Model("SealedBaseDerived", properties: [], baseModel: currentBase);
+            var currentStruct = InputFactory.Model("CurrentStruct", properties: [], modelAsStruct: true);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [internalBase, structBase, sealedBase, previousBase, currentBase, internalBaseDerived, structBaseDerived, sealedBaseDerived, currentStruct],
+                compilation: async () => await Helpers.GetCompilationFromSourceFilesAsync([("Customization.cs", customizationSource)]),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromSourceFilesAsync([("LastContract.cs", lastContractSource)]));
+
+            var modelProviders = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .ToArray();
+            var internalDerivedProvider = modelProviders.Single(t => t.Name == "InternalBaseDerived");
+            var structDerivedProvider = modelProviders.Single(t => t.Name == "StructBaseDerived");
+            var sealedDerivedProvider = modelProviders.Single(t => t.Name == "SealedBaseDerived");
+            var currentStructProvider = modelProviders.Single(t => t.Name == "CurrentStruct");
+
+            internalDerivedProvider.ProcessTypeForBackCompatibility();
+            structDerivedProvider.ProcessTypeForBackCompatibility();
+            sealedDerivedProvider.ProcessTypeForBackCompatibility();
+            currentStructProvider.ProcessTypeForBackCompatibility();
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual(currentBase.Name, internalDerivedProvider.BaseType?.Name,
+                    "A public model must not restore an internal generated base");
+                Assert.AreEqual(currentBase.Name, structDerivedProvider.BaseType?.Name,
+                    "A generated struct must not be restored as a class base");
+                Assert.AreEqual(currentBase.Name, sealedDerivedProvider.BaseType?.Name,
+                    "A sealed generated model must not be restored as a base");
+                Assert.IsNull(currentStructProvider.BaseType,
+                    "A current struct must not restore a previously published class base");
+            });
+        }
+
+        [Test]
+        public async Task BackCompat_CustomMemberCollisionWithLastContractBaseIsNotRestored()
+        {
+            const string customizationSource = """
+                namespace Sample.Models
+                {
+                    public partial class CustomPropertyDerived
+                    {
+                        public string Id { get; set; }
+                    }
+
+                    public partial class CustomFieldDerived
+                    {
+                        public string Id;
+                    }
+                }
+                """;
+            const string lastContractSource = """
+                namespace Sample.Models
+                {
+                    public class PreviousBase
+                    {
+                        public string Id { get; set; }
+                    }
+
+                    public class CustomPropertyDerived : PreviousBase { }
+                    public class CustomFieldDerived : PreviousBase { }
+                }
+                """;
+            var previousBase = InputFactory.Model(
+                "PreviousBase",
+                properties: [InputFactory.Property("id", InputPrimitiveType.String)]);
+            var propertyDerived = InputFactory.Model("CustomPropertyDerived", properties: []);
+            var fieldDerived = InputFactory.Model("CustomFieldDerived", properties: []);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [previousBase, propertyDerived, fieldDerived],
+                compilation: async () => await Helpers.GetCompilationFromSourceFilesAsync([("Customization.cs", customizationSource)]),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromSourceFilesAsync([("LastContract.cs", lastContractSource)]));
+
+            var modelProviders = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .ToArray();
+            var propertyDerivedProvider = modelProviders.Single(t => t.Name == "CustomPropertyDerived");
+            var fieldDerivedProvider = modelProviders.Single(t => t.Name == "CustomFieldDerived");
+
+            propertyDerivedProvider.ProcessTypeForBackCompatibility();
+            fieldDerivedProvider.ProcessTypeForBackCompatibility();
+
+            Assert.Multiple(() =>
+            {
+                Assert.IsNull(propertyDerivedProvider.BaseType,
+                    "The previous base must not be restored when it collides with a custom property");
+                Assert.IsNull(fieldDerivedProvider.BaseType,
+                    "The previous base must not be restored when it collides with a custom field");
             });
         }
 

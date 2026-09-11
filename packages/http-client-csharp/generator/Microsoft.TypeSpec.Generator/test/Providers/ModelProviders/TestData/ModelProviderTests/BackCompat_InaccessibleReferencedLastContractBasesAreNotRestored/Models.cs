@@ -30,4 +30,24 @@ namespace Sample.Models
     public partial class GenericDerived : GenericBase<GenericArgument>
     {
     }
+
+    public class MissingArgument
+    {
+    }
+
+    public partial class MissingArgumentDerived : GenericBase<MissingArgument>
+    {
+    }
+
+    public class StructGenericBase<T>
+    {
+    }
+
+    public class ConstraintArgument
+    {
+    }
+
+    public partial class InvalidConstraintDerived : StructGenericBase<ConstraintArgument>
+    {
+    }
 }

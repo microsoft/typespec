@@ -480,6 +480,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 if (model._inputModel.Properties
                     .Select(property => model.GetGeneratedPropertyName(property, enclosingTypeName))
                     .Concat(model.GetGeneratedAdditionalPropertyNames(previousBase))
+                    .Concat(model.CustomCodeView?.Properties.Select(property => property.Name) ?? [])
+                    .Concat(model.CustomCodeView?.Fields.Select(field => field.Name) ?? [])
                     .Any(inheritedPropertyNames.Contains))
                 {
                     return true;
@@ -664,15 +666,19 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // Generated model bases already participate in ModelProvider's constructor chaining. A
             // symbol-backed base does not, so generated constructors can only rely on an accessible
             // parameterless constructor (explicit or implicit).
-            if (provider is ModelProvider ||
-                provider is NamedTypeSymbolProvider namedType &&
-                    namedType.HasAccessibleParameterlessConstructor &&
-                    namedType.IsAccessibleFromGeneratedType(
-                        requestedType,
-                        DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public)) ||
-                provider is not NamedTypeSymbolProvider && provider.Constructors.Any(c =>
-                    c.Signature.Parameters.Count == 0 &&
-                    MethodSignatureHelper.IsPublicApi(c.Signature.Modifiers)))
+            if (provider is ModelProvider modelProvider
+                    ? CanUseGeneratedModelAsBase(modelProvider)
+                    : provider is NamedTypeSymbolProvider namedType
+                        ? namedType.CanBeInherited &&
+                            namedType.HasAccessibleParameterlessConstructor &&
+                            AreTypeArgumentsAvailableInCurrentBuild(requestedType) &&
+                            namedType.IsAccessibleFromGeneratedType(
+                                requestedType,
+                                DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public)) &&
+                            namedType.SatisfiesGenericConstraints(requestedType)
+                        : provider.Constructors.Any(c =>
+                            c.Signature.Parameters.Count == 0 &&
+                            MethodSignatureHelper.IsPublicApi(c.Signature.Modifiers)))
             {
                 resolvedProvider = provider;
                 return true;
@@ -680,6 +686,60 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             resolvedProvider = null;
             return false;
+        }
+
+        private bool CanUseGeneratedModelAsBase(ModelProvider provider)
+        {
+            var providerModifiers = provider.DeclarationModifiers;
+            return !DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct) &&
+                providerModifiers.HasFlag(TypeSignatureModifiers.Class) &&
+                !providerModifiers.HasFlag(TypeSignatureModifiers.Sealed) &&
+                (!DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public) ||
+                    providerModifiers.HasFlag(TypeSignatureModifiers.Public));
+        }
+
+        private bool AreTypeArgumentsAvailableInCurrentBuild(CSharpType type)
+        {
+            foreach (var argument in type.Arguments)
+            {
+                if (!IsTypeAvailableInCurrentBuild(argument) || !AreTypeArgumentsAvailableInCurrentBuild(argument))
+                {
+                    return false;
+                }
+            }
+
+            return type.DeclaringType is null || AreTypeArgumentsAvailableInCurrentBuild(type.DeclaringType);
+        }
+
+        private bool IsTypeAvailableInCurrentBuild(CSharpType type)
+        {
+            var requiresPublicAccessibility = DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public);
+            if (type.IsFrameworkType)
+            {
+                return !requiresPublicAccessibility || type.IsPublic;
+            }
+
+            foreach (var (mappedType, provider) in CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap)
+            {
+                if (provider is null || !AreMetadataTypesEqual(mappedType, type))
+                {
+                    continue;
+                }
+
+                return provider is NamedTypeSymbolProvider namedType
+                    ? namedType.IsAccessibleFromGeneratedType(type, requiresPublicAccessibility)
+                    : !requiresPublicAccessibility || provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public);
+            }
+
+            var currentProvider = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(
+                GetMetadataNamespace(type),
+                GetMetadataSimpleName(type),
+                type.DeclaringType?.ClrMetadataName,
+                includeReferencedAssemblies: true);
+            return currentProvider is not null &&
+                (currentProvider is NamedTypeSymbolProvider currentNamedType
+                    ? currentNamedType.IsAccessibleFromGeneratedType(type, requiresPublicAccessibility)
+                    : !requiresPublicAccessibility || currentProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
         }
 
         protected override TypeProvider[] BuildSerializationProviders()
