@@ -7,7 +7,6 @@ import json
 
 import pytest
 
-import streaming.sse._utils.streaming_base as streaming_base
 from streaming.sse import SseClient
 from streaming.sse._utils.streaming_base import Stream
 from streaming.sse.named.models import ResponseCreated, ResponseDelta
@@ -257,7 +256,7 @@ def test_sse_reconnects_on_eof_using_latest_metadata():
     ]
     reconnect_ids = []
 
-    def reconnect(last_event_id):
+    def reconnect(last_event_id, _reconnect_delay):
         reconnect_ids.append(last_event_id)
         return responses.pop(0)
 
@@ -273,16 +272,43 @@ def test_sse_reconnects_on_eof_using_latest_metadata():
     assert stream.last_event_id == "second"
 
 
-def test_sse_reconnects_with_default_delay(monkeypatch):
-    responses = [_FakeResponse(b"data: one\n\n"), _FakeResponse(b"data: [DONE]\n\n")]
-    sleeps = []
-    monkeypatch.setattr(streaming_base.time, "sleep", sleeps.append)
+def test_sse_reconnects_on_eof_using_metadata_only_block():
+    responses = [
+        _FakeResponse(b"id: metadata-only\nretry: 0\n\n"),
+        _FakeResponse(b"data: [DONE]\n\n"),
+    ]
+    reconnect_args = []
+
+    def reconnect(last_event_id, reconnect_delay):
+        reconnect_args.append((last_event_id, reconnect_delay))
+        return responses.pop(0)
 
     stream = Stream(
         response=responses.pop(0),
         deserialization_callback=lambda _response, event: event.data,
         terminal_event="[DONE]",
-        reconnect_callback=lambda _last_event_id: responses.pop(0),
+        reconnect_callback=reconnect,
+    )
+
+    assert list(stream) == []
+    assert reconnect_args == [("metadata-only", 0.0)]
+    assert stream.last_event_id == "metadata-only"
+    assert stream.retry == 0
+
+
+def test_sse_reconnects_with_default_delay():
+    responses = [_FakeResponse(b"data: one\n\n"), _FakeResponse(b"data: [DONE]\n\n")]
+    sleeps = []
+
+    def reconnect(_last_event_id, reconnect_delay):
+        sleeps.append(reconnect_delay)
+        return responses.pop(0)
+
+    stream = Stream(
+        response=responses.pop(0),
+        deserialization_callback=lambda _response, event: event.data,
+        terminal_event="[DONE]",
+        reconnect_callback=reconnect,
     )
 
     assert list(stream) == ["one"]
@@ -293,7 +319,7 @@ def test_sse_reconnect_preserves_initial_event_id():
     responses = [_FakeResponse(b"retry: 0\ndata: one\n\n"), _FakeResponse(b"data: [DONE]\n\n")]
     reconnect_ids = []
 
-    def reconnect(last_event_id):
+    def reconnect(last_event_id, _reconnect_delay):
         reconnect_ids.append(last_event_id)
         return responses.pop(0)
 
@@ -316,7 +342,7 @@ def test_sse_does_not_reconnect_after_terminal_predicate():
         response=response,
         deserialization_callback=lambda _response, event: event.data,
         terminal_event_predicate=lambda event: event.data == "done",
-        reconnect_callback=lambda _last_event_id: pytest.fail("unexpected reconnect"),
+        reconnect_callback=lambda _last_event_id, _reconnect_delay: pytest.fail("unexpected reconnect"),
     )
 
     assert list(stream) == ["done"]
@@ -327,7 +353,7 @@ def test_sse_stops_reconnecting_after_http_204():
     responses[1].status_code = 204
     reconnect_ids = []
 
-    def reconnect(last_event_id):
+    def reconnect(last_event_id, _reconnect_delay):
         reconnect_ids.append(last_event_id)
         return responses.pop(0)
 

@@ -17,6 +17,10 @@ namespace Sample
 
             if (local.StartsWith("prop1"u8))
             {
+                if ((Prop2 == null))
+                {
+                    return false;
+                }
                 return Prop2.Patch.TryGetEncodedValue([.. "$"u8, .. local.Slice("prop1"u8.Length)], out value);
             }
             return false;
@@ -30,6 +34,10 @@ namespace Sample
 
             if (local.StartsWith("prop1"u8))
             {
+                if ((Prop2 == null))
+                {
+                    return false;
+                }
                 Prop2.Patch.Set([.. "$"u8, .. local.Slice("prop1"u8.Length)], value);
                 return true;
             }

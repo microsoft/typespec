@@ -10,6 +10,7 @@ import type {
   Declaration,
   DecoratorDeclarationStatementNode,
   DecoratorImplementations,
+  EnumDeclarationExpressionNode,
   EnumMemberNode,
   EnumStatementNode,
   FileLibraryMetadata,
@@ -20,6 +21,7 @@ import type {
   IntersectionExpressionNode,
   JsNamespaceDeclarationNode,
   JsSourceFileNode,
+  ModelDeclarationExpressionNode,
   ModelExpressionNode,
   ModelPropertyNode,
   ModelStatementNode,
@@ -28,12 +30,14 @@ import type {
   Node,
   OperationStatementNode,
   ScalarConstructorNode,
+  ScalarDeclarationExpressionNode,
   ScalarStatementNode,
   ScopeNode,
   Sym,
   SymbolTable,
   TemplateParameterDeclarationNode,
   TypeSpecScriptNode,
+  UnionDeclarationExpressionNode,
   UnionStatementNode,
   UnionVariantNode,
   UsingStatementNode,
@@ -312,6 +316,9 @@ export function createBinder(program: Program): Binder {
       case SyntaxKind.ModelStatement:
         bindModelStatement(node);
         break;
+      case SyntaxKind.ModelDeclarationExpression:
+        bindModelDeclarationExpression(node);
+        break;
       case SyntaxKind.ModelExpression:
         bindModelExpression(node);
         break;
@@ -324,6 +331,9 @@ export function createBinder(program: Program): Binder {
       case SyntaxKind.ScalarStatement:
         bindScalarStatement(node);
         break;
+      case SyntaxKind.ScalarDeclarationExpression:
+        bindScalarDeclarationExpression(node);
+        break;
       case SyntaxKind.ScalarConstructor:
         bindScalarConstructor(node);
         break;
@@ -333,6 +343,9 @@ export function createBinder(program: Program): Binder {
       case SyntaxKind.UnionStatement:
         bindUnionStatement(node);
         break;
+      case SyntaxKind.UnionDeclarationExpression:
+        bindUnionDeclarationExpression(node);
+        break;
       case SyntaxKind.AliasStatement:
         bindAliasStatement(node);
         break;
@@ -341,6 +354,9 @@ export function createBinder(program: Program): Binder {
         break;
       case SyntaxKind.EnumStatement:
         bindEnumStatement(node);
+        break;
+      case SyntaxKind.EnumDeclarationExpression:
+        bindEnumDeclarationExpression(node);
         break;
       case SyntaxKind.EnumMember:
         bindEnumMember(node);
@@ -411,6 +427,12 @@ export function createBinder(program: Program): Binder {
     mutate(node).locals = new SymbolTable();
   }
 
+  function bindModelDeclarationExpression(node: ModelDeclarationExpressionNode) {
+    bindSymbol(node, SymbolFlags.Model);
+    // Initialize locals for type parameters
+    mutate(node).locals = new SymbolTable();
+  }
+
   function bindModelExpression(node: ModelExpressionNode) {
     bindSymbol(node, SymbolFlags.Model);
   }
@@ -427,6 +449,12 @@ export function createBinder(program: Program): Binder {
     const internal =
       node.modifierFlags & ModifierFlags.Internal ? SymbolFlags.Internal : SymbolFlags.None;
     declareSymbol(node, SymbolFlags.Scalar | SymbolFlags.Declaration | internal);
+    // Initialize locals for type parameters
+    mutate(node).locals = new SymbolTable();
+  }
+
+  function bindScalarDeclarationExpression(node: ScalarDeclarationExpressionNode) {
+    bindSymbol(node, SymbolFlags.Scalar);
     // Initialize locals for type parameters
     mutate(node).locals = new SymbolTable();
   }
@@ -449,6 +477,11 @@ export function createBinder(program: Program): Binder {
     mutate(node).locals = new SymbolTable();
   }
 
+  function bindUnionDeclarationExpression(node: UnionDeclarationExpressionNode) {
+    bindSymbol(node, SymbolFlags.Union);
+    mutate(node).locals = new SymbolTable();
+  }
+
   function bindAliasStatement(node: AliasStatementNode) {
     const internal =
       node.modifierFlags & ModifierFlags.Internal ? SymbolFlags.Internal : SymbolFlags.None;
@@ -466,6 +499,10 @@ export function createBinder(program: Program): Binder {
     const internal =
       node.modifierFlags & ModifierFlags.Internal ? SymbolFlags.Internal : SymbolFlags.None;
     declareSymbol(node, SymbolFlags.Enum | SymbolFlags.Declaration | internal);
+  }
+
+  function bindEnumDeclarationExpression(node: EnumDeclarationExpressionNode) {
+    bindSymbol(node, SymbolFlags.Enum);
   }
 
   function bindEnumMember(node: EnumMemberNode) {
@@ -664,15 +701,19 @@ export function createBinder(program: Program): Binder {
 function hasScope(node: Node): node is ScopeNode {
   switch (node.kind) {
     case SyntaxKind.ModelStatement:
+    case SyntaxKind.ModelDeclarationExpression:
     case SyntaxKind.ModelExpression:
     case SyntaxKind.ScalarStatement:
+    case SyntaxKind.ScalarDeclarationExpression:
     case SyntaxKind.ConstStatement:
     case SyntaxKind.AliasStatement:
     case SyntaxKind.TypeSpecScript:
     case SyntaxKind.InterfaceStatement:
     case SyntaxKind.OperationStatement:
     case SyntaxKind.UnionStatement:
+    case SyntaxKind.UnionDeclarationExpression:
     case SyntaxKind.EnumStatement:
+    case SyntaxKind.EnumDeclarationExpression:
       return true;
     case SyntaxKind.NamespaceStatement:
       return node.statements !== undefined;

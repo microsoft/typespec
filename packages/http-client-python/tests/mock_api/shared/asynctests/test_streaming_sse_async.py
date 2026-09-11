@@ -8,7 +8,6 @@ import json
 import pytest
 import pytest_asyncio
 
-import streaming.sse._utils.streaming_base as streaming_base
 from streaming.sse.aio import SseClient
 from streaming.sse._utils.streaming_base import AsyncStream
 from streaming.sse.named.models import ResponseCreated, ResponseDelta
@@ -294,7 +293,7 @@ async def test_sse_reconnects_on_eof_using_latest_metadata():
     ]
     reconnect_ids = []
 
-    async def reconnect(last_event_id):
+    async def reconnect(last_event_id, _reconnect_delay):
         reconnect_ids.append(last_event_id)
         return responses.pop(0)
 
@@ -311,17 +310,39 @@ async def test_sse_reconnects_on_eof_using_latest_metadata():
 
 
 @pytest.mark.asyncio
-async def test_sse_reconnects_with_default_delay(monkeypatch):
+async def test_sse_reconnects_on_eof_using_metadata_only_block():
+    responses = [
+        _FakeAsyncResponse(b"id: metadata-only\nretry: 0\n\n"),
+        _FakeAsyncResponse(b"data: [DONE]\n\n"),
+    ]
+    reconnect_args = []
+
+    async def reconnect(last_event_id, reconnect_delay):
+        reconnect_args.append((last_event_id, reconnect_delay))
+        return responses.pop(0)
+
+    stream = AsyncStream(
+        response=responses.pop(0),
+        deserialization_callback=lambda _response, event: event.data,
+        terminal_event="[DONE]",
+        reconnect_callback=reconnect,
+    )
+
+    assert [item async for item in stream] == []
+    assert reconnect_args == [("metadata-only", 0.0)]
+    assert stream.last_event_id == "metadata-only"
+    assert stream.retry == 0
+
+
+@pytest.mark.asyncio
+async def test_sse_reconnects_with_default_delay():
     responses = [_FakeAsyncResponse(b"data: one\n\n"), _FakeAsyncResponse(b"data: [DONE]\n\n")]
     sleeps = []
 
-    async def sleep(delay):
-        sleeps.append(delay)
-
-    async def reconnect(_last_event_id):
+    async def reconnect(_last_event_id, reconnect_delay):
+        sleeps.append(reconnect_delay)
         return responses.pop(0)
 
-    monkeypatch.setattr(streaming_base.asyncio, "sleep", sleep)
     stream = AsyncStream(
         response=responses.pop(0),
         deserialization_callback=lambda _response, event: event.data,
@@ -338,7 +359,7 @@ async def test_sse_reconnect_preserves_initial_event_id():
     responses = [_FakeAsyncResponse(b"retry: 0\ndata: one\n\n"), _FakeAsyncResponse(b"data: [DONE]\n\n")]
     reconnect_ids = []
 
-    async def reconnect(last_event_id):
+    async def reconnect(last_event_id, _reconnect_delay):
         reconnect_ids.append(last_event_id)
         return responses.pop(0)
 
@@ -359,7 +380,7 @@ async def test_sse_reconnect_preserves_initial_event_id():
 async def test_sse_does_not_reconnect_after_terminal_predicate():
     response = _FakeAsyncResponse(b"retry: 0\ndata: done\n\n")
 
-    async def reconnect(_last_event_id):
+    async def reconnect(_last_event_id, _reconnect_delay):
         pytest.fail("unexpected reconnect")
 
     stream = AsyncStream(
@@ -378,7 +399,7 @@ async def test_sse_stops_reconnecting_after_http_204():
     responses[1].status_code = 204
     reconnect_ids = []
 
-    async def reconnect(last_event_id):
+    async def reconnect(last_event_id, _reconnect_delay):
         reconnect_ids.append(last_event_id)
         return responses.pop(0)
 

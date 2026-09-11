@@ -69,15 +69,16 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
             Assert.IsNull(ExternalTypeReferenceResolver.TryResolve(external));
         }
 
-        [Test]
-        public async Task TryResolve_LoadsTypeFromNuGetCache()
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task TryResolve_LoadsTypeFromNuGetCache(bool isHosted)
         {
             const string pkgName = "Test.External.Loadable";
             const string pkgVersion = "1.2.3";
             const string typeName = "Test.External.Loadable.LoadableType";
             CreateFakeNuGetPackage(_nugetCacheDir!, pkgName, pkgVersion);
 
-            await CreateProjectAndLoadDependencies([pkgName], [pkgVersion]);
+            await CreateProjectAndLoadDependencies([pkgName], [pkgVersion], isHosted);
 
             var external = new InputExternalTypeMetadata(typeName, pkgName, null);
 
@@ -85,6 +86,55 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
 
             Assert.IsNotNull(resolved, "Resolver should locate the type in the fake NuGet cache.");
             Assert.AreEqual(typeName, resolved!.FullName);
+        }
+
+        [TestCase(null)]
+        [TestCase("1.0.0")]
+        public void TryResolve_HostedModeReportsUncachedPackage(string? minVersion)
+        {
+            CodeModelGenerator.Instance.IsHosted = true;
+            var external = new InputExternalTypeMetadata("Test.Uncached.Type", "Test.Uncached.Package", minVersion);
+            var refsBefore = CodeModelGenerator.Instance.AdditionalMetadataReferences.Count;
+
+            Assert.IsNull(ExternalTypeReferenceResolver.TryResolve(external));
+            StringAssert.Contains(
+                "is not present in package dependencies.",
+                ExternalTypeReferenceResolver.GetFailureReason(external));
+            Assert.AreEqual(refsBefore, CodeModelGenerator.Instance.AdditionalMetadataReferences.Count);
+            Assert.That(Directory.EnumerateFileSystemEntries(_nugetCacheDir!), Is.Empty);
+        }
+
+        [Test]
+        public async Task ResolveAllAsync_HostedModeReportsUncachedPackage()
+        {
+            var external = new InputExternalTypeMetadata("Test.Uncached.Type", "Test.Uncached.Package", "1.0.0");
+            var union = InputFactory.Union([InputPrimitiveType.String], "ExternalUnion", external);
+            var model = InputFactory.Model("Container", properties: [InputFactory.Property("value", union)]);
+            MockHelpers.LoadMockGenerator(outputPath: _projectDir, configuration: "{}", inputModelTypes: [model]);
+            CodeModelGenerator.Instance.IsHosted = true;
+
+            await ExternalTypeReferenceResolver.ResolveAllAsync();
+
+            StringAssert.Contains(
+                "is not present in package dependencies.",
+                ExternalTypeReferenceResolver.GetFailureReason(external));
+            Assert.IsNull(ExternalTypeReferenceResolver.TryResolve(external));
+            Assert.That(Directory.EnumerateFileSystemEntries(_nugetCacheDir!), Is.Empty);
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void TryResolve_ReturnsNullForUndeclaredCachedPackage(bool isHosted)
+        {
+            const string packageName = "Test.Undeclared.Package";
+            CreateFakeNuGetPackage(_nugetCacheDir!, packageName, "1.0.0");
+            CodeModelGenerator.Instance.IsHosted = isHosted;
+            var external = new InputExternalTypeMetadata($"{packageName}.LoadableType", packageName, null);
+            var refsBefore = CodeModelGenerator.Instance.AdditionalMetadataReferences.Count;
+
+            Assert.IsNull(ExternalTypeReferenceResolver.TryResolve(external));
+            StringAssert.Contains("is not present in package dependencies.", ExternalTypeReferenceResolver.GetFailureReason(external));
+            Assert.AreEqual(refsBefore, CodeModelGenerator.Instance.AdditionalMetadataReferences.Count);
         }
 
         [Test]
@@ -99,7 +149,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
             CreateFakeNuGetPackage(_nugetCacheDir!, pkgName, "1.0.0");
             CreateFakeNuGetPackage(_nugetCacheDir!, pkgName, "2.5.0");
             CreateFakeNuGetPackage(_nugetCacheDir!, pkgName, highestVersion);
-            
+
             await CreateProjectAndLoadDependencies([pkgName], [highestVersion]);
             var external = new InputExternalTypeMetadata(typeName, pkgName, "2.0.0");
             var resolved = ExternalTypeReferenceResolver.TryResolve(external);
@@ -155,8 +205,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
                 "A missing package should be reported as a missing package.");
         }
 
-        [Test]
-        public async Task TryResolve_ReturnsNullForHigherMinVersion()
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task TryResolve_ReturnsNullForHigherMinVersion(bool isHosted)
         {
             const string pkgName = "My.Package";
             const string typeName = "My.Package.NewType";
@@ -166,7 +217,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
                 typeName,
                 pkgName,
                 "42.0.0");
-            await CreateProjectAndLoadDependencies([pkgName], ["41.0.0"]);
+            await CreateProjectAndLoadDependencies([pkgName], ["41.0.0"], isHosted);
             var resolved = ExternalTypeReferenceResolver.TryResolve(external);
 
             Assert.IsNull(resolved);
@@ -176,8 +227,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
                 "A missing package should be reported as a missing package.");
         }
 
-        [Test]
-        public async Task TryResolve_ResolvesTypeWhoseBaseTypeLivesInAnotherPackage()
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task TryResolve_ResolvesTypeWhoseBaseTypeLivesInAnotherPackage(bool isHosted)
         {
             var nugetCacheDir = Path.Combine(_tempDirectory!, "NuGetCache");
             const string basePkg = "Test.Dependency.Base";
@@ -210,7 +262,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
                 referencedAssemblyPaths: [baseDll],
                 dependencies: [(basePkg, "[2.0.0, )")]);
             // All the dependencies, even indirect ones will be present in project.assets.json.
-            await CreateProjectAndLoadDependencies([basePkg, leafPkg], [pkgVersion, "1.0.0"]);
+            await CreateProjectAndLoadDependencies([basePkg, leafPkg], [pkgVersion, "1.0.0"], isHosted);
 
             var external = new InputExternalTypeMetadata(leafTypeName, leafPkg, "1.0.0");
 
@@ -251,13 +303,14 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
                 "A located-but-unusable assembly must not be reported as a missing package.");
         }
 
-        [Test]
-        public async Task ResolveAllAsync_ResolvesExternalTypesFromInputLibrary()
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task ResolveAllAsync_ResolvesExternalTypesFromInputLibrary(bool isHosted)
         {
             const string pkgName = "Test.PreWalk.Package";
             const string pkgVersion = "1.0.0";
             const string typeName = "Test.PreWalk.Package.PreWalkType";
-            CreateFakeNuGetPackage(_nugetCacheDir!, pkgName, pkgVersion);
+            var assemblyPath = CreateFakeNuGetPackage(_nugetCacheDir!, pkgName, pkgVersion);
 
             var external = new InputExternalTypeMetadata(typeName, pkgName, null);
             var unionWithExternal = InputFactory.Union(
@@ -271,12 +324,13 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
                     InputFactory.Property("ext", unionWithExternal),
                 ]);
 
-            await CreateProjectAndLoadDependencies([pkgName], [pkgVersion]);
+            await CreateProjectAndLoadDependencies([pkgName], [pkgVersion], isHosted, [model]);
 
             var refsBefore = CodeModelGenerator.Instance.AdditionalMetadataReferences.Count;
             await ExternalTypeReferenceResolver.ResolveAllAsync();
 
-            // The pre-walk should populate the cache and add the metadata reference up-front.
+            // Removing the assembly proves the pre-walk populated the cache before TryResolve.
+            File.Delete(assemblyPath);
             var resolved = ExternalTypeReferenceResolver.TryResolve(external);
             Assert.IsNotNull(resolved);
             Assert.AreEqual(typeName, resolved!.FullName);
@@ -328,7 +382,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
             File.WriteAllText(nugetConfigPath, config);
         }
 
-        private async Task CreateProjectAndLoadDependencies(string[] packages, string?[] versions)
+        private async Task CreateProjectAndLoadDependencies(
+            string[] packages,
+            string?[] versions,
+            bool isHosted = false,
+            InputModelType[]? inputModelTypes = null)
         {
             Assert.That(packages.Length, Is.EqualTo(versions.Length), "Each package must have a version (it can be null)");
             StringBuilder sbPackagesProject = new();
@@ -337,7 +395,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
             for (int i = 0; i< packages.Length; i++)
             {
                 sbPackagesProject.Append($"\n  <PackageReference Include=\"{packages[i]}\">\n    <Version>{versions[i]}</Version>\n  </PackageReference>\n");
-                sbPackagesAssets.Append($"\n{tab}{tab}\"{packages[i]}\": {{\n{tab}{tab}{tab}\"type\": \"package\",\n{tab}{tab}{tab}\"dependencies\": {{}}\n{tab}{tab}}}\n");
+                if (i > 0)
+                {
+                    sbPackagesAssets.Append(',');
+                }
+                sbPackagesAssets.Append($"\n{tab}{tab}\"{packages[i]}/{versions[i]}\": {{\n{tab}{tab}{tab}\"type\": \"package\",\n{tab}{tab}{tab}\"dependencies\": {{}}\n{tab}{tab}}}\n");
             }
             var csprojContent = $@"<Project Sdk=""Microsoft.NET.Sdk"">
   <PropertyGroup>
@@ -366,7 +428,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
             MockHelpers.LoadMockGenerator(
                 inputNamespaceName: ns,
                 outputPath: _projectDir!,
-                configuration: $"{{\"package-name\": \"{ns}\"}}");
+                configuration: $"{{\"package-name\": \"{ns}\"}}",
+                inputModelTypes: inputModelTypes);
+            CodeModelGenerator.Instance.IsHosted = isHosted;
             await GeneratedCodeWorkspace.AddPackageReferencesFromProject();
         }
 

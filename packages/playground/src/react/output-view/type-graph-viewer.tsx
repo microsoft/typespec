@@ -9,6 +9,7 @@ const TypeGraphViewerComponent = ({
   program,
   viewerState,
   onViewerStateChange,
+  onRevealSource,
 }: OutputViewerProps) => {
   const currentPath = viewerState?.["type-graph:path"] || "";
 
@@ -29,6 +30,7 @@ const TypeGraphViewerComponent = ({
         program={program}
         currentPath={currentPath}
         onNavigationChange={handleNavigationChange}
+        onRevealSource={onRevealSource}
       />
     </div>
   );
