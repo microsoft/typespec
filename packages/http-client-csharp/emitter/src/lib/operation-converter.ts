@@ -76,7 +76,7 @@ import type { OperationResponse } from "../type/operation-response.js";
 import { RequestLocation } from "../type/request-location.js";
 import { parseHttpRequestMethod } from "../type/request-method.js";
 import { ResponseLocation } from "../type/response-location.js";
-import { getExternalDocs, getOperationId } from "./decorators.js";
+import { getExperimentalDetails, getExternalDocs, getOperationId } from "./decorators.js";
 import { fromSdkHttpExamples } from "./example-converter.js";
 import { createDiagnostic } from "./lib.js";
 import { fromSdkType } from "./type-converter.js";
@@ -252,6 +252,7 @@ export function fromSdkServiceMethodOperation(
     namespace: method.__raw?.namespace
       ? getClientNamespace(sdkContext, method.__raw.namespace)
       : undefined,
+    experimental: getExperimentalDetails(method.decorators),
   };
 
   sdkContext.__typeCache.updateSdkOperationReferences(method.operation, operation);
