@@ -509,5 +509,34 @@ namespace SampleTypeSpec
         {
             return new GetNotebookResponse(name, content, additionalBinaryDataProperties: null);
         }
+
+        /// <summary> The NullableDynamicModel. </summary>
+        /// <param name="modelValue"></param>
+        /// <param name="children"></param>
+        /// <param name="childDictionary"></param>
+        /// <param name="nestedChildren"></param>
+        /// <param name="nestedChildDictionary"></param>
+        /// <param name="dictionaryChildren"></param>
+        /// <param name="listOfDictionaries"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.NullableDynamicModel"/> instance for mocking. </returns>
+        public static NullableDynamicModel NullableDynamicModel(AnotherDynamicModel modelValue = default, IEnumerable<AnotherDynamicModel> children = default, IDictionary<string, AnotherDynamicModel> childDictionary = default, IEnumerable<IList<AnotherDynamicModel>> nestedChildren = default, IDictionary<string, IDictionary<string, AnotherDynamicModel>> nestedChildDictionary = default, IDictionary<string, IList<AnotherDynamicModel>> dictionaryChildren = default, IEnumerable<IDictionary<string, AnotherDynamicModel>> listOfDictionaries = default)
+        {
+            children ??= new ChangeTrackingList<AnotherDynamicModel>();
+            childDictionary ??= new ChangeTrackingDictionary<string, AnotherDynamicModel>();
+            nestedChildren ??= new ChangeTrackingList<IList<AnotherDynamicModel>>();
+            nestedChildDictionary ??= new ChangeTrackingDictionary<string, IDictionary<string, AnotherDynamicModel>>();
+            dictionaryChildren ??= new ChangeTrackingDictionary<string, IList<AnotherDynamicModel>>();
+            listOfDictionaries ??= new ChangeTrackingList<IDictionary<string, AnotherDynamicModel>>();
+
+            return new NullableDynamicModel(
+                modelValue,
+                children.ToList(),
+                childDictionary,
+                nestedChildren.ToList(),
+                nestedChildDictionary,
+                dictionaryChildren,
+                listOfDictionaries.ToList(),
+                default);
+        }
     }
 }

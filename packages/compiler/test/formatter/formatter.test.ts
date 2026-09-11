@@ -1790,6 +1790,339 @@ alias Foo = (A & B) | (C & D);
   });
 });
 
+describe("declaration expressions", () => {
+  it("formats anonymous enum expression", async () => {
+    await assertFormat({
+      code: `alias E   =   enum {  a,   b  };`,
+      expected: `
+alias E = enum {
+  a,
+  b,
+};
+`,
+    });
+  });
+
+  it("formats anonymous union expression", async () => {
+    await assertFormat({
+      code: `alias U   =   union {  string,   int32  };`,
+      expected: `
+alias U = union {
+  string,
+  int32,
+};
+`,
+    });
+  });
+
+  it("formats anonymous model expression", async () => {
+    await assertFormat({
+      code: `alias M   =   model {  x:   string  };`,
+      expected: `
+alias M = model {
+  x: string;
+};
+`,
+    });
+  });
+
+  it("formats anonymous scalar expression without double semicolon", async () => {
+    await assertFormat({
+      code: `alias S   =   scalar   extends   string;`,
+      expected: `alias S = scalar extends string;`,
+    });
+  });
+
+  it("formats a model `is` expression without double semicolon", async () => {
+    await assertFormat({
+      code: `alias M   =   model   is   Base;`,
+      expected: `alias M = model is Base;`,
+    });
+  });
+
+  it("formats a model `is` expression with a body", async () => {
+    await assertFormat({
+      code: `alias M = model is Base {  x:  string  };`,
+      expected: `
+alias M = model is Base {
+  x: string;
+};
+`,
+    });
+  });
+
+  it("formats named declaration expression", async () => {
+    await assertFormat({
+      code: `model Foo { nested:   model Inner {  x:  string  }; }`,
+      expected: `
+model Foo {
+  nested: model Inner {
+    x: string;
+  };
+}
+`,
+    });
+  });
+
+  it("formats named enum expression", async () => {
+    await assertFormat({
+      code: `alias E = enum Color {red, green};`,
+      expected: `
+alias E = enum Color {
+  red,
+  green,
+};
+`,
+    });
+  });
+
+  it("formats named union expression", async () => {
+    await assertFormat({
+      code: `alias U = union Choice {string, int32};`,
+      expected: `
+alias U = union Choice {
+  string,
+  int32,
+};
+`,
+    });
+  });
+
+  it("formats union expression with extends", async () => {
+    await assertFormat({
+      code: `alias U = union   extends   string {"a",  "b"};`,
+      expected: `
+alias U = union extends string {
+  "a",
+  "b",
+};
+`,
+    });
+  });
+
+  it("formats named union expression with extends", async () => {
+    await assertFormat({
+      code: `alias U = union Choice   extends   string {a: "a", b: "b"};`,
+      expected: `
+alias U = union Choice extends string {
+  a: "a",
+  b: "b",
+};
+`,
+    });
+  });
+
+  it("formats named scalar expression", async () => {
+    await assertFormat({
+      code: `alias S = scalar Celsius extends int32;`,
+      expected: `alias S = scalar Celsius extends int32;`,
+    });
+  });
+
+  it("formats nested declaration expressions", async () => {
+    await assertFormat({
+      code: `alias N = model { inner: enum { a, b } };`,
+      expected: `
+alias N = model {
+  inner: enum {
+    a,
+    b,
+  };
+};
+`,
+    });
+  });
+
+  it("keeps a decorator inline on an enum expression", async () => {
+    await assertFormat({
+      code: `alias E = @doc("hi")enum {  a, b  };`,
+      expected: `
+alias E = @doc("hi") enum {
+  a,
+  b,
+};
+`,
+    });
+  });
+
+  it("keeps a decorator inline on a model expression property", async () => {
+    await assertFormat({
+      code: `model Foo { status:   @doc("the status")   enum {  active, inactive  }; }`,
+      expected: `
+model Foo {
+  status: @doc("the status") enum {
+    active,
+    inactive,
+  };
+}
+`,
+    });
+  });
+
+  it("keeps a decorator inline on a named model expression", async () => {
+    await assertFormat({
+      code: `alias M = @doc("d")model Inner {  x:  string  };`,
+      expected: `
+alias M = @doc("d") model Inner {
+  x: string;
+};
+`,
+    });
+  });
+
+  it("keeps a decorator inline on a union expression", async () => {
+    await assertFormat({
+      code: `alias U = @doc("d")union {  string, int32  };`,
+      expected: `
+alias U = @doc("d") union {
+  string,
+  int32,
+};
+`,
+    });
+  });
+
+  it("keeps a decorator inline on a scalar expression", async () => {
+    await assertFormat({
+      code: `alias S = @doc("d")scalar Celsius extends int32;`,
+      expected: `alias S = @doc("d") scalar Celsius extends int32;`,
+    });
+  });
+
+  it("keeps multiple decorators inline on an enum expression", async () => {
+    await assertFormat({
+      code: `alias E = @doc("hi")  @example(1)  @friendlyName("E") enum {  a, b  };`,
+      expected: `
+alias E = @doc("hi") @example(1) @friendlyName("E") enum {
+  a,
+  b,
+};
+`,
+    });
+  });
+
+  it("keeps multiple decorators inline on a model expression property", async () => {
+    await assertFormat({
+      code: `model Foo { status: @a @b @c enum {  active, inactive  }; }`,
+      expected: `
+model Foo {
+  status: @a @b @c enum {
+    active,
+    inactive,
+  };
+}
+`,
+    });
+  });
+
+  it("keeps a doc comment inline on an enum expression like a decorator", async () => {
+    await assertFormat({
+      code: `model Foo { status: /** the status */ enum {  active, inactive  }; }`,
+      expected: `
+model Foo {
+  status: /** the status */ enum {
+    active,
+    inactive,
+  };
+}
+`,
+    });
+  });
+
+  it("keeps a doc comment inline before decorators on a declaration expression", async () => {
+    await assertFormat({
+      code: `alias E = /** doc */ @a @b enum {  x, y  };`,
+      expected: `
+alias E = /** doc */ @a @b enum {
+  x,
+  y,
+};
+`,
+    });
+  });
+
+  it("formats a declaration expression used as a decorator argument", async () => {
+    await assertFormat({
+      code: `@useType(enum Versions {  v1, v2  })\nmodel Foo {}`,
+      expected: `
+@useType(
+  enum Versions {
+    v1,
+    v2,
+  }
+)
+model Foo {}
+`,
+    });
+  });
+
+  it("breaks and indents decorators on a model property when too wide", async () => {
+    await assertFormat({
+      code: `model Foo { status: @summary("a fairly long summary text here") @example("some-default-example-value") enum {  active, inactive  }; }`,
+      expected: `
+model Foo {
+  status:
+    @summary("a fairly long summary text here")
+    @example("some-default-example-value")
+    enum {
+      active,
+      inactive,
+    };
+}
+`,
+    });
+  });
+
+  it("breaks and indents decorators on an alias value when too wide", async () => {
+    await assertFormat({
+      code: `alias E = @summary("a fairly long summary text goes here now") @example("some-default-value") enum {  a, b  };`,
+      expected: `
+alias E =
+  @summary("a fairly long summary text goes here now")
+  @example("some-default-value")
+  enum {
+    a,
+    b,
+  };
+`,
+    });
+  });
+
+  it("breaks and indents a doc comment together with decorators when too wide", async () => {
+    await assertFormat({
+      code: `model Foo { status: /** the current lifecycle status of the entity */ @example("active") enum {  active, inactive  }; }`,
+      expected: `
+model Foo {
+  status:
+    /** the current lifecycle status of the entity */
+    @example("active")
+    enum {
+      active,
+      inactive,
+    };
+}
+`,
+    });
+  });
+
+  it("stacks decorators inside a decorator argument when too wide", async () => {
+    await assertFormat({
+      code: `@useType(@summary("a long summary for the versions enum value here") @example("v1") enum Versions {  v1, v2  })\nmodel Foo {}`,
+      expected: `
+@useType(
+  @summary("a long summary for the versions enum value here")
+  @example("v1")
+  enum Versions {
+    v1,
+    v2,
+  }
+)
+model Foo {}
+`,
+    });
+  });
+});
+
 describe("enum", () => {
   it("format simple enum", async () => {
     await assertFormat({
@@ -2823,6 +3156,206 @@ model Foo<T       extends    string =
 }`,
       expected: `
 model Foo<T extends string = "abc"> {}`,
+    });
+  });
+
+  // Regression tests for https://github.com/microsoft/typespec/issues/11836
+  describe("splits the parameter list instead of the last parameter constraint or default", () => {
+    it("op is", async () => {
+      await assertFormat({
+        code: `
+@delete
+op deleteJobPreview<AreaPreviewLabel extends FoundryFeaturesOptInKeys | AgentDefinitionOptInKeys> is FoundryDataPlanePreviewOperation<AreaPreviewLabel, { /** The ID of the job to delete. */ @path jobId: string; }, NoContentResponse>;
+`,
+        expected: `
+@delete
+op deleteJobPreview<
+  AreaPreviewLabel extends FoundryFeaturesOptInKeys | AgentDefinitionOptInKeys
+> is FoundryDataPlanePreviewOperation<
+  AreaPreviewLabel,
+  {
+    /** The ID of the job to delete. */
+    @path jobId: string;
+  },
+  NoContentResponse
+>;
+`,
+      });
+    });
+
+    it("op in interface", async () => {
+      await assertFormat({
+        code: `
+interface Jobs { op deleteJobPreview<AreaPreviewLabel extends FoundryFeaturesOptInKeys | AgentDefinitionOptIn>(): void; }
+`,
+        expected: `
+interface Jobs {
+  deleteJobPreview<
+    AreaPreviewLabel extends FoundryFeaturesOptInKeys | AgentDefinitionOptIn
+  >(): void;
+}
+`,
+      });
+    });
+
+    it("model", async () => {
+      await assertFormat({
+        code: `
+model Foo<AreaPreviewLabel extends FoundryFeaturesOptInKeys | AgentDefinitionOptInKeys> is Base<AreaPreviewLabel, Bar, NoContentResponse>;
+`,
+        expected: `
+model Foo<
+  AreaPreviewLabel extends FoundryFeaturesOptInKeys | AgentDefinitionOptInKeys
+> is Base<AreaPreviewLabel, Bar, NoContentResponse>;
+`,
+      });
+    });
+
+    it("alias", async () => {
+      await assertFormat({
+        code: `
+alias Foo<AreaPreviewLabel extends FoundryFeaturesOptInKeys | AgentDefinitionOptInKeys> = Base<AreaPreviewLabel>;
+`,
+        expected: `
+alias Foo<
+  AreaPreviewLabel extends FoundryFeaturesOptInKeys | AgentDefinitionOptInKeys
+> = Base<AreaPreviewLabel>;
+`,
+      });
+    });
+
+    it("interface", async () => {
+      await assertFormat({
+        code: `
+interface Foo<AreaPreviewLabel extends FoundryFeaturesOptInKeys | AgentDefinitionOptIn> { bar(): void; }
+`,
+        expected: `
+interface Foo<
+  AreaPreviewLabel extends FoundryFeaturesOptInKeys | AgentDefinitionOptIn
+> {
+  bar(): void;
+}
+`,
+      });
+    });
+
+    it("union", async () => {
+      await assertFormat({
+        code: `
+union Foo<AreaPreviewLabel extends FoundryFeaturesOptInKeys | AgentDefinitionOptInKey> { a: AreaPreviewLabel }
+`,
+        expected: `
+union Foo<
+  AreaPreviewLabel extends FoundryFeaturesOptInKeys | AgentDefinitionOptInKey
+> {
+  a: AreaPreviewLabel,
+}
+`,
+      });
+    });
+
+    it("scalar", async () => {
+      await assertFormat({
+        code: `
+scalar Foo<AreaPreviewLabel extends FoundryFeaturesOptInKeys | AgentDefinitionOptInKey> extends string;
+`,
+        expected: `
+scalar Foo<
+  AreaPreviewLabel extends FoundryFeaturesOptInKeys | AgentDefinitionOptInKey
+> extends string;
+`,
+      });
+    });
+
+    it("splits the constraint union only when it doesn't fit on its own line", async () => {
+      await assertFormat({
+        code: `
+model Foo<AreaPreviewLabel extends FoundryFeaturesOptInKeysExtraLongNeedSplit | FoundryFeaturesOptInKeysExtraLongNeedSplit | AgentDefinitionOptInKeys> {}
+`,
+        expected: `
+model Foo<
+  AreaPreviewLabel extends
+    | FoundryFeaturesOptInKeysExtraLongNeedSplit
+    | FoundryFeaturesOptInKeysExtraLongNeedSplit
+    | AgentDefinitionOptInKeys
+> {}
+`,
+      });
+    });
+
+    it("splits a default that is too long", async () => {
+      await assertFormat({
+        code: `
+model Foo<AreaPreviewLabel = FoundryFeaturesOptInKeys | AgentDefinitionOptInKeysMoreLong> {}
+`,
+        expected: `
+model Foo<
+  AreaPreviewLabel = FoundryFeaturesOptInKeys | AgentDefinitionOptInKeysMoreLong
+> {}
+`,
+      });
+    });
+
+    it("keeps a single parameter that cannot break hugged even if the line is too long", async () => {
+      await assertFormat({
+        code: `
+model Foo<AreaPreviewLabelIsExtremelyLongNameHereOkFineAndEvenLongerThanThatYesYes> {}
+
+model Bar<TResource extends TypeSpec.Reflection.Model> is Base<TResource, Options, NoContentResponse>;
+`,
+        expected: `
+model Foo<AreaPreviewLabelIsExtremelyLongNameHereOkFineAndEvenLongerThanThatYesYes> {}
+
+model Bar<TResource extends TypeSpec.Reflection.Model> is Base<
+  TResource,
+  Options,
+  NoContentResponse
+>;
+`,
+      });
+    });
+
+    it("keeps a single parameter constrained to a hugged template reference hugged", async () => {
+      await assertFormat({
+        code: `
+model Foo<TResourceTypeIsQuiteLongHere extends Reflection.ModelOf<SomeVeryLongThing>> {}
+`,
+        expected: `
+model Foo<TResourceTypeIsQuiteLongHere extends Reflection.ModelOf<SomeVeryLongThing>> {}
+`,
+      });
+    });
+
+    it("splits the parameter list when the template reference constraint can break", async () => {
+      await assertFormat({
+        code: `
+model Foo<TResourceTypeIsQuiteLong extends Reflection.ModelOf<Some | OtherThing>> {}
+
+model Bar<TResourceTypeIsQuiteLongHere extends Reflection.ModelOf<Some, Other>> {}
+`,
+        expected: `
+model Foo<
+  TResourceTypeIsQuiteLong extends Reflection.ModelOf<Some | OtherThing>
+> {}
+
+model Bar<
+  TResourceTypeIsQuiteLongHere extends Reflection.ModelOf<Some, Other>
+> {}
+`,
+      });
+    });
+
+    it("keeps the inlined model expression properties separated with a space", async () => {
+      await assertFormat({
+        code: `
+model Foo<T extends { someProperty: string, anotherProperty: string, thirdProp: int32 }> {}
+`,
+        expected: `
+model Foo<
+  T extends {someProperty: string; anotherProperty: string; thirdProp: int32}
+> {}
+`,
+      });
     });
   });
 });

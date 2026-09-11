@@ -909,6 +909,40 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.IsTrue(HasMethodBodyStatement(serialization.BuildJsonModelWriteCoreMethod().BodyStatements, encode is null ? "writer.WriteNumberValue(RequiredInt);\n" : "writer.WriteStringValue(RequiredInt.ToString());\n"));
         }
 
+        [TestCase("string")]
+        [TestCase(null)]
+        public void TestBooleanSerialization(string? encode)
+        {
+            MockHelpers.LoadMockGenerator();
+            var input = new InputPrimitiveType(InputPrimitiveTypeKind.Boolean, "boolean", "TypeSpec.boolean", encode);
+            var format = ScmCodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(input);
+            var statement = MrwSerializationTypeDefinition.SerializeJsonValueCore(
+                typeof(bool),
+                new VariableExpression(typeof(bool), "value"),
+                new ScopedApi<Utf8JsonWriter>(new VariableExpression(typeof(Utf8JsonWriter), "writer")),
+                new ScopedApi<ModelReaderWriterOptions>(new VariableExpression(typeof(ModelReaderWriterOptions), "options")),
+                format);
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(encode ?? "default"), statement.ToDisplayString());
+        }
+
+        [TestCase("string")]
+        [TestCase(null)]
+        public void TestBooleanDeserialization(string? encode)
+        {
+            MockHelpers.LoadMockGenerator();
+            var input = new InputPrimitiveType(InputPrimitiveTypeKind.Boolean, "boolean", "TypeSpec.boolean", encode);
+            var format = ScmCodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(input);
+            var expression = MrwSerializationTypeDefinition.DeserializeJsonValueCore(
+                typeof(bool),
+                new ScopedApi<JsonElement>(new VariableExpression(typeof(JsonElement), "foo")),
+                new ScopedApi<BinaryData>(new VariableExpression(typeof(BinaryData), "data")),
+                new ScopedApi<ModelReaderWriterOptions>(new VariableExpression(typeof(ModelReaderWriterOptions), "options")),
+                format);
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(encode ?? "default").TrimEnd(), expression.ToDisplayString());
+        }
+
         [TestCase(typeof(long), SerializationFormat.Int_String, ExpectedResult = "long.Parse(foo.GetString())")]
         [TestCase(typeof(int), SerializationFormat.Int_String, ExpectedResult = "int.Parse(foo.GetString())")]
         [TestCase(typeof(short), SerializationFormat.Int_String, ExpectedResult = "short.Parse(foo.GetString())")]

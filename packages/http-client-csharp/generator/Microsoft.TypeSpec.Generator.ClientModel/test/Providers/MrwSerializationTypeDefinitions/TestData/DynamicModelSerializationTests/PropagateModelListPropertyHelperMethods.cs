@@ -5,6 +5,7 @@
 using System;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using System.Text;
 using Sample.Models;
 
 namespace Sample
@@ -31,7 +32,7 @@ namespace Sample
             }
             for (int i = 0; (i < P1.Count); i++)
             {
-                if (!P1[i].Patch.IsRemoved("$"u8))
+                if ((!Patch.IsRemoved(global::System.Text.Encoding.UTF8.GetBytes($"$.p1[{i}]")) && ((P1[i] == null) || !P1[i].Patch.IsRemoved("$"u8))))
                 {
                     yield return P1[i];
                 }
