@@ -33,7 +33,7 @@ safe-outputs:
   add-comment:
 
 tools:
-  bash: false
+  bash: [safeoutputs]
   cli-proxy: false
   web-fetch:
   github:
