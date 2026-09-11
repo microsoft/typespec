@@ -689,12 +689,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private static string BuildJsonPathForProperty(string propertySerializedName, bool escapeForCSharpInterpolatedString)
         {
             var jsonPath = RequiresJsonPathBracketNotation(propertySerializedName)
-                ? $"$[\"{EscapeJsonPathQuotedStringContent(propertySerializedName)}\"]"
+                ? $"$[\"{EscapeBackslashAndDoubleQuote(propertySerializedName)}\"]"
                 : $"$.{propertySerializedName}";
 
             // FormattableStringExpression writes raw interpolated string text, unlike LiteralU8 which escapes string contents.
             return escapeForCSharpInterpolatedString
-                ? EscapeCSharpStringContent(jsonPath)
+                ? EscapeBackslashAndDoubleQuote(jsonPath)
                 : jsonPath;
         }
 
@@ -703,12 +703,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return propertySerializedName.Any(c => c is '.' or '[' or ']' or '"' or '\'' or '\\' || char.IsWhiteSpace(c));
         }
 
-        private static string EscapeJsonPathQuotedStringContent(string value)
-        {
-            return value.Replace("\\", "\\\\").Replace("\"", "\\\"");
-        }
-
-        private static string EscapeCSharpStringContent(string value)
+        private static string EscapeBackslashAndDoubleQuote(string value)
         {
             return value.Replace("\\", "\\\\").Replace("\"", "\\\"");
         }
