@@ -867,12 +867,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             if (!responseBodyType.Equals(typeof(string)) && IsPlainTextParsableType(responseBodyType) && HasOnlyPlainTextContentType())
             {
                 var contentExpression = response.Content().InvokeToString().Invoke(nameof(string.TrimStart), Literal('\uFEFF')).As<string>();
-                return
-                [
-                    Declare("content", typeof(string), contentExpression, out var content),
-                    Declare("value", responseBodyType, GetPlainTextValueConversion(responseBodyType, content), out var value),
-                    Return(result.FromValue(value, response))
-                ];
+                var contentDeclaration = Declare("content", typeof(string), contentExpression, out var content);
+                if (GetPlainTextValueConversion(responseBodyType, content) is { } valueExpression)
+                {
+                    return
+                    [
+                        contentDeclaration,
+                        Declare("value", responseBodyType, valueExpression, out var value),
+                        Return(result.FromValue(value, response))
+                    ];
+                }
             }
 
             var isSpecialCaseType = responseBodyType.Equals(typeof(BinaryData))
@@ -929,10 +933,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return result.CastTo(responseBodyType);
         }
 
-        private ValueExpression GetPlainTextValueConversion(CSharpType responseBodyType, ValueExpression content)
+        private ValueExpression? GetPlainTextValueConversion(CSharpType responseBodyType, ValueExpression content)
         {
-            var parseType = GetPlainTextParseType(responseBodyType, out var enumType)
-                ?? throw new InvalidOperationException($"Unsupported plain text response type: {responseBodyType}.");
+            var parseType = GetPlainTextParseType(responseBodyType, out var enumType);
+            if (parseType is null)
+            {
+                return null;
+            }
 
             var invariantCulture = new MemberExpression(typeof(CultureInfo), nameof(CultureInfo.InvariantCulture));
             var deserializedValue = parseType switch
