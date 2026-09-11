@@ -22,8 +22,19 @@ export { efRefkey } from "@typespec/emitter-framework/csharp";
 
 export function getNullableValueTypeUnionInnerType($: Typekit, type: Type): Type | undefined {
   if (type.kind !== "Union" || isUnionEnum(type)) return undefined;
-  const innerType = getNullableUnionInnerType(type);
-  return innerType !== undefined && isValueType($, innerType) ? innerType : undefined;
+  let current: Type = type;
+  const visited = new Set<Type>();
+
+  while (current.kind === "Union" && !isUnionEnum(current)) {
+    if (visited.has(current)) return undefined;
+    visited.add(current);
+
+    const innerType = getNullableUnionInnerType(current);
+    if (innerType === undefined) return undefined;
+    current = innerType;
+  }
+
+  return isValueType($, current) ? current : undefined;
 }
 
 /**
