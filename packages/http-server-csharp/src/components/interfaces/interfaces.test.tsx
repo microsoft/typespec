@@ -61,3 +61,56 @@ it("renders an interface with void return type", async () => {
     }
   `);
 });
+
+it("renders a non-generic task for void success with a named error union", async () => {
+  const { PetStore } = await runner.compile(t.code`
+    @error
+    model NotFound {
+      code: string;
+    }
+
+    @error
+    model Conflict {
+      code: string;
+    }
+
+    union ApiError {
+      NotFound,
+      Conflict,
+    }
+
+    interface ${t.interface("PetStore")} {
+      deletePet(): void | ApiError;
+    }
+  `);
+
+  expect(
+    <Wrapper>
+      <BusinessLogicInterface type={PetStore} />
+    </Wrapper>,
+  ).toRenderTo(`
+    public interface IPetStore
+    {
+        Task DeletePetAsync();
+    }
+  `);
+});
+
+it("renders a generic task for scalar success with void", async () => {
+  const { PetStore } = await runner.compile(t.code`
+    interface ${t.interface("PetStore")} {
+      getPet(): string | void;
+    }
+  `);
+
+  expect(
+    <Wrapper>
+      <BusinessLogicInterface type={PetStore} />
+    </Wrapper>,
+  ).toRenderTo(`
+    public interface IPetStore
+    {
+        Task<string> GetPetAsync();
+    }
+  `);
+});

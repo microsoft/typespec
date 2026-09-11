@@ -1,12 +1,12 @@
 import { code, type Children } from "@alloy-js/core";
 import * as cs from "@alloy-js/csharp";
 import { Attribute } from "@alloy-js/csharp";
-import { isErrorModel, isVoidType } from "@typespec/compiler";
 import { useTsp } from "@typespec/emitter-framework";
 import { getDocComments } from "@typespec/emitter-framework/csharp";
 import type { OperationHttpCanonicalization } from "@typespec/http-canonicalization";
 import { AspNetMvc } from "../../utils/csharp-libs.jsx";
 import { getHttpVerbAttribute, getRouteTemplate } from "../../utils/http-helpers.js";
+import { getSuccessReturnType } from "../../utils/return-type-helpers.js";
 import type { RequestModelInfo } from "../request-models.jsx";
 import { TypeExpression } from "../type-expression/type-expression.jsx";
 import { getBindingAttribute, getLiteralDefaultValue } from "./parameter-binding.js";
@@ -149,26 +149,8 @@ export function ControllerAction(props: ControllerActionProps): Children {
   // Determine response type for ProducesResponseType attribute
   const returnType = props.operation.sourceType.returnType;
   const responseStatusCode = hasBody ? "OK" : "NoContent";
-  let responseTypeExpr: Children | undefined = undefined;
-
-  if (hasBody) {
-    if (returnType.kind === "Union") {
-      for (const variant of returnType.variants.values()) {
-        const vt = variant.type;
-        if (isVoidType(vt)) continue;
-        if (vt.kind === "Model") {
-          try {
-            if (isErrorModel($.program, vt)) continue;
-          } catch {}
-          if (vt.name?.toLowerCase() === "error") continue;
-        }
-        responseTypeExpr = <TypeExpression type={vt} />;
-        break;
-      }
-    } else if (!isVoidType(returnType)) {
-      responseTypeExpr = <TypeExpression type={returnType} />;
-    }
-  }
+  const successType = hasBody ? getSuccessReturnType($.program, returnType) : undefined;
+  const responseTypeExpr = successType ? <TypeExpression type={successType} /> : undefined;
 
   const attributes: Children[] = [
     <Attribute name={verb} />,
