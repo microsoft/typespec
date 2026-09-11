@@ -8,6 +8,7 @@ import { ClassDeclaration } from "@typespec/emitter-framework/csharp";
 import { HttpCanonicalizer } from "@typespec/http-canonicalization";
 import { beforeEach, expect, it } from "vitest";
 import { resolveServiceTypes } from "../../service-resolution.js";
+import { modelNeedsJsonNodes } from "./model-helpers.js";
 
 let runner: TesterInstance;
 
@@ -128,6 +129,21 @@ it("renders a model with nullable union property", async () => {
         public required string? Name { get; set; }
     }
   `);
+});
+
+it("detects Record<unknown> nested in array properties", async () => {
+  const { JsonObjectArray, StringMapArray } = await runner.compile(t.code`
+    model ${t.model("JsonObjectArray")} {
+      items: Record<unknown>[][];
+    }
+    model ${t.model("StringMapArray")} {
+      items: Record<string>[];
+    }
+  `);
+  const tk = $(runner.program);
+
+  expect(modelNeedsJsonNodes(tk, JsonObjectArray)).toBe(true);
+  expect(modelNeedsJsonNodes(tk, StringMapArray)).toBe(false);
 });
 
 it("does not emit a model class for an @useAuth scheme model", async () => {

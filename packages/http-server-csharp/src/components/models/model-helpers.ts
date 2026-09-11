@@ -185,9 +185,13 @@ export function isValueType($: ReturnType<typeof useTsp>["$"], type: Type): bool
 /** Returns true if any property of the model uses Record<T> (mapped to JsonObject). */
 export function modelNeedsJsonNodes($: ReturnType<typeof useTsp>["$"], model: Model): boolean {
   for (const prop of model.properties.values()) {
-    if (prop.type.kind === "Model" && $.record.is(prop.type)) {
+    let type = prop.type;
+    while (type.kind === "Model" && $.array.is(type) && type.indexer?.value) {
+      type = type.indexer.value;
+    }
+    if (type.kind === "Model" && $.record.is(type)) {
       // Only need JsonNodes for Record<unknown> (maps to JsonObject)
-      const valueType = prop.type.indexer?.value;
+      const valueType = type.indexer?.value;
       if (valueType?.kind === "Intrinsic" && valueType.name === "unknown") return true;
     }
   }
