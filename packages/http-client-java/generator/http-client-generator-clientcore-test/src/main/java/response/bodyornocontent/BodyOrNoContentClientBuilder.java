@@ -1,4 +1,4 @@
-package streaming.sse;
+package response.bodyornocontent;
 
 import io.clientcore.core.annotations.Metadata;
 import io.clientcore.core.annotations.MetadataProperties;
@@ -26,20 +26,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import streaming.sse.implementation.SseClientImpl;
+import response.bodyornocontent.implementation.BodyOrNoContentClientImpl;
 
 /**
- * A builder for creating a new instance of the SseClient type.
+ * A builder for creating a new instance of the BodyOrNoContentClient type.
  */
-@ServiceClientBuilder(
-    serviceClients = {
-        UnnamedClient.class,
-        NamedClient.class,
-        RetrieveClient.class,
-        ProtocolClient.class,
-        ProtocolDataClient.class })
-public final class SseClientBuilder implements HttpTrait<SseClientBuilder>, ProxyTrait<SseClientBuilder>,
-    ConfigurationTrait<SseClientBuilder>, EndpointTrait<SseClientBuilder> {
+@ServiceClientBuilder(serviceClients = { BodyOrNoContentClient.class })
+public final class BodyOrNoContentClientBuilder
+    implements HttpTrait<BodyOrNoContentClientBuilder>, ProxyTrait<BodyOrNoContentClientBuilder>,
+    ConfigurationTrait<BodyOrNoContentClientBuilder>, EndpointTrait<BodyOrNoContentClientBuilder> {
     @Metadata(properties = { MetadataProperties.GENERATED })
     private static final String SDK_NAME = "name";
 
@@ -47,16 +42,17 @@ public final class SseClientBuilder implements HttpTrait<SseClientBuilder>, Prox
     private static final String SDK_VERSION = "version";
 
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private static final Map<String, String> PROPERTIES = CoreUtils.getProperties("streaming-sse.properties");
+    private static final Map<String, String> PROPERTIES
+        = CoreUtils.getProperties("response-bodyornocontent.properties");
 
     @Metadata(properties = { MetadataProperties.GENERATED })
     private final List<HttpPipelinePolicy> pipelinePolicies;
 
     /**
-     * Create an instance of the SseClientBuilder.
+     * Create an instance of the BodyOrNoContentClientBuilder.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    public SseClientBuilder() {
+    public BodyOrNoContentClientBuilder() {
         this.pipelinePolicies = new ArrayList<>();
     }
 
@@ -71,7 +67,7 @@ public final class SseClientBuilder implements HttpTrait<SseClientBuilder>, Prox
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
-    public SseClientBuilder httpClient(HttpClient httpClient) {
+    public BodyOrNoContentClientBuilder httpClient(HttpClient httpClient) {
         this.httpClient = httpClient;
         return this;
     }
@@ -87,7 +83,7 @@ public final class SseClientBuilder implements HttpTrait<SseClientBuilder>, Prox
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
-    public SseClientBuilder httpRetryOptions(HttpRetryOptions retryOptions) {
+    public BodyOrNoContentClientBuilder httpRetryOptions(HttpRetryOptions retryOptions) {
         this.retryOptions = retryOptions;
         return this;
     }
@@ -97,7 +93,7 @@ public final class SseClientBuilder implements HttpTrait<SseClientBuilder>, Prox
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
-    public SseClientBuilder addHttpPipelinePolicy(HttpPipelinePolicy customPolicy) {
+    public BodyOrNoContentClientBuilder addHttpPipelinePolicy(HttpPipelinePolicy customPolicy) {
         Objects.requireNonNull(customPolicy, "'customPolicy' cannot be null.");
         pipelinePolicies.add(customPolicy);
         return this;
@@ -114,7 +110,7 @@ public final class SseClientBuilder implements HttpTrait<SseClientBuilder>, Prox
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
-    public SseClientBuilder httpRedirectOptions(HttpRedirectOptions redirectOptions) {
+    public BodyOrNoContentClientBuilder httpRedirectOptions(HttpRedirectOptions redirectOptions) {
         this.redirectOptions = redirectOptions;
         return this;
     }
@@ -130,7 +126,8 @@ public final class SseClientBuilder implements HttpTrait<SseClientBuilder>, Prox
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
-    public SseClientBuilder httpInstrumentationOptions(HttpInstrumentationOptions httpInstrumentationOptions) {
+    public BodyOrNoContentClientBuilder
+        httpInstrumentationOptions(HttpInstrumentationOptions httpInstrumentationOptions) {
         this.httpInstrumentationOptions = httpInstrumentationOptions;
         return this;
     }
@@ -146,7 +143,7 @@ public final class SseClientBuilder implements HttpTrait<SseClientBuilder>, Prox
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
-    public SseClientBuilder proxyOptions(ProxyOptions proxyOptions) {
+    public BodyOrNoContentClientBuilder proxyOptions(ProxyOptions proxyOptions) {
         this.proxyOptions = proxyOptions;
         return this;
     }
@@ -162,7 +159,7 @@ public final class SseClientBuilder implements HttpTrait<SseClientBuilder>, Prox
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
-    public SseClientBuilder configuration(Configuration configuration) {
+    public BodyOrNoContentClientBuilder configuration(Configuration configuration) {
         this.configuration = configuration;
         return this;
     }
@@ -178,18 +175,18 @@ public final class SseClientBuilder implements HttpTrait<SseClientBuilder>, Prox
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
     @Override
-    public SseClientBuilder endpoint(String endpoint) {
+    public BodyOrNoContentClientBuilder endpoint(String endpoint) {
         this.endpoint = endpoint;
         return this;
     }
 
     /**
-     * Builds an instance of SseClientImpl with the provided parameters.
+     * Builds an instance of BodyOrNoContentClientImpl with the provided parameters.
      * 
-     * @return an instance of SseClientImpl.
+     * @return an instance of BodyOrNoContentClientImpl.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    private SseClientImpl buildInnerClient() {
+    private BodyOrNoContentClientImpl buildInnerClient() {
         this.validateClient();
         String localEndpoint = (endpoint != null) ? endpoint : "http://localhost:3000";
         HttpInstrumentationOptions localHttpInstrumentationOptions = this.httpInstrumentationOptions == null
@@ -201,7 +198,8 @@ public final class SseClientBuilder implements HttpTrait<SseClientBuilder>, Prox
                 .setEndpoint(localEndpoint);
         Instrumentation instrumentation
             = Instrumentation.create(localHttpInstrumentationOptions, sdkInstrumentationOptions);
-        SseClientImpl client = new SseClientImpl(createHttpPipeline(), instrumentation, localEndpoint);
+        BodyOrNoContentClientImpl client
+            = new BodyOrNoContentClientImpl(createHttpPipeline(), instrumentation, localEndpoint);
         return client;
     }
 
@@ -229,57 +227,13 @@ public final class SseClientBuilder implements HttpTrait<SseClientBuilder>, Prox
     }
 
     /**
-     * Builds an instance of UnnamedClient class.
+     * Builds an instance of BodyOrNoContentClient class.
      * 
-     * @return an instance of UnnamedClient.
+     * @return an instance of BodyOrNoContentClient.
      */
     @Metadata(properties = { MetadataProperties.GENERATED })
-    public UnnamedClient buildUnnamedClient() {
-        SseClientImpl innerClient = buildInnerClient();
-        return new UnnamedClient(innerClient.getUnnameds(), innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of NamedClient class.
-     * 
-     * @return an instance of NamedClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public NamedClient buildNamedClient() {
-        SseClientImpl innerClient = buildInnerClient();
-        return new NamedClient(innerClient.getNameds(), innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of RetrieveClient class.
-     * 
-     * @return an instance of RetrieveClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public RetrieveClient buildRetrieveClient() {
-        SseClientImpl innerClient = buildInnerClient();
-        return new RetrieveClient(innerClient.getRetrieves(), innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of ProtocolClient class.
-     * 
-     * @return an instance of ProtocolClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public ProtocolClient buildProtocolClient() {
-        SseClientImpl innerClient = buildInnerClient();
-        return new ProtocolClient(innerClient.getProtocols(), innerClient.getInstrumentation());
-    }
-
-    /**
-     * Builds an instance of ProtocolDataClient class.
-     * 
-     * @return an instance of ProtocolDataClient.
-     */
-    @Metadata(properties = { MetadataProperties.GENERATED })
-    public ProtocolDataClient buildProtocolDataClient() {
-        SseClientImpl innerClient = buildInnerClient();
-        return new ProtocolDataClient(innerClient.getProtocolDatas(), innerClient.getInstrumentation());
+    public BodyOrNoContentClient buildClient() {
+        BodyOrNoContentClientImpl innerClient = buildInnerClient();
+        return new BodyOrNoContentClient(innerClient, innerClient.getInstrumentation());
     }
 }
