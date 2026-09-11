@@ -81,7 +81,8 @@ npm install -g npm-check-updates
 
      - Bump dependencies of `@typespec/*` and `@azure-tools/*` to latest versions
      ```
-    - Verify that the version in `package.json` matches the new `CHANGELOG.md` heading.
+
+   - Verify that the version in `package.json` matches the new `CHANGELOG.md` heading.
 
 8. Build and commit:
 
