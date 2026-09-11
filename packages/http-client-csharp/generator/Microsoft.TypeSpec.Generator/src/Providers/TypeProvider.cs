@@ -299,6 +299,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _type = null;
         }
 
+        protected void RebuildBaseTypePreservingType()
+        {
+            _baseType = null;
+            var rebuiltBaseType = BaseType;
+            _type?.UpdateBaseType(rebuiltBaseType);
+        }
+
         public WhereExpression? WhereClause => _whereClause ??= BuildWhereClause();
         private WhereExpression? _whereClause;
         protected virtual WhereExpression? BuildWhereClause() => null;

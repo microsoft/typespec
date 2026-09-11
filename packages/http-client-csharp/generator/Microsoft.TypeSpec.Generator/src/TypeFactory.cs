@@ -67,7 +67,7 @@ namespace Microsoft.TypeSpec.Generator
 
             foreach (var provider in _pendingBaseResolution)
             {
-                provider.Reset();
+                provider.RetryPendingBaseResolution();
             }
             _pendingBaseResolution.Clear();
         }

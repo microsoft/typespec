@@ -591,6 +591,32 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task BackCompat_LaterBaseResolutionPreservesPreVisitorRename()
+        {
+            var previousBase = InputFactory.Model("PreviousBase", properties: []);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: []);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [derivedModel, previousBase],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_BaseTypeChangePreservesLastContractBaseType)));
+            mockGenerator.Object.AddVisitor(new PreVisitModelRenamingVisitor("DerivedModel", "RenamedDerivedModel"));
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "RenamedDerivedModel");
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual("PreviousBase", provider.BaseType?.Name,
+                    "The later input model must be available when base resolution is retried");
+                Assert.IsTrue(mockGenerator.Object.TypeFactory.TypeProvidersByName.ContainsKey("RenamedDerivedModel"),
+                    "The pre-visitor name and its lookup entry must survive the base-resolution retry");
+                Assert.IsFalse(mockGenerator.Object.TypeFactory.TypeProvidersByName.ContainsKey("DerivedModel"));
+            });
+        }
+
+        [Test]
         public async Task BackCompat_PostVisitorMemberCollisionRejectsRestoredBase()
         {
             var previousBase = InputFactory.Model(
@@ -616,8 +642,16 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             derivedProvider.Properties.Single(property => property.Name == "Other").Update(name: "Id");
             derivedProvider.ProcessTypeForBackCompatibility();
 
-            Assert.IsNull(derivedProvider.BaseType,
-                "A member renamed by a visitor must be checked against the restored base before emission");
+            var renamedProperty = derivedProvider.Properties.Single(property => property.Name == "Id");
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual("PreviousBase", derivedProvider.BaseType?.Name,
+                    "A visitor rename should not discard the restored compatibility base");
+                Assert.IsTrue(renamedProperty.Modifiers.HasFlag(MethodSignatureModifiers.New),
+                    "A visitor-created collision must emit an explicit new modifier to avoid CS0108");
+                Assert.That(derivedProvider.Constructors, Is.Not.Empty,
+                    "Base-dependent constructor state must remain intact");
+            });
         }
 
         [Test]
@@ -4638,6 +4672,18 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             else
             {
                 Assert.IsNull(rawDataField, "Expected _additionalBinaryDataProperties field to NOT be generated for XML-only models");
+            }
+        }
+
+        private sealed class PreVisitModelRenamingVisitor(string sourceName, string targetName) : LibraryVisitor
+        {
+            protected internal override ModelProvider? PreVisitModel(InputModelType model, ModelProvider? type)
+            {
+                if (type is not null && model.Name == sourceName)
+                {
+                    type.Update(name: targetName);
+                }
+                return type;
             }
         }
 

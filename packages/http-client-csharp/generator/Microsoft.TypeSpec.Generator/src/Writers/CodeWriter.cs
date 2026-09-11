@@ -511,6 +511,7 @@ namespace Microsoft.TypeSpec.Generator
 
             AppendRaw(modifiers.HasFlag(FieldModifiers.Public) ? "public " : (modifiers.HasFlag(FieldModifiers.Internal) ? "internal " : "private "))
                 .AppendRawIf("protected ", modifiers.HasFlag(FieldModifiers.Protected))
+                .AppendRawIf("new ", modifiers.HasFlag(FieldModifiers.New))
                 .AppendRawIf("const ", modifiers.HasFlag(FieldModifiers.Const))
                 .AppendRawIf("static ", modifiers.HasFlag(FieldModifiers.Static))
                 .AppendRawIf("readonly ", modifiers.HasFlag(FieldModifiers.ReadOnly));

@@ -71,8 +71,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private List<PropertyProvider>? _additionalPropertyProperties;
         private ModelProvider? _baseModelProvider;
         private ConstructorProvider? _fullConstructor;
-        private bool _hasPostVisitorBaseOverride;
-        private CSharpType? _postVisitorBaseOverride;
         internal PropertyProvider? DiscriminatorProperty { get; private set; }
 
         private readonly bool _isDiscriminatedBaseType;
@@ -197,8 +195,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _isMultiLevelDiscriminator = null;
             _baseTypeProvider = null;
             _baseModelProvider = null;
-            _hasPostVisitorBaseOverride = false;
-            _postVisitorBaseOverride = null;
         }
 
         private protected override void ResetConstructors()
@@ -257,11 +253,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override CSharpType? BuildBaseType()
         {
-            if (_hasPostVisitorBaseOverride)
-            {
-                return _postVisitorBaseOverride;
-            }
-
             var currentBase = BuildCurrentBaseType();
             return BuildBaseTypeForBackCompatibility(currentBase);
         }
@@ -516,6 +507,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return false;
         }
 
+        internal void RetryPendingBaseResolution()
+        {
+            _baseTypeProvider = null;
+            _baseModelProvider = null;
+            RebuildBaseTypePreservingType();
+        }
+
         internal void RevalidateBaseTypeAfterVisitors()
         {
             var previousBase = LastContractView?.BaseType;
@@ -544,17 +542,33 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     .Concat(model.CustomCodeView?.Properties.Select(property => property.Name) ?? [])
                     .Concat(model.CustomCodeView?.Fields.Select(field => field.Name) ?? [])
                     .Concat(model.CustomCodeView?.Methods.Select(method => method.Signature.Name) ?? []);
-                if (currentMemberNames.Any(inheritedMemberNames.Contains))
+                var collisions = currentMemberNames.Where(inheritedMemberNames.Contains).ToHashSet(StringComparer.Ordinal);
+                if (collisions.Count > 0)
                 {
-                    _postVisitorBaseOverride = BuildCurrentBaseType();
-                    _hasPostVisitorBaseOverride = true;
-                    SetBaseType(_postVisitorBaseOverride);
-                    _baseTypeProvider = null;
-                    _baseModelProvider = null;
-                    ReportIncompatibleBackcompatBaseType(
-                        previousBase,
-                        "a post-visitor member name conflicts with the previous base hierarchy");
-                    return;
+                    foreach (var property in model.Properties.Where(property => collisions.Contains(property.Name)))
+                    {
+                        property.Update(modifiers: property.Modifiers & ~MethodSignatureModifiers.Override | MethodSignatureModifiers.New);
+                    }
+                    foreach (var field in model.Fields.Where(field => collisions.Contains(field.Name)))
+                    {
+                        field.Update(modifiers: field.Modifiers | FieldModifiers.New);
+                    }
+                    foreach (var method in model.Methods.Where(method => collisions.Contains(method.Signature.Name)))
+                    {
+                        var signature = method.Signature;
+                        method.Update(signature: new MethodSignature(
+                            signature.Name,
+                            signature.Description,
+                            signature.Modifiers & ~MethodSignatureModifiers.Override | MethodSignatureModifiers.New,
+                            signature.ReturnType,
+                            signature.ReturnDescription,
+                            signature.Parameters,
+                            signature.Attributes,
+                            signature.GenericArguments,
+                            signature.GenericParameterConstraints,
+                            signature.ExplicitInterface,
+                            signature.NonDocumentComment));
+                    }
                 }
 
                 foreach (var derivedModel in model.DerivedModels)
