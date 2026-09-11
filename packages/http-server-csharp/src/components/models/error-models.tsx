@@ -2,6 +2,7 @@ import { type Children } from "@alloy-js/core";
 import type { ParameterProps } from "@alloy-js/csharp";
 import * as cs from "@alloy-js/csharp";
 import { isErrorModel, type Model, type Program } from "@typespec/compiler";
+import { getNullableUnionInnerType } from "@typespec/emitter-framework/csharp";
 import { getHeaderFieldName, isHeader, isStatusCode } from "@typespec/http";
 import {
   getAllProperties,
@@ -53,9 +54,13 @@ export function getErrorConstructor(program: Program, model: Model, className: s
       propName = propName === "Value" ? "ValueName" : `${propName}Prop`;
     }
 
-    const csharpType = getCSharpTypeString(program, prop.type);
+    const nullableUnionInnerType =
+      prop.type.kind === "Union" ? getNullableUnionInnerType(prop.type) : undefined;
+    const csharpType = getCSharpTypeString(program, nullableUnionInnerType ?? prop.type);
+    const needsNullable = prop.optional || nullableUnionInnerType !== undefined;
+    const parameterType = needsNullable ? `${csharpType}?` : csharpType;
     const defaultStr = defaultValue ? defaultValue : prop.optional ? "default" : undefined;
-    parameters.push({ name: prop.name, type: csharpType, default: defaultStr });
+    parameters.push({ name: prop.name, type: parameterType, default: defaultStr });
     bodyParts.push(`${propName} = ${prop.name};`);
 
     if (isHeader(program, prop)) {
