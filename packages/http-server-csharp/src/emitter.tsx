@@ -12,6 +12,7 @@ import { ProgramCs } from "./components/project/program.jsx";
 import { ControllersAndInterfaces } from "./components/render-root.jsx";
 import { Documentation } from "./components/scaffolding/documentation.jsx";
 import { MockHelpers, MockImplementations } from "./components/scaffolding/mock-scaffolding.jsx";
+import { HttpServiceExceptionFilter } from "./components/serialization/http-service-exception-filter.jsx";
 import { JsonConverters } from "./components/serialization/json-converters.jsx";
 import { createServerScalarOverrides } from "./components/type-expression/type-expression.jsx";
 import { EmitterOptions } from "./context/emitter-options-context.js";
@@ -120,6 +121,11 @@ export async function $onEmit(context: EmitContext<CSharpServiceEmitterOptions>)
             </Namespace>
             <SourceDirectory path="generated">
               <JsonConverters />
+              <Show when={!modelsOnly}>
+                <SourceDirectory path="lib">
+                  <HttpServiceExceptionFilter />
+                </SourceDirectory>
+              </Show>
             </SourceDirectory>
             <Show when={emitMocks}>
               <MockHelpers interfaceRegistrations={interfaceRegistrations} />

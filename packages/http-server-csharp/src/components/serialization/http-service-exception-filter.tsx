@@ -3,38 +3,16 @@ import { Namespace } from "@alloy-js/csharp";
 import { CSharpFile } from "../csharp-file.jsx";
 
 /**
- * Renders the HttpServiceException class and HttpServiceExceptionFilter.
- * The exception class represents HTTP response exceptions with status codes.
- * The filter converts these exceptions to proper HTTP responses.
+ * Renders the ASP.NET action filter that converts HttpServiceException instances to HTTP responses.
  */
 export function HttpServiceExceptionFilter(): Children {
   return (
     <CSharpFile
-      path="HttpServiceException.cs"
+      path="HttpServiceExceptionFilter.cs"
       using={["Microsoft.AspNetCore.Mvc", "Microsoft.AspNetCore.Mvc.Filters"]}
     >
       <Namespace name="TypeSpec.Helpers">
         {code`
-          /// <summary>
-          /// Represents an HTTP response exception with a status code and optional value.
-          /// </summary>
-          public class HttpServiceException : Exception
-          {
-            /// <summary>
-            /// Initializes a new instance of the HttpServiceException class.
-            /// </summary>
-            /// <param name="statusCode">The HTTP status code.</param>
-            /// <param name="value">The optional value to include in the response.</param>
-            public HttpServiceException(int statusCode, object? value = null, Dictionary<string, string>? headers = null) =>
-              (StatusCode, Value, Headers) = (statusCode, value, headers ?? new Dictionary<string, string>());
-
-            public int StatusCode { get; }
-
-            public object? Value { get; }
-
-            public Dictionary<string, string> Headers { get; }
-          }
-
           /// <summary>
           /// An action filter that handles HttpServiceException and converts it to an HTTP response.
           /// </summary>

@@ -89,9 +89,11 @@ it("emits only models and support files when output-type is models", async () =>
   expect(hasPathEndingWith("/generated/models/Pet.cs")).toBe(true);
   expect(hasPathEndingWith("/generated/models/PetKind.cs")).toBe(true);
   expect(hasPathEndingWith("/generated/lib/JsonSerializationProvider.cs")).toBe(true);
+  expect(hasPathEndingWith("/generated/lib/HttpServiceException.cs")).toBe(true);
 
   expect(paths.some((path) => path.includes("/generated/controllers/"))).toBe(false);
   expect(paths.some((path) => path.includes("/generated/operations/"))).toBe(false);
+  expect(hasPathEndingWith("/generated/lib/HttpServiceExceptionFilter.cs")).toBe(false);
   expect(hasPathEndingWith("/generated/models/ContosoOperationsCreateRequest.cs")).toBe(false);
   expect(paths.some((path) => path.includes("/mocks/"))).toBe(false);
   expect(hasPathEndingWith("/Program.cs")).toBe(false);
@@ -99,4 +101,22 @@ it("emits only models and support files when output-type is models", async () =>
   expect(hasPathEndingWith("/Properties/launchSettings.json")).toBe(false);
   expect(hasPathEndingWith("/appsettings.json")).toBe(false);
   expect(hasPathEndingWith("/docs/emitter.md")).toBe(false);
+
+  const httpServiceException = [...result.fs.fs.entries()].find(([path]) =>
+    path.endsWith("/generated/lib/HttpServiceException.cs"),
+  )?.[1];
+  expect(httpServiceException).not.toContain("Microsoft.AspNetCore");
+  expect(httpServiceException).not.toContain("IActionFilter");
+  expect(httpServiceException).not.toContain("IOrderedFilter");
+});
+
+it("emits the HTTP service exception filter for server output", async () => {
+  const [result] = await compileAndDiagnose(tester, getStandardService("op read(): string;"), {
+    "skip-format": true,
+  });
+  const paths = [...result.fs.fs.keys()];
+  const hasPathEndingWith = (suffix: string) => paths.some((path) => path.endsWith(suffix));
+
+  expect(hasPathEndingWith("/generated/lib/HttpServiceException.cs")).toBe(true);
+  expect(hasPathEndingWith("/generated/lib/HttpServiceExceptionFilter.cs")).toBe(true);
 });
