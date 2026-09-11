@@ -658,8 +658,31 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var (_, serialization) = CreateModelAndSerialization(inputModel);
 
             var deserializationMethod = serialization.Methods.Single(m => m.Signature.Name.StartsWith("Deserialize"));
-            var methodBody = deserializationMethod.BodyStatements!.ToDisplayString();
-            Assert.AreEqual(Helpers.GetExpectedFromFile(), methodBody);
+            using var writer = new CodeWriter();
+            writer.WriteMethod(deserializationMethod);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), writer.ToString(false));
+        }
+
+        [Test]
+        public void ExternalModelPropertiesPreserveReaderOptions()
+        {
+            // The enclosing options must flow into the ModelReaderWriter.Read fallback for external models
+            // so that unknown properties are preserved when reading in the "J" format.
+            var externalModel = InputFactory.Model(
+                "ExternalModel",
+                external: new InputExternalTypeMetadata("System.IO.File", null, null));
+            var inputModel = InputFactory.Model("mockInputModel", properties:
+            [
+                InputFactory.Property("scalar", externalModel),
+                InputFactory.Property("list", InputFactory.Array(externalModel)),
+                InputFactory.Property("dictionary", InputFactory.Dictionary(externalModel))
+            ]);
+            var (_, serialization) = CreateModelAndSerialization(inputModel);
+
+            var deserializationMethod = serialization.Methods.Single(m => m.Signature.Name.StartsWith("Deserialize"));
+            using var writer = new CodeWriter();
+            writer.WriteMethod(deserializationMethod);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), writer.ToString(false));
         }
 
         [Test]
