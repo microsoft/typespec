@@ -49,7 +49,6 @@ catalog:
   "@inquirer/checkbox": ^5.2.2
   "@inquirer/confirm": ^6.2.0
   "@inquirer/input": ^5.1.3
-  "@inquirer/prompts": ^8.6.0
   "@inquirer/select": ^5.2.2
   "@microsoft/api-extractor": ~7.58.1
   "@microsoft/api-extractor-model": ^7.33.11
