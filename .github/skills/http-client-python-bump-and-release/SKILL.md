@@ -70,7 +70,7 @@ npm install -g npm-check-updates
    npm run change:version
    ```
 
-   Verify that the script updated both the emitter version in `package.json` and `CHANGELOG.md`. If neither file was updated:
+   Verify that the script updated both the emitter version in `package.json` and `CHANGELOG.md`. If either file was not updated:
    - Increment the third component of the emitter version in `package.json` (for example, `a.b.c` to `a.b.(c+1)`).
    - Add this entry near the top of `CHANGELOG.md`, immediately after the changelog title:
 
