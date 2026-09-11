@@ -1,7 +1,7 @@
 import { expectDiagnosticEmpty, expectDiagnostics, t } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { describe, expect, it } from "vitest";
-import type { PathOptions } from "../generated-defs/TypeSpec.Http.js";
+import type { PathOptions, QueryOptions } from "../generated-defs/TypeSpec.Http.js";
 import type { HttpOperation, HttpOperationParameter } from "../src/index.js";
 import { getRoutePath, joinPathSegments } from "../src/index.js";
 import {
@@ -572,20 +572,20 @@ describe("uri template", () => {
       expectPathParameter(param, { style, allowReserved: false, explode: false });
     });
 
-    function expectQueryParameter(param: HttpOperationParameter, expected: PathOptions) {
+    function expectQueryParameter(param: HttpOperationParameter, expected: QueryOptions) {
       strictEqual(param.type, "query");
-      const { explode } = param;
-      expect({ explode }).toEqual(expected);
+      const { explode, style } = param;
+      expect({ explode, style }).toEqual(expected);
     }
 
     it("extract simple query parameter", async () => {
       const param = await getParameter(`@route("/bar{?foo}") op foo(foo: string): void;`, "foo");
-      expectQueryParameter(param, { explode: false });
+      expectQueryParameter(param, { explode: false, style: "form" });
     });
 
     it("extract explode query parameter", async () => {
       const param = await getParameter(`@route("/bar{?foo*}") op foo(foo: string): void;`, "foo");
-      expectQueryParameter(param, { explode: true });
+      expectQueryParameter(param, { explode: true, style: "form" });
     });
 
     it("extract simple query continuation parameter", async () => {
@@ -593,7 +593,7 @@ describe("uri template", () => {
         `@route("/bar?fixed=yes{&foo}") op foo(foo: string): void;`,
         "foo",
       );
-      expectQueryParameter(param, { explode: false });
+      expectQueryParameter(param, { explode: false, style: "form" });
     });
   });
 
@@ -706,7 +706,12 @@ describe("uri template", () => {
   });
 
   describe("emit diagnostic if using any of the query options when parameter is already defined in the uri template", () => {
-    it.each(["#{ explode: false }", "#{ explode: true }"])("%s", async (options) => {
+    it.each([
+      "#{ explode: false }",
+      "#{ explode: true }",
+      `#{ style: "form" }`,
+      `#{ style: "deepObject" }`,
+    ])("%s", async (options) => {
       const diagnostics = await diagnoseOperations(
         `@route("/bar{?foo}") op foo(@query(${options}) foo: string): void;`,
       );

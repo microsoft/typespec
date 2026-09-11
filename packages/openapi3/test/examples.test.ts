@@ -579,6 +579,18 @@ worksFor(supportedVersions, ({ openApiFor }) => {
         paramExample: `#{R: 100, G: 200, B: 150}`,
         expectedExample: undefined,
       },
+      {
+        desc: "deepObject (object) explode: true",
+        param: `@query(#{ style: "deepObject" }) color: Record<int32>`,
+        paramExample: `#{R: 100, G: 200, B: 150}`,
+        expectedExample: "color[R]=100&color[G]=200&color[B]=150",
+      },
+      {
+        desc: "deepObject (object) explode: false",
+        param: `@query(#{ style: "deepObject", explode: false }) color: Record<int32>`,
+        paramExample: `#{R: 100, G: 200, B: 150}`,
+        expectedExample: undefined,
+      },
     ])("$desc", async ({ param, paramExample, expectedExample }) => {
       const res = await openApiFor(
         `
