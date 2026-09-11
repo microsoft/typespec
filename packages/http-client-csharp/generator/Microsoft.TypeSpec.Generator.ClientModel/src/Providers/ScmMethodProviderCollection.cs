@@ -940,7 +940,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 Type t when t == typeof(string) => content,
                 Type t when t == typeof(bool) => Static<bool>().Invoke(nameof(bool.Parse), content).As<bool>(),
                 Type t when t == typeof(Guid) => Static<Guid>().Invoke(nameof(Guid.Parse), content).As<Guid>(),
-                Type t when t == typeof(Uri) => New.Instance(typeof(Uri), content),
+                Type t when t == typeof(Uri) => New.Instance<Uri>(content, FrameworkEnumValue(UriKind.RelativeOrAbsolute)),
                 Type t when t == typeof(TimeSpan) => content.As<string>().ParseTimeSpan(Literal(SerializationFormat.Duration_Constant.ToFormatSpecifier() ?? throw new InvalidOperationException())),
                 Type t when t == typeof(DateTimeOffset) => content.As<string>().ParseDateTimeOffset(Literal(GetResponseSerializationFormat().ToFormatSpecifier())),
                 // The remaining supported types are numeric and all expose a static Parse(string, IFormatProvider) method.
