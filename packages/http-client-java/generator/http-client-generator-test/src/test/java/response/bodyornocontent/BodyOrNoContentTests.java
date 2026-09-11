@@ -33,5 +33,6 @@ public class BodyOrNoContentTests {
         Assertions.assertEquals(204, response.getStatusCode());
         Assertions.assertEquals("no-content-request", response.getHeaders().getValue(REQUEST_ID));
         Assertions.assertArrayEquals(new byte[0], response.getValue().toBytes());
+        Assertions.assertNull(response.getValue().toObject(BlobLayout.class));
     }
 }
