@@ -502,12 +502,20 @@ class _SSEEventBuilder:
 
     @property
     def last_event_id(self) -> str:
-        """Return the current value of the last event ID buffer."""
+        """Return the current value of the last event ID buffer.
+
+        :return: The current value of the last event ID buffer.
+        :rtype: str
+        """
         return self._last_id
 
     @property
     def retry(self) -> Optional[int]:
-        """Return the most recently received valid reconnection time."""
+        """Return the most recently received valid reconnection time.
+
+        :return: The reconnection time in milliseconds, if one was provided.
+        :rtype: int or None
+        """
         return self._retry
 
 
@@ -525,12 +533,20 @@ class SSEDecoder:
 
     @property
     def last_event_id(self) -> str:
-        """Return the current value of the last event ID buffer."""
+        """Return the current value of the last event ID buffer.
+
+        :return: The current value of the last event ID buffer.
+        :rtype: str
+        """
         return self._builder.last_event_id
 
     @property
     def retry(self) -> Optional[int]:
-        """Return the most recently received valid reconnection time."""
+        """Return the most recently received valid reconnection time.
+
+        :return: The reconnection time in milliseconds, if one was provided.
+        :rtype: int or None
+        """
         return self._builder.retry
 
     def iter_events(self, iter_bytes: Iterator[bytes]) -> Iterator[ServerSentEvent]:
@@ -561,12 +577,20 @@ class AsyncSSEDecoder:
 
     @property
     def last_event_id(self) -> str:
-        """Return the current value of the last event ID buffer."""
+        """Return the current value of the last event ID buffer.
+
+        :return: The current value of the last event ID buffer.
+        :rtype: str
+        """
         return self._builder.last_event_id
 
     @property
     def retry(self) -> Optional[int]:
-        """Return the most recently received valid reconnection time."""
+        """Return the most recently received valid reconnection time.
+
+        :return: The reconnection time in milliseconds, if one was provided.
+        :rtype: int or None
+        """
         return self._builder.retry
 
     # pylint: disable=invalid-overridden-method

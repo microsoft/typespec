@@ -118,9 +118,9 @@ def test_generated_unnamed_discriminator_dispatch_and_terminal_predicate(async_m
     assert f"deserialized: {stream_class}[" in generated
     assert "terminal_event_predicate=_is_terminal_event" in generated
     assert (
-        "async def _reconnect(_last_event_id, _reconnect_delay):"
+        "async def _reconnect(_last_event_id, _reconnect_delay):  # pylint: disable=protected-access"
         if async_mode
-        else "def _reconnect(_last_event_id, _reconnect_delay):"
+        else "def _reconnect(_last_event_id, _reconnect_delay):  # pylint: disable=protected-access"
     ) in generated
     assert (
         f"{'await ' if async_mode else ''}self._client.pipeline._transport.sleep(_reconnect_delay)"
