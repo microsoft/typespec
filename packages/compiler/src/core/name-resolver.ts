@@ -727,6 +727,11 @@ export function createResolver(program: Program): NameResolver {
 
   function resolveMetaMemberByName(baseSym: Sym, sv: string): ResolutionResult {
     const baseNode = getSymNode(baseSym);
+
+    if (!baseNode) {
+      return failedResult(ResolutionResultFlags.NotFound);
+    }
+
     const prototype = getMetaTypePrototypeForSymbol(baseSym, baseNode);
 
     if (!prototype || isReflectionMetaProjectionSymbol(baseSym, baseNode)) {
@@ -745,6 +750,9 @@ export function createResolver(program: Program): NameResolver {
   /** Get the available meta-member names for a symbol's meta-type prototype. */
   function getMetaMemberNames(baseSym: Sym): readonly string[] {
     const baseNode = getSymNode(baseSym);
+    if (!baseNode) {
+      return [];
+    }
     const prototype = getMetaTypePrototypeForSymbol(baseSym, baseNode);
     return prototype ? [...prototype.keys()] : [];
   }
@@ -1379,8 +1387,9 @@ export function createResolver(program: Program): NameResolver {
     // model properties
     const modelPropertyPrototype: TypePrototype = new Map();
     modelPropertyPrototype.set("type", (baseSym) => {
-      const node = baseSym.node as ModelPropertyNode;
-      return resolveExpression(node.value);
+      const node = getSymNode(baseSym);
+      compilerAssert(node, "Expected model property symbol to have a node");
+      return resolveExpression((node as ModelPropertyNode).value);
     });
     nodeInterfaces.set(SyntaxKind.ModelProperty, modelPropertyPrototype);
 

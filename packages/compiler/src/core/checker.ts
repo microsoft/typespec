@@ -700,15 +700,19 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
    */
   function checkMemberSym(ctx: CheckContext, sym: Sym): Type {
     const symbolLinks = getSymbolLinks(sym);
-    const memberContainer = getTypeForNode(getSymNode(sym.parent!), ctx);
+    const parentNode = getSymNode(sym.parent!);
+    compilerAssert(parentNode, "Expected member container parent symbol to have a node");
+    const memberContainer = getTypeForNode(parentNode, ctx);
     const type = symbolLinks.declaredType ?? symbolLinks.type;
 
     if (type) {
       return type;
     } else {
+      const memberNode = getSymNode(sym);
+      compilerAssert(memberNode, "Expected member symbol to have a node");
       return checkMember(
         ctx,
-        getSymNode(sym) as MemberNode,
+        memberNode as MemberNode,
         memberContainer as MemberContainerType,
       )!;
     }
@@ -1764,6 +1768,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         compilerAssert(sym.type, `Expected late bound symbol to have type`);
         return sym.type;
       } else if (sym.flags & SymbolFlags.TemplateParameter) {
+        compilerAssert(symNode, "Expected template parameter symbol to have a node");
         const mapped = checkTemplateParameterDeclaration(
           ctx,
           symNode as TemplateParameterDeclarationNode,
@@ -1779,6 +1784,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           baseType = checkMemberSym(ctx, sym);
         } else {
           // don't have a cached type for this symbol, so go grab it and cache it
+          compilerAssert(symNode, "Expected symbol to have a node to resolve type");
           baseType = getTypeForNode(symNode, ctx);
           symbolLinks.type = baseType;
         }
@@ -4493,8 +4499,8 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     return getCanonicalResolvedMemberSymbol(type, node.id.sv);
   }
 
-  function getMemberKindName(node: Node) {
-    switch (node.kind) {
+  function getMemberKindName(node: Node | undefined) {
+    switch (node?.kind) {
       case SyntaxKind.ModelStatement:
       case SyntaxKind.ModelExpression:
         return "Model";
@@ -4637,6 +4643,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
    */
   function getAliasedSymbol(ctx: CheckContext, aliasSymbol: Sym): Sym | undefined {
     const node = getSymNode(aliasSymbol);
+    compilerAssert(node, "Expected alias symbol to have a node");
     const links = resolver.getSymbolLinks(aliasSymbol);
     if (!links.aliasResolutionIsTemplate) {
       const aliased = links.aliasedSymbol ?? resolver.getNodeLinks(node).resolvedSymbol;
@@ -7233,7 +7240,8 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         }),
       );
     } else if (links.finalSymbol?.flags && links.finalSymbol.flags & SymbolFlags.Alias) {
-      const aliasNode: AliasStatementNode = getSymNode(links.finalSymbol) as AliasStatementNode;
+      const aliasNode = getSymNode(links.finalSymbol) as AliasStatementNode | undefined;
+      compilerAssert(aliasNode, "Expected alias symbol to have a node");
 
       program.reportDiagnostic(
         createDiagnostic({
@@ -9029,7 +9037,8 @@ function createFunctionContext(program: Program, fnCall: CallExpressionNode): Fu
   };
 }
 
-function isTemplatedNode(node: Node): node is TemplateableNode {
+function isTemplatedNode(node: Node | undefined): node is TemplateableNode {
+  if (node === undefined) return false;
   return "templateParameters" in node && node.templateParameters.length > 0;
 }
 
