@@ -41,22 +41,17 @@ namespace Sample
             {
                 writer.WritePropertyName("cats"u8);
                 writer.WriteStartObject();
-                bool hasPatch = Patch.Contains("$"u8, "cats"u8);
 #if NET8_0_OR_GREATER
                 global::System.Span<byte> buffer = stackalloc byte[256];
 #endif
                 foreach (var item in Cats)
                 {
-                    bool patchContains = false;
-                    if (hasPatch)
-                    {
 #if NET8_0_OR_GREATER
-                        int bytesWritten = global::System.Text.Encoding.UTF8.GetBytes(item.Key.AsSpan(), buffer);
-                        patchContains = (bytesWritten == 256) ? Patch.Contains("$.cats"u8, global::System.Text.Encoding.UTF8.GetBytes(item.Key)) : Patch.Contains("$.cats"u8, buffer.Slice(0, bytesWritten));
+                    int bytesWritten = global::System.Text.Encoding.UTF8.GetBytes(item.Key.AsSpan(), buffer);
+                    bool patchContains = (bytesWritten == 256) ? Patch.Contains("$.cats"u8, global::System.Text.Encoding.UTF8.GetBytes(item.Key)) : Patch.Contains("$.cats"u8, buffer.Slice(0, bytesWritten));
 #else
-                        patchContains = Patch.Contains("$.cats"u8, global::System.Text.Encoding.UTF8.GetBytes(item.Key));
+                    bool patchContains = Patch.Contains("$.cats"u8, global::System.Text.Encoding.UTF8.GetBytes(item.Key));
 #endif
-                    }
                     if (!patchContains)
                     {
                         writer.WritePropertyName(item.Key);
@@ -64,32 +59,24 @@ namespace Sample
                     }
                 }
 
-                if (hasPatch)
-                {
-                    Patch.WriteTo(writer, "$.cats"u8);
-                }
+                Patch.WriteTo(writer, "$.cats"u8);
                 writer.WriteEndObject();
             }
             if (!Patch.Contains("$.names"u8))
             {
                 writer.WritePropertyName("names"u8);
                 writer.WriteStartObject();
-                bool hasPatch = Patch.Contains("$"u8, "names"u8);
 #if NET8_0_OR_GREATER
                 global::System.Span<byte> buffer = stackalloc byte[256];
 #endif
                 foreach (var item in Names)
                 {
-                    bool patchContains = false;
-                    if (hasPatch)
-                    {
 #if NET8_0_OR_GREATER
-                        int bytesWritten = global::System.Text.Encoding.UTF8.GetBytes(item.Key.AsSpan(), buffer);
-                        patchContains = (bytesWritten == 256) ? Patch.Contains("$.names"u8, global::System.Text.Encoding.UTF8.GetBytes(item.Key)) : Patch.Contains("$.names"u8, buffer.Slice(0, bytesWritten));
+                    int bytesWritten = global::System.Text.Encoding.UTF8.GetBytes(item.Key.AsSpan(), buffer);
+                    bool patchContains = (bytesWritten == 256) ? Patch.Contains("$.names"u8, global::System.Text.Encoding.UTF8.GetBytes(item.Key)) : Patch.Contains("$.names"u8, buffer.Slice(0, bytesWritten));
 #else
-                        patchContains = Patch.Contains("$.names"u8, global::System.Text.Encoding.UTF8.GetBytes(item.Key));
+                    bool patchContains = Patch.Contains("$.names"u8, global::System.Text.Encoding.UTF8.GetBytes(item.Key));
 #endif
-                    }
                     if (!patchContains)
                     {
                         writer.WritePropertyName(item.Key);
@@ -102,32 +89,24 @@ namespace Sample
                     }
                 }
 
-                if (hasPatch)
-                {
-                    Patch.WriteTo(writer, "$.names"u8);
-                }
+                Patch.WriteTo(writer, "$.names"u8);
                 writer.WriteEndObject();
             }
             if ((global::Sample.Optional.IsCollectionDefined(OptionalNames) && !Patch.Contains("$.optionalNames"u8)))
             {
                 writer.WritePropertyName("optionalNames"u8);
                 writer.WriteStartObject();
-                bool hasPatch = Patch.Contains("$"u8, "optionalNames"u8);
 #if NET8_0_OR_GREATER
                 global::System.Span<byte> buffer = stackalloc byte[256];
 #endif
                 foreach (var item in OptionalNames)
                 {
-                    bool patchContains = false;
-                    if (hasPatch)
-                    {
 #if NET8_0_OR_GREATER
-                        int bytesWritten = global::System.Text.Encoding.UTF8.GetBytes(item.Key.AsSpan(), buffer);
-                        patchContains = (bytesWritten == 256) ? Patch.Contains("$.optionalNames"u8, global::System.Text.Encoding.UTF8.GetBytes(item.Key)) : Patch.Contains("$.optionalNames"u8, buffer.Slice(0, bytesWritten));
+                    int bytesWritten = global::System.Text.Encoding.UTF8.GetBytes(item.Key.AsSpan(), buffer);
+                    bool patchContains = (bytesWritten == 256) ? Patch.Contains("$.optionalNames"u8, global::System.Text.Encoding.UTF8.GetBytes(item.Key)) : Patch.Contains("$.optionalNames"u8, buffer.Slice(0, bytesWritten));
 #else
-                        patchContains = Patch.Contains("$.optionalNames"u8, global::System.Text.Encoding.UTF8.GetBytes(item.Key));
+                    bool patchContains = Patch.Contains("$.optionalNames"u8, global::System.Text.Encoding.UTF8.GetBytes(item.Key));
 #endif
-                    }
                     if (!patchContains)
                     {
                         writer.WritePropertyName(item.Key);
@@ -140,10 +119,7 @@ namespace Sample
                     }
                 }
 
-                if (hasPatch)
-                {
-                    Patch.WriteTo(writer, "$.optionalNames"u8);
-                }
+                Patch.WriteTo(writer, "$.optionalNames"u8);
                 writer.WriteEndObject();
             }
 

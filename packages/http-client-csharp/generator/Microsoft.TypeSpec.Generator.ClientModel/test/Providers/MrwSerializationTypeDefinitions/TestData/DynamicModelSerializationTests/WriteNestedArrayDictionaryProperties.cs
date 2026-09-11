@@ -88,22 +88,17 @@ namespace Sample
                                 continue;
                             }
                             writer.WriteStartObject();
-                            bool hasPatch2 = Patch.Contains("$"u8, "propertyWithNestedArray"u8);
 #if NET8_0_OR_GREATER
                             global::System.Span<byte> buffer = stackalloc byte[256];
 #endif
                             foreach (var item in PropertyWithNestedArray[i][i0][i1])
                             {
-                                bool patchContains = false;
-                                if (hasPatch2)
-                                {
 #if NET8_0_OR_GREATER
-                                    int bytesWritten = global::System.Text.Encoding.UTF8.GetBytes(item.Key.AsSpan(), buffer);
-                                    patchContains = (bytesWritten == 256) ? Patch.Contains(global::System.Text.Encoding.UTF8.GetBytes($"$.propertyWithNestedArray[{i}][{i0}][{i1}]"), global::System.Text.Encoding.UTF8.GetBytes(item.Key)) : Patch.Contains(global::System.Text.Encoding.UTF8.GetBytes($"$.propertyWithNestedArray[{i}][{i0}][{i1}]"), buffer.Slice(0, bytesWritten));
+                                int bytesWritten = global::System.Text.Encoding.UTF8.GetBytes(item.Key.AsSpan(), buffer);
+                                bool patchContains = (bytesWritten == 256) ? Patch.Contains(global::System.Text.Encoding.UTF8.GetBytes($"$.propertyWithNestedArray[{i}][{i0}][{i1}]"), global::System.Text.Encoding.UTF8.GetBytes(item.Key)) : Patch.Contains(global::System.Text.Encoding.UTF8.GetBytes($"$.propertyWithNestedArray[{i}][{i0}][{i1}]"), buffer.Slice(0, bytesWritten));
 #else
-                                    patchContains = Patch.Contains(global::System.Text.Encoding.UTF8.GetBytes($"$.propertyWithNestedArray[{i}][{i0}][{i1}]"), global::System.Text.Encoding.UTF8.GetBytes(item.Key));
+                                bool patchContains = Patch.Contains(global::System.Text.Encoding.UTF8.GetBytes($"$.propertyWithNestedArray[{i}][{i0}][{i1}]"), global::System.Text.Encoding.UTF8.GetBytes(item.Key));
 #endif
-                                }
                                 if (!patchContains)
                                 {
                                     writer.WritePropertyName(item.Key);
@@ -116,22 +111,13 @@ namespace Sample
                                 }
                             }
 
-                            if (hasPatch2)
-                            {
-                                Patch.WriteTo(writer, global::System.Text.Encoding.UTF8.GetBytes($"$.propertyWithNestedArray[{i}][{i0}][{i1}]"));
-                            }
+                            Patch.WriteTo(writer, global::System.Text.Encoding.UTF8.GetBytes($"$.propertyWithNestedArray[{i}][{i0}][{i1}]"));
                             writer.WriteEndObject();
                         }
-                        if (hasPatch1)
-                        {
-                            Patch.WriteTo(writer, global::System.Text.Encoding.UTF8.GetBytes($"$.propertyWithNestedArray[{i}][{i0}]"));
-                        }
+                        Patch.WriteTo(writer, global::System.Text.Encoding.UTF8.GetBytes($"$.propertyWithNestedArray[{i}][{i0}]"));
                         writer.WriteEndArray();
                     }
-                    if (hasPatch0)
-                    {
-                        Patch.WriteTo(writer, global::System.Text.Encoding.UTF8.GetBytes($"$.propertyWithNestedArray[{i}]"));
-                    }
+                    Patch.WriteTo(writer, global::System.Text.Encoding.UTF8.GetBytes($"$.propertyWithNestedArray[{i}]"));
                     writer.WriteEndArray();
                 }
                 Patch.WriteTo(writer, "$.propertyWithNestedArray"u8);

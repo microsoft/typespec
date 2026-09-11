@@ -89,16 +89,10 @@ namespace Sample
                             }
                             writer.WriteStringValue(PropertyWithNestedArray[i][i0][i1]);
                         }
-                        if (hasPatch1)
-                        {
-                            Patch.WriteTo(writer, global::System.Text.Encoding.UTF8.GetBytes($"$.propertyWithNestedArray[{i}][{i0}]"));
-                        }
+                        Patch.WriteTo(writer, global::System.Text.Encoding.UTF8.GetBytes($"$.propertyWithNestedArray[{i}][{i0}]"));
                         writer.WriteEndArray();
                     }
-                    if (hasPatch0)
-                    {
-                        Patch.WriteTo(writer, global::System.Text.Encoding.UTF8.GetBytes($"$.propertyWithNestedArray[{i}]"));
-                    }
+                    Patch.WriteTo(writer, global::System.Text.Encoding.UTF8.GetBytes($"$.propertyWithNestedArray[{i}]"));
                     writer.WriteEndArray();
                 }
                 Patch.WriteTo(writer, "$.propertyWithNestedArray"u8);

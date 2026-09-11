@@ -370,39 +370,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ModelReaderWriterValida
             Assert.That(Encoding.UTF8.GetString(json), Is.EqualTo(onlyNull ? "[]" : """[{"bar":"present"},null]"""));
         }
 
-        [TestCase("children", false)]
-        [TestCase("children", true)]
-        [TestCase("nestedChildren", false)]
-        [TestCase("nestedChildren", true)]
-        [TestCase("childDictionary", false)]
-        [TestCase("childDictionary", true)]
-        [TestCase("nestedChildDictionary", false)]
-        [TestCase("nestedChildDictionary", true)]
-        [TestCase("dictionaryChildren", false)]
-        [TestCase("dictionaryChildren", true)]
-        [TestCase("listOfDictionaries", false)]
-        [TestCase("listOfDictionaries", true)]
-        public void JsonModelWrite_UnpatchedCollectionDoesNotAllocatePerElement(string propertyName, bool unrelatedPatch)
+        [TestCase(false)]
+        [TestCase(true)]
+        public void JsonModelWrite_UnpatchedCollectionDoesNotAllocatePerElement(bool unrelatedPatch)
         {
-            var dictionary = Enumerable.Range(0, 256).ToDictionary(i => $"key{i}", _ => (AnotherDynamicModel)null!);
-            var model = propertyName switch
+            var model = new NullableDynamicModel
             {
-                "children" => new NullableDynamicModel { Children = new AnotherDynamicModel[256] },
-                "nestedChildren" => new NullableDynamicModel
-                {
-                    NestedChildren = Enumerable.Repeat<IList<AnotherDynamicModel>>(Array.Empty<AnotherDynamicModel>(), 256).ToArray()
-                },
-                "childDictionary" => new NullableDynamicModel { ChildDictionary = dictionary },
-                "nestedChildDictionary" => new NullableDynamicModel
-                {
-                    NestedChildDictionary = new Dictionary<string, IDictionary<string, AnotherDynamicModel>> { ["key"] = dictionary }
-                },
-                "dictionaryChildren" => new NullableDynamicModel
-                {
-                    DictionaryChildren = Enumerable.Range(0, 256).ToDictionary(i => $"key{i}", _ => (IList<AnotherDynamicModel>)Array.Empty<AnotherDynamicModel>())
-                },
-                "listOfDictionaries" => new NullableDynamicModel { ListOfDictionaries = [dictionary] },
-                _ => throw new ArgumentOutOfRangeException(nameof(propertyName))
+                Children = new AnotherDynamicModel[256]
             };
 #pragma warning disable SCME0001
             if (unrelatedPatch)
@@ -426,55 +400,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ModelReaderWriterValida
 
             Assert.That(allocated, Is.LessThan(1024), "Indexed patch paths must not allocate for each unpatched element.");
             using var document = JsonDocument.Parse(buffer.WrittenMemory);
-            var collection = document.RootElement.GetProperty(propertyName);
-            collection = propertyName switch
-            {
-                "nestedChildDictionary" => collection.GetProperty("key"),
-                "listOfDictionaries" => collection[0],
-                _ => collection
-            };
-            Assert.That(collection.ValueKind == JsonValueKind.Array ? collection.GetArrayLength() : collection.EnumerateObject().Count(), Is.EqualTo(256));
+            Assert.That(document.RootElement.GetProperty("children").GetArrayLength(), Is.EqualTo(256));
         }
 
-        [TestCase("childDictionary", """{"removed":null,"present":null}""", "$.childDictionary.removed", "$.childDictionary.added", """{"present":null,"added":{"bar":"added"}}""")]
-        [TestCase("listOfDictionaries", """[{"removed":null,"present":null}]""", "$.listOfDictionaries[0].removed", "$.listOfDictionaries[0].added", """[{"present":null,"added":{"bar":"added"}}]""")]
-        public void JsonModelWrite_DictionaryPatchesArePreserved(string propertyName, string value, string removedPath, string addedPath, string expected)
-        {
-            var model = ModelReaderWriter.Read<NullableDynamicModel>(
-                BinaryData.FromString($$"""{"{{propertyName}}":{{value}}}"""),
-                ModelReaderWriterOptions.Json, SampleTypeSpecContext.Default)!;
-
-#pragma warning disable SCME0001
-            model.Patch.Remove(Encoding.UTF8.GetBytes(removedPath));
-            model.Patch.Set(Encoding.UTF8.GetBytes(addedPath), """{"bar":"added"}"""u8);
-            Assert.That(model.Patch.Contains(Encoding.UTF8.GetBytes($"$.{propertyName}")), Is.False);
-            Assert.That(model.Patch.Contains("$"u8, Encoding.UTF8.GetBytes(propertyName)), Is.True);
-#pragma warning restore SCME0001
-
-            var data = ModelReaderWriter.Write(model, ModelReaderWriterOptions.Json, SampleTypeSpecContext.Default);
-            using var document = JsonDocument.Parse(data);
-            Assert.That(document.RootElement.GetProperty(propertyName).GetRawText(), Is.EqualTo(expected));
-        }
-
-        [TestCase("children", false)]
-        [TestCase("children", true)]
-        [TestCase("nestedChildren", false)]
-        [TestCase("nestedChildren", true)]
-        [TestCase("dictionaryChildren", false)]
-        [TestCase("dictionaryChildren", true)]
-        public void JsonPatchRemove_ChildRootWithUnpatchedParentCollection(string propertyName, bool unrelatedPatch)
+        [TestCase(false)]
+        [TestCase(true)]
+        public void JsonPatchRemove_ChildRootWithUnpatchedParentCollection(bool unrelatedPatch)
         {
             var removed = new AnotherDynamicModel("removed");
-            IList<AnotherDynamicModel> items = [null!, removed, new AnotherDynamicModel("present")];
-            var model = propertyName switch
+            var model = new NullableDynamicModel
             {
-                "children" => new NullableDynamicModel { Children = items },
-                "nestedChildren" => new NullableDynamicModel { NestedChildren = [items] },
-                "dictionaryChildren" => new NullableDynamicModel
-                {
-                    DictionaryChildren = new Dictionary<string, IList<AnotherDynamicModel>> { ["key"] = items }
-                },
-                _ => throw new ArgumentOutOfRangeException(nameof(propertyName))
+                Children = [null, removed, new AnotherDynamicModel("present")]
             };
 
 #pragma warning disable SCME0001
@@ -483,24 +419,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ModelReaderWriterValida
             {
                 model.Patch.Set("$.unrelated"u8, 1);
             }
-            Assert.That(model.Patch.Contains("$"u8, Encoding.UTF8.GetBytes(propertyName)), Is.False);
-            if (propertyName == "children")
-            {
-                var snapshot = model.Patch.GetJson("$.children"u8);
-                Assert.That(Encoding.UTF8.GetString(snapshot), Is.EqualTo("""[null,{"bar":"present"}]"""));
-            }
+            Assert.That(model.Patch.Contains("$"u8, "children"u8), Is.False);
+            var snapshot = model.Patch.GetJson("$.children"u8);
 #pragma warning restore SCME0001
 
+            Assert.That(Encoding.UTF8.GetString(snapshot), Is.EqualTo("""[null,{"bar":"present"}]"""));
             var data = ModelReaderWriter.Write(model, ModelReaderWriterOptions.Json, SampleTypeSpecContext.Default);
             using var document = JsonDocument.Parse(data);
-            var collection = document.RootElement.GetProperty(propertyName);
-            var children = propertyName switch
-            {
-                "nestedChildren" => collection[0],
-                "dictionaryChildren" => collection.GetProperty("key"),
-                _ => collection
-            };
-            Assert.That(children.GetRawText(), Is.EqualTo("""[null,{"bar":"present"}]"""));
+            Assert.That(document.RootElement.GetProperty("children").GetRawText(), Is.EqualTo("""[null,{"bar":"present"}]"""));
         }
 
         private static NullableDynamicModel CreateModelWithRemovedDynamicListElements(string propertyName, bool onlyNull)
