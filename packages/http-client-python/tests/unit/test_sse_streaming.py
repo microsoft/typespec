@@ -118,14 +118,13 @@ def test_generated_unnamed_discriminator_dispatch_and_terminal_predicate(async_m
     assert f"deserialized: {stream_class}[" in generated
     assert "terminal_event_predicate=_is_terminal_event" in generated
     assert (
-        "async def _reconnect(_last_event_id, _reconnect_delay):  # pylint: disable=protected-access"
+        "async def _reconnect(_last_event_id, _reconnect_delay):"
         if async_mode
-        else "def _reconnect(_last_event_id, _reconnect_delay):  # pylint: disable=protected-access"
+        else "def _reconnect(_last_event_id, _reconnect_delay):"
     ) in generated
-    assert (
-        f"{'await ' if async_mode else ''}self._client.pipeline._transport.sleep(_reconnect_delay)"
-        in generated
-    )
+    assert "_transport = pipeline_response.context.transport" in generated
+    assert 'raise RuntimeError("Pipeline transport is unavailable.")' in generated
+    assert f"{'await ' if async_mode else ''}_transport.sleep(_reconnect_delay)" in generated
     assert '_request.headers["Last-Event-ID"] = _last_event_id' in generated
     assert "if _reconnect_response.status_code not in [200, 204]:" in generated
     assert "raise HttpResponseError(response=_reconnect_response)" in generated

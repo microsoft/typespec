@@ -1381,14 +1381,14 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
         if response.streaming_kind == "sse":  # type: ignore[attr-defined]
             retval.append("")
             retval.append(
-                "async def _reconnect(_last_event_id, _reconnect_delay):  # pylint: disable=protected-access"
+                "async def _reconnect(_last_event_id, _reconnect_delay):"
                 if self.async_mode
-                else "def _reconnect(_last_event_id, _reconnect_delay):  # pylint: disable=protected-access"
+                else "def _reconnect(_last_event_id, _reconnect_delay):"
             )
-            retval.append(
-                f"    {'await ' if self.async_mode else ''}"
-                f"self._client.{self.pipeline_name}._transport.sleep(_reconnect_delay)"
-            )
+            retval.append("    _transport = pipeline_response.context.transport")
+            retval.append("    if _transport is None:")
+            retval.append('        raise RuntimeError("Pipeline transport is unavailable.")')
+            retval.append(f"    {'await ' if self.async_mode else ''}_transport.sleep(_reconnect_delay)")
             retval.append("    if _last_event_id is not None:")
             retval.append('        _request.headers["Last-Event-ID"] = _last_event_id')
             if self.async_mode:
