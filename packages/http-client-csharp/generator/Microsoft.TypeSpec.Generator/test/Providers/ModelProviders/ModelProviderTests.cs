@@ -550,6 +550,32 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task BackCompat_BaseTypeIsNotRestoredWhenRemovalAcceptedInBaseline()
+        {
+            var previousBase = InputFactory.Model("PreviousBase", properties: []);
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+            var baseline = Helpers.GetApiCompatBaselineFromFile(fileExtension: ".xml");
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [previousBase, currentBase, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                apiCompatBaseline: baseline);
+
+            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(t => t.Name == "DerivedModel");
+
+            Assert.AreEqual(previousBase.Name, modelProvider.LastContractView?.BaseType?.Name,
+                "The regression requires the suppressed type to be the last-contract base");
+
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            Assert.AreEqual(currentBase.Name, modelProvider.BaseType?.Name,
+                "The previous base must not be restored when its removal is accepted in the ApiCompat baseline");
+        }
+
+        [Test]
         public async Task BackCompat_BaseTypeHookCanKeepCurrentBaseType()
         {
             var previousBase = InputFactory.Model("PreviousBase", properties: []);
@@ -1042,6 +1068,100 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             Assert.AreEqual(currentBase.Name, modelProvider.BaseType?.Name,
                 "An internal constructor from a referenced assembly is not accessible to the generated derived model");
+        }
+
+        [Test]
+        public async Task BackCompat_InaccessibleReferencedLastContractBasesAreNotRestored()
+        {
+            const string externalBaseSource = """
+                namespace Sample.Models
+                {
+                    internal class ExternalBase
+                    {
+                        public ExternalBase() { }
+                    }
+
+                    internal class Outer
+                    {
+                        public class NestedBase
+                        {
+                            public NestedBase() { }
+                        }
+                    }
+
+                    public class GenericBase<T>
+                    {
+                        public GenericBase() { }
+                    }
+
+                    internal class GenericArgument
+                    {
+                    }
+                }
+                """;
+            var externalCompilation = CSharpCompilation.Create(
+                "ExternalAssembly",
+                [CSharpSyntaxTree.ParseText(externalBaseSource)],
+                [MetadataReference.CreateFromFile(typeof(object).Assembly.Location)],
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            using var externalAssembly = new MemoryStream();
+            var emitResult = externalCompilation.Emit(externalAssembly);
+            Assert.That(emitResult.Success, Is.True, string.Join(Environment.NewLine, emitResult.Diagnostics));
+            var externalReference = MetadataReference.CreateFromImage(externalAssembly.ToArray());
+
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var inaccessibleDerived = InputFactory.Model("InaccessibleDerived", properties: [], baseModel: currentBase);
+            var nestedDerived = InputFactory.Model("NestedDerived", properties: [], baseModel: currentBase);
+            var genericDerived = InputFactory.Model("GenericDerived", properties: [], baseModel: currentBase);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [currentBase, inaccessibleDerived, nestedDerived, genericDerived],
+                additionalMetadataReferences: [externalReference],
+                compilation: async () =>
+                {
+                    var compilation = await Helpers.GetCompilationFromSourceFilesAsync([]);
+                    return compilation.WithOptions(
+                        ((CSharpCompilationOptions)compilation.Options).WithMetadataImportOptions(MetadataImportOptions.All));
+                },
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProviders = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .ToArray();
+            var inaccessibleProvider = modelProviders.Single(t => t.Name == "InaccessibleDerived");
+            var nestedProvider = modelProviders.Single(t => t.Name == "NestedDerived");
+            var genericProvider = modelProviders.Single(t => t.Name == "GenericDerived");
+
+            inaccessibleProvider.ProcessTypeForBackCompatibility();
+            nestedProvider.ProcessTypeForBackCompatibility();
+            genericProvider.ProcessTypeForBackCompatibility();
+
+            var syntaxTrees = modelProviders.Select(provider =>
+                CSharpSyntaxTree.ParseText(new TypeProviderWriter(provider).Write().Content));
+            var references = AppDomain.CurrentDomain.GetAssemblies()
+                .Where(assembly => !assembly.IsDynamic && !string.IsNullOrEmpty(assembly.Location))
+                .Select(assembly => MetadataReference.CreateFromFile(assembly.Location))
+                .Append(externalReference);
+            var generatedCompilation = CSharpCompilation.Create(
+                "InaccessibleBaseModels",
+                syntaxTrees,
+                references,
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(
+                    generatedCompilation.GetDiagnostics().Where(diagnostic =>
+                        diagnostic.Severity is DiagnosticSeverity.Warning or DiagnosticSeverity.Error),
+                    Is.Empty,
+                    "The generated models should compile after inaccessible base restoration is skipped");
+                Assert.AreEqual(currentBase.Name, inaccessibleProvider.BaseType?.Name,
+                    "An inaccessible referenced base must not be restored");
+                Assert.AreEqual(currentBase.Name, nestedProvider.BaseType?.Name,
+                    "A base nested in an inaccessible declaring type must not be restored");
+                Assert.AreEqual(currentBase.Name, genericProvider.BaseType?.Name,
+                    "A constructed base with an inaccessible generic argument must not be restored");
+            });
         }
 
         [Test]

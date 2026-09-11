@@ -53,6 +53,64 @@ namespace Microsoft.TypeSpec.Generator.Providers
         internal bool HasAccessibleParameterlessConstructor => _namedTypeSymbol.InstanceConstructors.Any(constructor =>
             constructor.Parameters.Length == 0 && IsConstructorAccessibleFromGeneratedType(constructor));
 
+        internal bool IsAccessibleFromGeneratedType(CSharpType constructedType, bool requiresPublicAccessibility)
+        {
+            if (!IsNamedTypeAccessible(_namedTypeSymbol, requiresPublicAccessibility) ||
+                constructedType.DeclaringType is not null && !IsTypeAccessible(constructedType.DeclaringType, requiresPublicAccessibility))
+            {
+                return false;
+            }
+
+            return constructedType.Arguments.All(argument => IsTypeAccessible(argument, requiresPublicAccessibility));
+        }
+
+        private bool IsTypeAccessible(CSharpType type, bool requiresPublicAccessibility)
+        {
+            if (type.DeclaringType is not null && !IsTypeAccessible(type.DeclaringType, requiresPublicAccessibility))
+            {
+                return false;
+            }
+
+            var metadataNamespace = type;
+            while (metadataNamespace.DeclaringType is not null)
+            {
+                metadataNamespace = metadataNamespace.DeclaringType;
+            }
+
+            var metadataName = string.IsNullOrEmpty(metadataNamespace.Namespace)
+                ? type.ClrMetadataName
+                : $"{metadataNamespace.Namespace}.{type.ClrMetadataName}";
+            var symbol = _compilation.GetTypeByMetadataName(metadataName);
+            if (symbol is not null && !IsNamedTypeAccessible(symbol, requiresPublicAccessibility))
+            {
+                return false;
+            }
+
+            return type.Arguments.All(argument => IsTypeAccessible(argument, requiresPublicAccessibility));
+        }
+
+        private bool IsNamedTypeAccessible(INamedTypeSymbol type, bool requiresPublicAccessibility)
+        {
+            for (var current = type; current is not null; current = current.ContainingType)
+            {
+                if (current.DeclaredAccessibility == Accessibility.Public)
+                {
+                    continue;
+                }
+
+                if (!requiresPublicAccessibility &&
+                    current.DeclaredAccessibility is Accessibility.Internal or Accessibility.ProtectedOrInternal &&
+                    SymbolEqualityComparer.Default.Equals(current.ContainingAssembly, _compilation.Assembly))
+                {
+                    continue;
+                }
+
+                return false;
+            }
+
+            return true;
+        }
+
         private bool IsConstructorAccessibleFromGeneratedType(IMethodSymbol constructor)
             => constructor.DeclaredAccessibility switch
             {

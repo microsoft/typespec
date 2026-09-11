@@ -270,6 +270,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return currentBase;
             }
 
+            if (CodeModelGenerator.Instance.SourceInputModel?.ApiCompatBaseline.ReferencesSuppressedType(previousBase) == true)
+            {
+                CodeModelGenerator.Instance.Emitter.Info(
+                    $"Skipping back-compat base type restoration for model '{BuildNamespace()}.{BuildName()}'; base type '{previousBase.FullyQualifiedName}' is an accepted removal in the ApiCompat baseline.",
+                    BackCompatibilityChangeCategory.BaselineAcceptedRemovalSkipped);
+                return currentBase;
+            }
+
             // A generated partial cannot replace a different base declared by custom code: all partial
             // declarations must specify the same base class. Keep the custom base authoritative and
             // report that the previous inheritance relationship could not be restored.
@@ -549,7 +557,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 if (provider is not null &&
                     AreMetadataTypesEqual(provider.Type, type) &&
-                    TryUseProviderAsBase(provider, out resolvedProvider))
+                    TryUseProviderAsBase(provider, type, out resolvedProvider))
                 {
                     return true;
                 }
@@ -566,7 +574,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 if (provider is not null &&
                     AreMetadataTypesEqual(provider.Type, type) &&
-                    TryUseProviderAsBase(provider, out resolvedProvider))
+                    TryUseProviderAsBase(provider, type, out resolvedProvider))
                 {
                     return true;
                 }
@@ -583,7 +591,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return false;
             }
 
-            return TryUseProviderAsBase(currentProvider, out resolvedProvider);
+            return TryUseProviderAsBase(currentProvider, type, out resolvedProvider);
         }
 
         private static string GetMetadataSimpleName(CSharpType type)
@@ -651,13 +659,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return type.Namespace;
         }
 
-        private static bool TryUseProviderAsBase(TypeProvider provider, [NotNullWhen(true)] out TypeProvider? resolvedProvider)
+        private bool TryUseProviderAsBase(TypeProvider provider, CSharpType requestedType, [NotNullWhen(true)] out TypeProvider? resolvedProvider)
         {
             // Generated model bases already participate in ModelProvider's constructor chaining. A
             // symbol-backed base does not, so generated constructors can only rely on an accessible
             // parameterless constructor (explicit or implicit).
             if (provider is ModelProvider ||
-                provider is NamedTypeSymbolProvider { HasAccessibleParameterlessConstructor: true } ||
+                provider is NamedTypeSymbolProvider namedType &&
+                    namedType.HasAccessibleParameterlessConstructor &&
+                    namedType.IsAccessibleFromGeneratedType(
+                        requestedType,
+                        DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public)) ||
                 provider is not NamedTypeSymbolProvider && provider.Constructors.Any(c =>
                     c.Signature.Parameters.Count == 0 &&
                     MethodSignatureHelper.IsPublicApi(c.Signature.Modifiers)))
