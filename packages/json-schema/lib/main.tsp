@@ -18,7 +18,7 @@ extern dec jsonSchema(target: unknown, baseUri?: valueof string);
  *
  * @param baseUri The base URI. Schema IDs inside this namespace are relative to this URI.
  */
-extern dec baseUri(target: Reflection.Namespace, baseUri: valueof string);
+auto dec baseUri(target: Reflection.Namespace, baseUri: valueof string);
 
 /**
  * Specify the JSON Schema id. If this model or a parent namespace has a base URI,
@@ -28,19 +28,19 @@ extern dec baseUri(target: Reflection.Namespace, baseUri: valueof string);
  *
  * @param id The id of the JSON schema for this declaration.
  */
-extern dec id(target: unknown, id: valueof string);
+auto dec id(target: unknown, id: valueof string);
 
 /**
  * Specify that `oneOf` should be used instead of `anyOf` for that union.
  */
-extern dec oneOf(target: Reflection.Union | Reflection.ModelProperty);
+auto dec oneOf(target: Reflection.Union | Reflection.ModelProperty);
 
 /**
  * Specify that the numeric type must be a multiple of some numeric value.
  *
  * @param value The numeric type must be a multiple of this value.
  */
-extern dec multipleOf(target: numeric | Reflection.ModelProperty, value: valueof numeric);
+auto dec multipleOf(target: numeric | Reflection.ModelProperty, value: valueof numeric);
 
 /**
  * Specify that the array must contain at least one instance of the provided type.
@@ -48,7 +48,7 @@ extern dec multipleOf(target: numeric | Reflection.ModelProperty, value: valueof
  *
  * @param value The type the array must contain.
  */
-extern dec contains(target: unknown[] | Reflection.ModelProperty, value: unknown);
+auto dec contains(target: unknown[] | Reflection.ModelProperty, value: unknown);
 
 /**
  * Used in conjunction with the `@contains` decorator,
@@ -56,7 +56,7 @@ extern dec contains(target: unknown[] | Reflection.ModelProperty, value: unknown
  *
  * @param value The minimum number of instances the array must contain
  */
-extern dec minContains(target: unknown[] | Reflection.ModelProperty, value: valueof int32);
+auto dec minContains(target: unknown[] | Reflection.ModelProperty, value: valueof int32);
 
 /**
  * Used in conjunction with the `@contains` decorator,
@@ -64,39 +64,39 @@ extern dec minContains(target: unknown[] | Reflection.ModelProperty, value: valu
  *
  * @param value The maximum number of instances the array must contain
  */
-extern dec maxContains(target: unknown[] | Reflection.ModelProperty, value: valueof int32);
+auto dec maxContains(target: unknown[] | Reflection.ModelProperty, value: valueof int32);
 
 /**
  * Specify that every item in the array must be unique.
  */
-extern dec uniqueItems(target: unknown[] | Reflection.ModelProperty);
+auto dec uniqueItems(target: unknown[] | Reflection.ModelProperty);
 
 /**
  * Specify the minimum number of properties this object can have.
  *
  * @param value The minimum number of properties this object can have.
  */
-extern dec minProperties(target: Record<unknown> | Reflection.ModelProperty, value: valueof int32);
+auto dec minProperties(target: Record<unknown> | Reflection.ModelProperty, value: valueof int32);
 
 /**
  * Specify the maximum number of properties this object can have.
  *
  * @param value The maximum number of properties this object can have.
  */
-extern dec maxProperties(target: Record<unknown> | Reflection.ModelProperty, value: valueof int32);
+auto dec maxProperties(target: Record<unknown> | Reflection.ModelProperty, value: valueof int32);
 
 /**
  * Specify the encoding used for the contents of a string.
  * @param value
  */
-extern dec contentEncoding(target: string | Reflection.ModelProperty, value: valueof string);
+auto dec contentEncoding(target: string | Reflection.ModelProperty, value: valueof string);
 
 /**
  * Specify that the target array must begin with the provided types.
  *
  * @param value A tuple containing the types that must be present at the start of the array
  */
-extern dec prefixItems(target: unknown[] | Reflection.ModelProperty, value: unknown[]);
+auto dec prefixItems(target: unknown[] | Reflection.ModelProperty, value: unknown[]);
 
 /**
  * Specify the content type of content stored in a string.
@@ -104,7 +104,7 @@ extern dec prefixItems(target: unknown[] | Reflection.ModelProperty, value: unkn
  * @param value The media type of the string contents
  *
  */
-extern dec contentMediaType(target: string | Reflection.ModelProperty, value: valueof string);
+auto dec contentMediaType(target: string | Reflection.ModelProperty, value: valueof string);
 
 /**
  * Specify the schema for the contents of a string when interpreted according to the content's
@@ -112,7 +112,7 @@ extern dec contentMediaType(target: string | Reflection.ModelProperty, value: va
  *
  * @param value The schema of the string contents
  */
-extern dec contentSchema(target: string | Reflection.ModelProperty, value: unknown);
+auto dec contentSchema(target: string | Reflection.ModelProperty, value: unknown);
 
 /**
  * Specify a custom property to add to the emitted schema. This is useful for adding custom keywords
