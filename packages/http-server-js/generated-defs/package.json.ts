@@ -20,7 +20,7 @@ export const hsjsDependencies: Record<string, string> = {
   "decimal.js": "^10.6.0",
   "express": "^5.2.1",
   "@inquirer/select": "^5.2.2",
-  "morgan": "^1.11.0",
+  "morgan": "^1.12.0",
   "ora": "^9.4.1",
   "p-limit": "^7.3.1",
   "pathe": "^2.0.3",
