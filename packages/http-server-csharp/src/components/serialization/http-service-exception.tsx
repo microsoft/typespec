@@ -7,7 +7,7 @@ import { CSharpFile } from "../csharp-file.jsx";
  */
 export function HttpServiceException(): Children {
   return (
-    <CSharpFile path="HttpServiceException.cs">
+    <CSharpFile path="HttpServiceException.cs" using={["System", "System.Collections.Generic"]}>
       <Namespace name="TypeSpec.Helpers">
         {code`
           /// <summary>
