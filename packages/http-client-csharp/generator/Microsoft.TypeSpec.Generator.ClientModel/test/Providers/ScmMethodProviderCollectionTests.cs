@@ -909,7 +909,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                         convenienceMethod.BodyStatements!.ToDisplayString());
                 }
             }
-        #pragma warning restore SCME0005
+#pragma warning restore SCME0005
         }
 
         // Enum bodies must be serialized via Utf8JsonWriter (not BinaryData.FromObjectAsJson<T>) to stay AOT/trim safe (IL2026/IL3050).
@@ -1559,21 +1559,29 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         }
 
         [TestCase(typeof(int))]
+        [TestCase(typeof(int), true)]
+        [TestCase(typeof(int?))]
+        [TestCase(typeof(int?), true)]
         [TestCase(typeof(long))]
         [TestCase(typeof(float))]
         [TestCase(typeof(double))]
+        [TestCase(typeof(decimal))]
         [TestCase(typeof(bool))]
+        [TestCase(typeof(bool?))]
         [TestCase(typeof(string))]
         [TestCase(typeof(Uri))]
         [TestCase(typeof(BinaryData))]
         [TestCase(typeof(DateTimeOffset))]
         [TestCase(typeof(TimeSpan))]
-        public void ScalarReturnTypeMethods(Type type)
+        [TestCase(typeof(TimeSpan?))]
+        public void ScalarReturnTypeMethods(Type type, bool isAsync = false)
         {
-            InputType? inputType = type switch
+            var underlyingType = Nullable.GetUnderlyingType(type);
+            InputType? inputType = (underlyingType ?? type) switch
             {
                 { } t when t == typeof(float) => InputPrimitiveType.Float32,
                 { } t when t == typeof(double) => InputPrimitiveType.Float64,
+                { } t when t == typeof(decimal) => new InputPrimitiveType(InputPrimitiveTypeKind.Decimal128, "decimal128", "TypeSpec.decimal128"),
                 { } t when t == typeof(bool) => InputPrimitiveType.Boolean,
                 { } t when t == typeof(string) => InputPrimitiveType.String,
                 { } t when t == typeof(DateTimeOffset) => InputPrimitiveType.PlainDate,
@@ -1584,6 +1592,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 { } t when t == typeof(BinaryData) => InputPrimitiveType.Base64,
                 _ => null
             };
+
+            if (underlyingType != null)
+            {
+                inputType = new InputNullableType(inputType!);
+            }
 
             var inputOperation = InputFactory.Operation(
                 "GetScalar",
@@ -1600,9 +1613,193 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.IsNotNull(methodCollection);
             var convenienceMethod = methodCollection.FirstOrDefault(m
                 => m.Signature.Parameters.All(p => p.Name != "options")
-                   && m.Signature.Name == $"{inputOperation.Name.ToIdentifierName()}");
+                   && m.Signature.Name == $"{inputOperation.Name.ToIdentifierName()}{(isAsync ? "Async" : "")}");
 
-            Assert.AreEqual(Helpers.GetExpectedFromFile(type.Name), convenienceMethod!.BodyStatements!.ToDisplayString());
+            var baselineName = underlyingType != null ? $"{underlyingType.Name}Nullable" : type.Name;
+            using var writer = new CodeWriter();
+            writer.WriteMethod(convenienceMethod!);
+            Assert.AreEqual(Helpers.GetExpectedFromFile($"{baselineName}{(isAsync ? "Async" : "")}"), writer.ToString(false));
+        }
+
+        [TestCase(true, true, false)]
+        [TestCase(true, false, false)]
+        [TestCase(false, true, false)]
+        [TestCase(false, false, false)]
+        [TestCase(true, true, true)]
+        [TestCase(true, false, true)]
+        [TestCase(false, true, true)]
+        [TestCase(false, false, true)]
+        public void EnumReturnTypeMethods(bool isString, bool isExtensible, bool isNullable)
+        {
+            InputType inputType = isString
+                ? InputFactory.StringEnum("TestEnum", [("Value", "value")], isExtensible: isExtensible)
+                : InputFactory.Int32Enum("TestEnum", [("Value", 1)], isExtensible: isExtensible);
+            if (isNullable)
+            {
+                inputType = new InputNullableType(inputType);
+            }
+
+            var operation = InputFactory.Operation("GetEnum", responses: [InputFactory.OperationResponse([200], inputType)]);
+            var serviceMethod = InputFactory.BasicServiceMethod("GetEnum", operation);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+
+            MockHelpers.LoadMockGenerator();
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            var method = new ScmMethodProviderCollection(serviceMethod, client!)
+                .Single(m => m.Kind == ScmMethodKind.Convenience && m.Signature.Name == "GetEnum");
+
+            using var writer = new CodeWriter();
+            writer.WriteMethod(method);
+            Assert.AreEqual(Helpers.GetExpectedFromFile($"{isString},{isExtensible},{isNullable}"), writer.ToString(false));
+        }
+
+        [Test]
+        public void PlainTextReturnTypeMethods()
+        {
+            var operation = InputFactory.Operation("GetText", responses:
+                [InputFactory.OperationResponse([200], InputPrimitiveType.String, contentTypes: ["text/plain"])]);
+            var serviceMethod = InputFactory.BasicServiceMethod("GetText", operation);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+
+            MockHelpers.LoadMockGenerator();
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            var method = new ScmMethodProviderCollection(serviceMethod, client!)
+                .Single(m => m.Kind == ScmMethodKind.Convenience && m.Signature.Name == "GetText");
+
+            using var writer = new CodeWriter();
+            writer.WriteMethod(method);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), writer.ToString(false));
+        }
+
+        [TestCase(typeof(int))]
+        [TestCase(typeof(int?))]
+        [TestCase(typeof(bool))]
+        [TestCase(typeof(bool?))]
+        [TestCase(typeof(TimeSpan))]
+        [TestCase(typeof(TimeSpan?))]
+        [TestCase(typeof(DateTimeOffset))]
+        [TestCase(typeof(Uri))]
+        [TestCase(typeof(byte))]
+        [TestCase(typeof(sbyte))]
+        public void PlainTextScalarReturnTypeMethods(Type type)
+        {
+            var underlyingType = Nullable.GetUnderlyingType(type);
+            InputType inputType = (underlyingType ?? type) switch
+            {
+                { } t when t == typeof(int) => InputPrimitiveType.Int32,
+                { } t when t == typeof(bool) => InputPrimitiveType.Boolean,
+                { } t when t == typeof(TimeSpan) => InputPrimitiveType.PlainTime,
+                { } t when t == typeof(DateTimeOffset) => InputPrimitiveType.PlainDate,
+                { } t when t == typeof(Uri) => InputPrimitiveType.Url,
+                { } t when t == typeof(byte) => new InputPrimitiveType(InputPrimitiveTypeKind.UInt8, "uint8", "TypeSpec.uint8"),
+                { } t when t == typeof(sbyte) => new InputPrimitiveType(InputPrimitiveTypeKind.Int8, "int8", "TypeSpec.int8"),
+                _ => throw new NotSupportedException()
+            };
+            if (underlyingType != null)
+            {
+                inputType = new InputNullableType(inputType);
+            }
+
+            var operation = InputFactory.Operation("GetPlainTextScalar", responses:
+                [InputFactory.OperationResponse([200], inputType, contentTypes: ["text/plain"])]);
+            var serviceMethod = InputFactory.BasicServiceMethod("GetPlainTextScalar", operation);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+
+            MockHelpers.LoadMockGenerator();
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            var method = new ScmMethodProviderCollection(serviceMethod, client!)
+                .Single(m => m.Kind == ScmMethodKind.Convenience && m.Signature.Name == "GetPlainTextScalar");
+
+            using var writer = new CodeWriter();
+            writer.WriteMethod(method);
+            var baselineName = underlyingType != null ? $"{underlyingType.Name}Nullable" : type.Name;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(baselineName), writer.ToString(false));
+        }
+
+        [TestCase(true, true, false)]
+        [TestCase(true, false, false)]
+        [TestCase(false, true, false)]
+        [TestCase(false, false, false)]
+        [TestCase(true, true, true)]
+        [TestCase(true, false, true)]
+        [TestCase(false, true, true)]
+        [TestCase(false, false, true)]
+        public void PlainTextEnumReturnTypeMethods(bool isString, bool isExtensible, bool isNullable)
+        {
+            InputType inputType = isString
+                ? InputFactory.StringEnum("TestEnum", [("Value", "value")], isExtensible: isExtensible)
+                : InputFactory.Int32Enum("TestEnum", [("Value", 1)], isExtensible: isExtensible);
+            if (isNullable)
+            {
+                inputType = new InputNullableType(inputType);
+            }
+
+            var operation = InputFactory.Operation("GetPlainTextEnum", responses:
+                [InputFactory.OperationResponse([200], inputType, contentTypes: ["text/plain"])]);
+            var serviceMethod = InputFactory.BasicServiceMethod("GetPlainTextEnum", operation);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+
+            MockHelpers.LoadMockGenerator();
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            var method = new ScmMethodProviderCollection(serviceMethod, client!)
+                .Single(m => m.Kind == ScmMethodKind.Convenience && m.Signature.Name == "GetPlainTextEnum");
+
+            using var writer = new CodeWriter();
+            writer.WriteMethod(method);
+            Assert.AreEqual(Helpers.GetExpectedFromFile($"{isString},{isExtensible},{isNullable}"), writer.ToString(false));
+        }
+
+        [TestCase("BinaryData")]
+        [TestCase("Model")]
+        [TestCase("List")]
+        [TestCase("Dictionary")]
+        public void PlainTextSpecialCaseResponsesPreserveExistingConversion(string kind)
+        {
+            // Raw binary, generated model and collection responses are not parsed from raw text even when text/plain
+            // is their only content type, they keep their existing conversion.
+            InputType inputType = kind switch
+            {
+                "BinaryData" => InputPrimitiveType.Any,
+                "Model" => InputFactory.Model("TestModel", properties:
+                    [InputFactory.Property("name", InputPrimitiveType.String, isRequired: true)]),
+                "List" => InputFactory.Array(InputPrimitiveType.Int32),
+                "Dictionary" => InputFactory.Dictionary(InputPrimitiveType.Int32),
+                _ => throw new NotSupportedException()
+            };
+
+            var operation = InputFactory.Operation("GetSpecialCase", responses:
+                [InputFactory.OperationResponse([200], inputType, contentTypes: ["text/plain"])]);
+            var serviceMethod = InputFactory.BasicServiceMethod("GetSpecialCase", operation);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+
+            MockHelpers.LoadMockGenerator();
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            var method = new ScmMethodProviderCollection(serviceMethod, client!)
+                .Single(m => m.Kind == ScmMethodKind.Convenience && m.Signature.Name == "GetSpecialCase");
+
+            using var writer = new CodeWriter();
+            writer.WriteMethod(method);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(kind), writer.ToString(false));
+        }
+
+        [Test]
+        public void MixedContentTypeScalarResponseUsesJsonConversion()
+        {
+            // When a response declares text/plain alongside another content type (e.g. application/json), the
+            // wire format cannot be assumed to be raw text, so the JSON conversion path must be used instead.
+            var operation = InputFactory.Operation("GetScalar", responses:
+                [InputFactory.OperationResponse([200], InputPrimitiveType.Int32, contentTypes: ["application/json", "text/plain"])]);
+            var serviceMethod = InputFactory.BasicServiceMethod("GetScalar", operation);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+
+            MockHelpers.LoadMockGenerator();
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            var method = new ScmMethodProviderCollection(serviceMethod, client!)
+                .Single(m => m.Kind == ScmMethodKind.Convenience && m.Signature.Name == "GetScalar");
+
+            using var writer = new CodeWriter();
+            writer.WriteMethod(method);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), writer.ToString(false));
         }
 
         [Test]

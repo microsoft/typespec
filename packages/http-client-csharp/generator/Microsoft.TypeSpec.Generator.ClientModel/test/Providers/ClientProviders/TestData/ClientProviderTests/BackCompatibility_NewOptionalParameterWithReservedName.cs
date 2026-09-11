@@ -6,6 +6,8 @@ using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.ComponentModel;
+using System.IO;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -35,7 +37,10 @@ namespace Sample
 
             using global::System.ClientModel.BinaryContent content0 = global::System.ClientModel.BinaryContent.Create(global::System.BinaryData.FromString(content));
             global::System.ClientModel.ClientResult result = this.GetData(param1, content0, @select, cancellationToken.ToRequestOptions());
-            return global::System.ClientModel.ClientResult.FromValue(result.GetRawResponse().Content.ToObjectFromJson<string>(), result.GetRawResponse());
+            using global::System.IO.Stream stream = result.GetRawResponse().Content.ToStream();
+            using global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(stream);
+            string value = document.RootElement.GetString();
+            return global::System.ClientModel.ClientResult.FromValue(value, result.GetRawResponse());
         }
 
         public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<string>> GetDataAsync(int param1, string content, string @select = default, global::System.Threading.CancellationToken cancellationToken = default)
@@ -44,7 +49,10 @@ namespace Sample
 
             using global::System.ClientModel.BinaryContent content0 = global::System.ClientModel.BinaryContent.Create(global::System.BinaryData.FromString(content));
             global::System.ClientModel.ClientResult result = await this.GetDataAsync(param1, content0, @select, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return global::System.ClientModel.ClientResult.FromValue(result.GetRawResponse().Content.ToObjectFromJson<string>(), result.GetRawResponse());
+            using global::System.IO.Stream stream = result.GetRawResponse().Content.ToStream();
+            using global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(stream);
+            string value = document.RootElement.GetString();
+            return global::System.ClientModel.ClientResult.FromValue(value, result.GetRawResponse());
         }
 
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Never)]

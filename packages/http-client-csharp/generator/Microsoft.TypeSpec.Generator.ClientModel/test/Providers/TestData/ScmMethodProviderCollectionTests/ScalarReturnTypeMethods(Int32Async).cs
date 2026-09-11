@@ -1,6 +1,6 @@
-﻿public virtual global::System.ClientModel.ClientResult<int> GetScalar(global::System.Threading.CancellationToken cancellationToken = default)
+public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult<int>> GetScalarAsync(global::System.Threading.CancellationToken cancellationToken = default)
 {
-    global::System.ClientModel.ClientResult result = this.GetScalar(cancellationToken.ToRequestOptions());
+    global::System.ClientModel.ClientResult result = await this.GetScalarAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
     using global::System.IO.Stream stream = result.GetRawResponse().Content.ToStream();
     using global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(stream);
     int value = document.RootElement.GetInt32();
