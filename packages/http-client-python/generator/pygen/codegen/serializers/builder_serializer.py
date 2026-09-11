@@ -1378,6 +1378,42 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             stream_kwargs.append(f"terminal_event={terminal_event!r}")
         if terminal_event_names:
             stream_kwargs.append(f"terminal_event_names={terminal_event_names!r}")
+        if response.streaming_kind == "sse":  # type: ignore[attr-defined]
+            retval.append("")
+            retval.append(
+                "async def _reconnect(_last_event_id, _reconnect_delay):"
+                if self.async_mode
+                else "def _reconnect(_last_event_id, _reconnect_delay):"
+            )
+            retval.append("    _transport = pipeline_response.context.transport")
+            retval.append("    if _transport is None:")
+            retval.append('        raise RuntimeError("Pipeline transport is unavailable.")')
+            retval.append(f"    {'await ' if self.async_mode else ''}_transport.sleep(_reconnect_delay)")
+            retval.append("    if _last_event_id is not None:")
+            retval.append('        _request.headers["Last-Event-ID"] = _last_event_id')
+            if self.async_mode:
+                retval.append(
+                    f"    _reconnect_response = (await self._client.{self.pipeline_name}.run("
+                    "_request, stream=True, **kwargs)).http_response  # pylint: disable=protected-access"
+                )
+            else:
+                retval.append(
+                    f"    _reconnect_response = self._client.{self.pipeline_name}.run("
+                    "_request, stream=True, **kwargs).http_response  # pylint: disable=protected-access"
+                )
+            reconnect_status_codes = list(builder.success_status_codes)
+            if 204 not in reconnect_status_codes:
+                reconnect_status_codes.append(204)
+            retval.append(f"    if _reconnect_response.status_code not in {reconnect_status_codes!r}:")
+            retval.append(f"        {self._call_method}_reconnect_response.read()")
+            retval.append(
+                "        map_error(status_code=_reconnect_response.status_code, "
+                "response=_reconnect_response, error_map=error_map)"
+            )
+            retval.append("        raise HttpResponseError(response=_reconnect_response)")
+            retval.append("    return _reconnect_response")
+            stream_kwargs.append("last_event_id=_last_event_id")
+            stream_kwargs.append("reconnect_callback=_reconnect")
         unnamed_terminal_values = (
             [discriminator_value for discriminator_value, event in unnamed_discriminator[1] if event.is_terminal]
             if unnamed_discriminator is not None
