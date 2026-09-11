@@ -482,7 +482,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                             [
                                 InputFactory.Property("value", InputPrimitiveType.String, isRequired: true)
                             ])),
-                        serializedName: "1 foo-[\"\\baz"),
+                        serializedName: "1 foo{bar}-[\"\\baz"),
                     InputFactory.Property(
                         "siblings",
                         InputFactory.Array(InputFactory.Model(
@@ -505,8 +505,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 name => name is "JsonModelWriteCore" or "ActiveChildren"));
             var content = writer.Write().Content;
 
-            StringAssert.Contains("""Patch.Contains("$[\"1 foo-[\\\"\\\\baz\"]"u8)""", content);
-            StringAssert.Contains("""Encoding.UTF8.GetBytes($"$[\"1 foo-[\\\"\\\\baz\"][{i}]")""", content);
+            StringAssert.Contains("""Patch.Contains("$[\"1 foo{bar}-[\\\"\\\\baz\"]"u8)""", content);
+            StringAssert.Contains("""Encoding.UTF8.GetBytes($"$[\"1 foo{{bar}}-[\\\"\\\\baz\"][{i}]")""", content);
             StringAssert.Contains("""Patch.Contains("$.plainName"u8)""", content);
             StringAssert.Contains("""Encoding.UTF8.GetBytes($"$.plainName[{i}]")""", content);
         }

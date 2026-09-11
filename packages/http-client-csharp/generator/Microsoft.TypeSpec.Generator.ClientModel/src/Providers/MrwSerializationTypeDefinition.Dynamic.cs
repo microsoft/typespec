@@ -703,7 +703,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             // FormattableStringExpression writes raw interpolated string text, unlike LiteralU8 which escapes string contents.
             return escapeForCSharpInterpolatedString
-                ? EscapeBackslashAndDoubleQuote(jsonPath)
+                ? EscapeForCSharpInterpolatedString(jsonPath)
                 : jsonPath;
         }
 
@@ -739,6 +739,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private static string EscapeBackslashAndDoubleQuote(string value)
         {
             return value.Replace("\\", "\\\\").Replace("\"", "\\\"");
+        }
+
+        private static string EscapeForCSharpInterpolatedString(string value)
+        {
+            return EscapeBackslashAndDoubleQuote(value).Replace("{", "{{{{").Replace("}", "}}}}");
         }
 
         private static ValueExpression GetDeserializationMethodInvocationForType(
