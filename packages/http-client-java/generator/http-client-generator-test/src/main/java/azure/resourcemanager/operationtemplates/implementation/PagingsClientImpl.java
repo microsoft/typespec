@@ -122,6 +122,22 @@ public final class PagingsClientImpl implements PagingsClient {
             @QueryParam("api-version") String apiVersion, @PathParam("subscriptionId") String subscriptionId,
             @PathParam("resourceGroupName") String resourceGroupName, @PathParam("monitorName") String monitorName,
             @HeaderParam("Accept") String accept, Context context);
+
+        @Headers({ "Content-Type: application/json" })
+        @Get("{nextLink}")
+        @ExpectedResponses({ 200 })
+        @UnexpectedResponseExceptionType(ManagementException.class)
+        Mono<Response<MonitoredResourceListResponse>> postActionPagingNext(
+            @PathParam(value = "nextLink", encoded = true) String nextLink, @HostParam("endpoint") String endpoint,
+            @HeaderParam("Accept") String accept, Context context);
+
+        @Headers({ "Content-Type: application/json" })
+        @Get("{nextLink}")
+        @ExpectedResponses({ 200 })
+        @UnexpectedResponseExceptionType(ManagementException.class)
+        Response<MonitoredResourceListResponse> postActionPagingNextSync(
+            @PathParam(value = "nextLink", encoded = true) String nextLink, @HostParam("endpoint") String endpoint,
+            @HeaderParam("Accept") String accept, Context context);
     }
 
     /**
@@ -213,7 +229,7 @@ public final class PagingsClientImpl implements PagingsClient {
             .withContext(context -> service.postActionPaging(this.client.getEndpoint(), this.client.getApiVersion(),
                 this.client.getSubscriptionId(), resourceGroupName, monitorName, accept, body, context))
             .<PagedResponse<MonitoredResourceInner>>map(res -> new PagedResponseBase<>(res.getRequest(),
-                res.getStatusCode(), res.getHeaders(), res.getValue().value(), null, null))
+                res.getStatusCode(), res.getHeaders(), res.getValue().value(), res.getValue().nextLink(), null))
             .contextWrite(context -> context.putAll(FluxUtil.toReactorContext(this.client.getContext()).readOnly()));
     }
 
@@ -231,7 +247,8 @@ public final class PagingsClientImpl implements PagingsClient {
     @ServiceMethod(returns = ReturnType.COLLECTION)
     private PagedFlux<MonitoredResourceInner> postActionPagingAsync(String resourceGroupName, String monitorName,
         LogStatusRequest body) {
-        return new PagedFlux<>(() -> postActionPagingSinglePageAsync(resourceGroupName, monitorName, body));
+        return new PagedFlux<>(() -> postActionPagingSinglePageAsync(resourceGroupName, monitorName, body),
+            nextLink -> postActionPagingNextSinglePageAsync(nextLink));
     }
 
     /**
@@ -247,7 +264,8 @@ public final class PagingsClientImpl implements PagingsClient {
     @ServiceMethod(returns = ReturnType.COLLECTION)
     private PagedFlux<MonitoredResourceInner> postActionPagingAsync(String resourceGroupName, String monitorName) {
         final LogStatusRequest body = null;
-        return new PagedFlux<>(() -> postActionPagingSinglePageAsync(resourceGroupName, monitorName, body));
+        return new PagedFlux<>(() -> postActionPagingSinglePageAsync(resourceGroupName, monitorName, body),
+            nextLink -> postActionPagingNextSinglePageAsync(nextLink));
     }
 
     /**
@@ -269,7 +287,7 @@ public final class PagingsClientImpl implements PagingsClient {
             = service.postActionPagingSync(this.client.getEndpoint(), this.client.getApiVersion(),
                 this.client.getSubscriptionId(), resourceGroupName, monitorName, accept, body, Context.NONE);
         return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().value(),
-            null, null);
+            res.getValue().nextLink(), null);
     }
 
     /**
@@ -292,7 +310,7 @@ public final class PagingsClientImpl implements PagingsClient {
             = service.postActionPagingSync(this.client.getEndpoint(), this.client.getApiVersion(),
                 this.client.getSubscriptionId(), resourceGroupName, monitorName, accept, body, context);
         return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().value(),
-            null, null);
+            res.getValue().nextLink(), null);
     }
 
     /**
@@ -308,7 +326,8 @@ public final class PagingsClientImpl implements PagingsClient {
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<MonitoredResourceInner> postActionPaging(String resourceGroupName, String monitorName) {
         final LogStatusRequest body = null;
-        return new PagedIterable<>(() -> postActionPagingSinglePage(resourceGroupName, monitorName, body));
+        return new PagedIterable<>(() -> postActionPagingSinglePage(resourceGroupName, monitorName, body),
+            nextLink -> postActionPagingNextSinglePage(nextLink));
     }
 
     /**
@@ -326,7 +345,8 @@ public final class PagingsClientImpl implements PagingsClient {
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<MonitoredResourceInner> postActionPaging(String resourceGroupName, String monitorName,
         LogStatusRequest body, Context context) {
-        return new PagedIterable<>(() -> postActionPagingSinglePage(resourceGroupName, monitorName, body, context));
+        return new PagedIterable<>(() -> postActionPagingSinglePage(resourceGroupName, monitorName, body, context),
+            nextLink -> postActionPagingNextSinglePage(nextLink, context));
     }
 
     /**
@@ -438,5 +458,61 @@ public final class PagingsClientImpl implements PagingsClient {
     public PagedIterable<CollectionInner> markAsPageable(String resourceGroupName, String monitorName,
         Context context) {
         return new PagedIterable<>(() -> markAsPageableSinglePage(resourceGroupName, monitorName, context));
+    }
+
+    /**
+     * Get the next page of items.
+     * 
+     * @param nextLink The URL to get the next list of items.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body along with {@link PagedResponse} on successful completion of {@link Mono}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    private Mono<PagedResponse<MonitoredResourceInner>> postActionPagingNextSinglePageAsync(String nextLink) {
+        final String accept = "application/json";
+        return FluxUtil
+            .withContext(context -> service.postActionPagingNext(nextLink, this.client.getEndpoint(), accept, context))
+            .<PagedResponse<MonitoredResourceInner>>map(res -> new PagedResponseBase<>(res.getRequest(),
+                res.getStatusCode(), res.getHeaders(), res.getValue().value(), res.getValue().nextLink(), null))
+            .contextWrite(context -> context.putAll(FluxUtil.toReactorContext(this.client.getContext()).readOnly()));
+    }
+
+    /**
+     * Get the next page of items.
+     * 
+     * @param nextLink The URL to get the next list of items.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body along with {@link PagedResponse}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    private PagedResponse<MonitoredResourceInner> postActionPagingNextSinglePage(String nextLink) {
+        final String accept = "application/json";
+        Response<MonitoredResourceListResponse> res
+            = service.postActionPagingNextSync(nextLink, this.client.getEndpoint(), accept, Context.NONE);
+        return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().value(),
+            res.getValue().nextLink(), null);
+    }
+
+    /**
+     * Get the next page of items.
+     * 
+     * @param nextLink The URL to get the next list of items.
+     * @param context The context to associate with this operation.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ManagementException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body along with {@link PagedResponse}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    private PagedResponse<MonitoredResourceInner> postActionPagingNextSinglePage(String nextLink, Context context) {
+        final String accept = "application/json";
+        Response<MonitoredResourceListResponse> res
+            = service.postActionPagingNextSync(nextLink, this.client.getEndpoint(), accept, context);
+        return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(), res.getValue().value(),
+            res.getValue().nextLink(), null);
     }
 }

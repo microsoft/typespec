@@ -1,5 +1,6 @@
 import type { Interface } from "@typespec/compiler";
 import {
+  getNamespaceFullName,
   isStdNamespace,
   isTemplateDeclaration,
   listServices,
@@ -8,7 +9,7 @@ import {
   type Namespace as TspNamespace,
 } from "@typespec/compiler";
 import type { useTsp } from "@typespec/emitter-framework";
-import { getCSharpNamespaceName } from "./utils/namespace-utils.js";
+import { findServiceNamespace, getCSharpNamespaceName } from "./utils/namespace-utils.js";
 
 /**
  * Collects the namespaces whose declarations are emitted even when nothing references them.
@@ -104,43 +105,25 @@ export function getServiceInterfaces(
 }
 
 /**
+ * Gets the namespace declared with `@service`.
+ *
+ * When no service is declared, falls back to the first non-standard namespace with content to
+ * preserve standalone model-emission behavior.
+ */
+export function getServiceNamespace(program: Program): TspNamespace | undefined {
+  const service = listServices(program)[0];
+  if (service) return service.type;
+
+  return findServiceNamespace(program.getGlobalNamespaceType());
+}
+
+/**
  * Gets the full service namespace name from the program (e.g., "Microsoft.Contoso").
  */
 export function getServiceNamespaceName(
   program: ReturnType<typeof useTsp>["$"]["program"],
 ): string | undefined {
-  const globalNs = program.getGlobalNamespaceType();
-
-  function getFullName(ns: TspNamespace): string {
-    const parts: string[] = [];
-    let current: TspNamespace | undefined = ns;
-    while (current && current !== globalNs) {
-      parts.unshift(current.name);
-      current = current.namespace;
-    }
-    return parts.join(".");
-  }
-
-  // Find the service namespace (deepest non-std namespace in the first branch)
-  function findServiceNs(ns: TspNamespace): TspNamespace | undefined {
-    for (const child of ns.namespaces.values()) {
-      if (isStdNamespace(child)) continue;
-      // If this namespace has content (models, interfaces, operations, enums), use it
-      // Otherwise, recurse deeper
-      const hasContent =
-        child.models.size > 0 ||
-        child.interfaces.size > 0 ||
-        child.operations.size > 0 ||
-        child.enums.size > 0;
-      if (hasContent) return child;
-      const deeper = findServiceNs(child);
-      if (deeper) return deeper;
-      return child;
-    }
-    return undefined;
-  }
-
-  const serviceNs = findServiceNs(globalNs);
+  const serviceNs = getServiceNamespace(program);
   if (!serviceNs) return undefined;
-  return getCSharpNamespaceName(getFullName(serviceNs));
+  return getCSharpNamespaceName(getNamespaceFullName(serviceNs));
 }
