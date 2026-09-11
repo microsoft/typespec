@@ -124,7 +124,7 @@ catalog:
   micromatch: ^4.0.8
   monaco-editor: ^0.56.0
   monaco-editor-core: ^0.56.0
-  morgan: ^1.11.0
+  morgan: ^1.12.0
   multer: ^2.2.0
   mustache: ^4.2.0
   ora: ^9.4.1
