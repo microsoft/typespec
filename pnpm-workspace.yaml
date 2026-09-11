@@ -91,7 +91,7 @@ catalog:
   "@vscode/vsce": ^3.9.2
   ajv: ^8.20.0
   ajv-formats: ^3.0.1
-  astro: ^7.2.6
+  astro: ^7.2.8
   astro-expressive-code: ^0.44.1
   astro-rehype-relative-markdown-links: ^0.19.2
   c8: ^12.0.0
