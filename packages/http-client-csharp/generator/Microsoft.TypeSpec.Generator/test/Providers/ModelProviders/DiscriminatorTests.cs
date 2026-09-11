@@ -87,7 +87,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             yield return new TestCaseData(_baseModel, """
                                                       /// <summary>
                                                       /// pet description
-                                                      /// Please note this is the abstract base class. The derived classes available for instantiation are: <see cref="Sample.Models.Cat"/>, <see cref="Sample.Models.Dog"/>, and <see cref="Sample.Models.AnotherAnimal"/>.
+                                                      /// Please note this is the abstract base class. The derived classes available for instantiation are: <see cref="Sample.Models.AnotherAnimal"/>, <see cref="Sample.Models.Cat"/>, and <see cref="Sample.Models.Dog"/>.
                                                       /// </summary>
 
                                                       """);
@@ -120,8 +120,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual(expectedSummary, baseModel.XmlDocs.Summary!.ToDisplayString());
         }
 
-        [TestCase(true, "Please note this is the abstract base class. The derived classes available for instantiation are: <see cref=\"Sample.Models.Cat\"/>, <see cref=\"Sample.Models.Dog\"/>, and <see cref=\"Sample.Models.AnotherAnimal\"/>.")]
-        [TestCase(false, "Please note this is the base class. The derived classes available for instantiation are: <see cref=\"Sample.Models.Cat\"/>, <see cref=\"Sample.Models.Dog\"/>, and <see cref=\"Sample.Models.AnotherAnimal\"/>.")]
+        [TestCase(true, "Please note this is the abstract base class. The derived classes available for instantiation are: <see cref=\"Sample.Models.AnotherAnimal\"/>, <see cref=\"Sample.Models.Cat\"/>, and <see cref=\"Sample.Models.Dog\"/>.")]
+        [TestCase(false, "Please note this is the base class. The derived classes available for instantiation are: <see cref=\"Sample.Models.AnotherAnimal\"/>, <see cref=\"Sample.Models.Cat\"/>, and <see cref=\"Sample.Models.Dog\"/>.")]
         public void DiscriminatedBaseDescriptionReflectsAbstractness(bool isAbstract, string expectedDescription)
         {
             MockHelpers.LoadMockGenerator();
