@@ -1,4 +1,4 @@
-import { runPython3 } from "./run-python3.js";
+import { runPython3 } from "./run-python3.ts";
 
 async function main() {
   try {

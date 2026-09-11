@@ -33,7 +33,7 @@ const argv = parseArgs({
 
 if (argv.values.help) {
   console.log(`
-${pc.bold("Usage:")} tsx format.ts [options]
+${pc.bold("Usage:")} node format.ts [options]
 
 ${pc.bold("Description:")}
   Format code using Prettier (TypeScript) and Black (Python).
@@ -56,19 +56,19 @@ ${pc.bold("Options:")}
 
 ${pc.bold("Examples:")}
   ${pc.dim("# Format emitter + pygen source (default)")}
-  tsx format.ts
+  node format.ts
 
   ${pc.dim("# Format only TypeScript emitter")}
-  tsx format.ts --emitter
+  node format.ts --emitter
 
   ${pc.dim("# Format only pygen source code")}
-  tsx format.ts --generator
+  node format.ts --generator
 
   ${pc.dim("# Check formatting without making changes")}
-  tsx format.ts --check
+  node format.ts --check
 
   ${pc.dim("# Format generated SDK packages")}
-  tsx format.ts --generated
+  node format.ts --generated
 `);
   process.exit(0);
 }
