@@ -30,7 +30,7 @@ namespace Sample
                     p1 = prop.Value.GetString();
                     continue;
                 }
-                additionalProperties.Add(prop.Name, global::System.BinaryData.FromString(prop.Value.GetRawText()));
+                additionalProperties.Add(prop.Name, prop.Value.GetUtf8Bytes());
             }
             return new global::Sample.Models.DynamicModel(p1, additionalProperties, patch);
         }

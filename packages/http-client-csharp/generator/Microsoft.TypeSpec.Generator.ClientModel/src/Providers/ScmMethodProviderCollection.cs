@@ -764,7 +764,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return new IfElseStatement(
                     item.ValueKind().Equal(JsonValueKindSnippets.Null),
                     AddElement(dictKey, Null, value),
-                    AddElement(dictKey, BinaryDataSnippets.FromString(item.GetRawText()), value));
+                    AddElement(dictKey, item.GetUtf8Bytes(), value));
             }
             else
             {

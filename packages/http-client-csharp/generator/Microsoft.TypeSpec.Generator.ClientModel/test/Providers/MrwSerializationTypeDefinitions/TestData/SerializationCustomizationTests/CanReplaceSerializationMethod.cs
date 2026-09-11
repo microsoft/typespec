@@ -93,7 +93,7 @@ namespace Sample.Models
                 }
                 if ((options.Format != "W"))
                 {
-                    additionalBinaryDataProperties.Add(prop.Name, global::System.BinaryData.FromString(prop.Value.GetRawText()));
+                    additionalBinaryDataProperties.Add(prop.Name, prop.Value.GetUtf8Bytes());
                 }
             }
             return new global::Sample.Models.MockInputModel(prop1, prop2, additionalBinaryDataProperties);
