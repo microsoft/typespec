@@ -7,6 +7,7 @@ using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
@@ -22,7 +23,7 @@ namespace TestProjects.Local.Tests
         [TestCase(true, true)]
         public async Task EnumResponseDeserialization(bool hasBom, bool isAsync)
         {
-            var bom = hasBom ? char.ConvertFromUtf32(65279) : string.Empty;
+            var bom = hasBom ? Encoding.UTF8.GetString(Encoding.UTF8.GetPreamble()) : string.Empty;
             var content = BinaryData.FromString(bom + "Monday");
             var response = new Mock<PipelineResponse>();
             response.SetupGet(r => r.Content).Returns(content);
