@@ -482,7 +482,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                             [
                                 InputFactory.Property("value", InputPrimitiveType.String, isRequired: true)
                             ])),
-                        serializedName: "foo bar[\"\\baz")
+                        serializedName: "1 foo-[\"\\baz")
                 ]);
 
             MockHelpers.LoadMockGenerator(inputModels: () => [inputModel]);
@@ -495,8 +495,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 name => name is "JsonModelWriteCore" or "ActiveChildren"));
             var content = writer.Write().Content;
 
-            StringAssert.Contains("""Patch.Contains("$[\"foo bar[\\\"\\\\baz\"]"u8)""", content);
-            StringAssert.Contains("""Encoding.UTF8.GetBytes($"$[\"foo bar[\\\"\\\\baz\"][{i}]")""", content);
+            StringAssert.Contains("""Patch.Contains("$[\"1 foo-[\\\"\\\\baz\"]"u8)""", content);
+            StringAssert.Contains("""Encoding.UTF8.GetBytes($"$[\"1 foo-[\\\"\\\\baz\"][{i}]")""", content);
         }
 
         [Test]
