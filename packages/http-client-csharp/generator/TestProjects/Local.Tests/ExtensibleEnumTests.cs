@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-// cspell:ignore FEFF
-
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
@@ -24,7 +22,8 @@ namespace TestProjects.Local.Tests
         [TestCase(true, true)]
         public async Task EnumResponseDeserialization(bool hasBom, bool isAsync)
         {
-            var content = BinaryData.FromString((hasBom ? "\uFEFF" : "") + "Monday");
+            var bom = hasBom ? char.ConvertFromUtf32(65279) : string.Empty;
+            var content = BinaryData.FromString(bom + "Monday");
             var response = new Mock<PipelineResponse>();
             response.SetupGet(r => r.Content).Returns(content);
             var protocolResult = ClientResult.FromResponse(response.Object);
