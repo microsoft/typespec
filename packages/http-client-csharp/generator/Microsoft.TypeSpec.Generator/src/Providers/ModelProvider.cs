@@ -145,7 +145,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             var baseType = BaseType;
-            if (baseType is null || string.IsNullOrEmpty(baseType.Namespace))
+            if (baseType is null)
             {
                 return null;
             }
@@ -283,7 +283,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // report that the previous inheritance relationship could not be restored.
             if (CustomCodeView is { } customCodeView &&
                 (customCodeView.BaseType is not null ||
-                    customCodeView is NamedTypeSymbolProvider { HasExplicitBaseTypeDeclaration: true }))
+                    customCodeView is NamedTypeSymbolProvider { HasExplicitClassBaseDeclaration: true }))
             {
                 ReportIncompatibleBackcompatBaseType(
                     previousBase,
@@ -317,11 +317,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return currentBase;
             }
 
-            if (HasPropertyNameCollisionInCurrentHierarchy(resolvedPreviousBaseProvider))
+            if (HasMemberNameCollisionInCurrentHierarchy(resolvedPreviousBaseProvider))
             {
                 ReportIncompatibleBackcompatBaseType(
                     previousBase,
-                    "the current model hierarchy declares a property from the previous base hierarchy");
+                    "the current model hierarchy declares a member from the previous base hierarchy");
                 return currentBase;
             }
 
@@ -461,7 +461,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return null;
         }
 
-        private bool HasPropertyNameCollisionInCurrentHierarchy(TypeProvider previousBase)
+        private bool HasMemberNameCollisionInCurrentHierarchy(TypeProvider previousBase)
         {
             var inheritedMemberNames = new HashSet<string>(StringComparer.Ordinal);
             var visitedBases = new HashSet<TypeProvider>();
@@ -473,6 +473,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 inheritedMemberNames.UnionWith(provider.Fields
                     .Where(field => IsInheritedMember((MethodSignatureModifiers)field.Modifiers, provider))
                     .Select(field => field.Name));
+                inheritedMemberNames.UnionWith(provider.Methods
+                    .Where(method => IsInheritedMember(method.Signature.Modifiers, provider))
+                    .Select(method => method.Signature.Name));
                 if (provider.CustomCodeView is { } customView)
                 {
                     inheritedMemberNames.UnionWith(customView.Properties
@@ -481,6 +484,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     inheritedMemberNames.UnionWith(customView.Fields
                         .Where(field => IsInheritedMember((MethodSignatureModifiers)field.Modifiers, customView))
                         .Select(field => field.Name));
+                    inheritedMemberNames.UnionWith(customView.Methods
+                        .Where(method => IsInheritedMember(method.Signature.Modifiers, customView))
+                        .Select(method => method.Signature.Name));
                 }
             }
 
@@ -506,6 +512,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     .Concat(model.GetGeneratedAdditionalPropertyNames(previousBase))
                     .Concat(model.CustomCodeView?.Properties.Select(property => property.Name) ?? [])
                     .Concat(model.CustomCodeView?.Fields.Select(field => field.Name) ?? [])
+                    .Concat(model.CustomCodeView?.Methods.Select(method => method.Signature.Name) ?? [])
                     .Any(inheritedMemberNames.Contains))
                 {
                     return true;
@@ -598,12 +605,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
             }
 
-            // The previous base may occur later in input order. Force-create all input models before
+            // The previous base may occur later in input order. Populate generated providers once before
             // deciding that no generated provider is available.
-            foreach (var model in CodeModelGenerator.Instance.InputLibrary.InputNamespace.Models)
-            {
-                CodeModelGenerator.Instance.TypeFactory.CreateModel(model);
-            }
+            CodeModelGenerator.Instance.TypeFactory.EnsureAllInputModelsCreated();
 
             foreach (var provider in CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.Values)
             {
@@ -739,11 +743,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 var frameworkType = systemType.FrameworkType;
                 return frameworkType.IsClass && !frameworkType.IsSealed &&
                     (!DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public) || frameworkType.IsPublic || frameworkType.IsNestedPublic) &&
-                    (frameworkType.IsAbstract && frameworkType.IsSealed ? false :
-                        frameworkType.GetConstructor(System.Type.EmptyTypes) is not null ||
-                        frameworkType.GetConstructors(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic)
-                            .Any(constructor => constructor.GetParameters().Length == 0 &&
-                                (constructor.IsPublic || constructor.IsFamily || constructor.IsFamilyOrAssembly)));
+                    (frameworkType.GetConstructor(System.Type.EmptyTypes) is not null ||
+                    frameworkType.GetConstructors(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic)
+                        .Any(constructor => constructor.GetParameters().Length == 0 &&
+                            (constructor.IsPublic || constructor.IsFamily || constructor.IsFamilyOrAssembly)));
             }
 
             var currentProvider = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(

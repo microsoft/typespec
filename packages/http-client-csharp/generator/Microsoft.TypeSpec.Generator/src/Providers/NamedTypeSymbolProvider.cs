@@ -57,10 +57,30 @@ namespace Microsoft.TypeSpec.Generator.Providers
             !_namedTypeSymbol.IsSealed &&
             !_namedTypeSymbol.IsStatic;
 
-        internal bool HasExplicitBaseTypeDeclaration => _namedTypeSymbol.DeclaringSyntaxReferences
-            .Select(reference => reference.GetSyntax())
-            .OfType<TypeDeclarationSyntax>()
-            .Any(declaration => declaration.BaseList is not null);
+        internal bool HasExplicitClassBaseDeclaration
+        {
+            get
+            {
+                foreach (var declaration in _namedTypeSymbol.DeclaringSyntaxReferences
+                    .Select(reference => reference.GetSyntax())
+                    .OfType<TypeDeclarationSyntax>())
+                {
+                    if (declaration.BaseList is null)
+                    {
+                        continue;
+                    }
+
+                    var semanticModel = _compilation.GetSemanticModel(declaration.SyntaxTree);
+                    if (declaration.BaseList.Types.Any(baseType =>
+                        semanticModel.GetTypeInfo(baseType.Type).Type is { TypeKind: not TypeKind.Interface }))
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+        }
 
         internal bool IsFromCurrentAssembly =>
             SymbolEqualityComparer.Default.Equals(_namedTypeSymbol.ContainingAssembly, _compilation.Assembly);

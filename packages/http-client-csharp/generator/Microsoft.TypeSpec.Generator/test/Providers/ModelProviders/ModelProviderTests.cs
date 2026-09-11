@@ -1333,6 +1333,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                     {
                         public string CustomProperty { get; set; }
                         public string CustomField;
+                        public void Run() { }
+                    }
+
+                    public partial class BaseCustomMethodDerived
+                    {
+                        public void Run() { }
                     }
                 }
                 """;
@@ -1348,6 +1354,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                     public class CustomFieldDerived : PreviousBase { }
                     public class BaseCustomPropertyDerived : PreviousBase { }
                     public class BaseCustomFieldDerived : PreviousBase { }
+                    public class BaseCustomMethodDerived : PreviousBase { }
                 }
                 """;
             var previousBase = InputFactory.Model(
@@ -1361,9 +1368,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var baseCustomFieldDerived = InputFactory.Model(
                 "BaseCustomFieldDerived",
                 properties: [InputFactory.Property("customField", InputPrimitiveType.String)]);
+            var baseCustomMethodDerived = InputFactory.Model("BaseCustomMethodDerived", properties: []);
 
             await MockHelpers.LoadMockGeneratorAsync(
-                inputModelTypes: [previousBase, propertyDerived, fieldDerived, baseCustomPropertyDerived, baseCustomFieldDerived],
+                inputModelTypes: [previousBase, propertyDerived, fieldDerived, baseCustomPropertyDerived, baseCustomFieldDerived, baseCustomMethodDerived],
                 compilation: async () => await Helpers.GetCompilationFromSourceFilesAsync([("Customization.cs", customizationSource)]),
                 lastContractCompilation: async () => await Helpers.GetCompilationFromSourceFilesAsync([("LastContract.cs", lastContractSource)]));
 
@@ -1374,11 +1382,13 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var fieldDerivedProvider = modelProviders.Single(t => t.Name == "CustomFieldDerived");
             var baseCustomPropertyProvider = modelProviders.Single(t => t.Name == "BaseCustomPropertyDerived");
             var baseCustomFieldProvider = modelProviders.Single(t => t.Name == "BaseCustomFieldDerived");
+            var baseCustomMethodProvider = modelProviders.Single(t => t.Name == "BaseCustomMethodDerived");
 
             propertyDerivedProvider.ProcessTypeForBackCompatibility();
             fieldDerivedProvider.ProcessTypeForBackCompatibility();
             baseCustomPropertyProvider.ProcessTypeForBackCompatibility();
             baseCustomFieldProvider.ProcessTypeForBackCompatibility();
+            baseCustomMethodProvider.ProcessTypeForBackCompatibility();
 
             Assert.Multiple(() =>
             {
@@ -1390,6 +1400,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                     "The previous base must not be restored when its custom property collides with a current property");
                 Assert.IsNull(baseCustomFieldProvider.BaseType,
                     "The previous base must not be restored when its custom field collides with a current property");
+                Assert.IsNull(baseCustomMethodProvider.BaseType,
+                    "The previous base must not be restored when its custom method collides with a current custom method");
             });
         }
 
@@ -1492,6 +1504,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 namespace Sample.Models
                 {
                     public partial class ExplicitObjectDerived : object { }
+                    public partial class InterfaceDerived : System.IDisposable { public void Dispose() { } }
                     public partial class CycleDerived { }
                     public class ExternalBase : CycleDerived { }
                 }
@@ -1502,29 +1515,35 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                     public class PreviousBase { }
                     public class ExternalBase { }
                     public class ExplicitObjectDerived : PreviousBase { }
+                    public class InterfaceDerived : PreviousBase { }
                     public class CycleDerived : ExternalBase { }
                 }
                 """;
             var previousBase = InputFactory.Model("PreviousBase", properties: []);
             var explicitObjectDerived = InputFactory.Model("ExplicitObjectDerived", properties: []);
+            var interfaceDerived = InputFactory.Model("InterfaceDerived", properties: []);
             var cycleDerived = InputFactory.Model("CycleDerived", properties: []);
 
             await MockHelpers.LoadMockGeneratorAsync(
-                inputModelTypes: [previousBase, explicitObjectDerived, cycleDerived],
+                inputModelTypes: [previousBase, explicitObjectDerived, interfaceDerived, cycleDerived],
                 compilation: async () => await Helpers.GetCompilationFromSourceFilesAsync([("Customization.cs", customizationSource)]),
                 lastContractCompilation: async () => await Helpers.GetCompilationFromSourceFilesAsync([("LastContract.cs", lastContractSource)]));
 
             var providers = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.OfType<ModelProvider>().ToArray();
             var explicitObjectProvider = providers.Single(provider => provider.Name == "ExplicitObjectDerived");
+            var interfaceProvider = providers.Single(provider => provider.Name == "InterfaceDerived");
             var cycleProvider = providers.Single(provider => provider.Name == "CycleDerived");
 
             explicitObjectProvider.ProcessTypeForBackCompatibility();
+            interfaceProvider.ProcessTypeForBackCompatibility();
             cycleProvider.ProcessTypeForBackCompatibility();
 
             Assert.Multiple(() =>
             {
                 Assert.IsNull(explicitObjectProvider.BaseType,
                     "An explicit object base in custom code must remain authoritative across partial declarations");
+                Assert.AreEqual("PreviousBase", interfaceProvider.BaseType?.Name,
+                    "An interface-only custom base list must not block class-base restoration");
                 Assert.IsNull(cycleProvider.BaseType,
                     "A symbol-backed candidate whose base chain reaches the current model must not be restored");
             });
