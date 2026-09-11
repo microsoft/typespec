@@ -5,6 +5,7 @@ import {
   type Enum,
   type Interface,
   type Model,
+  type Operation,
   type Program,
   type Namespace as TspNamespace,
   type Type,
@@ -44,6 +45,8 @@ export interface ServiceTypeResolution {
   unionEnums: Union[];
   /** Canonicalized HTTP operations per interface. */
   canonicalOpsMap: Map<string, OperationHttpCanonicalization[]>;
+  /** Original business operation for each canonicalized HTTP operation. */
+  canonicalOperationSourceMap: Map<OperationHttpCanonicalization, Operation>;
   /** Namespaces whose declarations are emitted without being referenced. */
   declarationNamespaces: Set<TspNamespace>;
 }
@@ -94,7 +97,10 @@ export function resolveServiceTypes(
   );
 
   // Phase 5: Canonicalize all HTTP operations
-  const canonicalOpsMap = canonicalizeAllInterfaces(canonicalizer, interfaces);
+  const { canonicalOpsMap, canonicalOperationSourceMap } = canonicalizeAllInterfaces(
+    canonicalizer,
+    interfaces,
+  );
 
   return {
     serviceNamespace,
@@ -104,6 +110,7 @@ export function resolveServiceTypes(
     enums,
     unionEnums,
     canonicalOpsMap,
+    canonicalOperationSourceMap,
     declarationNamespaces,
   };
 }
@@ -114,20 +121,26 @@ export function resolveServiceTypes(
 function canonicalizeAllInterfaces(
   canonicalizer: HttpCanonicalizer,
   interfaces: Interface[],
-): Map<string, OperationHttpCanonicalization[]> {
-  const result = new Map<string, OperationHttpCanonicalization[]>();
+): {
+  canonicalOpsMap: Map<string, OperationHttpCanonicalization[]>;
+  canonicalOperationSourceMap: Map<OperationHttpCanonicalization, Operation>;
+} {
+  const canonicalOpsMap = new Map<string, OperationHttpCanonicalization[]>();
+  const canonicalOperationSourceMap = new Map<OperationHttpCanonicalization, Operation>();
   for (const iface of interfaces) {
     const ops: OperationHttpCanonicalization[] = [];
     for (const [, op] of iface.operations) {
       try {
-        ops.push(canonicalizer.canonicalize(op) as OperationHttpCanonicalization);
+        const canonicalOp = canonicalizer.canonicalize(op) as OperationHttpCanonicalization;
+        ops.push(canonicalOp);
+        canonicalOperationSourceMap.set(canonicalOp, op);
       } catch {
         // Skip operations that can't be canonicalized
       }
     }
-    result.set(iface.name, ops);
+    canonicalOpsMap.set(iface.name, ops);
   }
-  return result;
+  return { canonicalOpsMap, canonicalOperationSourceMap };
 }
 
 // ── Type discovery ──────────────────────────────────────────────────────
