@@ -114,7 +114,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var hasPatchDeclaration = Declare(
                 "hasPatch",
                 typeof(bool),
-                patchSnippet.Contains(LiteralU8("$"), LiteralU8(serializedName.Split('.')[0])),
+                patchSnippet.Contains(LiteralU8("$"), LiteralU8(serializedName)),
                 out var hasPatch);
             var patchIsRemovedCondition = hasPatch.As<bool>().And(patchSnippet.IsRemoved(
                 Utf8Snippets.GetBytes(
@@ -616,7 +616,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var hasPatchDeclaration = Declare(
                 "hasPatch",
                 typeof(bool),
-                _jsonPatchProperty!.As<JsonPatch>().Contains(LiteralU8("$"), LiteralU8(serializedName.Split('.')[0])),
+                _jsonPatchProperty!.As<JsonPatch>().Contains(LiteralU8("$"), LiteralU8(serializedName)),
                 out var hasPatch);
             var itemPath = Utf8Snippets.GetBytes(new FormattableStringExpression(
                 BuildJsonPathForElement(serializedName, [indexVar]),
