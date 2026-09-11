@@ -17,7 +17,7 @@ foreach (var prop in element.EnumerateObject())
     }
     if ((options.Format != "W"))
     {
-        additionalBinaryDataProperties.Add(prop.Name, global::System.BinaryData.FromString(prop.Value.GetRawText()));
+        additionalBinaryDataProperties.Add(prop.Name, prop.Value.GetUtf8Bytes());
     }
 }
 return new global::Sample.Models.MockInputModel(mockProperty, additionalBinaryDataProperties);

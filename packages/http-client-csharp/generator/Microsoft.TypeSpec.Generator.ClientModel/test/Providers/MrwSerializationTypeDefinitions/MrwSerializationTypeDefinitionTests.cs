@@ -1568,8 +1568,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.AreEqual(Helpers.GetExpectedFromFile(format), methodBody);
         }
 
-        [Test]
-        public void TestDeserializationOfNonBase64ByteArrayPropertyUsesGetRawText()
+        [TestCase(typeof(BinaryData))]
+        [TestCase(typeof(byte[]))]
+        [TestCase(typeof(System.IO.Stream))]
+        public void TestDeserializationOfNonBase64PropertyUsesGetUtf8Bytes(Type propertyType)
         {
             var bytesNoEncoding = new InputPrimitiveType(InputPrimitiveTypeKind.Bytes, "bytes", "TypeSpec.bytes");
             var inputModel = InputFactory.Model("TestModel", properties:
@@ -1580,7 +1582,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 createSerializationsCore: (inputType, typeProvider) =>
                     inputType is InputModelType modelType ? [new MrwSerializationTypeDefinition(modelType, (typeProvider as ModelProvider)!)] : [],
                 createCSharpTypeCore: (inputType) => inputType is InputPrimitiveType { Kind: InputPrimitiveTypeKind.Bytes }
-                    ? new CSharpType(typeof(byte[]))
+                    ? new CSharpType(propertyType)
                     : null!,
                 createCSharpTypeCoreFallback: (inputType) => inputType is InputPrimitiveType { Kind: InputPrimitiveTypeKind.Bytes });
 
@@ -1591,10 +1593,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var deserializationMethod = serialization!.BuildDeserializationMethod();
             var methodBody = deserializationMethod!.BodyStatements!.ToDisplayString();
 
-            Assert.IsTrue(methodBody.Contains("GetRawText"),
-                $"byte[] property with no encoding should use GetRawText() fallback. Actual:\n{methodBody}");
-            Assert.IsTrue(methodBody.Contains("ToArray"),
-                $"byte[] property with no encoding should call ToArray(). Actual:\n{methodBody}");
+            Assert.IsTrue(methodBody.Contains("GetUtf8Bytes"),
+                $"Property with no encoding should use GetUtf8Bytes(). Actual:\n{methodBody}");
+            Assert.IsFalse(methodBody.Contains("GetRawText"),
+                $"Property with no encoding should not transcode raw JSON. Actual:\n{methodBody}");
+            if (propertyType == typeof(byte[]))
+            {
+                Assert.IsTrue(methodBody.Contains("ToArray"),
+                    $"byte[] property with no encoding should call ToArray(). Actual:\n{methodBody}");
+            }
+            else if (propertyType == typeof(System.IO.Stream))
+            {
+                Assert.IsTrue(methodBody.Contains("ToStream"),
+                    $"Stream property with no encoding should call ToStream(). Actual:\n{methodBody}");
+            }
             Assert.IsFalse(methodBody.Contains("EnumerateArray"),
                 $"byte[] property should not use array enumeration. Actual:\n{methodBody}");
         }

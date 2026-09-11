@@ -125,7 +125,7 @@ namespace Sample.Models
                 }
                 if ((options.Format != "W"))
                 {
-                    additionalBinaryDataProperties.Add(prop.Name, global::System.BinaryData.FromString(prop.Value.GetRawText()));
+                    additionalBinaryDataProperties.Add(prop.Name, prop.Value.GetUtf8Bytes());
                 }
             }
             return new global::Sample.Models.Model((prop1 ?? new global::Sample.ChangeTrackingList<global::Sample.Models.MyEnum>()), additionalBinaryDataProperties);
