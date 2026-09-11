@@ -306,10 +306,9 @@ namespace SampleTypeSpec
                         continue;
                     }
                     writer.WriteStartArray();
-                    bool hasPatch0 = Patch.Contains("$"u8, "listOfListFoo"u8);
                     for (int i0 = 0; i0 < ListOfListFoo[i].Count; i0++)
                     {
-                        if (hasPatch0 && Patch.IsRemoved(Encoding.UTF8.GetBytes($"$.listOfListFoo[{i}][{i0}]")) || ListOfListFoo[i][i0] != null && ListOfListFoo[i][i0].Patch.IsRemoved("$"u8))
+                        if (hasPatch && Patch.IsRemoved(Encoding.UTF8.GetBytes($"$.listOfListFoo[{i}][{i0}]")) || ListOfListFoo[i][i0] != null && ListOfListFoo[i][i0].Patch.IsRemoved("$"u8))
                         {
                             continue;
                         }

@@ -25,7 +25,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             SerializationFormat serializationFormat,
             ScopedApi<JsonPatch> patchSnippet,
             string serializedName,
-            List<ValueExpression>? parentIndices = null)
+            List<ValueExpression>? parentIndices = null,
+            ValueExpression? parentHasPatch = null)
         {
             parentIndices ??= [];
 
@@ -74,7 +75,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     patchSnippet,
                     serializationFormat,
                     serializedName,
-                    childIndices)
+                    childIndices,
+                    parentHasPatch)
             };
 
             var innerIfElseProcessorStatement = new IfElsePreprocessorStatement(
@@ -105,7 +107,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ScopedApi<JsonPatch> patchSnippet,
             SerializationFormat serializationFormat,
             string serializedName,
-            List<ValueExpression>? parentIndices = null)
+            List<ValueExpression>? parentIndices = null,
+            ValueExpression? parentHasPatch = null)
         {
             parentIndices ??= [];
             var indexDeclaration = Declare<int>("i", out var indexVar);
@@ -113,11 +116,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var jsonPathTemplate = BuildJsonPathForElement(serializedName, parentIndices);
             var csharpJsonPathTemplate = BuildJsonPathForElement(serializedName, parentIndices, escapeForCSharpString: true);
             // The prefix overload includes indexed descendants, unlike an exact-path Contains check.
-            var hasPatchDeclaration = Declare(
-                "hasPatch",
-                typeof(bool),
-                patchSnippet.Contains(LiteralU8("$"), LiteralU8(serializedName)),
-                out var hasPatch);
+            // Nested collections under the same serialized property can reuse the parent guard.
+            MethodBodyStatement? hasPatchDeclaration = null;
+            ValueExpression hasPatch;
+            if (parentHasPatch == null)
+            {
+                hasPatchDeclaration = Declare(
+                    "hasPatch",
+                    typeof(bool),
+                    patchSnippet.Contains(LiteralU8("$"), LiteralU8(serializedName)),
+                    out var localHasPatch);
+                hasPatch = localHasPatch;
+            }
+            else
+            {
+                hasPatch = parentHasPatch;
+            }
+
             var patchIsRemovedCondition = hasPatch.As<bool>().And(patchSnippet.IsRemoved(
                 Utf8Snippets.GetBytes(
                     new FormattableStringExpression(csharpJsonPathTemplate + $"[{{{parentIndices.Count}}}]", allIndices)
@@ -155,7 +170,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         patchSnippet,
                         serializationFormat,
                         serializedName,
-                        allIndices)
+                        allIndices,
+                        hasPatch)
                 }
             };
 
@@ -163,14 +179,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 ? patchSnippet.WriteTo(_utf8JsonWriterSnippet, LiteralU8(jsonPathTemplate)).Terminate()
                 : patchSnippet.WriteTo(_utf8JsonWriterSnippet, Utf8Snippets.GetBytes(new FormattableStringExpression(csharpJsonPathTemplate, parentIndices).As<string>())).Terminate();
 
-            return new[]
+            var listStatements = new List<MethodBodyStatement>
             {
-                _utf8JsonWriterSnippet.WriteStartArray(),
-                hasPatchDeclaration,
-                forStatement,
-                writeToPatchStatement,
-                _utf8JsonWriterSnippet.WriteEndArray()
+                _utf8JsonWriterSnippet.WriteStartArray()
             };
+            if (hasPatchDeclaration != null)
+            {
+                listStatements.Add(hasPatchDeclaration);
+            }
+
+            listStatements.Add(forStatement);
+            listStatements.Add(writeToPatchStatement);
+            listStatements.Add(_utf8JsonWriterSnippet.WriteEndArray());
+            return listStatements.ToArray();
         }
 
         private MethodBodyStatement CreateElementSerializationWithPatch(
@@ -179,7 +200,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ScopedApi<JsonPatch> patchSnippet,
             SerializationFormat serializationFormat,
             string serializedName,
-            List<ValueExpression> currentIndices)
+            List<ValueExpression> currentIndices,
+            ValueExpression? parentHasPatch = null)
         {
             var nestedSerialization = elementType switch
             {
@@ -190,13 +212,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     patchSnippet,
                     serializationFormat,
                     serializedName,
-                    currentIndices),
+                    currentIndices,
+                    parentHasPatch),
                 { IsDictionary: true } => CreateDictionarySerializationWithPatch(
                     new DictionaryExpression(elementType, element),
                     serializationFormat,
                     patchSnippet,
                     serializedName,
-                    currentIndices),
+                    currentIndices,
+                    parentHasPatch),
                 _ => null
             };
 

@@ -162,10 +162,9 @@ namespace SampleTypeSpec
                         continue;
                     }
                     writer.WriteStartArray();
-                    bool hasPatch0 = Patch.Contains("$"u8, "nestedChildren"u8);
                     for (int i0 = 0; i0 < NestedChildren[i].Count; i0++)
                     {
-                        if (hasPatch0 && Patch.IsRemoved(Encoding.UTF8.GetBytes($"$.nestedChildren[{i}][{i0}]")) || NestedChildren[i][i0] != null && NestedChildren[i][i0].Patch.IsRemoved("$"u8))
+                        if (hasPatch && Patch.IsRemoved(Encoding.UTF8.GetBytes($"$.nestedChildren[{i}][{i0}]")) || NestedChildren[i][i0] != null && NestedChildren[i][i0].Patch.IsRemoved("$"u8))
                         {
                             continue;
                         }
