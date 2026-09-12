@@ -299,6 +299,59 @@ describe("file discovery", () => {
       strictEqual(target.file?.path, resolveVirtualPath("base/tspconfig.yaml"));
       strictEqual(parentConfig.slice(target.pos, target.end), `"file:./missing.yaml"`);
     });
+    it("falls back when an inherited linter source becomes unreadable before compilation", async () => {
+      const fs = createTestFileSystem();
+      const parentPath = resolveVirtualPath("base/tspconfig.yaml");
+      fs.addTypeSpecFile(
+        "base/tspconfig.yaml",
+        `
+        linter:
+          extends:
+            - "file:./missing.yaml"
+        `,
+      );
+      fs.addTypeSpecFile(
+        "project/tspconfig.yaml",
+        `
+        extends: "../base/tspconfig.yaml"
+        linter:
+          disable: {}
+        `,
+      );
+      fs.addTypeSpecFile("project/main.tsp", "");
+      fs.addTypeSpecFile("node_modules/@typespec/compiler/lib/intrinsics.tsp", "");
+
+      const config = await loadTypeSpecConfigForPath(
+        fs.compilerHost,
+        resolveVirtualPath("project/tspconfig.yaml"),
+        true,
+        false,
+      );
+      const [options, optionDiagnostics] = resolveOptionsFromConfig(config, {
+        cwd: resolveVirtualPath("project"),
+      });
+      expectDiagnosticEmpty(optionDiagnostics);
+
+      const host = {
+        ...fs.compilerHost,
+        async readFile(path: string) {
+          if (path === parentPath) {
+            throw new Error("parent config became unreadable");
+          }
+          return fs.compilerHost.readFile(path);
+        },
+      };
+      const program = await compile(host, resolveVirtualPath("project/main.tsp"), {
+        ...options,
+        noEmit: true,
+        nostdlib: true,
+      });
+      expectDiagnostics(program.diagnostics, {
+        code: "file-not-found",
+        severity: "error",
+        message: `File ${resolveVirtualPath("base/missing.yaml")} not found.`,
+      });
+    });
   });
 });
 
