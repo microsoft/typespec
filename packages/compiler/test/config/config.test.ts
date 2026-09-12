@@ -11,7 +11,7 @@ import { createJSONSchemaValidator } from "../../src/core/schema-validator.js";
 import { createSourceFile } from "../../src/core/source-file.js";
 import { resolvePath } from "../../src/index.js";
 import { createTestFileSystem } from "../../src/testing/fs.js";
-import { expectDiagnosticEmpty } from "../../src/testing/index.js";
+import { expectDiagnosticEmpty, expectDiagnostics } from "../../src/testing/index.js";
 import { findTestPackageRoot, resolveVirtualPath } from "../../src/testing/test-utils.js";
 
 const scenarioRoot = resolvePath(
@@ -267,6 +267,7 @@ describe("file discovery", () => {
         `,
       );
       fs.addTypeSpecFile("project/main.tsp", "");
+      fs.addTypeSpecFile("node_modules/@typespec/compiler/lib/intrinsics.tsp", "");
 
       const config = await loadTypeSpecConfigForPath(
         fs.compilerHost,
@@ -289,13 +290,13 @@ describe("file discovery", () => {
         noEmit: true,
         nostdlib: true,
       });
-      const diagnostic = program.diagnostics.find(
-        (x) =>
-          x.code === "file-not-found" &&
-          (x.target as any).file?.path === resolveVirtualPath("base/tspconfig.yaml"),
-      );
-      if (!diagnostic) throw new Error("Expected inherited ruleset diagnostic in parent config");
-      const target = diagnostic.target as any;
+      expectDiagnostics(program.diagnostics, {
+        code: "file-not-found",
+        severity: "error",
+        message: `File ${resolveVirtualPath("base/missing.yaml")} not found.`,
+      });
+      const target = program.diagnostics[0].target as any;
+      strictEqual(target.file?.path, resolveVirtualPath("base/tspconfig.yaml"));
       strictEqual(parentConfig.slice(target.pos, target.end), `"file:./missing.yaml"`);
     });
   });
