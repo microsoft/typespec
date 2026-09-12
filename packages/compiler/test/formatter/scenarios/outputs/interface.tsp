@@ -19,3 +19,7 @@ interface WithMultipleOperation {
 
   keepSeperation2(): string;
 }
+
+partial interface Partial1 {
+  a(): string;
+}

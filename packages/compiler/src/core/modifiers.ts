@@ -42,6 +42,11 @@ const NO_MODIFIERS: ModifierCompatibility = {
   required: ModifierFlags.None,
 };
 
+const INTERFACE_COMPATIBILITY: ModifierCompatibility = {
+  allowed: ModifierFlags.Internal | ModifierFlags.Partial,
+  required: ModifierFlags.None,
+};
+
 /**
  * Declaration nodes whose modifiers can be checked. Includes the statement
  * declarations as well as the declaration-expression nodes (which never carry
@@ -59,7 +64,7 @@ const SYNTAX_MODIFIERS: Readonly<Record<ModifierCheckableNode["kind"], ModifierC
   [SyntaxKind.OperationStatement]: DEFAULT_COMPATIBILITY,
   [SyntaxKind.ModelStatement]: DEFAULT_COMPATIBILITY,
   [SyntaxKind.ScalarStatement]: DEFAULT_COMPATIBILITY,
-  [SyntaxKind.InterfaceStatement]: DEFAULT_COMPATIBILITY,
+  [SyntaxKind.InterfaceStatement]: INTERFACE_COMPATIBILITY,
   [SyntaxKind.UnionStatement]: DEFAULT_COMPATIBILITY,
   [SyntaxKind.EnumStatement]: DEFAULT_COMPATIBILITY,
   [SyntaxKind.AliasStatement]: DEFAULT_COMPATIBILITY,
@@ -69,7 +74,9 @@ const SYNTAX_MODIFIERS: Readonly<Record<ModifierCheckableNode["kind"], ModifierC
   [SyntaxKind.UnionDeclarationExpression]: NO_MODIFIERS,
   [SyntaxKind.EnumDeclarationExpression]: NO_MODIFIERS,
   [SyntaxKind.DecoratorDeclarationStatement]: {
-    allowed: ModifierFlags.All,
+    // `partial` only applies to interfaces; don't allow it here just because it is
+    // included in `ModifierFlags.All`.
+    allowed: ModifierFlags.Extern | ModifierFlags.Internal | ModifierFlags.Auto,
     required: ModifierFlags.Extern | ModifierFlags.Auto,
     mutuallyExclusive: [[ModifierFlags.Extern, ModifierFlags.Auto]],
   },
@@ -193,6 +200,8 @@ function modifierToFlag(modifier: Modifier): ModifierFlags {
       return ModifierFlags.Internal;
     case SyntaxKind.AutoKeyword:
       return ModifierFlags.Auto;
+    case SyntaxKind.PartialKeyword:
+      return ModifierFlags.Partial;
     default:
       compilerAssert(false, `Unknown modifier kind: ${(modifier as Modifier).kind}`);
   }
@@ -206,6 +215,8 @@ function getTextForModifier(modifier: Modifier): string {
       return "internal";
     case SyntaxKind.AutoKeyword:
       return "auto";
+    case SyntaxKind.PartialKeyword:
+      return "partial";
     default:
       compilerAssert(false, `Unknown modifier kind: ${(modifier as Modifier).kind}`);
   }
@@ -221,6 +232,9 @@ function getNamesOfModifierFlags(flags: ModifierFlags): string[] {
   }
   if (flags & ModifierFlags.Auto) {
     names.push("auto");
+  }
+  if (flags & ModifierFlags.Partial) {
+    names.push("partial");
   }
   return names;
 }

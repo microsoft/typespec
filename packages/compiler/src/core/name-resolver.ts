@@ -61,6 +61,7 @@ import type { Mutable } from "../utils/misc.js";
 import { mutate } from "../utils/misc.js";
 import { createSymbol, createSymbolTable, getSymNode } from "./binder.js";
 import { compilerAssert } from "./diagnostics.js";
+import { createDiagnostic } from "./messages.js";
 import { getFirstAncestor, visitChildren } from "./parser.js";
 import type { Program } from "./program.js";
 import type {
@@ -1012,27 +1013,34 @@ export function createResolver(program: Program): NameResolver {
   }
 
   function bindInterfaceMembers(node: InterfaceStatementNode) {
-    const ifaceSym = node.symbol!;
+    // Resolve the canonical/merged symbol so that, for a `partial interface`, every
+    // declaration that contributes to this interface (same file or across files) has
+    // its `extends` clause processed here, not just whichever declaration node happened
+    // to trigger this call.
+    const ifaceSym = getMergedSymbol(node.symbol!);
     const ifaceSymLinks = getSymbolLinks(ifaceSym);
-    for (const extendsRef of node.extends) {
-      const { finalSymbol: extendsSym, resolutionResult: extendsResult } =
-        resolveTypeReference(extendsRef);
-      setUnknownMembers(ifaceSymLinks, extendsSym, extendsResult);
+    const declarations = ifaceSym.declarations as InterfaceStatementNode[];
+    for (const declNode of declarations) {
+      for (const extendsRef of declNode.extends) {
+        const { finalSymbol: extendsSym, resolutionResult: extendsResult } =
+          resolveTypeReference(extendsRef);
+        setUnknownMembers(ifaceSymLinks, extendsSym, extendsResult);
 
-      if (~extendsResult & ResolutionResultFlags.Resolved) {
-        continue;
+        if (~extendsResult & ResolutionResultFlags.Resolved) {
+          continue;
+        }
+
+        compilerAssert(extendsSym, "Extends symbol must be defined if resolution succeeded");
+
+        if (~extendsSym.flags & SymbolFlags.Interface) {
+          // will be a checker error
+          continue;
+        }
+
+        const sourceTable = getAugmentedSymbolTable(extendsSym.members!);
+        const targetTable = getAugmentedSymbolTable(ifaceSym.members!);
+        targetTable.include(sourceTable, ifaceSym);
       }
-
-      compilerAssert(extendsSym, "Extends symbol must be defined if resolution succeeded");
-
-      if (~extendsSym.flags & SymbolFlags.Interface) {
-        // will be a checker error
-        continue;
-      }
-
-      const sourceTable = getAugmentedSymbolTable(extendsSym.members!);
-      const targetTable = getAugmentedSymbolTable(ifaceSym.members!);
-      targetTable.include(sourceTable, ifaceSym);
     }
   }
 
@@ -1224,6 +1232,8 @@ export function createResolver(program: Program): NameResolver {
         mergeDeclarationOrImplementation(key, sourceBinding, target, SymbolFlags.Decorator);
       } else if (sourceBinding.flags & SymbolFlags.Function) {
         mergeDeclarationOrImplementation(key, sourceBinding, target, SymbolFlags.Function);
+      } else if (sourceBinding.flags & SymbolFlags.Interface) {
+        mergePartialInterfaceSymbol(key, sourceBinding, target);
       } else {
         target.set(key, sourceBinding);
       }
@@ -1254,6 +1264,53 @@ export function createResolver(program: Program): NameResolver {
       mutate(targetBinding.declarations).unshift(...sourceBinding.declarations);
     } else {
       // this will set a duplicate error
+      target.set(key, sourceBinding);
+    }
+  }
+
+  /**
+   * Merge a `partial interface` symbol coming from another file's exports into the
+   * global (or namespace) symbol table.
+   *
+   * Every declaration participating in the merge, on both sides, must be marked
+   * `partial`; otherwise we report a diagnostic and fall back to normal duplicate
+   * symbol handling.
+   */
+  function mergePartialInterfaceSymbol(
+    key: string,
+    sourceBinding: Sym,
+    target: Mutable<SymbolTable>,
+  ) {
+    const targetBinding = target.get(key);
+    if (!targetBinding || !(targetBinding.flags & SymbolFlags.Interface)) {
+      target.set(key, sourceBinding);
+      return;
+    }
+
+    const allDeclarationsArePartial = (sym: Sym) =>
+      sym.declarations.every(
+        (decl) => ((decl as InterfaceStatementNode).modifierFlags & ModifierFlags.Partial) !== 0,
+      );
+
+    if (allDeclarationsArePartial(sourceBinding) && allDeclarationsArePartial(targetBinding)) {
+      mergedSymbols.set(sourceBinding, targetBinding);
+      mutate(targetBinding.declarations).push(...sourceBinding.declarations);
+      // Combine the operations declared in each partial declaration into a single
+      // member symbol table so member lookups (e.g. `Foo.op`) see every operation
+      // regardless of which file declared it.
+      const targetMembers = mutate(targetBinding.members!);
+      for (const [memberKey, memberSym] of sourceBinding.members!) {
+        targetMembers.set(memberKey, memberSym);
+      }
+    } else {
+      program.reportDiagnostic(
+        createDiagnostic({
+          code: "partial-interface-mismatch",
+          format: { name: key },
+          target: sourceBinding.declarations[0] ?? getSymNode(sourceBinding),
+        }),
+      );
+      // this will set a duplicate error too
       target.set(key, sourceBinding);
     }
   }
