@@ -20,6 +20,7 @@ import { getEmittedFilesForProgram } from "./emitter-utils.js";
 import { resolveTypeSpecEntrypoint } from "./entrypoint-resolution.js";
 import { ExternalError } from "./external-error.js";
 import { getLibraryUrlsLoaded } from "./library.js";
+import { linterRuleSetFilePrefix } from "./linter-ruleset-file.js";
 import {
   builtInLinterLibraryName,
   createBuiltInLinterLibrary,
@@ -430,7 +431,10 @@ async function createProgram(
   if (options.linterRuleSet) {
     let linterSource: RuleSetYamlSource | undefined;
     const linterSourcePath = options.configFile?.linterSource?.extends;
-    if (linterSourcePath) {
+    const needsLinterSource =
+      options.linterRuleSet.extends?.some((ref) => ref.startsWith(linterRuleSetFilePrefix)) ??
+      false;
+    if (linterSourcePath && needsLinterSource) {
       try {
         const [script] = parseYaml(await host.readFile(linterSourcePath));
         linterSource = { script, path: ["linter"] };
