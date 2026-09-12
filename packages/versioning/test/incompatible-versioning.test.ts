@@ -1019,6 +1019,37 @@ describe("versioning: validate incompatible references", () => {
       });
     });
 
+    it("emit diagnostic when dependency mapping skips the target removal version", async () => {
+      const diagnostics = await Tester.diagnose(`
+        @versioned(Versions)
+        namespace VersionedLib {
+          enum Versions {l1, l2, l3}
+          @removed(Versions.l2)
+          model Foo {}
+        }
+
+        @versioned(Versions)
+        namespace TestService {
+          enum Versions {
+            @useDependency(VersionedLib.Versions.l1)
+            v1,
+            @useDependency(VersionedLib.Versions.l3)
+            v2,
+            @useDependency(VersionedLib.Versions.l3)
+            v3
+          }
+
+          @added(Versions.v1)
+          op test(): VersionedLib.Foo;
+        }
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/incompatible-versioned-reference",
+        message:
+          "'TestService.test' is referencing type 'VersionedLib.Foo' which does not exist in version 'v2'.",
+      });
+    });
+
     it("doesn't emit diagnostic if all version use the same one", async () => {
       // Here Foo was added in v2 which makes it only available in 1 & 2.
       const diagnostics = await Tester.diagnose(`
