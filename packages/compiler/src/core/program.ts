@@ -8,6 +8,7 @@ import type { ModuleResolutionResult, ResolvedModule } from "../module-resolver/
 import type { PackageJson } from "../types/package-json.js";
 import { findProjectRoot } from "../utils/io.js";
 import { deepEquals, isDefined, mapEquals, mutate } from "../utils/misc.js";
+import { parseYaml } from "../yaml/parser.js";
 import { createBinder } from "./binder.js";
 import type { Checker } from "./checker.js";
 import { createChecker } from "./checker.js";
@@ -24,6 +25,7 @@ import {
   createBuiltInLinterLibrary,
   createLinter,
   resolveLinterDefinition,
+  type RuleSetYamlSource,
 } from "./linter.js";
 import { createLogger } from "./logger/index.js";
 import { createTracer } from "./logger/tracer.js";
@@ -426,14 +428,25 @@ async function createProgram(
   );
   linter.registerLinterLibrary(builtInLinterLibraryName, createBuiltInLinterLibrary());
   if (options.linterRuleSet) {
+    let linterSource: RuleSetYamlSource | undefined;
+    const linterSourcePath = options.configFile?.linterSource?.extends;
+    if (linterSourcePath) {
+      try {
+        const [script] = parseYaml(await host.readFile(linterSourcePath));
+        linterSource = { script, path: ["linter"] };
+      } catch {
+        // The config was readable when it was loaded. If it disappeared between
+        // config resolution and compilation, fall back to the final config source.
+      }
+    }
+    linterSource ??= options.configFile?.file
+      ? { script: options.configFile.file, path: ["linter"] }
+      : undefined;
+
     program.reportDiagnostics(
       await linter.extendRuleSet(options.linterRuleSet, {
         baseDir: program.projectRoot,
-        source: options.configFile?.linterSource?.extends
-          ? { script: options.configFile.linterSource.extends, path: ["linter"] }
-          : options.configFile?.file
-            ? { script: options.configFile.file, path: ["linter"] }
-            : undefined,
+        source: linterSource,
       }),
     );
   }

@@ -241,7 +241,7 @@ async function loadConfigFile(
   const options = data.options;
 
   const linter = resolveLinterConfigFileRefs(data.linter, getDirectoryPath(filename));
-  const linterSource = getLinterConfigSource(linter, yamlScript);
+  const linterSource = getLinterConfigSource(linter, filename);
 
   return omitUndefined({
     projectRoot: getDirectoryPath(filename),
@@ -267,13 +267,13 @@ async function loadConfigFile(
 
 function getLinterConfigSource(
   linter: LinterConfig | undefined,
-  script: YamlScript,
-): Partial<Record<keyof LinterConfig, YamlScript>> | undefined {
+  filename: string,
+): Partial<Record<keyof LinterConfig, string>> | undefined {
   if (!linter) return undefined;
-  const source: Partial<Record<keyof LinterConfig, YamlScript>> = {};
-  if (linter.extends !== undefined) source.extends = script;
-  if (linter.enable !== undefined) source.enable = script;
-  if (linter.disable !== undefined) source.disable = script;
+  const source: Partial<Record<keyof LinterConfig, string>> = {};
+  if (linter.extends !== undefined) source.extends = filename;
+  if (linter.enable !== undefined) source.enable = filename;
+  if (linter.disable !== undefined) source.disable = filename;
   return source;
 }
 
