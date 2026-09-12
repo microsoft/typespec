@@ -87,8 +87,8 @@ export interface TypeSpecConfig {
 
   linter?: LinterConfig;
 
-  /** @internal Source files for the nested linter fields after config inheritance is resolved. */
-  linterSource?: Partial<Record<keyof LinterConfig, YamlScript>>;
+  /** @internal Paths to the config files that supplied nested linter fields after inheritance. */
+  linterSource?: Partial<Record<keyof LinterConfig, string>>;
 }
 
 /**

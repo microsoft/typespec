@@ -1,5 +1,24 @@
 import { expect, it } from "vitest";
-import { formatCompilerFeatures } from "../../../../src/core/cli/actions/info.js";
+import {
+  formatCompilerFeatures,
+  getPrintableConfig,
+} from "../../../../src/core/cli/actions/info.js";
+
+it("omits internal linter source metadata from printable config", () => {
+  const config = getPrintableConfig({
+    diagnostics: [],
+    outputDir: "{cwd}/tsp-output",
+    projectRoot: "/project",
+    filename: "/project/tspconfig.yaml",
+    linter: { extends: ["test/all"] },
+    linterSource: { extends: "/base/tspconfig.yaml" },
+  });
+
+  expect(config).not.toHaveProperty("linterSource");
+  expect(config).not.toHaveProperty("diagnostics");
+  expect(config).not.toHaveProperty("file");
+  expect(config.linter).toEqual({ extends: ["test/all"] });
+});
 
 function stripAnsi(str: string): string {
   // eslint-disable-next-line no-control-regex

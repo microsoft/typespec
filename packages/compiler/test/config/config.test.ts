@@ -10,8 +10,8 @@ import { compile } from "../../src/core/program.js";
 import { createJSONSchemaValidator } from "../../src/core/schema-validator.js";
 import { createSourceFile } from "../../src/core/source-file.js";
 import { resolvePath } from "../../src/index.js";
-import { expectDiagnosticEmpty, expectDiagnostics } from "../../src/testing/index.js";
 import { createTestFileSystem } from "../../src/testing/fs.js";
+import { expectDiagnosticEmpty } from "../../src/testing/index.js";
 import { findTestPackageRoot, resolveVirtualPath } from "../../src/testing/test-utils.js";
 
 const scenarioRoot = resolvePath(
@@ -274,10 +274,13 @@ describe("file discovery", () => {
         true,
         false,
       );
-      strictEqual(config.linterSource?.extends?.file.path, resolveVirtualPath("base/tspconfig.yaml"));
-      strictEqual(config.linterSource?.disable?.file.path, resolveVirtualPath("project/tspconfig.yaml"));
+      strictEqual(config.linterSource?.extends, resolveVirtualPath("base/tspconfig.yaml"));
+      strictEqual(config.linterSource?.disable, resolveVirtualPath("project/tspconfig.yaml"));
 
-      const [options, optionDiagnostics] = resolveOptionsFromConfig(config, {
+      // The language server caches configs through a JSON round trip. Source paths
+      // must survive that cache so the compiler can reparse the declaring YAML.
+      const cachedConfig = JSON.parse(JSON.stringify(config)) as typeof config;
+      const [options, optionDiagnostics] = resolveOptionsFromConfig(cachedConfig, {
         cwd: resolveVirtualPath("project"),
       });
       expectDiagnosticEmpty(optionDiagnostics);
