@@ -14,7 +14,7 @@ namespace SampleTypeSpec
 {
     /// <summary>
     /// Base animal with discriminator
-    /// Please note this is the abstract base class. The derived classes available for instantiation are: <see cref="Pet"/> and <see cref="Dog"/>.
+    /// Please note this is the abstract base class. The derived classes available for instantiation are: <see cref="Dog"/> and <see cref="Pet"/>.
     /// </summary>
     [PersistableModelProxy(typeof(UnknownAnimal))]
     public abstract partial class Animal : IJsonModel<Animal>
@@ -150,10 +150,10 @@ namespace SampleTypeSpec
             {
                 switch (discriminator.GetString())
                 {
-                    case "pet":
-                        return Pet.DeserializePet(element, options);
                     case "dog":
                         return Dog.DeserializeDog(element, options);
+                    case "pet":
+                        return Pet.DeserializePet(element, options);
                 }
             }
             return UnknownAnimal.DeserializeUnknownAnimal(element, options);
