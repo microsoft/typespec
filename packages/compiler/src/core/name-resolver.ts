@@ -985,27 +985,34 @@ export function createResolver(program: Program): NameResolver {
   }
 
   function bindInterfaceMembers(node: InterfaceStatementNode) {
-    const ifaceSym = node.symbol!;
+    // Resolve the canonical/merged symbol so that, for a `partial interface`, every
+    // declaration that contributes to this interface (same file or across files) has
+    // its `extends` clause processed here, not just whichever declaration node happened
+    // to trigger this call.
+    const ifaceSym = getMergedSymbol(node.symbol!);
     const ifaceSymLinks = getSymbolLinks(ifaceSym);
-    for (const extendsRef of node.extends) {
-      const { finalSymbol: extendsSym, resolutionResult: extendsResult } =
-        resolveTypeReference(extendsRef);
-      setUnknownMembers(ifaceSymLinks, extendsSym, extendsResult);
+    const declarations = ifaceSym.declarations as InterfaceStatementNode[];
+    for (const declNode of declarations) {
+      for (const extendsRef of declNode.extends) {
+        const { finalSymbol: extendsSym, resolutionResult: extendsResult } =
+          resolveTypeReference(extendsRef);
+        setUnknownMembers(ifaceSymLinks, extendsSym, extendsResult);
 
-      if (~extendsResult & ResolutionResultFlags.Resolved) {
-        continue;
+        if (~extendsResult & ResolutionResultFlags.Resolved) {
+          continue;
+        }
+
+        compilerAssert(extendsSym, "Extends symbol must be defined if resolution succeeded");
+
+        if (~extendsSym.flags & SymbolFlags.Interface) {
+          // will be a checker error
+          continue;
+        }
+
+        const sourceTable = getAugmentedSymbolTable(extendsSym.members!);
+        const targetTable = getAugmentedSymbolTable(ifaceSym.members!);
+        targetTable.include(sourceTable, ifaceSym);
       }
-
-      compilerAssert(extendsSym, "Extends symbol must be defined if resolution succeeded");
-
-      if (~extendsSym.flags & SymbolFlags.Interface) {
-        // will be a checker error
-        continue;
-      }
-
-      const sourceTable = getAugmentedSymbolTable(extendsSym.members!);
-      const targetTable = getAugmentedSymbolTable(ifaceSym.members!);
-      targetTable.include(sourceTable, ifaceSym);
     }
   }
 

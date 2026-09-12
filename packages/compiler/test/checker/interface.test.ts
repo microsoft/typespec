@@ -746,4 +746,98 @@ describe("partial interfaces", () => {
       },
     ]);
   });
+
+  it("does not allow 'partial' on a decorator declaration", async () => {
+    // `ModifierFlags.All` (used as the allowed set for decorator declarations) includes
+    // `ModifierFlags.Partial`, but `partial` is only meaningful for interfaces.
+    const diagnostics = await Tester.diagnose(`partial extern dec foo(target: unknown);`);
+    expectDiagnostics(diagnostics, [
+      {
+        code: "invalid-modifier",
+        message: "Modifier 'partial' cannot be used on declarations of type 'dec'.",
+      },
+      // Unrelated to `partial`: an `extern dec` with no JS implementation still errors.
+      { code: "missing-implementation" },
+    ]);
+  });
+
+  it("combines extends across partial declarations even when 'extends' is only on a later declaration", async () => {
+    // Regression test: `bindInterfaceMembers` used to only process the `extends` clause
+    // of whichever single partial declaration happened to trigger member binding first,
+    // silently dropping inherited members contributed by any other partial declaration.
+    const { program, Foo } = await Tester.compile(t.code`
+      interface Base {
+        base(): void;
+      }
+
+      partial interface ${t.interface("Foo")} {
+        a(): void;
+      }
+
+      partial interface Foo extends Base {
+        b(): void;
+      }
+
+      alias T = Foo.base;
+      `);
+    expectDiagnosticEmpty(program.diagnostics);
+    deepStrictEqual([...Foo.operations.keys()].sort(), ["a", "b", "base"]);
+  });
+
+  it("combines extends across partial declarations split across files, even when 'extends' is only on a non-canonical declaration", async () => {
+    const { Foo, program } = await Tester.files({
+      "base.tsp": `
+        interface Base {
+          base(): void;
+        }
+        `,
+      "other.tsp": `
+          import "./base.tsp";
+          partial interface Foo extends Base {
+            b(): void;
+          }
+        `,
+    }).compile(t.code`
+      import "./other.tsp";
+
+      partial interface ${t.interface("Foo")} {
+        a(): void;
+      }
+
+      alias T = Foo.base;
+      `);
+    expectDiagnosticEmpty(program.diagnostics);
+    deepStrictEqual([...Foo.operations.keys()].sort(), ["a", "b", "base"]);
+  });
+
+  it("reports duplicate-decorator for a self-validating unique decorator applied once in each of two files", async () => {
+    // Regression test: `validateDecoratorUniqueOnNode` compared against `type.node`, but
+    // for cross-file partial declarations `type.node` could be a non-canonical declaration
+    // whose `.symbol` was never updated to the fully-merged symbol, so the check would miss
+    // decorators split one-per-file.
+    function $unique(context: any, target: Interface) {
+      validateDecoratorUniqueOnNode(context, target, $unique);
+    }
+    const [, diagnostics] = await Tester.files({
+      "test.js": mockFile.js({ $unique }),
+      "other.tsp": `
+          import "./test.js";
+          @unique
+          partial interface Foo {
+            b(): void;
+          }
+        `,
+    }).import("./test.js").compileAndDiagnose(`
+      import "./other.tsp";
+
+      @unique
+      partial interface Foo {
+        a(): void;
+      }
+      `);
+    expectDiagnostics(diagnostics, [
+      { code: "duplicate-decorator" },
+      { code: "duplicate-decorator" },
+    ]);
+  });
 });

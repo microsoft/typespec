@@ -7685,10 +7685,17 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
     checkTemplateDeclaration(ctx, node);
 
+    // Use the canonical (first-bound) declaration as the type's `.node` rather than
+    // whichever declaration happened to trigger this check. This keeps `interfaceType.node`
+    // stable and, critically, ensures `interfaceType.node!.symbol` is always the fully
+    // merged symbol (whose `.declarations` includes every partial declaration, same-file
+    // or cross-file) rather than a non-canonical per-file symbol for cross-file merges.
+    const canonicalNode = declarations[0];
+
     const interfaceType: Interface = createType({
       kind: "Interface",
       decorators: [],
-      node,
+      node: canonicalNode,
       namespace: getParentNamespaceType(node),
       sourceInterfaces: [],
       operations: createRekeyableMap(),

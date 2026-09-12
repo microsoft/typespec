@@ -51,7 +51,9 @@ const SYNTAX_MODIFIERS: Readonly<Record<Declaration["kind"], ModifierCompatibili
   [SyntaxKind.AliasStatement]: DEFAULT_COMPATIBILITY,
   [SyntaxKind.ConstStatement]: DEFAULT_COMPATIBILITY,
   [SyntaxKind.DecoratorDeclarationStatement]: {
-    allowed: ModifierFlags.All,
+    // `partial` only applies to interfaces; don't allow it here just because it is
+    // included in `ModifierFlags.All`.
+    allowed: ModifierFlags.Extern | ModifierFlags.Internal | ModifierFlags.Auto,
     required: ModifierFlags.Extern | ModifierFlags.Auto,
     mutuallyExclusive: [[ModifierFlags.Extern, ModifierFlags.Auto]],
   },
