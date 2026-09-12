@@ -2,12 +2,15 @@ import { deepStrictEqual, strictEqual } from "assert";
 import { join } from "path";
 import { describe, it } from "vitest";
 import { TypeSpecConfigJsonSchema } from "../../src/config/config-schema.js";
+import { resolveOptionsFromConfig } from "../../src/config/config-to-options.js";
 import type { TypeSpecRawConfig } from "../../src/config/index.js";
 import { loadTypeSpecConfigForPath } from "../../src/config/index.js";
 import { NodeHost } from "../../src/core/node-host.js";
+import { compile } from "../../src/core/program.js";
 import { createJSONSchemaValidator } from "../../src/core/schema-validator.js";
 import { createSourceFile } from "../../src/core/source-file.js";
 import { resolvePath } from "../../src/index.js";
+import { expectDiagnosticEmpty, expectDiagnostics } from "../../src/testing/index.js";
 import { createTestFileSystem } from "../../src/testing/fs.js";
 import { findTestPackageRoot, resolveVirtualPath } from "../../src/testing/test-utils.js";
 
@@ -245,6 +248,52 @@ describe("file discovery", () => {
         "project/tspconfig.yaml",
       );
       deepStrictEqual(linter?.extends, [`file:${resolveVirtualPath("base/rules.yaml")}`]);
+    });
+
+    it("locates an inherited missing ruleset reference in the parent config", async () => {
+      const fs = createTestFileSystem();
+      const parentConfig = `
+        linter:
+          extends:
+            - "file:./missing.yaml"
+        `;
+      fs.addTypeSpecFile("base/tspconfig.yaml", parentConfig);
+      fs.addTypeSpecFile(
+        "project/tspconfig.yaml",
+        `
+        extends: "../base/tspconfig.yaml"
+        linter:
+          disable: {}
+        `,
+      );
+      fs.addTypeSpecFile("project/main.tsp", "");
+
+      const config = await loadTypeSpecConfigForPath(
+        fs.compilerHost,
+        resolveVirtualPath("project/tspconfig.yaml"),
+        true,
+        false,
+      );
+      strictEqual(config.linterSource?.extends?.file.path, resolveVirtualPath("base/tspconfig.yaml"));
+      strictEqual(config.linterSource?.disable?.file.path, resolveVirtualPath("project/tspconfig.yaml"));
+
+      const [options, optionDiagnostics] = resolveOptionsFromConfig(config, {
+        cwd: resolveVirtualPath("project"),
+      });
+      expectDiagnosticEmpty(optionDiagnostics);
+      const program = await compile(fs.compilerHost, resolveVirtualPath("project/main.tsp"), {
+        ...options,
+        noEmit: true,
+        nostdlib: true,
+      });
+      const diagnostic = program.diagnostics.find(
+        (x) =>
+          x.code === "file-not-found" &&
+          (x.target as any).file?.path === resolveVirtualPath("base/tspconfig.yaml"),
+      );
+      if (!diagnostic) throw new Error("Expected inherited ruleset diagnostic in parent config");
+      const target = diagnostic.target as any;
+      strictEqual(parentConfig.slice(target.pos, target.end), `"file:./missing.yaml"`);
     });
   });
 });

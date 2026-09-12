@@ -138,6 +138,7 @@ export async function loadTypeSpecConfigFile(
     };
     if (parent.linter && config.linter) {
       merged.linter = { ...parent.linter, ...config.linter };
+      merged.linterSource = { ...parent.linterSource, ...config.linterSource };
     }
     return merged;
   }
@@ -239,6 +240,9 @@ async function loadConfigFile(
   const emit = data.emit;
   const options = data.options;
 
+  const linter = resolveLinterConfigFileRefs(data.linter, getDirectoryPath(filename));
+  const linterSource = getLinterConfigSource(linter, yamlScript);
+
   return omitUndefined({
     projectRoot: getDirectoryPath(filename),
     file: yamlScript,
@@ -256,8 +260,21 @@ async function loadConfigFile(
     trace: typeof data.trace === "string" ? [data.trace] : data.trace,
     emit,
     options,
-    linter: resolveLinterConfigFileRefs(data.linter, getDirectoryPath(filename)),
+    linter,
+    linterSource,
   });
+}
+
+function getLinterConfigSource(
+  linter: LinterConfig | undefined,
+  script: YamlScript,
+): Partial<Record<keyof LinterConfig, YamlScript>> | undefined {
+  if (!linter) return undefined;
+  const source: Partial<Record<keyof LinterConfig, YamlScript>> = {};
+  if (linter.extends !== undefined) source.extends = script;
+  if (linter.enable !== undefined) source.enable = script;
+  if (linter.disable !== undefined) source.disable = script;
+  return source;
 }
 
 /**
