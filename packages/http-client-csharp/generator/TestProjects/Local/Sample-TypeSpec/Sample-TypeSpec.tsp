@@ -317,6 +317,19 @@ model AnotherDynamicModel {
   bar: string;
 }
 
+@dynamicModel
+@usage(Usage.input | Usage.json)
+@access(Access.public)
+model NullableDynamicModel {
+  modelValue?: AnotherDynamicModel | null;
+  children?: (AnotherDynamicModel | null)[] | null;
+  childDictionary?: Record<AnotherDynamicModel | null> | null;
+  nestedChildren?: ((AnotherDynamicModel | null)[] | null)[] | null;
+  nestedChildDictionary?: Record<Record<AnotherDynamicModel | null> | null> | null;
+  dictionaryChildren?: Record<(AnotherDynamicModel | null)[] | null> | null;
+  listOfDictionaries?: (Record<AnotherDynamicModel | null> | null)[] | null;
+}
+
 @nsDeclarations
 enum XmlNamespaces {
   ns1: "https://example.com/ns1",

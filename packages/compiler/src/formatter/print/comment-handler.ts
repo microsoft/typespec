@@ -59,6 +59,7 @@ function addEmptyDeclarationComment({ comment }: CommentContext) {
         enclosingNode.operations.length === 0 && precedingNode.kind === SyntaxKind.Identifier;
       break;
     case SyntaxKind.ModelStatement:
+    case SyntaxKind.ModelDeclarationExpression:
       isEmptyDeclarationBody =
         enclosingNode.properties.length === 0 &&
         (precedingNode === enclosingNode.is ||
@@ -66,6 +67,7 @@ function addEmptyDeclarationComment({ comment }: CommentContext) {
           precedingNode === enclosingNode.extends);
       break;
     case SyntaxKind.ScalarStatement:
+    case SyntaxKind.ScalarDeclarationExpression:
       isEmptyDeclarationBody =
         enclosingNode.members.length === 0 &&
         (precedingNode === enclosingNode.id || precedingNode === enclosingNode.extends);
@@ -74,6 +76,10 @@ function addEmptyDeclarationComment({ comment }: CommentContext) {
       isEmptyDeclarationBody =
         enclosingNode.options.length === 0 &&
         (precedingNode === enclosingNode.id || precedingNode === enclosingNode.extends);
+      break;
+    case SyntaxKind.UnionDeclarationExpression:
+      isEmptyDeclarationBody =
+        enclosingNode.options.length === 0 && precedingNode === enclosingNode.id;
       break;
   }
 
@@ -106,14 +112,18 @@ function addCommentBetweenAnnotationsAndNode({ comment }: CommentContext) {
     enclosingNode &&
     (enclosingNode.kind === SyntaxKind.NamespaceStatement ||
       enclosingNode.kind === SyntaxKind.ModelStatement ||
+      enclosingNode.kind === SyntaxKind.ModelDeclarationExpression ||
       enclosingNode.kind === SyntaxKind.EnumStatement ||
+      enclosingNode.kind === SyntaxKind.EnumDeclarationExpression ||
       enclosingNode.kind === SyntaxKind.OperationStatement ||
       enclosingNode.kind === SyntaxKind.ScalarStatement ||
+      enclosingNode.kind === SyntaxKind.ScalarDeclarationExpression ||
       enclosingNode.kind === SyntaxKind.InterfaceStatement ||
       enclosingNode.kind === SyntaxKind.ModelProperty ||
       enclosingNode.kind === SyntaxKind.EnumMember ||
       enclosingNode.kind === SyntaxKind.UnionVariant ||
-      enclosingNode.kind === SyntaxKind.UnionStatement)
+      enclosingNode.kind === SyntaxKind.UnionStatement ||
+      enclosingNode.kind === SyntaxKind.UnionDeclarationExpression)
   ) {
     util.addTrailingComment(precedingNode, comment);
     return true;

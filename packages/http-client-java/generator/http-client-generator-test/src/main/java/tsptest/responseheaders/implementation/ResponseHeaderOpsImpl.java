@@ -83,6 +83,7 @@ public final class ResponseHeaderOpsImpl {
      * <tr><td>ETag</td><td>String</td><td>The ETag response header.</td></tr>
      * <tr><td>x-resource-count</td><td>int</td><td>The x-resource-count response header.</td></tr>
      * <tr><td>Last-Modified</td><td>OffsetDateTime</td><td>The Last-Modified response header.</td></tr>
+     * <tr><td>x-ms-meta</td><td>Map&lt;String, String&gt;</td><td>The x-ms-meta response header.</td></tr>
      * </table>
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -107,6 +108,7 @@ public final class ResponseHeaderOpsImpl {
      * <tr><td>ETag</td><td>String</td><td>The ETag response header.</td></tr>
      * <tr><td>x-resource-count</td><td>int</td><td>The x-resource-count response header.</td></tr>
      * <tr><td>Last-Modified</td><td>OffsetDateTime</td><td>The Last-Modified response header.</td></tr>
+     * <tr><td>x-ms-meta</td><td>Map&lt;String, String&gt;</td><td>The x-ms-meta response header.</td></tr>
      * </table>
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.

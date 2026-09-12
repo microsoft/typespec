@@ -9,8 +9,6 @@ on:
       - "packages/http-client-python/**"
       - "website/**"
       - "docs/**"
-  # Allow manual triggering
-  workflow_dispatch:
 
 permissions:
   contents: read
@@ -73,7 +71,7 @@ jobs:
   azure-rest-api-specs:
     name: Azure REST API Specs
     runs-on: ubuntu-latest
-    if: contains(github.event.pull_request.labels.*.name, 'int:azure-specs') || github.event_name == 'workflow_dispatch'
+    if: contains(github.event.pull_request.labels.*.name, 'int:azure-specs')
 
     steps:
       - name: Checkout repository

@@ -80,6 +80,8 @@ namespace Microsoft.TypeSpec.Generator.Utilities
 
         public async Task<string> DownloadAndInstallPackage()
         {
+            NugetPackageResolver.EnsurePackageDownloadsAllowed();
+
             var parsedVersion = ParseVersionString(_packageVersion);
             var resource = await FindPackageInSources(parsedVersion);
 

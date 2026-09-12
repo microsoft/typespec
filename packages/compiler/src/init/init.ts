@@ -1,4 +1,6 @@
-import { confirm as confirmInquirer, input, select } from "@inquirer/prompts";
+import confirmInquirer from "@inquirer/confirm";
+import input from "@inquirer/input";
+import select from "@inquirer/select";
 import { readdir } from "fs/promises";
 import pc from "picocolors";
 import * as semver from "semver";
