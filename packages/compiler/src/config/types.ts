@@ -86,6 +86,9 @@ export interface TypeSpecConfig {
   options?: Record<string, EmitterOptions>;
 
   linter?: LinterConfig;
+
+  /** @internal Source files for the nested linter fields after config inheritance is resolved. */
+  linterSource?: Partial<Record<keyof LinterConfig, YamlScript>>;
 }
 
 /**

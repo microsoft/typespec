@@ -429,9 +429,11 @@ async function createProgram(
     program.reportDiagnostics(
       await linter.extendRuleSet(options.linterRuleSet, {
         baseDir: program.projectRoot,
-        source: options.configFile?.file
-          ? { script: options.configFile.file, path: ["linter"] }
-          : undefined,
+        source: options.configFile?.linterSource?.extends
+          ? { script: options.configFile.linterSource.extends, path: ["linter"] }
+          : options.configFile?.file
+            ? { script: options.configFile.file, path: ["linter"] }
+            : undefined,
       }),
     );
   }
