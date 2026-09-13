@@ -43,6 +43,14 @@
   "icon": "./icons/logo.png",
   "telemetryKey": "00000000-0000-0000-0000-000000000000",
   "contributes": {
+    "chatSkills": [
+      {
+        "path": "./skills/typespec-authoring/SKILL.md",
+        "sessionTypes": [
+          "local"
+        ]
+      }
+    ],
     "viewsWelcome": [
       {
         "view": "explorer",

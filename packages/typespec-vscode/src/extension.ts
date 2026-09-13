@@ -44,6 +44,34 @@ import { clearOpenApi3PreviewTempFolders, showOpenApi3 } from "./vscode-cmd/open
 const outputChannel = new TypeSpecLogOutputChannel("TypeSpec");
 logger.registerLogListener("extension-log", new ExtensionLogListener(outputChannel));
 
+const TYPESPEC_AUTHORING_SKILL_TRIGGER_DELAY = 1_000;
+
+function registerTypeSpecAuthoringSkillTrigger(context: ExtensionContext) {
+  let trigger: ReturnType<typeof setTimeout> | undefined;
+
+  context.subscriptions.push(
+    vscode.workspace.onDidChangeTextDocument((event) => {
+      if (event.document.languageId !== "typespec" || event.contentChanges.length === 0) {
+        return;
+      }
+
+      clearTimeout(trigger);
+      trigger = setTimeout(() => {
+        void commands.executeCommand("workbench.action.chat.open", {
+          mode: "agent",
+          query: "/breaking-change-detect",
+          attachFiles: [event.document.uri],
+        });
+      }, TYPESPEC_AUTHORING_SKILL_TRIGGER_DELAY);
+    }),
+    {
+      dispose() {
+        clearTimeout(trigger);
+      },
+    },
+  );
+}
+
 export async function activate(context: ExtensionContext) {
   await telemetryClient.doOperationWithTelemetry(
     TelemetryEventName.StartExtension,
@@ -60,6 +88,8 @@ export async function activate(context: ExtensionContext) {
       context.subscriptions.push(createTaskProvider());
 
       context.subscriptions.push(createCodeActionProvider());
+
+      registerTypeSpecAuthoringSkillTrigger(context);
 
       context.subscriptions.push(
         commands.registerCommand(CommandName.ShowOutputChannel, () => {
