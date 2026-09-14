@@ -217,9 +217,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             MethodBodyStatement writeToPatchStatement = parentIndices.Count == 0
                 ? patchSnippet.WriteTo(_utf8JsonWriterSnippet, LiteralU8(jsonPathTemplate)).Terminate()
                 : patchSnippet.WriteTo(_utf8JsonWriterSnippet, Utf8Snippets.GetBytes(new FormattableStringExpression(csharpJsonPathTemplate, parentIndices).As<string>())).Terminate();
-            if (parentHasPatch != null)
+            if (parentIndices.Count > 0)
             {
-                writeToPatchStatement = new IfStatement(parentHasPatch.As<bool>()) { writeToPatchStatement };
+                writeToPatchStatement = new IfStatement(hasPatch.As<bool>()) { writeToPatchStatement };
             }
 
             var listStatements = new List<MethodBodyStatement>
@@ -755,13 +755,30 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private static string BuildJsonPathForProperty(string propertySerializedName, bool escapeForCSharpString)
         {
-            var jsonPath = propertySerializedName.Contains('.')
-                ? $"$[\"{propertySerializedName}\"]"
+            var jsonPath = RequiresJsonPathBracketNotation(propertySerializedName)
+                ? BuildJsonPathQuotedProperty(propertySerializedName)
                 : $"$.{propertySerializedName}";
 
             return escapeForCSharpString
-                ? jsonPath.Replace("\"", "\\\"")
+                ? EscapeForCSharpInterpolatedString(jsonPath)
                 : jsonPath;
+        }
+
+        private static string BuildJsonPathQuotedProperty(string propertySerializedName)
+        {
+            char quote = propertySerializedName.Contains('\"') ? '\'' : '\"';
+            return $"$[{quote}{propertySerializedName}{quote}]";
+        }
+
+        private static bool RequiresJsonPathBracketNotation(string propertySerializedName)
+        {
+            return propertySerializedName.IndexOfAny(['.', '[', ']', '"', '\'', '\\']) >= 0 ||
+                propertySerializedName.Any(char.IsWhiteSpace);
+        }
+
+        private static string EscapeForCSharpInterpolatedString(string value)
+        {
+            return value.Replace("\\", "\\\\").Replace("\"", "\\\"").Replace("{", "{{{{").Replace("}", "}}}}");
         }
 
         private static ValueExpression GetDeserializationMethodInvocationForType(
