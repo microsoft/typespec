@@ -81,11 +81,11 @@ export const $package: PackageDecorator = (
   if (details?.kind === "Model") {
     const nameProperty = details.properties.get("name");
     const name = nameProperty?.type;
-    if (name?.kind === "String" && !PROTO_FULL_IDENT.test(name.value)) {
+    if (nameProperty && name?.kind === "String" && !PROTO_FULL_IDENT.test(name.value)) {
       reportDiagnostic(ctx.program, {
         code: "invalid-package-name",
         format: { name: name.value },
-        target: nameProperty!,
+        target: nameProperty,
       });
       return;
     }

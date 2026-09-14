@@ -78,6 +78,22 @@ describe("UriTemplateSource", () => {
     await source.readFile("sample/main.tsp");
     expect(reads).toContain("https://example.com/tpl/sample/main.tsp");
   });
+
+  it("rejects encoded traversal in remote template file paths", async () => {
+    const reads: string[] = [];
+    const host = {
+      readUrl: async (url: string) => {
+        reads.push(url);
+        return { path: url, text: JSON.stringify(scaffolding) };
+      },
+    } as unknown as CompilerHost;
+    const source = new UriTemplateSource(host, "https://example.com/tpl/index.json");
+
+    await expect(source.readFile("%2e%2e/outside.tsp")).rejects.toThrow(
+      'Template file path must be a relative path: "%2e%2e/outside.tsp"',
+    );
+    expect(reads).toEqual([]);
+  });
 });
 
 describe("InMemoryTemplateSource", () => {

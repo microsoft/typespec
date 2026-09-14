@@ -1,8 +1,4 @@
-import {
-  createTester,
-  expectDiagnostics,
-  findTestPackageRoot,
-} from "@typespec/compiler/testing";
+import { createTester, expectDiagnostics, findTestPackageRoot } from "@typespec/compiler/testing";
 import { describe, expect, it } from "vitest";
 
 const packageRoot = await findTestPackageRoot(import.meta.url);

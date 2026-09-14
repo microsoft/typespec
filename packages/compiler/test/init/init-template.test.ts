@@ -151,47 +151,47 @@ it("specifying both config and emitters merge the 2", async () => {
 });
 
 describe("template files", () => {
-    it.each([
-      "../../outside.txt",
-      String.raw`..\..\outside.txt`,
-      "/outside.txt",
-      "C:/outside.txt",
-      String.raw`\\server\share\outside.txt`,
-    ])("rejects destination outside the project directory: %s", async (destination) => {
-      const source = new InMemoryTemplateSource(
-        new Map([
-          ["scaffolding.json", "{}"],
-          ["template.txt", "template content"],
-        ]),
-      );
+  it.each([
+    "../../outside.txt",
+    String.raw`..\..\outside.txt`,
+    "/outside.txt",
+    "C:/outside.txt",
+    String.raw`\\server\share\outside.txt`,
+  ])("rejects destination outside the project directory: %s", async (destination) => {
+    const source = new InMemoryTemplateSource(
+      new Map([
+        ["scaffolding.json", "{}"],
+        ["template.txt", "template content"],
+      ]),
+    );
 
-      await expect(
-        runTemplate(
-          {
-            files: [{ path: "template.txt", destination }],
-          },
-          { directory: "/project", source },
-        ),
-      ).rejects.toThrow(`Template file destination must be a relative path: "${destination}"`);
-
-      expect(getOutputFile(destination)).toBeUndefined();
-    });
-
-    it("writes nested relative destinations", async () => {
-      const source = new InMemoryTemplateSource(
-        new Map([
-          ["scaffolding.json", "{}"],
-          ["template.txt", "template content"],
-        ]),
-      );
-
-      await runTemplate(
+    await expect(
+      runTemplate(
         {
-          files: [{ path: "template.txt", destination: "nested/template.txt" }],
+          files: [{ path: "template.txt", destination }],
         },
         { directory: "/project", source },
-      );
+      ),
+    ).rejects.toThrow(`Template file destination must be a relative path: "${destination}"`);
 
-      expect(getOutputFile("/project/nested/template.txt")).toBe("template content");
+    expect(getOutputFile(destination)).toBeUndefined();
+  });
+
+  it("writes nested relative destinations", async () => {
+    const source = new InMemoryTemplateSource(
+      new Map([
+        ["scaffolding.json", "{}"],
+        ["template.txt", "template content"],
+      ]),
+    );
+
+    await runTemplate(
+      {
+        files: [{ path: "template.txt", destination: "nested/template.txt" }],
+      },
+      { directory: "/project", source },
+    );
+
+    expect(getOutputFile("/project/nested/template.txt")).toBe("template content");
   });
 });

@@ -1,5 +1,5 @@
-import type { SourceFile } from "../../core/types.js";
 import { isPathAbsolute, normalizePath } from "../../core/path-utils.js";
+import type { SourceFile } from "../../core/types.js";
 import type { InitTemplate } from "../init-template.js";
 
 /** Result of loading a template index (the set of templates offered by a {@link TemplateSource}). */

@@ -1,4 +1,4 @@
-import { getDirectoryPath } from "../../core/path-utils.js";
+import { getDirectoryPath, isUrl } from "../../core/path-utils.js";
 import type { SourceFile, SystemHost } from "../../core/types.js";
 import { readUrlOrPath, resolveRelativeUrlOrPath } from "../../utils/misc.js";
 import {
@@ -55,6 +55,17 @@ export class UriTemplateSource implements TemplateSource {
 
   async readFile(relativePath: string): Promise<SourceFile> {
     const path = validateTemplateRelativePath(relativePath, "path");
-    return readUrlOrPath(this.#host, resolveRelativeUrlOrPath(this.#baseUri + "/", path));
+    const resolvedPath = resolveRelativeUrlOrPath(this.#baseUri + "/", path);
+    if (isUrl(this.#baseUri)) {
+      const baseUrl = new URL(this.#baseUri + "/");
+      const resolvedUrl = new URL(resolvedPath);
+      if (
+        resolvedUrl.origin !== baseUrl.origin ||
+        !resolvedUrl.pathname.startsWith(baseUrl.pathname)
+      ) {
+        throw new Error(`Template file path must be a relative path: "${relativePath}"`);
+      }
+    }
+    return readUrlOrPath(this.#host, resolvedPath);
   }
 }
