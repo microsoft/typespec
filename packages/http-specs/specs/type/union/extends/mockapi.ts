@@ -3,28 +3,19 @@ import { json, passOnSuccess } from "@typespec/spec-api";
 
 export const Scenarios: Record<string, ScenarioMockApi> = {};
 
-const body = {
-  structural: [
-    {
-      name: "mittens",
-      toy: "ball",
-    },
-    {
-      name: "rex",
-      food: "bones",
-    },
-  ],
-  explicit: [
-    {
-      name: "mittens",
-      toy: "ball",
-    },
-    {
-      name: "rex",
-      food: "bones",
-    },
-  ],
-  multipleByName: [
+const pets = [
+  {
+    name: "mittens",
+    toy: "ball",
+  },
+  {
+    name: "rex",
+    food: "bones",
+  },
+];
+
+const multiple = {
+  byName: [
     {
       name: "mittens",
       food: "fish",
@@ -36,7 +27,7 @@ const body = {
       bark: true,
     },
   ],
-  multipleByFood: [
+  byFood: [
     {
       name: "mittens",
       food: "fish",
@@ -50,15 +41,41 @@ const body = {
   ],
 };
 
-Scenarios.Type_Union_Extends_roundTrip = passOnSuccess({
-  uri: "/type/union/extends/",
+Scenarios.Type_Union_Extends_Structural_roundTrip = passOnSuccess({
+  uri: "/type/union/extends/structural",
   method: "put",
   request: {
-    body: json(body),
+    body: json(pets),
   },
   response: {
     status: 200,
-    body: json(body),
+    body: json(pets),
+  },
+  kind: "MockApiDefinition",
+});
+
+Scenarios.Type_Union_Extends_Explicit_roundTrip = passOnSuccess({
+  uri: "/type/union/extends/explicit",
+  method: "put",
+  request: {
+    body: json(pets),
+  },
+  response: {
+    status: 200,
+    body: json(pets),
+  },
+  kind: "MockApiDefinition",
+});
+
+Scenarios.Type_Union_Extends_Multiple_roundTrip = passOnSuccess({
+  uri: "/type/union/extends/multiple",
+  method: "put",
+  request: {
+    body: json(multiple),
+  },
+  response: {
+    status: 200,
+    body: json(multiple),
   },
   kind: "MockApiDefinition",
 });

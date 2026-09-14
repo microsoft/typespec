@@ -9422,37 +9422,38 @@ Expected request to send body:
 }
 ```
 
-### Type_Union_Extends_roundTrip
+### Type_Union_Extends_Explicit_roundTrip
 
-- Endpoint: `put /type/union/extends/`
+- Endpoint: `put /type/union/extends/explicit`
 
-Send and receive unions constrained to common base types.
+Send and receive a union whose variants explicitly extend its base type.
+
+Expected request and response body:
+
+```json
+[
+  {
+    "name": "mittens",
+    "toy": "ball"
+  },
+  {
+    "name": "rex",
+    "food": "bones"
+  }
+]
+```
+
+### Type_Union_Extends_Multiple_roundTrip
+
+- Endpoint: `put /type/union/extends/multiple`
+
+Send and receive the same variants through unions constrained to different base types.
 
 Expected request and response body:
 
 ```json
 {
-  "structural": [
-    {
-      "name": "mittens",
-      "toy": "ball"
-    },
-    {
-      "name": "rex",
-      "food": "bones"
-    }
-  ],
-  "explicit": [
-    {
-      "name": "mittens",
-      "toy": "ball"
-    },
-    {
-      "name": "rex",
-      "food": "bones"
-    }
-  ],
-  "multipleByName": [
+  "byName": [
     {
       "name": "mittens",
       "food": "fish",
@@ -9464,7 +9465,7 @@ Expected request and response body:
       "bark": true
     }
   ],
-  "multipleByFood": [
+  "byFood": [
     {
       "name": "mittens",
       "food": "fish",
@@ -9477,6 +9478,27 @@ Expected request and response body:
     }
   ]
 }
+```
+
+### Type_Union_Extends_Structural_roundTrip
+
+- Endpoint: `put /type/union/extends/structural`
+
+Send and receive a union whose variants structurally satisfy its base type.
+
+Expected request and response body:
+
+```json
+[
+  {
+    "name": "mittens",
+    "toy": "ball"
+  },
+  {
+    "name": "rex",
+    "food": "bones"
+  }
+]
 ```
 
 ### Type_Union_FloatsOnly_get

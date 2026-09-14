@@ -10,7 +10,7 @@ using Spector;
 @scenarioService("/type/union/extends")
 namespace Type.Union.Extends;
 
-namespace Structural {
+namespace StructuralTypes {
   model PetBase {
     name: string;
   }
@@ -31,7 +31,7 @@ namespace Structural {
   }
 }
 
-namespace Explicit {
+namespace ExplicitTypes {
   model PetBase {
     name: string;
   }
@@ -50,7 +50,7 @@ namespace Explicit {
   }
 }
 
-namespace Multiple {
+namespace MultipleTypes {
   model NameBase {
     name: string;
   }
@@ -82,21 +82,20 @@ namespace Multiple {
   }
 }
 
-model UnionExtendsCases {
-  structural: Structural.Pet[];
-  explicit: Explicit.Pet[];
-  multipleByName: Multiple.PetWithName[];
-  multipleByFood: Multiple.PetWithFood[];
+model MultipleCases {
+  byName: MultipleTypes.PetWithName[];
+  byFood: MultipleTypes.PetWithFood[];
 }
 
-@scenario
-@scenarioDoc("""
-  Send and receive unions constrained to common base types.
+@route("/structural")
+interface Structural {
+  @scenario
+  @scenarioDoc("""
+    Send and receive a union whose variants structurally satisfy its base type.
 
-  Expected request and response body:
-  ```json
-  {
-    "structural": [
+    Expected request and response body:
+    ```json
+    [
       {
         "name": "mittens",
         "toy": "ball"
@@ -104,45 +103,74 @@ model UnionExtendsCases {
       {
         "name": "rex",
         "food": "bones"
-      }
-    ],
-    "explicit": [
-      {
-        "name": "mittens",
-        "toy": "ball"
-      },
-      {
-        "name": "rex",
-        "food": "bones"
-      }
-    ],
-    "multipleByName": [
-      {
-        "name": "mittens",
-        "food": "fish",
-        "toy": "ball"
-      },
-      {
-        "name": "rex",
-        "food": "bones",
-        "bark": true
-      }
-    ],
-    "multipleByFood": [
-      {
-        "name": "mittens",
-        "food": "fish",
-        "toy": "ball"
-      },
-      {
-        "name": "rex",
-        "food": "bones",
-        "bark": true
       }
     ]
-  }
-  ```
-  """)
-@route("/")
-@put
-op roundTrip(@body input: UnionExtendsCases): UnionExtendsCases;
+    ```
+    """)
+  @put
+  roundTrip(@body input: StructuralTypes.Pet[]): StructuralTypes.Pet[];
+}
+
+@route("/explicit")
+interface Explicit {
+  @scenario
+  @scenarioDoc("""
+    Send and receive a union whose variants explicitly extend its base type.
+
+    Expected request and response body:
+    ```json
+    [
+      {
+        "name": "mittens",
+        "toy": "ball"
+      },
+      {
+        "name": "rex",
+        "food": "bones"
+      }
+    ]
+    ```
+    """)
+  @put
+  roundTrip(@body input: ExplicitTypes.Pet[]): ExplicitTypes.Pet[];
+}
+
+@route("/multiple")
+interface Multiple {
+  @scenario
+  @scenarioDoc("""
+    Send and receive the same variants through unions constrained to different base types.
+
+    Expected request and response body:
+    ```json
+    {
+      "byName": [
+        {
+          "name": "mittens",
+          "food": "fish",
+          "toy": "ball"
+        },
+        {
+          "name": "rex",
+          "food": "bones",
+          "bark": true
+        }
+      ],
+      "byFood": [
+        {
+          "name": "mittens",
+          "food": "fish",
+          "toy": "ball"
+        },
+        {
+          "name": "rex",
+          "food": "bones",
+          "bark": true
+        }
+      ]
+    }
+    ```
+    """)
+  @put
+  roundTrip(@body input: MultipleCases): MultipleCases;
+}
