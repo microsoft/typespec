@@ -1727,6 +1727,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         [TestCase("Milliseconds", InputPrimitiveTypeKind.Float32, false)]
         [TestCase("Milliseconds", InputPrimitiveTypeKind.Float64, false)]
         [TestCase("Seconds", InputPrimitiveTypeKind.Int32, true)]
+        [TestCase("Iso8601", null, true)]
         public void PlainTextDurationReturnTypeMethods(string encoding, InputPrimitiveTypeKind? wireKind, bool isNullable)
         {
             DurationKnownEncoding durationEncoding = encoding switch
