@@ -49,6 +49,39 @@
         "sessionTypes": [
           "local"
         ]
+      },
+      {
+        "path": "./skills/breaking-change-detect/SKILL.md",
+        "sessionTypes": [
+          "local"
+        ]
+      }
+    ],
+    "languageModelTools": [
+      {
+        "name": "typespec_recordBreakingChange",
+        "toolReferenceName": "recordBreakingChange",
+        "displayName": "Record TypeSpec Breaking Change",
+        "userDescription": "Adds a detected breaking change to TypeSpec symbol hover information.",
+        "modelDescription": "Records a confirmed TypeSpec breaking-change finding for the target ID supplied by the TypeSpec extension. Invoke only when the breaking-change-detect skill confirms a breaking change.",
+        "canBeReferencedInPrompt": true,
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "targetId": {
+              "type": "string",
+              "description": "The opaque target ID included in the breaking-change detection request."
+            },
+            "message": {
+              "type": "string",
+              "description": "A concise explanation of the confirmed breaking change."
+            }
+          },
+          "required": [
+            "targetId",
+            "message"
+          ]
+        }
       }
     ],
     "viewsWelcome": [
