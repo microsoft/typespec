@@ -1723,6 +1723,25 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.AreEqual(Helpers.GetExpectedFromFile(baselineName), writer.ToString(false));
         }
 
+        [TestCase("Text/Plain")]
+        [TestCase("text/plain; charset=utf-8")]
+        public void PlainTextScalarReturnTypeMethodsHandlesTextPlainMediaTypeVariants(string contentType)
+        {
+            var operation = InputFactory.Operation("GetPlainTextScalar", responses:
+                [InputFactory.OperationResponse([200], InputPrimitiveType.Int32, contentTypes: [contentType])]);
+            var serviceMethod = InputFactory.BasicServiceMethod("GetPlainTextScalar", operation);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+
+            MockHelpers.LoadMockGenerator();
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            var method = new ScmMethodProviderCollection(serviceMethod, client!)
+                .Single(m => m.Kind == ScmMethodKind.Convenience && m.Signature.Name == "GetPlainTextScalar");
+
+            using var writer = new CodeWriter();
+            writer.WriteMethod(method);
+            Assert.AreEqual(Helpers.GetExpectedFromFile("Int32", nameof(PlainTextScalarReturnTypeMethods)), writer.ToString(false));
+        }
+
         [TestCase("Iso8601", null, false)]
         [TestCase("Constant", null, false)]
         [TestCase("Seconds", InputPrimitiveTypeKind.Int32, false)]
