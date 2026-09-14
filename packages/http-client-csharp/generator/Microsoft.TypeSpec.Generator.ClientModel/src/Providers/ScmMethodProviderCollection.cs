@@ -970,7 +970,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 SerializationFormat.Duration_Seconds =>
                     TimeSpanSnippets.FromSeconds(ParseNumeric<int>(content, invariantCulture)),
                 SerializationFormat.Duration_Seconds_Int64 =>
-                    TimeSpanSnippets.FromSeconds(LongSnippets.Parse(content, invariantCulture)),
+                    TimeSpanSnippets.FromSeconds(ParseNumeric<long>(content, invariantCulture)),
                 SerializationFormat.Duration_Seconds_Float or SerializationFormat.Duration_Seconds_Double =>
                     // Float and Double wire encodings are intentionally collapsed to a single double.Parse,
                     // matching MrwSerializationTypeDefinition's JSON path, which uses GetDouble() for both.
@@ -978,7 +978,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 SerializationFormat.Duration_Milliseconds =>
                     TimeSpanSnippets.FromMilliseconds(ParseNumeric<int>(content, invariantCulture)),
                 SerializationFormat.Duration_Milliseconds_Int64 =>
-                    TimeSpanSnippets.FromMilliseconds(LongSnippets.Parse(content, invariantCulture)),
+                    TimeSpanSnippets.FromMilliseconds(ParseNumeric<long>(content, invariantCulture)),
                 SerializationFormat.Duration_Milliseconds_Float or SerializationFormat.Duration_Milliseconds_Double =>
                     // See the Duration_Seconds_Float/Double comment above.
                     TimeSpanSnippets.FromMilliseconds(ParseNumeric<double>(content, invariantCulture)),
