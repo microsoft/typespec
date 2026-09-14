@@ -48,10 +48,10 @@ const IMPLEMENTATION_RESERVED_RANGE = [19000, 19999] as const;
 /**
  * Defined in the [ProtoBuf Language Spec](https://developers.google.com/protocol-buffers/docs/reference/proto3-spec#identifiers).
  *
- * ident = letter \{ letter | decimalDigit | "_" \}
+ * ident = letter \{ letter | decimalDigit \}
  * fullIdent = ident \{ "." ident \}
  */
-export const PROTO_FULL_IDENT = /^[a-zA-Z][a-zA-Z0-9_]*(?:\.[a-zA-Z][a-zA-Z0-9_]*)*$/;
+export const PROTO_FULL_IDENT = /^[a-zA-Z_][a-zA-Z0-9_]*(?:\.[a-zA-Z_][a-zA-Z0-9_]*)*$/;
 
 /**
  * Decorate an interface as a service, indicating that it represents a Protobuf `service` declaration.

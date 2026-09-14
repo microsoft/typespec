@@ -1,6 +1,12 @@
 import { stringify } from "yaml";
 import type { TypeSpecRawConfig } from "../config/types.js";
-import { getDirectoryPath, joinPaths } from "../core/path-utils.js";
+import {
+  getDirectoryPath,
+  getRelativePathFromDirectory,
+  isPathAbsolute,
+  joinPaths,
+  normalizePath,
+} from "../core/path-utils.js";
 import type { SystemHost } from "../core/types.js";
 import { fetchLatestPackageManifest } from "../package-manger/npm-registry.js";
 import type { PackageJson } from "../types/package-json.js";
@@ -255,12 +261,54 @@ async function writeFile(
     );
   }
   const destination = validateTemplateRelativePath(file.destination, "destination");
+  const destinationFilePath = joinPaths(config.directory, destination);
+  await validateRealPathWithinProject(
+    host,
+    config.directory,
+    destinationFilePath,
+    file.destination,
+  );
   const template = await config.source.readFile(file.path);
   const content = render(template.text, context);
-  const destinationFilePath = joinPaths(config.directory, destination);
   // create folders in case they don't exist
   await host.mkdirp(getDirectoryPath(destinationFilePath) + "/");
+  await validateRealPathWithinProject(
+    host,
+    config.directory,
+    destinationFilePath,
+    file.destination,
+  );
   return host.writeFile(destinationFilePath, content);
+}
+
+async function validateRealPathWithinProject(
+  host: SystemHost,
+  projectDirectory: string,
+  destinationFilePath: string,
+  destination: string,
+): Promise<void> {
+  const realProjectDirectory = normalizePath(await host.realpath(projectDirectory));
+  let ancestor = getDirectoryPath(destinationFilePath);
+
+  while (true) {
+    try {
+      const realAncestor = normalizePath(await host.realpath(ancestor));
+      const relativePath = getRelativePathFromDirectory(realProjectDirectory, realAncestor, false);
+      if (isPathAbsolute(relativePath) || relativePath === ".." || relativePath.startsWith("../")) {
+        throw new Error(`Template file destination must be a relative path: "${destination}"`);
+      }
+      return;
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== "ENOENT") {
+        throw error;
+      }
+      const parent = getDirectoryPath(ancestor);
+      if (parent === ancestor) {
+        throw error;
+      }
+      ancestor = parent;
+    }
+  }
 }
 
 async function getPackageVersion(

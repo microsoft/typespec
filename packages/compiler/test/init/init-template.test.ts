@@ -194,4 +194,34 @@ describe("template files", () => {
 
     expect(getOutputFile("/project/nested/template.txt")).toBe("template content");
   });
+
+  it("rejects destinations beneath symlinks that escape the project directory", async () => {
+    const source = new InMemoryTemplateSource(
+      new Map([
+        ["scaffolding.json", "{}"],
+        ["template.txt", "template content"],
+      ]),
+    );
+    const host = {
+      ...testHost.compilerHost,
+      realpath: async (path: string) =>
+        path === "/project/nested" ? "/outside" : testHost.compilerHost.realpath(path),
+    };
+    const template: InitTemplate = {
+      title: "Test Template",
+      description: "This is only a test.",
+      files: [{ path: "template.txt", destination: "nested/template.txt" }],
+    };
+
+    await expect(
+      scaffoldNewProject(
+        host,
+        makeScaffoldingConfig(template, {
+          name: "test-template",
+          directory: "/project",
+          source,
+        }),
+      ),
+    ).rejects.toThrow('Template file destination must be a relative path: "nested/template.txt"');
+  });
 });

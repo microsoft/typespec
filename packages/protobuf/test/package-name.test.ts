@@ -30,10 +30,10 @@ describe("@package name", () => {
 
   it("allows valid dotted package names", async () => {
     const result = await Tester.emit("@typespec/protobuf").compile(`
-      @package({ name: "com.azure_test.v1" })
+      @package({ name: "_internal.azure_test.v1" })
       namespace Test;
     `);
 
-    expect(result.outputs).toHaveProperty("com/azure_test/v1.proto");
+    expect(result.outputs).toHaveProperty("_internal/azure_test/v1.proto");
   });
 });
