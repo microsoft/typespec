@@ -157,6 +157,7 @@ export const $query: QueryDecorator = (
 
   setQueryOptions(context.program, entity, {
     explode: userOptions.explode,
+    style: userOptions.style,
     name: paramName,
   });
 };
@@ -168,7 +169,8 @@ export function resolveQueryOptionsWithDefaults(
   options: QueryOptions & { name: string },
 ): Required<QueryOptions> {
   return {
-    explode: options.explode ?? false,
+    explode: options.explode ?? options.style === "deepObject",
+    style: options.style ?? "form",
     name: options.name,
   };
 }
