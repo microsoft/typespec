@@ -1771,6 +1771,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.AreEqual(Helpers.GetExpectedFromFile(baselineName), writer.ToString(false));
         }
 
+        [Test]
+        public void PlainTextDurationReturnTypeMethodsThrowsForUnsupportedEncoding()
+        {
+            InputType inputType = new InputDurationType(new DurationKnownEncoding("Custom"), "duration", "TypeSpec.duration", InputPrimitiveType.Int32, null);
+
+            var operation = InputFactory.Operation("GetPlainTextDuration", responses:
+                [InputFactory.OperationResponse([200], inputType, contentTypes: ["text/plain"])]);
+            var serviceMethod = InputFactory.BasicServiceMethod("GetPlainTextDuration", operation);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+
+            MockHelpers.LoadMockGenerator();
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            var methods = new ScmMethodProviderCollection(serviceMethod, client!);
+            Assert.Throws<InvalidOperationException>(() =>
+                methods.Single(m => m.Kind == ScmMethodKind.Convenience && m.Signature.Name == "GetPlainTextDuration"));
+        }
+
         [TestCase(true, true, false)]
         [TestCase(true, false, false)]
         [TestCase(false, true, false)]

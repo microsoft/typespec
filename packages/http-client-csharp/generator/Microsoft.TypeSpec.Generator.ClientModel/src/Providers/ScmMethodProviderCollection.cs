@@ -982,7 +982,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 SerializationFormat.Duration_Milliseconds_Float or SerializationFormat.Duration_Milliseconds_Double =>
                     // See the Duration_Seconds_Float/Double comment above.
                     TimeSpanSnippets.FromMilliseconds(ParseNumeric<double>(content, invariantCulture)),
-                // ISO 8601 ("P"), constant ("c") and plain time ("T") encodings all parse the content directly.
+                // ISO 8601 ("P"), constant ("c") and plain time ("T") encodings all parse the content directly;
+                // any other format (e.g. a custom/unrecognized duration encoding, which maps to
+                // SerializationFormat.Default and has no format specifier) is unsupported and throws.
                 _ => content.As<string>().ParseTimeSpan(Literal(format.ToFormatSpecifier() ?? throw new InvalidOperationException($"Unsupported duration serialization format: {format}")))
             };
         }
