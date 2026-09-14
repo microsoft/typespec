@@ -2,6 +2,6 @@ public virtual global::System.ClientModel.ClientResult<int?> GetPlainTextScalar(
 {
     global::System.ClientModel.ClientResult result = this.GetPlainTextScalar(cancellationToken.ToRequestOptions());
     string content = result.GetRawResponse().Content.ToString().TrimStart('﻿');
-    int? value = (content == "null") ? ((int?)null) : int.Parse(content, global::System.Globalization.CultureInfo.InvariantCulture);
+    int? value = (content.Trim() == "null") ? ((int?)null) : int.Parse(content, global::System.Globalization.CultureInfo.InvariantCulture);
     return global::System.ClientModel.ClientResult.FromValue(value, result.GetRawResponse());
 }

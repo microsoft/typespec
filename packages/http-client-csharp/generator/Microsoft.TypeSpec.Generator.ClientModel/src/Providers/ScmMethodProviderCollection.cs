@@ -951,7 +951,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return responseBodyType.IsNullable
-                ? new TernaryConditionalExpression(content.Equal(Literal("null")), Null.CastTo(responseBodyType), deserializedValue)
+                ? new TernaryConditionalExpression(content.Invoke(nameof(string.Trim)).As<string>().Equal(Literal("null")), Null.CastTo(responseBodyType), deserializedValue)
                 : deserializedValue;
         }
 
