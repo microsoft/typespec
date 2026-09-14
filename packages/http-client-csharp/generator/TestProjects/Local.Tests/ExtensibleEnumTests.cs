@@ -7,7 +7,6 @@ using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
@@ -17,14 +16,11 @@ namespace TestProjects.Local.Tests
 {
     public class ExtensibleEnumTests
     {
-        [TestCase(false, false)]
-        [TestCase(false, true)]
-        [TestCase(true, false)]
-        [TestCase(true, true)]
-        public async Task EnumResponseDeserialization(bool hasBom, bool isAsync)
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task EnumResponseDeserialization(bool isAsync)
         {
-            var bom = hasBom ? Encoding.UTF8.GetString(Encoding.UTF8.GetPreamble()) : string.Empty;
-            var content = BinaryData.FromString(bom + "Monday");
+            var content = BinaryData.FromString("Monday");
             var response = new Mock<PipelineResponse>();
             response.SetupGet(r => r.Content).Returns(content);
             var protocolResult = ClientResult.FromResponse(response.Object);

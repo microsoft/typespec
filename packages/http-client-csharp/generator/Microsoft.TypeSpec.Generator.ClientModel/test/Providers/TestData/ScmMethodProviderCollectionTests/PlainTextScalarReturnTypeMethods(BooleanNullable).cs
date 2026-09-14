@@ -1,7 +1,6 @@
-public virtual global::System.ClientModel.ClientResult<bool?> GetPlainTextScalar(global::System.Threading.CancellationToken cancellationToken = default)
+﻿public virtual global::System.ClientModel.ClientResult<bool?> GetPlainTextScalar(global::System.Threading.CancellationToken cancellationToken = default)
 {
     global::System.ClientModel.ClientResult result = this.GetPlainTextScalar(cancellationToken.ToRequestOptions());
-    string responseContent = result.GetRawResponse().Content.ToString().TrimStart('﻿');
-    bool? value = (responseContent.Trim() == "null") ? ((bool?)null) : bool.Parse(responseContent);
+    bool? value = (result.GetRawResponse().Content.ToString().Trim() == "null") ? ((bool?)null) : bool.Parse(result.GetRawResponse().Content.ToString());
     return global::System.ClientModel.ClientResult.FromValue(value, result.GetRawResponse());
 }

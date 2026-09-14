@@ -1,8 +1,7 @@
 ﻿public virtual global::System.ClientModel.ClientResult<float> GetScalar(global::System.Threading.CancellationToken cancellationToken = default)
 {
     global::System.ClientModel.ClientResult result = this.GetScalar(cancellationToken.ToRequestOptions());
-    string responseContent = result.GetRawResponse().Content.ToString().TrimStart('﻿');
-    using global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(responseContent);
+    using global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(result.GetRawResponse().Content);
     float value = document.RootElement.GetSingle();
     return global::System.ClientModel.ClientResult.FromValue(value, result.GetRawResponse());
 }

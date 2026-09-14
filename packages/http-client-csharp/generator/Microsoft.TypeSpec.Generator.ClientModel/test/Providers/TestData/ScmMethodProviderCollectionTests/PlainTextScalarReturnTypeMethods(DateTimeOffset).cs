@@ -1,7 +1,6 @@
-public virtual global::System.ClientModel.ClientResult<global::System.DateTimeOffset> GetPlainTextScalar(global::System.Threading.CancellationToken cancellationToken = default)
+﻿public virtual global::System.ClientModel.ClientResult<global::System.DateTimeOffset> GetPlainTextScalar(global::System.Threading.CancellationToken cancellationToken = default)
 {
     global::System.ClientModel.ClientResult result = this.GetPlainTextScalar(cancellationToken.ToRequestOptions());
-    string responseContent = result.GetRawResponse().Content.ToString().TrimStart('﻿');
-    global::System.DateTimeOffset value = global::Sample.TypeFormatters.ParseDateTimeOffset(responseContent, "D");
+    global::System.DateTimeOffset value = global::Sample.TypeFormatters.ParseDateTimeOffset(result.GetRawResponse().Content.ToString(), "D");
     return global::System.ClientModel.ClientResult.FromValue(value, result.GetRawResponse());
 }

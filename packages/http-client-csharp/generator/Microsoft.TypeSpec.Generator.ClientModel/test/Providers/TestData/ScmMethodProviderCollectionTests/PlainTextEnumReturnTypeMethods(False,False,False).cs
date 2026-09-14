@@ -1,7 +1,6 @@
-public virtual global::System.ClientModel.ClientResult<global::Sample.Models.TestEnum> GetPlainTextEnum(global::System.Threading.CancellationToken cancellationToken = default)
+﻿public virtual global::System.ClientModel.ClientResult<global::Sample.Models.TestEnum> GetPlainTextEnum(global::System.Threading.CancellationToken cancellationToken = default)
 {
     global::System.ClientModel.ClientResult result = this.GetPlainTextEnum(cancellationToken.ToRequestOptions());
-    string responseContent = result.GetRawResponse().Content.ToString().TrimStart('﻿');
-    global::Sample.Models.TestEnum value = int.Parse(responseContent, global::System.Globalization.CultureInfo.InvariantCulture).ToTestEnum();
+    global::Sample.Models.TestEnum value = int.Parse(result.GetRawResponse().Content.ToString(), global::System.Globalization.CultureInfo.InvariantCulture).ToTestEnum();
     return global::System.ClientModel.ClientResult.FromValue(value, result.GetRawResponse());
 }

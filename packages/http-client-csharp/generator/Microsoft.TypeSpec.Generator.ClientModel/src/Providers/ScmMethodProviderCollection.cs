@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-// cspell:ignore FEFF
-
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
@@ -304,10 +302,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         new[]
                         {
                             Declare("data", result.GetRawResponse().Content(), out var data),
-                            // JsonDocument.Parse(BinaryData) does not strip a leading UTF-8 BOM, so trim it
-                            // from the content string before parsing (mirroring the primitive/enum path above).
-                            Declare("responseContent", typeof(string), data.InvokeToString().Invoke(nameof(string.TrimStart), Literal('\uFEFF')).As<string>(), out var responseContent),
-                            UsingDeclare("document", JsonDocumentSnippets.Parse(responseContent), out var jsonDocument),
+                            UsingDeclare("document", data.Parse(), out var jsonDocument),
                             Declare("element", jsonDocument.RootElement(), out var jsonElement),
                             Return(result.FromValue(
                                 ScmCodeModelGenerator.Instance.TypeFactory.DeserializeJsonValue(
@@ -647,11 +642,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 && !HasOnlyPlainTextContentType())
             {
                 var data = result.GetRawResponse().Content();
-                var contentExpression = data.InvokeToString().Invoke(nameof(string.TrimStart), Literal('\uFEFF')).As<string>();
                 var statements = new MethodBodyStatement[]
                 {
-                    Declare("responseContent", typeof(string), contentExpression, out var responseContent),
-                    UsingDeclare("document", JsonDocumentSnippets.Parse(responseContent), out var document)
+                    UsingDeclare("document", data.Parse(), out var document)
                 };
                 declarations["data"] = data;
                 declarations["document"] = document;
@@ -866,11 +859,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var plainTextParseType = GetPlainTextParseType(responseBodyType, out var enumType);
             if (!responseBodyType.Equals(typeof(string)) && plainTextParseType is not null && HasOnlyPlainTextContentType())
             {
-                var contentExpression = response.Content().InvokeToString().Invoke(nameof(string.TrimStart), Literal('\uFEFF')).As<string>();
                 return
                 [
-                    Declare("responseContent", typeof(string), contentExpression, out var responseContent),
-                    Declare("value", responseBodyType, GetPlainTextValueConversion(responseBodyType, plainTextParseType, enumType, responseContent), out var value),
+                    Declare("value", responseBodyType, GetPlainTextValueConversion(responseBodyType, plainTextParseType, enumType, response.Content().InvokeToString()), out var value),
                     Return(result.FromValue(value, response))
                 ];
             }
