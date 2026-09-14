@@ -41,6 +41,27 @@ namespace TestProjects.Local.Tests
             Assert.AreSame(content, result.GetRawResponse().Content);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task JsonPrimitiveResponseDeserializationWithBom(bool isAsync)
+        {
+            var content = BinaryData.FromString(Encoding.UTF8.GetString(Encoding.UTF8.GetPreamble()) + "42");
+            var response = new Mock<PipelineResponse>();
+            response.SetupGet(r => r.Content).Returns(content);
+            var protocolResult = ClientResult.FromResponse(response.Object);
+            var client = new Mock<SampleTypeSpecClient> { CallBase = true };
+            client.Setup(c => c.GetInt32Value(It.IsAny<RequestOptions>())).Returns(protocolResult);
+            client.Setup(c => c.GetInt32ValueAsync(It.IsAny<RequestOptions>())).ReturnsAsync(protocolResult);
+
+            var result = isAsync
+                ? await client.Object.GetInt32ValueAsync()
+                : client.Object.GetInt32Value();
+
+            Assert.AreEqual(42, result.Value);
+            Assert.AreSame(response.Object, result.GetRawResponse());
+            Assert.AreSame(content, result.GetRawResponse().Content);
+        }
+
         [TestCase("a", "A", true)]
         [TestCase("A", "A", true)]
         [TestCase("A", "B", false)]
