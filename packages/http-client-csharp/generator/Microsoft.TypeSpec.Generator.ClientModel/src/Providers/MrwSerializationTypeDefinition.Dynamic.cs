@@ -766,7 +766,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private static string BuildJsonPathQuotedProperty(string propertySerializedName)
         {
-            char quote = propertySerializedName.Contains('\"') ? '\'' : '\"';
+            // The JsonPath reader has no escape syntax: a quoted segment ends at the first occurrence of the
+            // chosen delimiter immediately followed by ']'. Pick whichever delimiter doesn't form that sequence
+            // in the property name so a name containing both quote characters (e.g. `a"b'c`) is not truncated.
+            bool doubleQuoteCollides = propertySerializedName.Contains("\"]", StringComparison.Ordinal);
+            bool singleQuoteCollides = propertySerializedName.Contains("']", StringComparison.Ordinal);
+            char quote = doubleQuoteCollides && !singleQuoteCollides ? '\'' : '\"';
             return $"$[{quote}{propertySerializedName}{quote}]";
         }
 

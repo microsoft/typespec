@@ -505,10 +505,58 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 name => name is "JsonModelWriteCore" or "ActiveChildren"));
             var content = writer.Write().Content;
 
-            StringAssert.Contains("""Patch.Contains("$['1 foo{bar}-[\"\\baz']"u8)""", content);
-            StringAssert.Contains("""Encoding.UTF8.GetBytes($"$['1 foo{{bar}}-[\"\\baz'][{i}]")""", content);
+            StringAssert.Contains("""Patch.Contains("$[\"1 foo{bar}-[\"\\baz\"]"u8)""", content);
+            StringAssert.Contains("""Encoding.UTF8.GetBytes($"$[\"1 foo{{bar}}-[\"\\baz\"][{i}]")""", content);
             StringAssert.Contains("""Patch.Contains("$.plainName"u8)""", content);
             StringAssert.Contains("""Encoding.UTF8.GetBytes($"$.plainName[{i}]")""", content);
+        }
+
+        [Test]
+        public void BothQuoteCharactersSerializedNameCollectionPatchGuards()
+        {
+            var inputModel = InputFactory.Model(
+                "dynamicModel",
+                isDynamicModel: true,
+                properties:
+                [
+                    InputFactory.Property(
+                        "children",
+                        InputFactory.Array(InputFactory.Model(
+                            "anotherDynamic",
+                            isDynamicModel: true,
+                            properties:
+                            [
+                                InputFactory.Property("value", InputPrimitiveType.String, isRequired: true)
+                            ])),
+                        serializedName: "a\"b'c"),
+                    InputFactory.Property(
+                        "siblings",
+                        InputFactory.Array(InputFactory.Model(
+                            "anotherDynamic",
+                            isDynamicModel: true,
+                            properties:
+                            [
+                                InputFactory.Property("value", InputPrimitiveType.String, isRequired: true)
+                            ])),
+                        // A single-quote delimiter would terminate the JsonPath segment early here because the
+                        // name contains "']", so the double-quote delimiter must be chosen instead.
+                        serializedName: "a\"b']c")
+                ]);
+
+            MockHelpers.LoadMockGenerator(inputModels: () => [inputModel]);
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel) as ClientModel.Providers.ScmModelProvider;
+
+            Assert.IsNotNull(model);
+            var serialization = model!.SerializationProviders.Single();
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                serialization,
+                name => name is "JsonModelWriteCore" or "ActiveChildren"));
+            var content = writer.Write().Content;
+
+            StringAssert.Contains("""Patch.Contains("$[\"a\"b'c\"]"u8)""", content);
+            StringAssert.Contains("""Encoding.UTF8.GetBytes($"$[\"a\"b'c\"][{i}]")""", content);
+            StringAssert.Contains("""Patch.Contains("$[\"a\"b']c\"]"u8)""", content);
+            StringAssert.Contains("""Encoding.UTF8.GetBytes($"$[\"a\"b']c\"][{i}]")""", content);
         }
 
         [Test]
