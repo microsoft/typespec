@@ -5,7 +5,6 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
-using System.IO;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -36,8 +35,8 @@ namespace Sample
 
             using global::System.ClientModel.BinaryContent content = global::System.ClientModel.BinaryContent.Create(global::System.BinaryData.FromString(param1));
             global::System.ClientModel.ClientResult result = this.GetData(param2, param3, content, cancellationToken.ToRequestOptions());
-            using global::System.IO.Stream stream = result.GetRawResponse().Content.ToStream();
-            using global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(stream);
+            string content0 = result.GetRawResponse().Content.ToString().TrimStart('﻿');
+            using global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(content0);
             string value = document.RootElement.GetString();
             return global::System.ClientModel.ClientResult.FromValue(value, result.GetRawResponse());
         }
@@ -48,8 +47,8 @@ namespace Sample
 
             using global::System.ClientModel.BinaryContent content = global::System.ClientModel.BinaryContent.Create(global::System.BinaryData.FromString(param1));
             global::System.ClientModel.ClientResult result = await this.GetDataAsync(param2, param3, content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            using global::System.IO.Stream stream = result.GetRawResponse().Content.ToStream();
-            using global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(stream);
+            string content0 = result.GetRawResponse().Content.ToString().TrimStart('﻿');
+            using global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(content0);
             string value = document.RootElement.GetString();
             return global::System.ClientModel.ClientResult.FromValue(value, result.GetRawResponse());
         }

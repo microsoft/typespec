@@ -1772,7 +1772,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         }
 
         [Test]
-        public void PlainTextDurationReturnTypeMethodsThrowsForUnsupportedEncoding()
+        public void PlainTextDurationReturnTypeMethodsFallsBackForUnsupportedEncoding()
         {
             InputType inputType = new InputDurationType(new DurationKnownEncoding("Custom"), "duration", "TypeSpec.duration", InputPrimitiveType.Int32, null);
 
@@ -1783,9 +1783,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 
             MockHelpers.LoadMockGenerator();
             var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
-            var methods = new ScmMethodProviderCollection(serviceMethod, client!);
-            Assert.Throws<InvalidOperationException>(() =>
-                methods.Single(m => m.Kind == ScmMethodKind.Convenience && m.Signature.Name == "GetPlainTextDuration"));
+            var method = new ScmMethodProviderCollection(serviceMethod, client!)
+                .Single(m => m.Kind == ScmMethodKind.Convenience && m.Signature.Name == "GetPlainTextDuration");
+
+            using var writer = new CodeWriter();
+            writer.WriteMethod(method);
+            // An unsupported/custom duration encoding has no known format specifier, so generation reports a
+            // diagnostic and falls back to the constant ("c") format instead of throwing.
+            Assert.AreEqual(Helpers.GetExpectedFromFile("Constant", method: "PlainTextDurationReturnTypeMethods"), writer.ToString(false));
         }
 
         [TestCase(true, true, false)]

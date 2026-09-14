@@ -648,11 +648,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 && !HasOnlyPlainTextContentType())
             {
                 var data = result.GetRawResponse().Content();
-                // The stream overload preserves UTF-8 BOM handling from ToObjectFromJson.
+                // JsonDocument.Parse(Stream) does not strip a leading UTF-8 BOM, so trim it from the
+                // content string before parsing to preserve ToObjectFromJson's BOM handling.
+                var content = data.InvokeToString().Invoke(nameof(string.TrimStart), Literal('\uFEFF')).As<string>();
                 var statements = new MethodBodyStatement[]
                 {
-                    UsingDeclare("stream", data.ToStream(), out var stream),
-                    UsingDeclare("document", JsonDocumentSnippets.Parse(stream), out var document)
+                    Declare("content", typeof(string), content, out var contentValue),
+                    UsingDeclare("document", JsonDocumentSnippets.Parse(contentValue), out var document)
                 };
                 declarations["data"] = data;
                 declarations["document"] = document;
@@ -982,11 +984,29 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 SerializationFormat.Duration_Milliseconds_Float or SerializationFormat.Duration_Milliseconds_Double =>
                     // See the Duration_Seconds_Float/Double comment above.
                     TimeSpanSnippets.FromMilliseconds(ParseNumeric<double>(content, invariantCulture)),
-                // ISO 8601 ("P"), constant ("c") and plain time ("T") encodings all parse the content directly;
-                // any other format (e.g. a custom/unrecognized duration encoding, which maps to
-                // SerializationFormat.Default and has no format specifier) is unsupported and throws.
-                _ => content.As<string>().ParseTimeSpan(Literal(format.ToFormatSpecifier() ?? throw new InvalidOperationException($"Unsupported duration serialization format: {format}")))
+                // ISO 8601 ("P"), constant ("c") and plain time ("T") encodings all parse the content directly.
+                _ => content.As<string>().ParseTimeSpan(Literal(GetDurationFormatSpecifierOrFallback(format)))
             };
+        }
+
+        /// <summary>
+        /// Resolves the format specifier for a <see cref="TimeSpan"/> duration encoding, reporting an
+        /// <see cref="DiagnosticCodes.UnsupportedSerialization"/> diagnostic and falling back to the constant
+        /// ("c") format instead of throwing when the encoding (e.g. a custom/unrecognized duration encoding,
+        /// which maps to <see cref="SerializationFormat.Default"/>) has no known format specifier.
+        /// </summary>
+        private static string GetDurationFormatSpecifierOrFallback(SerializationFormat format)
+        {
+            var formatSpecifier = format.ToFormatSpecifier();
+            if (formatSpecifier is not null)
+            {
+                return formatSpecifier;
+            }
+
+            ScmCodeModelGenerator.Instance.Emitter.ReportDiagnostic(
+                DiagnosticCodes.UnsupportedSerialization,
+                $"Unsupported duration serialization format: {format}. Falling back to the constant (\"c\") format.");
+            return "c";
         }
 
         /// <summary>

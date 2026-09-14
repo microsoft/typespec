@@ -10,7 +10,6 @@ using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
 using System.Linq;
 using System.Net.ServerSentEvents;
 using System.Text.Json;
@@ -2105,8 +2104,8 @@ namespace SampleTypeSpec
         public virtual ClientResult<int> GetJsonInt32(CancellationToken cancellationToken = default)
         {
             ClientResult result = GetJsonInt32(cancellationToken.ToRequestOptions());
-            using Stream stream = result.GetRawResponse().Content.ToStream();
-            using JsonDocument document = JsonDocument.Parse(stream);
+            string content = result.GetRawResponse().Content.ToString().TrimStart('﻿');
+            using JsonDocument document = JsonDocument.Parse(content);
             int value = document.RootElement.GetInt32();
             return ClientResult.FromValue(value, result.GetRawResponse());
         }
@@ -2117,8 +2116,8 @@ namespace SampleTypeSpec
         public virtual async Task<ClientResult<int>> GetJsonInt32Async(CancellationToken cancellationToken = default)
         {
             ClientResult result = await GetJsonInt32Async(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            using Stream stream = result.GetRawResponse().Content.ToStream();
-            using JsonDocument document = JsonDocument.Parse(stream);
+            string content = result.GetRawResponse().Content.ToString().TrimStart('﻿');
+            using JsonDocument document = JsonDocument.Parse(content);
             int value = document.RootElement.GetInt32();
             return ClientResult.FromValue(value, result.GetRawResponse());
         }

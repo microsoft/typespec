@@ -4,8 +4,8 @@ public virtual global::System.ClientModel.ClientResult<string> GetData(string pa
 
     using global::System.ClientModel.BinaryContent content = global::System.ClientModel.BinaryContent.Create(global::System.BinaryData.FromString(param1));
     global::System.ClientModel.ClientResult result = this.GetData(param3, param2, content, cancellationToken.ToRequestOptions());
-    using global::System.IO.Stream stream = result.GetRawResponse().Content.ToStream();
-    using global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(stream);
+    string content0 = result.GetRawResponse().Content.ToString().TrimStart('﻿');
+    using global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(content0);
     string value = document.RootElement.GetString();
     return global::System.ClientModel.ClientResult.FromValue(value, result.GetRawResponse());
 }
