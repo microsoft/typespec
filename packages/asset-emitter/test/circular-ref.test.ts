@@ -106,6 +106,14 @@ it("self referencing without declaration report circular reference", async () =>
   strictEqual(invalidReferences.length, 1);
 });
 
+it("reports circular reference when the cycle goes through tuple values", async () => {
+  const invalidReferences = await findCircularReferences(`model Foo { foo?: [Foo] }`, {
+    modelsInline: true,
+    circleReference: true,
+  });
+  strictEqual(invalidReferences.length, 1);
+});
+
 it("without circular reference inline types cause no issue", async () => {
   const invalidReferences = await findCircularReferences(selfRef, {
     modelsInline: true,

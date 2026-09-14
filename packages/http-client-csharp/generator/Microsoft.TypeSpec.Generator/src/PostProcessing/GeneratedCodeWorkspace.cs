@@ -358,6 +358,16 @@ namespace Microsoft.TypeSpec.Generator
             {
                 return null;
             }
+
+            if (CodeModelGenerator.Instance.IsHosted)
+            {
+                CodeModelGenerator.Instance.Emitter.Debug(
+                    "Skipping MSBuild project evaluation in hosted mode; using cached project assets when available.");
+                string assetsJson = Path.Combine(
+                    CodeModelGenerator.Instance.Configuration.ProjectDirectory, "obj", "project.assets.json");
+                return File.Exists(assetsJson) ? assetsJson : null;
+            }
+
             Process restore = new();
             ProcessStartInfo info = new()
             {
@@ -440,45 +450,54 @@ namespace Microsoft.TypeSpec.Generator
             {
                 return;
             }
-            // Use the dotnet restore mechanism to get all the dependent packages.
-            Process restore = new();
-            ProcessStartInfo info = new()
+
+            if (CodeModelGenerator.Instance.IsHosted)
             {
-                UseShellExecute = false,
-                WindowStyle = ProcessWindowStyle.Hidden,
-                FileName = "dotnet",
-                ArgumentList = {"restore", projectFilePath},
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                WorkingDirectory = CodeModelGenerator.Instance.Configuration.ProjectDirectory,
-            };
-            restore.StartInfo = info;
-            if (restore.Start())
-            {
-                Task<string> outputTask = restore.StandardOutput.ReadToEndAsync();
-                Task<string> errorTask = restore.StandardError.ReadToEndAsync();
-                await restore.WaitForExitAsync();
-                string output = await outputTask;
-                string error = await errorTask;
-                if (restore.ExitCode != 0)
-                {
-                    CodeModelGenerator.Instance.Emitter.ReportDiagnostic(
-                        code: "unable-to-restore-target-package",
-                        message: $"The dotnet restore {projectFilePath} command exited with {restore.ExitCode}.\n" +
-                        $"Standard output: {output}\n" +
-                        $"Error output: {error}",
-                        severity: EmitterRpc.EmitterDiagnosticSeverity.Warning
-                );
-                }
+                CodeModelGenerator.Instance.Emitter.Debug("Skipping dotnet restore in hosted mode.");
             }
             else
             {
-                CodeModelGenerator.Instance.Emitter.ReportDiagnostic(
-                    code: "unable-to-run-dotnet-restore",
-                    message: $"Unable to run dotnet restore on the project {projectFilePath}",
-                    severity: EmitterRpc.EmitterDiagnosticSeverity.Error
-                );
+                // Use the dotnet restore mechanism to get all the dependent packages.
+                Process restore = new();
+                ProcessStartInfo info = new()
+                {
+                    UseShellExecute = false,
+                    WindowStyle = ProcessWindowStyle.Hidden,
+                    FileName = "dotnet",
+                    ArgumentList = { "restore", projectFilePath },
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    WorkingDirectory = CodeModelGenerator.Instance.Configuration.ProjectDirectory,
+                };
+                restore.StartInfo = info;
+                if (restore.Start())
+                {
+                    Task<string> outputTask = restore.StandardOutput.ReadToEndAsync();
+                    Task<string> errorTask = restore.StandardError.ReadToEndAsync();
+                    await restore.WaitForExitAsync();
+                    string output = await outputTask;
+                    string error = await errorTask;
+                    if (restore.ExitCode != 0)
+                    {
+                        CodeModelGenerator.Instance.Emitter.ReportDiagnostic(
+                            code: "unable-to-restore-target-package",
+                            message: $"The dotnet restore {projectFilePath} command exited with {restore.ExitCode}.\n" +
+                            $"Standard output: {output}\n" +
+                            $"Error output: {error}",
+                            severity: EmitterRpc.EmitterDiagnosticSeverity.Warning
+                        );
+                    }
+                }
+                else
+                {
+                    CodeModelGenerator.Instance.Emitter.ReportDiagnostic(
+                        code: "unable-to-run-dotnet-restore",
+                        message: $"Unable to run dotnet restore on the project {projectFilePath}",
+                        severity: EmitterRpc.EmitterDiagnosticSeverity.Error
+                    );
+                }
             }
+
             var projectRoot = ProjectRootElement.Open(projectFilePath, new MSBuildProjectCollection());
             var nugetSettings = Settings.LoadDefaultSettings(projectFilePath);
             var globalPackagesFolder = SettingsUtility.GetGlobalPackagesFolder(nugetSettings);
@@ -620,6 +639,9 @@ namespace Microsoft.TypeSpec.Generator
 
             var nugetSettings = Settings.LoadDefaultSettings(projectFilePath);
             var nugetGlobalPackageFolder = SettingsUtility.GetGlobalPackagesFolder(nugetSettings);
+            var missingBaselineMessage =
+                $"Cannot find Baseline contract assembly ({packageName}@{baselineVersion}) from Nuget Global Package Folder. " +
+                "Please make sure the baseline nuget package has been installed properly.";
 
             // Try to find or download the assembly
             try
@@ -653,6 +675,16 @@ namespace Microsoft.TypeSpec.Generator
                 // If assembly doesn't exist locally, download it & install it
                 if (!foundInstalledAssembly)
                 {
+                    if (CodeModelGenerator.Instance.IsHosted)
+                    {
+                        CodeModelGenerator.Instance.Emitter.Debug(
+                            $"Skipping NuGet download for baseline contract {packageName}@{baselineVersion} in hosted mode because no compatible cached assembly was found.");
+                        CodeModelGenerator.Instance.Emitter.ReportDiagnostic(
+                            DiagnosticCodes.BaselineContractMissing,
+                            $"{missingBaselineMessage} {NugetPackageResolver.HostedModeRestrictionMessage}");
+                        return null;
+                    }
+
                     NugetPackageDownloader downloader = new(packageName, baselineVersion, parsedTargetFrameworks, nugetSettings);
                     nugetFolderPathToAssembly = await downloader.DownloadAndInstallPackage();
                     assemblyFileFullPath = Path.Combine(nugetFolderPathToAssembly, $"{packageName}.dll");
@@ -665,8 +697,7 @@ namespace Microsoft.TypeSpec.Generator
             {
                 CodeModelGenerator.Instance.Emitter.ReportDiagnostic(
                     DiagnosticCodes.BaselineContractMissing,
-                    $"Cannot find Baseline contract assembly ({packageName}@{baselineVersion}) from Nuget Global Package Folder. " +
-                    $"Please make sure the baseline nuget package has been installed properly. Error: {ex.Message}");
+                    $"{missingBaselineMessage} Error: {ex.Message}");
                 return null;
             }
         }
