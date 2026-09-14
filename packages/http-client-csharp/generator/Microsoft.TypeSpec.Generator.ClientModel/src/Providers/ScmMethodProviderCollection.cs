@@ -972,12 +972,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 SerializationFormat.Duration_Seconds_Int64 =>
                     TimeSpanSnippets.FromSeconds(LongSnippets.Parse(content, invariantCulture)),
                 SerializationFormat.Duration_Seconds_Float or SerializationFormat.Duration_Seconds_Double =>
+                    // Float and Double wire encodings are intentionally collapsed to a single double.Parse,
+                    // matching MrwSerializationTypeDefinition's JSON path, which uses GetDouble() for both.
                     TimeSpanSnippets.FromSeconds(ParseNumeric<double>(content, invariantCulture)),
                 SerializationFormat.Duration_Milliseconds =>
                     TimeSpanSnippets.FromMilliseconds(ParseNumeric<int>(content, invariantCulture)),
                 SerializationFormat.Duration_Milliseconds_Int64 =>
                     TimeSpanSnippets.FromMilliseconds(LongSnippets.Parse(content, invariantCulture)),
                 SerializationFormat.Duration_Milliseconds_Float or SerializationFormat.Duration_Milliseconds_Double =>
+                    // See the Duration_Seconds_Float/Double comment above.
                     TimeSpanSnippets.FromMilliseconds(ParseNumeric<double>(content, invariantCulture)),
                 // ISO 8601 ("P"), constant ("c") and plain time ("T") encodings all parse the content directly;
                 // fall back to the constant format specifier for the (practically unreachable) default case.
@@ -991,6 +994,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private static ScopedApi<T> ParseNumeric<T>(ValueExpression content, ValueExpression invariantCulture)
             where T : struct
         {
+            // "Parse" is the static method name on every numeric type this is instantiated with (int, long, double);
+            // nameof(int.Parse) is used to keep the literal refactor-safe.
             return Static<T>().Invoke(nameof(int.Parse), [content, invariantCulture]).As<T>();
         }
 
