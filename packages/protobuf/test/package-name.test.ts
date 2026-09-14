@@ -1,6 +1,6 @@
 import { expectDiagnostics } from "@typespec/compiler/testing";
 import { describe, expect, it } from "vitest";
-import { Tester as BaseTester } from "./test-host.js";
+import { Tester as BaseTester } from "./tester.js";
 
 const Tester = BaseTester.importLibraries().using("Protobuf");
 

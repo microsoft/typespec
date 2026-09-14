@@ -8,7 +8,7 @@ import { formatDiagnostic, resolvePath } from "@typespec/compiler";
 import { readdirSync, statSync } from "fs";
 import { mkdir, readdir, readFile, rm, stat, writeFile } from "fs/promises";
 import type { ProtobufEmitterOptions } from "../src/lib.js";
-import { packageRoot, Tester } from "./test-host.js";
+import { packageRoot, Tester } from "./tester.js";
 
 const SCENARIOS_DIRECTORY = resolvePath(packageRoot, "test/scenarios");
 

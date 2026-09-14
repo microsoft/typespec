@@ -48,6 +48,7 @@ const IMPLEMENTATION_RESERVED_RANGE = [19000, 19999] as const;
 /**
  * Defined in the [ProtoBuf Language Spec](https://developers.google.com/protocol-buffers/docs/reference/proto3-spec#identifiers).
  *
+ * letter = "A" ... "Z" | "a" ... "z" | "_"
  * ident = letter \{ letter | decimalDigit \}
  * fullIdent = ident \{ "." ident \}
  */
