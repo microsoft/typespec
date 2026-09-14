@@ -1105,64 +1105,6 @@ namespace SampleTypeSpec
         }
 
         /// <summary>
-        /// [Protocol Method] get int32
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult GetInt32Value(RequestOptions options)
-        {
-            using PipelineMessage message = CreateGetInt32ValueRequest(options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] get int32
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> GetInt32ValueAsync(RequestOptions options)
-        {
-            using PipelineMessage message = CreateGetInt32ValueRequest(options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> get int32. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult<int> GetInt32Value(CancellationToken cancellationToken = default)
-        {
-            ClientResult result = GetInt32Value(cancellationToken.ToRequestOptions());
-            using Stream stream = result.GetRawResponse().Content.ToStream();
-            using JsonDocument document = JsonDocument.Parse(stream);
-            int value = document.RootElement.GetInt32();
-            return ClientResult.FromValue(value, result.GetRawResponse());
-        }
-
-        /// <summary> get int32. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult<int>> GetInt32ValueAsync(CancellationToken cancellationToken = default)
-        {
-            ClientResult result = await GetInt32ValueAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            using Stream stream = result.GetRawResponse().Content.ToStream();
-            using JsonDocument document = JsonDocument.Parse(stream);
-            int value = document.RootElement.GetInt32();
-            return ClientResult.FromValue(value, result.GetRawResponse());
-        }
-
-        /// <summary>
         /// [Protocol Method] When set protocol false and convenient true, then the protocol method should be internal
         /// <list type="bullet">
         /// <item>

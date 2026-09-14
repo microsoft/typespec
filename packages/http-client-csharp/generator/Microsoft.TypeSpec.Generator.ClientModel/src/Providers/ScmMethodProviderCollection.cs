@@ -648,11 +648,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 && !HasOnlyPlainTextContentType())
             {
                 var data = result.GetRawResponse().Content();
-                var content = data.InvokeToString().Invoke(nameof(string.TrimStart), Literal('\uFEFF')).As<string>();
+                // The stream overload preserves UTF-8 BOM handling from ToObjectFromJson.
                 var statements = new MethodBodyStatement[]
                 {
-                    Declare("content", typeof(string), content, out var contentValue),
-                    UsingDeclare("document", JsonDocumentSnippets.Parse(contentValue), out var document)
+                    UsingDeclare("stream", data.ToStream(), out var stream),
+                    UsingDeclare("document", JsonDocumentSnippets.Parse(stream), out var document)
                 };
                 declarations["data"] = data;
                 declarations["document"] = document;
