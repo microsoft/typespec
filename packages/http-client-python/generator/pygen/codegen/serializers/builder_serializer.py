@@ -1389,16 +1389,10 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             retval.append(f"    {'await ' if self.async_mode else ''}_transport.sleep(_reconnect_delay)")
             retval.append("    if _last_event_id is not None:")
             retval.append('        _request.headers["Last-Event-ID"] = _last_event_id')
-            if self.async_mode:
-                retval.append(
-                    f"    _reconnect_response = (await self._client.{self.pipeline_name}.run("
-                    "_request, stream=True, **kwargs)).http_response  # pylint: disable=protected-access"
-                )
-            else:
-                retval.append(
-                    f"    _reconnect_response = self._client.{self.pipeline_name}.run("
-                    "_request, stream=True, **kwargs).http_response  # pylint: disable=protected-access"
-                )
+            retval.append(
+                f"    _reconnect_response = {self._call_method}self._client.send_request("
+                "_request, stream=True, **kwargs)"
+            )
             reconnect_status_codes = list(builder.success_status_codes)
             if 204 not in reconnect_status_codes:
                 reconnect_status_codes.append(204)
