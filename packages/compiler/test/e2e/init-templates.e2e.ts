@@ -10,8 +10,19 @@ import { getTypeSpecCoreTemplates } from "../../src/init/core-templates.js";
 import { makeScaffoldingConfig, scaffoldNewProject } from "../../src/init/scaffold.js";
 import { defaultInternalTemplateSource } from "../../src/init/template-source/index.js";
 
+const manifest = {
+  name: "mock-pkg",
+  version: "1.0.0",
+  dist: { shasum: "abc", tarball: "https://example.com/mock-pkg.tgz" },
+};
 const fetchMock = vi.fn().mockResolvedValue({
-  json: () => Promise.resolve({ name: "mock-pkg", version: "1.0.0" }),
+  ok: true,
+  json: () =>
+    Promise.resolve({
+      name: manifest.name,
+      "dist-tags": { latest: manifest.version },
+      versions: { [manifest.version]: manifest },
+    }),
 });
 
 const __dirname = dirname(fileURLToPath(import.meta.url));

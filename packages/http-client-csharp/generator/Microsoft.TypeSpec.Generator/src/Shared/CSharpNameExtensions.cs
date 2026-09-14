@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using Microsoft.TypeSpec.Generator.Input;
@@ -77,6 +76,17 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             return prefix + onSuffix;
         }
 
+        /// <summary>
+        /// Gets the normalized semantic stem of a date-time name by removing its recognized suffix.
+        /// </summary>
+        public static string? GetDateTimeStem(this string name)
+        {
+            var suffixLength = DateTimeNameRules.GetSuffixLength(name);
+            return suffixLength == 0 || suffixLength == name.Length
+                ? null
+                : DateTimeNameRules.ToVerbForm(name[..^suffixLength]);
+        }
+
         private static class DateTimeNameRules
         {
             private const string AtSuffix = "At";
@@ -95,28 +105,36 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             private const string TimestampSuffix = "Timestamp";
             private const string ToName = "To";
 
-            // Complete prefixes that read better as verbs when combined with the "On" suffix.
-            private static readonly Dictionary<string, string> _nounToVerbMap = new(StringComparer.OrdinalIgnoreCase)
-            {
-                ["Change"] = "Changed",
-                ["Creation"] = "Created",
-                ["Deletion"] = "Deleted",
-                ["End"] = "Ends",
-                ["Expiration"] = "Expires",
-                ["Modification"] = "Modified",
-                ["Start"] = "Starts"
-            };
+            // Complete prefixes that read better as verbs when combined with the "On" suffix. Keep the
+            // collection ordered so adding overlapping suffixes in the future cannot make compound matching
+            // depend on dictionary enumeration order.
+            private static readonly (string Noun, string Verb)[] _nounToVerbRules =
+            [
+                ("Change", "Changed"),
+                ("Creation", "Created"),
+                ("Deletion", "Deleted"),
+                ("End", "Ends"),
+                ("Expiration", "Expires"),
+                ("Expire", "Expires"),
+                ("Modification", "Modified"),
+                ("Start", "Starts")
+            ];
 
             internal static string ToVerbForm(string prefix)
             {
-                if (_nounToVerbMap.TryGetValue(prefix, out var verb))
+                // Resolve all exact rules before considering compound suffixes so an overlapping rule added
+                // later cannot be preempted by an earlier compound match.
+                foreach (var (noun, verb) in _nounToVerbRules)
                 {
-                    return char.IsLower(prefix[0])
-                        ? char.ToLowerInvariant(verb[0]) + verb[1..]
-                        : verb;
+                    if (prefix.Equals(noun, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return char.IsLower(prefix[0])
+                            ? char.ToLowerInvariant(verb[0]) + verb[1..]
+                            : verb;
+                    }
                 }
 
-                foreach (var (noun, compoundVerb) in _nounToVerbMap)
+                foreach (var (noun, compoundVerb) in _nounToVerbRules)
                 {
                     if (prefix.Length > noun.Length &&
                         prefix.EndsWith(noun, StringComparison.OrdinalIgnoreCase) &&

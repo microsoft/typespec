@@ -10,6 +10,7 @@ import type {
   LinterRuleDefinition,
   PackageFlags,
   StateDef,
+  TypeInfoProvider,
   TypeSpecLibrary,
   TypeSpecLibraryDef,
 } from "./types.js";
@@ -112,6 +113,23 @@ export function definePackageFlags(flags: PackageFlags): PackageFlags {
 
 export function defineLinter(def: LinterDefinition): LinterDefinition {
   return def;
+}
+
+/**
+ * Define a `$provideTypeInfo` provider that contributes extra information about types to IDE hover
+ * documentation and tooling. This helper only provides typing; export the result as `$provideTypeInfo`
+ * from your library's entry point.
+ *
+ * @example
+ * ```ts
+ * export const $provideTypeInfo = defineTypeInfoProvider(({ target }) => {
+ *   if (target.kind !== "Operation") return undefined;
+ *   return { content: `Operation ${target.name}` };
+ * });
+ * ```
+ */
+export function defineTypeInfoProvider(provider: TypeInfoProvider): TypeInfoProvider {
+  return provider;
 }
 
 /** Create a new linter rule. */

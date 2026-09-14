@@ -405,7 +405,17 @@ describe("global graph mutation", () => {
   };
 
   async function globalMutate(code: string): Promise<Namespace> {
-    const { program } = await Tester.compile(code);
+    const { program } = await Tester.compile(code, {
+      compilerOptions: {
+        configFile: {
+          projectRoot: ".",
+          kind: "project",
+          features: ["union-extends"],
+          diagnostics: [],
+          outputDir: "tsp-output",
+        },
+      },
+    });
 
     const { type } = mutateSubgraphWithNamespace(
       program,
@@ -489,6 +499,18 @@ describe("global graph mutation", () => {
     const MutatedB = type.models.get("B")!;
     const barProp: any = MutatedB.properties.get("bar");
     expectTypeEquals(MutatedA, barProp.type.values[0]);
+  });
+
+  it("mutate union base type", async () => {
+    const type = await globalMutate(`
+      model PetBase { name: string }
+      model Cat extends PetBase { toy: string }
+      union Pet extends PetBase { cat: Cat };
+    `);
+
+    const MutatedPetBase = type.models.get("PetBase")!;
+    const MutatedPet = type.unions.get("Pet")!;
+    expectTypeEquals(MutatedPet.baseType!, MutatedPetBase);
   });
 });
 

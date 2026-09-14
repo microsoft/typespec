@@ -3,9 +3,9 @@ import * as cs from "@alloy-js/csharp";
 import type { Interface, Operation } from "@typespec/compiler";
 import { isTemplateDeclaration, isVoidType } from "@typespec/compiler";
 import { useTsp } from "@typespec/emitter-framework";
+import { getDocComments } from "@typespec/emitter-framework/csharp";
 import type { OperationHttpCanonicalization } from "@typespec/http-canonicalization";
 import { getUniqueItems } from "@typespec/json-schema";
-import { getDocComments } from "../../utils/doc-comments.jsx";
 import { getSuccessReturnType } from "../../utils/return-type-helpers.js";
 import { TypeExpression } from "../type-expression/type-expression.jsx";
 

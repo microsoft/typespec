@@ -20,7 +20,7 @@ export default defineConfig({
     },
     outDir: "dist/lib",
 
-    rollupOptions: {
+    rolldownOptions: {
       external: (id) => {
         const normalized = id.replace(/\\/g, "/");
         return (

@@ -32,6 +32,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 _derivedModels = BuildDerivedModels();
                 var publicDerivedModels = _derivedModels.Where(m => m.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public)).ToList();
+                if (publicDerivedModels.Count == 0)
+                {
+                    return description;
+                }
                 var derivedClassesDescription = DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract)
                     ? "Please note this is the abstract base class. The derived classes available for instantiation are: "
                     : "Please note this is the base class. The derived classes available for instantiation are: ";
@@ -659,7 +663,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 // a source-breaking change
                 if (MethodSignatureHelper.IsPublicApi(outputProperty.Modifiers) &&
                     LastContractPropertiesMap.TryGetValue(outputProperty.Name, out var lastContractPropertyType) &&
-                    !lastContractPropertyType.Equals(outputProperty.Type))
+                    ShouldReplacePropertyTypeWithLastContractType(lastContractPropertyType, outputProperty.Type))
                 {
                     // If the previous property type (or a type nested in it) has been intentionally
                     // removed and that removal is accepted in the ApiCompat baseline, preserving it
@@ -672,7 +676,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     }
                     else
                     {
-                        outputProperty.Type = lastContractPropertyType.ApplyInputSpecProperty(property);
+                        outputProperty.Type = GetPropertyTypeForBackCompatibility(
+                            lastContractPropertyType,
+                            outputProperty.Type,
+                            property);
                         CodeModelGenerator.Instance.Emitter.Info(
                             $"Changed property '{Name}.{outputProperty.Name}' type to '{lastContractPropertyType}' to match last contract.",
                             BackCompatibilityChangeCategory.PropertyTypePreserved);
@@ -753,6 +760,31 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             var baseNullable = baseProperty.Type is InputNullableType;
             return baseNullable ? derivedProperty.Type is InputNullableType : derivedProperty.Type is not InputNullableType;
+        }
+
+        private static bool ShouldReplacePropertyTypeWithLastContractType(CSharpType lastContractType, CSharpType currentType)
+        {
+            if (lastContractType.Equals(currentType))
+            {
+                return false;
+            }
+
+            // Roslyn-backed last-contract reference types do not retain top-level nullable-reference metadata.
+            // Keep the current TypeSpec top-level nullability when the reference types otherwise match.
+            return lastContractType.IsValueType
+                || currentType.IsValueType
+                || !lastContractType.Equals(currentType, ignoreNullable: true);
+        }
+
+        private static CSharpType GetPropertyTypeForBackCompatibility(
+            CSharpType lastContractType,
+            CSharpType currentType,
+            InputProperty inputProperty)
+        {
+            var compatibleType = lastContractType.ApplyInputSpecProperty(inputProperty);
+            return !compatibleType.IsValueType && currentType.IsNullable
+                ? compatibleType.WithNullable(true)
+                : compatibleType;
         }
 
         protected internal override ConstructorProvider[] BuildConstructors()
@@ -847,15 +879,23 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
                 // A previously published accessible parameterless constructor is dropped when the current
                 // generation makes a property required. Restore it and drop the generated mocking constructor
-                // so it is not a duplicate. An accessible parameterless constructor (generated or custom code)
-                // counts as already present; an inaccessible generated mocking constructor does not. A struct
-                // always exposes a public parameterless constructor via its serialization (mocking)
-                // constructor, so there is nothing to restore on the model partial.
+                // so it is not a duplicate. An accessible parameterless constructor on any generated partial
+                // or in custom code counts as already present. A struct always exposes a public parameterless
+                // constructor via its serialization partial, so there is nothing to restore on the model partial.
                 if (previousParameters.Count == 0)
                 {
-                    if (!Type.IsStruct
-                        && !constructors.Any(c => c.Signature.Parameters.Count == 0 && MethodSignatureHelper.IsPublicApi(c.Signature.Modifiers))
-                        && !candidateConstructors.Any(c => c.Signature.Parameters.Count == 0 && MethodSignatureHelper.IsPublicApi(c.Signature.Modifiers)))
+                    if (Type.IsStruct)
+                    {
+                        continue;
+                    }
+
+                    var hasAccessibleParameterlessSerializationConstructor = SerializationProviders
+                        .SelectMany(p => p.Constructors)
+                        .Any(c => c.Signature.Parameters.Count == 0 && MethodSignatureHelper.IsPublicApi(c.Signature.Modifiers));
+
+                    if (!constructors.Any(c => c.Signature.Parameters.Count == 0 && MethodSignatureHelper.IsPublicApi(c.Signature.Modifiers))
+                        && !candidateConstructors.Any(c => c.Signature.Parameters.Count == 0 && MethodSignatureHelper.IsPublicApi(c.Signature.Modifiers))
+                        && !hasAccessibleParameterlessSerializationConstructor)
                     {
                         var parameterlessConstructor = BuildBackCompatParameterlessConstructor(previousConstructor, candidateConstructors);
                         RemoveGeneratedMockingConstructor(constructors);
@@ -939,11 +979,26 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     continue;
                 }
 
+                // A permutation replaces every name, so a clash there is transient. Exact names are
+                // retained, so restoring another parameter onto one would produce a real duplicate.
+                var retainedExactNames = restoredParameters
+                    .Where(p => p.IsExactName)
+                    .Select(p => p.Name)
+                    .ToHashSet(StringComparer.Ordinal);
                 for (int i = 0; i < restoredParameters.Count; i++)
                 {
                     var restoredName = previousParameters[i].Name;
-                    if (string.Equals(restoredParameters[i].Name, restoredName, StringComparison.Ordinal))
+                    if (string.Equals(restoredParameters[i].Name, restoredName, StringComparison.Ordinal)
+                        || restoredParameters[i].IsExactName)
                     {
+                        continue;
+                    }
+
+                    if (retainedExactNames.Contains(restoredName))
+                    {
+                        CodeModelGenerator.Instance.Emitter.Info(
+                            $"Could not preserve parameter name '{restoredName}' at position {i} on constructor '{Name}' from the last contract; it collides with the exact name of another parameter.",
+                            BackCompatibilityChangeCategory.ParameterNamePreserved);
                         continue;
                     }
 

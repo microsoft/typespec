@@ -84,8 +84,8 @@ public final class ProtocolAndConvenientAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    Mono<Response<BinaryData>> onlyConvenientWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.onlyConvenientWithResponseAsync(body, requestOptions);
+    Mono<Response<BinaryData>> onlyConvenientWithResponseInternal(BinaryData body, RequestOptions requestOptions) {
+        return this.serviceClient.onlyConvenientWithResponseInternalAsync(body, requestOptions);
     }
 
     /**
@@ -200,8 +200,8 @@ public final class ProtocolAndConvenientAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    Mono<Response<BinaryData>> errorSettingWithResponse(BinaryData body, RequestOptions requestOptions) {
-        return this.serviceClient.errorSettingWithResponseAsync(body, requestOptions);
+    Mono<Response<BinaryData>> errorSettingWithResponseInternal(BinaryData body, RequestOptions requestOptions) {
+        return this.serviceClient.errorSettingWithResponseInternalAsync(body, requestOptions);
     }
 
     /**
@@ -241,9 +241,9 @@ public final class ProtocolAndConvenientAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.LONG_RUNNING_OPERATION)
-    PollerFlux<BinaryData, BinaryData> beginCreateOrReplace(String name, BinaryData resource,
+    PollerFlux<BinaryData, BinaryData> beginCreateOrReplaceInternal(String name, BinaryData resource,
         RequestOptions requestOptions) {
-        return this.serviceClient.beginCreateOrReplaceAsync(name, resource, requestOptions);
+        return this.serviceClient.beginCreateOrReplaceInternalAsync(name, resource, requestOptions);
     }
 
     /**
@@ -276,8 +276,8 @@ public final class ProtocolAndConvenientAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
-    PagedFlux<BinaryData> list(RequestOptions requestOptions) {
-        return this.serviceClient.listAsync(requestOptions);
+    PagedFlux<BinaryData> listInternal(RequestOptions requestOptions) {
+        return this.serviceClient.listInternalAsync(requestOptions);
     }
 
     /**
@@ -295,9 +295,9 @@ public final class ProtocolAndConvenientAsyncClient {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<ResourceB> onlyConvenient(ResourceA body) {
-        // Generated convenience method for onlyConvenientWithResponse
+        // Generated convenience method for onlyConvenientWithResponseInternal
         RequestOptions requestOptions = new RequestOptions();
-        return onlyConvenientWithResponse(BinaryData.fromObject(body), requestOptions).flatMap(FluxUtil::toMono)
+        return onlyConvenientWithResponseInternal(BinaryData.fromObject(body), requestOptions).flatMap(FluxUtil::toMono)
             .map(protocolMethodData -> protocolMethodData.toObject(ResourceB.class));
     }
 
@@ -357,9 +357,9 @@ public final class ProtocolAndConvenientAsyncClient {
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedFlux<ResourceJ> list() {
-        // Generated convenience method for list
+        // Generated convenience method for listInternal
         RequestOptions requestOptions = new RequestOptions();
-        PagedFlux<BinaryData> pagedFluxResponse = list(requestOptions);
+        PagedFlux<BinaryData> pagedFluxResponse = listInternal(requestOptions);
         return PagedFlux.create(() -> (continuationTokenParam, pageSizeParam) -> {
             Flux<PagedResponse<BinaryData>> flux = (continuationTokenParam == null)
                 ? pagedFluxResponse.byPage().take(1)

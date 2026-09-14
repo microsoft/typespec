@@ -9,7 +9,7 @@ import {
   type ModelProperty,
   type Type,
 } from "@typespec/compiler";
-import { useTsp } from "../../../core/index.js";
+import { Experimental_OverridableComponent, useTsp } from "../../../core/index.js";
 import { useJsonConverterResolver } from "../json-converter/json-converter-resolver.jsx";
 import { TypeExpression } from "../type-expression.jsx";
 import { getDocComments } from "../utils/doc-comments.jsx";
@@ -28,6 +28,19 @@ export interface PropertyProps {
  * Create a C# property declaration from a TypeSpec property type.
  */
 export function Property(props: PropertyProps): Children {
+  return (
+    <Experimental_OverridableComponent
+      declaration
+      type={props.type}
+      Declaration={PropertyBody}
+      declarationProps={props}
+    >
+      <PropertyBody {...props} />
+    </Experimental_OverridableComponent>
+  );
+}
+
+function PropertyBody(props: PropertyProps): Children {
   const { $ } = useTsp();
   const result = preprocessPropertyType(props.type);
 

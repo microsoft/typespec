@@ -335,6 +335,9 @@ function navigateUnionType(type: Union, context: NavigationContext) {
     return;
   }
   if (context.emit("union", type) === ListenerFlow.NoRecursion) return;
+  if (type.baseType) {
+    navigateTypeInternal(type.baseType, context);
+  }
   for (const variant of type.variants.values()) {
     navigateUnionTypeVariant(variant, context);
   }

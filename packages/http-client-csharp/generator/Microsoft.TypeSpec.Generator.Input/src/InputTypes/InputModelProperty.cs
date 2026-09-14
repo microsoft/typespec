@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
 
 namespace Microsoft.TypeSpec.Generator.Input
@@ -21,7 +22,8 @@ namespace Microsoft.TypeSpec.Generator.Input
             bool isApiVersion,
             InputConstant? defaultValue,
             InputSerializationOptions serializationOptions,
-            ArrayKnownEncoding? encode = null)
+            ArrayKnownEncoding? encode = null,
+            IReadOnlyList<string>? apiVersions = null)
             : base(name, summary, doc, type, isRequired, isReadOnly, access, serializedName, isApiVersion, defaultValue)
         {
             Name = name;
@@ -34,12 +36,14 @@ namespace Microsoft.TypeSpec.Generator.Input
             IsHttpMetadata = isHttpMetadata;
             SerializationOptions = serializationOptions;
             Encode = encode;
+            ApiVersions = apiVersions ?? [];
         }
 
         public bool IsDiscriminator { get; internal set; }
         public InputSerializationOptions? SerializationOptions { get; internal set; }
         public bool IsHttpMetadata { get; internal set; }
         public ArrayKnownEncoding? Encode { get; internal set; }
+        public IReadOnlyList<string> ApiVersions { get; internal set; }
 
         /// <summary>
         /// Updates the properties of the input model property.
@@ -54,6 +58,7 @@ namespace Microsoft.TypeSpec.Generator.Input
         /// <param name="isDiscriminator">The new discriminator status for the property.</param>
         /// <param name="serializedName">The new serialized name for the property.</param>
         /// <param name="serializationOptions">The new serialization options for the property.</param>
+        /// <param name="apiVersions">The new API versions for the property.</param>
         public void Update(
             string? name = null,
             string? summary = null,
@@ -65,7 +70,8 @@ namespace Microsoft.TypeSpec.Generator.Input
             bool? isDiscriminator = null,
             string? serializedName = null,
             bool? isHttpMetadata = null,
-            InputSerializationOptions? serializationOptions = null)
+            InputSerializationOptions? serializationOptions = null,
+            IEnumerable<string>? apiVersions = null)
         {
             if (name != null)
             {
@@ -120,6 +126,11 @@ namespace Microsoft.TypeSpec.Generator.Input
             if (serializationOptions != null)
             {
                 SerializationOptions = serializationOptions;
+            }
+
+            if (apiVersions != null)
+            {
+                ApiVersions = [.. apiVersions];
             }
         }
     }

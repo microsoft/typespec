@@ -187,6 +187,11 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 for (int i = 0; i < currentParameters.Count; i++)
                 {
                     var parameter = currentParameters[i];
+                    if (parameter.IsExactName)
+                    {
+                        continue;
+                    }
+
                     string? preservedName = null;
 
                     var inputParameter = parameter.InputParameter;
@@ -210,8 +215,9 @@ namespace Microsoft.TypeSpec.Generator.Utilities
 
                     // Skip the rename when applying it would collide with another current parameter's
                     // name (e.g. two same-typed parameters whose order changed between the previous and
-                    // current contracts). A rename in that case would produce a duplicate parameter name
-                    // and, for name-based argument lookups, silently wire the wrong value.
+                    // current contracts, or a parameter whose exact name is retained above). A rename in
+                    // that case would produce a duplicate parameter name and, for name-based argument
+                    // lookups, silently wire the wrong value.
                     bool wouldCollide = false;
                     for (int j = 0; j < currentParameters.Count; j++)
                     {

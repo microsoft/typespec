@@ -269,7 +269,7 @@ public final class FormDatasImpl {
      * @return the {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> basicWithResponseAsync(BinaryData body, RequestOptions requestOptions) {
+    public Mono<Response<Void>> basicWithResponseInternalAsync(BinaryData body, RequestOptions requestOptions) {
         final String contentType = "multipart/form-data";
         return FluxUtil.withContext(
             context -> service.basic(this.client.getEndpoint(), contentType, body, requestOptions, context));
@@ -287,7 +287,7 @@ public final class FormDatasImpl {
      * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> basicWithResponse(BinaryData body, RequestOptions requestOptions) {
+    public Response<Void> basicWithResponseInternal(BinaryData body, RequestOptions requestOptions) {
         final String contentType = "multipart/form-data";
         return service.basicSync(this.client.getEndpoint(), contentType, body, requestOptions, Context.NONE);
     }
@@ -304,7 +304,7 @@ public final class FormDatasImpl {
      * @return the {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> withWireNameWithResponseAsync(BinaryData body, RequestOptions requestOptions) {
+    public Mono<Response<Void>> withWireNameWithResponseInternalAsync(BinaryData body, RequestOptions requestOptions) {
         final String contentType = "multipart/form-data";
         return FluxUtil.withContext(
             context -> service.withWireName(this.client.getEndpoint(), contentType, body, requestOptions, context));
@@ -322,7 +322,7 @@ public final class FormDatasImpl {
      * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> withWireNameWithResponse(BinaryData body, RequestOptions requestOptions) {
+    public Response<Void> withWireNameWithResponseInternal(BinaryData body, RequestOptions requestOptions) {
         final String contentType = "multipart/form-data";
         return service.withWireNameSync(this.client.getEndpoint(), contentType, body, requestOptions, Context.NONE);
     }
@@ -339,7 +339,7 @@ public final class FormDatasImpl {
      * @return the {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> optionalPartsWithResponseAsync(BinaryData body, RequestOptions requestOptions) {
+    public Mono<Response<Void>> optionalPartsWithResponseInternalAsync(BinaryData body, RequestOptions requestOptions) {
         final String contentType = "multipart/form-data";
         return FluxUtil.withContext(
             context -> service.optionalParts(this.client.getEndpoint(), contentType, body, requestOptions, context));
@@ -357,7 +357,7 @@ public final class FormDatasImpl {
      * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> optionalPartsWithResponse(BinaryData body, RequestOptions requestOptions) {
+    public Response<Void> optionalPartsWithResponseInternal(BinaryData body, RequestOptions requestOptions) {
         final String contentType = "multipart/form-data";
         return service.optionalPartsSync(this.client.getEndpoint(), contentType, body, requestOptions, Context.NONE);
     }
@@ -374,7 +374,8 @@ public final class FormDatasImpl {
      * @return the {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> fileArrayAndBasicWithResponseAsync(BinaryData body, RequestOptions requestOptions) {
+    public Mono<Response<Void>> fileArrayAndBasicWithResponseInternalAsync(BinaryData body,
+        RequestOptions requestOptions) {
         final String contentType = "multipart/form-data";
         return FluxUtil.withContext(context -> service.fileArrayAndBasic(this.client.getEndpoint(), contentType, body,
             requestOptions, context));
@@ -392,7 +393,7 @@ public final class FormDatasImpl {
      * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> fileArrayAndBasicWithResponse(BinaryData body, RequestOptions requestOptions) {
+    public Response<Void> fileArrayAndBasicWithResponseInternal(BinaryData body, RequestOptions requestOptions) {
         final String contentType = "multipart/form-data";
         return service.fileArrayAndBasicSync(this.client.getEndpoint(), contentType, body, requestOptions,
             Context.NONE);
@@ -410,7 +411,7 @@ public final class FormDatasImpl {
      * @return the {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> jsonPartWithResponseAsync(BinaryData body, RequestOptions requestOptions) {
+    public Mono<Response<Void>> jsonPartWithResponseInternalAsync(BinaryData body, RequestOptions requestOptions) {
         final String contentType = "multipart/form-data";
         return FluxUtil.withContext(
             context -> service.jsonPart(this.client.getEndpoint(), contentType, body, requestOptions, context));
@@ -428,7 +429,7 @@ public final class FormDatasImpl {
      * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> jsonPartWithResponse(BinaryData body, RequestOptions requestOptions) {
+    public Response<Void> jsonPartWithResponseInternal(BinaryData body, RequestOptions requestOptions) {
         final String contentType = "multipart/form-data";
         return service.jsonPartSync(this.client.getEndpoint(), contentType, body, requestOptions, Context.NONE);
     }
@@ -445,7 +446,8 @@ public final class FormDatasImpl {
      * @return the {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> binaryArrayPartsWithResponseAsync(BinaryData body, RequestOptions requestOptions) {
+    public Mono<Response<Void>> binaryArrayPartsWithResponseInternalAsync(BinaryData body,
+        RequestOptions requestOptions) {
         final String contentType = "multipart/form-data";
         return FluxUtil.withContext(
             context -> service.binaryArrayParts(this.client.getEndpoint(), contentType, body, requestOptions, context));
@@ -463,7 +465,7 @@ public final class FormDatasImpl {
      * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> binaryArrayPartsWithResponse(BinaryData body, RequestOptions requestOptions) {
+    public Response<Void> binaryArrayPartsWithResponseInternal(BinaryData body, RequestOptions requestOptions) {
         final String contentType = "multipart/form-data";
         return service.binaryArrayPartsSync(this.client.getEndpoint(), contentType, body, requestOptions, Context.NONE);
     }
@@ -480,7 +482,8 @@ public final class FormDatasImpl {
      * @return the {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> multiBinaryPartsWithResponseAsync(BinaryData body, RequestOptions requestOptions) {
+    public Mono<Response<Void>> multiBinaryPartsWithResponseInternalAsync(BinaryData body,
+        RequestOptions requestOptions) {
         final String contentType = "multipart/form-data";
         return FluxUtil.withContext(
             context -> service.multiBinaryParts(this.client.getEndpoint(), contentType, body, requestOptions, context));
@@ -498,7 +501,7 @@ public final class FormDatasImpl {
      * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> multiBinaryPartsWithResponse(BinaryData body, RequestOptions requestOptions) {
+    public Response<Void> multiBinaryPartsWithResponseInternal(BinaryData body, RequestOptions requestOptions) {
         final String contentType = "multipart/form-data";
         return service.multiBinaryPartsSync(this.client.getEndpoint(), contentType, body, requestOptions, Context.NONE);
     }
@@ -515,7 +518,7 @@ public final class FormDatasImpl {
      * @return the {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> checkFileNameAndContentTypeWithResponseAsync(BinaryData body,
+    public Mono<Response<Void>> checkFileNameAndContentTypeWithResponseInternalAsync(BinaryData body,
         RequestOptions requestOptions) {
         final String contentType = "multipart/form-data";
         return FluxUtil.withContext(context -> service.checkFileNameAndContentType(this.client.getEndpoint(),
@@ -534,7 +537,8 @@ public final class FormDatasImpl {
      * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> checkFileNameAndContentTypeWithResponse(BinaryData body, RequestOptions requestOptions) {
+    public Response<Void> checkFileNameAndContentTypeWithResponseInternal(BinaryData body,
+        RequestOptions requestOptions) {
         final String contentType = "multipart/form-data";
         return service.checkFileNameAndContentTypeSync(this.client.getEndpoint(), contentType, body, requestOptions,
             Context.NONE);
@@ -552,7 +556,8 @@ public final class FormDatasImpl {
      * @return the {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> anonymousModelWithResponseAsync(BinaryData body, RequestOptions requestOptions) {
+    public Mono<Response<Void>> anonymousModelWithResponseInternalAsync(BinaryData body,
+        RequestOptions requestOptions) {
         final String contentType = "multipart/form-data";
         return FluxUtil.withContext(
             context -> service.anonymousModel(this.client.getEndpoint(), contentType, body, requestOptions, context));
@@ -570,7 +575,7 @@ public final class FormDatasImpl {
      * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> anonymousModelWithResponse(BinaryData body, RequestOptions requestOptions) {
+    public Response<Void> anonymousModelWithResponseInternal(BinaryData body, RequestOptions requestOptions) {
         final String contentType = "multipart/form-data";
         return service.anonymousModelSync(this.client.getEndpoint(), contentType, body, requestOptions, Context.NONE);
     }

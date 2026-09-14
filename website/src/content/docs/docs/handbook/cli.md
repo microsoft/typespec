@@ -36,10 +36,15 @@ Options:
 
 ### `TYPESPEC_NPM_REGISTRY`
 
-Set the npm registry URL used by `tsp init` and `tsp install` when downloading the package manager and resolving package manifests. This is useful in corporate environments where a private npm registry is required.
+Set the npm-compatible registry URL used by `tsp init` when resolving package versions and by `tsp install` when downloading the configured package manager. This is useful in corporate environments where a private registry is required.
 
 ```bash
 TYPESPEC_NPM_REGISTRY=https://my-corp-registry.example.com tsp init
 ```
 
 If this variable is not set, TypeSpec defaults to `https://registry.npmjs.org`.
+
+This variable does not configure the package manager invoked by `tsp init` or `tsp install`.
+Configure that package manager separately using its own registry and authentication settings.
+TypeSpec does not read those authentication settings: its package metadata request and the tarball
+URL returned by the registry must be accessible to the TypeSpec process.

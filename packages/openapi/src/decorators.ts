@@ -97,14 +97,13 @@ function convertRemainingValuesToExtensions(program: Program, value: unknown): u
       if (isTypeSpecValue(value)) {
         return serializeValueAsJson(program, value, value.type);
       } else {
-        const result: Record<string, unknown> = {};
-        for (const [key, val] of Object.entries(value)) {
-          if (val === undefined) {
-            continue;
-          }
-          result[key] = convertRemainingValuesToExtensions(program, val);
-        }
-        return result;
+        // Object.fromEntries defines every member as an own property, so special names
+        // like `__proto__` or `constructor` never interact with Object.prototype.
+        return Object.fromEntries(
+          Object.entries(value)
+            .filter(([, val]) => val !== undefined)
+            .map(([key, val]) => [key, convertRemainingValuesToExtensions(program, val)]),
+        );
       }
     default:
       return value;

@@ -103,6 +103,6 @@ interface InternalOp {
   @route("/protocal-internal")
   @post
   @access(Access.internal)
-  @convenientAPI(false)
+  @convenientAPI(false, "java")
   postProtocalInternal(@body body: ProtocolInternalModel): void;
 }

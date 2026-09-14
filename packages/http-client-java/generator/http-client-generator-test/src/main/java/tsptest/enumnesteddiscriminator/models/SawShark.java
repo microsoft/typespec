@@ -20,7 +20,7 @@ public final class SawShark extends Shark {
      * discriminator property
      */
     @Generated
-    private FishKind kind = FishKind.SHARK;
+    private final FishKind kind = FishKind.SHARK;
 
     /*
      * The sharktype property.

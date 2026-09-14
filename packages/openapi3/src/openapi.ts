@@ -41,6 +41,7 @@ import {
   navigateTypesInNamespace,
   NoTarget,
   resolvePath,
+  sanitizePathSegment,
 } from "@typespec/compiler";
 import type { unsafe_MutatorWithNamespace } from "@typespec/compiler/experimental";
 import { unsafe_mutateSubgraphWithNamespace } from "@typespec/compiler/experimental";
@@ -634,10 +635,12 @@ function createOAPIEmitter(
   ): string {
     return interpolatePath(options.outputFile, {
       "openapi-version": specVersion,
-      "service-name-if-multiple": multipleService ? getNamespaceFullName(service.type) : undefined,
-      "service-name": getNamespaceFullName(service.type),
+      "service-name-if-multiple": multipleService
+        ? sanitizePathSegment(getNamespaceFullName(service.type))
+        : undefined,
+      "service-name": sanitizePathSegment(getNamespaceFullName(service.type)),
       "file-type": fileType,
-      version,
+      version: version && sanitizePathSegment(version),
     });
   }
 

@@ -126,7 +126,8 @@ public final class InterfaceV2sImpl {
      * @return the response body along with {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<BinaryData>> v2InInterfaceWithResponseAsync(BinaryData body, RequestOptions requestOptions) {
+    public Mono<Response<BinaryData>> v2InInterfaceWithResponseInternalAsync(BinaryData body,
+        RequestOptions requestOptions) {
         final String contentType = "application/json";
         final String accept = "application/json";
         return FluxUtil.withContext(context -> service.v2InInterface(this.client.getEndpoint(),
@@ -168,7 +169,7 @@ public final class InterfaceV2sImpl {
      * @return the response body along with {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> v2InInterfaceWithResponse(BinaryData body, RequestOptions requestOptions) {
+    public Response<BinaryData> v2InInterfaceWithResponseInternal(BinaryData body, RequestOptions requestOptions) {
         final String contentType = "application/json";
         final String accept = "application/json";
         return service.v2InInterfaceSync(this.client.getEndpoint(), this.client.getServiceVersion().getVersion(),

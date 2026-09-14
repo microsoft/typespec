@@ -60,10 +60,14 @@ it("handles types", async () => {
   assert.deepStrictEqual(Foo["x-tuple"], {
     prefixItems: [{ type: "string" }, { type: "string" }],
     type: "array",
+    minItems: 2,
+    maxItems: 2,
   });
   assert.deepStrictEqual(Foo["x-tuple-val"], {
     prefixItems: [{ type: "string", const: "foo" }],
     type: "array",
+    minItems: 1,
+    maxItems: 1,
   });
   assert.deepStrictEqual(Foo["x-array"], {
     items: { type: "string" },

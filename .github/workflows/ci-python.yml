@@ -1,0 +1,242 @@
+name: Python CI
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: "Build & Regenerate (Linux)"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: ./.github/actions/setup
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Install repo dependencies
+        run: pnpm install
+
+      - name: Setup http-client-python
+        # Avoid npm lifecycle side effects and lockfile rewrites in CI; setup still runs build + generator install.
+        run: |
+          npm install --ignore-scripts --package-lock=false
+          npm run setup
+        working-directory: packages/http-client-python
+
+      - name: Prepare Python environment
+        # Run prepare.py directly so missing tox/dev dependencies fail the job instead of being swallowed by the npm wrapper.
+        run: venv/bin/python eng/scripts/setup/prepare.py
+        working-directory: packages/http-client-python
+
+      - name: Regenerate
+        run: npm run regenerate
+        working-directory: packages/http-client-python
+
+      - name: Pre-build wheels
+        run: |
+          venv/bin/python tests/install_packages.py build azure tests
+          venv/bin/python tests/install_packages.py build unbranded tests
+        working-directory: packages/http-client-python
+
+      - name: Check for unstaged changes
+        run: npm run check-unstaged
+        working-directory: packages/http-client-python
+
+      - name: Upload generated artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: python-generated
+          include-hidden-files: true
+          path: |
+            packages/http-client-python/tests/generated
+            packages/http-client-python/tests/.wheels
+            packages/http-client-python/dist
+            packages/http-client-python/generator/dist
+          retention-days: 1
+
+  test:
+    name: "Mock API Tests"
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: ./.github/actions/setup
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Download generated artifacts
+        uses: actions/download-artifact@v8
+        with:
+          name: python-generated
+          path: packages/http-client-python
+
+      - name: Install repo dependencies
+        run: pnpm install
+
+      - name: Setup http-client-python
+        # Generated artifacts come from the build job; downstream jobs only need the Python package installed and test tools prepared.
+        run: |
+          npm install --ignore-scripts --package-lock=false
+          npm run install
+          venv/bin/python eng/scripts/setup/prepare.py
+        working-directory: packages/http-client-python
+
+      - name: Test
+        run: npm run test:generator -- --env=test
+        working-directory: packages/http-client-python
+
+  typecheck:
+    name: "Type Checking"
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: ./.github/actions/setup
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Download generated artifacts
+        uses: actions/download-artifact@v8
+        with:
+          name: python-generated
+          path: packages/http-client-python
+
+      - name: Install repo dependencies
+        run: pnpm install
+
+      - name: Setup http-client-python
+        # Generated artifacts come from the build job; downstream jobs only need the Python package installed and test tools prepared.
+        run: |
+          npm install --ignore-scripts --package-lock=false
+          npm run install
+          venv/bin/python eng/scripts/setup/prepare.py
+        working-directory: packages/http-client-python
+
+      - name: Mypy & Pyright
+        run: npm run test:generator -- --env=mypy,pyright
+        working-directory: packages/http-client-python
+
+  lint:
+    name: "Lint & Format"
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: ./.github/actions/setup
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Download generated artifacts
+        uses: actions/download-artifact@v8
+        with:
+          name: python-generated
+          path: packages/http-client-python
+
+      - name: Install repo dependencies
+        run: pnpm install
+
+      - name: Setup http-client-python
+        # Generated artifacts come from the build job; downstream jobs only need the Python package installed and test tools prepared.
+        run: |
+          npm install --ignore-scripts --package-lock=false
+          npm run install
+          venv/bin/python eng/scripts/setup/prepare.py
+        working-directory: packages/http-client-python
+
+      - name: Pylint
+        run: npm run test:generator -- --env=lint
+        working-directory: packages/http-client-python
+
+      - name: Lint source
+        run: npm run lint
+        working-directory: packages/http-client-python
+
+      - name: Build TypeSpec Prettier plugin
+        run: pnpm --filter "@typespec/prettier-plugin-typespec..." run build
+
+      - name: Format check source
+        run: npm run format:check
+        working-directory: packages/http-client-python
+
+  docs:
+    name: "Docs Validation"
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: ./.github/actions/setup
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Download generated artifacts
+        uses: actions/download-artifact@v8
+        with:
+          name: python-generated
+          path: packages/http-client-python
+
+      - name: Install repo dependencies
+        run: pnpm install
+
+      - name: Setup http-client-python
+        # Generated artifacts come from the build job; downstream jobs only need the Python package installed and test tools prepared.
+        run: |
+          npm install --ignore-scripts --package-lock=false
+          npm run install
+          venv/bin/python eng/scripts/setup/prepare.py
+        working-directory: packages/http-client-python
+
+      - name: API View & Sphinx
+        run: npm run test:generator -- --env=apiview,sphinx
+        working-directory: packages/http-client-python
+
+  windows-test:
+    name: "Build & Regenerate && Test (Windows)"
+    runs-on: windows-latest
+    steps:
+      - name: Enable Git long paths
+        run: git config --system core.longpaths true
+
+      - uses: actions/checkout@v7
+
+      - uses: ./.github/actions/setup
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Install repo dependencies
+        run: pnpm install
+
+      - name: Setup http-client-python
+        # Windows validates build/regenerate/test in one job, so run the full setup instead of restoring Linux artifacts.
+        run: |
+          npm install --ignore-scripts --package-lock=false
+          npm run setup
+          .\venv\Scripts\python.exe eng\scripts\setup\prepare.py
+        working-directory: packages/http-client-python
+
+      - name: Regenerate
+        run: npm run regenerate
+        working-directory: packages/http-client-python
+
+      - name: Test
+        run: npm run test:generator -- --env=test
+        working-directory: packages/http-client-python

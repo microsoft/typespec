@@ -16,6 +16,7 @@ import type {
   Union,
   Value,
 } from "../types.js";
+import { SyntaxKind } from "../types.js";
 import { getCachedRawText } from "./raw-text-cache.js";
 import { printIdentifier } from "./syntax-utils.js";
 
@@ -162,18 +163,37 @@ function getNamespacePrefix(type: Namespace | undefined, options?: TypeNameOptio
 }
 
 function getEnumName(e: Enum, options: TypeNameOptions | undefined): string {
-  return `${getNamespacePrefix(e.namespace, options)}${getIdentifierName(e.name, options)}`;
+  // An enum used in expression position is anonymous; render its members inline
+  // instead of a (namespace-prefixed) name.
+  if (e.name === "") {
+    return `{ ${[...e.members.values()].map((m) => m.name).join(", ")} }`;
+  }
+  const nsPrefix = e.expression ? "" : getNamespacePrefix(e.namespace, options);
+  return `${nsPrefix}${getIdentifierName(e.name, options)}`;
 }
 
 function getScalarName(scalar: Scalar, options: TypeNameOptions | undefined): string {
-  return `${getNamespacePrefix(scalar.namespace, options)}${getIdentifierName(
-    scalar.name,
-    options,
-  )}`;
+  // A scalar used in expression position is anonymous; render what it extends
+  // (there is no inline literal syntax for it) instead of a namespace-only name.
+  if (scalar.name === "") {
+    return scalar.baseScalar
+      ? `scalar extends ${getTypeName(scalar.baseScalar, options)}`
+      : "scalar";
+  }
+  const nsPrefix = scalar.expression ? "" : getNamespacePrefix(scalar.namespace, options);
+  return `${nsPrefix}${getIdentifierName(scalar.name, options)}`;
 }
 
 function getModelName(model: Model, options: TypeNameOptions | undefined) {
-  const nsPrefix = getNamespacePrefix(model.namespace, options);
+  // Declarations used in expression position are anonymous and not addressable, so
+  // they should not be namespace-qualified (mirrors union expression naming).
+  const nsPrefix = model.expression ? "" : getNamespacePrefix(model.namespace, options);
+  if (model.name === "") {
+    const operationParametersName = getOperationParametersName(model, options);
+    if (operationParametersName !== undefined) {
+      return operationParametersName;
+    }
+  }
   if (model.name === "" && model.properties.size === 0) {
     return "{}";
   }
@@ -205,6 +225,34 @@ function getModelName(model: Model, options: TypeNameOptions | undefined) {
     // regular old model.
     return modelName;
   }
+}
+
+function getOperationParametersName(
+  model: Model,
+  options: TypeNameOptions | undefined,
+): string | undefined {
+  const node = model.node;
+  if (node?.kind !== SyntaxKind.ModelExpression) return undefined;
+  const signature = node.parent;
+  if (
+    signature?.kind !== SyntaxKind.OperationSignatureDeclaration ||
+    signature.parameters !== node
+  ) {
+    return undefined;
+  }
+  const operation = signature.parent;
+  if (operation?.kind !== SyntaxKind.OperationStatement) return undefined;
+
+  const opName = getIdentifierName(operation.id.sv, options);
+  if (options?.nameOnly === true) {
+    return `${opName}::parameters`;
+  }
+  const iface = operation.parent;
+  const prefix =
+    iface?.kind === SyntaxKind.InterfaceStatement
+      ? `${getNamespacePrefix(model.namespace, options)}${getIdentifierName(iface.id.sv, options)}.`
+      : getNamespacePrefix(model.namespace, options);
+  return `${prefix}${opName}::parameters`;
 }
 
 function getUnionName(type: Union, options: TypeNameOptions | undefined): string {

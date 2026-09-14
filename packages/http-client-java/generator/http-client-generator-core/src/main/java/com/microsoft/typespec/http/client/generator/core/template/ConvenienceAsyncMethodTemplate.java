@@ -105,6 +105,39 @@ public class ConvenienceAsyncMethodTemplate extends ConvenienceMethodTemplateBas
         } else if (methodType == ClientMethodType.LongRunningBeginAsync) {
             String methodName = protocolMethod.getName();
             methodBlock.methodReturn(String.format("serviceClient.%1$s(%2$s)", methodName, invocationExpression));
+        } else if (convenienceMethod.getType() == ClientMethodType.SimpleAsyncRestResponse) {
+            String methodInvocation = String.format("%1$s(%2$s)", getMethodName(protocolMethod), invocationExpression);
+            if (isResponseHeadersAsModel(convenienceMethod)) {
+                methodBlock.methodReturn(String.format(
+                    "%1$s.map(protocolMethodResponse -> new SimpleResponse<>(protocolMethodResponse, new %2$s(protocolMethodResponse.getHeaders())))",
+                    methodInvocation, responseBodyType));
+                return;
+            }
+
+            GenericType responseBaseType = getResponseBaseType(convenienceMethod.getReturnValue().getType());
+            boolean responseBodyIsVoid = responseBodyType.asNullable() == ClassType.VOID;
+            if (responseBaseType == null && (responseBodyIsVoid || responseBodyType == ClassType.BINARY_DATA)) {
+                methodBlock.methodReturn(methodInvocation);
+                return;
+            }
+
+            String convertedValue = responseBodyIsVoid ? "null" : "protocolMethodResponse.getValue()";
+            if (!responseBodyIsVoid
+                && protocolResponseBodyType == ClassType.BINARY_DATA
+                && responseBodyType != ClassType.BINARY_DATA) {
+                convertedValue = expressionConvertFromBinaryData(responseBodyType, rawResponseBodyType, convertedValue,
+                    protocolMethod.getProxyMethod().getResponseContentTypes(), typeReferenceStaticClasses);
+            }
+            if (responseBaseType != null) {
+                IType headerType = responseBaseType.getTypeArguments()[0];
+                methodBlock.methodReturn(String.format(
+                    "%1$s.map(protocolMethodResponse -> new ResponseBase<>(protocolMethodResponse.getRequest(), protocolMethodResponse.getStatusCode(), protocolMethodResponse.getHeaders(), %2$s, new %3$s(protocolMethodResponse.getHeaders())))",
+                    methodInvocation, convertedValue, headerType));
+            } else {
+                methodBlock.methodReturn(String.format(
+                    "%1$s.map(protocolMethodResponse -> new SimpleResponse<>(protocolMethodResponse, %2$s))",
+                    methodInvocation, convertedValue));
+            }
         } else {
             String returnTypeConversionExpression = "";
             if (protocolResponseBodyType == ClassType.BINARY_DATA) {

@@ -58,6 +58,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public InputParameter? InputParameter { get; private set; }
 
         /// <summary>
+        /// Indicates that the name of this parameter was explicitly configured, so it is exempt from
+        /// back-compat renaming. Note that this only guarantees the configured spelling is not replaced by
+        /// a previously-published name; a parameter derived from a property still goes through
+        /// <c>ToVariableName</c>, so its casing may differ from the property's verbatim declaration name.
+        /// </summary>
+        internal bool IsExactName { get; private init; }
+
+        /// <summary>
         /// Creates a <see cref="ParameterProvider"/> from an <see cref="InputParameter"/>.
         /// </summary>
         /// <param name="inputParameter">The <see cref="InputParameter"/> to convert.</param>
@@ -96,6 +104,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             WireInfo = new WireInformation(CodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(inputParameter.Type), inputParameter.SerializedName);
             Location = inputParameter.ToParameterLocation();
             Attributes = [];
+            IsExactName = inputParameter.IsExactName;
         }
 
         public ParameterProvider(
@@ -134,6 +143,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             WireInfo = wireInfo ?? new WireInformation(SerializationFormat.Default, name);
             Location = location ?? ParameterLocation.Unknown;
             InputParameter = inputParameter;
+            IsExactName = inputParameter?.IsExactName == true || property?.InputProperty?.IsExactName == true;
         }
 
         private ParameterProvider? _inputParameter;
@@ -164,7 +174,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 _asVariable = _asVariable,
                 SpreadSource = SpreadSource,
-                InputParameter = InputParameter
+                InputParameter = InputParameter,
+                IsExactName = IsExactName
             };
         }
 
@@ -300,6 +311,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 validation: Validation)
             {
                 _asVariable = _asVariable,
+                IsExactName = IsExactName,
             };
         }
 

@@ -31,7 +31,7 @@ extends:
           - template: /eng/tsp-core/pipelines/jobs/build-packages.yml@self
           - template: /eng/tsp-core/pipelines/jobs/build-vs.yml@self
           - template: /eng/tsp-core/pipelines/jobs/cli/build-tsp-cli-all.yml@self
-            # - template: /eng/tsp-core/pipelines/jobs/e2e.yml@self
+          - template: /eng/tsp-core/pipelines/jobs/e2e.yml@self
             parameters:
               azLogin: true
 

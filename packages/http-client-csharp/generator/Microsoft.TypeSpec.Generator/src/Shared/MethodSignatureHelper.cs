@@ -57,17 +57,139 @@ namespace Microsoft.TypeSpec.Generator
             return true;
         }
 
-        internal static MethodSignature BuildBackCompatMethodSignature(MethodSignature previousMethodSignature, bool hideMethod, bool shouldNotBeAsync = false)
+        internal static MethodSignature BuildBackCompatMethodSignature(
+            MethodSignature previousMethodSignature,
+            bool hideMethod,
+            bool shouldNotBeAsync = false)
         {
             if (hideMethod)
             {
-                // make all parameter required to avoid ambiguous call sites if necessary
-                foreach (var param in previousMethodSignature.Parameters)
+                RequireMinimumParameterPrefix(previousMethodSignature);
+            }
+
+            return CreateBackCompatSignature(previousMethodSignature, hideMethod, shouldNotBeAsync);
+        }
+
+        internal static MethodSignature BuildBackCompatMethodSignature(
+            MethodSignature previousMethodSignature,
+            bool hideMethod,
+            IReadOnlyList<MethodSignature> currentMethodSignatures,
+            bool shouldNotBeAsync = false)
+        {
+            // A hidden overload only exists to keep previously compiled call sites working, so every
+            // parameter is required. Any call that omits an argument then binds to a visible overload,
+            // which keeps the optionality of the current shape.
+            RequireMinimumParameterPrefix(
+                previousMethodSignature,
+                hideMethod ? null : currentMethodSignatures);
+
+            return CreateBackCompatSignature(previousMethodSignature, hideMethod, shouldNotBeAsync);
+        }
+
+        /// <summary>
+        /// Determines whether a call could bind to both <paramref name="signature"/> and
+        /// <paramref name="otherSignature"/> without overload resolution being able to prefer one of them.
+        /// </summary>
+        /// <remarks>
+        /// Only argument counts that both signatures accept with an equivalent leading parameter type
+        /// sequence are considered. At those counts the two candidates are equally applicable and
+        /// convert their arguments identically, so the only remaining tie-breaker is whether a default
+        /// has to be substituted.
+        /// <para>
+        /// This never reports a false positive, but it is deliberately incomplete: it cannot see an
+        /// ambiguity introduced past the equivalent prefix, for example when the first differing
+        /// positions both accept the <c>null</c> literal, or are connected by implicit conversions in
+        /// both directions such as <c>decimal</c> and <c>float</c>/<c>double</c>. Deciding those cases
+        /// requires real conversion analysis, which is tracked by
+        /// https://github.com/microsoft/typespec/issues/11805.
+        /// </para>
+        /// </remarks>
+        internal static bool AreAmbiguous(MethodSignature signature, MethodSignature otherSignature)
+        {
+            // ref and out arguments have to be spelled at the call site and a params overload can also
+            // be invoked in its expanded form, so the argument-count reasoning below does not model
+            // them. Reporting such a pair as unambiguous is the optimistic answer: it keeps the
+            // compatibility overload instead of dropping it, matching how the rest of the back-compat
+            // pipeline treats shapes it cannot reason about. Model factory signatures never use them.
+            if (signature.Name != otherSignature.Name
+                || signature.Parameters.Any(p => p.IsRef || p.IsOut || p.IsParams)
+                || otherSignature.Parameters.Any(p => p.IsRef || p.IsOut || p.IsParams))
+            {
+                return false;
+            }
+
+            int equivalentParameterCount = 0;
+            int overlappingParameterCount = Math.Min(signature.Parameters.Count, otherSignature.Parameters.Count);
+            while (equivalentParameterCount < overlappingParameterCount)
+            {
+                if (!AreEquivalentParameterTypes(
+                    signature.Parameters[equivalentParameterCount].Type,
+                    otherSignature.Parameters[equivalentParameterCount].Type))
                 {
-                    param.DefaultValue = null;
+                    break;
+                }
+
+                equivalentParameterCount++;
+            }
+
+            int minimumArgumentCount = Math.Max(
+                GetMinimumArgumentCount(signature),
+                GetMinimumArgumentCount(otherSignature));
+            for (int argumentCount = minimumArgumentCount; argumentCount <= equivalentParameterCount; argumentCount++)
+            {
+                // An overload that receives an argument for every one of its parameters is preferred over
+                // an overload that has to substitute a default, so the pair can only be unresolvable when
+                // both of them are in the same state.
+                bool substitutesDefault = argumentCount < signature.Parameters.Count;
+                bool otherSubstitutesDefault = argumentCount < otherSignature.Parameters.Count;
+                if (substitutesDefault == otherSubstitutesDefault)
+                {
+                    return true;
                 }
             }
 
+            return false;
+        }
+
+        /// <summary>
+        /// Determines whether two parameter types are indistinguishable to overload resolution at the
+        /// same position. Nullability is only part of a signature for value types: <c>int</c> and
+        /// <c>int?</c> are different parameter types, while C# erases reference type nullability so
+        /// <c>string</c> and <c>string?</c> are the same one.
+        /// </summary>
+        private static bool AreEquivalentParameterTypes(CSharpType type, CSharpType otherType)
+            => (!type.IsValueType || type.IsNullable == otherType.IsNullable)
+                && type.AreNamesEqual(otherType);
+
+        /// <summary>
+        /// Removes the default values from the leading parameters of <paramref name="signature"/> so it
+        /// can no longer be called with fewer arguments than the prefix that distinguishes it from
+        /// <paramref name="currentMethodSignatures"/>. When no overloads are supplied there is nothing to
+        /// compare against and every parameter becomes required.
+        /// </summary>
+        internal static void RequireMinimumParameterPrefix(
+            MethodSignature signature,
+            IReadOnlyList<MethodSignature>? currentMethodSignatures = null,
+            bool preservePublishedMinimumArgumentCount = true)
+        {
+            int requiredParameterCount = currentMethodSignatures is null
+                ? signature.Parameters.Count
+                : GetMinimumRequiredParameterCount(
+                    signature,
+                    currentMethodSignatures,
+                    preservePublishedMinimumArgumentCount);
+
+            for (int i = 0; i < requiredParameterCount; i++)
+            {
+                signature.Parameters[i].DefaultValue = null;
+            }
+        }
+
+        private static MethodSignature CreateBackCompatSignature(
+            MethodSignature previousMethodSignature,
+            bool hideMethod,
+            bool shouldNotBeAsync)
+        {
             var modifiers = shouldNotBeAsync
                 ? previousMethodSignature.Modifiers & ~MethodSignatureModifiers.Async
                 : previousMethodSignature.Modifiers;
@@ -83,6 +205,108 @@ namespace Microsoft.TypeSpec.Generator
                 previousMethodSignature.ReturnDescription,
                 previousMethodSignature.Parameters,
                 Attributes: attributes);
+        }
+
+        private static int GetMinimumRequiredParameterCount(
+            MethodSignature targetMethodSignature,
+            IReadOnlyList<MethodSignature> competingMethodSignatures,
+            bool preservePublishedMinimumArgumentCount)
+        {
+            int requiredParameterCount = 0;
+            foreach (var competingMethodSignature in competingMethodSignatures)
+            {
+                if (competingMethodSignature.Name == targetMethodSignature.Name)
+                {
+                    requiredParameterCount = Math.Max(
+                        requiredParameterCount,
+                        GetMinimumRequiredParameterCount(
+                            targetMethodSignature,
+                            competingMethodSignature,
+                            preservePublishedMinimumArgumentCount));
+                }
+            }
+
+            return requiredParameterCount;
+        }
+
+        private static int GetMinimumRequiredParameterCount(
+            MethodSignature targetMethodSignature,
+            MethodSignature competingMethodSignature,
+            bool preservePublishedMinimumArgumentCount)
+        {
+            if (competingMethodSignature.Parameters.Any(p => p.IsRef || p.IsOut))
+            {
+                return 0;
+            }
+
+            int targetMinimumArgumentCount = GetMinimumArgumentCount(targetMethodSignature);
+            int competingMinimumArgumentCount = GetMinimumArgumentCount(competingMethodSignature);
+            int competingMaximumArgumentCount = competingMethodSignature.Parameters.Any(p => p.IsParams)
+                ? int.MaxValue
+                : competingMethodSignature.Parameters.Count;
+
+            // No argument count can reach both overloads, so the target needs no additional
+            // required parameters.
+            if (Math.Max(targetMinimumArgumentCount, competingMinimumArgumentCount) >
+                Math.Min(targetMethodSignature.Parameters.Count, competingMaximumArgumentCount))
+            {
+                return 0;
+            }
+
+            // When the target is a published signature, do not raise its minimum argument count to
+            // address overlap with a competitor that cannot apply to its shorter calls.
+            if (preservePublishedMinimumArgumentCount &&
+                competingMinimumArgumentCount > targetMinimumArgumentCount)
+            {
+                return 0;
+            }
+
+            // Require only the prefix up to and including the first position whose parameter types
+            // distinguish the overloads. A type-name difference alone is insufficient because a
+            // null literal is applicable to any reference or nullable value type.
+            int overlappingParameterCount = Math.Min(
+                targetMethodSignature.Parameters.Count,
+                competingMethodSignature.Parameters.Count);
+            for (int i = 0; i < overlappingParameterCount; i++)
+            {
+                CSharpType targetType = targetMethodSignature.Parameters[i].Type;
+                CSharpType competingType = competingMethodSignature.Parameters[i].Type;
+                bool sameType = AreEquivalentParameterTypes(targetType, competingType);
+                if (!sameType
+                    && ((targetType.IsValueType && !targetType.IsNullable)
+                        || (competingType.IsValueType && !competingType.IsNullable)))
+                {
+                    return Math.Max(i + 1, targetMinimumArgumentCount);
+                }
+            }
+
+            // The competitor is a strict positional prefix of the target. Requiring one parameter
+            // beyond the competitor's maximum arity makes their applicable argument counts disjoint
+            // while preserving every remaining trailing default on the target.
+            if (targetMethodSignature.Parameters.Count > competingMaximumArgumentCount)
+            {
+                return Math.Max(competingMaximumArgumentCount + 1, targetMinimumArgumentCount);
+            }
+
+            // The target is a positional prefix of the competitor, so it cannot require one more
+            // argument than the competitor accepts. Fall back to requiring every target parameter.
+            return targetMethodSignature.Parameters.Count;
+        }
+
+        private static int GetMinimumArgumentCount(MethodSignature methodSignature)
+        {
+            int count = 0;
+            foreach (var parameter in methodSignature.Parameters)
+            {
+                if (parameter.DefaultValue is not null || parameter.IsParams)
+                {
+                    break;
+                }
+
+                count++;
+            }
+
+            return count;
         }
 
         private sealed class ParameterProviderVariableNameComparer : IEqualityComparer<ParameterProvider>

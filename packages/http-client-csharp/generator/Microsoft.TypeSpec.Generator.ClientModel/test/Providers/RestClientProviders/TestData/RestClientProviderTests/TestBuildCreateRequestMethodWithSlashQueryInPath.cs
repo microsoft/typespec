@@ -8,7 +8,7 @@ namespace Sample
 {
     public partial class TestClient
     {
-        internal global::System.ClientModel.Primitives.PipelineMessage CreateAbortCopyFromUriRequest(string copyid, global::System.ClientModel.Primitives.RequestOptions options)
+        internal global::System.ClientModel.Primitives.PipelineMessage CreateAbortCopyFromUrlRequest(string copyid, global::System.ClientModel.Primitives.RequestOptions options)
         {
             global::Sample.ClientUriBuilder uri = new global::Sample.ClientUriBuilder();
             uri.Reset(_endpoint);

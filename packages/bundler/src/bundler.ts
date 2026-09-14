@@ -186,6 +186,13 @@ async function createEsBuildContext(
     [normalizePath(join(libraryPath, "package.json"))]: JSON.stringify(definition.packageJson),
   };
 
+  // Include the library's own `tspconfig.yaml` so per-library opt-ins (e.g. compiler
+  // `features`) are preserved in the bundle.
+  const tspconfig = await tryReadFile(join(libraryPath, "tspconfig.yaml"));
+  if (tspconfig !== undefined) {
+    typespecFiles[normalizePath(join(libraryPath, "tspconfig.yaml"))] = tspconfig;
+  }
+
   for (const [filename, sourceFile] of program.sourceFiles) {
     typespecFiles[filename] = sourceFile.file.text;
   }
@@ -337,6 +344,18 @@ function getExportEntryPoint(value: string | ExportData) {
 async function readLibraryPackageJson(path: string): Promise<PackageJson> {
   const file = await readFile(join(path, "package.json"));
   return JSON.parse(file.toString());
+}
+
+/** Read a file, returning `undefined` when it does not exist. */
+async function tryReadFile(path: string): Promise<string | undefined> {
+  try {
+    return (await readFile(path)).toString();
+  } catch (error: any) {
+    if (error.code === "ENOENT") {
+      return undefined;
+    }
+    throw error;
+  }
 }
 
 /**

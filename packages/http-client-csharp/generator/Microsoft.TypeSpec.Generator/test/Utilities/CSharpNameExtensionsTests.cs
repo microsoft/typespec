@@ -78,6 +78,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
             yield return new TestCaseData("creationTime", dateTime, "createdOn");
             yield return new TestCaseData("ExpirationDate", dateTime, "ExpiresOn");
             yield return new TestCaseData("expirationDate", dateTime, "expiresOn");
+            yield return new TestCaseData("ExpireOn", dateTime, "ExpiresOn");
+            yield return new TestCaseData("expireOn", dateTime, "expiresOn");
             yield return new TestCaseData("ExpirationDateTime", dateTime, "ExpiresOn");
             yield return new TestCaseData("expirationDateTime", dateTime, "expiresOn");
             yield return new TestCaseData("modelExpirationDate", dateTime, "modelExpiresOn");

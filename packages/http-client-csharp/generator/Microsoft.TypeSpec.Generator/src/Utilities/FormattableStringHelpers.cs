@@ -112,7 +112,11 @@ namespace Microsoft.TypeSpec.Generator
             var args = new List<object?>();
             List<FormattableString> result = new List<FormattableString>();
 
-            var hasEmptyLastLine = BreakLinesCore(input, formatBuilder, args, result);
+            // tracks whether the previously processed part ended with a lone '\r' whose matching '\n' (if any)
+            // has not been observed yet, so a CRLF split across an interpolation boundary is still treated as
+            // a single line terminator instead of two.
+            bool pendingCR = false;
+            var hasEmptyLastLine = BreakLinesCore(input, formatBuilder, args, result, ref pendingCR, out _);
 
             // if formatBuilder is not empty at end, add it to result
             // or when the last char is line break, we should also construct one and add it into the result
@@ -124,22 +128,45 @@ namespace Microsoft.TypeSpec.Generator
             return result;
         }
 
-        private static bool BreakLinesCore(FormattableString input, StringBuilder formatBuilder, List<object?> args, List<FormattableString> result)
+        private static bool BreakLinesCore(FormattableString input, StringBuilder formatBuilder, List<object?> args, List<FormattableString> result, ref bool pendingCR, out bool emittedContent)
         {
-            // stackalloc cannot be used in a loop, we must allocate it here.
-            // for a format string with length n, the worst case that produces the most segments is when all its content is the char to split.
-            // For instance, when the format string is all \n, it will produce n+1 segments (because we did not omit empty entries).
+            // stackalloc cannot be used in a loop, we must allocate it here. The buffer is sized from the pre-normalization
+            // format length because normalization of all C# line terminators, including Unicode terminators used in
+            // generated docs, must not expand the input. A format containing only line feeds produces the maximum of
+            // n+1 segments because empty entries are retained.
             Span<Range> splitIndices = stackalloc Range[input.Format.Length + 1];
             ReadOnlySpan<char> formatSpan = input.Format.AsSpan();
+            bool hasEmptyLastLine = false;
+            emittedContent = false;
             foreach ((ReadOnlySpan<char> span, bool isLiteral, int index) in StringExtensions.GetFormattableStringFormatParts(formatSpan))
             {
                 // if isLiteral - put in formatBuilder
                 if (isLiteral)
                 {
-                    var numSplits = span.SplitAny(splitIndices, ["\r\n", "\n"]);
+                    bool hadPendingCR = pendingCR;
+                    var literalSpan = span;
+                    if (hadPendingCR && literalSpan.Length > 0 && literalSpan[0] == '\n')
+                    {
+                        // this '\n' completes a CRLF pair whose '\r' ended the previous part; it was already
+                        // accounted for as a line break, so it must not also be counted here.
+                        literalSpan = literalSpan[1..];
+                    }
+                    pendingCR = literalSpan.Length > 0 && literalSpan[^1] == '\r';
+                    if (hadPendingCR && literalSpan.Length == 0 && span.Length > 0)
+                    {
+                        // the entire part was the other half of a cross-boundary CRLF pair; nothing new to emit.
+                        continue;
+                    }
+                    var normalizedSpan = literalSpan;
+                    if (RequiresNormalization(literalSpan))
+                    {
+                        normalizedSpan = NormalizeLineTerminators(literalSpan).AsSpan();
+                    }
+                    Debug.Assert(normalizedSpan.Length <= input.Format.Length);
+                    var numSplits = normalizedSpan.Split(splitIndices, '\n');
                     for (int i = 0; i < numSplits; i++)
                     {
-                        var part = span[splitIndices[i]];
+                        var part = normalizedSpan[splitIndices[i]];
                         // the literals could contain { and }, but they are unescaped. Since we are putting them back into the format, we need to escape them again.
                         var startsWithCurlyBrace = part.Length > 0 && (part[0] == '{' || part[0] == '}');
                         var start = startsWithCurlyBrace ? 1 : 0;
@@ -165,23 +192,59 @@ namespace Microsoft.TypeSpec.Generator
                             args.Clear();
                         }
                     }
+                    hasEmptyLastLine = normalizedSpan.Length > 0 && normalizedSpan[^1] == '\n';
+                    emittedContent |= normalizedSpan.Length > 0;
                 }
                 // if not Literal, is Args - recurse through Args and check if args has breaklines
                 else
                 {
                     var arg = input.GetArgument(index);
-                    // we only break lines in the arguments if the argument is a string or FormattableString and it does not have a format specifier (indicating by : in span)
-                    // we do nothing if the argument has a format specifier because we do not really know in which form to break them
-                    // considering the chance of having these cases would be very rare, we are leaving the part of "arguments with formatter specifier" empty
                     var indexOfFormatSpecifier = span.IndexOf(':');
+                    var formatSpecifier = indexOfFormatSpecifier >= 0 ? span[indexOfFormatSpecifier..] : default;
+                    var isLiteralFormat = formatSpecifier.SequenceEqual(":L");
                     switch (arg)
                     {
-                        case string str when indexOfFormatSpecifier < 0:
-                            BreakLinesCoreForString(str.AsSpan(), formatBuilder, args, result);
-                            break;
-                        case FormattableString fs when indexOfFormatSpecifier < 0:
-                            BreakLinesCore(fs, formatBuilder, args, result);
-                            break;
+                        // Only string arguments formatted with ":L" are guaranteed to escape embedded line
+                        // terminators as text. FormattableString arguments are expanded recursively before the
+                        // formatter branch in CodeWriter.Append, so they must still flow through normalization.
+                        case string str when !isLiteralFormat:
+                            {
+                                if (str.Length == 0)
+                                {
+                                    // an empty argument emits nothing, so it must not affect the pending CRLF state
+                                    // nor the trailing empty line state of the surrounding parts.
+                                    break;
+                                }
+                                bool hadPendingCR = pendingCR;
+                                var strSpan = str.AsSpan();
+                                if (hadPendingCR && strSpan.Length > 0 && strSpan[0] == '\n')
+                                {
+                                    // this '\n' completes a CRLF pair whose '\r' ended the previous part.
+                                    strSpan = strSpan[1..];
+                                }
+                                pendingCR = strSpan.Length > 0 && strSpan[^1] == '\r';
+                                if (hadPendingCR && strSpan.Length == 0)
+                                {
+                                    // the entire argument was the other half of a cross-boundary CRLF pair.
+                                    break;
+                                }
+                                BreakLinesCoreForString(strSpan, formatBuilder, args, result, formatSpecifier);
+                                hasEmptyLastLine = false;
+                                emittedContent = true;
+                                break;
+                            }
+                        case FormattableString fs:
+                            {
+                                var nestedHasEmptyLastLine = BreakLinesCore(fs, formatBuilder, args, result, ref pendingCR, out bool nestedEmittedContent);
+                                if (nestedEmittedContent)
+                                {
+                                    // a nested value that renders nothing must leave the surrounding trailing empty
+                                    // line state alone, otherwise a trailing terminator on the outer format is lost.
+                                    hasEmptyLastLine = nestedHasEmptyLastLine;
+                                    emittedContent = true;
+                                }
+                                break;
+                            }
                         default:
                             // if not a string or FormattableString, add to args because we cannot parse it
                             // add to FormatBuilder to maintain equal count between args and formatBuilder
@@ -193,15 +256,33 @@ namespace Microsoft.TypeSpec.Generator
                             }
                             formatBuilder.Append('}');
                             args.Add(arg);
+                            // a null argument without a format specifier renders no characters, so it must preserve the
+                            // surrounding state. Anything else renders its own text, which separates a preceding '\r'
+                            // from a following '\n' so that they are no longer a single CRLF terminator.
+                            if (arg is not null || indexOfFormatSpecifier >= 0)
+                            {
+                                pendingCR = false;
+                                hasEmptyLastLine = false;
+                                emittedContent = true;
+                            }
                             break;
                     }
                 }
             }
 
-            return formatSpan[^1] == '\n';
+            return hasEmptyLastLine;
 
-            static void BreakLinesCoreForString(ReadOnlySpan<char> span, StringBuilder formatBuilder, List<object?> args, List<FormattableString> result)
+            static void BreakLinesCoreForString(
+                ReadOnlySpan<char> span,
+                StringBuilder formatBuilder,
+                List<object?> args,
+                List<FormattableString> result,
+                ReadOnlySpan<char> formatSpecifier)
             {
+                if (RequiresNormalization(span))
+                {
+                    span = NormalizeLineTerminators(span).AsSpan();
+                }
                 int start = 0, end = 0;
                 bool isLast = false;
                 // go into the loop when there are characters left
@@ -219,17 +300,14 @@ namespace Microsoft.TypeSpec.Generator
                     {
                         end = start + indexOfLF;
                     }
-                    // omit \r if there is one before the \n to include the case that line breaks are using \r\n
-                    int partEnd = end;
-                    if (end > 0 && span[end - 1] == '\r')
-                    {
-                        partEnd--;
-                    }
-
                     formatBuilder.Append('{')
-                        .Append(args.Count)
-                        .Append('}');
-                    args.Add(span[start..partEnd].ToString());
+                        .Append(args.Count);
+                    if (!formatSpecifier.IsEmpty)
+                    {
+                        formatBuilder.Append(formatSpecifier);
+                    }
+                    formatBuilder.Append('}');
+                    args.Add(span[start..end].ToString());
                     start = end + 1; // goes to the next char after the \n we found
 
                     if (!isLast)
@@ -241,6 +319,51 @@ namespace Microsoft.TypeSpec.Generator
                     }
                 }
             }
+        }
+
+        private static bool IsLineTerminator(char value)
+            => value is '\r' or '\n' or '\u0085' or '\u2028' or '\u2029';
+
+        private static bool RequiresNormalization(ReadOnlySpan<char> value)
+        {
+            foreach (var character in value)
+            {
+                if (character is '\r' or '\u0085' or '\u2028' or '\u2029')
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private static string NormalizeLineTerminators(ReadOnlySpan<char> value)
+        {
+            int normalizedLength = value.Length;
+            for (int i = 0; i < value.Length; i++)
+            {
+                if (value[i] == '\r' && i + 1 < value.Length && value[i + 1] == '\n')
+                {
+                    normalizedLength--;
+                    i++;
+                }
+            }
+
+            return string.Create(
+                normalizedLength,
+                value,
+                static (destination, source) =>
+                {
+                    int destinationIndex = 0;
+                    for (int sourceIndex = 0; sourceIndex < source.Length; sourceIndex++)
+                    {
+                        var character = source[sourceIndex];
+                        if (character == '\r' && sourceIndex + 1 < source.Length && source[sourceIndex + 1] == '\n')
+                        {
+                            sourceIndex++;
+                        }
+                        destination[destinationIndex++] = IsLineTerminator(character) ? '\n' : character;
+                    }
+                });
         }
     }
 }

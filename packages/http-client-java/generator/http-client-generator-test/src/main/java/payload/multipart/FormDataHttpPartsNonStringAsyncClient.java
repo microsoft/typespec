@@ -52,10 +52,34 @@ public final class FormDataHttpPartsNonStringAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    Mono<Response<Void>> floatMethodWithResponse(BinaryData body, RequestOptions requestOptions) {
+    Mono<Response<Void>> floatMethodWithResponseInternal(BinaryData body, RequestOptions requestOptions) {
         // Operation 'float' is of content-type 'multipart/form-data'. Protocol API is not usable and hence not
         // generated.
-        return this.serviceClient.floatMethodWithResponseAsync(body, requestOptions);
+        return this.serviceClient.floatMethodWithResponseInternalAsync(body, requestOptions);
+    }
+
+    /**
+     * Test content-type: multipart/form-data for non string.
+     * 
+     * @param body The body parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response} on successful completion of {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Mono<Response<Void>> floatMethodWithResponse(FloatRequest body, RequestOptions requestOptions) {
+        // Generated convenience method for floatMethodWithResponseInternal
+        requestOptions = requestOptions == null ? new RequestOptions() : requestOptions;
+        return floatMethodWithResponseInternal(new MultipartFormDataHelper(requestOptions)
+            .serializeTextField("temperature", String.valueOf(body.getTemperature()))
+            .end()
+            .getRequestBody(), requestOptions);
     }
 
     /**
@@ -73,9 +97,9 @@ public final class FormDataHttpPartsNonStringAsyncClient {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Void> floatMethod(FloatRequest body) {
-        // Generated convenience method for floatMethodWithResponse
+        // Generated convenience method for floatMethodWithResponseInternal
         RequestOptions requestOptions = new RequestOptions();
-        return floatMethodWithResponse(new MultipartFormDataHelper(requestOptions)
+        return floatMethodWithResponseInternal(new MultipartFormDataHelper(requestOptions)
             .serializeTextField("temperature", String.valueOf(body.getTemperature()))
             .end()
             .getRequestBody(), requestOptions).flatMap(FluxUtil::toMono);

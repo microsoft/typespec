@@ -12,6 +12,10 @@ Each sample directory has a `sample-config.yaml` containing a unique `title` and
 for the playground. A directory config uses `directory: true` and can provide a gallery `label`,
 `danger`, or an inherited `playground: false`.
 
+The TypeSpec playground is generated from the eligible samples in this package. A playground
+sample must contain a single `main.tsp`; its nearest `tspconfig.yaml` selects the preferred emitter
+and linter rule set, including inherited configuration.
+
 ```bash
 npm run test    # Check Samples match snapshots
 npm run test:ci # run test same as CI

@@ -1,6 +1,7 @@
 import { code, For, type Children } from "@alloy-js/core";
 import * as cs from "@alloy-js/csharp";
 import { Attribute } from "@alloy-js/csharp";
+import { Serialization } from "@alloy-js/csharp/global/System/Text/Json";
 import {
   isErrorModel,
   isVoidType,
@@ -9,12 +10,11 @@ import {
   type Namespace as TspNamespace,
 } from "@typespec/compiler";
 import { useTsp } from "@typespec/emitter-framework";
+import { getDocComments } from "@typespec/emitter-framework/csharp";
 import { isStatusCode } from "@typespec/http";
 import { getUniqueItems } from "@typespec/json-schema";
 import { useEmitterOptions } from "../../context/emitter-options-context.js";
 import { getPropertyAttributes } from "../../utils/attributes.jsx";
-import { JsonSerialization } from "../../utils/csharp-libs.jsx";
-import { getDocComments } from "../../utils/doc-comments.jsx";
 import { getSubNamespaceParts } from "../../utils/namespace-utils.js";
 import { CSharpFile } from "../csharp-file.jsx";
 import { efRefkey, TypeExpression } from "../type-expression/type-expression.jsx";
@@ -64,6 +64,7 @@ export function Models(props: ModelsProps): Children {
         const needsJsonNodes = modelNeedsJsonNodes($, model);
         const usings = needsJsonNodes ? [...modelUsings, "System.Text.Json.Nodes"] : modelUsings;
         const modelName = getModelEmitName($.program, model);
+        const modelFileName = cs.useCSharpNamePolicy().getName(modelName, "class");
         const subNsParts = getSubNamespaceParts(model.namespace, props.serviceNamespace);
 
         const modelContent = <ServerClassDeclaration type={model} emitName={modelName} />;
@@ -75,7 +76,7 @@ export function Models(props: ModelsProps): Children {
         );
 
         return (
-          <CSharpFile path={`${modelName}.cs`} using={usings}>
+          <CSharpFile path={`${modelFileName}.cs`} using={usings}>
             {wrappedContent}
           </CSharpFile>
         );
@@ -193,10 +194,7 @@ function ServerProperty(props: ServerPropertyProps): Children {
   const csharpName = namePolicy.getName(propName, "class-property");
   if (csharpName !== props.type.name) {
     attrs.unshift(
-      <Attribute
-        name={JsonSerialization.JsonPropertyNameAttribute}
-        args={[`"${props.type.name}"`]}
-      />,
+      <Attribute name={Serialization.JsonPropertyNameAttribute} args={[`"${props.type.name}"`]} />,
     );
   }
 

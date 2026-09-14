@@ -213,8 +213,11 @@ def test_paging_post_action_paging(client):
         body=models.LogStatusRequest(filter="status eq 'active'"),
     )
     items = list(result)
+    assert len(items) == 2
     assert items[0].id.endswith("/Microsoft.Compute/virtualMachines/vm1")
     assert items[0].sending_metrics == True
+    assert items[1].id.endswith("/Microsoft.Compute/virtualMachines/vm2")
+    assert items[1].sending_metrics == False
 
 
 def test_paging_mark_as_pageable(client):

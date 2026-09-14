@@ -230,10 +230,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 parameters = [ScmKnownParameters.NextPage, .. parameters];
             }
 
-            var operation = serviceMethod.Operation;
+            var operationName = ClientProvider.GetRestOperationName(serviceMethod);
             var methodName = isNextLinkRequest
-                ? $"CreateNext{operation.Name.ToIdentifierName()}Request"
-                : $"Create{operation.Name.ToIdentifierName()}Request";
+                ? $"CreateNext{operationName}Request"
+                : $"Create{operationName}Request";
             var signature = new MethodSignature(
                 methodName,
                 null,
@@ -1137,6 +1137,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private static void UpdateParameterNameWithBackCompat(InputParameter inputParameter, string proposedName, TypeProvider backCompatProvider, InputServiceMethod? serviceMethod = null)
         {
+            if (inputParameter.IsExactName)
+            {
+                return;
+            }
+
             // Look up the parameter's original (spec) name in the previous contract.
             // When a service method is supplied, scope the search to methods whose name matches
             // the current service method (allowing for sync/async pairing) so that a common

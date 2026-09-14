@@ -1,6 +1,8 @@
 import type { ChildProcess, SpawnOptions } from "child_process";
 import { spawn } from "child_process";
 import { access, readFile, rm } from "fs/promises";
+import * as http from "http";
+import type { AddressInfo } from "net";
 import { beforeEach, describe, expect, it } from "vitest";
 import { resolvePath } from "../../../src/index.js";
 import { findTestPackageRoot } from "../../../src/testing/test-utils.js";
@@ -13,25 +15,26 @@ function getScenarioDir(name: string) {
 }
 interface ExecCliOptions {
   cwd?: string;
+  env?: NodeJS.ProcessEnv;
 }
 
-async function execCli(args: string[], { cwd }: ExecCliOptions) {
+async function execCli(args: string[], { cwd, env }: ExecCliOptions) {
   const node = process.platform === "win32" ? "node.exe" : "node";
   return execAsync(node, [resolvePath(pkgRoot, "entrypoints/cli.js"), ...args], {
     cwd,
-    env: { ...process.env, NO_COLOR: "1" },
+    env: { ...process.env, ...env, NO_COLOR: "1" },
   });
 }
-async function execCliSuccess(args: string[], { cwd }: ExecCliOptions) {
-  const result = await execCli(args, { cwd });
+async function execCliSuccess(args: string[], options: ExecCliOptions) {
+  const result = await execCli(args, options);
   if (result.exitCode !== 0) {
     throw new Error(`Failed to execute cli: ${result.stdio}`);
   }
 
   return result;
 }
-async function execCliFail(args: string[], { cwd }: ExecCliOptions) {
-  const result = await execCli(args, { cwd });
+async function execCliFail(args: string[], options: ExecCliOptions) {
+  const result = await execCli(args, options);
   if (result.exitCode === 0) {
     throw new Error(`Cli succeeded but expected failure: ${result.stdio}`);
   }
@@ -103,6 +106,75 @@ describe("info", () => {
     });
     expect(stdout).toContain(`User Config:`);
     expect(stdout).toContain(`outputDir: "{project-root}/tsp-output/{custom-dir}"`);
+  });
+});
+
+describe("install", () => {
+  it("reports registry failures without an internal compiler error", async () => {
+    const server = http.createServer((_req, res) => {
+      res.writeHead(401);
+      res.end();
+    });
+    await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
+    const { port } = server.address() as AddressInfo;
+
+    try {
+      const result = await execCliFail(["install"], {
+        cwd: getScenarioDir("install"),
+        env: { TYPESPEC_NPM_REGISTRY: `http://127.0.0.1:${port}` },
+      });
+
+      expect(result.stdio).toContain("install-package-manager-error");
+      expect(result.stdio).toContain("failed with status 401");
+      expect(result.stdio).not.toContain("Internal compiler error");
+    } finally {
+      await new Promise<void>((resolve, reject) =>
+        server.close((error) => (error ? reject(error) : resolve())),
+      );
+    }
+  });
+
+  it("reports package manager download failures without an internal compiler error", async () => {
+    const server = http.createServer((req, res) => {
+      if (req.url === "/npm") {
+        const manifest = {
+          name: "npm",
+          version: "99.99.99",
+          dist: { tarball: `http://${req.headers.host}/npm.tgz` },
+          bin: { npm: "bin/npm-cli.js" },
+        };
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(
+          JSON.stringify({
+            name: "npm",
+            "dist-tags": { latest: manifest.version },
+            versions: { [manifest.version]: manifest },
+          }),
+        );
+      } else {
+        res.writeHead(200);
+        res.end();
+      }
+    });
+    await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
+    const { port } = server.address() as AddressInfo;
+    const registryUrl = `http://127.0.0.1:${port}`;
+
+    try {
+      const result = await execCliFail(["install"], {
+        cwd: getScenarioDir("install"),
+        env: { TYPESPEC_NPM_REGISTRY: registryUrl },
+      });
+
+      expect(result.stdio).toContain("install-package-manager-error");
+      expect(result.stdio).toContain("Failed to download package manager npm");
+      expect(result.stdio).toContain("Failed to extract package from");
+      expect(result.stdio).not.toContain("Internal compiler error");
+    } finally {
+      await new Promise<void>((resolve, reject) =>
+        server.close((error) => (error ? reject(error) : resolve())),
+      );
+    }
   });
 });
 

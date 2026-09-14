@@ -90,25 +90,38 @@ export function LocalTypes() {
   );
 }
 
+export interface GenerateSignaturesOptions {
+  /** Package export subpath the signatures belong to. Defaults to the root(`.`). */
+  readonly subpath?: string;
+  /** Whether to emit the `<Namespace>.ts-test.ts` typecheck file. Defaults to `true`. */
+  readonly emitTests?: boolean;
+}
+
 export function generateSignatures(
   program: Program,
   entities: EntitySignature[],
   libraryName: string,
   namespaceName: string,
+  options?: GenerateSignaturesOptions,
 ): OutputDirectory {
   const context = createTspdContext(program);
   const base = namespaceName === "" ? "__global__" : namespaceName;
+  const subpath = options?.subpath ?? ".";
+  const emitTests = options?.emitTests ?? true;
   const $decoratorsRef = refkey();
   const $functionsRef = refkey();
   const userLib = ts.createPackage({
     name: libraryName,
     version: "0.0.0",
     descriptor: {
-      ".": {
+      [subpath]: {
         named: ["$decorators", "$functions"],
       },
     },
   });
+  // createPackage hoists the root export members but keeps sub exports nested under their subpath key.
+  const userLibExports: { $decorators: Refkey; $functions: Refkey } =
+    subpath === "." ? (userLib as any) : (userLib as any)[subpath];
 
   const jsxContent = (
     <TspdContext.Provider value={context}>
@@ -121,7 +134,7 @@ export function generateSignatures(
             dollarFunctionsRefKey={$functionsRef}
           />
         </ts.SourceFile>
-        {!base.includes(".Private") && (
+        {emitTests && !base.includes(".Private") && (
           <ts.SourceFile
             path={`${base}.ts-test.ts`}
             headerComment="An error in the imports would mean that the decorator is not exported or doesn't have the right name."
@@ -129,9 +142,9 @@ export function generateSignatures(
             <EntitySignatureTests
               namespaceName={namespaceName}
               entities={entities}
-              dollarDecoratorRefKey={userLib.$decorators}
+              dollarDecoratorRefKey={userLibExports.$decorators}
               dollarDecoratorsTypeRefKey={$decoratorsRef}
-              dollarFunctionsRefKey={userLib.$functions}
+              dollarFunctionsRefKey={userLibExports.$functions}
               dollarFunctionsTypeRefKey={$functionsRef}
             />
           </ts.SourceFile>

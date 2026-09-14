@@ -25,7 +25,7 @@ export default defineConfig({
       cssFileName: "style",
       formats: ["es"],
     },
-    rollupOptions: {
+    rolldownOptions: {
       external: (id) => externals.some((x) => id.startsWith(x)),
     },
   },

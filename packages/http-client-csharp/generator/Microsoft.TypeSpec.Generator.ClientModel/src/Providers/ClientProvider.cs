@@ -211,13 +211,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             foreach (var serviceMethod in inputClient.Methods)
             {
-                var updatedOperationName = GetCleanOperationName(serviceMethod);
+                var updatedOperationName = GetOperationName(serviceMethod);
                 serviceMethod.Update(name: updatedOperationName);
                 serviceMethod.Operation.Update(name: updatedOperationName);
             }
         }
 
-        private string GetCleanOperationName(InputServiceMethod serviceMethod)
+        private string GetOperationName(InputServiceMethod serviceMethod, bool normalizeUrlSuffix = true)
         {
             if (serviceMethod.IsExactName)
             {
@@ -237,6 +237,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 operationName = $"Get{operationName.Substring(4)}";
             }
 
+            if (!normalizeUrlSuffix)
+            {
+                return operationName;
+            }
+
             var normalizedName = operationName.NormalizeCSharpUrlSuffix();
             if (normalizedName == operationName)
             {
@@ -252,6 +257,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return normalizedName;
+        }
+
+        internal string GetRestOperationName(InputServiceMethod serviceMethod)
+        {
+            // Request builders use the stable input operation identity rather than the mutable public method name.
+            // Preserve the original Url suffix so a projection honoring a previous GA name and a newer projection
+            // normalized to Uri continue to reference the same request builder.
+            return GetOperationName(serviceMethod, normalizeUrlSuffix: false).ToIdentifierName();
         }
 
         private string? _namespace;

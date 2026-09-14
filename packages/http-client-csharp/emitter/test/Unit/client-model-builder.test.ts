@@ -1,7 +1,7 @@
 vi.resetModules();
 
 import type { TestHost } from "@typespec/compiler/testing";
-import { ok, strictEqual } from "assert";
+import { deepStrictEqual, ok, strictEqual } from "assert";
 import { beforeEach, describe, it, vi } from "vitest";
 import { createModel } from "../../src/lib/client-model-builder.js";
 import type { InputEnumType } from "../../src/type/input-type.js";
@@ -504,6 +504,71 @@ describe("parseApiVersions", () => {
     strictEqual(root.apiVersions[0], "2023-01-01", "First version should be 2023-01-01");
     strictEqual(root.apiVersions[1], "2024-01-01", "Second version should be 2024-01-01");
     strictEqual(root.apiVersions[2], "2025-01-01", "Third version should be 2025-01-01");
+  });
+
+  it("should preserve API versions for models, enums, and model properties", async () => {
+    const program = await typeSpecCompile(
+      `
+        @service(#{ title: "Test Service" })
+        @versioned(Versions)
+        namespace TestService;
+
+        enum Versions {
+          v1: "2024-01-01",
+          v2: "2024-06-01-preview",
+        }
+
+        model StableModel {
+          stableProperty: string;
+
+          @added(Versions.v2)
+          previewProperty: string;
+        }
+
+        @added(Versions.v2)
+        model PreviewModel {
+          status: PreviewEnum;
+        }
+
+        @added(Versions.v2)
+        enum PreviewEnum {
+          enabled,
+        }
+
+        @route("/test")
+        @added(Versions.v2)
+        op test(@body body: StableModel): PreviewModel;
+      `,
+      runner,
+      { IsNamespaceNeeded: false },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+
+    const stableModel = root.models.find((model) => model.name === "StableModel");
+    ok(stableModel);
+    deepStrictEqual(stableModel.apiVersions, ["2024-01-01", "2024-06-01-preview"]);
+
+    const stableProperty = stableModel.properties.find(
+      (property) => property.name === "stableProperty",
+    );
+    ok(stableProperty);
+    deepStrictEqual(stableProperty.apiVersions, ["2024-01-01", "2024-06-01-preview"]);
+
+    const previewProperty = stableModel.properties.find(
+      (property) => property.name === "previewProperty",
+    );
+    ok(previewProperty);
+    deepStrictEqual(previewProperty.apiVersions, ["2024-06-01-preview"]);
+
+    const previewModel = root.models.find((model) => model.name === "PreviewModel");
+    ok(previewModel);
+    deepStrictEqual(previewModel.apiVersions, ["2024-06-01-preview"]);
+
+    const previewEnum = root.enums.find((enumType) => enumType.name === "PreviewEnum");
+    ok(previewEnum);
+    deepStrictEqual(previewEnum.apiVersions, ["2024-06-01-preview"]);
   });
 });
 

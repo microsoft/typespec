@@ -1,6 +1,6 @@
 {
   "name": "@typespec/mutator-framework",
-  "version": "0.17.0",
+  "version": "0.17.1",
   "type": "module",
   "main": "dist/src/index.js",
   "repository": {
@@ -26,6 +26,9 @@
       "import": "./dist/src/index.js"
     }
   },
+  "files": [
+    "dist/**"
+  ],
   "keywords": [],
   "author": "",
   "license": "MIT",

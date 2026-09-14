@@ -1091,6 +1091,214 @@ function testColorization(description: string, tokenize: Tokenize) {
           Token.punctuation.closeBrace,
         ]);
       });
+
+      it("union with extends", async () => {
+        const tokens = await tokenize("union Foo extends Bar { a: A }");
+        deepStrictEqual(tokens, [
+          Token.keywords.union,
+          Token.identifiers.type("Foo"),
+          Token.keywords.extends,
+          Token.identifiers.type("Bar"),
+          Token.punctuation.openBrace,
+          Token.identifiers.variable("a"),
+          Token.operators.typeAnnotation,
+          Token.identifiers.type("A"),
+          Token.punctuation.closeBrace,
+        ]);
+      });
+
+      it("keeps an object value literal inside the union extends expression", async () => {
+        const tokens = await tokenize(`
+          union Foo extends #{ base: "value" } { value: string }
+          model Bar { value: string }
+        `);
+        deepStrictEqual(tokens, [
+          Token.keywords.union,
+          Token.identifiers.type("Foo"),
+          Token.keywords.extends,
+          Token.punctuation.openHashBrace,
+          Token.identifiers.variable("base"),
+          Token.operators.typeAnnotation,
+          Token.literals.stringQuoted("value"),
+          Token.punctuation.closeBrace,
+          Token.punctuation.openBrace,
+          Token.identifiers.variable("value"),
+          Token.operators.typeAnnotation,
+          Token.identifiers.type("string"),
+          Token.punctuation.closeBrace,
+          Token.keywords.model,
+          Token.identifiers.type("Bar"),
+          Token.punctuation.openBrace,
+          Token.identifiers.variable("value"),
+          Token.operators.typeAnnotation,
+          Token.identifiers.type("string"),
+          Token.punctuation.closeBrace,
+        ]);
+      });
+
+      it("templated union with extends", async () => {
+        const tokens = await tokenize("union Foo<T extends string> extends Bar { a: T }");
+        deepStrictEqual(tokens, [
+          Token.keywords.union,
+          Token.identifiers.type("Foo"),
+          Token.punctuation.typeParameters.begin,
+          Token.identifiers.type("T"),
+          Token.keywords.extends,
+          Token.identifiers.type("string"),
+          Token.punctuation.typeParameters.end,
+          Token.keywords.extends,
+          Token.identifiers.type("Bar"),
+          Token.punctuation.openBrace,
+          Token.identifiers.variable("a"),
+          Token.operators.typeAnnotation,
+          Token.identifiers.type("T"),
+          Token.punctuation.closeBrace,
+        ]);
+      });
+    });
+
+    describe("declaration expressions", () => {
+      it("anonymous enum in alias", async () => {
+        const tokens = await tokenize("alias Foo = enum { a, b }");
+        deepStrictEqual(tokens, [
+          Token.keywords.alias,
+          Token.identifiers.type("Foo"),
+          Token.operators.assignment,
+          Token.keywords.enum,
+          Token.punctuation.openBrace,
+          Token.identifiers.variable("a"),
+          Token.punctuation.comma,
+          Token.identifiers.variable("b"),
+          Token.punctuation.closeBrace,
+        ]);
+      });
+
+      it("named enum in alias", async () => {
+        const tokens = await tokenize("alias Foo = enum Color { red, green }");
+        deepStrictEqual(tokens, [
+          Token.keywords.alias,
+          Token.identifiers.type("Foo"),
+          Token.operators.assignment,
+          Token.keywords.enum,
+          Token.identifiers.type("Color"),
+          Token.punctuation.openBrace,
+          Token.identifiers.variable("red"),
+          Token.punctuation.comma,
+          Token.identifiers.variable("green"),
+          Token.punctuation.closeBrace,
+        ]);
+      });
+
+      it("anonymous union in alias", async () => {
+        const tokens = await tokenize("alias Foo = union { string, int32 }");
+        deepStrictEqual(tokens, [
+          Token.keywords.alias,
+          Token.identifiers.type("Foo"),
+          Token.operators.assignment,
+          Token.keywords.union,
+          Token.punctuation.openBrace,
+          Token.identifiers.type("string"),
+          Token.punctuation.comma,
+          Token.identifiers.type("int32"),
+          Token.punctuation.closeBrace,
+        ]);
+      });
+
+      it("named union in alias", async () => {
+        const tokens = await tokenize("alias Foo = union Choice { a: string }");
+        deepStrictEqual(tokens, [
+          Token.keywords.alias,
+          Token.identifiers.type("Foo"),
+          Token.operators.assignment,
+          Token.keywords.union,
+          Token.identifiers.type("Choice"),
+          Token.punctuation.openBrace,
+          Token.identifiers.variable("a"),
+          Token.operators.typeAnnotation,
+          Token.identifiers.type("string"),
+          Token.punctuation.closeBrace,
+        ]);
+      });
+
+      it("anonymous union with extends in alias", async () => {
+        const tokens = await tokenize("alias Foo = union extends string { a: string }");
+        deepStrictEqual(tokens, [
+          Token.keywords.alias,
+          Token.identifiers.type("Foo"),
+          Token.operators.assignment,
+          Token.keywords.union,
+          Token.keywords.extends,
+          Token.identifiers.type("string"),
+          Token.punctuation.openBrace,
+          Token.identifiers.variable("a"),
+          Token.operators.typeAnnotation,
+          Token.identifiers.type("string"),
+          Token.punctuation.closeBrace,
+        ]);
+      });
+
+      it("named union with extends in alias", async () => {
+        const tokens = await tokenize("alias Foo = union Choice extends string { a: string }");
+        deepStrictEqual(tokens, [
+          Token.keywords.alias,
+          Token.identifiers.type("Foo"),
+          Token.operators.assignment,
+          Token.keywords.union,
+          Token.identifiers.type("Choice"),
+          Token.keywords.extends,
+          Token.identifiers.type("string"),
+          Token.punctuation.openBrace,
+          Token.identifiers.variable("a"),
+          Token.operators.typeAnnotation,
+          Token.identifiers.type("string"),
+          Token.punctuation.closeBrace,
+        ]);
+      });
+
+      it("anonymous scalar in alias", async () => {
+        const tokens = await tokenize("alias Foo = scalar extends string");
+        deepStrictEqual(tokens, [
+          Token.keywords.alias,
+          Token.identifiers.type("Foo"),
+          Token.operators.assignment,
+          Token.keywords.scalar,
+          Token.keywords.extends,
+          Token.identifiers.type("string"),
+        ]);
+      });
+
+      it("anonymous model in alias", async () => {
+        const tokens = await tokenize("alias Foo = model { x: string }");
+        deepStrictEqual(tokens, [
+          Token.keywords.alias,
+          Token.identifiers.type("Foo"),
+          Token.operators.assignment,
+          Token.keywords.model,
+          Token.punctuation.openBrace,
+          Token.identifiers.variable("x"),
+          Token.operators.typeAnnotation,
+          Token.identifiers.type("string"),
+          Token.punctuation.closeBrace,
+        ]);
+      });
+
+      it("declaration expression as a model property type", async () => {
+        const tokens = await tokenize("model Bar { status: enum { active, inactive } }");
+        deepStrictEqual(tokens, [
+          Token.keywords.model,
+          Token.identifiers.type("Bar"),
+          Token.punctuation.openBrace,
+          Token.identifiers.variable("status"),
+          Token.operators.typeAnnotation,
+          Token.keywords.enum,
+          Token.punctuation.openBrace,
+          Token.identifiers.variable("active"),
+          Token.punctuation.comma,
+          Token.identifiers.variable("inactive"),
+          Token.punctuation.closeBrace,
+          Token.punctuation.closeBrace,
+        ]);
+      });
     });
 
     describe("namespaces", () => {

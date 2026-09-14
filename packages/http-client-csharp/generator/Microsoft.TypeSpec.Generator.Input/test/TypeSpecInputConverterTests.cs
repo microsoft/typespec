@@ -1317,6 +1317,7 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
                   "name": "TestEnum",
                   "namespace": "Test.Models",
                   "crossLanguageDefinitionId": "Test.Models.TestEnum",
+                  "apiVersions": ["2024-01-01", "2024-06-01-preview"],
                   "valueType": { "$id": "2", "kind": {{valueKindJson}}, "name": "valueType", "crossLanguageDefinitionId": "TypeSpec.numeric" },
                   "values": [
                     {
@@ -1383,6 +1384,7 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
 
             Assert.IsNotNull(enumType);
             Assert.AreEqual(1, enumType!.Values.Count);
+            CollectionAssert.AreEqual(new[] { "2024-01-01", "2024-06-01-preview" }, enumType.ApiVersions);
             var value = enumType.Values[0] as InputEnumTypeStringValue;
             Assert.IsNotNull(value);
             Assert.AreEqual("sunny", value!.StringValue);

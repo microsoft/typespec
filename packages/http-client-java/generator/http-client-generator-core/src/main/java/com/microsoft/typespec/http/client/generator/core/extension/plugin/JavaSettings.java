@@ -314,6 +314,8 @@ public class JavaSettings {
         // stack.
         this.syncStackEnabled = getBooleanValue(host, "enable-sync-stack", false);
 
+        this.modelMaxOverload = "model".equalsIgnoreCase(getStringValue(host, "max-overload"));
+
         // If set to true, the models that are determined as output only models will be made immutable without any
         // public constructors or setter methods.
         this.outputModelImmutable = getBooleanValue(host, "output-model-immutable", false);
@@ -1236,6 +1238,17 @@ public class JavaSettings {
      */
     public boolean isSyncStackEnabled() {
         return syncStackEnabled;
+    }
+
+    private final boolean modelMaxOverload;
+
+    /**
+     * Whether to generate maximum WithResponse overloads that use strongly typed models.
+     *
+     * @return Whether model-based maximum WithResponse overloads are enabled.
+     */
+    public boolean isModelMaxOverload() {
+        return modelMaxOverload;
     }
 
     private final boolean clientBuilderDisabled;
