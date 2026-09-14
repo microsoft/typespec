@@ -1716,6 +1716,37 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.AreEqual(Helpers.GetExpectedFromFile(baselineName), writer.ToString(false));
         }
 
+        [TestCase("Iso8601")]
+        [TestCase("Constant")]
+        [TestCase("Seconds")]
+        [TestCase("Milliseconds")]
+        public void PlainTextDurationReturnTypeMethods(string encoding)
+        {
+            DurationKnownEncoding durationEncoding = encoding switch
+            {
+                "Iso8601" => DurationKnownEncoding.Iso8601,
+                "Constant" => DurationKnownEncoding.Constant,
+                "Seconds" => DurationKnownEncoding.Seconds,
+                "Milliseconds" => DurationKnownEncoding.Milliseconds,
+                _ => throw new NotSupportedException()
+            };
+            InputType inputType = new InputDurationType(durationEncoding, "duration", "TypeSpec.duration", InputPrimitiveType.Int32, null);
+
+            var operation = InputFactory.Operation("GetPlainTextDuration", responses:
+                [InputFactory.OperationResponse([200], inputType, contentTypes: ["text/plain"])]);
+            var serviceMethod = InputFactory.BasicServiceMethod("GetPlainTextDuration", operation);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+
+            MockHelpers.LoadMockGenerator();
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            var method = new ScmMethodProviderCollection(serviceMethod, client!)
+                .Single(m => m.Kind == ScmMethodKind.Convenience && m.Signature.Name == "GetPlainTextDuration");
+
+            using var writer = new CodeWriter();
+            writer.WriteMethod(method);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(encoding), writer.ToString(false));
+        }
+
         [TestCase(true, true, false)]
         [TestCase(true, false, false)]
         [TestCase(false, true, false)]

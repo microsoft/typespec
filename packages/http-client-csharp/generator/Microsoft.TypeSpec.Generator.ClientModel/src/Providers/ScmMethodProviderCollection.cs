@@ -939,7 +939,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 Type t when t == typeof(bool) => Static<bool>().Invoke(nameof(bool.Parse), content).As<bool>(),
                 Type t when t == typeof(Guid) => Static<Guid>().Invoke(nameof(Guid.Parse), content).As<Guid>(),
                 Type t when t == typeof(Uri) => New.Instance<Uri>(content, FrameworkEnumValue(UriKind.RelativeOrAbsolute)),
-                Type t when t == typeof(TimeSpan) => content.As<string>().ParseTimeSpan(Literal(SerializationFormat.Duration_Constant.ToFormatSpecifier() ?? throw new InvalidOperationException())),
+                Type t when t == typeof(TimeSpan) => GetPlainTextTimeSpanConversion(content, invariantCulture),
                 Type t when t == typeof(DateTimeOffset) => content.As<string>().ParseDateTimeOffset(Literal(GetResponseSerializationFormat().ToFormatSpecifier())),
                 // The remaining supported types are numeric and all expose a static Parse(string, IFormatProvider) method.
                 _ => Static(parseType).Invoke(nameof(int.Parse), [content, invariantCulture]).As(parseType)
@@ -953,6 +953,34 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return responseBodyType.IsNullable
                 ? new TernaryConditionalExpression(content.Invoke(nameof(string.Trim)).As<string>().Equal(Literal("null")), Null.CastTo(responseBodyType), deserializedValue)
                 : deserializedValue;
+        }
+
+        /// <summary>
+        /// Builds the raw-text conversion for a <see cref="TimeSpan"/> response, honoring the response body's wire
+        /// encoding. Numeric duration encodings (seconds/milliseconds) parse the content as a number and construct
+        /// the <see cref="TimeSpan"/> from it, matching <see cref="MrwSerializationTypeDefinition"/>'s JSON handling;
+        /// all other encodings (ISO 8601, constant, plain time) parse the content directly using the corresponding
+        /// format specifier.
+        /// </summary>
+        private ValueExpression GetPlainTextTimeSpanConversion(ValueExpression content, ValueExpression invariantCulture)
+        {
+            var format = GetResponseSerializationFormat();
+            return format switch
+            {
+                SerializationFormat.Duration_Seconds =>
+                    TimeSpanSnippets.FromSeconds(Static<int>().Invoke(nameof(int.Parse), [content, invariantCulture]).As<int>()),
+                SerializationFormat.Duration_Seconds_Int64 =>
+                    TimeSpanSnippets.FromSeconds(LongSnippets.Parse(content, invariantCulture)),
+                SerializationFormat.Duration_Seconds_Float or SerializationFormat.Duration_Seconds_Double =>
+                    TimeSpanSnippets.FromSeconds(Static<double>().Invoke(nameof(double.Parse), [content, invariantCulture]).As<double>()),
+                SerializationFormat.Duration_Milliseconds =>
+                    TimeSpanSnippets.FromMilliseconds(Static<int>().Invoke(nameof(int.Parse), [content, invariantCulture]).As<int>()),
+                SerializationFormat.Duration_Milliseconds_Int64 =>
+                    TimeSpanSnippets.FromMilliseconds(LongSnippets.Parse(content, invariantCulture)),
+                SerializationFormat.Duration_Milliseconds_Float or SerializationFormat.Duration_Milliseconds_Double =>
+                    TimeSpanSnippets.FromMilliseconds(Static<double>().Invoke(nameof(double.Parse), [content, invariantCulture]).As<double>()),
+                _ => content.As<string>().ParseTimeSpan(Literal(format.ToFormatSpecifier() ?? SerializationFormat.Duration_Constant.ToFormatSpecifier()))
+            };
         }
 
         private static bool IsPlainTextParsableType(CSharpType responseBodyType)
