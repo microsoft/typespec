@@ -38,6 +38,23 @@ describe("UriTemplateSource", () => {
     expect(file.text).toBe("op ping(): void;");
   });
 
+  it.each([
+    "../outside.tsp",
+    String.raw`..\outside.tsp`,
+    "/outside.tsp",
+    "C:/outside.tsp",
+    "https://evil.example/outside.tsp",
+  ])("rejects template file paths outside the template root: %s", async (path) => {
+    const source = new UriTemplateSource(
+      testFs.compilerHost,
+      resolvePath(root, "scaffolding.json"),
+    );
+
+    await expect(source.readFile(path)).rejects.toThrow(
+      `Template file path must be a relative path: "${path}"`,
+    );
+  });
+
   it("fromDirectory resolves scaffolding.json at the directory root", async () => {
     const source = UriTemplateSource.fromDirectory(testFs.compilerHost, root);
     const index = await source.loadIndex();

@@ -1,6 +1,6 @@
 import { expectDiagnosticEmpty } from "@typespec/compiler/testing";
 import { describe, expect, it } from "vitest";
-import { emitSingleSchemaWithDiagnostics } from "./test-host.js";
+import { EmitterTester, emitSingleSchemaWithDiagnostics } from "./test-host.js";
 
 describe("emitter", () => {
   it("emits a schema with query operations", async () => {
@@ -70,5 +70,26 @@ describe("emitter", () => {
     expect(result.graphQLOutput).toBeDefined();
     expect(result.graphQLOutput).toMatch(/type Book \{/);
     expect(result.graphQLOutput).toMatch(/input BookInput \{/);
+  });
+
+  it("sanitizes schema names used in output paths", async () => {
+    const result = await EmitterTester.compile(
+      `
+        @schema(#{ name: "../../outside/schema" })
+        namespace TestNamespace {
+          @query op ping(): string;
+        }
+      `,
+      {
+        compilerOptions: {
+          options: {
+            "@typespec/graphql": { "output-file": "{schema-name}.graphql" },
+          },
+        },
+      },
+    );
+
+    expect(result.outputs).toHaveProperty(".._.._outside_schema.graphql");
+    expect(result.outputs).not.toHaveProperty("../../outside/schema.graphql");
   });
 });

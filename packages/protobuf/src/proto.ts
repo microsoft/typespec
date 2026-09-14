@@ -51,7 +51,7 @@ const IMPLEMENTATION_RESERVED_RANGE = [19000, 19999] as const;
  * ident = letter \{ letter | decimalDigit | "_" \}
  * fullIdent = ident \{ "." ident \}
  */
-export const PROTO_FULL_IDENT = /([a-zA-Z][a-zA-Z0-9_]*)+/;
+export const PROTO_FULL_IDENT = /^[a-zA-Z][a-zA-Z0-9_]*(?:\.[a-zA-Z][a-zA-Z0-9_]*)*$/;
 
 /**
  * Decorate an interface as a service, indicating that it represents a Protobuf `service` declaration.
@@ -78,6 +78,18 @@ export const $package: PackageDecorator = (
   target: Namespace,
   details?: Type,
 ) => {
+  if (details?.kind === "Model") {
+    const nameProperty = details.properties.get("name");
+    const name = nameProperty?.type;
+    if (name?.kind === "String" && !PROTO_FULL_IDENT.test(name.value)) {
+      reportDiagnostic(ctx.program, {
+        code: "invalid-package-name",
+        format: { name: name.value },
+        target: nameProperty!,
+      });
+      return;
+    }
+  }
   ctx.program.stateMap(state.package).set(target, details);
 };
 

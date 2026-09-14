@@ -16,6 +16,7 @@ import type {
   InitTemplateLibrarySpec,
 } from "./init-template.js";
 import type { TemplateSource } from "./template-source/index.js";
+import { validateTemplateRelativePath } from "./template-source/types.js";
 
 export const TypeSpecConfigFilename = "tspconfig.yaml";
 
@@ -253,12 +254,13 @@ async function writeFile(
       `Cannot resolve template file "${file.path}": template was loaded without a source.`,
     );
   }
+  const destination = validateTemplateRelativePath(file.destination, "destination");
   const template = await config.source.readFile(file.path);
   const content = render(template.text, context);
-  const destinationFilePath = joinPaths(config.directory, file.destination);
+  const destinationFilePath = joinPaths(config.directory, destination);
   // create folders in case they don't exist
   await host.mkdirp(getDirectoryPath(destinationFilePath) + "/");
-  return host.writeFile(joinPaths(config.directory, file.destination), content);
+  return host.writeFile(destinationFilePath, content);
 }
 
 async function getPackageVersion(

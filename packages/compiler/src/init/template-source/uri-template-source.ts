@@ -1,7 +1,11 @@
 import { getDirectoryPath } from "../../core/path-utils.js";
 import type { SourceFile, SystemHost } from "../../core/types.js";
 import { readUrlOrPath, resolveRelativeUrlOrPath } from "../../utils/misc.js";
-import type { LoadedTemplateIndex, TemplateSource } from "./types.js";
+import {
+  type LoadedTemplateIndex,
+  type TemplateSource,
+  validateTemplateRelativePath,
+} from "./types.js";
 
 /** File name of the template index within a template source directory. */
 export const SCAFFOLDING_FILENAME = "scaffolding.json";
@@ -50,6 +54,7 @@ export class UriTemplateSource implements TemplateSource {
   }
 
   async readFile(relativePath: string): Promise<SourceFile> {
-    return readUrlOrPath(this.#host, resolveRelativeUrlOrPath(this.#baseUri + "/", relativePath));
+    const path = validateTemplateRelativePath(relativePath, "path");
+    return readUrlOrPath(this.#host, resolveRelativeUrlOrPath(this.#baseUri + "/", path));
   }
 }

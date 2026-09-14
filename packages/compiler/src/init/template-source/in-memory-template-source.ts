@@ -1,7 +1,11 @@
 import { normalizePath } from "../../core/path-utils.js";
 import { createSourceFile } from "../../core/source-file.js";
 import type { SourceFile } from "../../core/types.js";
-import type { LoadedTemplateIndex, TemplateSource } from "./types.js";
+import {
+  type LoadedTemplateIndex,
+  type TemplateSource,
+  validateTemplateRelativePath,
+} from "./types.js";
 import { SCAFFOLDING_FILENAME } from "./uri-template-source.js";
 
 /** Prefix used to label the virtual files this source serves in diagnostics. */
@@ -37,7 +41,7 @@ export class InMemoryTemplateSource implements TemplateSource {
   }
 
   #read(relativePath: string): SourceFile {
-    const key = normalizeKey(relativePath);
+    const key = normalizeKey(validateTemplateRelativePath(relativePath, "path"));
     const content = this.#files.get(key);
     if (content === undefined) {
       const error: NodeJS.ErrnoException = new Error(

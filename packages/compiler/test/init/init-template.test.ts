@@ -4,6 +4,7 @@ import { parse } from "yaml";
 import type { InitTemplate } from "../../src/init/init-template.js";
 import type { ScaffoldingConfig } from "../../src/init/scaffold.js";
 import { makeScaffoldingConfig, scaffoldNewProject } from "../../src/init/scaffold.js";
+import { InMemoryTemplateSource } from "../../src/init/template-source/index.js";
 import type { TestHost } from "../../src/testing/index.js";
 import { createTestHost, resolveVirtualPath } from "../../src/testing/index.js";
 
@@ -146,5 +147,51 @@ it("specifying both config and emitters merge the 2", async () => {
     options: {
       foo: { opt1: "val-1" },
     },
+  });
+});
+
+describe("template files", () => {
+    it.each([
+      "../../outside.txt",
+      String.raw`..\..\outside.txt`,
+      "/outside.txt",
+      "C:/outside.txt",
+      String.raw`\\server\share\outside.txt`,
+    ])("rejects destination outside the project directory: %s", async (destination) => {
+      const source = new InMemoryTemplateSource(
+        new Map([
+          ["scaffolding.json", "{}"],
+          ["template.txt", "template content"],
+        ]),
+      );
+
+      await expect(
+        runTemplate(
+          {
+            files: [{ path: "template.txt", destination }],
+          },
+          { directory: "/project", source },
+        ),
+      ).rejects.toThrow(`Template file destination must be a relative path: "${destination}"`);
+
+      expect(getOutputFile(destination)).toBeUndefined();
+    });
+
+    it("writes nested relative destinations", async () => {
+      const source = new InMemoryTemplateSource(
+        new Map([
+          ["scaffolding.json", "{}"],
+          ["template.txt", "template content"],
+        ]),
+      );
+
+      await runTemplate(
+        {
+          files: [{ path: "template.txt", destination: "nested/template.txt" }],
+        },
+        { directory: "/project", source },
+      );
+
+      expect(getOutputFile("/project/nested/template.txt")).toBe("template content");
   });
 });

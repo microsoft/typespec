@@ -3,6 +3,7 @@ import {
   emitFile,
   interpolatePath,
   resolvePath,
+  sanitizePathSegment,
   type EmitContext,
   type Namespace,
   type Program,
@@ -32,7 +33,7 @@ export async function $onEmit(context: EmitContext<GraphQLEmitterOptions>) {
       if (!context.program.compilerOptions.dryRun) {
         const outputFile = context.options["output-file"] ?? "{schema-name}.graphql";
         const fileName = interpolatePath(outputFile, {
-          "schema-name": schema.name ?? "schema",
+          "schema-name": sanitizePathSegment(schema.name ?? "schema"),
         });
         await emitFile(context.program, {
           path: resolvePath(context.emitterOutputDir, fileName),
