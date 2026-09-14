@@ -308,7 +308,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         new[]
                         {
                             Declare("data", result.GetRawResponse().Content(), out var data),
-                            UsingDeclare("document", data.Parse(), out var jsonDocument),
+                            // JsonDocument.Parse(BinaryData) does not strip a leading UTF-8 BOM, so trim it
+                            // from the content string before parsing (mirroring the primitive/enum path above).
+                            Declare("content", typeof(string), data.InvokeToString().Invoke(nameof(string.TrimStart), Literal('\uFEFF')).As<string>(), out var content),
+                            UsingDeclare("document", JsonDocumentSnippets.Parse(content), out var jsonDocument),
                             Declare("element", jsonDocument.RootElement(), out var jsonElement),
                             Return(result.FromValue(
                                 ScmCodeModelGenerator.Instance.TypeFactory.DeserializeJsonValue(
