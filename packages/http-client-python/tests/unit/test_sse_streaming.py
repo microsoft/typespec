@@ -122,8 +122,7 @@ def test_generated_unnamed_discriminator_dispatch_and_terminal_predicate(async_m
         if async_mode
         else "def _reconnect(_last_event_id, _reconnect_delay):"
     ) in generated
-    assert "_transport = pipeline_response.context.transport" in generated
-    assert 'raise RuntimeError("Pipeline transport is unavailable.")' in generated
+    assert "_transport: Any = pipeline_response.context.transport" in generated
     assert f"{'await ' if async_mode else ''}_transport.sleep(_reconnect_delay)" in generated
     assert '_request.headers["Last-Event-ID"] = _last_event_id' in generated
     assert "if _reconnect_response.status_code not in [200, 204]:" in generated

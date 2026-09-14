@@ -1385,9 +1385,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                 if self.async_mode
                 else "def _reconnect(_last_event_id, _reconnect_delay):"
             )
-            retval.append("    _transport = pipeline_response.context.transport")
-            retval.append("    if _transport is None:")
-            retval.append('        raise RuntimeError("Pipeline transport is unavailable.")')
+            retval.append("    _transport: Any = pipeline_response.context.transport")
             retval.append(f"    {'await ' if self.async_mode else ''}_transport.sleep(_reconnect_delay)")
             retval.append("    if _last_event_id is not None:")
             retval.append('        _request.headers["Last-Event-ID"] = _last_event_id')
