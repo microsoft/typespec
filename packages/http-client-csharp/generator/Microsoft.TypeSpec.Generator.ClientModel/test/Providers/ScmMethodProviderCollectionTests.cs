@@ -1716,11 +1716,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.AreEqual(Helpers.GetExpectedFromFile(baselineName), writer.ToString(false));
         }
 
-        [TestCase("Iso8601")]
-        [TestCase("Constant")]
-        [TestCase("Seconds")]
-        [TestCase("Milliseconds")]
-        public void PlainTextDurationReturnTypeMethods(string encoding)
+        [TestCase("Iso8601", null)]
+        [TestCase("Constant", null)]
+        [TestCase("Seconds", InputPrimitiveTypeKind.Int32)]
+        [TestCase("Seconds", InputPrimitiveTypeKind.Int64)]
+        [TestCase("Seconds", InputPrimitiveTypeKind.Float32)]
+        [TestCase("Seconds", InputPrimitiveTypeKind.Float64)]
+        [TestCase("Milliseconds", InputPrimitiveTypeKind.Int32)]
+        [TestCase("Milliseconds", InputPrimitiveTypeKind.Int64)]
+        [TestCase("Milliseconds", InputPrimitiveTypeKind.Float32)]
+        [TestCase("Milliseconds", InputPrimitiveTypeKind.Float64)]
+        public void PlainTextDurationReturnTypeMethods(string encoding, InputPrimitiveTypeKind? wireKind)
         {
             DurationKnownEncoding durationEncoding = encoding switch
             {
@@ -1730,7 +1736,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 "Milliseconds" => DurationKnownEncoding.Milliseconds,
                 _ => throw new NotSupportedException()
             };
-            InputType inputType = new InputDurationType(durationEncoding, "duration", "TypeSpec.duration", InputPrimitiveType.Int32, null);
+            var wireType = wireKind is { } kind
+                ? new InputPrimitiveType(kind, kind.ToString()!.ToLowerInvariant(), $"TypeSpec.{kind.ToString()!.ToLowerInvariant()}")
+                : InputPrimitiveType.Int32;
+            InputType inputType = new InputDurationType(durationEncoding, "duration", "TypeSpec.duration", wireType, null);
 
             var operation = InputFactory.Operation("GetPlainTextDuration", responses:
                 [InputFactory.OperationResponse([200], inputType, contentTypes: ["text/plain"])]);
@@ -1744,7 +1753,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 
             using var writer = new CodeWriter();
             writer.WriteMethod(method);
-            Assert.AreEqual(Helpers.GetExpectedFromFile(encoding), writer.ToString(false));
+            var baselineName = wireKind is { } k ? $"{encoding}{k}" : encoding;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(baselineName), writer.ToString(false));
         }
 
         [TestCase(true, true, false)]

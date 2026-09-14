@@ -979,7 +979,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     TimeSpanSnippets.FromMilliseconds(LongSnippets.Parse(content, invariantCulture)),
                 SerializationFormat.Duration_Milliseconds_Float or SerializationFormat.Duration_Milliseconds_Double =>
                     TimeSpanSnippets.FromMilliseconds(Static<double>().Invoke(nameof(double.Parse), [content, invariantCulture]).As<double>()),
-                _ => content.As<string>().ParseTimeSpan(Literal(format.ToFormatSpecifier() ?? SerializationFormat.Duration_Constant.ToFormatSpecifier()))
+                // ISO 8601 ("P"), constant ("c") and plain time ("T") encodings all parse the content directly;
+                // fall back to the constant format specifier for the (practically unreachable) default case.
+                _ => content.As<string>().ParseTimeSpan(Literal(format.ToFormatSpecifier() ?? "c"))
             };
         }
 
