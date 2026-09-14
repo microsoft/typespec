@@ -1716,17 +1716,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.AreEqual(Helpers.GetExpectedFromFile(baselineName), writer.ToString(false));
         }
 
-        [TestCase("Iso8601", null)]
-        [TestCase("Constant", null)]
-        [TestCase("Seconds", InputPrimitiveTypeKind.Int32)]
-        [TestCase("Seconds", InputPrimitiveTypeKind.Int64)]
-        [TestCase("Seconds", InputPrimitiveTypeKind.Float32)]
-        [TestCase("Seconds", InputPrimitiveTypeKind.Float64)]
-        [TestCase("Milliseconds", InputPrimitiveTypeKind.Int32)]
-        [TestCase("Milliseconds", InputPrimitiveTypeKind.Int64)]
-        [TestCase("Milliseconds", InputPrimitiveTypeKind.Float32)]
-        [TestCase("Milliseconds", InputPrimitiveTypeKind.Float64)]
-        public void PlainTextDurationReturnTypeMethods(string encoding, InputPrimitiveTypeKind? wireKind)
+        [TestCase("Iso8601", null, false)]
+        [TestCase("Constant", null, false)]
+        [TestCase("Seconds", InputPrimitiveTypeKind.Int32, false)]
+        [TestCase("Seconds", InputPrimitiveTypeKind.Int64, false)]
+        [TestCase("Seconds", InputPrimitiveTypeKind.Float32, false)]
+        [TestCase("Seconds", InputPrimitiveTypeKind.Float64, false)]
+        [TestCase("Milliseconds", InputPrimitiveTypeKind.Int32, false)]
+        [TestCase("Milliseconds", InputPrimitiveTypeKind.Int64, false)]
+        [TestCase("Milliseconds", InputPrimitiveTypeKind.Float32, false)]
+        [TestCase("Milliseconds", InputPrimitiveTypeKind.Float64, false)]
+        [TestCase("Seconds", InputPrimitiveTypeKind.Int32, true)]
+        public void PlainTextDurationReturnTypeMethods(string encoding, InputPrimitiveTypeKind? wireKind, bool isNullable)
         {
             DurationKnownEncoding durationEncoding = encoding switch
             {
@@ -1740,6 +1741,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 ? new InputPrimitiveType(kind, kind.ToString()!.ToLowerInvariant(), $"TypeSpec.{kind.ToString()!.ToLowerInvariant()}")
                 : InputPrimitiveType.Int32;
             InputType inputType = new InputDurationType(durationEncoding, "duration", "TypeSpec.duration", wireType, null);
+            if (isNullable)
+            {
+                inputType = new InputNullableType(inputType);
+            }
 
             var operation = InputFactory.Operation("GetPlainTextDuration", responses:
                 [InputFactory.OperationResponse([200], inputType, contentTypes: ["text/plain"])]);
@@ -1753,7 +1758,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 
             using var writer = new CodeWriter();
             writer.WriteMethod(method);
-            var baselineName = wireKind is { } k ? $"{encoding}{k}" : encoding;
+            var baselineName = (wireKind is { } k ? $"{encoding}{k}" : encoding) + (isNullable ? "Nullable" : string.Empty);
             Assert.AreEqual(Helpers.GetExpectedFromFile(baselineName), writer.ToString(false));
         }
 

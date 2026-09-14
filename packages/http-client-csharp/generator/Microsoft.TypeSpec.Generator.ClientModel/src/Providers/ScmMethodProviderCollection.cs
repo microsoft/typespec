@@ -968,21 +968,30 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return format switch
             {
                 SerializationFormat.Duration_Seconds =>
-                    TimeSpanSnippets.FromSeconds(Static<int>().Invoke(nameof(int.Parse), [content, invariantCulture]).As<int>()),
+                    TimeSpanSnippets.FromSeconds(ParseNumeric<int>(content, invariantCulture)),
                 SerializationFormat.Duration_Seconds_Int64 =>
                     TimeSpanSnippets.FromSeconds(LongSnippets.Parse(content, invariantCulture)),
                 SerializationFormat.Duration_Seconds_Float or SerializationFormat.Duration_Seconds_Double =>
-                    TimeSpanSnippets.FromSeconds(Static<double>().Invoke(nameof(double.Parse), [content, invariantCulture]).As<double>()),
+                    TimeSpanSnippets.FromSeconds(ParseNumeric<double>(content, invariantCulture)),
                 SerializationFormat.Duration_Milliseconds =>
-                    TimeSpanSnippets.FromMilliseconds(Static<int>().Invoke(nameof(int.Parse), [content, invariantCulture]).As<int>()),
+                    TimeSpanSnippets.FromMilliseconds(ParseNumeric<int>(content, invariantCulture)),
                 SerializationFormat.Duration_Milliseconds_Int64 =>
                     TimeSpanSnippets.FromMilliseconds(LongSnippets.Parse(content, invariantCulture)),
                 SerializationFormat.Duration_Milliseconds_Float or SerializationFormat.Duration_Milliseconds_Double =>
-                    TimeSpanSnippets.FromMilliseconds(Static<double>().Invoke(nameof(double.Parse), [content, invariantCulture]).As<double>()),
+                    TimeSpanSnippets.FromMilliseconds(ParseNumeric<double>(content, invariantCulture)),
                 // ISO 8601 ("P"), constant ("c") and plain time ("T") encodings all parse the content directly;
                 // fall back to the constant format specifier for the (practically unreachable) default case.
                 _ => content.As<string>().ParseTimeSpan(Literal(format.ToFormatSpecifier() ?? "c"))
             };
+        }
+
+        /// <summary>
+        /// Builds a <c>T.Parse(content, invariantCulture)</c> invocation for the given numeric <typeparamref name="T"/>.
+        /// </summary>
+        private static ScopedApi<T> ParseNumeric<T>(ValueExpression content, ValueExpression invariantCulture)
+            where T : struct
+        {
+            return Static<T>().Invoke("Parse", [content, invariantCulture]).As<T>();
         }
 
         private static bool IsPlainTextParsableType(CSharpType responseBodyType)
