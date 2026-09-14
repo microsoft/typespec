@@ -35,8 +35,8 @@ namespace Sample
             global::Sample.Argument.AssertNotNull(body, nameof(body));
 
             global::System.ClientModel.ClientResult result = this.GetData(param1, body, param3, cancellationToken.ToRequestOptions());
-            string content = result.GetRawResponse().Content.ToString().TrimStart('﻿');
-            using global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(content);
+            string responseContent = result.GetRawResponse().Content.ToString().TrimStart('﻿');
+            using global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(responseContent);
             string value = document.RootElement.GetString();
             return global::System.ClientModel.ClientResult.FromValue(value, result.GetRawResponse());
         }
@@ -46,8 +46,8 @@ namespace Sample
             global::Sample.Argument.AssertNotNull(body, nameof(body));
 
             global::System.ClientModel.ClientResult result = await this.GetDataAsync(param1, body, param3, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            string content = result.GetRawResponse().Content.ToString().TrimStart('﻿');
-            using global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(content);
+            string responseContent = result.GetRawResponse().Content.ToString().TrimStart('﻿');
+            using global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(responseContent);
             string value = document.RootElement.GetString();
             return global::System.ClientModel.ClientResult.FromValue(value, result.GetRawResponse());
         }

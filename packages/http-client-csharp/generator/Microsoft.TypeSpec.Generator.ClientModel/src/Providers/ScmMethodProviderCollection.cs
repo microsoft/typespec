@@ -297,10 +297,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     .. GetStackVariablesForProtocolParamConversion(convenienceBodyParameters, out var paramDeclarations),
                     Declare("result", This.Invoke(protocolMethod.Signature, [.. GetProtocolMethodArguments(paramDeclarations)], isAsync).ToApi<ClientResponseApi>(), out ClientResponseApi result),
                     .. GetStackVariablesForReturnValueConversion(result, responseBodyType, isAsync, out var resultDeclarations),
-                    // Route primitive and enum responses through GetResultConversionStatements even when the response body type
-                    // isn't in the IsConvertibleFromBinaryData allow-list (e.g. Uri or the byte/short/unsigned integer types).
                     IsConvertibleFromBinaryData(responseBodyType)
-                        || IsPlainTextParsableType(responseBodyType)
+                        || GetPlainTextParseType(responseBodyType, out _) is not null
                         ? GetResultConversionStatements(result, result.GetRawResponse(), responseBodyType, resultDeclarations)
                         :
                         new[]
@@ -308,8 +306,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             Declare("data", result.GetRawResponse().Content(), out var data),
                             // JsonDocument.Parse(BinaryData) does not strip a leading UTF-8 BOM, so trim it
                             // from the content string before parsing (mirroring the primitive/enum path above).
-                            Declare("content", typeof(string), data.InvokeToString().Invoke(nameof(string.TrimStart), Literal('\uFEFF')).As<string>(), out var content),
-                            UsingDeclare("document", JsonDocumentSnippets.Parse(content), out var jsonDocument),
+                            Declare("responseContent", typeof(string), data.InvokeToString().Invoke(nameof(string.TrimStart), Literal('\uFEFF')).As<string>(), out var responseContent),
+                            UsingDeclare("document", JsonDocumentSnippets.Parse(responseContent), out var jsonDocument),
                             Declare("element", jsonDocument.RootElement(), out var jsonElement),
                             Return(result.FromValue(
                                 ScmCodeModelGenerator.Instance.TypeFactory.DeserializeJsonValue(
@@ -643,7 +641,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     out declarations);
             }
 
-            if ((IsConvertibleFromBinaryData(responseBodyType) || IsPlainTextParsableType(responseBodyType))
+            if ((IsConvertibleFromBinaryData(responseBodyType) || GetPlainTextParseType(responseBodyType, out _) is not null)
                 && (responseBodyType.IsFrameworkType || responseBodyType.IsEnum)
                 && !responseBodyType.Equals(typeof(BinaryData))
                 && !HasOnlyPlainTextContentType())
@@ -652,8 +650,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 var contentExpression = data.InvokeToString().Invoke(nameof(string.TrimStart), Literal('\uFEFF')).As<string>();
                 var statements = new MethodBodyStatement[]
                 {
-                    Declare("content", typeof(string), contentExpression, out var content),
-                    UsingDeclare("document", JsonDocumentSnippets.Parse(content), out var document)
+                    Declare("responseContent", typeof(string), contentExpression, out var responseContent),
+                    UsingDeclare("document", JsonDocumentSnippets.Parse(responseContent), out var document)
                 };
                 declarations["data"] = data;
                 declarations["document"] = document;
@@ -871,8 +869,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 var contentExpression = response.Content().InvokeToString().Invoke(nameof(string.TrimStart), Literal('\uFEFF')).As<string>();
                 return
                 [
-                    Declare("content", typeof(string), contentExpression, out var content),
-                    Declare("value", responseBodyType, GetPlainTextValueConversion(responseBodyType, plainTextParseType, enumType, content), out var value),
+                    Declare("responseContent", typeof(string), contentExpression, out var responseContent),
+                    Declare("value", responseBodyType, GetPlainTextValueConversion(responseBodyType, plainTextParseType, enumType, responseContent), out var value),
                     Return(result.FromValue(value, response))
                 ];
             }
@@ -1007,9 +1005,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // Static members on a generic type parameter cannot be referenced by nameof.
             return Static<T>().Invoke("Parse", [content, invariantCulture]).As<T>();
         }
-
-        private static bool IsPlainTextParsableType(CSharpType responseBodyType)
-            => GetPlainTextParseType(responseBodyType, out _) is not null;
 
         /// <summary>
         /// Gets the framework type that a raw text response body is parsed into, or <c>null</c> when the response body

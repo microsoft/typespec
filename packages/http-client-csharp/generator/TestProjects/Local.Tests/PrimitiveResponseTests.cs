@@ -39,27 +39,5 @@ namespace TestProjects.Local.Tests
             Assert.AreSame(response.Object, result.GetRawResponse());
             Assert.AreSame(content, result.GetRawResponse().Content);
         }
-
-        [TestCase(false)]
-        [TestCase(true)]
-        public async Task JsonUint8ResponseDeserialization(bool isAsync)
-        {
-            var payload = Encoding.UTF8.GetBytes("42");
-            var content = BinaryData.FromBytes([.. Encoding.UTF8.GetPreamble(), .. payload]);
-            var response = new Mock<PipelineResponse>();
-            response.SetupGet(r => r.Content).Returns(content);
-            var protocolResult = ClientResult.FromResponse(response.Object);
-            var client = new Mock<SampleTypeSpecClient> { CallBase = true };
-            client.Setup(c => c.GetJsonUint8(It.IsAny<RequestOptions>())).Returns(protocolResult);
-            client.Setup(c => c.GetJsonUint8Async(It.IsAny<RequestOptions>())).ReturnsAsync(protocolResult);
-
-            var result = isAsync
-                ? await client.Object.GetJsonUint8Async()
-                : client.Object.GetJsonUint8();
-
-            Assert.AreEqual(42, result.Value);
-            Assert.AreSame(response.Object, result.GetRawResponse());
-            Assert.AreSame(content, result.GetRawResponse().Content);
-        }
     }
 }

@@ -36,8 +36,8 @@ namespace Sample
 
             using global::System.ClientModel.BinaryContent content0 = global::System.ClientModel.BinaryContent.Create(global::System.BinaryData.FromString(content));
             global::System.ClientModel.ClientResult result = this.GetData(param1, content0, @select, cancellationToken.ToRequestOptions());
-            string content1 = result.GetRawResponse().Content.ToString().TrimStart('﻿');
-            using global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(content1);
+            string responseContent = result.GetRawResponse().Content.ToString().TrimStart('﻿');
+            using global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(responseContent);
             string value = document.RootElement.GetString();
             return global::System.ClientModel.ClientResult.FromValue(value, result.GetRawResponse());
         }
@@ -48,8 +48,8 @@ namespace Sample
 
             using global::System.ClientModel.BinaryContent content0 = global::System.ClientModel.BinaryContent.Create(global::System.BinaryData.FromString(content));
             global::System.ClientModel.ClientResult result = await this.GetDataAsync(param1, content0, @select, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            string content1 = result.GetRawResponse().Content.ToString().TrimStart('﻿');
-            using global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(content1);
+            string responseContent = result.GetRawResponse().Content.ToString().TrimStart('﻿');
+            using global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(responseContent);
             string value = document.RootElement.GetString();
             return global::System.ClientModel.ClientResult.FromValue(value, result.GetRawResponse());
         }

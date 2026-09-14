@@ -37,8 +37,8 @@ namespace Sample
             global::Sample.Argument.AssertNotNullOrEmpty(region, nameof(region));
 
             global::System.ClientModel.ClientResult result = this.GetData(itemId, filter, region, sort, cancellationToken.ToRequestOptions());
-            string content = result.GetRawResponse().Content.ToString().TrimStart('﻿');
-            using global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(content);
+            string responseContent = result.GetRawResponse().Content.ToString().TrimStart('﻿');
+            using global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(responseContent);
             string value = document.RootElement.GetString();
             return global::System.ClientModel.ClientResult.FromValue(value, result.GetRawResponse());
         }
@@ -49,8 +49,8 @@ namespace Sample
             global::Sample.Argument.AssertNotNullOrEmpty(region, nameof(region));
 
             global::System.ClientModel.ClientResult result = await this.GetDataAsync(itemId, filter, region, sort, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            string content = result.GetRawResponse().Content.ToString().TrimStart('﻿');
-            using global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(content);
+            string responseContent = result.GetRawResponse().Content.ToString().TrimStart('﻿');
+            using global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(responseContent);
             string value = document.RootElement.GetString();
             return global::System.ClientModel.ClientResult.FromValue(value, result.GetRawResponse());
         }
