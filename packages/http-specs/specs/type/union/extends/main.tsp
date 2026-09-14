@@ -86,7 +86,7 @@ interface Structural {
   @scenario
   @scenarioDoc("""
     Send and receive a union whose variants structurally satisfy its base type.
-
+    
     Expected request and response body:
     ```json
     [
@@ -110,7 +110,7 @@ interface Explicit {
   @scenario
   @scenarioDoc("""
     Send and receive a union whose variants explicitly extend its base type.
-
+    
     Expected request and response body:
     ```json
     [
@@ -134,7 +134,7 @@ interface Multiple {
   @scenario
   @scenarioDoc("""
     Send and receive the same variants through unions constrained to different base types.
-
+    
     Expected request and response body:
     ```json
     {
