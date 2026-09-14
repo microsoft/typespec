@@ -982,9 +982,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 SerializationFormat.Duration_Milliseconds_Float or SerializationFormat.Duration_Milliseconds_Double =>
                     // See the Duration_Seconds_Float/Double comment above.
                     TimeSpanSnippets.FromMilliseconds(ParseNumeric<double>(content, invariantCulture)),
-                // ISO 8601 ("P"), constant ("c") and plain time ("T") encodings all parse the content directly;
-                // fall back to the constant format specifier for the (practically unreachable) default case.
-                _ => content.As<string>().ParseTimeSpan(Literal(format.ToFormatSpecifier() ?? "c"))
+                // ISO 8601 ("P"), constant ("c") and plain time ("T") encodings all parse the content directly.
+                _ => content.As<string>().ParseTimeSpan(Literal(format.ToFormatSpecifier() ?? throw new InvalidOperationException($"Unsupported duration serialization format: {format}")))
             };
         }
 
@@ -994,6 +993,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private static ScopedApi<T> ParseNumeric<T>(ValueExpression content, ValueExpression invariantCulture)
             where T : struct
         {
+            // Static members on a generic type parameter cannot be referenced by nameof.
             return Static<T>().Invoke("Parse", [content, invariantCulture]).As<T>();
         }
 
