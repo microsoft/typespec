@@ -3,6 +3,7 @@ import { createCSharpNamePolicy } from "@alloy-js/csharp";
 import { describe, expect, it } from "vitest";
 import { Base64UrlJsonConverter } from "./base64-url-json-converter.jsx";
 import { HttpServiceExceptionFilter } from "./http-service-exception-filter.jsx";
+import { HttpServiceException } from "./http-service-exception.jsx";
 import { JsonConverters } from "./json-converters.jsx";
 import { JsonSerializationProvider } from "./json-serialization-provider.jsx";
 import { TimeSpanDurationConverter } from "./time-span-duration-converter.jsx";
@@ -76,17 +77,32 @@ describe("UnixEpochDateTimeConverter", () => {
 });
 
 describe("HttpServiceExceptionFilter", () => {
-  it("renders exception filter and exception class", () => {
+  it("renders the ASP.NET exception filter", () => {
     const output = render(
       <Output namePolicy={createCSharpNamePolicy()}>
         <HttpServiceExceptionFilter />
       </Output>,
     );
-    const content = findFileContent(output, "HttpServiceException.cs");
+    const content = findFileContent(output, "HttpServiceExceptionFilter.cs");
     expect(content).toBeDefined();
     expect(content).toContain("class HttpServiceExceptionFilter");
     expect(content).toContain("IActionFilter, IOrderedFilter");
+    expect(content).not.toContain("class HttpServiceException : Exception");
+  });
+});
+
+describe("HttpServiceException", () => {
+  it("renders the framework-neutral exception base class", () => {
+    const output = render(
+      <Output namePolicy={createCSharpNamePolicy()}>
+        <HttpServiceException />
+      </Output>,
+    );
+    const content = findFileContent(output, "HttpServiceException.cs");
+    expect(content).toBeDefined();
     expect(content).toContain("class HttpServiceException");
+    expect(content).not.toContain("Microsoft.AspNetCore");
+    expect(content).not.toContain("IActionFilter");
   });
 });
 
@@ -123,6 +139,7 @@ describe("JsonConverters", () => {
     expect(findFileContent(output, "UnixEpochDateTimeConverter.cs")).toBeDefined();
     expect(findFileContent(output, "UnixEpochDateTimeOffsetConverter.cs")).toBeDefined();
     expect(findFileContent(output, "HttpServiceException.cs")).toBeDefined();
+    expect(findFileContent(output, "HttpServiceExceptionFilter.cs")).toBeUndefined();
     expect(findFileContent(output, "JsonSerializationProvider.cs")).toBeDefined();
     expect(findFileContent(output, "IJsonSerializationProvider.cs")).toBeDefined();
   });
