@@ -82,10 +82,16 @@ namespace Sample
                             }
                             writer.WriteObjectValue<global::Sample.Models.DynamicCat>(PropertyWithNestedArray[i][i0][i1], options);
                         }
-                        Patch.WriteTo(writer, global::System.Text.Encoding.UTF8.GetBytes($"$.propertyWithNestedArray[{i}][{i0}]"));
+                        if (hasPatch)
+                        {
+                            Patch.WriteTo(writer, global::System.Text.Encoding.UTF8.GetBytes($"$.propertyWithNestedArray[{i}][{i0}]"));
+                        }
                         writer.WriteEndArray();
                     }
-                    Patch.WriteTo(writer, global::System.Text.Encoding.UTF8.GetBytes($"$.propertyWithNestedArray[{i}]"));
+                    if (hasPatch)
+                    {
+                        Patch.WriteTo(writer, global::System.Text.Encoding.UTF8.GetBytes($"$.propertyWithNestedArray[{i}]"));
+                    }
                     writer.WriteEndArray();
                 }
                 Patch.WriteTo(writer, "$.propertyWithNestedArray"u8);

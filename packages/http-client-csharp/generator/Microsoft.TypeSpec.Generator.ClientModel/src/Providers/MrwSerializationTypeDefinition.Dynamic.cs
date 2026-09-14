@@ -89,13 +89,39 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             foreachStatement.Add(innerIfElseProcessorStatement);
             foreachStatement.Add(ifPatchDoesNotContainStatement);
 
-            return new[]
+            var patchedStatements = new MethodBodyStatement[]
             {
-                _utf8JsonWriterSnippet.WriteStartObject(),
                 new IfElsePreprocessorStatement("NET8_0_OR_GREATER", bufferDeclaration),
                 foreachStatement,
                 MethodBodyStatement.EmptyLine,
-                patchSnippet.WriteTo(_utf8JsonWriterSnippet, jsonPath).Terminate(),
+                patchSnippet.WriteTo(_utf8JsonWriterSnippet, jsonPath).Terminate()
+            };
+
+            MethodBodyStatement dictionarySerialization;
+            if (parentHasPatch == null)
+            {
+                dictionarySerialization = patchedStatements;
+            }
+            else
+            {
+                var unpatchedForeachStatement = new ForEachStatement("item", dictionary, out KeyValuePairExpression unpatchedKeyValuePair);
+                unpatchedForeachStatement.Add(_utf8JsonWriterSnippet.WritePropertyName(unpatchedKeyValuePair.Key));
+                unpatchedForeachStatement.Add(CreateElementSerializationWithPatch(
+                    unpatchedKeyValuePair.Value,
+                    unpatchedKeyValuePair.ValueType,
+                    patchSnippet,
+                    serializationFormat,
+                    serializedName,
+                    parentIndices,
+                    False));
+
+                dictionarySerialization = new IfElseStatement(parentHasPatch.As<bool>(), patchedStatements, unpatchedForeachStatement);
+            }
+
+            return new[]
+            {
+                _utf8JsonWriterSnippet.WriteStartObject(),
+                dictionarySerialization,
                 _utf8JsonWriterSnippet.WriteEndObject(),
             };
         }
@@ -175,9 +201,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
             };
 
-            var writeToPatchStatement = parentIndices.Count == 0
+            MethodBodyStatement writeToPatchStatement = parentIndices.Count == 0
                 ? patchSnippet.WriteTo(_utf8JsonWriterSnippet, LiteralU8(jsonPathTemplate)).Terminate()
                 : patchSnippet.WriteTo(_utf8JsonWriterSnippet, Utf8Snippets.GetBytes(new FormattableStringExpression(csharpJsonPathTemplate, parentIndices).As<string>())).Terminate();
+            if (parentHasPatch != null)
+            {
+                writeToPatchStatement = new IfStatement(parentHasPatch.As<bool>()) { writeToPatchStatement };
+            }
 
             var listStatements = new List<MethodBodyStatement>
             {
