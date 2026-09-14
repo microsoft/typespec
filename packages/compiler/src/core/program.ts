@@ -426,7 +426,14 @@ async function createProgram(
   );
   linter.registerLinterLibrary(builtInLinterLibraryName, createBuiltInLinterLibrary());
   if (options.linterRuleSet) {
-    program.reportDiagnostics(await linter.extendRuleSet(options.linterRuleSet));
+    program.reportDiagnostics(
+      await linter.extendRuleSet(options.linterRuleSet, {
+        baseDir: program.projectRoot,
+        source: options.configFile?.file
+          ? { script: options.configFile.file, path: ["linter"] }
+          : undefined,
+      }),
+    );
   }
 
   program.checker = createChecker(program, resolver);

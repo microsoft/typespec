@@ -182,14 +182,54 @@ export function isValueType($: ReturnType<typeof useTsp>["$"], type: Type): bool
   return false;
 }
 
-/** Returns true if any property of the model uses Record<T> (mapped to JsonObject). */
-export function modelNeedsJsonNodes($: ReturnType<typeof useTsp>["$"], model: Model): boolean {
-  for (const prop of model.properties.values()) {
-    if (prop.type.kind === "Model" && $.record.is(prop.type)) {
-      // Only need JsonNodes for Record<unknown> (maps to JsonObject)
-      const valueType = prop.type.indexer?.value;
-      if (valueType?.kind === "Intrinsic" && valueType.name === "unknown") return true;
+/** Returns true if a model property renders a JsonObject type. */
+export function modelNeedsJsonNodes(
+  $: ReturnType<typeof useTsp>["$"],
+  model: Model,
+  includeInherited = false,
+): boolean {
+  let current: Model | undefined = model;
+  while (current) {
+    for (const prop of current.properties.values()) {
+      if (typeNeedsJsonNodes($, prop.type, new Set())) return true;
     }
+    current = includeInherited ? current.baseModel : undefined;
+  }
+  return false;
+}
+
+function typeNeedsJsonNodes(
+  $: ReturnType<typeof useTsp>["$"],
+  type: Type,
+  visited: Set<Type>,
+): boolean {
+  if (visited.has(type)) return false;
+  visited.add(type);
+
+  if (type.kind === "Model") {
+    if ($.record.is(type)) {
+      const valueType = type.indexer?.value;
+      return (
+        (valueType?.kind === "Intrinsic" && valueType.name === "unknown") ||
+        (valueType !== undefined && typeNeedsJsonNodes($, valueType, visited))
+      );
+    }
+    if ($.array.is(type) && type.indexer?.value) {
+      return typeNeedsJsonNodes($, type.indexer.value, visited);
+    }
+    return false;
+  }
+
+  if (type.kind === "Tuple") {
+    return type.values.some((value) => typeNeedsJsonNodes($, value, visited));
+  }
+  if (type.kind === "Union") {
+    return Array.from(type.variants.values()).some((variant) =>
+      typeNeedsJsonNodes($, variant.type, visited),
+    );
+  }
+  if (type.kind === "UnionVariant" || type.kind === "ModelProperty") {
+    return typeNeedsJsonNodes($, type.type, visited);
   }
   return false;
 }
@@ -244,43 +284,6 @@ export function getErrorStatusCode(
   // Fall back to @minValue decorator
   const minVal = getMinValue(program, statusCodeProp);
   return { value: minVal ?? "default" };
-}
-
-/** Gets a simple C# type name string for a TypeSpec type. */
-export function getCSharpTypeString(program: Program, type: Type): string {
-  if (type.kind === "Scalar") {
-    const scalarMap: Record<string, string> = {
-      string: "string",
-      int8: "sbyte",
-      int16: "short",
-      int32: "int",
-      int64: "long",
-      uint8: "byte",
-      uint16: "ushort",
-      uint32: "uint",
-      uint64: "ulong",
-      float32: "float",
-      float64: "double",
-      boolean: "bool",
-      plainDate: "DateOnly",
-      plainTime: "TimeOnly",
-      utcDateTime: "DateTimeOffset",
-      offsetDateTime: "DateTimeOffset",
-      duration: "TimeSpan",
-      bytes: "byte[]",
-      decimal: "decimal",
-      decimal128: "decimal",
-      url: "Uri",
-      safeint: "long",
-    };
-    return scalarMap[type.name] ?? type.name;
-  }
-  if (type.kind === "String") return "string";
-  if (type.kind === "Boolean") return "bool";
-  if (type.kind === "Number") return Number.isInteger(type.value) ? "int" : "double";
-  if (type.kind === "Enum") return type.name;
-  if (type.kind === "Model") return type.name;
-  return "object";
 }
 
 /** Gets the name to use when emitting a model — handles friendly names, template instantiations, and anonymous models. */

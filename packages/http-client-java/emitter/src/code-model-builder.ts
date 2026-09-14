@@ -1518,6 +1518,14 @@ export class CodeModelBuilder {
         extensions["x-ms-skip-url-encoding"] = true;
       }
 
+      if (param.kind === "header") {
+        const collectionHeaderPrefix = this.getCollectionHeaderPrefix(param);
+        if (collectionHeaderPrefix) {
+          extensions = extensions ?? {};
+          extensions["x-ms-header-collection-prefix"] = collectionHeaderPrefix;
+        }
+      }
+
       if (this.supportsAdvancedVersioning() && param.__raw) {
         // versioning
         const addedOn = getAddedOnVersions(this.program, param.__raw);
@@ -3776,7 +3784,9 @@ export class CodeModelBuilder {
     return clientRequired ?? !property.optional;
   }
 
-  private getCollectionHeaderPrefix(header: SdkServiceResponseHeader): string | undefined {
+  private getCollectionHeaderPrefix(
+    header: SdkHeaderParameter | SdkServiceResponseHeader,
+  ): string | undefined {
     const value = getClientOptions(header, "collectionHeaderPrefix");
     const type = getNonNullSdkType(header.type);
     return type.kind === "dict" && typeof value === "string" ? value : undefined;

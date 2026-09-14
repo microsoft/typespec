@@ -8,7 +8,10 @@ import type { OperationHttpCanonicalization } from "@typespec/http-canonicalizat
 import { AspNetMvc } from "../../utils/csharp-libs.jsx";
 import { getHttpVerbAttribute, getRouteTemplate } from "../../utils/http-helpers.js";
 import type { RequestModelInfo } from "../request-models.jsx";
-import { TypeExpression } from "../type-expression/type-expression.jsx";
+import {
+  getNullableValueTypeUnionInnerType,
+  TypeExpression,
+} from "../type-expression/type-expression.jsx";
 import { getBindingAttribute, getLiteralDefaultValue } from "./parameter-binding.js";
 import { getSuccessStatusCode } from "./response-analysis.js";
 
@@ -49,12 +52,15 @@ export function ControllerAction(props: ControllerActionProps): Children {
     if (p.property.isContentTypeProperty) continue;
     const isOptional = p.property.sourceType.optional;
     const literalDefault = getLiteralDefaultValue(p.property.sourceType.type);
+    const nullableValueType = isOptional
+      ? getNullableValueTypeUnionInnerType($, p.property.sourceType.type)
+      : undefined;
     if (p.kind === "path") {
       const paramName = namePolicy.getName(p.property.sourceType.name, "parameter");
       const attr = getBindingAttribute(p, paramName);
       pathParams.push({
         name: paramName,
-        type: <TypeExpression type={p.property.sourceType.type} />,
+        type: <TypeExpression type={nullableValueType ?? p.property.sourceType.type} />,
         attributes: attr ? [attr] : undefined,
         optional: isOptional,
         default: literalDefault,
@@ -63,7 +69,7 @@ export function ControllerAction(props: ControllerActionProps): Children {
       const attr = getBindingAttribute(p);
       queryHeaderParams.push({
         name: namePolicy.getName(p.property.sourceType.name, "parameter"),
-        type: <TypeExpression type={p.property.sourceType.type} />,
+        type: <TypeExpression type={nullableValueType ?? p.property.sourceType.type} />,
         attributes: attr ? [attr] : undefined,
         optional: isOptional,
         default: literalDefault,

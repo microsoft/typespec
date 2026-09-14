@@ -1,0 +1,30 @@
+.origin {
+  font-family: var(--fontFamilyMonospace);
+  gap: 4px;
+}
+
+.position {
+  color: var(--colorNeutralForeground3);
+  margin-left: 4px;
+}
+
+.reveal {
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  cursor: pointer;
+  display: inline-flex;
+}
+
+.reveal:hover .origin,
+.reveal:focus-visible .origin {
+  border-color: var(--colorBrandStroke1);
+  color: var(--colorBrandForegroundLink);
+}
+
+.reveal:hover .position,
+.reveal:focus-visible .position {
+  color: var(--colorBrandForegroundLink);
+  text-decoration: underline;
+}

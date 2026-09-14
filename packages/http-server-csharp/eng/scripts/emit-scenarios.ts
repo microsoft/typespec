@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { select } from "@inquirer/prompts";
+import select from "@inquirer/select";
 import { run } from "@typespec/internal-build-utils";
 import { access, copyFile, glob, mkdir, readFile, rm, writeFile } from "fs/promises";
 import ora from "ora";
