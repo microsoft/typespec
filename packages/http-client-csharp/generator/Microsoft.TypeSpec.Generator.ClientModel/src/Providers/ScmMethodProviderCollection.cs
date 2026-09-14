@@ -297,12 +297,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     .. GetStackVariablesForProtocolParamConversion(convenienceBodyParameters, out var paramDeclarations),
                     Declare("result", This.Invoke(protocolMethod.Signature, [.. GetProtocolMethodArguments(paramDeclarations)], isAsync).ToApi<ClientResponseApi>(), out ClientResponseApi result),
                     .. GetStackVariablesForReturnValueConversion(result, responseBodyType, isAsync, out var resultDeclarations),
-                    // Text/plain primitive and enum responses are parsed directly from the response content, bypassing the
-                    // BinaryData/JsonDocument conversion path entirely. Route them through GetResultConversionStatements even
-                    // when the response body type isn't in the IsConvertibleFromBinaryData allow-list (e.g. Guid, Uri, or the
-                    // byte/short/unsigned integer types), otherwise they would incorrectly fall back to JSON parsing.
+                    // Route primitive and enum responses through GetResultConversionStatements even when the response body type
+                    // isn't in the IsConvertibleFromBinaryData allow-list (e.g. Uri or the byte/short/unsigned integer types).
                     IsConvertibleFromBinaryData(responseBodyType)
-                        || (IsPlainTextParsableType(responseBodyType) && HasOnlyPlainTextContentType())
+                        || IsPlainTextParsableType(responseBodyType)
                         ? GetResultConversionStatements(result, result.GetRawResponse(), responseBodyType, resultDeclarations)
                         :
                         new[]
@@ -645,19 +643,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     out declarations);
             }
 
-            if (IsConvertibleFromBinaryData(responseBodyType)
+            if ((IsConvertibleFromBinaryData(responseBodyType) || IsPlainTextParsableType(responseBodyType))
                 && (responseBodyType.IsFrameworkType || responseBodyType.IsEnum)
                 && !responseBodyType.Equals(typeof(BinaryData))
                 && !HasOnlyPlainTextContentType())
             {
                 var data = result.GetRawResponse().Content();
-                // JsonDocument.Parse(Stream) does not strip a leading UTF-8 BOM, so trim it from the
-                // content string before parsing to preserve ToObjectFromJson's BOM handling.
-                var content = data.InvokeToString().Invoke(nameof(string.TrimStart), Literal('\uFEFF')).As<string>();
+                var contentExpression = data.InvokeToString().Invoke(nameof(string.TrimStart), Literal('\uFEFF')).As<string>();
                 var statements = new MethodBodyStatement[]
                 {
-                    Declare("content", typeof(string), content, out var contentValue),
-                    UsingDeclare("document", JsonDocumentSnippets.Parse(contentValue), out var document)
+                    Declare("content", typeof(string), contentExpression, out var content),
+                    UsingDeclare("document", JsonDocumentSnippets.Parse(content), out var document)
                 };
                 declarations["data"] = data;
                 declarations["document"] = document;
@@ -970,6 +966,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private ValueExpression GetPlainTextTimeSpanConversion(ValueExpression content, ValueExpression invariantCulture)
         {
             var format = GetResponseSerializationFormat();
+            var formatSpecifier = format.ToFormatSpecifier();
+            if (formatSpecifier is null)
+            {
+                ScmCodeModelGenerator.Instance.Emitter.ReportDiagnostic(
+                    DiagnosticCodes.UnsupportedSerialization,
+                    $"Unsupported duration serialization format: {format}. Falling back to constant duration format.",
+                    ServiceMethod.Operation.CrossLanguageDefinitionId);
+                formatSpecifier = SerializationFormat.Duration_Constant.ToFormatSpecifier();
+            }
+
             return format switch
             {
                 SerializationFormat.Duration_Seconds =>
@@ -988,28 +994,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     // See the Duration_Seconds_Float/Double comment above.
                     TimeSpanSnippets.FromMilliseconds(ParseNumeric<double>(content, invariantCulture)),
                 // ISO 8601 ("P"), constant ("c") and plain time ("T") encodings all parse the content directly.
-                _ => content.As<string>().ParseTimeSpan(Literal(GetDurationFormatSpecifierOrFallback(format)))
+                _ => content.As<string>().ParseTimeSpan(Literal(formatSpecifier))
             };
-        }
-
-        /// <summary>
-        /// Resolves the format specifier for a <see cref="TimeSpan"/> duration encoding, reporting an
-        /// <see cref="DiagnosticCodes.UnsupportedSerialization"/> diagnostic and falling back to the constant
-        /// ("c") format instead of throwing when the encoding (e.g. a custom/unrecognized duration encoding,
-        /// which maps to <see cref="SerializationFormat.Default"/>) has no known format specifier.
-        /// </summary>
-        private static string GetDurationFormatSpecifierOrFallback(SerializationFormat format)
-        {
-            var formatSpecifier = format.ToFormatSpecifier();
-            if (formatSpecifier is not null)
-            {
-                return formatSpecifier;
-            }
-
-            ScmCodeModelGenerator.Instance.Emitter.ReportDiagnostic(
-                DiagnosticCodes.UnsupportedSerialization,
-                $"Unsupported duration serialization format: {format}. Falling back to the constant (\"c\") format.");
-            return "c";
         }
 
         /// <summary>

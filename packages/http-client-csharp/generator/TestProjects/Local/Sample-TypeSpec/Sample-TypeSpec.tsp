@@ -955,3 +955,11 @@ op getJsonInt32(): {
   @body body: int32;
   @header contentType: "application/json";
 };
+
+@get
+@route("/json-uint8")
+@doc("get JSON uint8")
+op getJsonUint8(): {
+  @body body: uint8;
+  @header contentType: "application/json";
+};

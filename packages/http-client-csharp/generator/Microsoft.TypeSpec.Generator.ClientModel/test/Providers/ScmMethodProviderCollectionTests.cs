@@ -5,12 +5,15 @@ using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.ServerSentEvents;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
+using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -1570,6 +1573,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         [TestCase(typeof(bool?))]
         [TestCase(typeof(string))]
         [TestCase(typeof(Uri))]
+        [TestCase(typeof(byte))]
+        [TestCase(typeof(sbyte))]
         [TestCase(typeof(BinaryData))]
         [TestCase(typeof(DateTimeOffset))]
         [TestCase(typeof(TimeSpan))]
@@ -1589,6 +1594,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 { } t when t == typeof(int) => InputPrimitiveType.Int32,
                 { } t when t == typeof(long) => InputPrimitiveType.Int64,
                 { } t when t == typeof(Uri) => InputPrimitiveType.Url,
+                { } t when t == typeof(byte) => new InputPrimitiveType(InputPrimitiveTypeKind.UInt8, "uint8", "TypeSpec.uint8"),
+                { } t when t == typeof(sbyte) => new InputPrimitiveType(InputPrimitiveTypeKind.Int8, "int8", "TypeSpec.int8"),
                 { } t when t == typeof(BinaryData) => InputPrimitiveType.Base64,
                 _ => null
             };
@@ -1772,7 +1779,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         }
 
         [Test]
-        public void PlainTextDurationReturnTypeMethodsFallsBackForUnsupportedEncoding()
+        public void PlainTextDurationReturnTypeMethodsReportsUnsupportedEncoding()
         {
             InputType inputType = new InputDurationType(new DurationKnownEncoding("Custom"), "duration", "TypeSpec.duration", InputPrimitiveType.Int32, null);
 
@@ -1781,16 +1788,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var serviceMethod = InputFactory.BasicServiceMethod("GetPlainTextDuration", operation);
             var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
 
-            MockHelpers.LoadMockGenerator();
+            using var output = new MemoryStream();
+            using var emitter = new Emitter(output);
+            var mockGenerator = MockHelpers.LoadMockGenerator();
+            mockGenerator.SetupGet(p => p.Emitter).Returns(emitter);
             var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
-            var method = new ScmMethodProviderCollection(serviceMethod, client!)
-                .Single(m => m.Kind == ScmMethodKind.Convenience && m.Signature.Name == "GetPlainTextDuration");
+            var methods = new ScmMethodProviderCollection(serviceMethod, client!);
+            var method = methods.Single(m => m.Kind == ScmMethodKind.Convenience && m.Signature.Name == "GetPlainTextDuration");
 
             using var writer = new CodeWriter();
             writer.WriteMethod(method);
-            // An unsupported/custom duration encoding has no known format specifier, so generation reports a
-            // diagnostic and falls back to the constant ("c") format instead of throwing.
-            Assert.AreEqual(Helpers.GetExpectedFromFile("Constant", method: "PlainTextDurationReturnTypeMethods"), writer.ToString(false));
+            Assert.AreEqual(Helpers.GetExpectedFromFile("Custom"), writer.ToString(false));
+
+            output.Position = 0;
+            using var reader = new StreamReader(output, Encoding.UTF8);
+            StringAssert.Contains(@"""code"":""unsupported-serialization""", reader.ReadToEnd());
         }
 
         [TestCase(true, true, false)]

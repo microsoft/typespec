@@ -2122,6 +2122,64 @@ namespace SampleTypeSpec
             return ClientResult.FromValue(value, result.GetRawResponse());
         }
 
+        /// <summary>
+        /// [Protocol Method] get JSON uint8
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult GetJsonUint8(RequestOptions options)
+        {
+            using PipelineMessage message = CreateGetJsonUint8Request(options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
+
+        /// <summary>
+        /// [Protocol Method] get JSON uint8
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> GetJsonUint8Async(RequestOptions options)
+        {
+            using PipelineMessage message = CreateGetJsonUint8Request(options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> get JSON uint8. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult<byte> GetJsonUint8(CancellationToken cancellationToken = default)
+        {
+            ClientResult result = GetJsonUint8(cancellationToken.ToRequestOptions());
+            string content = result.GetRawResponse().Content.ToString().TrimStart('﻿');
+            using JsonDocument document = JsonDocument.Parse(content);
+            byte value = document.RootElement.GetByte();
+            return ClientResult.FromValue(value, result.GetRawResponse());
+        }
+
+        /// <summary> get JSON uint8. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult<byte>> GetJsonUint8Async(CancellationToken cancellationToken = default)
+        {
+            ClientResult result = await GetJsonUint8Async(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            string content = result.GetRawResponse().Content.ToString().TrimStart('﻿');
+            using JsonDocument document = JsonDocument.Parse(content);
+            byte value = document.RootElement.GetByte();
+            return ClientResult.FromValue(value, result.GetRawResponse());
+        }
+
         /// <summary> Initializes a new instance of AnimalOperations. </summary>
         public virtual AnimalOperations GetAnimalOperationsClient()
         {
