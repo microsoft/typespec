@@ -1742,7 +1742,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 _ => throw new NotSupportedException()
             };
             var wireType = wireKind is { } kind
-                ? new InputPrimitiveType(kind, kind.ToString()!.ToLowerInvariant(), $"TypeSpec.{kind.ToString()!.ToLowerInvariant()}")
+                ? new InputPrimitiveType(kind, kind.ToString().ToLowerInvariant(), $"TypeSpec.{kind.ToString().ToLowerInvariant()}")
                 : InputPrimitiveType.Int32;
             InputType inputType = new InputDurationType(durationEncoding, "duration", "TypeSpec.duration", wireType, null);
             if (isNullable)

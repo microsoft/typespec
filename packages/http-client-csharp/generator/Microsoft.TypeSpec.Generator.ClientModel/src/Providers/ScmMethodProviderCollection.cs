@@ -994,9 +994,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private static ScopedApi<T> ParseNumeric<T>(ValueExpression content, ValueExpression invariantCulture)
             where T : struct
         {
-            // "Parse" is the static method name on every numeric type this is instantiated with (int, long, double);
-            // nameof(int.Parse) is used to keep the literal refactor-safe.
-            return Static<T>().Invoke(nameof(int.Parse), [content, invariantCulture]).As<T>();
+            return Static<T>().Invoke("Parse", [content, invariantCulture]).As<T>();
         }
 
         private static bool IsPlainTextParsableType(CSharpType responseBodyType)
