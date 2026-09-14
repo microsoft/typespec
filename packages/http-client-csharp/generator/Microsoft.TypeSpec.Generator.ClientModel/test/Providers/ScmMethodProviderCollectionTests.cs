@@ -1742,6 +1742,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.AreEqual(Helpers.GetExpectedFromFile("Int32", nameof(PlainTextScalarReturnTypeMethods)), writer.ToString(false));
         }
 
+        [Test]
+        public void JsonScalarReturnTypeMethodsDoNotMatchTextPlainMediaTypeParameter()
+        {
+            var operation = InputFactory.Operation("GetScalar", responses:
+                [InputFactory.OperationResponse([200], InputPrimitiveType.Int32, contentTypes: ["application/json; profile=\"text/plain\""])]);
+            var serviceMethod = InputFactory.BasicServiceMethod("GetScalar", operation);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+
+            MockHelpers.LoadMockGenerator();
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            var method = new ScmMethodProviderCollection(serviceMethod, client!)
+                .Single(m => m.Kind == ScmMethodKind.Convenience && m.Signature.Name == "GetScalar");
+
+            using var writer = new CodeWriter();
+            writer.WriteMethod(method);
+            Assert.AreEqual(Helpers.GetExpectedFromFile("Int32", nameof(ScalarReturnTypeMethods)), writer.ToString(false));
+        }
+
         [TestCase("Iso8601", null, false)]
         [TestCase("Constant", null, false)]
         [TestCase("Seconds", InputPrimitiveTypeKind.Int32, false)]

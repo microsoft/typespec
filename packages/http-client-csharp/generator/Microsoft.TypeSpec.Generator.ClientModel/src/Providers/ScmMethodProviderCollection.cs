@@ -1058,7 +1058,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var contentTypes = ServiceMethod.Operation.Responses
                 .Where(r => r.IsErrorResponse is false)
                 .SelectMany(r => r.ContentTypes);
-            return contentTypes.Any() && contentTypes.All(contentType => contentType.Contains("text/plain", StringComparison.OrdinalIgnoreCase));
+            return contentTypes.Any() && contentTypes.All(IsPlainTextContentType);
+        }
+
+        private static bool IsPlainTextContentType(string contentType)
+        {
+            return contentType.Split(';')[0].Trim().Equals("text/plain", StringComparison.OrdinalIgnoreCase);
         }
 
         private SerializationFormat GetResponseSerializationFormat()
