@@ -964,6 +964,27 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private ValueExpression GetPlainTextTimeSpanConversion(ValueExpression content, ValueExpression invariantCulture)
         {
             var format = GetResponseSerializationFormat();
+            switch (format)
+            {
+                case SerializationFormat.Duration_Seconds:
+                    return TimeSpanSnippets.FromSeconds(ParseNumeric<int>(content, invariantCulture));
+                case SerializationFormat.Duration_Seconds_Int64:
+                    return TimeSpanSnippets.FromSeconds(ParseNumeric<long>(content, invariantCulture));
+                case SerializationFormat.Duration_Seconds_Float:
+                case SerializationFormat.Duration_Seconds_Double:
+                    // Float and Double wire encodings are intentionally collapsed to a single double.Parse,
+                    // matching MrwSerializationTypeDefinition's JSON path, which uses GetDouble() for both.
+                    return TimeSpanSnippets.FromSeconds(ParseNumeric<double>(content, invariantCulture));
+                case SerializationFormat.Duration_Milliseconds:
+                    return TimeSpanSnippets.FromMilliseconds(ParseNumeric<int>(content, invariantCulture));
+                case SerializationFormat.Duration_Milliseconds_Int64:
+                    return TimeSpanSnippets.FromMilliseconds(ParseNumeric<long>(content, invariantCulture));
+                case SerializationFormat.Duration_Milliseconds_Float:
+                case SerializationFormat.Duration_Milliseconds_Double:
+                    // See the Duration_Seconds_Float/Double comment above.
+                    return TimeSpanSnippets.FromMilliseconds(ParseNumeric<double>(content, invariantCulture));
+            }
+
             var formatSpecifier = format.ToFormatSpecifier();
             if (formatSpecifier is null)
             {
@@ -971,29 +992,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     DiagnosticCodes.UnsupportedSerialization,
                     $"Unsupported duration serialization format: {format}. Falling back to constant duration format.",
                     ServiceMethod.Operation.CrossLanguageDefinitionId);
-                formatSpecifier = SerializationFormat.Duration_Constant.ToFormatSpecifier();
+                formatSpecifier = SerializationFormat.Duration_Constant.ToFormatSpecifier()!;
             }
 
-            return format switch
-            {
-                SerializationFormat.Duration_Seconds =>
-                    TimeSpanSnippets.FromSeconds(ParseNumeric<int>(content, invariantCulture)),
-                SerializationFormat.Duration_Seconds_Int64 =>
-                    TimeSpanSnippets.FromSeconds(ParseNumeric<long>(content, invariantCulture)),
-                SerializationFormat.Duration_Seconds_Float or SerializationFormat.Duration_Seconds_Double =>
-                    // Float and Double wire encodings are intentionally collapsed to a single double.Parse,
-                    // matching MrwSerializationTypeDefinition's JSON path, which uses GetDouble() for both.
-                    TimeSpanSnippets.FromSeconds(ParseNumeric<double>(content, invariantCulture)),
-                SerializationFormat.Duration_Milliseconds =>
-                    TimeSpanSnippets.FromMilliseconds(ParseNumeric<int>(content, invariantCulture)),
-                SerializationFormat.Duration_Milliseconds_Int64 =>
-                    TimeSpanSnippets.FromMilliseconds(ParseNumeric<long>(content, invariantCulture)),
-                SerializationFormat.Duration_Milliseconds_Float or SerializationFormat.Duration_Milliseconds_Double =>
-                    // See the Duration_Seconds_Float/Double comment above.
-                    TimeSpanSnippets.FromMilliseconds(ParseNumeric<double>(content, invariantCulture)),
-                // ISO 8601 ("P"), constant ("c") and plain time ("T") encodings all parse the content directly.
-                _ => content.As<string>().ParseTimeSpan(Literal(formatSpecifier))
-            };
+            // ISO 8601 ("P"), constant ("c") and plain time ("T") encodings all parse the content directly.
+            return content.As<string>().ParseTimeSpan(Literal(formatSpecifier));
         }
 
         /// <summary>

@@ -1767,7 +1767,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var serviceMethod = InputFactory.BasicServiceMethod("GetPlainTextDuration", operation);
             var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
 
-            MockHelpers.LoadMockGenerator();
+            using var output = new MemoryStream();
+            using var emitter = new Emitter(output);
+            var mockGenerator = MockHelpers.LoadMockGenerator();
+            mockGenerator.SetupGet(p => p.Emitter).Returns(emitter);
             var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
             var method = new ScmMethodProviderCollection(serviceMethod, client!)
                 .Single(m => m.Kind == ScmMethodKind.Convenience && m.Signature.Name == "GetPlainTextDuration");
@@ -1776,6 +1779,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             writer.WriteMethod(method);
             var baselineName = (wireKind is { } k ? $"{encoding}{k}" : encoding) + (isNullable ? "Nullable" : string.Empty);
             Assert.AreEqual(Helpers.GetExpectedFromFile(baselineName), writer.ToString(false));
+
+            output.Position = 0;
+            using var reader = new StreamReader(output, Encoding.UTF8);
+            Assert.AreEqual(string.Empty, reader.ReadToEnd());
         }
 
         [Test]
