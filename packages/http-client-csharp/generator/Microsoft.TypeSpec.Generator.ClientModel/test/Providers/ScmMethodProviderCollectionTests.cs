@@ -1730,6 +1730,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         [TestCase("Constant", null, true)]
         [TestCase("Seconds", InputPrimitiveTypeKind.Int32, true)]
         [TestCase("Seconds", InputPrimitiveTypeKind.Int64, true)]
+        [TestCase("Seconds", InputPrimitiveTypeKind.Float32, true)]
+        [TestCase("Seconds", InputPrimitiveTypeKind.Float64, true)]
+        [TestCase("Milliseconds", InputPrimitiveTypeKind.Int32, true)]
+        [TestCase("Milliseconds", InputPrimitiveTypeKind.Int64, true)]
+        [TestCase("Milliseconds", InputPrimitiveTypeKind.Float32, true)]
         [TestCase("Milliseconds", InputPrimitiveTypeKind.Float64, true)]
         public void PlainTextDurationReturnTypeMethods(string encoding, InputPrimitiveTypeKind? wireKind, bool isNullable)
         {
