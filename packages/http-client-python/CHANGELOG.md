@@ -1,5 +1,18 @@
 # Change Log - @typespec/http-client-python
 
+## 0.37.2
+
+### Bump dependencies
+
+- [#11919](https://github.com/microsoft/typespec/pull/11919) Update dependencies for TypeSpec 1.16.0.
+
+## 0.37.1
+
+### Bug Fixes
+
+- [#11823](https://github.com/microsoft/typespec/pull/11823) Allow `no-sdk-clients` warnings to be suppressed by reporting them on the TypeSpec service namespace.
+- [#11811](https://github.com/microsoft/typespec/pull/11811) Fix playground bundle publish failing with esbuild errors ("Could not resolve child_process/crypto/fs/promises/os") by moving the browser-safe YAML serialization helper out of a module that also contains Node-only code
+
 ## 0.37.0
 
 ### Features

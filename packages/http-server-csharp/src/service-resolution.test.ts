@@ -34,6 +34,24 @@ it("excludes models declared outside the service namespace that are not referenc
   expect(resolution.models.map((m) => m.name).sort()).toEqual(["Used", "Widget"]);
 });
 
+it("uses the namespace declared with @service instead of an earlier non-standard namespace", async () => {
+  const resolution = await resolve(`
+    namespace Imported {
+      model ClientOptions {}
+    }
+
+    @service
+    namespace Azure.AI.Projects {
+      model Widget { id: string; }
+      op read(): Widget;
+    }
+  `);
+
+  expect(resolution.serviceNamespace?.name).toBe("Projects");
+  expect(resolution.serviceNamespaceName).toBe("Azure.Ai.Projects");
+  expect(resolution.models.map((m) => m.name)).toEqual(["Widget"]);
+});
+
 it("excludes enums and union enums declared outside the service namespace that are not referenced", async () => {
   const resolution = await resolve(`
     namespace Other {
@@ -139,6 +157,8 @@ it("emits every namespace when no service is declared", async () => {
     }
   `);
 
+  expect(resolution.serviceNamespace?.name).toBe("Other");
+  expect(resolution.serviceNamespaceName).toBe("Other");
   expect(resolution.models.map((m) => m.name).sort()).toEqual(["Standalone", "Widget"]);
 });
 

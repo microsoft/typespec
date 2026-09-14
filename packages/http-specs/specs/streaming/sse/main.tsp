@@ -154,14 +154,14 @@ namespace Retrieve {
 
 @route("protocol")
 namespace Protocol {
-  model Info {
+  model ProtocolInfo {
     message: string;
   }
 
   @events
   union ProtocolEvents {
     @Events.contentType("application/json")
-    message: Info,
+    message: ProtocolInfo,
   }
 
   @route("data")

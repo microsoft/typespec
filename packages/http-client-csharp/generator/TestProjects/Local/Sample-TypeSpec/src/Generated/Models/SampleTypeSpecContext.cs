@@ -27,6 +27,7 @@ namespace SampleTypeSpec
     [ModelReaderWriterBuildable(typeof(ListWithStringNextLinkResponse))]
     [ModelReaderWriterBuildable(typeof(ModelWithEmbeddedNonBodyParameters))]
     [ModelReaderWriterBuildable(typeof(ModelWithRequiredNullableProperties))]
+    [ModelReaderWriterBuildable(typeof(NullableDynamicModel))]
     [ModelReaderWriterBuildable(typeof(PageThing))]
     [ModelReaderWriterBuildable(typeof(Pet))]
     [ModelReaderWriterBuildable(typeof(Plant))]
