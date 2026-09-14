@@ -94,6 +94,12 @@ export const libDef = {
         default: paramMessage`Operation \`${"operation"}\` is defined multiple times on \`${"model"}\`.`,
       },
     },
+    "output-file-collision": {
+      severity: "error",
+      messages: {
+        default: paramMessage`Multiple GraphQL schemas resolve to the output file "${"path"}".`,
+      },
+    },
     "invalid-interface": {
       severity: "error",
       messages: {

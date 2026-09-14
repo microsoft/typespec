@@ -62,6 +62,21 @@ describe("UriTemplateSource", () => {
     expect((await source.readFile("sample/main.tsp")).text).toBe("op ping(): void;");
   });
 
+  it("rejects local template file symlinks that escape the template root", async () => {
+    const host = {
+      ...testFs.compilerHost,
+      realpath: async (path: string) =>
+        path === resolvePath(root, "sample/main.tsp")
+          ? "/outside/main.tsp"
+          : testFs.compilerHost.realpath(path),
+    };
+    const source = new UriTemplateSource(host, resolvePath(root, "scaffolding.json"));
+
+    await expect(source.readFile("sample/main.tsp")).rejects.toThrow(
+      'Template file path must be a relative path: "sample/main.tsp"',
+    );
+  });
+
   it("resolves remote template files relative to the index URL", async () => {
     const reads: string[] = [];
     const host = {

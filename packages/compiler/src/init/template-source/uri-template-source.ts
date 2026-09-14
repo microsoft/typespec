@@ -1,4 +1,10 @@
-import { getDirectoryPath, isUrl } from "../../core/path-utils.js";
+import {
+  getDirectoryPath,
+  getRelativePathFromDirectory,
+  isPathAbsolute,
+  isUrl,
+  normalizePath,
+} from "../../core/path-utils.js";
 import type { SourceFile, SystemHost } from "../../core/types.js";
 import { readUrlOrPath, resolveRelativeUrlOrPath } from "../../utils/misc.js";
 import {
@@ -62,6 +68,17 @@ export class UriTemplateSource implements TemplateSource {
       if (
         resolvedUrl.origin !== baseUrl.origin ||
         !resolvedUrl.pathname.startsWith(baseUrl.pathname)
+      ) {
+        throw new Error(`Template file path must be a relative path: "${relativePath}"`);
+      }
+    } else {
+      const realBasePath = normalizePath(await this.#host.realpath(this.#baseUri));
+      const realFilePath = normalizePath(await this.#host.realpath(resolvedPath));
+      const relativeRealPath = getRelativePathFromDirectory(realBasePath, realFilePath, false);
+      if (
+        isPathAbsolute(relativeRealPath) ||
+        relativeRealPath === ".." ||
+        relativeRealPath.startsWith("../")
       ) {
         throw new Error(`Template file path must be a relative path: "${relativePath}"`);
       }

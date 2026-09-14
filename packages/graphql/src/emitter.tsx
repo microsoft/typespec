@@ -12,7 +12,7 @@ import { TspContext } from "@typespec/emitter-framework";
 import { printSchema } from "graphql";
 import { Schema } from "./components/schema.js";
 import { GraphQLSchemaContext } from "./context/index.js";
-import { type GraphQLEmitterOptions } from "./lib.js";
+import { reportDiagnostic, type GraphQLEmitterOptions } from "./lib.js";
 import { getOperationKind } from "./lib/operation-kind.js";
 import { listSchemas } from "./lib/schema.js";
 import { createGraphQLMutationEngine } from "./mutation-engine/index.js";
@@ -22,6 +22,7 @@ import { resolveTypeUsage } from "./type-usage.js";
 
 export async function $onEmit(context: EmitContext<GraphQLEmitterOptions>) {
   const schemas = listSchemas(context.program);
+  const outputFiles = new Set<string>();
   if (schemas.length === 0) {
     schemas.push({ type: context.program.getGlobalNamespaceType() });
   }
@@ -35,6 +36,15 @@ export async function $onEmit(context: EmitContext<GraphQLEmitterOptions>) {
         const fileName = interpolatePath(outputFile, {
           "schema-name": sanitizePathSegment(schema.name ?? "schema"),
         });
+        if (outputFiles.has(fileName)) {
+          reportDiagnostic(context.program, {
+            code: "output-file-collision",
+            format: { path: fileName },
+            target: schema.type,
+          });
+          continue;
+        }
+        outputFiles.add(fileName);
         await emitFile(context.program, {
           path: resolvePath(context.emitterOutputDir, fileName),
           content: sdl,

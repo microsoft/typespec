@@ -288,7 +288,7 @@ async function validateRealPathWithinProject(
   destination: string,
 ): Promise<void> {
   const realProjectDirectory = normalizePath(await host.realpath(projectDirectory));
-  let ancestor = getDirectoryPath(destinationFilePath);
+  let ancestor = destinationFilePath;
 
   while (true) {
     try {

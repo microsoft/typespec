@@ -1,4 +1,4 @@
-import { expectDiagnosticEmpty } from "@typespec/compiler/testing";
+import { expectDiagnosticEmpty, expectDiagnostics } from "@typespec/compiler/testing";
 import { describe, expect, it } from "vitest";
 import { EmitterTester, emitSingleSchemaWithDiagnostics } from "./test-host.js";
 
@@ -91,5 +91,34 @@ describe("emitter", () => {
 
     expect(result.outputs).toHaveProperty(".._.._outside_schema.graphql");
     expect(result.outputs).not.toHaveProperty("../../outside/schema.graphql");
+  });
+
+  it("reports schema names that resolve to the same output path", async () => {
+    const [result, diagnostics] = await EmitterTester.compileAndDiagnose(
+      `
+        @schema(#{ name: "a/b" })
+        namespace First {
+          @query op first(): string;
+        }
+
+        @schema(#{ name: "a_b" })
+        namespace Second {
+          @query op second(): string;
+        }
+      `,
+      {
+        compilerOptions: {
+          options: {
+            "@typespec/graphql": { "output-file": "{schema-name}.graphql" },
+          },
+        },
+      },
+    );
+
+    expectDiagnostics(diagnostics, {
+      code: "@typespec/graphql/output-file-collision",
+      message: 'Multiple GraphQL schemas resolve to the output file "a_b.graphql".',
+    });
+    expect(Object.keys(result.outputs)).toEqual(["a_b.graphql"]);
   });
 });
