@@ -16,6 +16,9 @@ export function getSuccessStatusCode(
 
   // Check direct model response
   if (returnType.kind === "Model") {
+    if (isErrorModel(program, returnType) || returnType.name?.toLowerCase() === "error") {
+      return { statusCode: 204, hasBody: false };
+    }
     return analyzeResponseModel(returnType);
   }
 
@@ -23,6 +26,7 @@ export function getSuccessStatusCode(
   if (returnType.kind === "Union") {
     let hasVoidSuccess = false;
     let hasValueSuccess = false;
+    let bodylessSuccess: { statusCode: number | undefined; hasBody: boolean } | undefined;
     const visitedUnions = new Set<Type>();
 
     function analyzeVariant(
@@ -46,9 +50,13 @@ export function getSuccessStatusCode(
 
       if (type.kind === "Model") {
         // Skip models with @error decorator or error-range status codes
-        if (isErrorModel(program, type)) return undefined;
+        if (isErrorModel(program, type) || type.name?.toLowerCase() === "error") return undefined;
         const result = analyzeResponseModel(type);
         if (result.statusCode !== undefined && result.statusCode >= 400) return undefined;
+        if (!result.hasBody) {
+          bodylessSuccess ??= result;
+          return undefined;
+        }
         return result;
       }
 
@@ -62,6 +70,9 @@ export function getSuccessStatusCode(
     }
     if (hasValueSuccess) {
       return { statusCode: 200, hasBody: true };
+    }
+    if (bodylessSuccess !== undefined) {
+      return bodylessSuccess;
     }
     if (hasVoidSuccess) {
       return { statusCode: 204, hasBody: false };

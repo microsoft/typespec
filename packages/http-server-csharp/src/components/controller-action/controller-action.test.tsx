@@ -290,3 +290,72 @@ it("uses a nested union success type in response metadata", async () => {
     }
   `);
 });
+
+it("prefers value success variants over status-code-only models", async () => {
+  const { getPet } = await runner.compile(t.code`
+    model EmptyResponse {
+      @statusCode statusCode: 204;
+    }
+
+    interface PetStore {
+      @route("/pets") @get ${t.op("getPet")}(): EmptyResponse | string;
+    }
+  `);
+
+  const canonOp = canonicalizeOp(getPet);
+
+  expect(
+    <Wrapper>
+      <ControllerAction operation={canonOp} implFieldName="PetStoreImpl" />
+    </Wrapper>,
+  ).toRenderTo(`
+    using Microsoft.AspNetCore.Mvc;
+
+    class TestController
+    {
+        [HttpGet]
+        [Route("/pets")]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(string))]
+        public virtual async Task<IActionResult> GetPet()
+        {
+            var result = await PetStoreImpl.GetPetAsync();
+            return Ok(result);
+        }
+    }
+  `);
+});
+
+it("does not assign a result for direct error responses", async () => {
+  const { getPet } = await runner.compile(t.code`
+    @error
+    model ErrorResponse {
+      code: string;
+    }
+
+    interface PetStore {
+      @route("/pets") @get ${t.op("getPet")}(): ErrorResponse;
+    }
+  `);
+
+  const canonOp = canonicalizeOp(getPet);
+
+  expect(
+    <Wrapper>
+      <ControllerAction operation={canonOp} implFieldName="PetStoreImpl" />
+    </Wrapper>,
+  ).toRenderTo(`
+    using Microsoft.AspNetCore.Mvc;
+
+    class TestController
+    {
+        [HttpGet]
+        [Route("/pets")]
+        [ProducesResponseType((int)HttpStatusCode.NoContent, Type = typeof(void))]
+        public virtual async Task<IActionResult> GetPet()
+        {
+            await PetStoreImpl.GetPetAsync();
+            return NoContent();
+        }
+    }
+  `);
+});
