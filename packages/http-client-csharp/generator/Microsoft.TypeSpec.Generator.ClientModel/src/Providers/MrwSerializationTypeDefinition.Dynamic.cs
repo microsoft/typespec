@@ -112,7 +112,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
             else
             {
-                var unpatchedForeachStatement = new ForEachStatement("item", dictionary, out KeyValuePairExpression unpatchedKeyValuePair);
+                var unpatchedForeachStatement = new ForEachStatement("unpatchedItem", dictionary, out KeyValuePairExpression unpatchedKeyValuePair);
+                // This branch only runs when the inherited patch guard is false, so nested serializers can skip path-dependent patch work.
                 unpatchedForeachStatement.Add(CreateDictionaryItemSerialization(unpatchedKeyValuePair, False));
 
                 dictionarySerialization = new IfElseStatement(parentHasPatch.As<bool>(), patchedStatements, unpatchedForeachStatement);

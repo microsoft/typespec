@@ -115,15 +115,15 @@ namespace Sample
                             }
                             else
                             {
-                                foreach (var item in PropertyWithNestedArray[i][i0][i1])
+                                foreach (var unpatchedItem in PropertyWithNestedArray[i][i0][i1])
                                 {
-                                    writer.WritePropertyName(item.Key);
-                                    if ((item.Value == null))
+                                    writer.WritePropertyName(unpatchedItem.Key);
+                                    if ((unpatchedItem.Value == null))
                                     {
                                         writer.WriteNullValue();
                                         continue;
                                     }
-                                    writer.WriteStringValue(item.Value);
+                                    writer.WriteStringValue(unpatchedItem.Value);
                                 }
                             }
                             writer.WriteEndObject();
