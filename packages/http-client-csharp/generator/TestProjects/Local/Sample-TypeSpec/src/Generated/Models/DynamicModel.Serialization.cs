@@ -541,7 +541,7 @@ namespace SampleTypeSpec
                     {
                         continue;
                     }
-                    optionalUnknown = BinaryData.FromString(prop.Value.GetRawText());
+                    optionalUnknown = prop.Value.GetUtf8Bytes();
                     continue;
                 }
                 if (prop.NameEquals("optionalInt"u8))

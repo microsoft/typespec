@@ -50,6 +50,32 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual("BaseModel description", provider!.Description.ToString());
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
+        [SetCulture("en-US")]
+        public void DerivedModelsAreSortedAndDeduplicated(bool reverseInputOrder)
+        {
+            var cat = InputFactory.Model("Cat");
+            var zebra = InputFactory.Model("Zebra");
+            var antelope = InputFactory.Model("antelope", isExactName: true);
+            InputModelType[] subtypes = [zebra, cat];
+            InputModelType[] derivedModels = [antelope, cat];
+            if (reverseInputOrder)
+            {
+                Array.Reverse(subtypes);
+                Array.Reverse(derivedModels);
+            }
+
+            var inputModel = InputFactory.Model(
+                "Animal",
+                discriminatedModels: subtypes.ToDictionary(m => m.Name),
+                derivedModels: derivedModels);
+            var model = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel);
+
+            Assert.IsNotNull(model);
+            Assert.AreEqual(new[] { "Cat", "Zebra", "antelope" }, model!.DerivedModels.Select(m => m.Name));
+        }
+
         [Test]
         public void TestBuildProperties_ValidateInheritHierarchyWithOverride()
         {
