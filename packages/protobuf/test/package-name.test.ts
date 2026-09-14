@@ -1,12 +1,8 @@
-import { createTester, expectDiagnostics, findTestPackageRoot } from "@typespec/compiler/testing";
+import { expectDiagnostics } from "@typespec/compiler/testing";
 import { describe, expect, it } from "vitest";
+import { Tester as BaseTester } from "./test-host.js";
 
-const packageRoot = await findTestPackageRoot(import.meta.url);
-const Tester = createTester(packageRoot, {
-  libraries: ["@typespec/protobuf"],
-})
-  .importLibraries()
-  .using("Protobuf");
+const Tester = BaseTester.importLibraries().using("Protobuf");
 
 describe("@package name", () => {
   it.each([
