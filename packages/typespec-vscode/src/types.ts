@@ -10,6 +10,7 @@ export const enum SettingName {
 
 export const enum CommandName {
   ShowOutputChannel = "typespec.showOutputChannel",
+  FixBreakingChange = "typespec.fixBreakingChange",
   RestartServer = "typespec.restartServer",
   InstallGlobalCompilerCli = "typespec.installGlobalCompilerCli",
   CreateProject = "typespec.createProject",

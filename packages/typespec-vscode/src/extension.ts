@@ -50,11 +50,19 @@ const RECORD_BREAKING_CHANGE_TOOL = "typespec_recordBreakingChange";
 interface BreakingChangeTarget {
   documentUri: vscode.Uri;
   documentVersion: number;
-  range: vscode.Range;
+  analysisRange: vscode.Range;
+  hoverRange: vscode.Range;
 }
 
 interface RecordBreakingChangeInput {
   targetId: string;
+  message: string;
+}
+
+interface BreakingChangeFinding {
+  id: string;
+  analysisRange: vscode.Range;
+  hoverRange: vscode.Range;
   message: string;
 }
 
@@ -70,26 +78,113 @@ function findInnermostDocumentSymbol(
   return undefined;
 }
 
+function updateFindingRanges(
+  documentFindings: readonly BreakingChangeFinding[],
+  changes: readonly vscode.TextDocumentContentChangeEvent[],
+): BreakingChangeFinding[] {
+  const orderedChanges = [...changes].sort((left, right) =>
+    right.range.start.compareTo(left.range.start),
+  );
+
+  return documentFindings.flatMap((finding) => {
+    let analysisRange = finding.analysisRange;
+    let hoverRange = finding.hoverRange;
+    for (const change of orderedChanges) {
+      if (
+        analysisRange.contains(change.range.start) ||
+        (!change.range.isEmpty && change.range.contains(analysisRange.start))
+      ) {
+        return [];
+      }
+
+      if (change.range.end.isAfter(analysisRange.start)) {
+        continue;
+      }
+
+      const replacementLines = change.text.split(/\r?\n/);
+      const replacementEnd =
+        replacementLines.length === 1
+          ? new vscode.Position(
+              change.range.start.line,
+              change.range.start.character + change.text.length,
+            )
+          : new vscode.Position(
+              change.range.start.line + replacementLines.length - 1,
+              replacementLines[replacementLines.length - 1].length,
+            );
+      const translate = (position: vscode.Position) =>
+        position.line === change.range.end.line
+          ? new vscode.Position(
+              replacementEnd.line,
+              replacementEnd.character + position.character - change.range.end.character,
+            )
+          : position.translate(replacementEnd.line - change.range.end.line);
+      analysisRange = new vscode.Range(
+        translate(analysisRange.start),
+        translate(analysisRange.end),
+      );
+      hoverRange = new vscode.Range(translate(hoverRange.start), translate(hoverRange.end));
+    }
+    return [{ ...finding, analysisRange, hoverRange }];
+  });
+}
+
 function registerTypeSpecAuthoringSkillTrigger(context: ExtensionContext) {
-  let trigger: ReturnType<typeof setTimeout> | undefined;
+  const triggers = new Map<string, ReturnType<typeof setTimeout>>();
+  const changedPositions = new Map<string, vscode.Position[]>();
   let targetSequence = 0;
+  let findingSequence = 0;
   const pendingTargets = new Map<string, BreakingChangeTarget>();
-  const findings = new Map<string, { range: vscode.Range; message: string }[]>();
+  const findings = new Map<string, BreakingChangeFinding[]>();
 
   context.subscriptions.push(
+    commands.registerCommand(
+      CommandName.FixBreakingChange,
+      (documentKey: string, findingId: string) => {
+        const finding = findings.get(documentKey)?.find((candidate) => candidate.id === findingId);
+        if (!finding) {
+          return;
+        }
+
+        void commands.executeCommand("workbench.action.chat.open", {
+          mode: "agent",
+          query: `/typespec-authoring Fix this breaking change: ${finding.message}`,
+          attachFiles: [
+            {
+              uri: vscode.Uri.parse(documentKey),
+              range: {
+                startLineNumber: finding.analysisRange.start.line + 1,
+                startColumn: finding.analysisRange.start.character + 1,
+                endLineNumber: finding.analysisRange.end.line + 1,
+                endColumn: finding.analysisRange.end.character + 1,
+              },
+            },
+          ],
+        });
+      },
+    ),
     vscode.languages.registerHoverProvider("typespec", {
       provideHover(document, position) {
-        const documentFindings = findings.get(document.uri.toString()) ?? [];
+        const documentKey = document.uri.toString();
+        const documentFindings = findings.get(documentKey) ?? [];
         const matchingFindings = documentFindings.filter((finding) =>
-          finding.range.contains(position),
+          finding.hoverRange.contains(position),
         );
         if (matchingFindings.length === 0) {
           return undefined;
         }
 
-        const content = new vscode.MarkdownString("### Potential breaking change\n\n");
-        content.appendMarkdown(matchingFindings.map((finding) => finding.message).join("\n\n"));
-        return new vscode.Hover(content, matchingFindings[0].range);
+        const contents = matchingFindings.map((finding) => {
+          const content = new vscode.MarkdownString("### Potential breaking change\n\n");
+          content.isTrusted = { enabledCommands: [CommandName.FixBreakingChange] };
+          content.appendText(finding.message);
+          const commandArgs = encodeURIComponent(JSON.stringify([documentKey, finding.id]));
+          content.appendMarkdown(
+            `\n\n[$(wrench) Fix](command:${CommandName.FixBreakingChange}?${commandArgs})`,
+          );
+          return content;
+        });
+        return new vscode.Hover(contents, matchingFindings[0].hoverRange);
       },
     }),
     vscode.lm.registerTool<RecordBreakingChangeInput>(RECORD_BREAKING_CHANGE_TOOL, {
@@ -108,15 +203,28 @@ function registerTypeSpecAuthoringSkillTrigger(context: ExtensionContext) {
         }
 
         const documentKey = target.documentUri.toString();
-        findings.set(documentKey, [
-          ...(findings.get(documentKey) ?? []).filter(
-            (finding) => !finding.range.intersection(target.range),
-          ),
-          { range: target.range, message: options.input.message },
-        ]);
-        pendingTargets.delete(options.input.targetId);
+        const existingFindings = findings.get(documentKey) ?? [];
+        if (
+          !existingFindings.some(
+            (finding) =>
+              finding.hoverRange.isEqual(target.hoverRange) &&
+              finding.message === options.input.message,
+          )
+        ) {
+          findings.set(documentKey, [
+            ...existingFindings,
+            {
+              id: `${++findingSequence}`,
+              analysisRange: target.analysisRange,
+              hoverRange: target.hoverRange,
+              message: options.input.message,
+            },
+          ]);
+        }
         return new vscode.LanguageModelToolResult([
-          new vscode.LanguageModelTextPart("The breaking-change finding was added to the symbol hover."),
+          new vscode.LanguageModelTextPart(
+            "The breaking-change finding was added to the symbol hover.",
+          ),
         ]);
       },
     }),
@@ -125,17 +233,25 @@ function registerTypeSpecAuthoringSkillTrigger(context: ExtensionContext) {
         return;
       }
 
-      clearTimeout(trigger);
       const documentKey = event.document.uri.toString();
       const documentVersion = event.document.version;
-      const targetPosition = event.contentChanges[event.contentChanges.length - 1].range.start;
-      findings.delete(documentKey);
+      const positions = changedPositions.get(documentKey) ?? [];
+      positions.push(...event.contentChanges.map((change) => change.range.start));
+      changedPositions.set(documentKey, positions);
+      findings.set(
+        documentKey,
+        updateFindingRanges(findings.get(documentKey) ?? [], event.contentChanges),
+      );
       for (const [targetId, target] of pendingTargets) {
         if (target.documentUri.toString() === documentKey) {
           pendingTargets.delete(targetId);
         }
       }
-      trigger = setTimeout(async () => {
+      clearTimeout(triggers.get(documentKey));
+      const trigger = setTimeout(async () => {
+        triggers.delete(documentKey);
+        const targetPositions = changedPositions.get(documentKey) ?? [];
+        changedPositions.delete(documentKey);
         const symbols =
           (await commands.executeCommand<vscode.DocumentSymbol[]>(
             "vscode.executeDocumentSymbolProvider",
@@ -145,36 +261,59 @@ function registerTypeSpecAuthoringSkillTrigger(context: ExtensionContext) {
           return;
         }
 
-        const targetRange =
-          findInnermostDocumentSymbol(symbols, targetPosition)?.range ??
-          event.document.lineAt(Math.min(targetPosition.line, event.document.lineCount - 1)).range;
-        const targetId = `${++targetSequence}:${documentKey}`;
-        pendingTargets.set(targetId, {
-          documentUri: event.document.uri,
-          documentVersion,
-          range: targetRange,
+        const targets = new Map<
+          string,
+          { analysisRange: vscode.Range; hoverRange: vscode.Range }
+        >();
+        for (const position of targetPositions) {
+          const symbol = findInnermostDocumentSymbol(symbols, position);
+          const fallbackRange = event.document.lineAt(
+            Math.min(position.line, event.document.lineCount - 1),
+          ).range;
+          const analysisRange = symbol?.range ?? fallbackRange;
+          const hoverRange = symbol?.selectionRange ?? fallbackRange;
+          const targetKey = `${hoverRange.start.line}:${hoverRange.start.character}:${hoverRange.end.line}:${hoverRange.end.character}`;
+          targets.set(targetKey, { analysisRange, hoverRange });
+        }
+
+        const analysisTargets = [...targets.values()].map((target) => {
+          const targetId = `${++targetSequence}:${documentKey}`;
+          pendingTargets.set(targetId, {
+            documentUri: event.document.uri,
+            documentVersion,
+            ...target,
+          });
+          return { targetId, ...target };
         });
 
-        void commands.executeCommand("workbench.action.chat.open", {
-          mode: "agent",
-          query: `/breaking-change-detect Analyze the attached target. If it contains a confirmed breaking change, call #recordBreakingChange with targetId ${JSON.stringify(targetId)} and a concise explanation.`,
-          attachFiles: [
-            {
+        if (analysisTargets.length > 0) {
+          const targetDescriptions = analysisTargets.map(({ targetId, hoverRange }) => ({
+            targetId,
+            startLine: hoverRange.start.line + 1,
+            startColumn: hoverRange.start.character + 1,
+          }));
+          void commands.executeCommand("workbench.action.chat.open", {
+            mode: "agent",
+            query: `/breaking-change-detect Analyze each attached target independently. The target IDs and symbol locations are ${JSON.stringify(targetDescriptions)}. For every confirmed breaking change, call #recordBreakingChange with the matching targetId and a concise explanation.`,
+            attachFiles: analysisTargets.map((target) => ({
               uri: event.document.uri,
               range: {
-                startLineNumber: targetRange.start.line + 1,
-                startColumn: targetRange.start.character + 1,
-                endLineNumber: targetRange.end.line + 1,
-                endColumn: targetRange.end.character + 1,
+                startLineNumber: target.analysisRange.start.line + 1,
+                startColumn: target.analysisRange.start.character + 1,
+                endLineNumber: target.analysisRange.end.line + 1,
+                endColumn: target.analysisRange.end.character + 1,
               },
-            },
-          ],
-        });
+            })),
+          });
+        }
       }, BREAKING_CHANGE_SKILL_TRIGGER_DELAY);
+      triggers.set(documentKey, trigger);
     }),
     {
       dispose() {
-        clearTimeout(trigger);
+        for (const trigger of triggers.values()) {
+          clearTimeout(trigger);
+        }
       },
     },
   );
