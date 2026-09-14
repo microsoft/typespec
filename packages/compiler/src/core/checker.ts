@@ -710,11 +710,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     } else {
       const memberNode = getSymNode(sym);
       compilerAssert(memberNode, "Expected member symbol to have a node");
-      return checkMember(
-        ctx,
-        memberNode as MemberNode,
-        memberContainer as MemberContainerType,
-      )!;
+      return checkMember(ctx, memberNode as MemberNode, memberContainer as MemberContainerType)!;
     }
   }
 
