@@ -5,6 +5,7 @@ import "./pre-extension-activate.js";
 import type { ExtensionContext } from "vscode";
 import vscode, { commands, TabInputText } from "vscode";
 import { State } from "vscode-languageclient";
+import { registerTypeSpecAiExplanationHover } from "./ai-explanation-hover.js";
 import { registerTypeSpecAuthoringSkillTrigger } from "./breaking-change-detection.js";
 import { createCodeActionProvider } from "./code-action-provider.js";
 import { setTspLanguageClient, tspLanguageClient } from "./extension-context.js";
@@ -62,6 +63,7 @@ export async function activate(context: ExtensionContext) {
 
       context.subscriptions.push(createCodeActionProvider());
 
+      registerTypeSpecAiExplanationHover(context);
       const initializeTypeSpecAuthoringSkillTrigger =
         registerTypeSpecAuthoringSkillTrigger(context);
 
