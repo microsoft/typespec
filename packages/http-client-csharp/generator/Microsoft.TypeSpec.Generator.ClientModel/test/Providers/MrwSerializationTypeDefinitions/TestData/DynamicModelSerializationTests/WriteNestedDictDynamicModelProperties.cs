@@ -41,75 +41,253 @@ namespace Sample
             {
                 writer.WritePropertyName("propertyWithNestedDictionary"u8);
                 writer.WriteStartObject();
-#if NET8_0_OR_GREATER
-                global::System.Span<byte> buffer = stackalloc byte[256];
-#endif
-                foreach (var item in PropertyWithNestedDictionary)
+                bool hasPatch = Patch.Contains("$"u8, "propertyWithNestedDictionary"u8);
+                if (hasPatch)
                 {
 #if NET8_0_OR_GREATER
-                    int bytesWritten = global::System.Text.Encoding.UTF8.GetBytes(item.Key.AsSpan(), buffer);
-                    bool patchContains = (bytesWritten == 256) ? Patch.Contains("$.propertyWithNestedDictionary"u8, global::System.Text.Encoding.UTF8.GetBytes(item.Key)) : Patch.Contains("$.propertyWithNestedDictionary"u8, buffer.Slice(0, bytesWritten));
-#else
-                    bool patchContains = Patch.Contains("$.propertyWithNestedDictionary"u8, global::System.Text.Encoding.UTF8.GetBytes(item.Key));
+                    global::System.Span<byte> buffer = stackalloc byte[256];
 #endif
-                    if (!patchContains)
+                    foreach (var item in PropertyWithNestedDictionary)
                     {
-                        writer.WritePropertyName(item.Key);
-                        if ((item.Value == null))
+#if NET8_0_OR_GREATER
+                        int bytesWritten = global::System.Text.Encoding.UTF8.GetBytes(item.Key.AsSpan(), buffer);
+                        bool patchContains = (bytesWritten == 256) ? Patch.Contains("$.propertyWithNestedDictionary"u8, global::System.Text.Encoding.UTF8.GetBytes(item.Key)) : Patch.Contains("$.propertyWithNestedDictionary"u8, buffer.Slice(0, bytesWritten));
+#else
+                        bool patchContains = Patch.Contains("$.propertyWithNestedDictionary"u8, global::System.Text.Encoding.UTF8.GetBytes(item.Key));
+#endif
+                        if (!patchContains)
+                        {
+                            writer.WritePropertyName(item.Key);
+                            if ((item.Value == null))
+                            {
+                                writer.WriteNullValue();
+                                continue;
+                            }
+                            writer.WriteStartObject();
+                            if (hasPatch)
+                            {
+#if NET8_0_OR_GREATER
+                                global::System.Span<byte> buffer0 = stackalloc byte[256];
+#endif
+                                foreach (var item0 in item.Value)
+                                {
+#if NET8_0_OR_GREATER
+                                    int bytesWritten0 = global::System.Text.Encoding.UTF8.GetBytes(item0.Key.AsSpan(), buffer0);
+                                    bool patchContains0 = (bytesWritten0 == 256) ? Patch.Contains(global::System.Text.Encoding.UTF8.GetBytes($"$.propertyWithNestedDictionary[\"{item.Key}\"]"), global::System.Text.Encoding.UTF8.GetBytes(item0.Key)) : Patch.Contains(global::System.Text.Encoding.UTF8.GetBytes($"$.propertyWithNestedDictionary[\"{item.Key}\"]"), buffer0.Slice(0, bytesWritten0));
+#else
+                                    bool patchContains0 = Patch.Contains(global::System.Text.Encoding.UTF8.GetBytes($"$.propertyWithNestedDictionary[\"{item.Key}\"]"), global::System.Text.Encoding.UTF8.GetBytes(item0.Key));
+#endif
+                                    if (!patchContains0)
+                                    {
+                                        writer.WritePropertyName(item0.Key);
+                                        if ((item0.Value == null))
+                                        {
+                                            writer.WriteNullValue();
+                                            continue;
+                                        }
+                                        writer.WriteStartObject();
+                                        if (hasPatch)
+                                        {
+#if NET8_0_OR_GREATER
+                                            global::System.Span<byte> buffer1 = stackalloc byte[256];
+#endif
+                                            foreach (var item1 in item0.Value)
+                                            {
+#if NET8_0_OR_GREATER
+                                                int bytesWritten1 = global::System.Text.Encoding.UTF8.GetBytes(item1.Key.AsSpan(), buffer1);
+                                                bool patchContains1 = (bytesWritten1 == 256) ? Patch.Contains(global::System.Text.Encoding.UTF8.GetBytes($"$.propertyWithNestedDictionary[\"{item.Key}\"][\"{item0.Key}\"]"), global::System.Text.Encoding.UTF8.GetBytes(item1.Key)) : Patch.Contains(global::System.Text.Encoding.UTF8.GetBytes($"$.propertyWithNestedDictionary[\"{item.Key}\"][\"{item0.Key}\"]"), buffer1.Slice(0, bytesWritten1));
+#else
+                                                bool patchContains1 = Patch.Contains(global::System.Text.Encoding.UTF8.GetBytes($"$.propertyWithNestedDictionary[\"{item.Key}\"][\"{item0.Key}\"]"), global::System.Text.Encoding.UTF8.GetBytes(item1.Key));
+#endif
+                                                if (!patchContains1)
+                                                {
+                                                    writer.WritePropertyName(item1.Key);
+                                                    writer.WriteObjectValue<global::Sample.Models.DynamicCat>(item1.Value, options);
+                                                }
+                                            }
+
+                                            Patch.WriteTo(writer, global::System.Text.Encoding.UTF8.GetBytes($"$.propertyWithNestedDictionary[\"{item.Key}\"][\"{item0.Key}\"]"));
+                                        }
+                                        else
+                                        {
+                                            foreach (var unpatchedItem in item0.Value)
+                                            {
+                                                writer.WritePropertyName(unpatchedItem.Key);
+                                                writer.WriteObjectValue<global::Sample.Models.DynamicCat>(unpatchedItem.Value, options);
+                                            }
+                                        }
+                                        writer.WriteEndObject();
+                                    }
+                                }
+
+                                Patch.WriteTo(writer, global::System.Text.Encoding.UTF8.GetBytes($"$.propertyWithNestedDictionary[\"{item.Key}\"]"));
+                            }
+                            else
+                            {
+                                foreach (var unpatchedItem in item.Value)
+                                {
+                                    writer.WritePropertyName(unpatchedItem.Key);
+                                    if ((unpatchedItem.Value == null))
+                                    {
+                                        writer.WriteNullValue();
+                                        continue;
+                                    }
+                                    writer.WriteStartObject();
+                                    if (false)
+                                    {
+#if NET8_0_OR_GREATER
+                                        global::System.Span<byte> buffer0 = stackalloc byte[256];
+#endif
+                                        foreach (var item0 in unpatchedItem.Value)
+                                        {
+#if NET8_0_OR_GREATER
+                                            int bytesWritten0 = global::System.Text.Encoding.UTF8.GetBytes(item0.Key.AsSpan(), buffer0);
+                                            bool patchContains0 = (bytesWritten0 == 256) ? Patch.Contains(global::System.Text.Encoding.UTF8.GetBytes($"$.propertyWithNestedDictionary[\"{item.Key}\"][\"{unpatchedItem.Key}\"]"), global::System.Text.Encoding.UTF8.GetBytes(item0.Key)) : Patch.Contains(global::System.Text.Encoding.UTF8.GetBytes($"$.propertyWithNestedDictionary[\"{item.Key}\"][\"{unpatchedItem.Key}\"]"), buffer0.Slice(0, bytesWritten0));
+#else
+                                            bool patchContains0 = Patch.Contains(global::System.Text.Encoding.UTF8.GetBytes($"$.propertyWithNestedDictionary[\"{item.Key}\"][\"{unpatchedItem.Key}\"]"), global::System.Text.Encoding.UTF8.GetBytes(item0.Key));
+#endif
+                                            if (!patchContains0)
+                                            {
+                                                writer.WritePropertyName(item0.Key);
+                                                writer.WriteObjectValue<global::Sample.Models.DynamicCat>(item0.Value, options);
+                                            }
+                                        }
+
+                                        Patch.WriteTo(writer, global::System.Text.Encoding.UTF8.GetBytes($"$.propertyWithNestedDictionary[\"{item.Key}\"][\"{unpatchedItem.Key}\"]"));
+                                    }
+                                    else
+                                    {
+                                        foreach (var unpatchedItem0 in unpatchedItem.Value)
+                                        {
+                                            writer.WritePropertyName(unpatchedItem0.Key);
+                                            writer.WriteObjectValue<global::Sample.Models.DynamicCat>(unpatchedItem0.Value, options);
+                                        }
+                                    }
+                                    writer.WriteEndObject();
+                                }
+                            }
+                            writer.WriteEndObject();
+                        }
+                    }
+
+                    Patch.WriteTo(writer, "$.propertyWithNestedDictionary"u8);
+                }
+                else
+                {
+                    foreach (var unpatchedItem in PropertyWithNestedDictionary)
+                    {
+                        writer.WritePropertyName(unpatchedItem.Key);
+                        if ((unpatchedItem.Value == null))
                         {
                             writer.WriteNullValue();
                             continue;
                         }
                         writer.WriteStartObject();
-#if NET8_0_OR_GREATER
-                        global::System.Span<byte> buffer0 = stackalloc byte[256];
-#endif
-                        foreach (var item0 in item.Value)
+                        if (false)
                         {
 #if NET8_0_OR_GREATER
-                            int bytesWritten0 = global::System.Text.Encoding.UTF8.GetBytes(item0.Key.AsSpan(), buffer0);
-                            bool patchContains0 = (bytesWritten0 == 256) ? Patch.Contains(global::System.Text.Encoding.UTF8.GetBytes($"$.propertyWithNestedDictionary[\"{item.Key}\"]"), global::System.Text.Encoding.UTF8.GetBytes(item0.Key)) : Patch.Contains(global::System.Text.Encoding.UTF8.GetBytes($"$.propertyWithNestedDictionary[\"{item.Key}\"]"), buffer0.Slice(0, bytesWritten0));
-#else
-                            bool patchContains0 = Patch.Contains(global::System.Text.Encoding.UTF8.GetBytes($"$.propertyWithNestedDictionary[\"{item.Key}\"]"), global::System.Text.Encoding.UTF8.GetBytes(item0.Key));
+                            global::System.Span<byte> buffer = stackalloc byte[256];
 #endif
-                            if (!patchContains0)
+                            foreach (var item in unpatchedItem.Value)
                             {
-                                writer.WritePropertyName(item0.Key);
-                                if ((item0.Value == null))
+#if NET8_0_OR_GREATER
+                                int bytesWritten = global::System.Text.Encoding.UTF8.GetBytes(item.Key.AsSpan(), buffer);
+                                bool patchContains = (bytesWritten == 256) ? Patch.Contains(global::System.Text.Encoding.UTF8.GetBytes($"$.propertyWithNestedDictionary[\"{unpatchedItem.Key}\"]"), global::System.Text.Encoding.UTF8.GetBytes(item.Key)) : Patch.Contains(global::System.Text.Encoding.UTF8.GetBytes($"$.propertyWithNestedDictionary[\"{unpatchedItem.Key}\"]"), buffer.Slice(0, bytesWritten));
+#else
+                                bool patchContains = Patch.Contains(global::System.Text.Encoding.UTF8.GetBytes($"$.propertyWithNestedDictionary[\"{unpatchedItem.Key}\"]"), global::System.Text.Encoding.UTF8.GetBytes(item.Key));
+#endif
+                                if (!patchContains)
+                                {
+                                    writer.WritePropertyName(item.Key);
+                                    if ((item.Value == null))
+                                    {
+                                        writer.WriteNullValue();
+                                        continue;
+                                    }
+                                    writer.WriteStartObject();
+                                    if (false)
+                                    {
+#if NET8_0_OR_GREATER
+                                        global::System.Span<byte> buffer0 = stackalloc byte[256];
+#endif
+                                        foreach (var item0 in item.Value)
+                                        {
+#if NET8_0_OR_GREATER
+                                            int bytesWritten0 = global::System.Text.Encoding.UTF8.GetBytes(item0.Key.AsSpan(), buffer0);
+                                            bool patchContains0 = (bytesWritten0 == 256) ? Patch.Contains(global::System.Text.Encoding.UTF8.GetBytes($"$.propertyWithNestedDictionary[\"{unpatchedItem.Key}\"][\"{item.Key}\"]"), global::System.Text.Encoding.UTF8.GetBytes(item0.Key)) : Patch.Contains(global::System.Text.Encoding.UTF8.GetBytes($"$.propertyWithNestedDictionary[\"{unpatchedItem.Key}\"][\"{item.Key}\"]"), buffer0.Slice(0, bytesWritten0));
+#else
+                                            bool patchContains0 = Patch.Contains(global::System.Text.Encoding.UTF8.GetBytes($"$.propertyWithNestedDictionary[\"{unpatchedItem.Key}\"][\"{item.Key}\"]"), global::System.Text.Encoding.UTF8.GetBytes(item0.Key));
+#endif
+                                            if (!patchContains0)
+                                            {
+                                                writer.WritePropertyName(item0.Key);
+                                                writer.WriteObjectValue<global::Sample.Models.DynamicCat>(item0.Value, options);
+                                            }
+                                        }
+
+                                        Patch.WriteTo(writer, global::System.Text.Encoding.UTF8.GetBytes($"$.propertyWithNestedDictionary[\"{unpatchedItem.Key}\"][\"{item.Key}\"]"));
+                                    }
+                                    else
+                                    {
+                                        foreach (var unpatchedItem0 in item.Value)
+                                        {
+                                            writer.WritePropertyName(unpatchedItem0.Key);
+                                            writer.WriteObjectValue<global::Sample.Models.DynamicCat>(unpatchedItem0.Value, options);
+                                        }
+                                    }
+                                    writer.WriteEndObject();
+                                }
+                            }
+
+                            Patch.WriteTo(writer, global::System.Text.Encoding.UTF8.GetBytes($"$.propertyWithNestedDictionary[\"{unpatchedItem.Key}\"]"));
+                        }
+                        else
+                        {
+                            foreach (var unpatchedItem0 in unpatchedItem.Value)
+                            {
+                                writer.WritePropertyName(unpatchedItem0.Key);
+                                if ((unpatchedItem0.Value == null))
                                 {
                                     writer.WriteNullValue();
                                     continue;
                                 }
                                 writer.WriteStartObject();
-#if NET8_0_OR_GREATER
-                                global::System.Span<byte> buffer1 = stackalloc byte[256];
-#endif
-                                foreach (var item1 in item0.Value)
+                                if (false)
                                 {
 #if NET8_0_OR_GREATER
-                                    int bytesWritten1 = global::System.Text.Encoding.UTF8.GetBytes(item1.Key.AsSpan(), buffer1);
-                                    bool patchContains1 = (bytesWritten1 == 256) ? Patch.Contains(global::System.Text.Encoding.UTF8.GetBytes($"$.propertyWithNestedDictionary[\"{item.Key}\"][\"{item0.Key}\"]"), global::System.Text.Encoding.UTF8.GetBytes(item1.Key)) : Patch.Contains(global::System.Text.Encoding.UTF8.GetBytes($"$.propertyWithNestedDictionary[\"{item.Key}\"][\"{item0.Key}\"]"), buffer1.Slice(0, bytesWritten1));
-#else
-                                    bool patchContains1 = Patch.Contains(global::System.Text.Encoding.UTF8.GetBytes($"$.propertyWithNestedDictionary[\"{item.Key}\"][\"{item0.Key}\"]"), global::System.Text.Encoding.UTF8.GetBytes(item1.Key));
+                                    global::System.Span<byte> buffer = stackalloc byte[256];
 #endif
-                                    if (!patchContains1)
+                                    foreach (var item in unpatchedItem0.Value)
                                     {
-                                        writer.WritePropertyName(item1.Key);
-                                        writer.WriteObjectValue<global::Sample.Models.DynamicCat>(item1.Value, options);
+#if NET8_0_OR_GREATER
+                                        int bytesWritten = global::System.Text.Encoding.UTF8.GetBytes(item.Key.AsSpan(), buffer);
+                                        bool patchContains = (bytesWritten == 256) ? Patch.Contains(global::System.Text.Encoding.UTF8.GetBytes($"$.propertyWithNestedDictionary[\"{unpatchedItem.Key}\"][\"{unpatchedItem0.Key}\"]"), global::System.Text.Encoding.UTF8.GetBytes(item.Key)) : Patch.Contains(global::System.Text.Encoding.UTF8.GetBytes($"$.propertyWithNestedDictionary[\"{unpatchedItem.Key}\"][\"{unpatchedItem0.Key}\"]"), buffer.Slice(0, bytesWritten));
+#else
+                                        bool patchContains = Patch.Contains(global::System.Text.Encoding.UTF8.GetBytes($"$.propertyWithNestedDictionary[\"{unpatchedItem.Key}\"][\"{unpatchedItem0.Key}\"]"), global::System.Text.Encoding.UTF8.GetBytes(item.Key));
+#endif
+                                        if (!patchContains)
+                                        {
+                                            writer.WritePropertyName(item.Key);
+                                            writer.WriteObjectValue<global::Sample.Models.DynamicCat>(item.Value, options);
+                                        }
+                                    }
+
+                                    Patch.WriteTo(writer, global::System.Text.Encoding.UTF8.GetBytes($"$.propertyWithNestedDictionary[\"{unpatchedItem.Key}\"][\"{unpatchedItem0.Key}\"]"));
+                                }
+                                else
+                                {
+                                    foreach (var unpatchedItem1 in unpatchedItem0.Value)
+                                    {
+                                        writer.WritePropertyName(unpatchedItem1.Key);
+                                        writer.WriteObjectValue<global::Sample.Models.DynamicCat>(unpatchedItem1.Value, options);
                                     }
                                 }
-
-                                Patch.WriteTo(writer, global::System.Text.Encoding.UTF8.GetBytes($"$.propertyWithNestedDictionary[\"{item.Key}\"][\"{item0.Key}\"]"));
                                 writer.WriteEndObject();
                             }
                         }
-
-                        Patch.WriteTo(writer, global::System.Text.Encoding.UTF8.GetBytes($"$.propertyWithNestedDictionary[\"{item.Key}\"]"));
                         writer.WriteEndObject();
                     }
                 }
-
-                Patch.WriteTo(writer, "$.propertyWithNestedDictionary"u8);
                 writer.WriteEndObject();
             }
 

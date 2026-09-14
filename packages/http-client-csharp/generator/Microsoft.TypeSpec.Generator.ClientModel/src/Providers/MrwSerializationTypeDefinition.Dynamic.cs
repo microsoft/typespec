@@ -32,6 +32,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             var jsonPathTemplate = BuildJsonPathForElement(serializedName, parentIndices);
             var csharpJsonPathTemplate = BuildJsonPathForElement(serializedName, parentIndices, escapeForCSharpString: true);
+            MethodBodyStatement? hasPatchDeclaration = null;
+            ValueExpression hasPatch;
+            if (parentHasPatch == null)
+            {
+                hasPatchDeclaration = Declare(
+                    "hasPatch",
+                    typeof(bool),
+                    patchSnippet.Contains(LiteralU8("$"), LiteralU8(serializedName)),
+                    out var localHasPatch);
+                hasPatch = localHasPatch;
+            }
+            else
+            {
+                hasPatch = parentHasPatch;
+            }
+
             ValueExpression jsonPath = parentIndices.Count > 0
                 ? Utf8Snippets.GetBytes(new FormattableStringExpression(csharpJsonPathTemplate, [.. parentIndices]).As<string>())
                 : LiteralU8(jsonPathTemplate);
@@ -84,7 +100,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // Process key-value pair if patch doesn't contain it
             var ifPatchDoesNotContainStatement = new IfStatement(Not(patchContainsNet8Var))
             {
-                CreateDictionaryItemSerialization(keyValuePair, parentHasPatch)
+                CreateDictionaryItemSerialization(keyValuePair, hasPatch)
             };
 
             var innerIfElseProcessorStatement = new IfElsePreprocessorStatement(
@@ -105,26 +121,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 patchSnippet.WriteTo(_utf8JsonWriterSnippet, jsonPath).Terminate()
             };
 
-            MethodBodyStatement dictionarySerialization;
-            if (parentHasPatch == null)
-            {
-                dictionarySerialization = patchedStatements;
-            }
-            else
-            {
-                var unpatchedForeachStatement = new ForEachStatement("unpatchedItem", dictionary, out KeyValuePairExpression unpatchedKeyValuePair);
-                // This branch only runs when the inherited patch guard is false, so nested serializers can skip path-dependent patch work.
-                unpatchedForeachStatement.Add(CreateDictionaryItemSerialization(unpatchedKeyValuePair, False));
+            var unpatchedForeachStatement = new ForEachStatement("unpatchedItem", dictionary, out KeyValuePairExpression unpatchedKeyValuePair);
+            // This branch only runs when the collection has no relevant patch, so serializers can skip path-dependent patch work.
+            unpatchedForeachStatement.Add(CreateDictionaryItemSerialization(unpatchedKeyValuePair, False));
 
-                dictionarySerialization = new IfElseStatement(parentHasPatch.As<bool>(), patchedStatements, unpatchedForeachStatement);
-            }
-
-            return new[]
+            var dictionaryStatements = new List<MethodBodyStatement>
             {
                 _utf8JsonWriterSnippet.WriteStartObject(),
-                dictionarySerialization,
-                _utf8JsonWriterSnippet.WriteEndObject(),
             };
+            if (hasPatchDeclaration != null)
+            {
+                dictionaryStatements.Add(hasPatchDeclaration);
+            }
+
+            dictionaryStatements.Add(new IfElseStatement(hasPatch.As<bool>(), patchedStatements, unpatchedForeachStatement));
+            dictionaryStatements.Add(_utf8JsonWriterSnippet.WriteEndObject());
+            return dictionaryStatements.ToArray();
         }
 
         private MethodBodyStatement CreateListSerializationWithPatch(

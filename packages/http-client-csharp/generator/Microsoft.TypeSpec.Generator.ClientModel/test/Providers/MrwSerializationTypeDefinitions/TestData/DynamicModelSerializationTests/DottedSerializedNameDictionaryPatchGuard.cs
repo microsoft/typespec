@@ -24,30 +24,47 @@ namespace Sample
             {
                 writer.WritePropertyName("foo.bar"u8);
                 writer.WriteStartObject();
-#if NET8_0_OR_GREATER
-                global::System.Span<byte> buffer = stackalloc byte[256];
-#endif
-                foreach (var item in Metadata)
+                bool hasPatch = Patch.Contains("$"u8, "foo.bar"u8);
+                if (hasPatch)
                 {
 #if NET8_0_OR_GREATER
-                    int bytesWritten = global::System.Text.Encoding.UTF8.GetBytes(item.Key.AsSpan(), buffer);
-                    bool patchContains = (bytesWritten == 256) ? Patch.Contains("$[\"foo.bar\"]"u8, global::System.Text.Encoding.UTF8.GetBytes(item.Key)) : Patch.Contains("$[\"foo.bar\"]"u8, buffer.Slice(0, bytesWritten));
-#else
-                    bool patchContains = Patch.Contains("$[\"foo.bar\"]"u8, global::System.Text.Encoding.UTF8.GetBytes(item.Key));
+                    global::System.Span<byte> buffer = stackalloc byte[256];
 #endif
-                    if (!patchContains)
+                    foreach (var item in Metadata)
                     {
-                        writer.WritePropertyName(item.Key);
-                        if ((item.Value == null))
+#if NET8_0_OR_GREATER
+                        int bytesWritten = global::System.Text.Encoding.UTF8.GetBytes(item.Key.AsSpan(), buffer);
+                        bool patchContains = (bytesWritten == 256) ? Patch.Contains("$[\"foo.bar\"]"u8, global::System.Text.Encoding.UTF8.GetBytes(item.Key)) : Patch.Contains("$[\"foo.bar\"]"u8, buffer.Slice(0, bytesWritten));
+#else
+                        bool patchContains = Patch.Contains("$[\"foo.bar\"]"u8, global::System.Text.Encoding.UTF8.GetBytes(item.Key));
+#endif
+                        if (!patchContains)
+                        {
+                            writer.WritePropertyName(item.Key);
+                            if ((item.Value == null))
+                            {
+                                writer.WriteNullValue();
+                                continue;
+                            }
+                            writer.WriteStringValue(item.Value);
+                        }
+                    }
+
+                    Patch.WriteTo(writer, "$[\"foo.bar\"]"u8);
+                }
+                else
+                {
+                    foreach (var unpatchedItem in Metadata)
+                    {
+                        writer.WritePropertyName(unpatchedItem.Key);
+                        if ((unpatchedItem.Value == null))
                         {
                             writer.WriteNullValue();
                             continue;
                         }
-                        writer.WriteStringValue(item.Value);
+                        writer.WriteStringValue(unpatchedItem.Value);
                     }
                 }
-
-                Patch.WriteTo(writer, "$[\"foo.bar\"]"u8);
                 writer.WriteEndObject();
             }
 
