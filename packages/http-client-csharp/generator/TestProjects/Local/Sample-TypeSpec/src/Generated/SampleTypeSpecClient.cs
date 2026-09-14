@@ -12,7 +12,6 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net.ServerSentEvents;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using SampleTypeSpec.Models.Custom;
@@ -1087,8 +1086,8 @@ namespace SampleTypeSpec
         public virtual ClientResult<DaysOfWeekExtensibleEnum> GetUnknownValue(CancellationToken cancellationToken = default)
         {
             ClientResult result = GetUnknownValue(cancellationToken.ToRequestOptions());
-            string content = result.GetRawResponse().Content.ToString().TrimStart('﻿');
-            DaysOfWeekExtensibleEnum value = new DaysOfWeekExtensibleEnum(content);
+            string responseContent = result.GetRawResponse().Content.ToString().TrimStart('﻿');
+            DaysOfWeekExtensibleEnum value = new DaysOfWeekExtensibleEnum(responseContent);
             return ClientResult.FromValue(value, result.GetRawResponse());
         }
 
@@ -1098,8 +1097,8 @@ namespace SampleTypeSpec
         public virtual async Task<ClientResult<DaysOfWeekExtensibleEnum>> GetUnknownValueAsync(CancellationToken cancellationToken = default)
         {
             ClientResult result = await GetUnknownValueAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            string content = result.GetRawResponse().Content.ToString().TrimStart('﻿');
-            DaysOfWeekExtensibleEnum value = new DaysOfWeekExtensibleEnum(content);
+            string responseContent = result.GetRawResponse().Content.ToString().TrimStart('﻿');
+            DaysOfWeekExtensibleEnum value = new DaysOfWeekExtensibleEnum(responseContent);
             return ClientResult.FromValue(value, result.GetRawResponse());
         }
 
@@ -2063,64 +2062,6 @@ namespace SampleTypeSpec
             return AsyncStreamingClientResult.CreateSse<StreamingItem>(await Pipeline.ProcessMessageAsync(message, cancellationToken.ToRequestOptions()).ConfigureAwait(false), (@_, data) => ModelReaderWriter.Read<StreamingItem>(BinaryData.FromBytes(data.ToArray()), ModelSerializationExtensions.WireOptions, SampleTypeSpecContext.Default), item => item.Data.ToString() == "[DONE]", cancellationToken);
         }
 #pragma warning restore SCME0005 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-
-        /// <summary>
-        /// [Protocol Method] get JSON int32
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult GetJsonInt32(RequestOptions options)
-        {
-            using PipelineMessage message = CreateGetJsonInt32Request(options);
-            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-        }
-
-        /// <summary>
-        /// [Protocol Method] get JSON int32
-        /// <list type="bullet">
-        /// <item>
-        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
-        /// </item>
-        /// </list>
-        /// </summary>
-        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> GetJsonInt32Async(RequestOptions options)
-        {
-            using PipelineMessage message = CreateGetJsonInt32Request(options);
-            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-        }
-
-        /// <summary> get JSON int32. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult<int> GetJsonInt32(CancellationToken cancellationToken = default)
-        {
-            ClientResult result = GetJsonInt32(cancellationToken.ToRequestOptions());
-            string content = result.GetRawResponse().Content.ToString().TrimStart('﻿');
-            using JsonDocument document = JsonDocument.Parse(content);
-            int value = document.RootElement.GetInt32();
-            return ClientResult.FromValue(value, result.GetRawResponse());
-        }
-
-        /// <summary> get JSON int32. </summary>
-        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
-        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult<int>> GetJsonInt32Async(CancellationToken cancellationToken = default)
-        {
-            ClientResult result = await GetJsonInt32Async(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            string content = result.GetRawResponse().Content.ToString().TrimStart('﻿');
-            using JsonDocument document = JsonDocument.Parse(content);
-            int value = document.RootElement.GetInt32();
-            return ClientResult.FromValue(value, result.GetRawResponse());
-        }
 
         /// <summary> Initializes a new instance of AnimalOperations. </summary>
         public virtual AnimalOperations GetAnimalOperationsClient()

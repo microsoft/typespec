@@ -499,17 +499,5 @@ namespace SampleTypeSpec
             message.Apply(options);
             return message;
         }
-
-        internal PipelineMessage CreateGetJsonInt32Request(RequestOptions options)
-        {
-            ClientUriBuilder uri = new ClientUriBuilder();
-            uri.Reset(_endpoint);
-            uri.AppendPath("/json-int32", false);
-            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
-            PipelineRequest request = message.Request;
-            request.Headers.Set("Accept", "application/json");
-            message.Apply(options);
-            return message;
-        }
     }
 }
