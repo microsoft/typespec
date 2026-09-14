@@ -61,22 +61,30 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         ReadOnlySpanSnippets.Slice(bufferVar, Int(0), bytesWrittenVar))),
                 out var patchContainsNet8Var);
 
-            List<ValueExpression> childIndices = keyValuePair.ValueType.IsCollection
-                ? [.. parentIndices, keyValuePair.Key]
-                : parentIndices;
+            MethodBodyStatement CreateDictionaryItemSerialization(KeyValuePairExpression item, ValueExpression? itemParentHasPatch)
+            {
+                List<ValueExpression> itemChildIndices = item.ValueType.IsCollection
+                    ? [.. parentIndices, item.Key]
+                    : parentIndices;
+
+                return new MethodBodyStatement[]
+                {
+                    _utf8JsonWriterSnippet.WritePropertyName(item.Key),
+                    CreateElementSerializationWithPatch(
+                        item.Value,
+                        item.ValueType,
+                        patchSnippet,
+                        serializationFormat,
+                        serializedName,
+                        itemChildIndices,
+                        itemParentHasPatch)
+                };
+            }
 
             // Process key-value pair if patch doesn't contain it
             var ifPatchDoesNotContainStatement = new IfStatement(Not(patchContainsNet8Var))
             {
-                _utf8JsonWriterSnippet.WritePropertyName(keyValuePair.Key),
-                CreateElementSerializationWithPatch(
-                    keyValuePair.Value,
-                    keyValuePair.ValueType,
-                    patchSnippet,
-                    serializationFormat,
-                    serializedName,
-                    childIndices,
-                    parentHasPatch)
+                CreateDictionaryItemSerialization(keyValuePair, parentHasPatch)
             };
 
             var innerIfElseProcessorStatement = new IfElsePreprocessorStatement(
@@ -105,15 +113,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             else
             {
                 var unpatchedForeachStatement = new ForEachStatement("item", dictionary, out KeyValuePairExpression unpatchedKeyValuePair);
-                unpatchedForeachStatement.Add(_utf8JsonWriterSnippet.WritePropertyName(unpatchedKeyValuePair.Key));
-                unpatchedForeachStatement.Add(CreateElementSerializationWithPatch(
-                    unpatchedKeyValuePair.Value,
-                    unpatchedKeyValuePair.ValueType,
-                    patchSnippet,
-                    serializationFormat,
-                    serializedName,
-                    parentIndices,
-                    False));
+                unpatchedForeachStatement.Add(CreateDictionaryItemSerialization(unpatchedKeyValuePair, False));
 
                 dictionarySerialization = new IfElseStatement(parentHasPatch.As<bool>(), patchedStatements, unpatchedForeachStatement);
             }
