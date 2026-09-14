@@ -22,6 +22,11 @@ async def test_post_if_match(client: ConditionalRequestClient):
 
 
 @pytest.mark.asyncio
+async def test_post_required_if_match(client: ConditionalRequestClient):
+    await client.post_required_if_match(if_match='"required"')
+
+
+@pytest.mark.asyncio
 async def test_post_if_none_match(client: ConditionalRequestClient):
     await client.post_if_none_match(etag="invalid", match_condition=MatchConditions.IfModified)
 

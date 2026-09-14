@@ -206,7 +206,11 @@ function isEtagType(type: SdkType): boolean {
   );
 }
 
-function getEtagRole(parameter: SdkHeaderParameter): string | undefined {
+export function getEtagRole(parameter: SdkHeaderParameter): string | undefined {
+  // The etag/match_condition convenience API can omit or redirect the wire
+  // header, so it is only valid when the TypeSpec header itself is optional.
+  if (!parameter.optional) return undefined;
+
   const name = parameter.name.toLowerCase();
   const wire = parameter.serializedName.toLowerCase();
   // Standard If-Match / If-None-Match headers work with any type

@@ -19,6 +19,10 @@ def test_post_if_match(client: ConditionalRequestClient):
     client.post_if_match(etag="valid", match_condition=MatchConditions.IfNotModified)
 
 
+def test_post_required_if_match(client: ConditionalRequestClient):
+    client.post_required_if_match(if_match='"required"')
+
+
 def test_post_if_none_match(client: ConditionalRequestClient):
     client.post_if_none_match(etag="invalid", match_condition=MatchConditions.IfModified)
 
