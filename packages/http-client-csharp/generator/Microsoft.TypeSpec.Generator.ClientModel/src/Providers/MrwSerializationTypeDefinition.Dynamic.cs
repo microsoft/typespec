@@ -26,9 +26,46 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ScopedApi<JsonPatch> patchSnippet,
             string serializedName,
             List<ValueExpression>? parentIndices = null,
-            ValueExpression? parentHasPatch = null)
+            ValueExpression? parentHasPatch = null,
+            bool suppressPatchLogic = false)
         {
             parentIndices ??= [];
+
+            MethodBodyStatement CreateDictionaryItemSerialization(KeyValuePairExpression item, ValueExpression? itemParentHasPatch, bool itemSuppressPatchLogic)
+            {
+                List<ValueExpression> itemChildIndices = item.ValueType.IsCollection
+                    ? [.. parentIndices, item.Key]
+                    : parentIndices;
+
+                return new MethodBodyStatement[]
+                {
+                    _utf8JsonWriterSnippet.WritePropertyName(item.Key),
+                    CreateElementSerializationWithPatch(
+                        item.Value,
+                        item.ValueType,
+                        patchSnippet,
+                        serializationFormat,
+                        serializedName,
+                        itemChildIndices,
+                        itemParentHasPatch,
+                        itemSuppressPatchLogic)
+                };
+            }
+
+            // The collection is known to have no relevant patch at or below this level, so skip building
+            // any path-dependent patch checks entirely instead of materializing a dead patched branch.
+            if (suppressPatchLogic)
+            {
+                var noPatchForeachStatement = new ForEachStatement("unpatchedItem", dictionary, out KeyValuePairExpression noPatchKeyValuePair);
+                noPatchForeachStatement.Add(CreateDictionaryItemSerialization(noPatchKeyValuePair, null, itemSuppressPatchLogic: true));
+
+                return new MethodBodyStatement[]
+                {
+                    _utf8JsonWriterSnippet.WriteStartObject(),
+                    noPatchForeachStatement,
+                    _utf8JsonWriterSnippet.WriteEndObject()
+                };
+            }
 
             var jsonPathTemplate = BuildJsonPathForElement(serializedName, parentIndices);
             var csharpJsonPathTemplate = BuildJsonPathForElement(serializedName, parentIndices, escapeForCSharpString: true);
@@ -77,30 +114,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         ReadOnlySpanSnippets.Slice(bufferVar, Int(0), bytesWrittenVar))),
                 out var patchContainsNet8Var);
 
-            MethodBodyStatement CreateDictionaryItemSerialization(KeyValuePairExpression item, ValueExpression? itemParentHasPatch)
-            {
-                List<ValueExpression> itemChildIndices = item.ValueType.IsCollection
-                    ? [.. parentIndices, item.Key]
-                    : parentIndices;
-
-                return new MethodBodyStatement[]
-                {
-                    _utf8JsonWriterSnippet.WritePropertyName(item.Key),
-                    CreateElementSerializationWithPatch(
-                        item.Value,
-                        item.ValueType,
-                        patchSnippet,
-                        serializationFormat,
-                        serializedName,
-                        itemChildIndices,
-                        itemParentHasPatch)
-                };
-            }
-
             // Process key-value pair if patch doesn't contain it
             var ifPatchDoesNotContainStatement = new IfStatement(Not(patchContainsNet8Var))
             {
-                CreateDictionaryItemSerialization(keyValuePair, hasPatch)
+                CreateDictionaryItemSerialization(keyValuePair, hasPatch, itemSuppressPatchLogic: false)
             };
 
             var innerIfElseProcessorStatement = new IfElsePreprocessorStatement(
@@ -123,7 +140,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             var unpatchedForeachStatement = new ForEachStatement("unpatchedItem", dictionary, out KeyValuePairExpression unpatchedKeyValuePair);
             // This branch only runs when the collection has no relevant patch, so serializers can skip path-dependent patch work.
-            unpatchedForeachStatement.Add(CreateDictionaryItemSerialization(unpatchedKeyValuePair, False));
+            unpatchedForeachStatement.Add(CreateDictionaryItemSerialization(unpatchedKeyValuePair, null, itemSuppressPatchLogic: true));
 
             var dictionaryStatements = new List<MethodBodyStatement>
             {
@@ -147,11 +164,64 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             SerializationFormat serializationFormat,
             string serializedName,
             List<ValueExpression>? parentIndices = null,
-            ValueExpression? parentHasPatch = null)
+            ValueExpression? parentHasPatch = null,
+            bool suppressPatchLogic = false)
         {
             parentIndices ??= [];
             var indexDeclaration = Declare<int>("i", out var indexVar);
             var allIndices = new List<ValueExpression>(parentIndices) { indexVar };
+
+            // Handle model types with their own patch property. This is independent of whether this
+            // collection has a relevant patch, so it applies in both the patched and no-patch paths below.
+            ScopedApi<bool>? childIsRemovedCondition = null;
+            if (ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(type, out var provider) &&
+                provider is ScmModelProvider scmModelProvider && scmModelProvider.JsonPatchProperty != null)
+            {
+                var childIsRemoved = new IndexerExpression(collection, indexVar)
+                    .Property(scmModelProvider.JsonPatchProperty.Name)
+                    .As<JsonPatch>()
+                    .IsRemoved(LiteralU8("$"));
+                if (!type.IsValueType)
+                {
+                    childIsRemoved = new IndexerExpression(collection, indexVar).NotEqual(Null).And(childIsRemoved);
+                }
+                childIsRemovedCondition = childIsRemoved;
+            }
+
+            string lengthProperty = isReadOnlySpan || type.IsArray
+                ? "Length"
+                : "Count";
+
+            // The collection is known to have no relevant patch at or below this level, so skip building any
+            // path-dependent patch checks entirely instead of materializing a dead patched branch.
+            if (suppressPatchLogic)
+            {
+                var noPatchForStatement = new ForStatement(
+                    indexDeclaration.Assign(Literal(0)),
+                    indexVar.LessThan(collection.Property(lengthProperty)),
+                    indexVar.Increment());
+                if (childIsRemovedCondition != null)
+                {
+                    noPatchForStatement.Add(new IfStatement(childIsRemovedCondition) { Continue });
+                }
+                noPatchForStatement.Add(CreateElementSerializationWithPatch(
+                    new IndexerExpression(collection, indexVar),
+                    type,
+                    patchSnippet,
+                    serializationFormat,
+                    serializedName,
+                    allIndices,
+                    parentHasPatch,
+                    suppressPatchLogic: true));
+
+                return new MethodBodyStatement[]
+                {
+                    _utf8JsonWriterSnippet.WriteStartArray(),
+                    noPatchForStatement,
+                    _utf8JsonWriterSnippet.WriteEndArray()
+                };
+            }
+
             var jsonPathTemplate = BuildJsonPathForElement(serializedName, parentIndices);
             var csharpJsonPathTemplate = BuildJsonPathForElement(serializedName, parentIndices, escapeForCSharpString: true);
             // The prefix overload includes indexed descendants, unlike an exact-path Contains check.
@@ -177,24 +247,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     new FormattableStringExpression(csharpJsonPathTemplate + $"[{{{parentIndices.Count}}}]", allIndices)
                 .As<string>())));
 
-            // Handle model types with their own patch property
-            if (ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(type, out var provider) &&
-                provider is ScmModelProvider scmModelProvider && scmModelProvider.JsonPatchProperty != null)
+            if (childIsRemovedCondition != null)
             {
-                var childIsRemoved = new IndexerExpression(collection, indexVar)
-                    .Property(scmModelProvider.JsonPatchProperty.Name)
-                    .As<JsonPatch>()
-                    .IsRemoved(LiteralU8("$"));
-                if (!type.IsValueType)
-                {
-                    childIsRemoved = new IndexerExpression(collection, indexVar).NotEqual(Null).And(childIsRemoved);
-                }
-                patchIsRemovedCondition = patchIsRemovedCondition.Or(childIsRemoved);
+                patchIsRemovedCondition = patchIsRemovedCondition.Or(childIsRemovedCondition);
             }
 
-            string lengthProperty = isReadOnlySpan || type.IsArray
-                ? "Length"
-                : "Count";
             var forStatement = new ForStatement(
                 indexDeclaration.Assign(Literal(0)),
                 indexVar.LessThan(collection.Property(lengthProperty)),
@@ -244,7 +301,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             SerializationFormat serializationFormat,
             string serializedName,
             List<ValueExpression> currentIndices,
-            ValueExpression? parentHasPatch = null)
+            ValueExpression? parentHasPatch = null,
+            bool suppressPatchLogic = false)
         {
             var nestedSerialization = elementType switch
             {
@@ -256,14 +314,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     serializationFormat,
                     serializedName,
                     currentIndices,
-                    parentHasPatch),
+                    parentHasPatch,
+                    suppressPatchLogic),
                 { IsDictionary: true } => CreateDictionarySerializationWithPatch(
                     new DictionaryExpression(elementType, element),
                     serializationFormat,
                     patchSnippet,
                     serializedName,
                     currentIndices,
-                    parentHasPatch),
+                    parentHasPatch,
+                    suppressPatchLogic),
                 _ => null
             };
 
