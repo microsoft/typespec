@@ -2,6 +2,7 @@ import type { PackageJson } from "@typespec/compiler";
 import vscode from "vscode";
 import logger from "./log/logger.js";
 import { getDirectoryPath, isPathAbsolute } from "./path-utils.js";
+import { findInnermostSymbolAtOffset } from "./symbol-range.js";
 import {
   BREAKING_CHANGE_DIAGNOSTIC_CODE_PREFIX,
   BREAKING_CHANGE_DIAGNOSTIC_SOURCE,
@@ -24,7 +25,10 @@ export function createCodeActionProvider() {
  * Provides code actions corresponding to diagnostic problems.
  */
 export class TypeSpecCodeActionProvider implements vscode.CodeActionProvider {
-  public static readonly providedCodeActionKinds = [vscode.CodeActionKind.QuickFix];
+  public static readonly providedCodeActionKinds = [
+    vscode.CodeActionKind.QuickFix,
+    vscode.CodeActionKind.Refactor,
+  ];
 
   public async provideCodeActions(
     _document: vscode.TextDocument,
@@ -34,6 +38,33 @@ export class TypeSpecCodeActionProvider implements vscode.CodeActionProvider {
   ): Promise<vscode.CodeAction[]> {
     const actions: vscode.CodeAction[] = [];
     const breakingChangeDiagnostics: vscode.Diagnostic[] = [];
+
+    const symbols =
+      (await vscode.commands.executeCommand<vscode.DocumentSymbol[]>(
+        "vscode.executeDocumentSymbolProvider",
+        _document.uri,
+      )) ?? [];
+    const selectedSymbol = findInnermostSymbolAtOffset(
+      symbols,
+      _document.offsetAt(_range.start),
+      (symbol) => ({
+        pos: _document.offsetAt(symbol.range.start),
+        end: _document.offsetAt(symbol.range.end),
+      }),
+      (symbol) => symbol.children,
+    );
+    if (selectedSymbol) {
+      const action = new vscode.CodeAction(
+        `Explain "${selectedSymbol.name}" with AI`,
+        vscode.CodeActionKind.Refactor,
+      );
+      action.command = {
+        command: CommandName.ExplainTypeSpec,
+        title: action.title,
+        arguments: [_document.uri.toString(), _range.start],
+      };
+      actions.push(action);
+    }
 
     for (const diagnostic of context.diagnostics) {
       if (

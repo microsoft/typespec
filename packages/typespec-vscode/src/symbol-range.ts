@@ -11,6 +11,50 @@ export interface TypeSpecSymbolNameRange {
   end: number;
 }
 
+export interface TypeSpecEntityRange {
+  name: string;
+  range: TypeSpecSymbolNameRange;
+  nameRange: TypeSpecSymbolNameRange;
+}
+
+export function findInnermostSymbolAtOffset<T>(
+  symbols: readonly T[],
+  offset: number,
+  getRange: (symbol: T) => TypeSpecSymbolNameRange,
+  getChildren: (symbol: T) => readonly T[],
+): T | undefined {
+  for (const symbol of symbols) {
+    const range = getRange(symbol);
+    if (range.pos <= offset && offset <= range.end) {
+      return (
+        findInnermostSymbolAtOffset(getChildren(symbol), offset, getRange, getChildren) ?? symbol
+      );
+    }
+  }
+  return undefined;
+}
+
+export function findTypeSpecEntityAtOffset(
+  source: string,
+  offset: number,
+): TypeSpecEntityRange | undefined {
+  const script = parse(source);
+
+  const visit = (node: Node): TypeSpecEntityRange | undefined => {
+    const nameRange = getNameRange(node);
+    if (nameRange && nameRange.pos <= offset && offset <= nameRange.end) {
+      return {
+        name: source.slice(nameRange.pos, nameRange.end),
+        range: { pos: node.pos, end: node.end },
+        nameRange,
+      };
+    }
+    return visitChildren(node, visit);
+  };
+
+  return visit(script);
+}
+
 export function createTypeSpecSymbolNameRangeResolver(
   source: string,
 ): (pos: number, end: number) => TypeSpecSymbolNameRange | undefined {

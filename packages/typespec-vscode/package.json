@@ -85,6 +85,31 @@
             "messages"
           ]
         }
+      },
+      {
+        "name": "typespec_recordExplanation",
+        "toolReferenceName": "recordTypeSpecExplanation",
+        "displayName": "Record TypeSpec Explanation",
+        "userDescription": "Adds an AI explanation to TypeSpec symbol hover information.",
+        "modelDescription": "Records a concise TypeSpec explanation for the target ID supplied in a normal Chat request. Use this tool exactly once when the request explicitly references #recordTypeSpecExplanation.",
+        "canBeReferencedInPrompt": true,
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "targetId": {
+              "type": "string",
+              "description": "The opaque target ID included in the TypeSpec explanation request."
+            },
+            "explanation": {
+              "type": "string",
+              "description": "A concise Markdown explanation of the target TypeSpec entity."
+            }
+          },
+          "required": [
+            "targetId",
+            "explanation"
+          ]
+        }
       }
     ],
     "viewsWelcome": [
@@ -229,6 +254,11 @@
       }
     ],
     "commands": [
+      {
+        "command": "typespec.explainTypeSpec",
+        "title": "Explain TypeSpec with AI",
+        "category": "TypeSpec"
+      },
       {
         "command": "typespec.restartServer",
         "title": "Restart TypeSpec server",

@@ -1,7 +1,11 @@
 import { parse, SyntaxKind, type Node } from "@typespec/compiler/ast";
 import { strictEqual } from "assert";
 import { it } from "vitest";
-import { createTypeSpecSymbolNameRangeResolver } from "../../src/symbol-range.js";
+import {
+  createTypeSpecSymbolNameRangeResolver,
+  findInnermostSymbolAtOffset,
+  findTypeSpecEntityAtOffset,
+} from "../../src/symbol-range.js";
 
 function expectSelectedText(source: string, node: Node, expected: string) {
   const resolveRange = createTypeSpecSymbolNameRangeResolver(source);
@@ -44,4 +48,46 @@ it("selects escaped, quoted, spread, and dotted namespace names", () => {
   expectSelectedText(source, model, "`Pet-name`");
   expectSelectedText(source, model.properties[0], '"content-type"');
   expectSelectedText(source, model.properties[1], "CommonPet");
+});
+
+it("finds the innermost symbol containing the cursor", () => {
+  const property = { range: { pos: 12, end: 25 }, children: [] };
+  const model = { range: { pos: 0, end: 30 }, children: [property] };
+
+  strictEqual(
+    findInnermostSymbolAtOffset(
+      [model],
+      15,
+      (symbol) => symbol.range,
+      (symbol) => symbol.children,
+    ),
+    property,
+  );
+  strictEqual(
+    findInnermostSymbolAtOffset(
+      [model],
+      5,
+      (symbol) => symbol.range,
+      (symbol) => symbol.children,
+    ),
+    model,
+  );
+  strictEqual(
+    findInnermostSymbolAtOffset(
+      [model],
+      31,
+      (symbol) => symbol.range,
+      (symbol) => symbol.children,
+    ),
+    undefined,
+  );
+});
+
+it("finds a hovered entity directly from TypeSpec source", () => {
+  const source = "model Pet { name: string; }";
+  const entity = findTypeSpecEntityAtOffset(source, source.indexOf("name") + 1);
+
+  strictEqual(entity?.name, "name");
+  strictEqual(source.slice(entity?.range.pos, entity?.range.end), "name: string");
+  strictEqual(source.slice(entity?.nameRange.pos, entity?.nameRange.end), "name");
 });
