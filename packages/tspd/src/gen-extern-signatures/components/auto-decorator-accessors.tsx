@@ -1,5 +1,6 @@
 import { code, For, List } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
+import type { Decorator } from "@typespec/compiler";
 import { typespecCompiler } from "../external-packages/compiler.js";
 import type { DecoratorSignature } from "../types.js";
 import { ParameterTsType, TargetParameterTsType } from "./decorator-signature-type.js";
@@ -51,17 +52,20 @@ function AutoDecoratorReader(props: Readonly<AutoDecoratorAccessorProps>) {
   if (params.length === 0) {
     // No-arg auto decorator — generate `is*` function
     return (
-      <ts.FunctionDeclaration
-        export
-        name={`is${capitalizedName}`}
-        parameters={[
-          { name: "program", type: typespecCompiler.Program },
-          { name: decorator.target.name, type: targetType },
-        ]}
-        returnType="boolean"
-      >
-        {code`return ${typespecCompiler.hasAutoDecorator}(program, "${fqn}", ${decorator.target.name});`}
-      </ts.FunctionDeclaration>
+      <List hardline>
+        <AccessorDoc doc={`Check if the \`@${fqn}\` decorator was applied on the given target.`} />
+        <ts.FunctionDeclaration
+          export
+          name={`is${capitalizedName}`}
+          parameters={[
+            { name: "program", type: typespecCompiler.Program },
+            { name: decorator.target.name, type: targetType },
+          ]}
+          returnType="boolean"
+        >
+          {code`return ${typespecCompiler.hasAutoDecorator}(program, "${fqn}", ${decorator.target.name});`}
+        </ts.FunctionDeclaration>
+      </List>
     );
   }
 
@@ -99,17 +103,20 @@ function AutoDecoratorReader(props: Readonly<AutoDecoratorAccessorProps>) {
   }
 
   return (
-    <ts.FunctionDeclaration
-      export
-      name={`get${capitalizedName}`}
-      parameters={[
-        { name: "program", type: typespecCompiler.Program },
-        { name: decorator.target.name, type: targetType },
-      ]}
-      returnType={returnType}
-    >
-      {body}
-    </ts.FunctionDeclaration>
+    <List hardline>
+      <AccessorDoc doc={getDocDescription(decorator)} />
+      <ts.FunctionDeclaration
+        export
+        name={`get${capitalizedName}`}
+        parameters={[
+          { name: "program", type: typespecCompiler.Program },
+          { name: decorator.target.name, type: targetType },
+        ]}
+        returnType={returnType}
+      >
+        {body}
+      </ts.FunctionDeclaration>
+    </List>
   );
 }
 
@@ -161,13 +168,61 @@ function AutoDecoratorSetter(props: Readonly<AutoDecoratorAccessorProps>) {
   }
 
   return (
-    <ts.FunctionDeclaration
-      export
-      name={`set${capitalizedName}`}
-      parameters={parameters}
-      returnType="void"
-    >
-      {body}
-    </ts.FunctionDeclaration>
+    <List hardline>
+      <AccessorDoc doc={getDocDescription(decorator)} />
+      <ts.FunctionDeclaration
+        export
+        name={`set${capitalizedName}`}
+        parameters={parameters}
+        returnType="void"
+      >
+        {body}
+      </ts.FunctionDeclaration>
+    </List>
   );
+}
+
+/**
+ * Render a doc comment for an accessor.
+ *
+ * The comment is rendered standalone rather than through the `doc` prop of
+ * `ts.FunctionDeclaration`, because that also emits `@param {Type}` tags whose type references count
+ * as value usages and would turn the type-only imports of this file into value imports.
+ */
+function AccessorDoc(props: Readonly<{ doc: string | undefined }>) {
+  if (props.doc === undefined) {
+    return null;
+  }
+  const lines = props.doc.split("\n");
+  const comment =
+    lines.length === 1
+      ? `/** ${lines[0]} */`
+      : [`/**`, ...lines.map((line) => ` * ${line}`.trimEnd()), ` */`].join("\n");
+  return <>{comment}</>;
+}
+
+/**
+ * Get the description of a decorator, excluding any doc tag.
+ *
+ * Only the description is carried over: the `@param` tags of the decorator describe its TypeSpec
+ * parameters, which do not line up with the accessor signatures.
+ */
+function getDocDescription(decorator: Decorator): string | undefined {
+  const docs = decorator.node?.docs;
+  if (docs === undefined || docs.length === 0) {
+    return undefined;
+  }
+
+  const lines: string[] = [];
+  for (const doc of docs) {
+    for (const content of doc.content) {
+      for (const line of content.text.split("\n")) {
+        // Issue to escape @internal and other tsdoc tags https://github.com/microsoft/TypeScript/issues/47679
+        lines.push(line.replaceAll("@internal", "@_internal"));
+      }
+    }
+  }
+
+  const description = lines.join("\n").trim();
+  return description === "" ? undefined : description;
 }

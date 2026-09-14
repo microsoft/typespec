@@ -77,6 +77,7 @@ import type {
   DocContent,
   Entity,
   Enum,
+  EnumDeclarationExpressionNode,
   EnumMember,
   EnumMemberNode,
   EnumStatementNode,
@@ -109,6 +110,7 @@ import type {
   MixedFunctionParameter,
   MixedParameterConstraint,
   Model,
+  ModelDeclarationExpressionNode,
   ModelExpressionNode,
   ModelIndexer,
   ModelProperty,
@@ -132,6 +134,7 @@ import type {
   Scalar,
   ScalarConstructor,
   ScalarConstructorNode,
+  ScalarDeclarationExpressionNode,
   ScalarStatementNode,
   ScalarValue,
   SignatureFunctionParameter,
@@ -168,6 +171,7 @@ import type {
   TypeReferenceNode,
   TypeSpecScriptNode,
   Union,
+  UnionDeclarationExpressionNode,
   UnionExpressionNode,
   UnionStatementNode,
   UnionVariant,
@@ -1025,19 +1029,27 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         return checkModel(ctx, node);
       case SyntaxKind.ModelStatement:
         return checkModel(ctx, node);
+      case SyntaxKind.ModelDeclarationExpression:
+        return checkModel(ctx, node);
       case SyntaxKind.ModelProperty:
         return checkModelProperty(ctx, node);
       case SyntaxKind.ScalarStatement:
         return checkScalar(ctx, node);
+      case SyntaxKind.ScalarDeclarationExpression:
+        return checkScalar(ctx, node);
       case SyntaxKind.AliasStatement:
         return checkAlias(ctx, node);
       case SyntaxKind.EnumStatement:
+        return checkEnum(ctx, node);
+      case SyntaxKind.EnumDeclarationExpression:
         return checkEnum(ctx, node);
       case SyntaxKind.EnumMember:
         return checkEnumMember(ctx, node);
       case SyntaxKind.InterfaceStatement:
         return checkInterface(ctx, node);
       case SyntaxKind.UnionStatement:
+        return checkUnion(ctx, node);
+      case SyntaxKind.UnionDeclarationExpression:
         return checkUnion(ctx, node);
       case SyntaxKind.UnionVariant:
         return checkUnionVariant(ctx, node);
@@ -1099,6 +1111,35 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
   }
 
+  function reportDeclarationExpressionFeature(
+    node:
+      | ModelStatementNode
+      | ModelDeclarationExpressionNode
+      | ScalarStatementNode
+      | ScalarDeclarationExpressionNode
+      | EnumStatementNode
+      | EnumDeclarationExpressionNode
+      | UnionStatementNode
+      | UnionDeclarationExpressionNode,
+  ) {
+    const isExpression =
+      node.kind === SyntaxKind.ModelDeclarationExpression ||
+      node.kind === SyntaxKind.ScalarDeclarationExpression ||
+      node.kind === SyntaxKind.EnumDeclarationExpression ||
+      node.kind === SyntaxKind.UnionDeclarationExpression;
+    if (!isExpression) {
+      return;
+    }
+    if (!isCompilerFeatureEnabled(program, "declaration-expressions", node)) {
+      reportCheckerDiagnostic(
+        createDiagnostic({
+          code: "declaration-expression-disabled",
+          target: node,
+        }),
+      );
+    }
+  }
+
   /**
    * Return a fully qualified id of node
    */
@@ -1106,13 +1147,16 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     node:
       | ModelStatementNode
       | ModelExpressionNode
+      | ModelDeclarationExpressionNode
       | ScalarStatementNode
+      | ScalarDeclarationExpressionNode
       | AliasStatementNode
       | ConstStatementNode
       | InterfaceStatementNode
       | OperationStatementNode
       | TemplateParameterDeclarationNode
-      | UnionStatementNode,
+      | UnionStatementNode
+      | UnionDeclarationExpressionNode,
   ): Sym {
     const symbol =
       node.kind === SyntaxKind.OperationStatement &&
@@ -1174,7 +1218,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     let type: TemplateParameter | undefined = links.declaredType as TemplateParameter;
     if (type === undefined) {
       if (grandParentNode) {
-        if (grandParentNode.locals?.has(node.id.sv)) {
+        if ("locals" in grandParentNode && grandParentNode.locals?.has(node.id.sv)) {
           reportCheckerDiagnostic(
             createDiagnostic({
               code: "shadow",
@@ -1398,6 +1442,8 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
             isTypeReferenceContextDeprecated(node.parent!))
         );
       case SyntaxKind.InterfaceStatement:
+        return checkDeprecatedNode(node);
+      case SyntaxKind.UnionStatement:
         return checkDeprecatedNode(node);
       case SyntaxKind.IntersectionExpression:
       case SyntaxKind.UnionExpression:
@@ -2020,7 +2066,12 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       if (type === neverType) {
         continue;
       }
-      if (type.kind === "Union" && type.expression) {
+      // Flatten nested union expressions (e.g. `(a | b) | c` or an alias to a union
+      // expression). Only the `|`-operator form is flattened: its variants are
+      // anonymous (symbol-keyed) and cannot collide. Keyword-form unions used in
+      // expression position (`union { a, b }`) are also `expression: true` but can have
+      // named variants, so flattening them would silently drop colliding members.
+      if (type.kind === "Union" && type.node?.kind === SyntaxKind.UnionExpression) {
         for (const [name, variant] of type.variants) {
           unionType.variants.set(name, variant);
         }
@@ -2527,15 +2578,19 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     node:
       | AliasStatementNode
       | ModelStatementNode
+      | ModelDeclarationExpressionNode
       | ScalarStatementNode
+      | ScalarDeclarationExpressionNode
       | NamespaceStatementNode
       | JsNamespaceDeclarationNode
       | UnionExpressionNode
       | OperationStatementNode
       | EnumStatementNode
+      | EnumDeclarationExpressionNode
       | InterfaceStatementNode
       | IntersectionExpressionNode
       | UnionStatementNode
+      | UnionDeclarationExpressionNode
       | ModelExpressionNode
       | DecoratorDeclarationStatementNode
       | FunctionDeclarationStatementNode,
@@ -2545,7 +2600,11 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     if (
       node.kind === SyntaxKind.ModelExpression ||
       node.kind === SyntaxKind.IntersectionExpression ||
-      node.kind === SyntaxKind.UnionExpression
+      node.kind === SyntaxKind.UnionExpression ||
+      node.kind === SyntaxKind.ModelDeclarationExpression ||
+      node.kind === SyntaxKind.EnumDeclarationExpression ||
+      node.kind === SyntaxKind.UnionDeclarationExpression ||
+      node.kind === SyntaxKind.ScalarDeclarationExpression
     ) {
       let parent: Node | undefined = node.parent;
       while (parent !== undefined) {
@@ -4494,15 +4553,18 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   function getMemberKindName(node: Node) {
     switch (node.kind) {
       case SyntaxKind.ModelStatement:
+      case SyntaxKind.ModelDeclarationExpression:
       case SyntaxKind.ModelExpression:
         return "Model";
       case SyntaxKind.ModelProperty:
         return "ModelProperty";
       case SyntaxKind.EnumStatement:
+      case SyntaxKind.EnumDeclarationExpression:
         return "Enum";
       case SyntaxKind.InterfaceStatement:
         return "Interface";
       case SyntaxKind.UnionStatement:
+      case SyntaxKind.UnionDeclarationExpression:
         return "Union";
       default:
         return "Type";
@@ -5029,15 +5091,48 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
   }
 
-  function checkModel(ctx: CheckContext, node: ModelExpressionNode | ModelStatementNode): Model {
-    if (node.kind === SyntaxKind.ModelStatement) {
-      return checkModelStatement(ctx, node);
-    } else {
+  function checkModel(
+    ctx: CheckContext,
+    node: ModelExpressionNode | ModelStatementNode | ModelDeclarationExpressionNode,
+  ): Model {
+    if (node.kind === SyntaxKind.ModelExpression) {
       return checkModelExpression(ctx, node);
+    } else {
+      return checkModelStatement(ctx, node);
     }
   }
 
-  function checkModelStatement(ctx: CheckContext, node: ModelStatementNode): Model {
+  /**
+   * A declaration used in expression position is anonymous and cannot be referenced or
+   * instantiated, so template parameters on it are meaningless. Report a diagnostic when present.
+   */
+  function checkExpressionDeclarationConstraints(
+    node:
+      | ModelStatementNode
+      | ModelDeclarationExpressionNode
+      | UnionStatementNode
+      | UnionDeclarationExpressionNode
+      | ScalarStatementNode
+      | ScalarDeclarationExpressionNode,
+  ): void {
+    const isExpression =
+      node.kind === SyntaxKind.ModelDeclarationExpression ||
+      node.kind === SyntaxKind.UnionDeclarationExpression ||
+      node.kind === SyntaxKind.ScalarDeclarationExpression;
+    if (isExpression && node.templateParameters.length > 0) {
+      reportCheckerDiagnostic(
+        createDiagnostic({
+          code: "templated-declaration-in-expression",
+          target: node.templateParameters[0],
+        }),
+      );
+    }
+  }
+
+  function checkModelStatement(
+    ctx: CheckContext,
+    node: ModelStatementNode | ModelDeclarationExpressionNode,
+  ): Model {
     const links = getSymbolLinks(node.symbol);
 
     if (ctx.mapper === undefined && node.templateParameters.length > 0) {
@@ -5052,17 +5147,22 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       checkModifiers(program, node);
     }
     checkTemplateDeclaration(ctx, node);
+    checkExpressionDeclarationConstraints(node);
+    if (ctx.mapper === undefined) {
+      reportDeclarationExpressionFeature(node);
+    }
 
     const decorators: DecoratorApplication[] = [];
     const type: Model = createType({
       kind: "Model",
-      name: node.id.sv,
+      name: node.id?.sv ?? "",
       node: node,
       properties: createRekeyableMap<string, ModelProperty>(),
       namespace: getParentNamespaceType(node),
       decorators,
       sourceModels: [],
       derivedModels: [],
+      expression: node.kind === SyntaxKind.ModelDeclarationExpression,
     });
     linkType(ctx, links, type);
 
@@ -5121,7 +5221,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
         // Hold on to the model type that's being defined so that it
         // can be referenced
-        if (ctx.mapper === undefined) {
+        if (ctx.mapper === undefined && !type.expression) {
           type.namespace?.models.set(type.name, type);
         }
 
@@ -5237,7 +5337,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
   function checkModelProperties(
     ctx: CheckContext,
-    node: ModelExpressionNode | ModelStatementNode,
+    node: ModelExpressionNode | ModelStatementNode | ModelDeclarationExpressionNode,
     properties: Map<string, ModelProperty>,
     parentModel: Model,
   ) {
@@ -5334,6 +5434,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       decorators: [],
       derivedModels: [],
       sourceModels: [],
+      expression: true,
     });
 
     for (const prop of properties.values()) {
@@ -6493,7 +6594,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
   function checkClassHeritage(
     ctx: CheckContext,
-    model: ModelStatementNode,
+    model: ModelStatementNode | ModelDeclarationExpressionNode,
     heritageRef: Expression,
   ): Model | undefined {
     if (heritageRef.kind === SyntaxKind.ModelExpression) {
@@ -6561,7 +6662,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
   function checkModelIs(
     ctx: CheckContext,
-    model: ModelStatementNode,
+    model: ModelStatementNode | ModelDeclarationExpressionNode,
     isExpr: Expression | undefined,
   ): Model | undefined {
     if (!isExpr) return undefined;
@@ -6623,7 +6724,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   /** Get the type for the spread target */
   function checkSpreadTarget(
     ctx: CheckContext,
-    model: ModelStatementNode | ModelExpressionNode,
+    model: ModelStatementNode | ModelExpressionNode | ModelDeclarationExpressionNode,
     target: TypeReferenceNode,
   ): Type | undefined {
     const modelSymId = getNodeSym(model);
@@ -7229,7 +7330,8 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     } else if (
       links.finalSymbol?.flags &&
       ~links.finalSymbol.flags & SymbolFlags.Declaration &&
-      ~links.finalSymbol.flags & SymbolFlags.Member
+      ~links.finalSymbol.flags & SymbolFlags.Member &&
+      !isDeclarationExpressionSym(links.finalSymbol)
     ) {
       program.reportDiagnostic(
         createDiagnostic({
@@ -7258,6 +7360,24 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
     // If this was used to get a type this is invalid, only used for validation.
     return errorType;
+  }
+
+  /**
+   * A declaration expression (e.g. the `enum { a, b }` in `model Foo { x: enum { a, b } }`)
+   * is bound as a non-declaration symbol but is still a real, referenceable type
+   * (e.g. via `Foo.x::type`) and therefore a valid augment target. Statement-position
+   * declarations carry {@link SymbolFlags.Declaration} and never reach this check.
+   */
+  function isDeclarationExpressionSym(sym: Sym): boolean {
+    switch (getSymNode(sym)?.kind) {
+      case SyntaxKind.ModelDeclarationExpression:
+      case SyntaxKind.EnumDeclarationExpression:
+      case SyntaxKind.UnionDeclarationExpression:
+      case SyntaxKind.ScalarDeclarationExpression:
+        return true;
+      default:
+        return false;
+    }
   }
 
   /**
@@ -7326,7 +7446,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     return decorators;
   }
 
-  function checkScalar(ctx: CheckContext, node: ScalarStatementNode): Scalar {
+  function checkScalar(
+    ctx: CheckContext,
+    node: ScalarStatementNode | ScalarDeclarationExpressionNode,
+  ): Scalar {
     const links = getSymbolLinks(node.symbol);
 
     if (ctx.mapper === undefined && node.templateParameters.length > 0) {
@@ -7342,17 +7465,22 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       checkModifiers(program, node);
     }
     checkTemplateDeclaration(ctx, node);
+    checkExpressionDeclarationConstraints(node);
+    if (ctx.mapper === undefined) {
+      reportDeclarationExpressionFeature(node);
+    }
 
     const decorators: DecoratorApplication[] = [];
 
     const type: Scalar = createType({
       kind: "Scalar",
-      name: node.id.sv,
+      name: node.id?.sv ?? "",
       node: node,
       constructors: new Map(),
       namespace: getParentNamespaceType(node),
       decorators,
       derivedScalars: [],
+      expression: node.kind === SyntaxKind.ScalarDeclarationExpression,
     });
     linkType(ctx, links, type);
 
@@ -7366,7 +7494,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     checkScalarConstructors(ctx, type, node, type.constructors);
     decorators.push(...checkDecorators(ctx, type, node));
 
-    if (ctx.mapper === undefined) {
+    if (ctx.mapper === undefined && !type.expression) {
       type.namespace?.scalars.set(type.name, type);
     }
     linkMapper(type, ctx.mapper);
@@ -7379,7 +7507,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
   function checkScalarExtends(
     ctx: CheckContext,
-    scalar: ScalarStatementNode,
+    scalar: ScalarStatementNode | ScalarDeclarationExpressionNode,
     extendsRef: TypeReferenceNode,
   ): Scalar | undefined {
     const symId = getNodeSym(scalar);
@@ -7417,7 +7545,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   function checkScalarConstructors(
     ctx: CheckContext,
     parentScalar: Scalar,
-    node: ScalarStatementNode,
+    node: ScalarStatementNode | ScalarDeclarationExpressionNode,
     constructors: Map<string, ScalarConstructor>,
   ) {
     if (parentScalar.baseScalar) {
@@ -7595,59 +7723,76 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
   }
 
-  function checkEnum(ctx: CheckContext, node: EnumStatementNode): Type {
+  function checkEnum(
+    ctx: CheckContext,
+    node: EnumStatementNode | EnumDeclarationExpressionNode,
+  ): Type {
     const links = getSymbolLinks(node.symbol);
-    if (!links.type) {
-      checkModifiers(program, node);
-      const enumType: Enum = (links.type = createType({
-        kind: "Enum",
-        name: node.id.sv,
-        node,
-        members: createRekeyableMap<string, EnumMember>(),
-        decorators: [],
-      }));
 
-      const memberNames = new Set<string>();
-
-      for (const member of node.members) {
-        if (member.kind === SyntaxKind.EnumMember) {
-          const memberType = checkEnumMember(ctx, member, enumType);
-          if (memberNames.has(memberType.name)) {
-            reportCheckerDiagnostic(
-              createDiagnostic({
-                code: "enum-member-duplicate",
-                format: { name: memberType.name },
-                target: node,
-              }),
-            );
-            continue;
-          }
-          memberNames.add(memberType.name);
-          enumType.members.set(memberType.name, memberType);
-        } else {
-          const members = checkEnumSpreadMember(
-            ctx,
-            node.symbol,
-            enumType,
-            member.target,
-            memberNames,
-          );
-          for (const memberType of members) {
-            linkIndirectMember(ctx, node, memberType);
-            enumType.members.set(memberType.name, memberType);
-          }
-        }
-      }
-
-      const namespace = getParentNamespaceType(node);
-      enumType.namespace = namespace;
-      enumType.namespace?.enums.set(enumType.name!, enumType);
-      enumType.decorators = checkDecorators(ctx, enumType, node);
-      linkMapper(enumType, ctx.mapper);
-      finishType(enumType);
+    if (links.declaredType && ctx.mapper === undefined) {
+      // we're not instantiating this enum and we've already checked it
+      return links.declaredType as Enum;
     }
 
-    return links.type;
+    if (ctx.mapper === undefined) {
+      checkModifiers(program, node);
+      reportDeclarationExpressionFeature(node);
+    }
+
+    const enumType: Enum = createType({
+      kind: "Enum",
+      name: node.id?.sv ?? "",
+      node,
+      members: createRekeyableMap<string, EnumMember>(),
+      decorators: [],
+      expression: node.kind === SyntaxKind.EnumDeclarationExpression,
+    });
+    // Link the type before resolving the parent namespace: resolving the namespace may run
+    // its decorators which can reference this enum, and we must not create a second instance.
+    linkType(ctx, links, enumType);
+
+    const memberNames = new Set<string>();
+
+    for (const member of node.members) {
+      if (member.kind === SyntaxKind.EnumMember) {
+        const memberType = checkEnumMember(ctx, member, enumType);
+        if (memberNames.has(memberType.name)) {
+          reportCheckerDiagnostic(
+            createDiagnostic({
+              code: "enum-member-duplicate",
+              format: { name: memberType.name },
+              target: node,
+            }),
+          );
+          continue;
+        }
+        memberNames.add(memberType.name);
+        enumType.members.set(memberType.name, memberType);
+      } else {
+        const members = checkEnumSpreadMember(
+          ctx,
+          node.symbol,
+          enumType,
+          member.target,
+          memberNames,
+        );
+        for (const memberType of members) {
+          linkIndirectMember(ctx, node, memberType);
+          enumType.members.set(memberType.name, memberType);
+        }
+      }
+    }
+
+    enumType.namespace = getParentNamespaceType(node);
+    if (ctx.mapper === undefined && !enumType.expression) {
+      enumType.namespace?.enums.set(enumType.name!, enumType);
+    }
+    enumType.decorators = checkDecorators(ctx, enumType, node);
+    linkMapper(enumType, ctx.mapper);
+
+    return finishType(enumType, {
+      skipDecorators: ctx.hasFlags(CheckFlags.InTemplateDeclaration),
+    });
   }
 
   function checkInterface(ctx: CheckContext, node: InterfaceStatementNode): Interface {
@@ -7768,7 +7913,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     return ownMembers;
   }
 
-  function checkUnion(ctx: CheckContext, node: UnionStatementNode) {
+  function checkUnion(
+    ctx: CheckContext,
+    node: UnionStatementNode | UnionDeclarationExpressionNode,
+  ) {
     const links = getSymbolLinks(node.symbol);
 
     if (ctx.mapper === undefined && node.templateParameters.length > 0) {
@@ -7781,8 +7929,20 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
     if (ctx.mapper === undefined) {
       checkModifiers(program, node);
+      if (node.extends && !isCompilerFeatureEnabled(program, "union-extends", node)) {
+        reportCheckerDiagnostic(
+          createDiagnostic({
+            code: "union-extends-disabled",
+            target: node.extends,
+          }),
+        );
+      }
     }
     checkTemplateDeclaration(ctx, node);
+    checkExpressionDeclarationConstraints(node);
+    if (ctx.mapper === undefined) {
+      reportDeclarationExpressionFeature(node);
+    }
 
     const variants = createRekeyableMap<string, UnionVariant>();
     const unionType: Union = createType({
@@ -7790,14 +7950,18 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       decorators: [],
       node,
       namespace: getParentNamespaceType(node),
-      name: node.id.sv,
+      name: node.id?.sv,
       variants,
       get options() {
         return Array.from(this.variants.values()).map((v) => v.type);
       },
-      expression: false,
+      expression: node.kind === SyntaxKind.UnionDeclarationExpression,
     });
     linkType(ctx, links, unionType);
+
+    if (node.extends) {
+      unionType.baseType = checkUnionBaseType(ctx, node, unionType, node.extends);
+    }
 
     unionType.decorators = checkDecorators(ctx, unionType, node);
 
@@ -7805,12 +7969,14 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
 
     linkMapper(unionType, ctx.mapper);
 
-    if (ctx.mapper === undefined) {
+    if (ctx.mapper === undefined && !unionType.expression) {
       unionType.namespace?.unions.set(unionType.name!, unionType);
     }
 
     lateBindMemberContainer(unionType);
-    lateBindMembers(unionType);
+    if (unionType.symbol) {
+      lateBindMembers(unionType);
+    }
     return finishType(unionType, {
       skipDecorators: ctx.hasFlags(CheckFlags.InTemplateDeclaration),
     });
@@ -7819,7 +7985,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   function checkUnionVariants(
     ctx: CheckContext,
     parentUnion: Union,
-    node: UnionStatementNode,
+    node: UnionStatementNode | UnionDeclarationExpressionNode,
     variants: Map<string, UnionVariant>,
   ) {
     for (const variantNode of node.options) {
@@ -7836,7 +8002,143 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         continue;
       }
       variants.set(variantType.name as string, variantType);
+      checkUnionVariantAgainstBaseType(ctx, parentUnion, variantNode, variantType);
     }
+  }
+
+  /**
+   * Validate that a union variant satisfies the constraint declared by the union `extends` clause.
+   * Skipped inside of an uninstantiated template declaration where variant types are still
+   * unresolved template parameters. Each instantiation is checked instead.
+   */
+  function checkUnionVariantAgainstBaseType(
+    ctx: CheckContext,
+    parentUnion: Union,
+    variantNode: UnionVariantNode,
+    variantType: UnionVariant,
+  ) {
+    const baseType = parentUnion.baseType;
+    if (baseType === undefined || ctx.hasFlags(CheckFlags.InTemplateDeclaration)) {
+      return;
+    }
+    if (isErrorType(variantType.type)) {
+      return;
+    }
+    checkTypeAssignable(variantType.type, baseType, variantNode.value);
+  }
+
+  /**
+   * Resolve the type referenced by a union `extends` clause.
+   *
+   * The resulting type is only a constraint on the union variants: it doesn't create any
+   * inheritance relationship, it doesn't add anything to the union and it doesn't make the
+   * union extensible.
+   */
+  function checkUnionBaseType(
+    ctx: CheckContext,
+    union: UnionStatementNode | UnionDeclarationExpressionNode,
+    unionType: Union,
+    extendsRef: Expression,
+  ): NonNullable<Union["baseType"]> | undefined {
+    const unionSymId = getNodeSym(union);
+    pendingResolutions.start(unionSymId, ResolutionKind.BaseType);
+
+    try {
+      const target = resolver.getNodeLinks(extendsRef).resolvedSymbol;
+      if (target && pendingResolutions.has(target, ResolutionKind.BaseType)) {
+        if (ctx.mapper === undefined) {
+          reportCheckerDiagnostic(
+            createDiagnostic({
+              code: "circular-base-type",
+              format: { typeName: target.name },
+              target: target,
+            }),
+          );
+        }
+        return undefined;
+      }
+
+      const baseType = getTypeForNode(extendsRef, ctx);
+      if (isErrorType(baseType)) {
+        // Should already have reported an error when resolving the expression.
+        return undefined;
+      }
+
+      // `extends` accepts an arbitrary expression so, unlike `model`/`scalar`, the union can
+      // also reference itself through a union expression (e.g. `union a extends a | string` or
+      // `union a extends b` with `alias b = a | string`). Those don't go through a symbol that
+      // `pendingResolutions` can observe so they are detected on the resolved type instead.
+      if (unionExpressionReferences(baseType, unionType)) {
+        if (ctx.mapper === undefined) {
+          reportCheckerDiagnostic(
+            createDiagnostic({
+              code: "circular-base-type",
+              format: { typeName: union.id?.sv ?? "(anonymous union)" },
+              target: extendsRef,
+            }),
+          );
+        }
+        return undefined;
+      }
+
+      if (
+        ctx.hasFlags(CheckFlags.InTemplateDeclaration) &&
+        (baseType.kind === "TemplateParameter" || baseType.kind === "TemplateParameterAccess")
+      ) {
+        return undefined;
+      }
+
+      if (baseType.kind === "Model" && baseType.node?.kind === SyntaxKind.ModelExpression) {
+        reportCheckerDiagnostic(
+          createDiagnostic({
+            code: "extend-union",
+            messageId: "modelExpression",
+            target: extendsRef,
+          }),
+        );
+        return undefined;
+      }
+
+      if (!isUnionBaseType(baseType)) {
+        reportCheckerDiagnostic(createDiagnostic({ code: "extend-union", target: extendsRef }));
+        return undefined;
+      }
+
+      return baseType;
+    } finally {
+      pendingResolutions.finish(unionSymId, ResolutionKind.BaseType);
+    }
+  }
+
+  function isUnionBaseType(type: Type): type is NonNullable<Union["baseType"]> {
+    return (
+      type.kind === "Model" ||
+      type.kind === "Scalar" ||
+      type.kind === "Enum" ||
+      type.kind === "Union"
+    );
+  }
+
+  /**
+   * Check whether `target` is reachable from `type` through union expressions only.
+   *
+   * Traversal deliberately stops at anything else (named unions, models, arrays, ...): a union
+   * referencing itself from those positions builds a perfectly valid cyclic type graph, exactly
+   * like `model Foo { foo: Foo }` does, and must not be reported. Only union expressions are
+   * followed, which is a finite syntactic structure, so this always terminates.
+   */
+  function unionExpressionReferences(type: Type, target: Union): boolean {
+    if (type === target) {
+      return true;
+    }
+    if (type.kind === "Union" && type.expression) {
+      for (const variant of type.variants.values()) {
+        if (unionExpressionReferences(variant.type, target)) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   function checkUnionVariant(ctx: CheckContext, variantNode: UnionVariantNode): UnionVariant {
@@ -8019,6 +8321,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       decorators: [],
       derivedModels: [],
       sourceModels: [],
+      expression: true,
     });
   }
 
@@ -8742,7 +9045,9 @@ function extractParamDocs(node: OperationStatementNode): Map<string, string> {
   return paramDocs;
 }
 
-function extractPropDocs(node: ModelStatementNode): Map<string, string> {
+function extractPropDocs(
+  node: ModelStatementNode | ModelDeclarationExpressionNode,
+): Map<string, string> {
   if (node.docs === undefined) {
     return new Map();
   }

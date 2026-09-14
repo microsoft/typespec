@@ -67,6 +67,7 @@ import type {
   SdkPathParameter,
   SdkQueryParameter,
   SdkServiceMethod,
+  SdkServiceResponseHeader,
   SdkType,
   SdkUnionType,
 } from "@azure-tools/typespec-client-generator-core";
@@ -1517,6 +1518,14 @@ export class CodeModelBuilder {
         extensions["x-ms-skip-url-encoding"] = true;
       }
 
+      if (param.kind === "header") {
+        const collectionHeaderPrefix = this.getCollectionHeaderPrefix(param);
+        if (collectionHeaderPrefix) {
+          extensions = extensions ?? {};
+          extensions["x-ms-header-collection-prefix"] = collectionHeaderPrefix;
+        }
+      }
+
       if (this.supportsAdvancedVersioning() && param.__raw) {
         // versioning
         const addedOn = getAddedOnVersions(this.program, param.__raw);
@@ -2340,6 +2349,7 @@ export class CodeModelBuilder {
           continue;
         }
 
+        const collectionHeaderPrefix = this.getCollectionHeaderPrefix(header);
         const httpHeader = new HttpHeader(header.serializedName, schema, {
           language: {
             default: {
@@ -2347,6 +2357,9 @@ export class CodeModelBuilder {
               description: header.summary ?? header.doc,
             },
           },
+          extensions: collectionHeaderPrefix
+            ? { "x-ms-header-collection-prefix": collectionHeaderPrefix }
+            : undefined,
         });
         if (header.isExactName) {
           httpHeader.language.java = httpHeader.language.java ?? new Language();
@@ -3769,5 +3782,13 @@ export class CodeModelBuilder {
       });
     }
     return clientRequired ?? !property.optional;
+  }
+
+  private getCollectionHeaderPrefix(
+    header: SdkHeaderParameter | SdkServiceResponseHeader,
+  ): string | undefined {
+    const value = getClientOptions(header, "collectionHeaderPrefix");
+    const type = getNonNullSdkType(header.type);
+    return type.kind === "dict" && typeof value === "string" ? value : undefined;
   }
 }

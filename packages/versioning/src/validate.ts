@@ -11,6 +11,7 @@ import {
   type Type,
   type TypeNameOptions,
 } from "@typespec/compiler";
+import { SyntaxKind } from "@typespec/compiler/ast";
 import {
   $added,
   $removed,
@@ -266,13 +267,18 @@ function validateTypeAvailability(
         }
       }
     } else if (type.kind === "Union") {
+      // Only `|`-operator unions (UnionExpression) have anonymous, symbol-less
+      // variants with no decorators. Keyword-form unions (`union { ... }`) are also
+      // `expression: true` when used in expression position, but their variants can be
+      // named and decorated, so they must go through `validateTargetVersionCompatible`.
+      const isUnionOperatorExpression = type.node?.kind === SyntaxKind.UnionExpression;
       for (const variant of type.variants.values()) {
-        if (type.expression) {
+        if (isUnionOperatorExpression) {
           // Union expressions don't have decorators applied,
           // so we need to check the type directly.
           typesToCheck.push(variant.type);
         } else {
-          // Named unions can have decorators applied,
+          // Named/keyword unions can have decorators applied,
           // so we need to check that the variant type is valid
           // for whatever decoration the variant has.
           validateTargetVersionCompatible(program, variant, variant.type);

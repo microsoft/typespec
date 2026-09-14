@@ -207,6 +207,13 @@ const diagnostics = {
       default: paramMessage`Cannot decorate ${"nodeName"}.`,
     },
   },
+  "templated-declaration-in-expression": {
+    severity: "error",
+    messages: {
+      default:
+        "A declaration used as an expression cannot have template parameters as it cannot be referenced or instantiated.",
+    },
+  },
   "default-required": {
     severity: "error",
     messages: {
@@ -267,6 +274,20 @@ const diagnostics = {
       default: paramMessage`${"feature"} is an experimental feature. It may change in the future or be removed. Use with caution and consider providing feedback on this feature.`,
       functionDeclarations:
         "Function declarations are an experimental feature that may change in the future. Use with caution and consider providing feedback to the TypeSpec team.",
+    },
+  },
+  "declaration-expression-disabled": {
+    severity: "error",
+    messages: {
+      default:
+        "Declaration expressions require the 'declaration-expressions' feature to be enabled. Add 'declaration-expressions' to the 'features' list in your tspconfig.yaml.",
+    },
+  },
+  "union-extends-disabled": {
+    severity: "error",
+    messages: {
+      default:
+        "Union `extends` clauses require the 'union-extends' feature to be enabled. Add 'union-extends' to the 'features' list in your tspconfig.yaml.",
     },
   },
   "auto-decorator-disabled": {
@@ -380,6 +401,13 @@ const diagnostics = {
     messages: {
       default: "Models must extend other models.",
       modelExpression: "Models cannot extend model expressions.",
+    },
+  },
+  "extend-union": {
+    severity: "error",
+    messages: {
+      default: "Union `extends` must specify a model, scalar, enum, or union.",
+      modelExpression: "Unions cannot extend model expressions.",
     },
   },
   "is-model": {
@@ -861,6 +889,18 @@ const diagnostics = {
     severity: "error",
     messages: {
       default: paramMessage`Invalid options for rule "${"ruleName"}": ${"details"}`,
+    },
+  },
+  "circular-ruleset-file": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Linter ruleset file "${"path"}" is extending itself, either directly or indirectly.`,
+    },
+  },
+  "ruleset-file-in-library": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Ruleset "${"ruleSetName"}" is defined in a library and cannot extend the ruleset file "${"ref"}". "file:" references can only be used in "tspconfig.yaml" or in another ruleset file.`,
     },
   },
 

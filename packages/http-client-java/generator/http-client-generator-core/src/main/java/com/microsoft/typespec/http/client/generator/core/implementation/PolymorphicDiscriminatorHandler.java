@@ -12,6 +12,7 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaCla
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -116,7 +117,13 @@ public final class PolymorphicDiscriminatorHandler {
                 && settings.isShareJsonSerializableCode()) {
                 classBlock.memberVariable(JavaVisibility.PackagePrivate, fieldSignature);
             } else if (!allPolymorphicModelsInSamePackage || !settings.isShareJsonSerializableCode()) {
-                classBlock.privateMemberVariable(fieldSignature);
+                // Fixed inherited parent discriminators are final; active discriminators remain mutable for fallback.
+                if (discriminator.isConstant()
+                    && !Objects.equals(discriminator.getSerializedName(), model.getPolymorphicDiscriminatorName())) {
+                    classBlock.privateFinalMemberVariable(fieldSignature);
+                } else {
+                    classBlock.privateMemberVariable(fieldSignature);
+                }
             }
         }
     }

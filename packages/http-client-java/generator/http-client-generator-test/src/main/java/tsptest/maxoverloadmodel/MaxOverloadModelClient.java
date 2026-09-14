@@ -731,7 +731,7 @@ public final class MaxOverloadModelClient {
 
     /**
      * Long-running resource action operation template.
-     *
+     * 
      * @param name The name parameter.
      * @param optional The optional parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -905,7 +905,7 @@ public final class MaxOverloadModelClient {
 
     /**
      * Resource list operation template.
-     *
+     * 
      * @param filter The filter parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the request is rejected by server.

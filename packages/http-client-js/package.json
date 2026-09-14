@@ -1,6 +1,6 @@
 {
   "name": "@typespec/http-client-js",
-  "version": "0.16.1",
+  "version": "0.16.2",
   "type": "module",
   "homepage": "https://typespec.io",
   "readme": "https://github.com/microsoft/typespec/blob/main/packages/http-client-js/README.md",
@@ -78,7 +78,7 @@
     "concurrently": "catalog:",
     "cross-env": "catalog:",
     "execa": "catalog:",
-    "@inquirer/prompts": "catalog:",
+    "@inquirer/select": "catalog:",
     "ora": "catalog:",
     "p-limit": "catalog:",
     "picocolors": "catalog:",

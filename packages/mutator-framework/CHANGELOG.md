@@ -1,5 +1,12 @@
 # Changelog - @typespec/mutator-framework
 
+## 0.17.1
+
+### Bug Fixes
+
+- [#11590](https://github.com/microsoft/typespec/pull/11590) Exclude build artifacts from published packages
+
+
 ## 0.17.0
 
 ### Features

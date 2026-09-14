@@ -24,13 +24,13 @@ import {
 import {
   getDeclarationNamespaces,
   getServiceInterfaces,
+  getServiceNamespace,
   getServiceNamespaceName,
 } from "./service-discovery.js";
-import { findServiceNamespace } from "./utils/namespace-utils.js";
 
 /** All resolved service types, computed once before rendering. */
 export interface ServiceTypeResolution {
-  /** The service namespace (first non-std namespace with content). */
+  /** The namespace declared with @service, or the standalone namespace fallback. */
   serviceNamespace: TspNamespace | undefined;
   /** The C#-normalized service namespace name. */
   serviceNamespaceName: string | undefined;
@@ -46,6 +46,11 @@ export interface ServiceTypeResolution {
   canonicalOpsMap: Map<string, OperationHttpCanonicalization[]>;
   /** Namespaces whose declarations are emitted without being referenced. */
   declarationNamespaces: Set<TspNamespace>;
+}
+
+export interface ServiceTypeResolutionOptions {
+  /** Whether to canonicalize HTTP operations for controller and interface generation. */
+  canonicalizeOperations?: boolean;
 }
 
 /**
@@ -67,13 +72,12 @@ export function resolveServiceTypes(
   program: Program,
   $: Typekit,
   canonicalizer: HttpCanonicalizer,
+  options: ServiceTypeResolutionOptions = {},
 ): ServiceTypeResolution {
   resetAnonymousModels();
 
-  const globalNs = program.getGlobalNamespaceType();
-
   // Phase 1: Service namespace
-  const serviceNamespace = findServiceNamespace(globalNs);
+  const serviceNamespace = getServiceNamespace(program);
   const serviceNamespaceName = getServiceNamespaceName(program);
   const declarationNamespaces = getDeclarationNamespaces(program);
 
@@ -95,8 +99,11 @@ export function resolveServiceTypes(
     authModels,
   );
 
-  // Phase 5: Canonicalize all HTTP operations
-  const canonicalOpsMap = canonicalizeAllInterfaces(canonicalizer, interfaces);
+  // Phase 5: Canonicalize HTTP operations only when operation artifacts are emitted.
+  const canonicalOpsMap =
+    options.canonicalizeOperations === false
+      ? new Map<string, OperationHttpCanonicalization[]>()
+      : canonicalizeAllInterfaces(canonicalizer, interfaces);
 
   return {
     serviceNamespace,
