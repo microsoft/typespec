@@ -951,3 +951,11 @@ op receiveJsonLines(): JsonlStream<StreamingItem>;
 @get
 @route("/streaming/sse/receive")
 op receiveSse(): SSEStream<SampleEvents>;
+
+@get
+@route("/json-int32")
+@doc("get JSON int32")
+op getJsonInt32(): {
+  @body body: int32;
+  @header contentType: "application/json";
+};
