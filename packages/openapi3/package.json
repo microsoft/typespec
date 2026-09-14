@@ -65,6 +65,7 @@
     "@scalar/json-magic": "catalog:",
     "@scalar/openapi-parser": "catalog:",
     "@scalar/openapi-types": "catalog:",
+    "@scalar/types": "catalog:",
     "@typespec/asset-emitter": "workspace:^",
     "yaml": "catalog:"
   },
