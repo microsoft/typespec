@@ -10,81 +10,75 @@ using Spector;
 @scenarioService("/type/union/extends")
 namespace Type.Union.Extends;
 
-namespace StructuralTypes {
-  model PetBase {
-    name: string;
-  }
-
-  model Cat {
-    name: string;
-    toy: string;
-  }
-
-  model Dog {
-    name: string;
-    food: string;
-  }
-
-  union Pet extends PetBase {
-    cat: Cat,
-    dog: Dog,
-  }
+model StructuralPetBase {
+  name: string;
 }
 
-namespace ExplicitTypes {
-  model PetBase {
-    name: string;
-  }
-
-  model Cat extends PetBase {
-    toy: string;
-  }
-
-  model Dog extends PetBase {
-    food: string;
-  }
-
-  union Pet extends PetBase {
-    cat: Cat,
-    dog: Dog,
-  }
+model StructuralCat {
+  name: string;
+  toy: string;
 }
 
-namespace MultipleTypes {
-  model NameBase {
-    name: string;
-  }
+model StructuralDog {
+  name: string;
+  food: string;
+}
 
-  model FoodBase {
-    food: string;
-  }
+union StructuralPet extends StructuralPetBase {
+  cat: StructuralCat,
+  dog: StructuralDog,
+}
 
-  model Cat {
-    name: string;
-    food: string;
-    toy: string;
-  }
+model ExplicitPetBase {
+  name: string;
+}
 
-  model Dog {
-    name: string;
-    food: string;
-    bark: boolean;
-  }
+model ExplicitCat extends ExplicitPetBase {
+  toy: string;
+}
 
-  union PetWithName extends NameBase {
-    cat: Cat,
-    dog: Dog,
-  }
+model ExplicitDog extends ExplicitPetBase {
+  food: string;
+}
 
-  union PetWithFood extends FoodBase {
-    cat: Cat,
-    dog: Dog,
-  }
+union ExplicitPet extends ExplicitPetBase {
+  cat: ExplicitCat,
+  dog: ExplicitDog,
+}
+
+model MultipleNameBase {
+  name: string;
+}
+
+model MultipleFoodBase {
+  food: string;
+}
+
+model MultipleCat {
+  name: string;
+  food: string;
+  toy: string;
+}
+
+model MultipleDog {
+  name: string;
+  food: string;
+  bark: boolean;
+}
+
+union MultiplePetWithName extends MultipleNameBase {
+  cat: MultipleCat,
+  dog: MultipleDog,
+}
+
+union MultiplePetWithFood extends MultipleFoodBase {
+  cat: MultipleCat,
+  dog: MultipleDog,
 }
 
 model MultipleCases {
-  byName: MultipleTypes.PetWithName[];
-  byFood: MultipleTypes.PetWithFood[];
+  byName: MultiplePetWithName[];
+  byFood: MultiplePetWithFood[];
 }
 
 @route("/structural")
@@ -108,7 +102,7 @@ interface Structural {
     ```
     """)
   @put
-  roundTrip(@body input: StructuralTypes.Pet[]): StructuralTypes.Pet[];
+  roundTrip(@body input: StructuralPet[]): StructuralPet[];
 }
 
 @route("/explicit")
@@ -132,7 +126,7 @@ interface Explicit {
     ```
     """)
   @put
-  roundTrip(@body input: ExplicitTypes.Pet[]): ExplicitTypes.Pet[];
+  roundTrip(@body input: ExplicitPet[]): ExplicitPet[];
 }
 
 @route("/multiple")
