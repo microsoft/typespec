@@ -35,13 +35,21 @@ export async function validateMockApis({
   const diagnostics = createDiagnosticReporter();
   for (const { name, specFilePath } of scenarioFiles) {
     logger.debug(`Found scenario "${specFilePath}"`);
+    const [compilerOptions, configDiagnostics] = await specCompiler.resolveCompilerOptions(
+      specCompiler.NodeHost,
+      {
+        cwd: process.cwd(),
+        entrypoint: specFilePath,
+      },
+    );
     const program = await specCompiler.compile(specCompiler.NodeHost, specFilePath, {
+      ...compilerOptions,
       noEmit: true,
       warningAsError: true,
     });
 
     // Workaround https://github.com/Azure/cadl-azure/issues/2458
-    const programDiagnostics = program.diagnostics.filter(
+    const programDiagnostics = [...configDiagnostics, ...program.diagnostics].filter(
       (d) =>
         !(
           d.code === "@azure-tools/typespec-azure-core/casing-style" &&

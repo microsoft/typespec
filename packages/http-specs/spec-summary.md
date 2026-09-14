@@ -9422,6 +9422,63 @@ Expected request to send body:
 }
 ```
 
+### Type_Union_Extends_roundTrip
+
+- Endpoint: `put /type/union/extends/`
+
+Send and receive unions constrained to common base types.
+
+Expected request and response body:
+
+```json
+{
+  "structural": [
+    {
+      "name": "mittens",
+      "toy": "ball"
+    },
+    {
+      "name": "rex",
+      "food": "bones"
+    }
+  ],
+  "explicit": [
+    {
+      "name": "mittens",
+      "toy": "ball"
+    },
+    {
+      "name": "rex",
+      "food": "bones"
+    }
+  ],
+  "multipleByName": [
+    {
+      "name": "mittens",
+      "food": "fish",
+      "toy": "ball"
+    },
+    {
+      "name": "rex",
+      "food": "bones",
+      "bark": true
+    }
+  ],
+  "multipleByFood": [
+    {
+      "name": "mittens",
+      "food": "fish",
+      "toy": "ball"
+    },
+    {
+      "name": "rex",
+      "food": "bones",
+      "bark": true
+    }
+  ]
+}
+```
+
 ### Type_Union_FloatsOnly_get
 
 - Endpoint: `get /type/union/floats-only`
