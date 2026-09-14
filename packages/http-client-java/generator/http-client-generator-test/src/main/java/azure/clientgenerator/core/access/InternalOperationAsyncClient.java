@@ -43,14 +43,13 @@ public final class InternalOperationAsyncClient {
     /**
      * The noDecoratorInInternal operation.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     name: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param name The name parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -58,8 +57,7 @@ public final class InternalOperationAsyncClient {
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return used in an internal operation, should be generated but not exported along with {@link Response} on
-     * successful completion of {@link Mono}.
+     * @return used in an internal operation, should be generated but not exported along with {@link Response} on successful completion of {@link Mono}.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -70,14 +68,13 @@ public final class InternalOperationAsyncClient {
     /**
      * The internalDecoratorInInternal operation.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     name: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param name The name parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -85,8 +82,7 @@ public final class InternalOperationAsyncClient {
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return used in an internal operation, should be generated but not exported along with {@link Response} on
-     * successful completion of {@link Mono}.
+     * @return used in an internal operation, should be generated but not exported along with {@link Response} on successful completion of {@link Mono}.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -97,14 +93,13 @@ public final class InternalOperationAsyncClient {
     /**
      * The publicDecoratorInInternal operation.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     name: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param name The name parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -112,8 +107,7 @@ public final class InternalOperationAsyncClient {
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return used in an internal operation but with public decorator, should be generated and exported along with
-     * {@link Response} on successful completion of {@link Mono}.
+     * @return used in an internal operation but with public decorator, should be generated and exported along with {@link Response} on successful completion of {@link Mono}.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)

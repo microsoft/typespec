@@ -41,17 +41,16 @@ public final class MoveMethodParameterToAsyncClient {
     /**
      * The getBlob operation.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: String (Required)
      *     name: String (Required)
      *     size: int (Required)
      *     path: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param container The container parameter.
      * @param blob The blob parameter.

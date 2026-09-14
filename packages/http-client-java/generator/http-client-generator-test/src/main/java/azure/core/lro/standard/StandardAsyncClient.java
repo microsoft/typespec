@@ -43,26 +43,23 @@ public final class StandardAsyncClient {
      * 
      * Creates or replaces a User.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     name: String (Required)
      *     role: String (Required)
      * }
-     * }
-     * </pre>
-     * 
+     * }</pre>
+     * <!-- @formatter:on -->
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     name: String (Required)
      *     role: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param name The name of user.
      * @param resource The resource instance.
@@ -85,9 +82,8 @@ public final class StandardAsyncClient {
      * 
      * Deletes a User.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: String (Required)
      *     status: String(NotStarted/Running/Succeeded/Failed/Canceled) (Required)
@@ -104,8 +100,8 @@ public final class StandardAsyncClient {
      *         }
      *     }
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param name The name of user.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -126,9 +122,8 @@ public final class StandardAsyncClient {
      * 
      * Exports a User.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: String (Required)
      *     status: String(NotStarted/Running/Succeeded/Failed/Canceled) (Required)
@@ -149,8 +144,8 @@ public final class StandardAsyncClient {
      *         resourceUri: String (Required)
      *     }
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param name The name of user.
      * @param format The format of the data.

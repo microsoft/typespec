@@ -249,17 +249,16 @@ public final class IndividuallyParentNestedWithQueryClientImpl {
     /**
      * The getStandalone operation.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     name: String (Required)
      *     size: long (Required)
      *     contentType: String (Required)
      *     createdOn: OffsetDateTime (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -278,17 +277,16 @@ public final class IndividuallyParentNestedWithQueryClientImpl {
     /**
      * The getStandalone operation.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     name: String (Required)
      *     size: long (Required)
      *     contentType: String (Required)
      *     createdOn: OffsetDateTime (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.

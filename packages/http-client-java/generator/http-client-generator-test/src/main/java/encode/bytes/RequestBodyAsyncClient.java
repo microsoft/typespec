@@ -41,12 +41,11 @@ public final class RequestBodyAsyncClient {
     /**
      * The defaultMethod operation.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * BinaryData
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param value The value parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -65,12 +64,11 @@ public final class RequestBodyAsyncClient {
     /**
      * The octetStream operation.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * BinaryData
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param value The value parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -89,12 +87,11 @@ public final class RequestBodyAsyncClient {
     /**
      * The customContentType operation.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * BinaryData
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param value The value parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -113,12 +110,11 @@ public final class RequestBodyAsyncClient {
     /**
      * The base64 operation.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * byte[]
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param value The value parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -137,12 +133,11 @@ public final class RequestBodyAsyncClient {
     /**
      * The base64url operation.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * Base64Url
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param value The value parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.

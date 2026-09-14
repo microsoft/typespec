@@ -46,9 +46,8 @@ public final class ModelWithRenamedArraysValueAsyncClient {
     /**
      * The get operation.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     Colors (Required): [
      *         String (Required)
@@ -57,16 +56,15 @@ public final class ModelWithRenamedArraysValueAsyncClient {
      *         int (Required)
      *     ]
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return §3.3, §3.4 — Contains fields of wrapped and unwrapped arrays of primitive types that have different XML
-     * representations along with {@link Response} on successful completion of {@link Mono}.
+     * @return §3.3, §3.4 — Contains fields of wrapped and unwrapped arrays of primitive types that have different XML representations along with {@link Response} on successful completion of {@link Mono}.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -77,9 +75,8 @@ public final class ModelWithRenamedArraysValueAsyncClient {
     /**
      * The put operation.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     Colors (Required): [
      *         String (Required)
@@ -88,8 +85,8 @@ public final class ModelWithRenamedArraysValueAsyncClient {
      *         int (Required)
      *     ]
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param input The input parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.

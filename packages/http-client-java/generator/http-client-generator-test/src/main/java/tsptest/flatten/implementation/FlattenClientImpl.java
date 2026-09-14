@@ -258,15 +258,14 @@ public final class FlattenClientImpl {
      * The send operation.
      * <p><strong>Query Parameters</strong></p>
      * <table border="1">
-     * <caption>Query Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>maxpagesize</td><td>Integer</td><td>No</td><td>The maxPageSize parameter</td></tr>
+     *     <caption>Query Parameters</caption>
+     *     <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     *     <tr><td>maxpagesize</td><td>Integer</td><td>No</td><td>The maxPageSize parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     endpoint: String (Required)
      *     user (Optional): {
@@ -276,8 +275,8 @@ public final class FlattenClientImpl {
      *     constant: String (Required)
      *     requiredInt: int (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param id The id parameter.
      * @param sendRequest The sendRequest parameter.
@@ -301,15 +300,14 @@ public final class FlattenClientImpl {
      * The send operation.
      * <p><strong>Query Parameters</strong></p>
      * <table border="1">
-     * <caption>Query Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>maxpagesize</td><td>Integer</td><td>No</td><td>The maxPageSize parameter</td></tr>
+     *     <caption>Query Parameters</caption>
+     *     <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     *     <tr><td>maxpagesize</td><td>Integer</td><td>No</td><td>The maxPageSize parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     endpoint: String (Required)
      *     user (Optional): {
@@ -319,8 +317,8 @@ public final class FlattenClientImpl {
      *     constant: String (Required)
      *     requiredInt: int (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param id The id parameter.
      * @param sendRequest The sendRequest parameter.
@@ -342,14 +340,13 @@ public final class FlattenClientImpl {
     /**
      * The sendProjectedName operation.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     file_id: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param id The id parameter.
      * @param sendProjectedNameRequest The sendProjectedNameRequest parameter.
@@ -371,14 +368,13 @@ public final class FlattenClientImpl {
     /**
      * The sendProjectedName operation.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     file_id: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param id The id parameter.
      * @param sendProjectedNameRequest The sendProjectedNameRequest parameter.
@@ -401,15 +397,14 @@ public final class FlattenClientImpl {
      * The sendLong operation.
      * <p><strong>Query Parameters</strong></p>
      * <table border="1">
-     * <caption>Query Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>filter</td><td>String</td><td>No</td><td>The filter parameter</td></tr>
+     *     <caption>Query Parameters</caption>
+     *     <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     *     <tr><td>filter</td><td>String</td><td>No</td><td>The filter parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     user (Optional): {
      *         user: String (Required)
@@ -427,8 +422,8 @@ public final class FlattenClientImpl {
      *     _dummy: String (Optional)
      *     constant: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param name The name parameter.
      * @param sendLongRequest The sendLongRequest parameter.
@@ -451,15 +446,14 @@ public final class FlattenClientImpl {
      * The sendLong operation.
      * <p><strong>Query Parameters</strong></p>
      * <table border="1">
-     * <caption>Query Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>filter</td><td>String</td><td>No</td><td>The filter parameter</td></tr>
+     *     <caption>Query Parameters</caption>
+     *     <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     *     <tr><td>filter</td><td>String</td><td>No</td><td>The filter parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     user (Optional): {
      *         user: String (Required)
@@ -477,8 +471,8 @@ public final class FlattenClientImpl {
      *     _dummy: String (Optional)
      *     constant: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param name The name parameter.
      * @param sendLongRequest The sendLongRequest parameter.
@@ -499,9 +493,8 @@ public final class FlattenClientImpl {
     /**
      * The update operation.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     patch (Optional, Required on create): {
      *         title: String (Optional)
@@ -509,13 +502,11 @@ public final class FlattenClientImpl {
      *         status: String(NotStarted/InProgress/Completed) (Optional)
      *     }
      * }
-     * }
-     * </pre>
-     * 
+     * }</pre>
+     * <!-- @formatter:on -->
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: long (Required)
      *     title: String (Required)
@@ -526,8 +517,8 @@ public final class FlattenClientImpl {
      *     completedAt: OffsetDateTime (Optional)
      *     _dummy: String (Optional)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param id The id parameter.
      * @param updateRequest The updateRequest parameter.
@@ -550,9 +541,8 @@ public final class FlattenClientImpl {
     /**
      * The update operation.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     patch (Optional, Required on create): {
      *         title: String (Optional)
@@ -560,13 +550,11 @@ public final class FlattenClientImpl {
      *         status: String(NotStarted/InProgress/Completed) (Optional)
      *     }
      * }
-     * }
-     * </pre>
-     * 
+     * }</pre>
+     * <!-- @formatter:on -->
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: long (Required)
      *     title: String (Required)
@@ -577,8 +565,8 @@ public final class FlattenClientImpl {
      *     completedAt: OffsetDateTime (Optional)
      *     _dummy: String (Optional)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param id The id parameter.
      * @param updateRequest The updateRequest parameter.
@@ -600,14 +588,13 @@ public final class FlattenClientImpl {
     /**
      * The sendOptionalBody operation.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     name: String (Optional)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param sendOptionalBodyRequest The sendOptionalBodyRequest parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -628,14 +615,13 @@ public final class FlattenClientImpl {
     /**
      * The sendOptionalBody operation.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     name: String (Optional)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param sendOptionalBodyRequest The sendOptionalBodyRequest parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.

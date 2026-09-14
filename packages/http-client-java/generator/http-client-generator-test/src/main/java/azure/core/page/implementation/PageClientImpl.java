@@ -371,9 +371,8 @@ public final class PageClientImpl {
     /**
      * List with Azure.Core.Page&lt;&gt;.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: int (Required)
      *     name: String (Required)
@@ -386,8 +385,8 @@ public final class PageClientImpl {
      *     ]
      *     etag: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -409,9 +408,8 @@ public final class PageClientImpl {
     /**
      * List with Azure.Core.Page&lt;&gt;.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: int (Required)
      *     name: String (Required)
@@ -424,8 +422,8 @@ public final class PageClientImpl {
      *     ]
      *     etag: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -446,9 +444,8 @@ public final class PageClientImpl {
     /**
      * List with Azure.Core.Page&lt;&gt;.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: int (Required)
      *     name: String (Required)
@@ -461,8 +458,8 @@ public final class PageClientImpl {
      *     ]
      *     etag: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -483,9 +480,8 @@ public final class PageClientImpl {
     /**
      * List with Azure.Core.Page&lt;&gt;.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: int (Required)
      *     name: String (Required)
@@ -498,8 +494,8 @@ public final class PageClientImpl {
      *     ]
      *     etag: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -521,26 +517,22 @@ public final class PageClientImpl {
      * List with extensible enum parameter Azure.Core.Page&lt;&gt;.
      * <p><strong>Query Parameters</strong></p>
      * <table border="1">
-     * <caption>Query Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>another</td><td>String</td><td>No</td><td>Another query parameter. Allowed values: "First",
-     * "Second".</td></tr>
+     *     <caption>Query Parameters</caption>
+     *     <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     *     <tr><td>another</td><td>String</td><td>No</td><td>Another query parameter. Allowed values: "First", "Second".</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     inputName: String (Required)
      * }
-     * }
-     * </pre>
-     * 
+     * }</pre>
+     * <!-- @formatter:on -->
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: int (Required)
      *     name: String (Required)
@@ -553,8 +545,8 @@ public final class PageClientImpl {
      *     ]
      *     etag: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param bodyInput The body of the input.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -579,26 +571,22 @@ public final class PageClientImpl {
      * List with extensible enum parameter Azure.Core.Page&lt;&gt;.
      * <p><strong>Query Parameters</strong></p>
      * <table border="1">
-     * <caption>Query Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>another</td><td>String</td><td>No</td><td>Another query parameter. Allowed values: "First",
-     * "Second".</td></tr>
+     *     <caption>Query Parameters</caption>
+     *     <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     *     <tr><td>another</td><td>String</td><td>No</td><td>Another query parameter. Allowed values: "First", "Second".</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     inputName: String (Required)
      * }
-     * }
-     * </pre>
-     * 
+     * }</pre>
+     * <!-- @formatter:on -->
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: int (Required)
      *     name: String (Required)
@@ -611,8 +599,8 @@ public final class PageClientImpl {
      *     ]
      *     etag: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param bodyInput The body of the input.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -635,26 +623,22 @@ public final class PageClientImpl {
      * List with extensible enum parameter Azure.Core.Page&lt;&gt;.
      * <p><strong>Query Parameters</strong></p>
      * <table border="1">
-     * <caption>Query Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>another</td><td>String</td><td>No</td><td>Another query parameter. Allowed values: "First",
-     * "Second".</td></tr>
+     *     <caption>Query Parameters</caption>
+     *     <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     *     <tr><td>another</td><td>String</td><td>No</td><td>Another query parameter. Allowed values: "First", "Second".</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     inputName: String (Required)
      * }
-     * }
-     * </pre>
-     * 
+     * }</pre>
+     * <!-- @formatter:on -->
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: int (Required)
      *     name: String (Required)
@@ -667,8 +651,8 @@ public final class PageClientImpl {
      *     ]
      *     etag: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param bodyInput The body of the input.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -692,26 +676,22 @@ public final class PageClientImpl {
      * List with extensible enum parameter Azure.Core.Page&lt;&gt;.
      * <p><strong>Query Parameters</strong></p>
      * <table border="1">
-     * <caption>Query Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>another</td><td>String</td><td>No</td><td>Another query parameter. Allowed values: "First",
-     * "Second".</td></tr>
+     *     <caption>Query Parameters</caption>
+     *     <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     *     <tr><td>another</td><td>String</td><td>No</td><td>Another query parameter. Allowed values: "First", "Second".</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     inputName: String (Required)
      * }
-     * }
-     * </pre>
-     * 
+     * }</pre>
+     * <!-- @formatter:on -->
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: int (Required)
      *     name: String (Required)
@@ -724,8 +704,8 @@ public final class PageClientImpl {
      *     ]
      *     etag: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param bodyInput The body of the input.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -747,9 +727,8 @@ public final class PageClientImpl {
     /**
      * List with custom page model.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: int (Required)
      *     name: String (Required)
@@ -762,8 +741,8 @@ public final class PageClientImpl {
      *     ]
      *     etag: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -785,9 +764,8 @@ public final class PageClientImpl {
     /**
      * List with custom page model.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: int (Required)
      *     name: String (Required)
@@ -800,8 +778,8 @@ public final class PageClientImpl {
      *     ]
      *     etag: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -822,9 +800,8 @@ public final class PageClientImpl {
     /**
      * List with custom page model.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: int (Required)
      *     name: String (Required)
@@ -837,8 +814,8 @@ public final class PageClientImpl {
      *     ]
      *     etag: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -859,9 +836,8 @@ public final class PageClientImpl {
     /**
      * List with custom page model.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: int (Required)
      *     name: String (Required)
@@ -874,8 +850,8 @@ public final class PageClientImpl {
      *     ]
      *     etag: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -897,15 +873,14 @@ public final class PageClientImpl {
      * List with parameterized next link that re-injects parameters.
      * <p><strong>Query Parameters</strong></p>
      * <table border="1">
-     * <caption>Query Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>includePending</td><td>Boolean</td><td>No</td><td>The includePending parameter</td></tr>
+     *     <caption>Query Parameters</caption>
+     *     <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     *     <tr><td>includePending</td><td>Boolean</td><td>No</td><td>The includePending parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: int (Required)
      *     name: String (Required)
@@ -918,8 +893,8 @@ public final class PageClientImpl {
      *     ]
      *     etag: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param select The select parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -943,15 +918,14 @@ public final class PageClientImpl {
      * List with parameterized next link that re-injects parameters.
      * <p><strong>Query Parameters</strong></p>
      * <table border="1">
-     * <caption>Query Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>includePending</td><td>Boolean</td><td>No</td><td>The includePending parameter</td></tr>
+     *     <caption>Query Parameters</caption>
+     *     <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     *     <tr><td>includePending</td><td>Boolean</td><td>No</td><td>The includePending parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: int (Required)
      *     name: String (Required)
@@ -964,8 +938,8 @@ public final class PageClientImpl {
      *     ]
      *     etag: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param select The select parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -997,15 +971,14 @@ public final class PageClientImpl {
      * List with parameterized next link that re-injects parameters.
      * <p><strong>Query Parameters</strong></p>
      * <table border="1">
-     * <caption>Query Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>includePending</td><td>Boolean</td><td>No</td><td>The includePending parameter</td></tr>
+     *     <caption>Query Parameters</caption>
+     *     <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     *     <tr><td>includePending</td><td>Boolean</td><td>No</td><td>The includePending parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: int (Required)
      *     name: String (Required)
@@ -1018,8 +991,8 @@ public final class PageClientImpl {
      *     ]
      *     etag: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param select The select parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -1043,15 +1016,14 @@ public final class PageClientImpl {
      * List with parameterized next link that re-injects parameters.
      * <p><strong>Query Parameters</strong></p>
      * <table border="1">
-     * <caption>Query Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>includePending</td><td>Boolean</td><td>No</td><td>The includePending parameter</td></tr>
+     *     <caption>Query Parameters</caption>
+     *     <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     *     <tr><td>includePending</td><td>Boolean</td><td>No</td><td>The includePending parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: int (Required)
      *     name: String (Required)
@@ -1064,8 +1036,8 @@ public final class PageClientImpl {
      *     ]
      *     etag: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param select The select parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -1096,9 +1068,8 @@ public final class PageClientImpl {
     /**
      * List with relative nextLink URL that requires endpoint resolution.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: int (Required)
      *     name: String (Required)
@@ -1111,8 +1082,8 @@ public final class PageClientImpl {
      *     ]
      *     etag: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -1133,9 +1104,8 @@ public final class PageClientImpl {
     /**
      * List with relative nextLink URL that requires endpoint resolution.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: int (Required)
      *     name: String (Required)
@@ -1148,8 +1118,8 @@ public final class PageClientImpl {
      *     ]
      *     etag: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -1170,9 +1140,8 @@ public final class PageClientImpl {
     /**
      * List with relative nextLink URL that requires endpoint resolution.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: int (Required)
      *     name: String (Required)
@@ -1185,8 +1154,8 @@ public final class PageClientImpl {
      *     ]
      *     etag: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -1207,9 +1176,8 @@ public final class PageClientImpl {
     /**
      * List with relative nextLink URL that requires endpoint resolution.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: int (Required)
      *     name: String (Required)
@@ -1222,8 +1190,8 @@ public final class PageClientImpl {
      *     ]
      *     etag: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -1244,9 +1212,8 @@ public final class PageClientImpl {
     /**
      * Get the next page of items.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: int (Required)
      *     name: String (Required)
@@ -1259,8 +1226,8 @@ public final class PageClientImpl {
      *     ]
      *     etag: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param nextLink The URL to get the next list of items.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -1284,9 +1251,8 @@ public final class PageClientImpl {
     /**
      * Get the next page of items.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: int (Required)
      *     name: String (Required)
@@ -1299,8 +1265,8 @@ public final class PageClientImpl {
      *     ]
      *     etag: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param nextLink The URL to get the next list of items.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -1322,9 +1288,8 @@ public final class PageClientImpl {
     /**
      * Get the next page of items.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: int (Required)
      *     name: String (Required)
@@ -1337,8 +1302,8 @@ public final class PageClientImpl {
      *     ]
      *     etag: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param nextLink The URL to get the next list of items.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -1361,9 +1326,8 @@ public final class PageClientImpl {
     /**
      * Get the next page of items.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: int (Required)
      *     name: String (Required)
@@ -1376,8 +1340,8 @@ public final class PageClientImpl {
      *     ]
      *     etag: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param nextLink The URL to get the next list of items.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -1399,9 +1363,8 @@ public final class PageClientImpl {
     /**
      * Get the next page of items.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: int (Required)
      *     name: String (Required)
@@ -1414,8 +1377,8 @@ public final class PageClientImpl {
      *     ]
      *     etag: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param nextLink The URL to get the next list of items.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -1439,9 +1402,8 @@ public final class PageClientImpl {
     /**
      * Get the next page of items.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: int (Required)
      *     name: String (Required)
@@ -1454,8 +1416,8 @@ public final class PageClientImpl {
      *     ]
      *     etag: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param nextLink The URL to get the next list of items.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -1478,9 +1440,8 @@ public final class PageClientImpl {
     /**
      * Get the next page of items.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: int (Required)
      *     name: String (Required)
@@ -1493,8 +1454,8 @@ public final class PageClientImpl {
      *     ]
      *     etag: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param nextLink The URL to get the next list of items.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -1518,9 +1479,8 @@ public final class PageClientImpl {
     /**
      * Get the next page of items.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: int (Required)
      *     name: String (Required)
@@ -1533,8 +1493,8 @@ public final class PageClientImpl {
      *     ]
      *     etag: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param nextLink The URL to get the next list of items.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -1557,9 +1517,8 @@ public final class PageClientImpl {
     /**
      * Get the next page of items.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: int (Required)
      *     name: String (Required)
@@ -1572,8 +1531,8 @@ public final class PageClientImpl {
      *     ]
      *     etag: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param nextLink The URL to get the next list of items.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -1596,9 +1555,8 @@ public final class PageClientImpl {
     /**
      * Get the next page of items.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: int (Required)
      *     name: String (Required)
@@ -1611,8 +1569,8 @@ public final class PageClientImpl {
      *     ]
      *     etag: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param nextLink The URL to get the next list of items.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.

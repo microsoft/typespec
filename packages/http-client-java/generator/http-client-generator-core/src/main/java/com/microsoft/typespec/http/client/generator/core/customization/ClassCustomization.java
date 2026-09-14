@@ -3,7 +3,6 @@
 
 package com.microsoft.typespec.http.client.generator.core.customization;
 
-import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import java.util.function.Consumer;
 
@@ -34,9 +33,7 @@ public final class ClassCustomization extends CodeCustomization {
      * @return This ClassCustomization with the abstract syntax tree changes applied.
      */
     public ClassCustomization customizeAst(Consumer<CompilationUnit> astCustomization) {
-        CompilationUnit astToEdit = StaticJavaParser.parse(editor.getFileContent(fileName));
-        astCustomization.accept(astToEdit);
-        editor.replaceFile(fileName, astToEdit.toString());
+        editor.customizeAst(fileName, astCustomization);
 
         return this;
     }

@@ -41,17 +41,16 @@ public final class StringAndArrayClient {
     /**
      * The get operation.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     prop (Required): {
      *         string: BinaryData (Required)
      *         array: BinaryData (Required)
      *     }
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -69,17 +68,16 @@ public final class StringAndArrayClient {
     /**
      * The send operation.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     prop (Required): {
      *         string: BinaryData (Required)
      *         array: BinaryData (Required)
      *     }
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param sendRequest7 The sendRequest7 parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
