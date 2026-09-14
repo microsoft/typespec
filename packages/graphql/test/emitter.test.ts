@@ -121,4 +121,32 @@ describe("emitter", () => {
     });
     expect(Object.keys(result.outputs)).toEqual(["a_b.graphql"]);
   });
+
+  it("reports output collisions that occur on case-insensitive file systems", async () => {
+    const [, diagnostics] = await EmitterTester.compileAndDiagnose(
+      `
+        @schema(#{ name: "Api" })
+        namespace First {
+          @query op first(): string;
+        }
+
+        @schema(#{ name: "api" })
+        namespace Second {
+          @query op second(): string;
+        }
+      `,
+      {
+        compilerOptions: {
+          options: {
+            "@typespec/graphql": { "output-file": "{schema-name}.graphql" },
+          },
+        },
+      },
+    );
+
+    expectDiagnostics(diagnostics, {
+      code: "@typespec/graphql/output-file-collision",
+      message: 'Multiple GraphQL schemas resolve to the output file "api.graphql".',
+    });
+  });
 });

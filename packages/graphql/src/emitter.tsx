@@ -36,7 +36,8 @@ export async function $onEmit(context: EmitContext<GraphQLEmitterOptions>) {
         const fileName = interpolatePath(outputFile, {
           "schema-name": sanitizePathSegment(schema.name ?? "schema"),
         });
-        if (outputFiles.has(fileName)) {
+        const outputFileKey = fileName.normalize("NFC").toLowerCase();
+        if (outputFiles.has(outputFileKey)) {
           reportDiagnostic(context.program, {
             code: "output-file-collision",
             format: { path: fileName },
@@ -44,7 +45,7 @@ export async function $onEmit(context: EmitContext<GraphQLEmitterOptions>) {
           });
           continue;
         }
-        outputFiles.add(fileName);
+        outputFiles.add(outputFileKey);
         await emitFile(context.program, {
           path: resolvePath(context.emitterOutputDir, fileName),
           content: sdl,
