@@ -12,6 +12,7 @@ import { ExtensionLogListener, getPopupAction } from "./log/extension-log-listen
 import logger from "./log/logger.js";
 import { TypeSpecLogOutputChannel } from "./log/typespec-log-output-channel.js";
 import { getDirectoryPath, normalizePath } from "./path-utils.js";
+import { createTypeSpecSymbolNameRangeResolver } from "./symbol-range.js";
 import { createTaskProvider } from "./task-provider.js";
 import telemetryClient from "./telemetry/telemetry-client.js";
 import type { OperationTelemetryEvent } from "./telemetry/telemetry-event.js";
@@ -24,7 +25,14 @@ import type {
   Result,
   TypeSpecExtensionApi,
 } from "./types.js";
-import { CodeActionCommand, CommandName, ResultCode, SettingName } from "./types.js";
+import {
+  BREAKING_CHANGE_DIAGNOSTIC_CODE_PREFIX,
+  BREAKING_CHANGE_DIAGNOSTIC_SOURCE,
+  CodeActionCommand,
+  CommandName,
+  ResultCode,
+  SettingName,
+} from "./types.js";
 import { installCompilerWithUi } from "./typespec-utils.js";
 import { isWhitespaceStringOrUndefined, spawnExecutionAndLogToOutput } from "./utils.js";
 import type { InitTemplatesUrlSetting } from "./vscode-cmd/create-tsp-project.js";
@@ -44,149 +52,160 @@ import { clearOpenApi3PreviewTempFolders, showOpenApi3 } from "./vscode-cmd/open
 const outputChannel = new TypeSpecLogOutputChannel("TypeSpec");
 logger.registerLogListener("extension-log", new ExtensionLogListener(outputChannel));
 
-const BREAKING_CHANGE_SKILL_TRIGGER_DELAY = 1_000;
 const RECORD_BREAKING_CHANGE_TOOL = "typespec_recordBreakingChange";
 
 interface BreakingChangeTarget {
   documentUri: vscode.Uri;
   documentVersion: number;
+  symbolKey: string;
   analysisRange: vscode.Range;
   hoverRange: vscode.Range;
 }
 
 interface RecordBreakingChangeInput {
   targetId: string;
-  message: string;
+  messages: string[];
 }
 
 interface BreakingChangeFinding {
   id: string;
+  symbolKey: string;
   analysisRange: vscode.Range;
   hoverRange: vscode.Range;
   message: string;
 }
 
-function findInnermostDocumentSymbol(
-  symbols: readonly vscode.DocumentSymbol[],
-  position: vscode.Position,
-): vscode.DocumentSymbol | undefined {
-  for (const symbol of symbols) {
-    if (symbol.range.contains(position)) {
-      return findInnermostDocumentSymbol(symbol.children, position) ?? symbol;
-    }
-  }
-  return undefined;
+interface SymbolSnapshot {
+  symbolKey: string;
+  symbol: vscode.DocumentSymbol;
+  ownText: string;
 }
 
-function updateFindingRanges(
-  documentFindings: readonly BreakingChangeFinding[],
-  changes: readonly vscode.TextDocumentContentChangeEvent[],
-): BreakingChangeFinding[] {
-  const orderedChanges = [...changes].sort((left, right) =>
-    right.range.start.compareTo(left.range.start),
-  );
-
-  return documentFindings.flatMap((finding) => {
-    let analysisRange = finding.analysisRange;
-    let hoverRange = finding.hoverRange;
-    for (const change of orderedChanges) {
-      if (
-        analysisRange.contains(change.range.start) ||
-        (!change.range.isEmpty && change.range.contains(analysisRange.start))
-      ) {
-        return [];
-      }
-
-      if (change.range.end.isAfter(analysisRange.start)) {
-        continue;
-      }
-
-      const replacementLines = change.text.split(/\r?\n/);
-      const replacementEnd =
-        replacementLines.length === 1
-          ? new vscode.Position(
-              change.range.start.line,
-              change.range.start.character + change.text.length,
-            )
-          : new vscode.Position(
-              change.range.start.line + replacementLines.length - 1,
-              replacementLines[replacementLines.length - 1].length,
-            );
-      const translate = (position: vscode.Position) =>
-        position.line === change.range.end.line
-          ? new vscode.Position(
-              replacementEnd.line,
-              replacementEnd.character + position.character - change.range.end.character,
-            )
-          : position.translate(replacementEnd.line - change.range.end.line);
-      analysisRange = new vscode.Range(
-        translate(analysisRange.start),
-        translate(analysisRange.end),
-      );
-      hoverRange = new vscode.Range(translate(hoverRange.start), translate(hoverRange.end));
+function createSymbolSnapshots(
+  document: vscode.TextDocument,
+  symbols: readonly vscode.DocumentSymbol[],
+  parentKey = "",
+): SymbolSnapshot[] {
+  const snapshots: SymbolSnapshot[] = [];
+  const occurrences = new Map<string, number>();
+  for (const symbol of symbols) {
+    const identity = `${symbol.kind}:${symbol.name}`;
+    const occurrence = occurrences.get(identity) ?? 0;
+    occurrences.set(identity, occurrence + 1);
+    const symbolKey = `${parentKey}/${identity}:${occurrence}`;
+    const children = [...symbol.children].sort((left, right) =>
+      left.range.start.compareTo(right.range.start),
+    );
+    const ownText: string[] = [];
+    let cursor = symbol.range.start;
+    for (const child of children) {
+      ownText.push(document.getText(new vscode.Range(cursor, child.range.start)));
+      cursor = child.range.end;
     }
-    return [{ ...finding, analysisRange, hoverRange }];
-  });
+    ownText.push(document.getText(new vscode.Range(cursor, symbol.range.end)));
+    snapshots.push(
+      { symbolKey, symbol, ownText: ownText.join("").replace(/\s+/g, " ").trim() },
+      ...createSymbolSnapshots(document, symbol.children, symbolKey),
+    );
+  }
+  return snapshots;
 }
 
 function registerTypeSpecAuthoringSkillTrigger(context: ExtensionContext) {
-  const triggers = new Map<string, ReturnType<typeof setTimeout>>();
-  const changedPositions = new Map<string, vscode.Position[]>();
   let targetSequence = 0;
   let findingSequence = 0;
   const pendingTargets = new Map<string, BreakingChangeTarget>();
   const findings = new Map<string, BreakingChangeFinding[]>();
+  const savedSymbolSnapshots = new Map<string, Map<string, string>>();
+  const diagnostics = vscode.languages.createDiagnosticCollection("typespec-breaking-changes");
+
+  const captureSymbolSnapshot = async (document: vscode.TextDocument) => {
+    if (document.languageId !== "typespec") {
+      return;
+    }
+
+    const documentVersion = document.version;
+    const symbols =
+      (await commands.executeCommand<vscode.DocumentSymbol[]>(
+        "vscode.executeDocumentSymbolProvider",
+        document.uri,
+      )) ?? [];
+    if (document.version !== documentVersion || symbols.length === 0) {
+      return;
+    }
+
+    const symbolSnapshots = createSymbolSnapshots(document, symbols);
+    savedSymbolSnapshots.set(
+      document.uri.toString(),
+      new Map(symbolSnapshots.map((snapshot) => [snapshot.symbolKey, snapshot.ownText])),
+    );
+  };
+
+  const updateDiagnostics = (documentKey: string) => {
+    const documentDiagnostics = (findings.get(documentKey) ?? []).map((finding) => {
+      const diagnostic = new vscode.Diagnostic(
+        finding.hoverRange,
+        finding.message,
+        vscode.DiagnosticSeverity.Warning,
+      );
+      diagnostic.source = BREAKING_CHANGE_DIAGNOSTIC_SOURCE;
+      diagnostic.code = `${BREAKING_CHANGE_DIAGNOSTIC_CODE_PREFIX}${finding.id}`;
+      return diagnostic;
+    });
+    diagnostics.set(vscode.Uri.parse(documentKey), documentDiagnostics);
+  };
+
+  const openBreakingChangeFix = (documentKey: string, finding: BreakingChangeFinding) => {
+    void commands.executeCommand("workbench.action.chat.open", {
+      mode: "agent",
+      query: `/typespec-authoring Fix this breaking change: ${finding.message}`,
+      attachFiles: [
+        {
+          uri: vscode.Uri.parse(documentKey),
+          range: {
+            startLineNumber: finding.analysisRange.start.line + 1,
+            startColumn: finding.analysisRange.start.character + 1,
+            endLineNumber: finding.analysisRange.end.line + 1,
+            endColumn: finding.analysisRange.end.character + 1,
+          },
+        },
+      ],
+    });
+  };
 
   context.subscriptions.push(
+    diagnostics,
+    vscode.workspace.onDidOpenTextDocument((document) => {
+      void captureSymbolSnapshot(document);
+    }),
     commands.registerCommand(
-      CommandName.FixBreakingChange,
-      (documentKey: string, findingId: string) => {
-        const finding = findings.get(documentKey)?.find((candidate) => candidate.id === findingId);
-        if (!finding) {
+      CommandName.SelectBreakingChangeFix,
+      async (documentKey: string, findingIds: string[]) => {
+        const documentFindings = findings.get(documentKey) ?? [];
+        const groupedItems: (vscode.QuickPickItem & { findingId?: string })[] = [];
+        for (const findingId of findingIds) {
+          const finding = documentFindings.find((candidate) => candidate.id === findingId);
+          if (finding) {
+            groupedItems.push(
+              { label: finding.message, kind: vscode.QuickPickItemKind.Separator },
+              { label: "$(wrench) Fix", findingId },
+            );
+          }
+        }
+
+        const selected = await vscode.window.showQuickPick(groupedItems, {
+          placeHolder: "Select the breaking-change information to fix",
+        });
+        if (!selected?.findingId) {
           return;
         }
 
-        void commands.executeCommand("workbench.action.chat.open", {
-          mode: "agent",
-          query: `/typespec-authoring Fix this breaking change: ${finding.message}`,
-          attachFiles: [
-            {
-              uri: vscode.Uri.parse(documentKey),
-              range: {
-                startLineNumber: finding.analysisRange.start.line + 1,
-                startColumn: finding.analysisRange.start.character + 1,
-                endLineNumber: finding.analysisRange.end.line + 1,
-                endColumn: finding.analysisRange.end.character + 1,
-              },
-            },
-          ],
-        });
+        const finding = documentFindings.find((candidate) => candidate.id === selected.findingId);
+        if (finding) {
+          openBreakingChangeFix(documentKey, finding);
+        }
       },
     ),
-    vscode.languages.registerHoverProvider("typespec", {
-      provideHover(document, position) {
-        const documentKey = document.uri.toString();
-        const documentFindings = findings.get(documentKey) ?? [];
-        const matchingFindings = documentFindings.filter((finding) =>
-          finding.hoverRange.contains(position),
-        );
-        if (matchingFindings.length === 0) {
-          return undefined;
-        }
-
-        const contents = matchingFindings.map((finding) => {
-          const content = new vscode.MarkdownString("### Potential breaking change\n\n");
-          content.isTrusted = { enabledCommands: [CommandName.FixBreakingChange] };
-          content.appendText(finding.message);
-          const commandArgs = encodeURIComponent(JSON.stringify([documentKey, finding.id]));
-          content.appendMarkdown(
-            `\n\n[$(wrench) Fix](command:${CommandName.FixBreakingChange}?${commandArgs})`,
-          );
-          return content;
-        });
-        return new vscode.Hover(contents, matchingFindings[0].hoverRange);
-      },
-    }),
     vscode.lm.registerTool<RecordBreakingChangeInput>(RECORD_BREAKING_CHANGE_TOOL, {
       async invoke(options) {
         const target = pendingTargets.get(options.input.targetId);
@@ -203,120 +222,137 @@ function registerTypeSpecAuthoringSkillTrigger(context: ExtensionContext) {
         }
 
         const documentKey = target.documentUri.toString();
-        const existingFindings = findings.get(documentKey) ?? [];
-        if (
-          !existingFindings.some(
-            (finding) =>
-              finding.hoverRange.isEqual(target.hoverRange) &&
-              finding.message === options.input.message,
-          )
-        ) {
-          findings.set(documentKey, [
-            ...existingFindings,
-            {
-              id: `${++findingSequence}`,
-              analysisRange: target.analysisRange,
-              hoverRange: target.hoverRange,
-              message: options.input.message,
-            },
-          ]);
-        }
+        const otherFindings = (findings.get(documentKey) ?? []).filter(
+          (finding) => finding.symbolKey !== target.symbolKey,
+        );
+        findings.set(documentKey, [
+          ...otherFindings,
+          ...options.input.messages.map((message) => ({
+            id: `${++findingSequence}`,
+            symbolKey: target.symbolKey,
+            analysisRange: target.analysisRange,
+            hoverRange: target.hoverRange,
+            message,
+          })),
+        ]);
+        pendingTargets.delete(options.input.targetId);
+        updateDiagnostics(documentKey);
         return new vscode.LanguageModelToolResult([
           new vscode.LanguageModelTextPart(
-            "The breaking-change finding was added to the symbol hover.",
+            "The breaking-change findings were updated for the symbol.",
           ),
         ]);
       },
     }),
-    vscode.workspace.onDidChangeTextDocument((event) => {
-      if (event.document.languageId !== "typespec" || event.contentChanges.length === 0) {
+    vscode.workspace.onDidSaveTextDocument(async (document) => {
+      if (document.languageId !== "typespec") {
         return;
       }
 
-      const documentKey = event.document.uri.toString();
-      const documentVersion = event.document.version;
-      const positions = changedPositions.get(documentKey) ?? [];
-      positions.push(...event.contentChanges.map((change) => change.range.start));
-      changedPositions.set(documentKey, positions);
-      findings.set(
-        documentKey,
-        updateFindingRanges(findings.get(documentKey) ?? [], event.contentChanges),
-      );
+      const documentKey = document.uri.toString();
+      const documentVersion = document.version;
       for (const [targetId, target] of pendingTargets) {
         if (target.documentUri.toString() === documentKey) {
           pendingTargets.delete(targetId);
         }
       }
-      clearTimeout(triggers.get(documentKey));
-      const trigger = setTimeout(async () => {
-        triggers.delete(documentKey);
-        const targetPositions = changedPositions.get(documentKey) ?? [];
-        changedPositions.delete(documentKey);
-        const symbols =
-          (await commands.executeCommand<vscode.DocumentSymbol[]>(
-            "vscode.executeDocumentSymbolProvider",
-            event.document.uri,
-          )) ?? [];
-        if (event.document.version !== documentVersion) {
-          return;
-        }
 
-        const targets = new Map<
-          string,
-          { analysisRange: vscode.Range; hoverRange: vscode.Range }
-        >();
-        for (const position of targetPositions) {
-          const symbol = findInnermostDocumentSymbol(symbols, position);
-          const fallbackRange = event.document.lineAt(
-            Math.min(position.line, event.document.lineCount - 1),
-          ).range;
-          const analysisRange = symbol?.range ?? fallbackRange;
-          const hoverRange = symbol?.selectionRange ?? fallbackRange;
-          const targetKey = `${hoverRange.start.line}:${hoverRange.start.character}:${hoverRange.end.line}:${hoverRange.end.character}`;
-          targets.set(targetKey, { analysisRange, hoverRange });
-        }
+      const symbols =
+        (await commands.executeCommand<vscode.DocumentSymbol[]>(
+          "vscode.executeDocumentSymbolProvider",
+          document.uri,
+        )) ?? [];
+      if (document.version !== documentVersion) {
+        return;
+      }
 
-        const analysisTargets = [...targets.values()].map((target) => {
-          const targetId = `${++targetSequence}:${documentKey}`;
-          pendingTargets.set(targetId, {
-            documentUri: event.document.uri,
-            documentVersion,
-            ...target,
-          });
-          return { targetId, ...target };
+      const symbolSnapshots = createSymbolSnapshots(document, symbols);
+      const resolveSymbolNameRange = createTypeSpecSymbolNameRangeResolver(document.getText());
+      const getHoverRange = (symbol: vscode.DocumentSymbol): vscode.Range => {
+        const nameRange = resolveSymbolNameRange(
+          document.offsetAt(symbol.range.start),
+          document.offsetAt(symbol.range.end),
+        );
+        return nameRange
+          ? new vscode.Range(document.positionAt(nameRange.pos), document.positionAt(nameRange.end))
+          : symbol.selectionRange;
+      };
+      const previousSnapshots = savedSymbolSnapshots.get(documentKey);
+      savedSymbolSnapshots.set(
+        documentKey,
+        new Map(symbolSnapshots.map((snapshot) => [snapshot.symbolKey, snapshot.ownText])),
+      );
+      if (!previousSnapshots) {
+        return;
+      }
+      const changedSnapshots = symbolSnapshots.filter(
+        (snapshot) => previousSnapshots.get(snapshot.symbolKey) !== snapshot.ownText,
+      );
+      const currentSymbols = new Map(
+        symbolSnapshots.map((snapshot) => [snapshot.symbolKey, snapshot.symbol]),
+      );
+      const changedSymbolKeys = new Set(changedSnapshots.map((snapshot) => snapshot.symbolKey));
+      findings.set(
+        documentKey,
+        (findings.get(documentKey) ?? []).flatMap((finding) => {
+          const currentSymbol = currentSymbols.get(finding.symbolKey);
+          if (!currentSymbol || changedSymbolKeys.has(finding.symbolKey)) {
+            return [];
+          }
+          return [
+            {
+              ...finding,
+              analysisRange: currentSymbol.range,
+              hoverRange: getHoverRange(currentSymbol),
+            },
+          ];
+        }),
+      );
+      updateDiagnostics(documentKey);
+
+      const analysisTargets = changedSnapshots.map(({ symbolKey, symbol }) => {
+        const targetId = `${++targetSequence}:${documentKey}`;
+        const target = {
+          symbolKey,
+          analysisRange: symbol.range,
+          hoverRange: getHoverRange(symbol),
+        };
+        pendingTargets.set(targetId, {
+          documentUri: document.uri,
+          documentVersion,
+          ...target,
         });
+        return { targetId, ...target };
+      });
 
-        if (analysisTargets.length > 0) {
-          const targetDescriptions = analysisTargets.map(({ targetId, hoverRange }) => ({
-            targetId,
-            startLine: hoverRange.start.line + 1,
-            startColumn: hoverRange.start.character + 1,
-          }));
-          void commands.executeCommand("workbench.action.chat.open", {
-            mode: "agent",
-            query: `/breaking-change-detect Analyze each attached target independently. The target IDs and symbol locations are ${JSON.stringify(targetDescriptions)}. For every confirmed breaking change, call #recordBreakingChange with the matching targetId and a concise explanation.`,
-            attachFiles: analysisTargets.map((target) => ({
-              uri: event.document.uri,
-              range: {
-                startLineNumber: target.analysisRange.start.line + 1,
-                startColumn: target.analysisRange.start.character + 1,
-                endLineNumber: target.analysisRange.end.line + 1,
-                endColumn: target.analysisRange.end.character + 1,
-              },
-            })),
-          });
-        }
-      }, BREAKING_CHANGE_SKILL_TRIGGER_DELAY);
-      triggers.set(documentKey, trigger);
+      if (analysisTargets.length === 0) {
+        return;
+      }
+
+      const targetDescriptions = analysisTargets.map(({ targetId, hoverRange }) => ({
+        targetId,
+        startLine: hoverRange.start.line + 1,
+        startColumn: hoverRange.start.character + 1,
+      }));
+      void commands.executeCommand("workbench.action.chat.open", {
+        mode: "agent",
+        query: `/breaking-change-detect Read-only analysis: never edit, undo, revert, or format files. Analyze each attached target independently from this saved snapshot. The target IDs and symbol locations are ${JSON.stringify(targetDescriptions)}. Call #recordBreakingChange exactly once for every target, using its matching targetId and a messages array containing all confirmed breaking changes, or an empty array when none are found.`,
+        attachFiles: analysisTargets.map((target) => ({
+          uri: document.uri,
+          range: {
+            startLineNumber: target.analysisRange.start.line + 1,
+            startColumn: target.analysisRange.start.character + 1,
+            endLineNumber: target.analysisRange.end.line + 1,
+            endColumn: target.analysisRange.end.character + 1,
+          },
+        })),
+      });
     }),
-    {
-      dispose() {
-        for (const trigger of triggers.values()) {
-          clearTimeout(trigger);
-        }
-      },
-    },
   );
+
+  return async () => {
+    await Promise.all(vscode.workspace.textDocuments.map(captureSymbolSnapshot));
+  };
 }
 
 export async function activate(context: ExtensionContext) {
@@ -336,7 +372,8 @@ export async function activate(context: ExtensionContext) {
 
       context.subscriptions.push(createCodeActionProvider());
 
-      registerTypeSpecAuthoringSkillTrigger(context);
+      const initializeTypeSpecAuthoringSkillTrigger =
+        registerTypeSpecAuthoringSkillTrigger(context);
 
       context.subscriptions.push(
         commands.registerCommand(CommandName.ShowOutputChannel, () => {
@@ -652,6 +689,7 @@ export async function activate(context: ExtensionContext) {
           compilerLocation: "skipped-no-workspace-or-tsp-file",
         });
       }
+      await initializeTypeSpecAuthoringSkillTrigger();
       showStartUpMessages(stateManager);
       telemetryClient.sendDelayedTelemetryEvents();
       return ResultCode.Success;

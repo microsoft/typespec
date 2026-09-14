@@ -2,6 +2,9 @@ import type { LmChatMesage, LmChatRequestOptions } from "./lm/language-model.js"
 import type { TspLanguageClient } from "./tsp-language-client.js";
 import type { InitTemplatesUrlSetting } from "./vscode-cmd/create-tsp-project.js";
 
+export const BREAKING_CHANGE_DIAGNOSTIC_SOURCE = "TypeSpec breaking change";
+export const BREAKING_CHANGE_DIAGNOSTIC_CODE_PREFIX = "breaking-change:";
+
 export const enum SettingName {
   TspServerPath = "typespec.tsp-server.path",
   InitTemplatesUrls = "typespec.initTemplatesUrls",
@@ -10,7 +13,7 @@ export const enum SettingName {
 
 export const enum CommandName {
   ShowOutputChannel = "typespec.showOutputChannel",
-  FixBreakingChange = "typespec.fixBreakingChange",
+  SelectBreakingChangeFix = "typespec.selectBreakingChangeFix",
   RestartServer = "typespec.restartServer",
   InstallGlobalCompilerCli = "typespec.installGlobalCompilerCli",
   CreateProject = "typespec.createProject",

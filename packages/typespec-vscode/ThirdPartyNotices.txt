@@ -26,12 +26,13 @@ granted herein, whether by implication, estoppel or otherwise.
 16. mustache version 4.2.0 (https://github.com/janl/mustache.js)
 17. path-key version 3.1.1 (sindresorhus/path-key)
 18. picocolors version 1.1.1 (alexeyraspopov/picocolors)
-19. semver version 7.8.5 (https://github.com/npm/node-semver)
-20. shebang-command version 2.0.0 (kevva/shebang-command)
-21. shebang-regex version 3.0.0 (sindresorhus/shebang-regex)
-22. which version 2.0.2 (https://github.com/isaacs/node-which)
-23. which version 7.0.0 (https://github.com/npm/node-which)
-24. yaml version 2.9.0 (github:eemeli/yaml)
+19. prettier version 3.9.6 (prettier/prettier)
+20. semver version 7.8.5 (https://github.com/npm/node-semver)
+21. shebang-command version 2.0.0 (kevva/shebang-command)
+22. shebang-regex version 3.0.0 (sindresorhus/shebang-regex)
+23. which version 2.0.2 (https://github.com/isaacs/node-which)
+24. which version 7.0.0 (https://github.com/npm/node-which)
+25. yaml version 2.9.0 (github:eemeli/yaml)
 
 
 %% @babel/code-frame NOTICES AND INFORMATION BEGIN HERE
@@ -573,6 +574,20 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 =====================================================");
 END OF picocolors NOTICES AND INFORMATION
+
+
+%% prettier NOTICES AND INFORMATION BEGIN HERE
+=====================================================
+Copyright © James Long and contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+=====================================================");
+END OF prettier NOTICES AND INFORMATION
 
 
 %% semver NOTICES AND INFORMATION BEGIN HERE

@@ -2,7 +2,12 @@ import type { PackageJson } from "@typespec/compiler";
 import vscode from "vscode";
 import logger from "./log/logger.js";
 import { getDirectoryPath, isPathAbsolute } from "./path-utils.js";
-import { CodeActionCommand } from "./types.js";
+import {
+  BREAKING_CHANGE_DIAGNOSTIC_CODE_PREFIX,
+  BREAKING_CHANGE_DIAGNOSTIC_SOURCE,
+  CodeActionCommand,
+  CommandName,
+} from "./types.js";
 import { searchAndLoadPackageJson } from "./utils.js";
 
 export function createCodeActionProvider() {
@@ -28,8 +33,18 @@ export class TypeSpecCodeActionProvider implements vscode.CodeActionProvider {
     _token: vscode.CancellationToken,
   ): Promise<vscode.CodeAction[]> {
     const actions: vscode.CodeAction[] = [];
+    const breakingChangeDiagnostics: vscode.Diagnostic[] = [];
 
     for (const diagnostic of context.diagnostics) {
+      if (
+        diagnostic.source === BREAKING_CHANGE_DIAGNOSTIC_SOURCE &&
+        typeof diagnostic.code === "string" &&
+        diagnostic.code.startsWith(BREAKING_CHANGE_DIAGNOSTIC_CODE_PREFIX)
+      ) {
+        breakingChangeDiagnostics.push(diagnostic);
+        continue;
+      }
+
       // for each diagnostic entry that has the matching `code`, create a code action command
       // A CodeAction will only be created if it is a TypeSpec diagnostic and code is an object and has a target attribute
       // target attribute is the URL to open
@@ -89,6 +104,26 @@ export class TypeSpecCodeActionProvider implements vscode.CodeActionProvider {
           ),
         );
       }
+    }
+
+    if (breakingChangeDiagnostics.length > 0) {
+      const action = new vscode.CodeAction(
+        `Breaking changes: Choose fix... (${breakingChangeDiagnostics.length})`,
+        vscode.CodeActionKind.QuickFix,
+      );
+      action.command = {
+        command: CommandName.SelectBreakingChangeFix,
+        title: action.title,
+        arguments: [
+          _document.uri.toString(),
+          breakingChangeDiagnostics.map((diagnostic) =>
+            (diagnostic.code as string).slice(BREAKING_CHANGE_DIAGNOSTIC_CODE_PREFIX.length),
+          ),
+        ],
+      };
+      action.diagnostics = breakingChangeDiagnostics;
+      action.isPreferred = true;
+      actions.push(action);
     }
 
     return actions;

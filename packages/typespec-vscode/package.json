@@ -72,14 +72,17 @@
               "type": "string",
               "description": "The opaque target ID included in the breaking-change detection request."
             },
-            "message": {
-              "type": "string",
-              "description": "A concise explanation of the confirmed breaking change."
+            "messages": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Concise explanations of all confirmed breaking changes for the target, or an empty array when none are found."
             }
           },
           "required": [
             "targetId",
-            "message"
+            "messages"
           ]
         }
       }
