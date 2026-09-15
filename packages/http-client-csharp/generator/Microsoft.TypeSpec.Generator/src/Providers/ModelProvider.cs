@@ -251,13 +251,78 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override CSharpType? BuildBaseType()
         {
+            var currentBase = BuildCurrentBaseType();
+            return BuildBaseTypeForBackCompatibility(currentBase);
+        }
+
+        /// <summary>
+        /// Returns the model base type after applying backward compatibility against <see cref="LastContractView"/>.
+        /// The default implementation restores only a simple generated root-model base. More complex reconciliation
+        /// can be implemented by downstream generators when required by a concrete SDK scenario.
+        /// </summary>
+        /// <param name="currentBase">The base type selected from custom code or the current input model.</param>
+        protected virtual CSharpType? BuildBaseTypeForBackCompatibility(CSharpType? currentBase)
+        {
+            // A mapped external model's CLR hierarchy is owned by its wrapped system type.
+            if (this is SystemObjectModelProvider)
+            {
+                return currentBase;
+            }
+
+            var previousBase = LastContractView?.BaseType;
+            if (previousBase is null || previousBase.IsGenericType || IsInBaseTypeHierarchy(currentBase, previousBase))
+            {
+                return currentBase;
+            }
+
+            // Keep this policy deliberately conservative. Custom partials, structs, polymorphic models,
+            // and models with descendants require broader hierarchy reconciliation and are left unchanged.
+            if (CustomCodeView is not null ||
+                DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct) ||
+                _inputModel.DiscriminatorProperty is not null ||
+                _inputModel.DiscriminatorValue is not null ||
+                _inputModel.DerivedModels.Count > 0 ||
+                _inputModel.DiscriminatedSubtypes.Count > 0)
+            {
+                return currentBase;
+            }
+
+            if (CodeModelGenerator.Instance.SourceInputModel.ApiCompatBaseline.ReferencesSuppressedType(previousBase))
+            {
+                CodeModelGenerator.Instance.Emitter.Info(
+                    $"Skipping back-compat base type restoration for model '{BuildNamespace()}.{BuildName()}'; base type '{previousBase.FullyQualifiedName}' is an accepted removal in the ApiCompat baseline.",
+                    BackCompatibilityChangeCategory.BaselineAcceptedRemovalSkipped);
+                return currentBase;
+            }
+
+            if (!TryResolveCompatibleModelBase(previousBase, out var previousBaseProvider) ||
+                previousBaseProvider is not SystemObjectModelProvider &&
+                    previousBaseProvider.LastContractView?.BaseType is not null ||
+                (previousBaseProvider is SystemObjectModelProvider mappedBase
+                    ? !CanUseMappedBase(mappedBase)
+                    : _inputModel.Properties.Count > 0 ||
+                        _inputModel.AdditionalProperties is not null ||
+                        CurrentBaseRequiresReconciliation()))
+            {
+                CodeModelGenerator.Instance.Emitter.ReportDiagnostic(
+                    DiagnosticCodes.IncompatibleBackcompatBaseType,
+                    $"Could not preserve base type '{previousBase.FullyQualifiedName}' on model '{BuildNamespace()}.{BuildName()}'; automatic restoration is limited to compatible generated or mapped root-model bases.");
+                return currentBase;
+            }
+
+            CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[previousBaseProvider.Type] = previousBaseProvider;
+            CodeModelGenerator.Instance.Emitter.Info(
+                $"Changed base type of model '{BuildName()}' from '{currentBase?.FullyQualifiedName ?? "object"}' to '{previousBaseProvider.Type.FullyQualifiedName}' to match the last contract.",
+                BackCompatibilityChangeCategory.ModelBaseTypePreserved);
+            return previousBaseProvider.Type;
+        }
+
+        private CSharpType? BuildCurrentBaseType()
+        {
             if (CustomCodeView?.BaseType != null)
             {
                 var customBase = CustomCodeView.BaseType;
 
-                // If the custom base type doesn't have a resolved namespace, then try to resolve it from the input model map.
-                // This will happen if a model is customized to inherit from another generated model, but that generated model
-                // was not also defined in custom code so Roslyn does not recognize it.
                 if (string.IsNullOrEmpty(customBase.Namespace))
                 {
                     if (CodeModelGenerator.Instance.TypeFactory.TypeProvidersByName.TryGetValue(
@@ -267,8 +332,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         return resolvedModel.Type;
                     }
 
-                    // Force-create all input models so that visitors run (which may rename models
-                    // via TypeProvider.Update) and TypeProvidersByName is fully populated.
                     foreach (var model in CodeModelGenerator.Instance.InputLibrary.InputNamespace.Models)
                     {
                         CodeModelGenerator.Instance.TypeFactory.CreateModel(model);
@@ -292,12 +355,342 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return customBase;
             }
 
-            if (_inputModel.BaseModel == null)
+            return _inputModel.BaseModel is null
+                ? null
+                : CodeModelGenerator.Instance.TypeFactory.CreateModel(_inputModel.BaseModel)?.Type;
+        }
+
+        protected static bool IsInBaseTypeHierarchy(CSharpType? currentBase, CSharpType previousBase)
+        {
+            var visited = new HashSet<string>(StringComparer.Ordinal);
+            for (var type = currentBase; type is not null && visited.Add(type.FullyQualifiedName); type = type.BaseType)
             {
-                return null;
+                if (type.AreNamesEqual(previousBase))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private bool TryResolveCompatibleModelBase(CSharpType previousBase, [NotNullWhen(true)] out ModelProvider? provider)
+        {
+            if (TrySelectCreatedModelBase(previousBase, out provider, out var foundAmbiguousMapping))
+            {
+                return true;
+            }
+            if (foundAmbiguousMapping)
+            {
+                return false;
             }
 
-            return CodeModelGenerator.Instance.TypeFactory.CreateModel(_inputModel.BaseModel)?.Type;
+            foreach (var inputModel in CodeModelGenerator.Instance.InputLibrary.InputNamespace.Models)
+            {
+                var expectedName = inputModel.IsExactName
+                    ? inputModel.Name
+                    : inputModel.Name.ToIdentifierName().NormalizeCSharpAcronyms();
+                var expectedNamespace = string.IsNullOrEmpty(inputModel.Namespace)
+                    ? CodeModelGenerator.Instance.TypeFactory.PrimaryNamespace
+                    : CodeModelGenerator.Instance.TypeFactory.GetCleanNameSpace(inputModel.Namespace);
+                if (!string.Equals(expectedName, previousBase.Name, StringComparison.Ordinal) ||
+                    !string.Equals(expectedNamespace, previousBase.Namespace, StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel);
+                return TrySelectCreatedModelBase(previousBase, out provider, out _);
+            }
+
+            provider = null;
+            return false;
+        }
+
+        private bool TrySelectCreatedModelBase(
+            CSharpType previousBase,
+            [NotNullWhen(true)] out ModelProvider? provider,
+            out bool foundAmbiguousMapping)
+        {
+            var candidates = CodeModelGenerator.Instance.TypeFactory.CreatedModelProviders
+                .Concat(CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.Values.OfType<ModelProvider>())
+                .Where(candidate => candidate is SystemObjectModelProvider
+                    ? candidate.Type.AreNamesEqual(previousBase)
+                    : candidate.CachedType?.AreNamesEqual(previousBase) == true)
+                .Where(IsSupportedModelBase)
+                .Distinct()
+                .ToArray();
+            if (candidates.Length == 1)
+            {
+                provider = candidates[0];
+                foundAmbiguousMapping = false;
+                return true;
+            }
+
+            if (candidates.Length > 1)
+            {
+                if (candidates.Any(candidate => candidate is not SystemObjectModelProvider))
+                {
+                    provider = null;
+                    foundAmbiguousMapping = true;
+                    return false;
+                }
+
+                var compatibleMappedCandidates = candidates
+                    .OfType<SystemObjectModelProvider>()
+                    .Where(CanUseMappedBase)
+                    .ToArray();
+                if (compatibleMappedCandidates.Length > 0 &&
+                    compatibleMappedCandidates.Skip(1).All(candidate =>
+                        AreMappedContractsEquivalent(compatibleMappedCandidates[0], candidate)))
+                {
+                    provider = compatibleMappedCandidates[0];
+                    foundAmbiguousMapping = false;
+                    return true;
+                }
+
+                provider = null;
+                foundAmbiguousMapping = true;
+                return false;
+            }
+
+            provider = null;
+            foundAmbiguousMapping = false;
+            return false;
+        }
+
+        private static bool AreMappedContractsEquivalent(
+            SystemObjectModelProvider left,
+            SystemObjectModelProvider right)
+        {
+            if (left._inputModel.Properties.Count != right._inputModel.Properties.Count)
+            {
+                return false;
+            }
+
+            if (!left._inputModel.Properties.Zip(right._inputModel.Properties).All(pair =>
+                (pair.First.SerializedName ?? pair.First.Name) == (pair.Second.SerializedName ?? pair.Second.Name) &&
+                GetInputPropertyClrName(pair.First) == GetInputPropertyClrName(pair.Second) &&
+                AreMappedPropertyShapesCompatible(pair.First, pair.Second)))
+            {
+                return false;
+            }
+
+            return left._inputModel.AdditionalProperties is null
+                ? right._inputModel.AdditionalProperties is null
+                : right._inputModel.AdditionalProperties is { } rightAdditionalProperties &&
+                    AreInputTypesStructurallyEqual(left._inputModel.AdditionalProperties, rightAdditionalProperties);
+        }
+
+        private bool IsSupportedModelBase(ModelProvider candidate)
+            => candidate is SystemObjectModelProvider mappedBase
+                ? mappedBase.SystemType.IsFrameworkType &&
+                    mappedBase.SystemType.FrameworkType.IsClass &&
+                    !mappedBase.SystemType.FrameworkType.IsSealed &&
+                    mappedBase.SystemType.FrameworkType != typeof(Array) &&
+                    mappedBase.SystemType.FrameworkType != typeof(Delegate) &&
+                    mappedBase.SystemType.FrameworkType != typeof(MulticastDelegate) &&
+                    mappedBase.SystemType.FrameworkType != typeof(Enum) &&
+                    mappedBase.SystemType.FrameworkType != typeof(ValueType) &&
+                    IsPublicFrameworkType(mappedBase.SystemType.FrameworkType)
+                :
+                !candidate.IsExternal &&
+                candidate.CustomCodeView is null &&
+                candidate.BaseType is null &&
+                candidate._inputModel.DiscriminatorProperty is null &&
+                candidate._inputModel.DiscriminatorValue is null &&
+                candidate._inputModel.DerivedModels.Count == 0 &&
+                candidate._inputModel.DiscriminatedSubtypes.Count == 0 &&
+                HasCompatibleLastContractProperties(candidate) &&
+                candidate.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Class) &&
+                !candidate.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Sealed) &&
+                (!DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public) ||
+                    candidate.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+
+        private static bool HasCompatibleLastContractProperties(ModelProvider candidate)
+        {
+            if (candidate.LastContractView is not { } lastContract)
+            {
+                return true;
+            }
+
+            var currentProperties = candidate.Properties
+                .Where(property => MethodSignatureHelper.IsPublicApi(property.Modifiers))
+                .ToDictionary(property => property.Name, StringComparer.Ordinal);
+            return lastContract.Properties
+                .Where(property => MethodSignatureHelper.IsPublicApi(property.Modifiers))
+                .All(previousProperty =>
+                    currentProperties.TryGetValue(previousProperty.Name, out var currentProperty) &&
+                    currentProperty.Type.Equals(previousProperty.Type));
+        }
+
+        private bool CanUseMappedBase(SystemObjectModelProvider mappedBase)
+        {
+            var mappedByWireName = mappedBase._inputModel.Properties
+                .GroupBy(property => property.SerializedName ?? property.Name, StringComparer.Ordinal)
+                .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
+            var mappedByClrName = mappedBase._inputModel.Properties
+                .GroupBy(GetInputPropertyClrName, StringComparer.Ordinal)
+                .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
+
+            if (!_inputModel.Properties.Where(property => !property.IsHttpMetadata).All(property =>
+                IsMappedPropertyCompatible(property, mappedByWireName, mappedByClrName, requireMatch: false)))
+            {
+                return false;
+            }
+
+            var currentBase = _inputModel.BaseModel;
+            if (currentBase is null)
+            {
+                return true;
+            }
+
+            var currentBaseProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(currentBase);
+            if (currentBaseProvider is SystemObjectModelProvider ||
+                currentBaseProvider?.CustomCodeView is not null ||
+                currentBaseProvider?.BaseType is not null ||
+                currentBase.External is not null ||
+                currentBase.BaseModel is not null ||
+                currentBase.DiscriminatorProperty is not null ||
+                currentBase.DiscriminatorValue is not null ||
+                !currentBase.Properties.All(property =>
+                    mappedByWireName.ContainsKey(property.SerializedName ?? property.Name)))
+            {
+                return false;
+            }
+
+            if (currentBase.AdditionalProperties is null)
+            {
+                return true;
+            }
+
+            return mappedBase._inputModel.AdditionalProperties is { } mappedAdditionalProperties &&
+                AreInputTypesStructurallyEqual(currentBase.AdditionalProperties, mappedAdditionalProperties);
+        }
+
+        private static bool IsMappedPropertyCompatible(
+            InputModelProperty property,
+            IReadOnlyDictionary<string, InputModelProperty> mappedByWireName,
+            IReadOnlyDictionary<string, InputModelProperty> mappedByClrName,
+            bool requireMatch)
+        {
+            var wireName = property.SerializedName ?? property.Name;
+            var clrName = GetInputPropertyClrName(property);
+            var hasWireMatch = mappedByWireName.TryGetValue(wireName, out var wireMatch);
+            var hasClrMatch = mappedByClrName.TryGetValue(clrName, out var clrMatch);
+            if (!hasWireMatch && !hasClrMatch)
+            {
+                return !requireMatch;
+            }
+
+            return hasWireMatch && hasClrMatch &&
+                ReferenceEquals(wireMatch, clrMatch) &&
+                AreMappedPropertyShapesCompatible(property, wireMatch!);
+        }
+
+        private static string GetInputPropertyClrName(InputModelProperty property)
+            => property.IsExactName
+                ? property.Name
+                : property.Name.ToIdentifierName().NormalizeCSharpAcronyms(property.Type.IsDateTimeInputType());
+
+        private static bool AreMappedPropertyShapesCompatible(InputModelProperty current, InputModelProperty mapped)
+            => current.IsRequired == mapped.IsRequired &&
+                current.IsReadOnly == mapped.IsReadOnly &&
+                current.IsHttpMetadata == mapped.IsHttpMetadata &&
+                current.IsDiscriminator == mapped.IsDiscriminator &&
+                current.Encode == mapped.Encode &&
+                (current.Type is InputNullableType) == (mapped.Type is InputNullableType) &&
+                AreInputTypesStructurallyEqual(current.Type, mapped.Type);
+
+        private static bool AreInputTypesStructurallyEqual(InputType current, InputType mapped)
+        {
+            if (current.External is not null || mapped.External is not null)
+            {
+                return current.External is not null && mapped.External is not null &&
+                    current.External.Identity == mapped.External.Identity &&
+                    current.External.Package == mapped.External.Package &&
+                    current.External.MinVersion == mapped.External.MinVersion;
+            }
+            if (current is InputNullableType || mapped is InputNullableType)
+            {
+                return current is InputNullableType currentNullable && mapped is InputNullableType mappedNullable &&
+                    AreInputTypesStructurallyEqual(currentNullable.Type, mappedNullable.Type);
+            }
+            if (current is InputArrayType || mapped is InputArrayType)
+            {
+                return current is InputArrayType currentArray && mapped is InputArrayType mappedArray &&
+                    AreInputTypesStructurallyEqual(currentArray.ValueType, mappedArray.ValueType);
+            }
+            if (current is InputDictionaryType || mapped is InputDictionaryType)
+            {
+                return current is InputDictionaryType currentDictionary && mapped is InputDictionaryType mappedDictionary &&
+                    AreInputTypesStructurallyEqual(currentDictionary.KeyType, mappedDictionary.KeyType) &&
+                    AreInputTypesStructurallyEqual(currentDictionary.ValueType, mappedDictionary.ValueType);
+            }
+            if (current is InputUnionType || mapped is InputUnionType)
+            {
+                return current is InputUnionType currentUnion && mapped is InputUnionType mappedUnion &&
+                    currentUnion.VariantTypes.Count == mappedUnion.VariantTypes.Count &&
+                    currentUnion.VariantTypes.Zip(mappedUnion.VariantTypes).All(pair =>
+                        AreInputTypesStructurallyEqual(pair.First, pair.Second));
+            }
+            if (current is InputPrimitiveType || mapped is InputPrimitiveType)
+            {
+                return current is InputPrimitiveType currentPrimitive && mapped is InputPrimitiveType mappedPrimitive &&
+                    currentPrimitive.Kind == mappedPrimitive.Kind &&
+                    currentPrimitive.Encode == mappedPrimitive.Encode;
+            }
+            if (current is InputModelType || mapped is InputModelType)
+            {
+                return current is InputModelType currentModel && mapped is InputModelType mappedModel &&
+                    (!string.IsNullOrEmpty(currentModel.CrossLanguageDefinitionId) &&
+                        currentModel.CrossLanguageDefinitionId == mappedModel.CrossLanguageDefinitionId ||
+                    string.IsNullOrEmpty(currentModel.CrossLanguageDefinitionId) &&
+                        string.IsNullOrEmpty(mappedModel.CrossLanguageDefinitionId) &&
+                        currentModel.Namespace == mappedModel.Namespace && currentModel.Name == mappedModel.Name);
+            }
+            if (current is InputEnumType || mapped is InputEnumType)
+            {
+                return current is InputEnumType currentEnum && mapped is InputEnumType mappedEnum &&
+                    currentEnum.IsExtensible == mappedEnum.IsExtensible &&
+                    AreInputTypesStructurallyEqual(currentEnum.ValueType, mappedEnum.ValueType) &&
+                    (!string.IsNullOrEmpty(currentEnum.CrossLanguageDefinitionId) &&
+                        currentEnum.CrossLanguageDefinitionId == mappedEnum.CrossLanguageDefinitionId ||
+                    string.IsNullOrEmpty(currentEnum.CrossLanguageDefinitionId) &&
+                        string.IsNullOrEmpty(mappedEnum.CrossLanguageDefinitionId) &&
+                        currentEnum.Namespace == mappedEnum.Namespace && currentEnum.Name == mappedEnum.Name);
+            }
+            return false;
+        }
+
+        private static bool IsPublicFrameworkType(Type type)
+        {
+            for (var current = type; current is not null; current = current.DeclaringType)
+            {
+                if (!current.IsPublic && !current.IsNestedPublic)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        private bool CurrentBaseRequiresReconciliation()
+        {
+            var currentBase = _inputModel.BaseModel;
+            if (currentBase is null)
+            {
+                return false;
+            }
+
+            var currentBaseProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(currentBase);
+            return currentBaseProvider?.CustomCodeView is not null ||
+                currentBaseProvider?.BaseType is not null ||
+                currentBase.External is not null ||
+                currentBase.BaseModel is not null ||
+                currentBase.Properties.Count > 0 ||
+                currentBase.AdditionalProperties is not null ||
+                currentBase.DiscriminatorProperty is not null ||
+                currentBase.DiscriminatorValue is not null;
         }
 
         protected override TypeProvider[] BuildSerializationProviders()
