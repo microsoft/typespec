@@ -100,9 +100,10 @@ namespace SampleTypeSpec
             {
                 writer.WritePropertyName("children"u8);
                 writer.WriteStartArray();
+                bool hasPatch = Patch.Contains("$"u8, "children"u8);
                 for (int i = 0; i < Children.Count; i++)
                 {
-                    if (Patch.IsRemoved(Encoding.UTF8.GetBytes($"$.children[{i}]")) || Children[i] != null && Children[i].Patch.IsRemoved("$"u8))
+                    if (hasPatch && Patch.IsRemoved(Encoding.UTF8.GetBytes($"$.children[{i}]")) || Children[i] != null && Children[i].Patch.IsRemoved("$"u8))
                     {
                         continue;
                     }
@@ -148,9 +149,10 @@ namespace SampleTypeSpec
             {
                 writer.WritePropertyName("nestedChildren"u8);
                 writer.WriteStartArray();
+                bool hasPatch = Patch.Contains("$"u8, "nestedChildren"u8);
                 for (int i = 0; i < NestedChildren.Count; i++)
                 {
-                    if (Patch.IsRemoved(Encoding.UTF8.GetBytes($"$.nestedChildren[{i}]")))
+                    if (hasPatch && Patch.IsRemoved(Encoding.UTF8.GetBytes($"$.nestedChildren[{i}]")))
                     {
                         continue;
                     }
@@ -162,7 +164,7 @@ namespace SampleTypeSpec
                     writer.WriteStartArray();
                     for (int i0 = 0; i0 < NestedChildren[i].Count; i0++)
                     {
-                        if (Patch.IsRemoved(Encoding.UTF8.GetBytes($"$.nestedChildren[{i}][{i0}]")) || NestedChildren[i][i0] != null && NestedChildren[i][i0].Patch.IsRemoved("$"u8))
+                        if (hasPatch && Patch.IsRemoved(Encoding.UTF8.GetBytes($"$.nestedChildren[{i}][{i0}]")) || NestedChildren[i][i0] != null && NestedChildren[i][i0].Patch.IsRemoved("$"u8))
                         {
                             continue;
                         }
@@ -248,9 +250,10 @@ namespace SampleTypeSpec
                             continue;
                         }
                         writer.WriteStartArray();
+                        bool hasPatch = Patch.Contains("$"u8, "dictionaryChildren"u8);
                         for (int i = 0; i < item.Value.Count; i++)
                         {
-                            if (Patch.IsRemoved(Encoding.UTF8.GetBytes($"$.dictionaryChildren[\"{item.Key}\"][{i}]")) || item.Value[i] != null && item.Value[i].Patch.IsRemoved("$"u8))
+                            if (hasPatch && Patch.IsRemoved(Encoding.UTF8.GetBytes($"$.dictionaryChildren[\"{item.Key}\"][{i}]")) || item.Value[i] != null && item.Value[i].Patch.IsRemoved("$"u8))
                             {
                                 continue;
                             }
@@ -276,9 +279,10 @@ namespace SampleTypeSpec
             {
                 writer.WritePropertyName("listOfDictionaries"u8);
                 writer.WriteStartArray();
+                bool hasPatch = Patch.Contains("$"u8, "listOfDictionaries"u8);
                 for (int i = 0; i < ListOfDictionaries.Count; i++)
                 {
-                    if (Patch.IsRemoved(Encoding.UTF8.GetBytes($"$.listOfDictionaries[{i}]")))
+                    if (hasPatch && Patch.IsRemoved(Encoding.UTF8.GetBytes($"$.listOfDictionaries[{i}]")))
                     {
                         continue;
                     }
@@ -885,9 +889,10 @@ namespace SampleTypeSpec
             {
                 yield break;
             }
+            bool hasPatch = Patch.Contains("$"u8, "children"u8);
             for (int i = 0; i < Children.Count; i++)
             {
-                if (!Patch.IsRemoved(Encoding.UTF8.GetBytes($"$.children[{i}]")) && (Children[i] == null || !Children[i].Patch.IsRemoved("$"u8)))
+                if ((!hasPatch || !Patch.IsRemoved(Encoding.UTF8.GetBytes($"$.children[{i}]"))) && (Children[i] == null || !Children[i].Patch.IsRemoved("$"u8)))
                 {
                     yield return Children[i];
                 }

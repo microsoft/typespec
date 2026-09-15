@@ -2001,7 +2001,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
             ScopedApi<bool>? patchCheck = _jsonPatchProperty != null
-                ? Not(_jsonPatchProperty.As<JsonPatch>().Contains(LiteralU8($"$.{jsonSerializedName}")))
+                ? Not(_jsonPatchProperty.As<JsonPatch>().Contains(LiteralU8(BuildJsonPathForProperty(jsonSerializedName, escapeForCSharpString: false))))
                 : null;
 #pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
 
