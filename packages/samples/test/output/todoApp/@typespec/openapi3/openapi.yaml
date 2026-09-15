@@ -183,6 +183,10 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/TodoAttachment'
+                  nextLink:
+                    type: string
+                    format: uri
+                    description: A link to the next page, if it exists
         '404':
           description: The server cannot find the requested resource.
           content:
