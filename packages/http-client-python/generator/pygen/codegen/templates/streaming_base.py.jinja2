@@ -33,7 +33,7 @@ from typing import (
 
 from typing_extensions import Self
 
-from {{ code_model.core_library }}.rest import AsyncHttpResponse, HttpResponse
+from {{ code_model.core_library }}.rest import AsyncHttpResponse, HttpRequest, HttpResponse
 
 DecodedType = TypeVar("DecodedType")
 ReturnType_co = TypeVar("ReturnType_co", covariant=True)
@@ -433,6 +433,14 @@ async def _aiter_sse_lines(iter_bytes: AsyncIterator[bytes]) -> AsyncGenerator[s
 
     for line in framer.flush(decoder.decode(b"", final=True)):
         yield line
+
+
+def _update_sse_request_headers(request: HttpRequest, last_event_id: Optional[str]) -> None:
+    """Update the last event ID header for an SSE reconnection request."""
+    if last_event_id:
+        request.headers["Last-Event-ID"] = last_event_id
+    else:
+        request.headers.pop("Last-Event-ID", None)
 
 
 class _SSEEventBuilder:

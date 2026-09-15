@@ -128,10 +128,7 @@ def test_generated_unnamed_discriminator_dispatch_and_terminal_predicate(async_m
         f"_reconnect_response = {'await ' if async_mode else ''}"
         "self._client.send_request(_request, stream=True, **kwargs)"
     ) in generated
-    assert "if _last_event_id:" in generated
-    assert '_request.headers["Last-Event-ID"] = _last_event_id' in generated
-    assert "else:" in generated
-    assert '_request.headers.pop("Last-Event-ID", None)' in generated
+    assert "_update_sse_request_headers(_request, _last_event_id)" in generated
     assert "if _reconnect_response.status_code not in [200, 204]:" in generated
     assert "raise HttpResponseError(response=_reconnect_response)" in generated
     assert "last_event_id=_last_event_id" in generated

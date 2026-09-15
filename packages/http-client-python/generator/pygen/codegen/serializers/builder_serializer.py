@@ -1387,10 +1387,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             )
             retval.append("    _transport: Any = pipeline_response.context.transport")
             retval.append(f"    {'await ' if self.async_mode else ''}_transport.sleep(_reconnect_delay)")
-            retval.append("    if _last_event_id:")
-            retval.append('        _request.headers["Last-Event-ID"] = _last_event_id')
-            retval.append("    else:")
-            retval.append('        _request.headers.pop("Last-Event-ID", None)')
+            retval.append("    _update_sse_request_headers(_request, _last_event_id)")
             retval.append(
                 f"    _reconnect_response = {self._call_method}self._client.send_request("
                 "_request, stream=True, **kwargs)"
