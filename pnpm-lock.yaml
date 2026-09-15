@@ -491,8 +491,6 @@ overrides:
   dompurify: ^3.3.3
   yaml@>=2.0.0 <2.8.3: '>=2.8.3'
 
-packageExtensionsChecksum: sha256-41ngUhSL5ByEpDCSEB/d425efDxH3k+E1gkcIyo00jw=
-
 importers:
 
   .:
@@ -871,7 +869,7 @@ importers:
         version: 0.6.0
       '@alloy-js/rollup-plugin':
         specifier: 'catalog:'
-        version: 0.2.0(@types/babel__core@7.20.5)
+        version: 0.2.0(@babel/core@8.0.1)(@types/babel__core@7.20.5)
       '@alloy-js/typescript':
         specifier: 'catalog:'
         version: 0.25.0
@@ -968,7 +966,7 @@ importers:
         version: 0.25.0
       '@alloy-js/rollup-plugin':
         specifier: 'catalog:'
-        version: 0.2.0(@types/babel__core@7.20.5)
+        version: 0.2.0(@babel/core@8.0.1)(@types/babel__core@7.20.5)
       '@types/node':
         specifier: 'catalog:'
         version: 26.4.1
@@ -1120,7 +1118,7 @@ importers:
     devDependencies:
       '@alloy-js/rollup-plugin':
         specifier: 'catalog:'
-        version: 0.2.0(@types/babel__core@7.20.5)
+        version: 0.2.0(@babel/core@8.0.1)(@types/babel__core@7.20.5)
       '@types/node':
         specifier: 'catalog:'
         version: 26.4.1
@@ -1147,7 +1145,7 @@ importers:
         version: 0.25.0
       '@alloy-js/rollup-plugin':
         specifier: 'catalog:'
-        version: 0.2.0(@types/babel__core@7.20.5)
+        version: 0.2.0(@babel/core@8.0.1)(@types/babel__core@7.20.5)
       '@alloy-js/typescript':
         specifier: 'catalog:'
         version: 0.25.0
@@ -1205,7 +1203,7 @@ importers:
         version: 0.25.0
       '@alloy-js/rollup-plugin':
         specifier: 'catalog:'
-        version: 0.2.0(@types/babel__core@7.20.5)
+        version: 0.2.0(@babel/core@8.0.1)(@types/babel__core@7.20.5)
       '@inquirer/select':
         specifier: 'catalog:'
         version: 5.2.4(@types/node@26.4.1)
@@ -1305,7 +1303,7 @@ importers:
         version: 0.25.0
       '@alloy-js/rollup-plugin':
         specifier: 'catalog:'
-        version: 0.2.0(@types/babel__core@7.20.5)
+        version: 0.2.0(@babel/core@8.0.1)(@types/babel__core@7.20.5)
       '@inquirer/select':
         specifier: 'catalog:'
         version: 5.2.4(@types/node@26.4.1)
@@ -2723,7 +2721,7 @@ importers:
         version: 0.25.0
       '@alloy-js/rollup-plugin':
         specifier: 'catalog:'
-        version: 0.2.0(@types/babel__core@7.20.5)
+        version: 0.2.0(@babel/core@8.0.1)(@types/babel__core@7.20.5)
       '@types/node':
         specifier: 'catalog:'
         version: 26.4.1
@@ -10927,17 +10925,6 @@ snapshots:
 
   '@adobe/css-tools@4.5.0': {}
 
-  '@alloy-js/babel-plugin-jsx-dom-expressions@0.40.0(@babel/core@7.29.7)':
-    dependencies:
-      '@babel/core': 7.29.7
-      '@babel/helper-module-imports': 7.27.1
-      '@babel/plugin-syntax-jsx': 7.29.7(@babel/core@7.29.7)
-      '@babel/types': 7.29.8
-      html-entities: 2.6.0
-      validate-html-nesting: 1.2.4
-    transitivePeerDependencies:
-      - supports-color
-
   '@alloy-js/babel-plugin-jsx-dom-expressions@0.40.0(@babel/core@8.0.1)':
     dependencies:
       '@babel/core': 8.0.1
@@ -10949,16 +10936,6 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@alloy-js/babel-plugin@0.2.1(@babel/core@7.29.7)':
-    dependencies:
-      '@babel/core': 7.29.7
-      '@babel/generator': 7.29.8
-      '@babel/helper-module-imports': 7.27.1
-      '@babel/plugin-syntax-jsx': 7.29.7(@babel/core@7.29.7)
-      '@babel/types': 7.29.8
-    transitivePeerDependencies:
-      - supports-color
-
   '@alloy-js/babel-plugin@0.2.1(@babel/core@8.0.1)':
     dependencies:
       '@babel/core': 8.0.1
@@ -10967,14 +10944,6 @@ snapshots:
       '@babel/plugin-syntax-jsx': 7.29.7(@babel/core@8.0.1)
       '@babel/types': 7.29.8
     transitivePeerDependencies:
-      - supports-color
-
-  '@alloy-js/babel-preset@0.4.0(@babel/core@7.29.7)':
-    dependencies:
-      '@alloy-js/babel-plugin': 0.2.1(@babel/core@7.29.7)
-      '@alloy-js/babel-plugin-jsx-dom-expressions': 0.40.0(@babel/core@7.29.7)
-    transitivePeerDependencies:
-      - '@babel/core'
       - supports-color
 
   '@alloy-js/babel-preset@0.4.0(@babel/core@8.0.1)':
@@ -11046,13 +11015,13 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  '@alloy-js/rollup-plugin@0.2.0(@types/babel__core@7.20.5)':
+  '@alloy-js/rollup-plugin@0.2.0(@babel/core@8.0.1)(@types/babel__core@7.20.5)':
     dependencies:
-      '@alloy-js/babel-preset': 0.4.0(@babel/core@7.29.7)
-      '@babel/core': 7.29.7
-      '@babel/preset-typescript': 8.0.1(@babel/core@7.29.7)
+      '@alloy-js/babel-preset': 0.4.0(@babel/core@8.0.1)
+      '@babel/preset-typescript': 8.0.1(@babel/core@8.0.1)
       '@rollup/plugin-babel': 7.1.0(@babel/core@7.29.7)(@types/babel__core@7.20.5)
     transitivePeerDependencies:
+      - '@babel/core'
       - '@types/babel__core'
       - rollup
       - supports-color
@@ -11524,17 +11493,6 @@ snapshots:
       lru-cache: 11.5.2
       semver: 7.8.5
 
-  '@babel/helper-create-class-features-plugin@8.0.1(@babel/core@7.29.7)':
-    dependencies:
-      '@babel/core': 7.29.7
-      '@babel/helper-annotate-as-pure': 8.0.0
-      '@babel/helper-member-expression-to-functions': 8.0.0
-      '@babel/helper-optimise-call-expression': 8.0.0
-      '@babel/helper-replace-supers': 8.0.1(@babel/core@7.29.7)
-      '@babel/helper-skip-transparent-expression-wrappers': 8.0.0
-      '@babel/traverse': 8.0.4
-      semver: 7.8.5
-
   '@babel/helper-create-class-features-plugin@8.0.1(@babel/core@8.0.1)':
     dependencies:
       '@babel/core': 8.0.1
@@ -11583,13 +11541,6 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@babel/helper-module-transforms@8.0.1(@babel/core@7.29.7)':
-    dependencies:
-      '@babel/core': 7.29.7
-      '@babel/helper-module-imports': 8.0.0
-      '@babel/helper-validator-identifier': 8.0.4
-      '@babel/traverse': 8.0.4
-
   '@babel/helper-module-transforms@8.0.1(@babel/core@8.0.1)':
     dependencies:
       '@babel/core': 8.0.1
@@ -11603,20 +11554,9 @@ snapshots:
 
   '@babel/helper-plugin-utils@7.29.7': {}
 
-  '@babel/helper-plugin-utils@8.0.1(@babel/core@7.29.7)':
-    dependencies:
-      '@babel/core': 7.29.7
-
   '@babel/helper-plugin-utils@8.0.1(@babel/core@8.0.1)':
     dependencies:
       '@babel/core': 8.0.1
-
-  '@babel/helper-replace-supers@8.0.1(@babel/core@7.29.7)':
-    dependencies:
-      '@babel/core': 7.29.7
-      '@babel/helper-member-expression-to-functions': 8.0.0
-      '@babel/helper-optimise-call-expression': 8.0.0
-      '@babel/traverse': 8.0.4
 
   '@babel/helper-replace-supers@8.0.1(@babel/core@8.0.1)':
     dependencies:
@@ -11667,31 +11607,15 @@ snapshots:
     dependencies:
       '@babel/types': 8.0.4
 
-  '@babel/plugin-syntax-jsx@7.29.7(@babel/core@7.29.7)':
-    dependencies:
-      '@babel/core': 7.29.7
-      '@babel/helper-plugin-utils': 7.29.7
-
   '@babel/plugin-syntax-jsx@7.29.7(@babel/core@8.0.1)':
     dependencies:
       '@babel/core': 8.0.1
       '@babel/helper-plugin-utils': 7.29.7
 
-  '@babel/plugin-syntax-typescript@8.0.3(@babel/core@7.29.7)':
-    dependencies:
-      '@babel/core': 7.29.7
-      '@babel/helper-plugin-utils': 8.0.1(@babel/core@7.29.7)
-
   '@babel/plugin-syntax-typescript@8.0.3(@babel/core@8.0.1)':
     dependencies:
       '@babel/core': 8.0.1
       '@babel/helper-plugin-utils': 8.0.1(@babel/core@8.0.1)
-
-  '@babel/plugin-transform-modules-commonjs@8.0.1(@babel/core@7.29.7)':
-    dependencies:
-      '@babel/core': 7.29.7
-      '@babel/helper-module-transforms': 8.0.1(@babel/core@7.29.7)
-      '@babel/helper-plugin-utils': 8.0.1(@babel/core@7.29.7)
 
   '@babel/plugin-transform-modules-commonjs@8.0.1(@babel/core@8.0.1)':
     dependencies:
@@ -11709,15 +11633,6 @@ snapshots:
       '@babel/core': 7.29.7
       '@babel/helper-plugin-utils': 7.29.7
 
-  '@babel/plugin-transform-typescript@8.0.1(@babel/core@7.29.7)':
-    dependencies:
-      '@babel/core': 7.29.7
-      '@babel/helper-annotate-as-pure': 8.0.0
-      '@babel/helper-create-class-features-plugin': 8.0.1(@babel/core@7.29.7)
-      '@babel/helper-plugin-utils': 8.0.1(@babel/core@7.29.7)
-      '@babel/helper-skip-transparent-expression-wrappers': 8.0.0
-      '@babel/plugin-syntax-typescript': 8.0.3(@babel/core@7.29.7)
-
   '@babel/plugin-transform-typescript@8.0.1(@babel/core@8.0.1)':
     dependencies:
       '@babel/core': 8.0.1
@@ -11726,14 +11641,6 @@ snapshots:
       '@babel/helper-plugin-utils': 8.0.1(@babel/core@8.0.1)
       '@babel/helper-skip-transparent-expression-wrappers': 8.0.0
       '@babel/plugin-syntax-typescript': 8.0.3(@babel/core@8.0.1)
-
-  '@babel/preset-typescript@8.0.1(@babel/core@7.29.7)':
-    dependencies:
-      '@babel/core': 7.29.7
-      '@babel/helper-plugin-utils': 8.0.1(@babel/core@7.29.7)
-      '@babel/helper-validator-option': 8.0.0
-      '@babel/plugin-transform-modules-commonjs': 8.0.1(@babel/core@7.29.7)
-      '@babel/plugin-transform-typescript': 8.0.1(@babel/core@7.29.7)
 
   '@babel/preset-typescript@8.0.1(@babel/core@8.0.1)':
     dependencies:

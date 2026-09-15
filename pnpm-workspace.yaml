@@ -195,16 +195,6 @@ minimumReleaseAgeExclude:
   - "@alloy-js/*"
   - "@pinterest/alloy-graphql"
 
-packageExtensions:
-  # The alloy toolchain (@alloy-js/rollup-plugin -> @babel/preset-typescript@7.x) only supports
-  # Babel 7. Because @alloy-js/rollup-plugin doesn't depend on @babel/core directly, pnpm
-  # auto-installs the transitive @babel/core peer as the latest version (8.x), which breaks with
-  # "Requires Babel ^7.0.0-0". Give the plugin an explicit @babel/core dependency so the whole
-  # toolchain resolves against Babel 7.
-  "@alloy-js/rollup-plugin":
-    dependencies:
-      "@babel/core": ^7.29.0
-
 overrides:
   "@pinterest/alloy-graphql@1.1.1>@alloy-js/core": ^0.25.0
   cross-spawn@>=7.0.0 <7.0.5: ">=7.0.5"
