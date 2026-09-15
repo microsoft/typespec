@@ -144,6 +144,7 @@ it("makes optional error properties and constructor parameters nullable", async 
       message: string;
       optionalText?: string;
       optionalCount?: int32;
+      @header optionalHeader?: string;
     }
   `);
 
@@ -151,8 +152,11 @@ it("makes optional error properties and constructor parameters nullable", async 
 
   expect(content).toContain("string? optionalText = default");
   expect(content).toContain("int? optionalCount = default");
+  expect(content).toContain("string? optionalHeader = default");
+  expect(content).toContain('headers: new() { {"optional-header", optionalHeader} }');
   expect(content).toContain("public string? OptionalText { get; set; }");
   expect(content).toContain("public int? OptionalCount { get; set; }");
+  expect(content).toContain("public string? OptionalHeader { get; set; }");
 });
 
 it("emits one nullable suffix for explicitly nullable error properties", async () => {
