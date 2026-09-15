@@ -6,12 +6,7 @@ import pc from "picocolors";
 import { pathToFileURL } from "url";
 import type { Scenario } from "./lib/decorators.js";
 import { logger } from "./logger.js";
-import {
-  compileScenario,
-  importSpecExpect,
-  importTypeSpec,
-  importTypeSpecHttp,
-} from "./spec-utils/index.js";
+import { importSpecExpect, importTypeSpec, importTypeSpecHttp } from "./spec-utils/index.js";
 import { findFilesFromPattern } from "./utils/file-utils.js";
 import type { Diagnostic } from "./utils/index.js";
 import {
@@ -74,12 +69,14 @@ export async function loadScenarios(
 
   for (const { name, specFilePath } of scenarioFiles) {
     logger.debug(`Found scenario "${specFilePath}"`);
-    const [program, compilerDiagnostics] = await compileScenario(typespecCompiler, specFilePath, [
-      "@typespec/spector",
-    ]);
+    const program = await typespecCompiler.compile(typespecCompiler.NodeHost, specFilePath, {
+      additionalImports: ["@typespec/spector"],
+      noEmit: true,
+      warningAsError: true,
+    });
 
     // Workaround https://github.com/Azure/cadl-azure/issues/2458
-    const programDiagnostics = compilerDiagnostics.filter(
+    const programDiagnostics = program.diagnostics.filter(
       (d) =>
         !(
           d.code === "@azure-tools/typespec-azure-core/casing-style" &&
@@ -90,7 +87,7 @@ export async function loadScenarios(
         ),
     );
 
-    if (programDiagnostics.length > 0 || program === undefined) {
+    if (programDiagnostics.length > 0) {
       for (const item of programDiagnostics) {
         const sourceLocation = typespecCompiler.getSourceLocation(item.target);
         diagnostics.reportDiagnostic({

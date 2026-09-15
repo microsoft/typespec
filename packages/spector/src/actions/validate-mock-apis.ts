@@ -2,7 +2,6 @@ import type { Operation } from "@typespec/compiler";
 import pc from "picocolors";
 import { logger } from "../logger.js";
 import { findScenarioSpecFiles, loadScenarioMockApiFiles } from "../scenarios-resolver.js";
-import { compileScenario } from "../spec-utils/compile-scenario.js";
 import { importSpecExpect, importTypeSpec, importTypeSpecHttp } from "../spec-utils/import-spec.js";
 import { createDiagnosticReporter } from "../utils/diagnostic-reporter.js";
 import {
@@ -36,10 +35,13 @@ export async function validateMockApis({
   const diagnostics = createDiagnosticReporter();
   for (const { name, specFilePath } of scenarioFiles) {
     logger.debug(`Found scenario "${specFilePath}"`);
-    const [program, compilerDiagnostics] = await compileScenario(specCompiler, specFilePath);
+    const program = await specCompiler.compile(specCompiler.NodeHost, specFilePath, {
+      noEmit: true,
+      warningAsError: true,
+    });
 
     // Workaround https://github.com/Azure/cadl-azure/issues/2458
-    const programDiagnostics = compilerDiagnostics.filter(
+    const programDiagnostics = program.diagnostics.filter(
       (d) =>
         !(
           d.code === "@azure-tools/typespec-azure-core/casing-style" &&
@@ -50,7 +52,7 @@ export async function validateMockApis({
         ),
     );
 
-    if (programDiagnostics.length > 0 || program === undefined) {
+    if (programDiagnostics.length > 0) {
       specCompiler.logDiagnostics(programDiagnostics, specCompiler.NodeHost.logSink);
       diagnostics.reportDiagnostic({
         message: `Scenario ${name} is invalid.`,
