@@ -270,7 +270,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             var previousBase = LastContractView?.BaseType;
-            if (previousBase is null || IsInBaseTypeHierarchy(currentBase, previousBase))
+            if (previousBase is null || previousBase.IsGenericType || IsInBaseTypeHierarchy(currentBase, previousBase))
             {
                 return currentBase;
             }
@@ -432,16 +432,33 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             var currentBaseProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(currentBase);
-            if (currentBaseProvider?.CustomCodeView is not null)
+            if (currentBaseProvider?.CustomCodeView is not null ||
+                currentBase.External is not null ||
+                currentBase.BaseModel is not null ||
+                currentBase.DiscriminatorProperty is not null ||
+                currentBase.DiscriminatorValue is not null)
             {
                 return false;
             }
 
             var mappedProperties = mappedBase._inputModel.Properties
-                .Select(property => property.SerializedName ?? property.Name)
-                .ToHashSet(StringComparer.Ordinal);
-            return currentBase.Properties.All(property =>
-                mappedProperties.Contains(property.SerializedName ?? property.Name));
+                .GroupBy(property => property.SerializedName ?? property.Name, StringComparer.Ordinal)
+                .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
+            if (!currentBase.Properties.All(property =>
+                mappedProperties.TryGetValue(property.SerializedName ?? property.Name, out var mappedProperty) &&
+                DomainEqual(property, mappedProperty)))
+            {
+                return false;
+            }
+
+            if (currentBase.AdditionalProperties is null)
+            {
+                return true;
+            }
+
+            return mappedBase._inputModel.AdditionalProperties is { } mappedAdditionalProperties &&
+                currentBase.AdditionalProperties.Name == mappedAdditionalProperties.Name &&
+                (currentBase.AdditionalProperties is InputNullableType) == (mappedAdditionalProperties is InputNullableType);
         }
 
         private bool CurrentBaseRequiresReconciliation()
