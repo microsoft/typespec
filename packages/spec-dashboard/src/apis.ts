@@ -19,6 +19,13 @@ export interface TableDefinition {
   emitterNames?: string[];
 }
 
+export interface EmitterGroup {
+  /** Overview card label. */
+  readonly name: string;
+  /** Emitter package names, in display order. */
+  readonly emitters: readonly string[];
+}
+
 export interface CoverageFromAzureStorageOptions {
   readonly storageAccountName: string;
   readonly containerName: string;
@@ -34,6 +41,11 @@ export interface CoverageFromAzureStorageOptions {
   readonly showOverview?: boolean;
   /** Optional friendly display names for emitters. Key is the emitter package name, value is the display name. */
   readonly emitterDisplayNames?: Readonly<Record<string, string>>;
+  /**
+   * Overview groups in display order. Count each scenario once per table, covered if any member covers it.
+   * Does not change table columns or report loading.
+   */
+  readonly groupEmitters?: readonly EmitterGroup[];
 }
 
 export interface GeneratorCoverageSuiteReport extends CoverageReport {
