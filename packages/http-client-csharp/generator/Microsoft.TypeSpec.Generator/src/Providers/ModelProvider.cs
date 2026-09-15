@@ -417,7 +417,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 :
                 !candidate.IsExternal &&
                 candidate.CustomCodeView is null &&
-                candidate._inputModel.BaseModel is null &&
+                candidate.BaseType is null &&
                 candidate.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Class) &&
                 !candidate.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Sealed) &&
                 (!DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public) ||
@@ -462,6 +462,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private static bool AreMappedPropertyShapesCompatible(InputModelProperty current, InputModelProperty mapped)
             => current.IsRequired == mapped.IsRequired &&
+                current.Encode == mapped.Encode &&
                 (current.Type is InputNullableType) == (mapped.Type is InputNullableType) &&
                 AreInputTypesStructurallyEqual(current.Type, mapped.Type);
 
@@ -493,7 +494,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (current is InputPrimitiveType || mapped is InputPrimitiveType)
             {
                 return current is InputPrimitiveType currentPrimitive && mapped is InputPrimitiveType mappedPrimitive &&
-                    currentPrimitive.Kind == mappedPrimitive.Kind;
+                    currentPrimitive.Kind == mappedPrimitive.Kind &&
+                    currentPrimitive.Encode == mappedPrimitive.Encode;
             }
             if (current is InputModelType || mapped is InputModelType)
             {
