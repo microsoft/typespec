@@ -267,6 +267,7 @@ class Response(BaseModel):
             file_import.add_submodule_import(relative_path, stream_class, ImportType.LOCAL)
             if self.streaming_kind == "sse":
                 file_import.add_import("json", ImportType.STDLIB)
+                file_import.add_submodule_import(relative_path, "_update_sse_request_headers", ImportType.LOCAL)
                 for event in self.streaming_events:
                     file_import.merge(event.payload_type.imports(**kwargs))
         return file_import
