@@ -17,7 +17,11 @@ import { useEmitterOptions } from "../../context/emitter-options-context.js";
 import { getPropertyAttributes } from "../../utils/attributes.jsx";
 import { getSubNamespaceParts } from "../../utils/namespace-utils.js";
 import { CSharpFile } from "../csharp-file.jsx";
-import { efRefkey, TypeExpression } from "../type-expression/type-expression.jsx";
+import {
+  efRefkey,
+  getNullableValueTypeUnionInnerType,
+  TypeExpression,
+} from "../type-expression/type-expression.jsx";
 import { getErrorConstructor } from "./error-models.jsx";
 import {
   getDefaultValueString,
@@ -238,7 +242,7 @@ function ServerProperty(props: ServerPropertyProps): Children {
   const nullableUnionInnerType =
     propType.kind === "Union" ? getNullableUnionInnerType(propType) : undefined;
   const typeExpressionIncludesNullable =
-    nullableUnionInnerType !== undefined && isValueType($, nullableUnionInnerType);
+    getNullableValueTypeUnionInnerType($, propType) !== undefined;
   const needsNullable = isErrorProp
     ? !typeExpressionIncludesNullable &&
       (props.type.optional || nullableUnionInnerType !== undefined)

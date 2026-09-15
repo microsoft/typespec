@@ -157,11 +157,17 @@ it("makes optional error properties and constructor parameters nullable", async 
 
 it("emits one nullable suffix for explicitly nullable error properties", async () => {
   const { ApiError } = await runner.compile(t.code`
+    union MaybeInt {
+      int32,
+      null,
+    }
+
     @error
     model ${t.model("ApiError")} {
       context: string | null;
       count: int32 | null;
       optionalContext?: string | null;
+      nestedCount?: MaybeInt | null;
     }
   `);
 
@@ -170,9 +176,11 @@ it("emits one nullable suffix for explicitly nullable error properties", async (
   expect(content).toContain("string? context");
   expect(content).toContain("int? count");
   expect(content).toContain("string? optionalContext = default");
+  expect(content).toContain("int? nestedCount = default");
   expect(content).toContain("public string? Context { get; set; }");
   expect(content).toContain("public int? Count { get; set; }");
   expect(content).toContain("public string? OptionalContext { get; set; }");
+  expect(content).toContain("public int? NestedCount { get; set; }");
   expect(content).not.toContain("??");
 });
 
