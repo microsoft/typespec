@@ -465,6 +465,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
             if (!left._inputModel.Properties.All(property =>
                 rightProperties.TryGetValue(property.SerializedName ?? property.Name, out var rightProperty) &&
+                GetInputPropertyClrName(property) == GetInputPropertyClrName(rightProperty) &&
                 AreMappedPropertyShapesCompatible(property, rightProperty)))
             {
                 return false;
