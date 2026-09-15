@@ -197,6 +197,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         private CSharpType? _type;
+        internal CSharpType? CachedType => _type;
         private CSharpType[]? _arguments;
         public CSharpType Type => _type ??=
             new(

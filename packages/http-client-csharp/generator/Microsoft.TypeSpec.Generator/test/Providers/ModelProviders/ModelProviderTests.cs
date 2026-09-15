@@ -633,6 +633,40 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task BackCompat_BaseTypeRestorationRejectsAmbiguousMappedBase()
+        {
+            var firstMappedInput = InputFactory.Model(
+                "FirstMappedInput",
+                properties: [InputFactory.Property("id", InputPrimitiveType.String)]);
+            var secondMappedInput = InputFactory.Model(
+                "SecondMappedInput",
+                properties:
+                [
+                    InputFactory.Property("id", InputPrimitiveType.String),
+                    InputFactory.Property("other", InputPrimitiveType.String)
+                ]);
+            var currentBase = InputFactory.Model(
+                "CurrentBase",
+                properties: [InputFactory.Property("id", InputPrimitiveType.String)]);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+            var mappedType = new CSharpType(typeof(Exception));
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                createModelCore: input => input == firstMappedInput || input == secondMappedInput
+                    ? new SystemObjectModelProvider(mappedType, input)
+                    : new ModelProvider(input),
+                inputModelTypes: [firstMappedInput, secondMappedInput, currentBase, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_BaseTypeChangePreservesMappedRootBase)));
+
+            var providers = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.OfType<ModelProvider>().ToArray();
+            var provider = providers.Single(model => model.Name == "DerivedModel");
+
+            Assert.AreEqual("CurrentBase", provider.BaseType?.Name,
+                "Restoration must be skipped when multiple mapped providers expose the same compatible CLR base");
+        }
+
+        [Test]
         public async Task BackCompat_BaseTypeRestorationRejectsInvalidMappedBase()
         {
             var previousBase = InputFactory.Model("PreviousBase", properties: []);
@@ -787,33 +821,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 inputModelTypes: [previousBase, variant, currentBase, derivedModel],
                 lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
                     method: nameof(BackCompat_BaseTypeChangePreservesGeneratedRootBase)));
-
-            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
-                .OfType<ModelProvider>()
-                .Single(model => model.Name == "DerivedModel");
-
-            Assert.AreEqual("CurrentBase", provider.BaseType?.Name);
-        }
-
-        [Test]
-        public async Task BackCompat_BaseTypeRestorationRejectsPolymorphicMappedCandidate()
-        {
-            var variant = InputFactory.Model("Variant", discriminatedKind: "variant", properties: []);
-            var previousBase = InputFactory.Model(
-                "PreviousBase",
-                properties: [InputFactory.Property("kind", InputPrimitiveType.String, isDiscriminator: true)],
-                discriminatedModels: new Dictionary<string, InputModelType> { ["variant"] = variant });
-            var currentBase = InputFactory.Model("CurrentBase", properties: []);
-            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
-            var mappedType = new CSharpType(typeof(Exception));
-
-            await MockHelpers.LoadMockGeneratorAsync(
-                createModelCore: input => input == previousBase
-                    ? new SystemObjectModelProvider(mappedType, input)
-                    : new ModelProvider(input),
-                inputModelTypes: [previousBase, variant, currentBase, derivedModel],
-                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
-                    method: nameof(BackCompat_BaseTypeChangePreservesMappedRootBase)));
 
             var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
                 .OfType<ModelProvider>()

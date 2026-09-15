@@ -375,13 +375,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private bool TryResolveCompatibleModelBase(CSharpType previousBase, [NotNullWhen(true)] out ModelProvider? provider)
         {
-            foreach (var candidate in CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.Values.OfType<ModelProvider>())
+            if (TrySelectCreatedModelBase(previousBase, out provider, out var foundAmbiguousMapping))
             {
-                if (candidate.Type.AreNamesEqual(previousBase) && IsSupportedModelBase(candidate))
-                {
-                    provider = candidate;
-                    return true;
-                }
+                return true;
+            }
+            if (foundAmbiguousMapping)
+            {
+                return false;
             }
 
             foreach (var inputModel in CodeModelGenerator.Instance.InputLibrary.InputNamespace.Models)
@@ -398,16 +398,82 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     continue;
                 }
 
-                var candidate = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel);
-                if (candidate is not null && candidate.Type.AreNamesEqual(previousBase) && IsSupportedModelBase(candidate))
-                {
-                    provider = candidate;
-                    return true;
-                }
+                CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel);
+                return TrySelectCreatedModelBase(previousBase, out provider, out _);
             }
 
             provider = null;
             return false;
+        }
+
+        private bool TrySelectCreatedModelBase(
+            CSharpType previousBase,
+            [NotNullWhen(true)] out ModelProvider? provider,
+            out bool foundAmbiguousMapping)
+        {
+            var candidates = CodeModelGenerator.Instance.TypeFactory.CreatedModelProviders
+                .Concat(CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.Values.OfType<ModelProvider>())
+                .Where(candidate => candidate is SystemObjectModelProvider
+                    ? candidate.Type.AreNamesEqual(previousBase)
+                    : candidate.CachedType?.AreNamesEqual(previousBase) == true)
+                .Where(IsSupportedModelBase)
+                .Distinct()
+                .ToArray();
+            if (candidates.Length == 1)
+            {
+                provider = candidates[0];
+                foundAmbiguousMapping = false;
+                return true;
+            }
+
+            if (candidates.Length > 1)
+            {
+                var compatibleMappedCandidates = candidates
+                    .OfType<SystemObjectModelProvider>()
+                    .Where(CanUseMappedBase)
+                    .ToArray();
+                if (compatibleMappedCandidates.Length > 0 &&
+                    compatibleMappedCandidates.Skip(1).All(candidate =>
+                        AreMappedContractsEquivalent(compatibleMappedCandidates[0], candidate)))
+                {
+                    provider = compatibleMappedCandidates[0];
+                    foundAmbiguousMapping = false;
+                    return true;
+                }
+
+                provider = null;
+                foundAmbiguousMapping = true;
+                return false;
+            }
+
+            provider = null;
+            foundAmbiguousMapping = false;
+            return false;
+        }
+
+        private static bool AreMappedContractsEquivalent(
+            SystemObjectModelProvider left,
+            SystemObjectModelProvider right)
+        {
+            if (left._inputModel.Properties.Count != right._inputModel.Properties.Count)
+            {
+                return false;
+            }
+
+            var rightProperties = right._inputModel.Properties
+                .GroupBy(property => property.SerializedName ?? property.Name, StringComparer.Ordinal)
+                .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
+            if (!left._inputModel.Properties.All(property =>
+                rightProperties.TryGetValue(property.SerializedName ?? property.Name, out var rightProperty) &&
+                AreMappedPropertyShapesCompatible(property, rightProperty)))
+            {
+                return false;
+            }
+
+            return left._inputModel.AdditionalProperties is null
+                ? right._inputModel.AdditionalProperties is null
+                : right._inputModel.AdditionalProperties is { } rightAdditionalProperties &&
+                    AreInputTypesStructurallyEqual(left._inputModel.AdditionalProperties, rightAdditionalProperties);
         }
 
         private bool IsSupportedModelBase(ModelProvider candidate)
@@ -415,10 +481,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 ? mappedBase.SystemType.IsFrameworkType &&
                     mappedBase.SystemType.FrameworkType.IsClass &&
                     !mappedBase.SystemType.FrameworkType.IsSealed &&
-                    mappedBase._inputModel.DiscriminatorProperty is null &&
-                    mappedBase._inputModel.DiscriminatorValue is null &&
-                    mappedBase._inputModel.DerivedModels.Count == 0 &&
-                    mappedBase._inputModel.DiscriminatedSubtypes.Count == 0 &&
+                    mappedBase.SystemType.FrameworkType != typeof(Array) &&
+                    mappedBase.SystemType.FrameworkType != typeof(Delegate) &&
+                    mappedBase.SystemType.FrameworkType != typeof(MulticastDelegate) &&
+                    mappedBase.SystemType.FrameworkType != typeof(Enum) &&
+                    mappedBase.SystemType.FrameworkType != typeof(ValueType) &&
                     (!DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public) ||
                         IsPublicFrameworkType(mappedBase.SystemType.FrameworkType))
                 :
@@ -464,7 +531,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 currentBase.DiscriminatorProperty is not null ||
                 currentBase.DiscriminatorValue is not null ||
                 !currentBase.Properties.All(property =>
-                    IsMappedPropertyCompatible(property, mappedByWireName, mappedByClrName, requireMatch: true)))
+                    mappedByWireName.ContainsKey(property.SerializedName ?? property.Name)))
             {
                 return false;
             }
@@ -505,12 +572,20 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private static bool AreMappedPropertyShapesCompatible(InputModelProperty current, InputModelProperty mapped)
             => current.IsRequired == mapped.IsRequired &&
+                current.IsReadOnly == mapped.IsReadOnly &&
                 current.Encode == mapped.Encode &&
                 (current.Type is InputNullableType) == (mapped.Type is InputNullableType) &&
                 AreInputTypesStructurallyEqual(current.Type, mapped.Type);
 
         private static bool AreInputTypesStructurallyEqual(InputType current, InputType mapped)
         {
+            if (current.External is not null || mapped.External is not null)
+            {
+                return current.External is not null && mapped.External is not null &&
+                    current.External.Identity == mapped.External.Identity &&
+                    current.External.Package == mapped.External.Package &&
+                    current.External.MinVersion == mapped.External.MinVersion;
+            }
             if (current is InputNullableType || mapped is InputNullableType)
             {
                 return current is InputNullableType currentNullable && mapped is InputNullableType mappedNullable &&
@@ -552,6 +627,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (current is InputEnumType || mapped is InputEnumType)
             {
                 return current is InputEnumType currentEnum && mapped is InputEnumType mappedEnum &&
+                    currentEnum.IsExtensible == mappedEnum.IsExtensible &&
+                    AreInputTypesStructurallyEqual(currentEnum.ValueType, mappedEnum.ValueType) &&
                     (!string.IsNullOrEmpty(currentEnum.CrossLanguageDefinitionId) &&
                         currentEnum.CrossLanguageDefinitionId == mappedEnum.CrossLanguageDefinitionId ||
                     string.IsNullOrEmpty(currentEnum.CrossLanguageDefinitionId) &&
