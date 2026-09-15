@@ -131,7 +131,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
             }
 
-            return [.. derivedModels];
+            return [.. derivedModels.OrderBy(m => m.Name, StringComparer.Ordinal)];
         }
         internal override TypeProvider? BaseTypeProvider => _baseTypeProvider ??= BuildBaseTypeProvider();
         private TypeProvider? _baseTypeProvider;
