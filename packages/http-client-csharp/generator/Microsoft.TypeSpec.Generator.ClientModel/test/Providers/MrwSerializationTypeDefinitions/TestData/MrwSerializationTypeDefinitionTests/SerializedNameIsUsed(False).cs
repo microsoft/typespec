@@ -3,10 +3,17 @@ if ((format != "J"))
 {
     throw new global::System.FormatException($"The model {nameof(global::Sample.Models.MockInputModel)} does not support writing '{format}' format.");
 }
-if (global::Sample.Optional.IsDefined(MockProperty))
+if ((_mockPropertyIsDefined || global::Sample.Optional.IsDefined(MockProperty)))
 {
-    writer.WritePropertyName("mock_wire_name"u8);
-    writer.WriteNumberValue(MockProperty.Value);
+    if ((MockProperty != null))
+    {
+        writer.WritePropertyName("mock_wire_name"u8);
+        writer.WriteNumberValue(MockProperty.Value);
+    }
+    else
+    {
+        writer.WriteNull("mock_wire_name"u8);
+    }
 }
 if (((options.Format != "W") && (_additionalBinaryDataProperties != null)))
 {

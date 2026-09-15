@@ -119,10 +119,17 @@ namespace SampleTypeSpec
             {
                 writer.WriteNull("requiredNullableString"u8);
             }
-            if (Optional.IsDefined(OptionalNullableString))
+            if (_optionalNullableStringIsDefined || Optional.IsDefined(OptionalNullableString))
             {
-                writer.WritePropertyName("optionalNullableString"u8);
-                writer.WriteStringValue(OptionalNullableString);
+                if (OptionalNullableString != null)
+                {
+                    writer.WritePropertyName("optionalNullableString"u8);
+                    writer.WriteStringValue(OptionalNullableString);
+                }
+                else
+                {
+                    writer.WriteNull("optionalNullableString"u8);
+                }
             }
             writer.WritePropertyName("requiredLiteralInt"u8);
             writer.WriteNumberValue(RequiredLiteralInt);
@@ -163,13 +170,20 @@ namespace SampleTypeSpec
             writer.WriteStringValue(RequiredBadDescription);
             if (Optional.IsCollectionDefined(OptionalNullableList))
             {
-                writer.WritePropertyName("optionalNullableList"u8);
-                writer.WriteStartArray();
-                foreach (int item in OptionalNullableList)
+                if (OptionalNullableList != null)
                 {
-                    writer.WriteNumberValue(item);
+                    writer.WritePropertyName("optionalNullableList"u8);
+                    writer.WriteStartArray();
+                    foreach (int item in OptionalNullableList)
+                    {
+                        writer.WriteNumberValue(item);
+                    }
+                    writer.WriteEndArray();
                 }
-                writer.WriteEndArray();
+                else
+                {
+                    writer.WriteNull("optionalNullableList"u8);
+                }
             }
             if (Optional.IsCollectionDefined(RequiredNullableList))
             {
@@ -233,6 +247,7 @@ namespace SampleTypeSpec
             BinaryData requiredUnion = default;
             string requiredLiteralString = default;
             string requiredNullableString = default;
+            bool optionalNullableStringIsDefined = false;
             string optionalNullableString = default;
             int requiredLiteralInt = default;
             float requiredLiteralFloat = default;
@@ -243,7 +258,7 @@ namespace SampleTypeSpec
             ThingOptionalLiteralFloat? optionalLiteralFloat = default;
             bool? optionalLiteralBool = default;
             string requiredBadDescription = default;
-            IList<int> optionalNullableList = default;
+            IList<int> optionalNullableList = new ChangeTrackingList<int>();
             IList<int> requiredNullableList = default;
             string propertyWithSpecialDocs = default;
             IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
@@ -276,6 +291,7 @@ namespace SampleTypeSpec
                 }
                 if (prop.NameEquals("optionalNullableString"u8))
                 {
+                    optionalNullableStringIsDefined = true;
                     if (prop.Value.ValueKind == JsonValueKind.Null)
                     {
                         optionalNullableString = null;
@@ -354,6 +370,7 @@ namespace SampleTypeSpec
                 {
                     if (prop.Value.ValueKind == JsonValueKind.Null)
                     {
+                        optionalNullableList = null;
                         continue;
                     }
                     List<int> array = new List<int>();
@@ -404,10 +421,13 @@ namespace SampleTypeSpec
                 optionalLiteralFloat,
                 optionalLiteralBool,
                 requiredBadDescription,
-                optionalNullableList ?? new ChangeTrackingList<int>(),
+                optionalNullableList,
                 requiredNullableList,
                 propertyWithSpecialDocs,
-                additionalBinaryDataProperties);
+                additionalBinaryDataProperties)
+            {
+                _optionalNullableStringIsDefined = optionalNullableStringIsDefined
+            };
         }
     }
 }

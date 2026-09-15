@@ -39,6 +39,120 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
             Assert.IsInstanceOf<ScmModel>(provider);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
+        public void OptionalNullablePropertiesTrackPresenceWithoutChangingConstructorSignatures(bool isDynamic)
+        {
+            var inputModel = InputFactory.Model("model", isDynamicModel: isDynamic, properties:
+            [
+                InputFactory.Property("text", new InputNullableType(InputPrimitiveType.String)),
+                InputFactory.Property("number", new InputNullableType(InputPrimitiveType.Int32)),
+                InputFactory.Property("child", new InputNullableType(InputFactory.Model("child"))),
+                InputFactory.Property("optionalText", InputPrimitiveType.String),
+                InputFactory.Property("requiredText", new InputNullableType(InputPrimitiveType.String), isRequired: true)
+            ]);
+            var model = new ScmModel(inputModel);
+
+            foreach (var name in new[] { "Text", "Number", "Child" })
+            {
+                var property = model.Properties.Single(p => p.Name == name);
+                Assert.That(property.Body, Is.InstanceOf<MethodPropertyBody>());
+                Assert.That(property.BackingField, Is.Not.Null);
+                Assert.That(property.BackingField!.Type, Is.EqualTo(property.Type));
+                Assert.That(property.BackingField.WireInfo, Is.Null);
+                Assert.That(property.Body.HasSetter, Is.True);
+            }
+            Assert.That(model.Properties.Single(p => p.Name == "OptionalText").Body, Is.InstanceOf<AutoPropertyBody>());
+            Assert.That(model.Properties.Single(p => p.Name == "RequiredText").Body, Is.InstanceOf<AutoPropertyBody>());
+            Assert.That(model.FullConstructor.Signature.Parameters.Count, Is.EqualTo(6));
+            Assert.That(model.FullConstructor.Signature.Parameters.Take(5).Select(p => p.Type),
+                Is.EqualTo(model.Properties.Where(p => p.WireInfo != null).Select(p => p.Type)));
+            Assert.That(model.Constructors.Single(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public))
+                .Signature.Parameters.Select(p => p.Name), Is.EqualTo(new[] { "requiredText" }));
+        }
+
+        [Test]
+        public void OptionalNullableOutputPropertyTracksPresenceWithoutAddingSetter()
+        {
+            var inputModel = InputFactory.Model("model", usage: InputModelTypeUsage.Output | InputModelTypeUsage.Json, properties:
+            [
+                InputFactory.Property("text", new InputNullableType(InputPrimitiveType.String), isReadOnly: true)
+            ]);
+            var model = new ScmModel(inputModel);
+            var property = model.Properties.Single();
+
+            Assert.That(property.BackingField, Is.Not.Null);
+            Assert.That(property.Body.HasSetter, Is.False);
+            Assert.That(model.FullConstructor.Signature.Parameters.Count, Is.EqualTo(2));
+        }
+
+        [Test]
+        public void OptionalNullablePresenceFieldsDoNotCollideWithOtherBackingFields()
+        {
+            var model = new ScmModel(InputFactory.Model("model", properties:
+            [
+                InputFactory.Property("text", new InputNullableType(InputPrimitiveType.String)),
+                InputFactory.Property("textIsDefined", new InputNullableType(InputPrimitiveType.String))
+            ]));
+
+            Assert.That(model.Fields.Select(f => f.Name), Is.Unique);
+            Assert.That(model.Properties.Select(p => p.BackingField!.Type), Is.All.EqualTo(model.Properties[0].Type));
+        }
+
+        [Test]
+        public void OptionalNullableBackingFieldDoesNotHideInheritedPresence()
+        {
+            var baseModel = InputFactory.Model("baseModel", properties:
+                [InputFactory.Property("text", new InputNullableType(InputPrimitiveType.String))]);
+            var middleModel = InputFactory.Model("middleModel", baseModel: baseModel);
+            var derivedModel = InputFactory.Model("derivedModel", baseModel: middleModel, properties:
+                [InputFactory.Property("textIsDefined", new InputNullableType(InputPrimitiveType.String))]);
+            MockHelpers.LoadMockGenerator(inputModels: () => [baseModel, middleModel, derivedModel]);
+            var provider = (ScmModel)ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(derivedModel)!;
+            var baseProperty = provider.BaseModelProvider!.BaseModelProvider!.Properties.Single();
+            var property = provider.Properties.Single();
+
+            Assert.That(property.BackingField!.Name, Is.Not.EqualTo(ScmModel.GetNullablePropertyPresence(baseProperty)!.Name));
+            Assert.That(provider.Fields.Select(f => f.Name), Is.Unique);
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void OptionalNullableOverrideSharesBasePresence(bool narrowed)
+        {
+            var baseModel = InputFactory.Model("baseModel", properties:
+                [InputFactory.Property("text", new InputNullableType(InputPrimitiveType.String))]);
+            var derivedModel = InputFactory.Model("derivedModel", baseModel: baseModel, properties:
+                [InputFactory.Property("text", new InputNullableType(narrowed ? InputFactory.Literal.String("value") : InputPrimitiveType.String))]);
+            MockHelpers.LoadMockGenerator(inputModels: () => [baseModel, derivedModel]);
+            var provider = (ScmModel)ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(derivedModel)!;
+            var baseProperty = provider.BaseModelProvider!.Properties.Single();
+            var property = provider.Properties.Single();
+
+            Assert.That(ScmModel.GetNullablePropertyPresence(property),
+                Is.SameAs(ScmModel.GetNullablePropertyPresence(baseProperty)));
+            Assert.That(ScmModel.GetNullablePropertyPresence(property), Is.Not.Null);
+            Assert.That(provider.Fields, Is.Empty);
+            Assert.That(property.Body, Is.InstanceOf<MethodPropertyBody>());
+        }
+
+        [Test]
+        public async Task OptionalNullableCustomPropertyRetainsHandwrittenBehavior()
+        {
+            var inputModel = InputFactory.Model("model", properties:
+                [InputFactory.Property("text", new InputNullableType(InputPrimitiveType.String))]);
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var model = (ScmModel)ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
+            var property = model.CanonicalView.Properties.Single();
+
+            Assert.That(property.Name, Is.EqualTo("RenamedText"));
+            Assert.That(ScmModel.GetNullablePropertyPresence(property), Is.Null);
+            Assert.That(model.Fields.Select(f => f.Name), Is.EqualTo(new[] { "_additionalBinaryDataProperties" }));
+            Assert.That(model.FullConstructor.Signature.Parameters.First().Name, Is.EqualTo("renamedText"));
+        }
+
         [Test]
         public void TestSimpleDynamicModel()
         {
