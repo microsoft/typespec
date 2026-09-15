@@ -4,6 +4,8 @@
 # license information.
 # --------------------------------------------------------------------------
 """Tests for etag-typed header handling in the preprocess plugin."""
+import pytest
+
 from pygen.preprocess import PreProcessPlugin
 
 
@@ -65,38 +67,51 @@ def _get_op(client: dict) -> dict:
     return client["operationGroups"][0]["operations"][0]
 
 
-def test_etag_headers_in_nested_operation_group_are_processed():
+@pytest.mark.parametrize(
+    ("client_name", "wire_name", "etag_role", "match_condition_default"),
+    [
+        ("if_match", "If-Match", "ifMatch", "MatchConditions.IfNotModified"),
+        ("if_none_match", "If-None-Match", "ifNoneMatch", "MatchConditions.IfModified"),
+    ],
+)
+def test_etag_headers_in_nested_operation_group_are_processed(
+    client_name: str,
+    wire_name: str,
+    etag_role: str,
+    match_condition_default: str,
+):
     """Nested ETag operations get their partner parameter and enable client helpers."""
-    if_match = _header_param(
-        "if_match",
-        "If-Match",
-        "ifMatch",
+    etag_parameter = _header_param(
+        client_name,
+        wire_name,
+        etag_role,
         optional=False,
     )
     operation = {
         "name": "remove",
-        "parameters": [if_match],
+        "parameters": [etag_parameter],
     }
     client = _client_yaml([])
-    client["operationGroups"] = [
-        {
-            "operations": [],
-            "operationGroups": [
-                {
-                    "operations": [operation],
-                }
-            ],
-        }
-    ]
+    parent_group = {
+        "operations": [],
+        "operationGroups": [
+            {
+                "operations": [operation],
+            }
+        ],
+    }
+    client["operationGroups"] = [parent_group]
 
     plugin = _plugin()
     plugin.update_client(client)
 
     assert client["hasEtag"] is True
+    assert "hasEtag" not in parent_group
     assert operation["hasEtag"] is True
     assert len(operation["parameters"]) == 2
     assert operation["parameters"][0]["etagRole"] == "ifMatch"
     assert operation["parameters"][1]["etagRole"] == "ifNoneMatch"
+    assert operation["parameters"][1]["clientDefaultValue"] == match_condition_default
 
     for parameter in operation["parameters"]:
         plugin.update_parameter(parameter)
@@ -260,9 +275,12 @@ def test_standard_if_match_not_paired_with_custom_if_none_match():
     The fix demotes the custom header (strips etagRole) so the standard
     If-Match gets a synthetic If-None-Match partner instead.
     """
-    if_match = _header_param("if_match", "If-Match", "ifMatch")
+    if_match = _header_param("if_match", "If-Match", "ifMatch", optional=False)
     source_none = _header_param(
-        "source_if_none_match", "x-ms-source-if-none-match", "ifNoneMatch"
+        "source_if_none_match",
+        "x-ms-source-if-none-match",
+        "ifNoneMatch",
+        optional=False,
     )
     client = _client_yaml([if_match, source_none])
 
@@ -278,6 +296,7 @@ def test_standard_if_match_not_paired_with_custom_if_none_match():
     assert last_two[0]["wireName"] == "If-Match"
     assert last_two[1]["etagRole"] == "ifNoneMatch"
     assert last_two[1]["wireName"] == "if-none-match"  # synthetic
+    assert "clientDefaultValue" not in last_two[1]
 
     # The custom header should NOT have been promoted — etagRole stripped.
     assert "etagRole" not in source_none
@@ -298,8 +317,18 @@ def test_standard_if_none_match_not_paired_with_custom_if_match():
     The custom header should be demoted; the standard If-None-Match gets a
     synthetic If-Match partner.
     """
-    source_match = _header_param("source_if_match", "x-ms-source-if-match", "ifMatch")
-    if_none_match = _header_param("if_none_match", "If-None-Match", "ifNoneMatch")
+    source_match = _header_param(
+        "source_if_match",
+        "x-ms-source-if-match",
+        "ifMatch",
+        optional=False,
+    )
+    if_none_match = _header_param(
+        "if_none_match",
+        "If-None-Match",
+        "ifNoneMatch",
+        optional=False,
+    )
     client = _client_yaml([source_match, if_none_match])
 
     plugin = _plugin()
@@ -313,5 +342,29 @@ def test_standard_if_none_match_not_paired_with_custom_if_match():
     assert last_two[0]["wireName"] == "if-match"  # synthetic
     assert last_two[1]["etagRole"] == "ifNoneMatch"
     assert last_two[1]["wireName"] == "If-None-Match"
+    assert "clientDefaultValue" not in last_two[1]
 
     assert "etagRole" not in source_match
+
+
+def test_required_match_condition_default_not_added_for_multiple_candidates():
+    """A default is only safe when exactly one conditional header is declared."""
+    first_match = _header_param(
+        "first_if_match",
+        "x-ms-first-if-match",
+        "ifMatch",
+        optional=False,
+    )
+    second_match = _header_param(
+        "second_if_match",
+        "x-ms-second-if-match",
+        "ifMatch",
+        optional=False,
+    )
+    client = _client_yaml([first_match, second_match])
+
+    _plugin().update_client(client)
+
+    synthetic_none_match = _get_op(client)["parameters"][-1]
+    assert synthetic_none_match["etagRole"] == "ifNoneMatch"
+    assert "clientDefaultValue" not in synthetic_none_match
