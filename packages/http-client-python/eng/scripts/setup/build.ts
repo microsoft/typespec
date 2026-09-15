@@ -1,5 +1,5 @@
 import { exec } from "child_process";
-import { runPython3 } from "./run-python3.js";
+import { runPython3 } from "./run-python3.ts";
 
 async function main() {
   await runPython3("./eng/scripts/setup/build_pygen_wheel.py");

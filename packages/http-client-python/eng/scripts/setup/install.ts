@@ -1,5 +1,5 @@
 import cp from "child_process";
-import { patchPythonPath } from "./system-requirements.js";
+import { patchPythonPath } from "./system-requirements.ts";
 
 async function main() {
   let pythonCommand: string[];
