@@ -74,7 +74,7 @@ export function getSuccessStatusCode(
     if (bodylessSuccess !== undefined) {
       return bodylessSuccess;
     }
-    if (hasVoidSuccess) {
+    if (hasVoidSuccess || !hasValueSuccess) {
       return { statusCode: 204, hasBody: false };
     }
   }
