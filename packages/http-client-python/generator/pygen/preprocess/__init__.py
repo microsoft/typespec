@@ -286,6 +286,21 @@ def _process_operation_etag_headers(
         client["hasEtag"] = True
 
 
+def _process_operation_group_etag_headers(
+    operation_groups: list[dict[str, Any]],
+    client: dict[str, Any],
+    version_tolerant: bool,
+) -> None:
+    for operation_group in operation_groups:
+        for operation in operation_group.get("operations", []):
+            _process_operation_etag_headers(operation, client, version_tolerant)
+        _process_operation_group_etag_headers(
+            operation_group.get("operationGroups", []),
+            client,
+            version_tolerant,
+        )
+
+
 def headers_convert(yaml_data: dict[str, Any], replace_data: Any) -> None:
     if isinstance(replace_data, dict):
         for k, v in replace_data.items():
@@ -607,9 +622,11 @@ class PreProcessPlugin(YamlUpdatePlugin):
         if prop_name.endswith("Client"):
             prop_name = prop_name[: len(prop_name) - len("Client")]
         yaml_data["builderPadName"] = to_snake_case(prop_name)
-        for og in yaml_data.get("operationGroups", []):
-            for o in og["operations"]:
-                _process_operation_etag_headers(o, yaml_data, self.version_tolerant)
+        _process_operation_group_etag_headers(
+            yaml_data.get("operationGroups", []),
+            yaml_data,
+            self.version_tolerant,
+        )
 
         # add client signature cloud_setting for arm
         if self.azure_arm and yaml_data["parameters"]:
