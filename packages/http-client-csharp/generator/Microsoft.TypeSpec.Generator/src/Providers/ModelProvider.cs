@@ -263,6 +263,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// <param name="currentBase">The base type selected from custom code or the current input model.</param>
         protected virtual CSharpType? BuildBaseTypeForBackCompatibility(CSharpType? currentBase)
         {
+            // A mapped external model's CLR hierarchy is owned by its wrapped system type.
+            if (this is SystemObjectModelProvider)
+            {
+                return currentBase;
+            }
+
             var previousBase = LastContractView?.BaseType;
             if (previousBase is null || IsInBaseTypeHierarchy(currentBase, previousBase))
             {
@@ -290,8 +296,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             if (!TryResolveCompatibleModelBase(previousBase, out var previousBaseProvider) ||
-                previousBaseProvider is not SystemObjectModelProvider &&
-                    (_inputModel.Properties.Count > 0 ||
+                previousBaseProvider.LastContractView?.BaseType is not null ||
+                (previousBaseProvider is SystemObjectModelProvider mappedBase
+                    ? !CanUseMappedBase(mappedBase)
+                    : _inputModel.Properties.Count > 0 ||
                         _inputModel.AdditionalProperties is not null ||
                         CurrentBaseRequiresReconciliation()))
             {
@@ -402,7 +410,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         private bool IsSupportedModelBase(ModelProvider candidate)
-            => candidate is SystemObjectModelProvider ||
+            => candidate is SystemObjectModelProvider mappedBase
+                ? !mappedBase.SystemType.IsValueType &&
+                    !mappedBase.SystemType.IsStruct &&
+                    (!DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public) || mappedBase.SystemType.IsPublic)
+                :
                 !candidate.IsExternal &&
                 candidate.CustomCodeView is null &&
                 candidate._inputModel.BaseModel is null &&
@@ -411,16 +423,43 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 (!DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public) ||
                     candidate.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
 
+        private bool CanUseMappedBase(SystemObjectModelProvider mappedBase)
+        {
+            var currentBase = _inputModel.BaseModel;
+            if (currentBase is null)
+            {
+                return true;
+            }
+
+            var currentBaseProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(currentBase);
+            if (currentBaseProvider?.CustomCodeView is not null)
+            {
+                return false;
+            }
+
+            var mappedProperties = mappedBase._inputModel.Properties
+                .Select(property => property.SerializedName ?? property.Name)
+                .ToHashSet(StringComparer.Ordinal);
+            return currentBase.Properties.All(property =>
+                mappedProperties.Contains(property.SerializedName ?? property.Name));
+        }
+
         private bool CurrentBaseRequiresReconciliation()
         {
             var currentBase = _inputModel.BaseModel;
-            return currentBase is not null &&
-                (currentBase.External is not null ||
-                    currentBase.BaseModel is not null ||
-                    currentBase.Properties.Count > 0 ||
-                    currentBase.AdditionalProperties is not null ||
-                    currentBase.DiscriminatorProperty is not null ||
-                    currentBase.DiscriminatorValue is not null);
+            if (currentBase is null)
+            {
+                return false;
+            }
+
+            var currentBaseProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(currentBase);
+            return currentBaseProvider?.CustomCodeView is not null ||
+                currentBase.External is not null ||
+                currentBase.BaseModel is not null ||
+                currentBase.Properties.Count > 0 ||
+                currentBase.AdditionalProperties is not null ||
+                currentBase.DiscriminatorProperty is not null ||
+                currentBase.DiscriminatorValue is not null;
         }
 
         protected override TypeProvider[] BuildSerializationProviders()

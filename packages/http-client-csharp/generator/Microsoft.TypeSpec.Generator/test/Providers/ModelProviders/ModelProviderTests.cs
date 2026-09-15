@@ -10,10 +10,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
+using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
+using Microsoft.TypeSpec.Generator.SourceInput;
 using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using Microsoft.TypeSpec.Generator.Utilities;
@@ -539,7 +541,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 properties: [InputFactory.Property("id", InputPrimitiveType.String)]);
             var currentBase = InputFactory.Model(
                 "CurrentBase",
-                properties: [InputFactory.Property("location", InputPrimitiveType.String)]);
+                properties: [InputFactory.Property("id", InputPrimitiveType.String)]);
             var derivedModel = InputFactory.Model(
                 "DerivedModel",
                 properties: [InputFactory.Property("child", InputPrimitiveType.String)],
@@ -560,6 +562,50 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             Assert.AreEqual("PreviousBase", provider.BaseType?.Name);
             Assert.IsInstanceOf<SystemObjectModelProvider>(provider.BaseModelProvider);
+        }
+
+        [Test]
+        public async Task BackCompat_BaseTypeRestorationRejectsInvalidMappedBase()
+        {
+            var previousBase = InputFactory.Model("PreviousBase", properties: []);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: []);
+            var mappedStruct = new CSharpType("PreviousBase", "Sample.Models", true, false, null, [], true, true);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                createModelCore: input => input == previousBase
+                    ? new SystemObjectModelProvider(mappedStruct, input)
+                    : new ModelProvider(input),
+                inputModelTypes: [previousBase, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_BaseTypeChangePreservesGeneratedRootBase)));
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.IsNull(provider.BaseType);
+        }
+
+        [Test]
+        public async Task BackCompat_BaseTypeRestorationHonorsApiCompatSuppression()
+        {
+            var previousBase = InputFactory.Model("PreviousBase", properties: []);
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+            var baseline = ApiCompatBaseline.Parse(
+                ["TypesMustExist: Type 'Sample.Models.PreviousBase' does not exist"]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [previousBase, currentBase, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_BaseTypeChangePreservesGeneratedRootBase)),
+                apiCompatBaseline: baseline);
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.AreEqual("CurrentBase", provider.BaseType?.Name);
         }
 
         [Test]
@@ -584,22 +630,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [Test]
         public async Task BackCompat_BaseTypeRestorationSkipsUnsupportedCases()
         {
-            const string currentSource = """
-                namespace Sample.Models
-                {
-                    public class CustomBase { }
-                    public partial class CustomizedDerived : CustomBase { }
-                }
-                """;
-            const string lastContractSource = """
-                namespace Sample.Models
-                {
-                    public class PreviousBase { public string Id { get; set; } }
-                    public class CustomizedDerived : PreviousBase { }
-                    public class CollisionDerived : PreviousBase { }
-                    public class MemberBaseDerived : PreviousBase { }
-                }
-                """;
             var previousBase = InputFactory.Model(
                 "PreviousBase",
                 properties: [InputFactory.Property("id", InputPrimitiveType.String)]);
@@ -614,11 +644,20 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 "MemberBaseDerived",
                 properties: [],
                 baseModel: memberCurrentBase);
+            var customizedCurrentBase = InputFactory.Model("CustomizedCurrentBase", properties: []);
+            var customBaseDerived = InputFactory.Model(
+                "CustomBaseDerived",
+                properties: [],
+                baseModel: customizedCurrentBase);
+            var unavailableDerived = InputFactory.Model("UnavailableDerived", properties: []);
 
-            await MockHelpers.LoadMockGeneratorAsync(
-                inputModelTypes: [previousBase, customizedDerived, collisionDerived, memberCurrentBase, memberBaseDerived],
-                compilation: async () => await Helpers.GetCompilationFromSourceFilesAsync([("Current.cs", currentSource)]),
-                lastContractCompilation: async () => await Helpers.GetCompilationFromSourceFilesAsync([("LastContract.cs", lastContractSource)]));
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [previousBase, customizedDerived, collisionDerived, memberCurrentBase, memberBaseDerived, customizedCurrentBase, customBaseDerived, unavailableDerived],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync("Current"),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync("LastContract"));
+            using var emitterStream = new MemoryStream();
+            using var emitter = new Emitter(emitterStream);
+            mockGenerator.Setup(generator => generator.Emitter).Returns(emitter);
 
             var providers = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.OfType<ModelProvider>().ToArray();
             Assert.Multiple(() =>
@@ -627,6 +666,19 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 Assert.IsNull(providers.Single(p => p.Name == "CollisionDerived").BaseType);
                 Assert.AreEqual("MemberCurrentBase", providers.Single(p => p.Name == "MemberBaseDerived").BaseType?.Name,
                     "A current base that contributes members must remain authoritative");
+                Assert.AreEqual("CustomizedCurrentBase", providers.Single(p => p.Name == "CustomBaseDerived").BaseType?.Name,
+                    "A current base with custom code must remain authoritative");
+            });
+
+            _ = providers.Single(p => p.Name == "UnavailableDerived").BaseType;
+            emitterStream.Position = 0;
+            using var reader = new StreamReader(emitterStream, Encoding.UTF8, leaveOpen: true);
+            var output = await reader.ReadToEndAsync();
+            Assert.Multiple(() =>
+            {
+                Assert.That(output, Does.Contain(DiagnosticCodes.IncompatibleBackcompatBaseType));
+                Assert.That(output, Does.Contain("automatic restoration is limited"));
+                Assert.That(output, Does.Contain("\"severity\":\"warning\""));
             });
         }
 
