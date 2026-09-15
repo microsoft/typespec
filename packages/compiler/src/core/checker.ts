@@ -41,6 +41,11 @@ import {
   visitChildren,
 } from "./parser.js";
 import type { Program } from "./program.js";
+import {
+  copyPropertyOptionality,
+  getPropertyOptionalityOverride,
+  registerOptionalityDecoratorContext,
+} from "./property-optionality.js";
 import { createTypeRelationChecker } from "./type-relation-checker.js";
 import {
   getFullyQualifiedSymbolName,
@@ -8358,9 +8363,20 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     stats.finishedTypes++;
 
     if (!options.skipDecorators) {
+      const optionality =
+        typeDef.kind === "ModelProperty" && getPropertyOptionalityOverride(typeDef);
+      const optional = typeDef.kind === "ModelProperty" && typeDef.optional;
       let postSelfValidators: ValidatorFn[] = [];
       if ("decorators" in typeDef) {
         postSelfValidators = applyDecoratorsToType(typeDef);
+      }
+      // Replay must not undo a transform or a snapshot realization. A new
+      // explicit override made during replay still takes precedence.
+      if (typeDef.kind === "ModelProperty") {
+        const current = getPropertyOptionalityOverride(typeDef);
+        if (current) {
+          typeDef.optional = current === optionality ? optional : current.optional;
+        }
       }
       typeDef.isFinished = true;
       Object.setPrototypeOf(typeDef, typePrototype);
@@ -8533,6 +8549,9 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         break;
     }
 
+    if (type.kind === "ModelProperty" && clone.kind === "ModelProperty") {
+      copyPropertyOptionality(type, clone);
+    }
     return clone as T;
   }
 
@@ -9181,6 +9200,7 @@ function createDecoratorContext(program: Program, decApp: DecoratorApplication):
     },
   };
 
+  registerOptionalityDecoratorContext(decApp, decCtx, passthrough.decorator);
   return decCtx;
 }
 

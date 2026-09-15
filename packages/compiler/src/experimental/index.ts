@@ -1,3 +1,8 @@
+export {
+  getPropertyOptionalityOverride as unsafe_getPropertyOptionalityOverride,
+  overridePropertyOptionality as unsafe_overridePropertyOptionality,
+  type PropertyOptionalityOverride as unsafe_PropertyOptionalityOverride,
+} from "../core/property-optionality.js";
 export { createSourceLoader as unsafe_createSourceLoader } from "../core/source-loader.js";
 export { useCache as unsafe_useCache } from "./cache.js";
 export {

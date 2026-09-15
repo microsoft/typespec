@@ -9,6 +9,7 @@ import {
   getMinValue,
   getMinValueExclusive,
 } from "../../core/intrinsic-type-state.js";
+import { copyPropertyOptionality } from "../../core/property-optionality.js";
 import { isNeverType } from "../../core/type-utils.js";
 import type {
   Entity,
@@ -261,6 +262,9 @@ defineKit<TypekitExtension>({
             ...("decorators" in type ? { decorators: [...type.decorators] } : {}),
           });
           break;
+      }
+      if (type.kind === "ModelProperty" && clone.kind === "ModelProperty") {
+        copyPropertyOptionality(type, clone);
       }
       this.realm.addType(clone);
       return clone;

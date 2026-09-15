@@ -2,6 +2,7 @@ import { compilerAssert } from "../core/diagnostics.js";
 import { getLocationContext } from "../core/helpers/location-context.js";
 import { isNumeric } from "../core/numeric.js";
 import type { Program } from "../core/program.js";
+import { copyOptionalityDecoratorOrigin } from "../core/property-optionality.js";
 import { isTemplateInstance, isType, isValue } from "../core/type-utils.js";
 import type {
   DecoratedType,
@@ -764,7 +765,9 @@ function createMutatorEngine(
       }
 
       if (mutating) {
-        type.decorators[index] = { ...dec, args };
+        const clone = { ...dec, args };
+        copyOptionalityDecoratorOrigin(dec, clone);
+        type.decorators[index] = clone;
       }
     }
   }

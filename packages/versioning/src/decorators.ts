@@ -14,6 +14,7 @@ import type {
   Union,
   UnionVariant,
 } from "@typespec/compiler";
+import { unsafe_getPropertyOptionalityOverride as getPropertyOptionalityOverride } from "@typespec/compiler/experimental";
 import type {
   AddedDecorator,
   MadeOptionalDecorator,
@@ -222,7 +223,7 @@ export const $madeOptional: MadeOptionalDecorator = (
   if (!version) {
     return;
   }
-  program.stateMap(VersioningStateKeys.madeOptional).set(t, version);
+  program.stateMap(VersioningStateKeys.madeOptional).set(t, { version, context });
 };
 
 export const $madeRequired: MadeRequiredDecorator = (
@@ -235,14 +236,32 @@ export const $madeRequired: MadeRequiredDecorator = (
   if (!version) {
     return;
   }
-  program.stateMap(VersioningStateKeys.madeRequired).set(t, version);
+  program.stateMap(VersioningStateKeys.madeRequired).set(t, { version, context });
 };
 
+interface OptionalityHistory {
+  readonly version: Version;
+  readonly context: DecoratorContext;
+}
+
+function getOptionalityHistory(p: Program, t: Type, key: symbol): Version | undefined {
+  const history: OptionalityHistory | undefined = p.stateMap(key).get(t);
+  if (
+    t.kind === "ModelProperty" &&
+    history &&
+    getPropertyOptionalityOverride(t)?.supersedes(history.context)
+  ) {
+    return undefined;
+  }
+  return history?.version;
+}
+
 /**
- * @returns version when the given type was made required if applicable.
+ * @returns version when the given type was made required, unless an explicit
+ * structural optionality override supersedes that inherited history.
  */
 export function getMadeRequiredOn(p: Program, t: Type): Version | undefined {
-  return p.stateMap(VersioningStateKeys.madeRequired).get(t);
+  return getOptionalityHistory(p, t, VersioningStateKeys.madeRequired);
 }
 
 /**
@@ -268,10 +287,11 @@ export function getRemovedOnVersions(p: Program, t: Type): Version[] | undefined
 }
 
 /**
- * @returns version when the given type was made optional if applicable.
+ * @returns version when the given type was made optional, unless an explicit
+ * structural optionality override supersedes that inherited history.
  */
 export function getMadeOptionalOn(p: Program, t: Type): Version | undefined {
-  return p.stateMap(VersioningStateKeys.madeOptional).get(t);
+  return getOptionalityHistory(p, t, VersioningStateKeys.madeOptional);
 }
 
 export class VersionMap {

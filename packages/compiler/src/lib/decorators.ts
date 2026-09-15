@@ -71,6 +71,7 @@ import { parseMimeType } from "../core/mime-type.js";
 import type { Numeric } from "../core/numeric.js";
 import { isNumeric } from "../core/numeric.js";
 import type { Program } from "../core/program.js";
+import { overridePropertyOptionality } from "../core/property-optionality.js";
 import { isArrayModelType, isValue } from "../core/type-utils.js";
 import type {
   AugmentDecoratorStatementNode,
@@ -1011,7 +1012,7 @@ export const $withOptionalProperties: WithOptionalPropertiesDecorator = (
   target: Model,
 ) => {
   // Make all properties of the target type optional
-  target.properties.forEach((p) => (p.optional = true));
+  target.properties.forEach((p) => overridePropertyOptionality(p, true, context));
 };
 
 // -- @withoutOmittedProperties decorator ----------------------
