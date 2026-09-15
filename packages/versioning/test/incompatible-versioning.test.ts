@@ -689,6 +689,55 @@ describe("versioning: validate incompatible references", () => {
         message: "Property 'name?' marked with @madeRequired but is optional. Should be 'name'",
       });
     });
+
+    it.each([
+      "model Derived is OptionalProperties<Source>;",
+      "model Derived { ...OptionalProperties<Source>; }",
+      `
+        model Spread { ...Source; }
+        model Copy is Spread;
+        model Optional is OptionalProperties<Copy>;
+        model AfterSpread { ...Optional; }
+        model Derived is AfterSpread;
+      `,
+    ])("allows superseded optionality history: %s", async (derived) => {
+      const diagnostics = await runner.diagnose(`
+        model Source {
+          @madeRequired(Versions.v2)
+          name: string;
+        }
+        ${derived}
+      `);
+      expectDiagnosticEmpty(diagnostics);
+    });
+
+    it.each([
+      `
+        @withOptionalProperties
+        model Derived { ...Source; }
+      `,
+      `
+        @withOptionalProperties
+        model Changed { ...Source; }
+        model Derived { ...Changed; }
+      `,
+    ])(
+      "validates a newly authored optionality decorator on a transformed copy: %s",
+      async (derived) => {
+        const diagnostics = await runner.diagnose(`
+        model Source {
+          @madeRequired(Versions.v2)
+          name: string;
+        }
+        ${derived}
+        @@madeRequired(Derived.name, Versions.v2);
+      `);
+        expectDiagnostics(diagnostics, {
+          code: "@typespec/versioning/made-required-optional",
+          message: "Property 'name?' marked with @madeRequired but is optional. Should be 'name'",
+        });
+      },
+    );
   });
 
   describe("operations", () => {

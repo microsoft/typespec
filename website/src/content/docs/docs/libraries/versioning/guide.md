@@ -167,3 +167,24 @@ Widget:
 ```
 
 This is a common pattern with the versioning decorators. The TypeSpec should represent the _current state_ of the API. The decorators indicate the version at which this definition became accurate and, depending on the decorator, the other parameters reflect the previous values to retain that information.
+
+## Optionality of derived properties
+
+Properties copied through model `is` or spread retain their versioning history. If a transformation changes a copied property's optionality relative to its source, the inherited `@madeOptional` or `@madeRequired` history is superseded: it no longer affects validation or version snapshots. This also applies through multiple copies before or after the transformation, and does not depend on which decorator performs the transformation.
+
+For example:
+
+```typespec
+model Source {
+  @madeRequired(Versions.v2)
+  foo: string;
+}
+
+model Patch {
+  ...OptionalProperties<Source>;
+}
+```
+
+`Source.foo` is optional before `v2` and required from `v2` onward. `Patch.foo` is optional in every version. Using `model Patch is OptionalProperties<Source>` also works. Other inherited history, such as `@added`, `@removed`, `@renamedFrom`, and `@typeChangedFrom`, continues to apply. Newly applied optionality decorators on copied properties are still validated against those properties.
+
+This rule only detects an actual optionality difference between a copy and its source. Applying `OptionalProperties` to an already-optional property does not provide such a difference. In particular, spreading `OptionalProperties<Source>` when `Source.foo` is declared as `@madeOptional(Versions.v2) foo?: string` retains that history, so the spread property remains required before `v2`. To avoid inherited optionality history in that case, declare the derived property explicitly.

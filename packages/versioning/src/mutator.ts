@@ -7,6 +7,7 @@ import {
   getReturnTypeChangedFrom,
   getTypeChangedFrom,
 } from "./decorators.js";
+import { VersioningStateKeys } from "./lib.js";
 import type { Version } from "./types.js";
 import { VersioningTimeline, type TimelineMoment } from "./versioning-timeline.js";
 import { Availability, getAvailabilityMapInTimeline, resolveVersions } from "./versioning.js";
@@ -163,6 +164,7 @@ export function createVersionMutator(
     },
     Tuple: (original, clone, p, realm) => {},
     ModelProperty: (original, clone, p, realm) => {
+      p.stateMap(VersioningStateKeys.optionalitySource).set(clone, original);
       rename(original, clone);
       clone.optional = versioning.getOptionalAtVersion(original, moment);
       const typeAtVersion = versioning.getTypeAtVersion(original, moment);
