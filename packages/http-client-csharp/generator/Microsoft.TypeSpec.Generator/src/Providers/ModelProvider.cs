@@ -496,10 +496,28 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 candidate._inputModel.DiscriminatorValue is null &&
                 candidate._inputModel.DerivedModels.Count == 0 &&
                 candidate._inputModel.DiscriminatedSubtypes.Count == 0 &&
+                HasCompatibleLastContractProperties(candidate) &&
                 candidate.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Class) &&
                 !candidate.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Sealed) &&
                 (!DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public) ||
                     candidate.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+
+        private static bool HasCompatibleLastContractProperties(ModelProvider candidate)
+        {
+            if (candidate.LastContractView is not { } lastContract)
+            {
+                return true;
+            }
+
+            var currentProperties = candidate.Properties
+                .Where(property => MethodSignatureHelper.IsPublicApi(property.Modifiers))
+                .ToDictionary(property => property.Name, StringComparer.Ordinal);
+            return lastContract.Properties
+                .Where(property => MethodSignatureHelper.IsPublicApi(property.Modifiers))
+                .All(previousProperty =>
+                    currentProperties.TryGetValue(previousProperty.Name, out var currentProperty) &&
+                    currentProperty.Type.Equals(previousProperty.Type));
+        }
 
         private bool CanUseMappedBase(SystemObjectModelProvider mappedBase)
         {
