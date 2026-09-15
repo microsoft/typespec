@@ -8,7 +8,7 @@
 
 from jinja2 import PackageLoader, Environment
 
-from pygen.codegen.models import CodeModel, JSONModelType, DPGModelType, build_type
+from pygen.codegen.models import CodeModel, CombinedType, JSONModelType, DPGModelType, build_type
 from pygen.codegen.models.imports import ImportType, FileImport, TypingSection
 from pygen.codegen.models.model_type import TypedDictModelType
 from pygen.codegen.models.property import Property
@@ -520,6 +520,45 @@ def test_unions_serializer_no_unions():
     output = us.serialize()
     assert "TypedDict" not in output
     assert "Union" not in output
+
+
+def test_unions_serializer_single_member_alias():
+    """A named single-member union must remain a valid static type alias."""
+    code_model = _make_code_model(models_mode="dpg")
+    model = _make_model(code_model, "GenerateVoiceAgentRequest", model_cls=DPGModelType)
+    named_union = CombinedType(
+        {"type": "combined", "name": "GenerateAgentRequest"},
+        code_model,
+        [model],
+    )
+    code_model.named_unions = [named_union]
+
+    output = UnionsSerializer(code_model=code_model, env=_make_env()).serialize()
+
+    assert "from typing import TYPE_CHECKING, TypeAlias, Union" in output
+    assert 'GenerateAgentRequest: TypeAlias = "_models.GenerateVoiceAgentRequest"' in output
+    assert named_union.type_annotation() == '"_unions.GenerateAgentRequest"'
+
+
+def test_unions_serializer_multiple_member_alias():
+    """A named multi-member union remains a Union type alias."""
+    code_model = _make_code_model(models_mode="dpg")
+    voice_model = _make_model(code_model, "GenerateVoiceAgentRequest", model_cls=DPGModelType)
+    text_model = _make_model(code_model, "GenerateTextAgentRequest", model_cls=DPGModelType)
+    named_union = CombinedType(
+        {"type": "combined", "name": "GenerateAgentRequest"},
+        code_model,
+        [voice_model, text_model],
+    )
+    code_model.named_unions = [named_union]
+
+    output = UnionsSerializer(code_model=code_model, env=_make_env()).serialize()
+
+    assert "from typing import TYPE_CHECKING, TypeAlias, Union" in output
+    assert (
+        'GenerateAgentRequest: TypeAlias = Union["_models.GenerateVoiceAgentRequest", '
+        '"_models.GenerateTextAgentRequest"]' in output
+    )
 
 
 # ---------- typed-dict-only ----------

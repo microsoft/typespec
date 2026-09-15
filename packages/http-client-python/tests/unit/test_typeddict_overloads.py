@@ -72,6 +72,52 @@ def _json_model_operation() -> tuple[dict, dict, dict]:
     return code_model, yaml_data, model_type
 
 
+def _named_union_operation(member_count: int) -> dict:
+    member_types = [{"type": "string"}, {"type": "integer"}]
+    union_type = {
+        "type": "combined",
+        "name": "GenerateAgentRequest",
+        "types": member_types[:member_count],
+    }
+    return {
+        "name": "generate",
+        "bodyParameter": {
+            "wireName": "body",
+            "clientName": "body",
+            "location": "body",
+            "optional": False,
+            "implementation": "Method",
+            "contentTypes": ["application/json"],
+            "type": union_type,
+        },
+        "parameters": [_content_type_param()],
+        "overloads": [],
+        "responses": [],
+        "exceptions": [],
+    }
+
+
+def test_named_single_member_union_emits_no_overload():
+    """The implementation annotation carries the alias without an invalid lone overload."""
+    yaml_data = _named_union_operation(member_count=1)
+    named_union = yaml_data["bodyParameter"]["type"]
+
+    add_overloads_for_body_param(yaml_data)
+
+    assert yaml_data["overloads"] == []
+    assert yaml_data["bodyParameter"]["type"] is named_union
+    assert yaml_data["bodyParameter"]["type"]["name"] == "GenerateAgentRequest"
+
+
+def test_named_multiple_member_union_emits_variant_overloads():
+    """Multi-member named unions keep one overload per variant."""
+    yaml_data = _named_union_operation(member_count=2)
+
+    add_overloads_for_body_param(yaml_data)
+
+    assert len(yaml_data["overloads"]) == 2
+
+
 def test_typeddict_only_single_body_emits_no_overload():
     """A lone TypedDict body variant must NOT produce a single ``@overload``."""
     plugin = _plugin("typeddict")

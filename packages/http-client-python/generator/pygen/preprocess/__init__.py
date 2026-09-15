@@ -95,12 +95,14 @@ def add_overloads_for_body_param(yaml_data: dict[str, Any], skip_single_body_jso
     raw-JSON overload is kept, matching pre-TypedDict behavior).
     """
     body_parameter = yaml_data["bodyParameter"]
+    body_types = body_parameter["type"].get("types", [])
     if not (
         body_parameter["type"]["type"] == "combined"
-        and len(yaml_data["bodyParameter"]["type"]["types"]) > len(yaml_data["overloads"])
+        and len(body_types) > 1
+        and len(body_types) > len(yaml_data["overloads"])
     ):
         return
-    for body_type in body_parameter["type"]["types"]:
+    for body_type in body_types:
         if any(o for o in yaml_data["overloads"] if id(o["bodyParameter"]["type"]) == id(body_type)):
             continue
         if body_type.get("type") == "model" and body_type.get("base") == "json":
