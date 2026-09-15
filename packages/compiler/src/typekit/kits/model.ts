@@ -263,7 +263,7 @@ defineKit<TypekitExtension>({
         return [undefined, []];
       }
 
-      return getDiscriminatedUnionFromInheritance(model, discriminator);
+      return getDiscriminatedUnionFromInheritance(this.program, model, discriminator);
     }),
   },
 });

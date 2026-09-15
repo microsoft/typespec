@@ -1,6 +1,6 @@
 import { expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual, strictEqual } from "assert";
-import { it } from "vitest";
+import { describe, it } from "vitest";
 import { diagnoseOpenApiFor } from "./test-host.js";
 import { supportedVersions, worksFor } from "./works-for.js";
 
@@ -26,9 +26,120 @@ worksFor(supportedVersions, ({ diagnoseOpenApiFor, oapiForModel }) => {
     );
     strictEqual(res.schemas.Foo.title, "FooEnum");
   });
+
+  describe("@encodedName on members", () => {
+    it("uses the json encoded name as the value of a member without a value", async () => {
+      const res = await oapiForModel(
+        "Status",
+        `
+        enum Status {
+          @encodedName("application/json", "on")
+          active,
+          inactive,
+        }
+        `,
+      );
+      deepStrictEqual(res.schemas.Status, { type: "string", enum: ["on", "inactive"] });
+    });
+
+    it("uses the encoded name over an explicit value", async () => {
+      const res = await oapiForModel(
+        "Status",
+        `
+        enum Status {
+          @encodedName("application/json", "on")
+          active: "active-value",
+          inactive,
+        }
+        `,
+      );
+      deepStrictEqual(res.schemas.Status, { type: "string", enum: ["on", "inactive"] });
+    });
+
+    it("uses the encoded name over an integer value, including zero", async () => {
+      const res = await oapiForModel(
+        "Status",
+        `
+        enum Status {
+          @encodedName("application/json", "unknown")
+          CONVERSATION_STATUS_UNSPECIFIED: 0,
+          @encodedName("application/json", "ready")
+          CONVERSATION_STATUS_READY: 2,
+        }
+        `,
+      );
+      deepStrictEqual(res.schemas.Status, { type: "string", enum: ["unknown", "ready"] });
+    });
+
+    it("leaves an integer member without an encoded name as a number", async () => {
+      const res = await oapiForModel("Status", `enum Status { a: 0, b: 1 }`);
+      deepStrictEqual(res.schemas.Status, { type: "number", enum: [0, 1] });
+    });
+
+    it("ignores an encoded name for another mime type", async () => {
+      const res = await oapiForModel(
+        "Status",
+        `
+        enum Status {
+          @encodedName("application/xml", "on")
+          active,
+        }
+        `,
+      );
+      deepStrictEqual(res.schemas.Status, { type: "string", enum: ["active"] });
+    });
+
+    it("uses the encoded name for a property typed as a member", async () => {
+      const res = await oapiForModel(
+        "Foo",
+        `
+        model Foo {
+          status: Status.active;
+        }
+        enum Status {
+          @encodedName("application/json", "on")
+          active,
+        }
+        `,
+      );
+      deepStrictEqual(res.schemas.Foo.properties.status, { type: "string", enum: ["on"] });
+    });
+
+    it("uses the encoded name for a default value", async () => {
+      const res = await oapiForModel(
+        "Foo",
+        `
+        model Foo {
+          status?: Status = Status.active;
+        }
+        enum Status {
+          @encodedName("application/json", "on")
+          active,
+        }
+        `,
+      );
+      strictEqual(res.schemas.Foo.properties.status.default, "on");
+    });
+  });
 });
 
 worksFor(["3.0.0"], ({ diagnoseOpenApiFor }) => {
+  it("throws diagnostics when only some members of an integer enum have an encoded name", async () => {
+    const diagnostics = await diagnoseOpenApiFor(`
+      enum Status {
+        @encodedName("application/json", "ready")
+        CONVERSATION_STATUS_READY: 2,
+        CONVERSATION_STATUS_BUSY: 1,
+      }
+      model Foo { status: Status }
+    `);
+
+    expectDiagnostics(diagnostics, {
+      code: "@typespec/openapi3/enum-unique-type",
+      message: "Enums are not supported unless all options are literals of the same type.",
+    });
+  });
+
   it("throws diagnostics for enum with different types", async () => {
     const diagnostics = await diagnoseOpenApiFor(`enum PetType {asString: "dog", asNumber: 1}`);
 
@@ -83,6 +194,24 @@ worksFor(["3.1.0", "3.2.0"], ({ oapiForModel }) => {
           description: "A self-sufficient feline.",
         },
       ],
+    });
+  });
+
+  it("emits the json encoded name of a member without a value with `enum-strategy: annotated`", async () => {
+    const res = await oapiForModel(
+      "Status",
+      `
+      enum Status {
+        @encodedName("application/json", "on")
+        active,
+        inactive: "off",
+      }
+      `,
+      { "enum-strategy": "annotated" },
+    );
+
+    deepStrictEqual(res.schemas.Status, {
+      oneOf: [{ const: "on" }, { const: "off" }],
     });
   });
 

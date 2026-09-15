@@ -4,7 +4,10 @@ import * as cs from "@alloy-js/csharp";
 import { Attribute } from "@alloy-js/csharp";
 import { Serialization } from "@alloy-js/csharp/global/System/Text/Json";
 import {
+  resolveEncodedEnumMemberValue,
   type Enum,
+  type EnumMember,
+  type Program,
   type Namespace as TspNamespace,
   type Type,
   type Union,
@@ -31,17 +34,26 @@ interface EnumInfo {
   members: EnumMemberInfo[];
 }
 
-function normalizeEnum(en: Enum): EnumInfo {
+function normalizeEnum(program: Program, en: Enum): EnumInfo {
   return {
     name: en.name,
     type: en,
     namespace: en.namespace,
     members: Array.from(en.members.entries()).map(([key, value]) => ({
       name: key,
-      serializedValue: typeof value.value === "string" ? value.value : key,
+      serializedValue: serializedEnumMemberValue(program, value, key),
       docSource: value,
     })),
   };
+}
+
+/**
+ * Value a member serializes to in json. A numeric member without an encoded name keeps its name,
+ * as the enum is emitted with a string converter.
+ */
+function serializedEnumMemberValue(program: Program, member: EnumMember, key: string): string {
+  const value = resolveEncodedEnumMemberValue(program, member, "application/json");
+  return typeof value === "string" ? value : key;
 }
 
 function normalizeUnionEnum(union: Union): EnumInfo {
@@ -75,7 +87,7 @@ export function Enums(props: EnumsProps): Children {
   const { $ } = useTsp();
 
   const allEnums: EnumInfo[] = [
-    ...props.enums.map(normalizeEnum),
+    ...props.enums.map((en) => normalizeEnum($.program, en)),
     ...props.unionEnums.map(normalizeUnionEnum),
   ];
 
