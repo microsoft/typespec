@@ -486,8 +486,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     mappedBase.SystemType.FrameworkType != typeof(MulticastDelegate) &&
                     mappedBase.SystemType.FrameworkType != typeof(Enum) &&
                     mappedBase.SystemType.FrameworkType != typeof(ValueType) &&
-                    (!DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public) ||
-                        IsPublicFrameworkType(mappedBase.SystemType.FrameworkType))
+                    IsPublicFrameworkType(mappedBase.SystemType.FrameworkType)
                 :
                 !candidate.IsExternal &&
                 candidate.CustomCodeView is null &&
