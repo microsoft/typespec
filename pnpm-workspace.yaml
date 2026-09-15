@@ -191,10 +191,6 @@ ignoredBuiltDependencies:
 
 minimumReleaseAge: 10080 # 7 days
 
-minimumReleaseAgeExclude:
-  - "@alloy-js/*"
-  - "@pinterest/alloy-graphql"
-
 overrides:
   "@pinterest/alloy-graphql@1.1.1>@alloy-js/core": ^0.25.0
   cross-spawn@>=7.0.0 <7.0.5: ">=7.0.5"
