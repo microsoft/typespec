@@ -693,6 +693,7 @@ describe("versioning: validate incompatible references", () => {
     it.each([
       "model Derived is OptionalProperties<Source>;",
       "model Derived { ...OptionalProperties<Source>; }",
+      "@withOptionalProperties model Derived { @madeRequired(Versions.v2) name: string; }",
       `
         model Spread { ...Source; }
         model Copy is Spread;
@@ -700,7 +701,7 @@ describe("versioning: validate incompatible references", () => {
         model AfterSpread { ...Optional; }
         model Derived is AfterSpread;
       `,
-    ])("allows superseded optionality history: %s", async (derived) => {
+    ])("allows optionality changed from the declaration: %s", async (derived) => {
       const diagnostics = await runner.diagnose(`
         model Source {
           @madeRequired(Versions.v2)
@@ -722,7 +723,7 @@ describe("versioning: validate incompatible references", () => {
         model Derived { ...Changed; }
       `,
     ])(
-      "validates a newly authored optionality decorator on a transformed copy: %s",
+      "cannot distinguish new augments when optionality differs from the declaration: %s",
       async (derived) => {
         const diagnostics = await runner.diagnose(`
         model Source {
@@ -732,10 +733,7 @@ describe("versioning: validate incompatible references", () => {
         ${derived}
         @@madeRequired(Derived.name, Versions.v2);
       `);
-        expectDiagnostics(diagnostics, {
-          code: "@typespec/versioning/made-required-optional",
-          message: "Property 'name?' marked with @madeRequired but is optional. Should be 'name'",
-        });
+        expectDiagnosticEmpty(diagnostics);
       },
     );
   });

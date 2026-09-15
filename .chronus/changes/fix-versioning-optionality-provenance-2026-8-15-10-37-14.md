@@ -4,4 +4,4 @@ packages:
   - "@typespec/versioning"
 ---
 
-Ignore inherited optionality history when a derived property structurally changes optionality, avoiding incorrect diagnostics and preserving the transformed optionality in version snapshots.
+Preserve transformed property optionality in version snapshots and skip incompatible optionality diagnostics when the property differs from its original declaration, without special-casing transformation helpers.

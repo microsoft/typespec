@@ -8,7 +8,7 @@ import {
   type Type,
 } from "@typespec/compiler";
 import { unsafe_mutateSubgraphWithNamespace } from "@typespec/compiler/experimental";
-import { expectDiagnostics, mockFile, t } from "@typespec/compiler/testing";
+import { expectDiagnosticEmpty, expectDiagnostics, mockFile, t } from "@typespec/compiler/testing";
 import { strictEqual } from "assert";
 import { describe, expect, it } from "vitest";
 import { getMadeOptionalOn, getMadeRequiredOn } from "../../src/decorators.js";
@@ -179,10 +179,16 @@ describe("model properties", () => {
             property.optional = optional;
           }
         },
+        $withoutPropertyNodes(_context: DecoratorContext, model: Model) {
+          for (const property of model.properties.values()) {
+            delete property.node;
+          }
+        },
       }),
       "optionality.tsp": `
         import "./optionality.js";
         extern dec setOptionality(target: TypeSpec.Reflection.Model, optional: valueof boolean);
+        extern dec withoutPropertyNodes(target: TypeSpec.Reflection.Model);
       `,
     }).import("./optionality.tsp");
 
@@ -207,7 +213,7 @@ describe("model properties", () => {
       for (const ns of [v1, v2, v3]) {
         const property = accessor(ns).get("a")!;
         expect(property.optional).toBe(true);
-        expect(getMadeRequiredOn(program, property)).toBeUndefined();
+        expect(getMadeRequiredOn(program, property)?.name).toBe("v2");
       }
       expect(v1.models.get("Source")!.properties.get("a")!.optional).toBe(true);
       expect(v2.models.get("Source")!.properties.get("a")!.optional).toBe(false);
@@ -232,13 +238,13 @@ describe("model properties", () => {
       for (const ns of [v1, v2, v3]) {
         const property = accessor(ns).get("a")!;
         expect(property.optional).toBe(optional);
-        expect(getMadeOptionalOn(program, property)).toBeUndefined();
-        expect(getMadeRequiredOn(program, property)).toBeUndefined();
+        const getter = optional ? getMadeRequiredOn : getMadeOptionalOn;
+        expect(getter(program, property)?.name).toBe("v2");
       }
     });
 
     it.each([true, false])(
-      "validates new history on a copy transformed to %s",
+      "cannot distinguish new history on a copy transformed to %s",
       async (optional) => {
         const diagnostics = await optionalityTester.diagnose(`
         ${baseCode}
@@ -251,13 +257,11 @@ describe("model properties", () => {
         model Test { ...Changed; }
         @@${optional ? "madeRequired" : "madeOptional"}(Test.a, Versions.v2);
       `);
-        expectDiagnostics(diagnostics, {
-          code: `@typespec/versioning/${optional ? "made-required-optional" : "made-optional-not-optional"}`,
-        });
+        expectDiagnosticEmpty(diagnostics);
       },
     );
 
-    it("does not revive history when a later transform restores the original optionality", async () => {
+    it("retains history when a later transform restores the declared optionality", async () => {
       const { program, v1, v2, v3 } = await testMutationLogic(
         `
           model Source {
@@ -273,10 +277,10 @@ describe("model properties", () => {
         `,
         optionalityTester,
       );
-      for (const ns of [v1, v2, v3]) {
-        expect(accessor(ns).get("a")!.optional).toBe(false);
-        expect(getMadeRequiredOn(program, accessor(ns).get("a")!)).toBeUndefined();
-      }
+      expect(accessor(v1).get("a")!.optional).toBe(true);
+      expect(accessor(v2).get("a")!.optional).toBe(false);
+      expect(accessor(v3).get("a")!.optional).toBe(false);
+      expect(getMadeRequiredOn(program, accessor(v1).get("a")!)?.name).toBe("v2");
     });
 
     it("retains history when a transform makes no discernible optionality change", async () => {
@@ -345,8 +349,8 @@ describe("model properties", () => {
       expect(accessor(v3).has("removed")).toBe(false);
     });
 
-    it("uses newly authored optionality history after a transform", async () => {
-      const { v1, v2, v3 } = await testMutationLogic(`
+    it("also ignores new history when optionality differs from the declaration", async () => {
+      const { program, v1, v2, v3 } = await testMutationLogic(`
         model Source {
           @madeRequired(Versions.v2)
           a: string;
@@ -356,9 +360,25 @@ describe("model properties", () => {
         @@madeOptional(Changed.a, Versions.v3);
         model Test { ...Changed; }
       `);
-      expect(accessor(v1).get("a")!.optional).toBe(false);
-      expect(accessor(v2).get("a")!.optional).toBe(false);
-      expect(accessor(v3).get("a")!.optional).toBe(true);
+      for (const ns of [v1, v2, v3]) {
+        expect(accessor(ns).get("a")!.optional).toBe(true);
+        expect(getMadeOptionalOn(program, accessor(ns).get("a")!)?.name).toBe("v3");
+      }
+    });
+
+    it("does not infer an optionality change without a declaration node", async () => {
+      const diagnostics = await optionalityTester.diagnose(`
+        ${baseCode}
+        @withoutPropertyNodes
+        model Source {
+          @madeRequired(Versions.v2)
+          a: string;
+        }
+        model Test { ...OptionalProperties<Source>; }
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/made-required-optional",
+      });
     });
   });
 });

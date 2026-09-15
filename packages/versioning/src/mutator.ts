@@ -7,10 +7,14 @@ import {
   getReturnTypeChangedFrom,
   getTypeChangedFrom,
 } from "./decorators.js";
-import { VersioningStateKeys } from "./lib.js";
 import type { Version } from "./types.js";
 import { VersioningTimeline, type TimelineMoment } from "./versioning-timeline.js";
-import { Availability, getAvailabilityMapInTimeline, resolveVersions } from "./versioning.js";
+import {
+  Availability,
+  getAvailabilityMapInTimeline,
+  hasChangedOptionality,
+  resolveVersions,
+} from "./versioning.js";
 
 /**
  * When the service is versioned.
@@ -164,7 +168,6 @@ export function createVersionMutator(
     },
     Tuple: (original, clone, p, realm) => {},
     ModelProperty: (original, clone, p, realm) => {
-      p.stateMap(VersioningStateKeys.optionalitySource).set(clone, original);
       rename(original, clone);
       clone.optional = versioning.getOptionalAtVersion(original, moment);
       const typeAtVersion = versioning.getTypeAtVersion(original, moment);
@@ -228,6 +231,10 @@ class VersioningHelper {
     return type.returnType;
   }
   getOptionalAtVersion(type: ModelProperty, moment: TimelineMoment): boolean {
+    // Compare before creating the snapshot, whose optionality may legitimately
+    // differ from its declaration because of versioning itself.
+    if (hasChangedOptionality(type)) return type.optional;
+
     const optionalAt = getMadeOptionalOn(this.#program, type);
     const requiredAt = getMadeRequiredOn(this.#program, type);
     if (!optionalAt && !requiredAt) return type.optional;

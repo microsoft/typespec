@@ -170,7 +170,7 @@ This is a common pattern with the versioning decorators. The TypeSpec should rep
 
 ## Optionality of derived properties
 
-Properties copied through model `is` or spread retain their versioning history. If a transformation changes a copied property's optionality relative to its source, the inherited `@madeOptional` or `@madeRequired` history is superseded: it no longer affects validation or version snapshots. This also applies through multiple copies before or after the transformation, and does not depend on which decorator performs the transformation.
+Properties copied through model `is` or spread retain their versioning history. If a property's current optionality differs from its original declaration, versioning treats that difference as a transformation: it skips `@madeOptional` and `@madeRequired` validation for the property and preserves its current optionality in version snapshots. This compares the property with its syntax node, without recognizing any particular helper or tracking how it was copied.
 
 For example:
 
@@ -185,6 +185,13 @@ model Patch {
 }
 ```
 
-`Source.foo` is optional before `v2` and required from `v2` onward. `Patch.foo` is optional in every version. Using `model Patch is OptionalProperties<Source>` also works. Other inherited history, such as `@added`, `@removed`, `@renamedFrom`, and `@typeChangedFrom`, continues to apply. Newly applied optionality decorators on copied properties are still validated against those properties.
+`Source.foo` is optional before `v2` and required from `v2` onward. `Patch.foo` is optional in every version. Using `model Patch is OptionalProperties<Source>` also works. Other history, such as `@added`, `@removed`, `@renamedFrom`, and `@typeChangedFrom`, continues to apply. The metadata getters still return the recorded decorator values; only validation and snapshot optionality use the declaration comparison.
 
-This rule only detects an actual optionality difference between a copy and its source. Applying `OptionalProperties` to an already-optional property does not provide such a difference. In particular, spreading `OptionalProperties<Source>` when `Source.foo` is declared as `@madeOptional(Versions.v2) foo?: string` retains that history, so the spread property remains required before `v2`. To avoid inherited optionality history in that case, declare the derived property explicitly.
+This is a declaration-based heuristic, with limitations:
+
+- Applying `OptionalProperties` to an already-optional property produces no difference. Spreading a property declared as `@madeOptional(Versions.v2) foo?: string` therefore retains its historical requiredness before `v2`.
+- Restoring a property's declared optionality after an intermediate transformation makes its history apply again.
+- When optionality differs from the declaration, newly authored optionality augments are ignored for validation and snapshots too: this rule cannot distinguish them from inherited annotations.
+- Properties without a model-property declaration node cannot be identified as transformed.
+
+Declare the derived property explicitly when independent optionality history is needed. Invalid optionality annotations on unchanged original declarations are still diagnosed.

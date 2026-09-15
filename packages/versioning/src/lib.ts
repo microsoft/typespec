@@ -95,9 +95,6 @@ export const $lib = createTypeSpecLibrary({
     renamedFrom: { description: "State for @renamedFrom decorator" },
     madeOptional: { description: "State for @madeOptional decorator" },
     madeRequired: { description: "State for @madeRequired decorator" },
-    optionalitySource: {
-      description: "Original property for version snapshot optionality history",
-    },
     typeChangedFrom: { description: "State for @typeChangedFrom decorator" },
     returnTypeChangedFrom: { description: "State for @returnTypeChangedFrom decorator" },
   },

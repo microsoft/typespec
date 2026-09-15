@@ -222,10 +222,7 @@ export const $madeOptional: MadeOptionalDecorator = (
   if (!version) {
     return;
   }
-  program.stateMap(VersioningStateKeys.madeOptional).set(t, {
-    version,
-    application: context.decoratorTarget,
-  } satisfies OptionalityHistory);
+  program.stateMap(VersioningStateKeys.madeOptional).set(t, version);
 };
 
 export const $madeRequired: MadeRequiredDecorator = (
@@ -238,54 +235,14 @@ export const $madeRequired: MadeRequiredDecorator = (
   if (!version) {
     return;
   }
-  program.stateMap(VersioningStateKeys.madeRequired).set(t, {
-    version,
-    application: context.decoratorTarget,
-  } satisfies OptionalityHistory);
+  program.stateMap(VersioningStateKeys.madeRequired).set(t, version);
 };
 
-interface OptionalityHistory {
-  version: Version;
-  application: DiagnosticTarget;
-}
-
-function getOptionalitySource(program: Program, type: Type): Type {
-  const sources = program.stateMap(VersioningStateKeys.optionalitySource);
-  while (sources.has(type)) {
-    type = sources.get(type);
-  }
-  return type;
-}
-
-function getEffectiveOptionalityHistory(
-  program: Program,
-  type: Type,
-  key: symbol,
-): Version | undefined {
-  // Snapshot optionality can differ from the current API without being a structural
-  // transform. Inspect the original graph, including its intermediate spread/is copies.
-  type = getOptionalitySource(program, type);
-  const state: Map<Type, OptionalityHistory> = program.stateMap(key);
-  const history = state.get(type);
-  if (!history) return undefined;
-
-  while (type.kind === "ModelProperty" && type.sourceProperty) {
-    const source = getOptionalitySource(program, type.sourceProperty);
-    const sourceHistory = state.get(source);
-    // A new decorator application on a copy owns its history and must still be validated.
-    if (!history.application || sourceHistory?.application !== history.application) break;
-    if (source.kind !== "ModelProperty" || type.optional !== source.optional) return undefined;
-    type = source;
-  }
-  return history.version;
-}
-
 /**
- * @returns version when the given type was made required, unless a derived property
- * structurally changed optionality and superseded the inherited history.
+ * @returns version when the given type was made required if applicable.
  */
 export function getMadeRequiredOn(p: Program, t: Type): Version | undefined {
-  return getEffectiveOptionalityHistory(p, t, VersioningStateKeys.madeRequired);
+  return p.stateMap(VersioningStateKeys.madeRequired).get(t);
 }
 
 /**
@@ -311,11 +268,10 @@ export function getRemovedOnVersions(p: Program, t: Type): Version[] | undefined
 }
 
 /**
- * @returns version when the given type was made optional, unless a derived property
- * structurally changed optionality and superseded the inherited history.
+ * @returns version when the given type was made optional if applicable.
  */
 export function getMadeOptionalOn(p: Program, t: Type): Version | undefined {
-  return getEffectiveOptionalityHistory(p, t, VersioningStateKeys.madeOptional);
+  return p.stateMap(VersioningStateKeys.madeOptional).get(t);
 }
 
 export class VersionMap {
