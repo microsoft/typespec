@@ -330,6 +330,50 @@ model NullableDynamicModel {
   listOfDictionaries?: (Record<AnotherDynamicModel | null> | null)[] | null;
 }
 
+@usage(Usage.input | Usage.output | Usage.json)
+@access(Access.public)
+model OptionalNullableBase {
+  inheritedNullable?: string | null;
+}
+
+@dynamicModel
+@usage(Usage.input | Usage.output | Usage.json)
+@access(Access.public)
+model OptionalNullableDynamicProperties extends OptionalNullableBase {}
+
+@usage(Usage.input | Usage.output | Usage.json)
+@access(Access.public)
+model OptionalNullableChild {
+  value: string;
+}
+
+@usage(Usage.input | Usage.output | Usage.json)
+@access(Access.public)
+model OptionalNullableProperties extends OptionalNullableBase {
+  nullableModel?: OptionalNullableChild | null;
+  nullableString?: string | null;
+  nullableInt?: int32 | null;
+  nullableBoolean?: boolean | null;
+  nullableEnum?: StringFixedEnum | null;
+  nullableDateTime?: utcDateTime | null;
+  nullableBytes?: bytes | null;
+  nullableList?: (string | null)[] | null;
+  nullableDictionary?: Record<int32 | null> | null;
+
+  @visibility(Lifecycle.Read)
+  readOnlyNullable?: string | null;
+
+  requiredNullable: string | null;
+  optionalNonNullable?: string;
+  optionalNonNullableInt?: int32;
+}
+
+@usage(Usage.input | Usage.output | Usage.json)
+@access(Access.public)
+model OptionalNullableContainer {
+  child: OptionalNullableProperties;
+}
+
 @nsDeclarations
 enum XmlNamespaces {
   ns1: "https://example.com/ns1",

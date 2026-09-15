@@ -30,6 +30,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
     public class ScmModelProvider : ModelProvider
     {
         private readonly InputModelType _inputModel;
+        private readonly Dictionary<PropertyProvider, FieldProvider> _nullablePropertyPresence = [];
         private const string JsonPatchFieldName = "_patch";
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
         private readonly CSharpType _jsonPatchFieldType = typeof(JsonPatch);
@@ -75,13 +76,25 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override FieldProvider[] BuildFields()
         {
-            if (JsonPatchField is null)
+            var fields = base.BuildFields().ToList();
+            foreach (var property in Properties)
             {
-                return base.BuildFields();
+                if (_nullablePropertyPresence.TryGetValue(property, out var presence) && presence.EnclosingType == this)
+                {
+                    if (property.BackingField is { } backingField && !fields.Any(f => f.Name == backingField.Name))
+                    {
+                        fields.Add(backingField);
+                    }
+                    fields.Add(presence);
+                }
             }
 
-            var fields = base.BuildFields();
-            var updatedFields = new List<FieldProvider>(fields.Length + 1);
+            if (JsonPatchField is null)
+            {
+                return [.. fields];
+            }
+
+            var updatedFields = new List<FieldProvider>(fields.Count + 1);
 
             foreach (var field in fields)
             {
@@ -115,8 +128,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 properties = [JsonPatchProperty, .. base.BuildProperties()];
             }
 
+            var reservedFieldNames = new HashSet<string>(properties.Select(p => p.Name));
+            reservedFieldNames.UnionWith(CustomCodeView?.Fields.Select(f => f.Name) ?? []);
+            reservedFieldNames.UnionWith(GetInheritedFieldNames());
+            if (RawDataField != null)
+            {
+                reservedFieldNames.Add(RawDataField.Name);
+            }
+            var backingFieldNames = new Dictionary<PropertyProvider, string>();
+            foreach (var property in properties)
+            {
+                backingFieldNames[property] = GetAvailableFieldName($"_{property.AsParameter.Name}", reservedFieldNames);
+            }
             foreach (var prop in properties)
             {
+                AddNullablePropertyPresence(prop, backingFieldNames[prop], reservedFieldNames);
                 if (IsFileBinaryContentType(prop.Type))
                 {
                     prop.Update(attributes: [.. prop.Attributes, new AttributeStatement(typeof(ExperimentalAttribute), [Literal(FileBinaryContentDiagnosticId)])]);
@@ -124,6 +150,81 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return properties;
+        }
+
+        internal static FieldProvider? GetNullablePropertyPresence(PropertyProvider property)
+        {
+            return property.EnclosingType is ScmModelProvider model &&
+                model._nullablePropertyPresence.TryGetValue(property, out var presence) ? presence : null;
+        }
+
+        private IEnumerable<string> GetInheritedFieldNames()
+        {
+            HashSet<ModelProvider> visited = [this];
+            List<ModelProvider> ancestors = [];
+            for (var model = BaseModelProvider; model != null; model = model.BaseModelProvider)
+            {
+                if (!visited.Add(model))
+                {
+                    return [];
+                }
+                ancestors.Add(model);
+            }
+            return ancestors.SelectMany(m => m.Fields.Select(f => f.Name));
+        }
+
+        private static string GetAvailableFieldName(string preferredName, HashSet<string> reservedNames)
+        {
+            var name = preferredName;
+            for (var suffix = 0; !reservedNames.Add(name); suffix++)
+            {
+                name = $"{preferredName}{suffix}";
+            }
+            return name;
+        }
+
+        private void AddNullablePropertyPresence(PropertyProvider property, string backingFieldName, HashSet<string> reservedFieldNames)
+        {
+            if (property.WireInfo is not { IsRequired: false, IsNullable: true, IsHttpMetadata: false } ||
+                property.Type is { IsCollection: true, IsReadOnlyMemory: false } ||
+                (_inputModel.Usage.HasFlag(InputModelTypeUsage.Xml) && !_inputModel.Usage.HasFlag(InputModelTypeUsage.Json)) ||
+                DeclarationModifiers.HasFlag(TypeSignatureModifiers.ReadOnly))
+            {
+                return;
+            }
+
+            if (property.BaseProperty != null)
+            {
+                var baseProperty = BaseModelProvider?.Properties.FirstOrDefault(p => p.Name == property.BaseProperty.Name);
+                if (baseProperty != null && GetNullablePropertyPresence(baseProperty) is { } basePresence)
+                {
+                    _nullablePropertyPresence[property] = basePresence;
+                    if (property.Modifiers.HasFlag(MethodSignatureModifiers.Override))
+                    {
+                        property.Update(body: new MethodPropertyBody(
+                            Return(Base.Property(baseProperty.Name)),
+                            property.Body.HasSetter ? Base.Property(baseProperty.Name).Assign(Value).Terminate() : null));
+                    }
+                }
+                return;
+            }
+
+            var backingField = new FieldProvider(
+                FieldModifiers.Private, property.Type, backingFieldName, this);
+            var presence = new FieldProvider(
+                FieldModifiers.Internal, typeof(bool), GetAvailableFieldName($"_{property.AsParameter.Name}IsDefined", reservedFieldNames), this);
+            _nullablePropertyPresence[property] = presence;
+            property.BackingField = backingField;
+            MethodBodyStatement? setter = null;
+            if (property.Body.HasSetter)
+            {
+                setter = new MethodBodyStatement[]
+                {
+                    backingField.Assign(Value).Terminate(),
+                    presence.Assign(True).Terminate()
+                };
+            }
+            property.Update(body: new MethodPropertyBody(Return(backingField), setter));
         }
 
         protected override ConstructorProvider[] BuildConstructors()
