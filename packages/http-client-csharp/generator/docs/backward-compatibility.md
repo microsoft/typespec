@@ -20,6 +20,7 @@
     - [Removed Extensible Enum Member Re-added](#scenario-removed-extensible-enum-member-re-added)
   - [API Version Enum](#api-version-enum)
   - [Non-abstract Base Models](#non-abstract-base-models)
+  - [Model Base Types](#model-base-types)
   - [Model Constructors](#model-constructors)
     - [Required Property Becomes Optional](#scenario-required-property-becomes-optional)
     - [Parameterless Constructor Becomes Parameterized](#scenario-parameterless-constructor-becomes-parameterized)

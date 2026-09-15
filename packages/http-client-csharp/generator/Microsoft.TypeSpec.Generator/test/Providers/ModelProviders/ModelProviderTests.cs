@@ -560,8 +560,25 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 .OfType<ModelProvider>()
                 .Single(model => model.Name == "DerivedModel");
 
-            Assert.AreEqual("PreviousBase", provider.BaseType?.Name);
-            Assert.IsInstanceOf<SystemObjectModelProvider>(provider.BaseModelProvider);
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual("PreviousBase", provider.BaseType?.Name);
+                Assert.IsInstanceOf<SystemObjectModelProvider>(provider.BaseModelProvider);
+                Assert.That(provider.Properties.Select(property => property.Name), Does.Contain("Child"),
+                    "The derived model's own property must remain generated after mapped-base restoration");
+                Assert.That(provider.FullConstructor.Signature.Parameters.Select(parameter => parameter.Name),
+                    Does.Contain("child"),
+                    "The derived model's own property must remain in constructor generation");
+                Assert.IsNotNull(provider.FullConstructor.Signature.Initializer,
+                    "The derived constructor must continue chaining to the mapped base");
+            });
+
+            var modelOutput = new TypeProviderWriter(provider).Write().Content;
+            Assert.Multiple(() =>
+            {
+                Assert.That(modelOutput, Does.Contain("class DerivedModel : global::Sample.Models.PreviousBase"));
+                Assert.That(modelOutput, Does.Contain("Child"));
+            });
         }
 
         [Test]
@@ -643,10 +660,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         {
             var previousBase = InputFactory.Model(
                 "PreviousBase",
-                properties: [InputFactory.Property("id", InputPrimitiveType.String, isRequired: true)]);
+                properties: [InputFactory.Property("items", InputFactory.Array(InputPrimitiveType.String), isRequired: true)]);
             var currentBase = InputFactory.Model(
                 "CurrentBase",
-                properties: [InputFactory.Property("id", InputPrimitiveType.Int32, isRequired: true)]);
+                properties: [InputFactory.Property("items", InputFactory.Array(InputPrimitiveType.Int32), isRequired: true)]);
             var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
             var mappedType = new CSharpType("PreviousBase", "Sample.Models", false, false, null, [], true, false);
 

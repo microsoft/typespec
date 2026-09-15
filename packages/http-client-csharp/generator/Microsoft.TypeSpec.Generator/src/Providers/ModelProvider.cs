@@ -446,7 +446,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
             if (!currentBase.Properties.All(property =>
                 mappedProperties.TryGetValue(property.SerializedName ?? property.Name, out var mappedProperty) &&
-                DomainEqual(property, mappedProperty)))
+                AreMappedPropertyShapesCompatible(property, mappedProperty)))
             {
                 return false;
             }
@@ -457,8 +457,55 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             return mappedBase._inputModel.AdditionalProperties is { } mappedAdditionalProperties &&
-                currentBase.AdditionalProperties.Name == mappedAdditionalProperties.Name &&
-                (currentBase.AdditionalProperties is InputNullableType) == (mappedAdditionalProperties is InputNullableType);
+                AreInputTypesStructurallyEqual(currentBase.AdditionalProperties, mappedAdditionalProperties);
+        }
+
+        private static bool AreMappedPropertyShapesCompatible(InputModelProperty current, InputModelProperty mapped)
+            => current.IsRequired == mapped.IsRequired &&
+                (current.Type is InputNullableType) == (mapped.Type is InputNullableType) &&
+                AreInputTypesStructurallyEqual(current.Type, mapped.Type);
+
+        private static bool AreInputTypesStructurallyEqual(InputType current, InputType mapped)
+        {
+            if (current is InputNullableType || mapped is InputNullableType)
+            {
+                return current is InputNullableType currentNullable && mapped is InputNullableType mappedNullable &&
+                    AreInputTypesStructurallyEqual(currentNullable.Type, mappedNullable.Type);
+            }
+            if (current is InputArrayType || mapped is InputArrayType)
+            {
+                return current is InputArrayType currentArray && mapped is InputArrayType mappedArray &&
+                    AreInputTypesStructurallyEqual(currentArray.ValueType, mappedArray.ValueType);
+            }
+            if (current is InputDictionaryType || mapped is InputDictionaryType)
+            {
+                return current is InputDictionaryType currentDictionary && mapped is InputDictionaryType mappedDictionary &&
+                    AreInputTypesStructurallyEqual(currentDictionary.KeyType, mappedDictionary.KeyType) &&
+                    AreInputTypesStructurallyEqual(currentDictionary.ValueType, mappedDictionary.ValueType);
+            }
+            if (current is InputUnionType || mapped is InputUnionType)
+            {
+                return current is InputUnionType currentUnion && mapped is InputUnionType mappedUnion &&
+                    currentUnion.VariantTypes.Count == mappedUnion.VariantTypes.Count &&
+                    currentUnion.VariantTypes.Zip(mappedUnion.VariantTypes).All(pair =>
+                        AreInputTypesStructurallyEqual(pair.First, pair.Second));
+            }
+            if (current is InputPrimitiveType || mapped is InputPrimitiveType)
+            {
+                return current is InputPrimitiveType currentPrimitive && mapped is InputPrimitiveType mappedPrimitive &&
+                    currentPrimitive.Kind == mappedPrimitive.Kind;
+            }
+            if (current is InputModelType || mapped is InputModelType)
+            {
+                return current is InputModelType currentModel && mapped is InputModelType mappedModel &&
+                    currentModel.CrossLanguageDefinitionId == mappedModel.CrossLanguageDefinitionId;
+            }
+            if (current is InputEnumType || mapped is InputEnumType)
+            {
+                return current is InputEnumType currentEnum && mapped is InputEnumType mappedEnum &&
+                    currentEnum.CrossLanguageDefinitionId == mappedEnum.CrossLanguageDefinitionId;
+            }
+            return current.Name == mapped.Name;
         }
 
         private bool CurrentBaseRequiresReconciliation()
