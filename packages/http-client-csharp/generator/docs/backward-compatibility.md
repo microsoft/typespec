@@ -1191,7 +1191,7 @@ public string GetData(string data, FileFormatType? value = default, bool? flag =
 
 ### Model Base Types
 
-The generator can preserve a previously shipped generated model base when the current TypeSpec hierarchy no longer contains it. Automatic restoration is intentionally limited to simple generated root-model bases. The current base is retained when the previous base cannot be resolved as a generated model, the model participates in a polymorphic or derived hierarchy, custom code is present, the model is a struct, or a directly declared property collides with the previous base.
+The generator can preserve a previously shipped generated model base when the current TypeSpec hierarchy no longer contains it. Automatic restoration is intentionally limited to memberless models and simple generated root-model bases. The current base is retained when the previous base cannot be resolved as a generated model, the current or previous hierarchy contributes members requiring reconciliation, the model participates in a polymorphic or derived hierarchy, custom code is present, or the model is a struct.
 
 Downstream generators can override `BuildBaseTypeForBackCompatibility` when a concrete SDK scenario requires broader reconciliation. Referenced/framework bases, constructed generic bases, and whole-hierarchy member reconciliation are not handled automatically.
 

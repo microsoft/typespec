@@ -270,13 +270,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             // Keep this policy deliberately conservative. Custom partials, structs, polymorphic models,
-            // and models with descendants require whole-hierarchy reconciliation and are left unchanged.
+            // models with descendants, direct members, and non-empty displaced bases require broader
+            // hierarchy reconciliation and are left unchanged.
             if (CustomCodeView is not null ||
                 DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct) ||
                 _inputModel.DiscriminatorProperty is not null ||
                 _inputModel.DiscriminatorValue is not null ||
                 _inputModel.DerivedModels.Count > 0 ||
-                _inputModel.DiscriminatedSubtypes.Count > 0)
+                _inputModel.DiscriminatedSubtypes.Count > 0 ||
+                _inputModel.Properties.Count > 0 ||
+                _inputModel.AdditionalProperties is not null ||
+                CurrentBaseRequiresReconciliation())
             {
                 return currentBase;
             }
@@ -289,8 +293,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return currentBase;
             }
 
-            if (!TryResolveGeneratedRootBase(previousBase, out var previousBaseProvider) ||
-                HasDirectPropertyCollision(previousBaseProvider))
+            if (!TryResolveGeneratedRootBase(previousBase, out var previousBaseProvider))
             {
                 CodeModelGenerator.Instance.Emitter.ReportDiagnostic(
                     DiagnosticCodes.IncompatibleBackcompatBaseType,
@@ -401,20 +404,24 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         private bool IsSupportedGeneratedRootBase(ModelProvider candidate)
-            => candidate.CustomCodeView is null &&
+            => !candidate.IsExternal &&
+                candidate.CustomCodeView is null &&
                 candidate._inputModel.BaseModel is null &&
                 candidate.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Class) &&
                 !candidate.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Sealed) &&
                 (!DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public) ||
                     candidate.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
 
-        private bool HasDirectPropertyCollision(ModelProvider previousBase)
+        private bool CurrentBaseRequiresReconciliation()
         {
-            var previousNames = previousBase._inputModel.Properties
-                .Select(property => property.Name.ToIdentifierName().NormalizeCSharpAcronyms(property.Type.IsDateTimeInputType()))
-                .ToHashSet(StringComparer.Ordinal);
-            return _inputModel.Properties.Any(property => previousNames.Contains(
-                property.Name.ToIdentifierName().NormalizeCSharpAcronyms(property.Type.IsDateTimeInputType())));
+            var currentBase = _inputModel.BaseModel;
+            return currentBase is not null &&
+                (currentBase.External is not null ||
+                    currentBase.BaseModel is not null ||
+                    currentBase.Properties.Count > 0 ||
+                    currentBase.AdditionalProperties is not null ||
+                    currentBase.DiscriminatorProperty is not null ||
+                    currentBase.DiscriminatorValue is not null);
         }
 
         protected override TypeProvider[] BuildSerializationProviders()

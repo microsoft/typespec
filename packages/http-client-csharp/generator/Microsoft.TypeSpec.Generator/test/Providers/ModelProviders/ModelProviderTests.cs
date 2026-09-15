@@ -566,6 +566,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                     public class PreviousBase { public string Id { get; set; } }
                     public class CustomizedDerived : PreviousBase { }
                     public class CollisionDerived : PreviousBase { }
+                    public class MemberBaseDerived : PreviousBase { }
                 }
                 """;
             var previousBase = InputFactory.Model(
@@ -575,9 +576,16 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var collisionDerived = InputFactory.Model(
                 "CollisionDerived",
                 properties: [InputFactory.Property("id", InputPrimitiveType.String)]);
+            var memberCurrentBase = InputFactory.Model(
+                "MemberCurrentBase",
+                properties: [InputFactory.Property("location", InputPrimitiveType.String)]);
+            var memberBaseDerived = InputFactory.Model(
+                "MemberBaseDerived",
+                properties: [],
+                baseModel: memberCurrentBase);
 
             await MockHelpers.LoadMockGeneratorAsync(
-                inputModelTypes: [previousBase, customizedDerived, collisionDerived],
+                inputModelTypes: [previousBase, customizedDerived, collisionDerived, memberCurrentBase, memberBaseDerived],
                 compilation: async () => await Helpers.GetCompilationFromSourceFilesAsync([("Current.cs", currentSource)]),
                 lastContractCompilation: async () => await Helpers.GetCompilationFromSourceFilesAsync([("LastContract.cs", lastContractSource)]));
 
@@ -586,6 +594,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             {
                 Assert.AreEqual("CustomBase", providers.Single(p => p.Name == "CustomizedDerived").BaseType?.Name);
                 Assert.IsNull(providers.Single(p => p.Name == "CollisionDerived").BaseType);
+                Assert.AreEqual("MemberCurrentBase", providers.Single(p => p.Name == "MemberBaseDerived").BaseType?.Name,
+                    "A current base that contributes members must remain authoritative");
             });
         }
 
