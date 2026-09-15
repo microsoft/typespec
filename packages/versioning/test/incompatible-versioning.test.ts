@@ -314,6 +314,23 @@ describe("versioning: validate incompatible references", () => {
       });
     });
 
+    it("emit diagnostic when referenced type is removed while property remains available", async () => {
+      const diagnostics = await runner.diagnose(`
+        @removed(Versions.v2)
+        model Target {}
+
+        @added(Versions.v1)
+        model Source {
+          target: Target;
+        }
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/incompatible-versioned-reference",
+        message:
+          "'TestService.Source.target' is referencing type 'TestService.Target' which does not exist in version 'v2'.",
+      });
+    });
+
     it("emit diagnostic when using @typeChangedFrom with a type parameter that does not yet exist", async () => {
       const diagnostics = await runner.diagnose(`        
         @test
@@ -999,6 +1016,37 @@ describe("versioning: validate incompatible references", () => {
         code: "@typespec/versioning/incompatible-versioned-reference",
         message:
           "'TestService.test' was removed in version 'v4' but referencing type 'VersionedLib.Foo' removed in version 'v3'.",
+      });
+    });
+
+    it("emit diagnostic when dependency mapping skips the target removal version", async () => {
+      const diagnostics = await Tester.diagnose(`
+        @versioned(Versions)
+        namespace VersionedLib {
+          enum Versions {l1, l2, l3}
+          @removed(Versions.l2)
+          model Foo {}
+        }
+
+        @versioned(Versions)
+        namespace TestService {
+          enum Versions {
+            @useDependency(VersionedLib.Versions.l1)
+            v1,
+            @useDependency(VersionedLib.Versions.l3)
+            v2,
+            @useDependency(VersionedLib.Versions.l3)
+            v3
+          }
+
+          @added(Versions.v1)
+          op test(): VersionedLib.Foo;
+        }
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/incompatible-versioned-reference",
+        message:
+          "'TestService.test' is referencing type 'VersionedLib.Foo' which does not exist in version 'v2'.",
       });
     });
 
