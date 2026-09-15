@@ -411,9 +411,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private bool IsSupportedModelBase(ModelProvider candidate)
             => candidate is SystemObjectModelProvider mappedBase
-                ? !mappedBase.SystemType.IsValueType &&
-                    !mappedBase.SystemType.IsStruct &&
-                    (!DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public) || mappedBase.SystemType.IsPublic)
+                ? mappedBase.SystemType.IsFrameworkType &&
+                    mappedBase.SystemType.FrameworkType.IsClass &&
+                    !mappedBase.SystemType.FrameworkType.IsSealed &&
+                    (!DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public) ||
+                        mappedBase.SystemType.FrameworkType.IsPublic ||
+                        mappedBase.SystemType.FrameworkType.IsNestedPublic)
                 :
                 !candidate.IsExternal &&
                 candidate.CustomCodeView is null &&

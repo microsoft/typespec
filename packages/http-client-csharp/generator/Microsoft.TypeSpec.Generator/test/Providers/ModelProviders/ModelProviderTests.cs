@@ -546,15 +546,14 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 "DerivedModel",
                 properties: [InputFactory.Property("child", InputPrimitiveType.String)],
                 baseModel: currentBase);
-            var mappedType = new CSharpType("PreviousBase", "Sample.Models", false, false, null, [], true, false);
+            var mappedType = new CSharpType(typeof(Exception));
 
             await MockHelpers.LoadMockGeneratorAsync(
                 createModelCore: input => input == previousBase
                     ? new SystemObjectModelProvider(mappedType, input)
                     : new ModelProvider(input),
                 inputModelTypes: [previousBase, currentBase, derivedModel],
-                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
-                    method: nameof(BackCompat_BaseTypeChangePreservesGeneratedRootBase)));
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
 
             var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
                 .OfType<ModelProvider>()
@@ -562,7 +561,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             Assert.Multiple(() =>
             {
-                Assert.AreEqual("PreviousBase", provider.BaseType?.Name);
+                Assert.AreEqual(nameof(Exception), provider.BaseType?.Name);
                 Assert.IsInstanceOf<SystemObjectModelProvider>(provider.BaseModelProvider);
                 Assert.That(provider.Properties.Select(property => property.Name), Does.Contain("Child"),
                     "The derived model's own property must remain generated after mapped-base restoration");
@@ -576,7 +575,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var modelOutput = new TypeProviderWriter(provider).Write().Content;
             Assert.Multiple(() =>
             {
-                Assert.That(modelOutput, Does.Contain("class DerivedModel : global::Sample.Models.PreviousBase"));
+                Assert.That(modelOutput, Does.Contain("class DerivedModel : global::System.Exception"));
                 Assert.That(modelOutput, Does.Contain("Child"));
             });
         }
