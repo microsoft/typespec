@@ -270,17 +270,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             // Keep this policy deliberately conservative. Custom partials, structs, polymorphic models,
-            // models with descendants, direct members, and non-empty displaced bases require broader
-            // hierarchy reconciliation and are left unchanged.
+            // and models with descendants require broader hierarchy reconciliation and are left unchanged.
             if (CustomCodeView is not null ||
                 DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct) ||
                 _inputModel.DiscriminatorProperty is not null ||
                 _inputModel.DiscriminatorValue is not null ||
                 _inputModel.DerivedModels.Count > 0 ||
-                _inputModel.DiscriminatedSubtypes.Count > 0 ||
-                _inputModel.Properties.Count > 0 ||
-                _inputModel.AdditionalProperties is not null ||
-                CurrentBaseRequiresReconciliation())
+                _inputModel.DiscriminatedSubtypes.Count > 0)
             {
                 return currentBase;
             }
@@ -293,11 +289,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return currentBase;
             }
 
-            if (!TryResolveGeneratedRootBase(previousBase, out var previousBaseProvider))
+            if (!TryResolveCompatibleModelBase(previousBase, out var previousBaseProvider) ||
+                previousBaseProvider is not SystemObjectModelProvider &&
+                    (_inputModel.Properties.Count > 0 ||
+                        _inputModel.AdditionalProperties is not null ||
+                        CurrentBaseRequiresReconciliation()))
             {
                 CodeModelGenerator.Instance.Emitter.ReportDiagnostic(
                     DiagnosticCodes.IncompatibleBackcompatBaseType,
-                    $"Could not preserve base type '{previousBase.FullyQualifiedName}' on model '{BuildNamespace()}.{BuildName()}'; automatic restoration is limited to compatible generated root-model bases.");
+                    $"Could not preserve base type '{previousBase.FullyQualifiedName}' on model '{BuildNamespace()}.{BuildName()}'; automatic restoration is limited to compatible generated or mapped root-model bases.");
                 return currentBase;
             }
 
@@ -364,12 +364,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return false;
         }
 
-        private bool TryResolveGeneratedRootBase(CSharpType previousBase, [NotNullWhen(true)] out ModelProvider? provider)
+        private bool TryResolveCompatibleModelBase(CSharpType previousBase, [NotNullWhen(true)] out ModelProvider? provider)
         {
             foreach (var candidate in CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.Values.OfType<ModelProvider>())
             {
-                if (candidate is not SystemObjectModelProvider && candidate.Type.AreNamesEqual(previousBase) &&
-                    IsSupportedGeneratedRootBase(candidate))
+                if (candidate.Type.AreNamesEqual(previousBase) && IsSupportedModelBase(candidate))
                 {
                     provider = candidate;
                     return true;
@@ -391,8 +390,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
 
                 var candidate = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel);
-                if (candidate is not null && candidate is not SystemObjectModelProvider &&
-                    candidate.Type.AreNamesEqual(previousBase) && IsSupportedGeneratedRootBase(candidate))
+                if (candidate is not null && candidate.Type.AreNamesEqual(previousBase) && IsSupportedModelBase(candidate))
                 {
                     provider = candidate;
                     return true;
@@ -403,8 +401,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return false;
         }
 
-        private bool IsSupportedGeneratedRootBase(ModelProvider candidate)
-            => !candidate.IsExternal &&
+        private bool IsSupportedModelBase(ModelProvider candidate)
+            => candidate is SystemObjectModelProvider ||
+                !candidate.IsExternal &&
                 candidate.CustomCodeView is null &&
                 candidate._inputModel.BaseModel is null &&
                 candidate.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Class) &&
