@@ -637,13 +637,17 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         {
             var firstMappedInput = InputFactory.Model(
                 "FirstMappedInput",
-                properties: [InputFactory.Property("id", InputPrimitiveType.String)]);
-            var secondMappedInput = InputFactory.Model(
-                "SecondMappedInput",
                 properties:
                 [
                     InputFactory.Property("id", InputPrimitiveType.String),
                     InputFactory.Property("other", InputPrimitiveType.String)
+                ]);
+            var secondMappedInput = InputFactory.Model(
+                "SecondMappedInput",
+                properties:
+                [
+                    InputFactory.Property("other", InputPrimitiveType.String),
+                    InputFactory.Property("id", InputPrimitiveType.String)
                 ]);
             var currentBase = InputFactory.Model(
                 "CurrentBase",

@@ -428,6 +428,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             if (candidates.Length > 1)
             {
+                if (candidates.Any(candidate => candidate is not SystemObjectModelProvider))
+                {
+                    provider = null;
+                    foundAmbiguousMapping = true;
+                    return false;
+                }
+
                 var compatibleMappedCandidates = candidates
                     .OfType<SystemObjectModelProvider>()
                     .Where(CanUseMappedBase)
@@ -460,13 +467,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return false;
             }
 
-            var rightProperties = right._inputModel.Properties
-                .GroupBy(property => property.SerializedName ?? property.Name, StringComparer.Ordinal)
-                .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
-            if (!left._inputModel.Properties.All(property =>
-                rightProperties.TryGetValue(property.SerializedName ?? property.Name, out var rightProperty) &&
-                GetInputPropertyClrName(property) == GetInputPropertyClrName(rightProperty) &&
-                AreMappedPropertyShapesCompatible(property, rightProperty)))
+            if (!left._inputModel.Properties.Zip(right._inputModel.Properties).All(pair =>
+                (pair.First.SerializedName ?? pair.First.Name) == (pair.Second.SerializedName ?? pair.Second.Name) &&
+                GetInputPropertyClrName(pair.First) == GetInputPropertyClrName(pair.Second) &&
+                AreMappedPropertyShapesCompatible(pair.First, pair.Second)))
             {
                 return false;
             }
@@ -591,6 +595,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private static bool AreMappedPropertyShapesCompatible(InputModelProperty current, InputModelProperty mapped)
             => current.IsRequired == mapped.IsRequired &&
                 current.IsReadOnly == mapped.IsReadOnly &&
+                current.IsHttpMetadata == mapped.IsHttpMetadata &&
+                current.IsDiscriminator == mapped.IsDiscriminator &&
                 current.Encode == mapped.Encode &&
                 (current.Type is InputNullableType) == (mapped.Type is InputNullableType) &&
                 AreInputTypesStructurallyEqual(current.Type, mapped.Type);
