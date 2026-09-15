@@ -38,6 +38,7 @@
     "typescript": "catalog:"
   },
   "devDependencies": {
+    "@astrojs/markdown-remark": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@types/remark-heading-id": "catalog:",
