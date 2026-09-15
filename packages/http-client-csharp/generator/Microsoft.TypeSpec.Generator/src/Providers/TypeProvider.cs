@@ -293,19 +293,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public CSharpType? BaseType => _baseType ??= BuildBaseType() ?? CustomCodeView?.BaseType;
         private CSharpType? _baseType;
 
-        protected void SetBaseType(CSharpType? baseType)
-        {
-            _baseType = baseType;
-            _type = null;
-        }
-
-        protected void RebuildBaseTypePreservingType()
-        {
-            _baseType = null;
-            var rebuiltBaseType = BaseType;
-            _type?.UpdateBaseType(rebuiltBaseType);
-        }
-
         public WhereExpression? WhereClause => _whereClause ??= BuildWhereClause();
         private WhereExpression? _whereClause;
         protected virtual WhereExpression? BuildWhereClause() => null;
@@ -815,7 +802,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _description = null;
             _type = null;
             _arguments = null;
-            _baseType = null;
         }
 
         private protected virtual void ResetConstructors()
@@ -979,11 +965,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         internal void ProcessTypeForBackCompatibility()
         {
-            if (this is ModelProvider modelProvider)
-            {
-                modelProvider.RevalidateBaseTypeAfterVisitors();
-            }
-
             var hasMethods = LastContractView?.Methods != null && LastContractView.Methods.Count > 0;
             var hasConstructors = LastContractView?.Constructors != null && LastContractView.Constructors.Count > 0;
 

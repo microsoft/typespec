@@ -212,7 +212,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         public CSharpType? BaseType
         {
             get => _baseType;
-            private set
+            private init
             {
                 if (value is { IsFrameworkType: true }
                     // Special base types that we want to ignore - kept in sync with NamedTypeSymbolProvider.BuildBaseType
@@ -229,10 +229,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                 }
             }
         }
-        private CSharpType? _baseType;
-
-        internal void UpdateBaseType(CSharpType? baseType) => BaseType = baseType;
-
+        private readonly CSharpType? _baseType;
         public bool IsStruct { get; private init; }
         public Type FrameworkType => _type ?? throw new InvalidOperationException("Not a framework type");
         public object Literal => _literal ?? throw new InvalidOperationException("Not a literal type");

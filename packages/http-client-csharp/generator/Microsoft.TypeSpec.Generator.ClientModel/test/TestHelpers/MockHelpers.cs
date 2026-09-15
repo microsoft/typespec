@@ -35,8 +35,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             string? configuration = null,
             Func<InputType, CSharpType>? createCSharpTypeCore = null,
             Func<InputType, bool>? createCSharpTypeCoreFallback = null,
-            string? outputPath = null,
-            ApiCompatBaseline? apiCompatBaseline = null)
+            string? outputPath = null)
         {
             var mockGenerator = LoadMockGenerator(
                 inputLiterals: inputLiterals,
@@ -52,10 +51,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests
             var compilationResult = compilation == null ? null : await compilation();
             var lastContractCompilationResult = lastContractCompilation == null ? null : await lastContractCompilation();
 
-            mockGenerator.SetupProperty(p => p.SourceInputModel, new SourceInputModel(
-                compilationResult,
-                lastContractCompilationResult,
-                apiCompatBaseline ?? ApiCompatBaseline.Empty));
+            mockGenerator.SetupProperty(p => p.SourceInputModel, new SourceInputModel(compilationResult, lastContractCompilationResult));
 
             return mockGenerator;
         }

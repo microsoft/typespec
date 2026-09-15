@@ -19,7 +19,6 @@
   - [Extensible Enum Members](#extensible-enum-members)
     - [Removed Extensible Enum Member Re-added](#scenario-removed-extensible-enum-member-re-added)
   - [API Version Enum](#api-version-enum)
-  - [Model Base Types](#model-base-types)
   - [Non-abstract Base Models](#non-abstract-base-models)
   - [Model Constructors](#model-constructors)
     - [Required Property Becomes Optional](#scenario-required-property-becomes-optional)
@@ -553,19 +552,6 @@ public enum ServiceVersion
 - Previous enum members are preserved even if removed from TypeSpec
 - Enum values are re-indexed to maintain sequential ordering
 - Version format and separator are detected from current versions and applied to previous versions
-
-### Model Base Types
-
-When a model's current TypeSpec hierarchy no longer includes the CLR base type published in the last contract, the generator restores the previous base type when it can do so safely. This preserves source and binary compatibility for code that assigns the model to, or accesses inherited members through, its previous base type.
-
-The previous base is restored only when it is available in the current build and generated constructors can invoke it. The generator keeps the current base and reports a diagnostic instead when restoration would produce invalid or ambiguous code, including when:
-
-- Custom code declares a different base type
-- The current model is part of a different discriminator hierarchy
-- The previous base is unavailable or has no accessible parameterless constructor
-- A property declared directly by the current model would hide an inherited property
-
-If the current base already derives from the previous base, no change is needed. When restoration succeeds, inherited properties remain inherited rather than being generated again on the derived model.
 
 ### Non-abstract Base Models
 
@@ -1202,6 +1188,12 @@ public string GetData(string data, FileFormatType? value = default, bool? flag =
 - When the current parameter is required, the previous optional default is preserved so callers that omitted it still compile; the `AssertNotNull` guard turns a `null` argument into a clear `ArgumentNullException`.
 - A `ref`/`out` parameter is not eligible (its value cannot be forwarded through `.Value`), so no overload is generated in that case.
 - The overload is hidden via `[EditorBrowsable(EditorBrowsableState.Never)]`.
+
+### Model Base Types
+
+The generator can preserve a previously shipped generated model base when the current TypeSpec hierarchy no longer contains it. Automatic restoration is intentionally limited to simple generated root-model bases. The current base is retained when the previous base cannot be resolved as a generated model, the model participates in a polymorphic or derived hierarchy, custom code is present, the model is a struct, or a directly declared property collides with the previous base.
+
+Downstream generators can override `BuildBaseTypeForBackCompatibility` when a concrete SDK scenario requires broader reconciliation. Referenced/framework bases, constructed generic bases, and whole-hierarchy member reconciliation are not handled automatically.
 
 #### Scenario: Nullable Optional Parameter Became Required
 
