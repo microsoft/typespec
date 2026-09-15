@@ -296,7 +296,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             if (!TryResolveCompatibleModelBase(previousBase, out var previousBaseProvider) ||
-                previousBaseProvider.LastContractView?.BaseType is not null ||
+                previousBaseProvider is not SystemObjectModelProvider &&
+                    previousBaseProvider.LastContractView?.BaseType is not null ||
                 (previousBaseProvider is SystemObjectModelProvider mappedBase
                     ? !CanUseMappedBase(mappedBase)
                     : _inputModel.Properties.Count > 0 ||
@@ -415,12 +416,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     mappedBase.SystemType.FrameworkType.IsClass &&
                     !mappedBase.SystemType.FrameworkType.IsSealed &&
                     (!DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public) ||
-                        mappedBase.SystemType.FrameworkType.IsPublic ||
-                        mappedBase.SystemType.FrameworkType.IsNestedPublic)
+                        IsPublicFrameworkType(mappedBase.SystemType.FrameworkType))
                 :
                 !candidate.IsExternal &&
                 candidate.CustomCodeView is null &&
                 candidate.BaseType is null &&
+                candidate._inputModel.DiscriminatorProperty is null &&
+                candidate._inputModel.DiscriminatorValue is null &&
+                candidate._inputModel.DerivedModels.Count == 0 &&
+                candidate._inputModel.DiscriminatedSubtypes.Count == 0 &&
                 candidate.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Class) &&
                 !candidate.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Sealed) &&
                 (!DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public) ||
@@ -436,6 +440,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             var currentBaseProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(currentBase);
             if (currentBaseProvider?.CustomCodeView is not null ||
+                currentBaseProvider?.BaseType is not null ||
                 currentBase.External is not null ||
                 currentBase.BaseModel is not null ||
                 currentBase.DiscriminatorProperty is not null ||
@@ -448,8 +453,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 .GroupBy(property => property.SerializedName ?? property.Name, StringComparer.Ordinal)
                 .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
             if (!currentBase.Properties.All(property =>
-                mappedProperties.TryGetValue(property.SerializedName ?? property.Name, out var mappedProperty) &&
-                AreMappedPropertyShapesCompatible(property, mappedProperty)))
+                    mappedProperties.TryGetValue(property.SerializedName ?? property.Name, out var mappedProperty) &&
+                    AreMappedPropertyShapesCompatible(property, mappedProperty)) ||
+                !_inputModel.Properties.All(property =>
+                    !mappedProperties.TryGetValue(property.SerializedName ?? property.Name, out var mappedProperty) ||
+                    AreMappedPropertyShapesCompatible(property, mappedProperty)))
             {
                 return false;
             }
@@ -510,7 +518,19 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return current is InputEnumType currentEnum && mapped is InputEnumType mappedEnum &&
                     currentEnum.CrossLanguageDefinitionId == mappedEnum.CrossLanguageDefinitionId;
             }
-            return current.Name == mapped.Name;
+            return false;
+        }
+
+        private static bool IsPublicFrameworkType(Type type)
+        {
+            for (var current = type; current is not null; current = current.DeclaringType)
+            {
+                if (!current.IsPublic && !current.IsNestedPublic)
+                {
+                    return false;
+                }
+            }
+            return true;
         }
 
         private bool CurrentBaseRequiresReconciliation()
@@ -523,6 +543,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             var currentBaseProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(currentBase);
             return currentBaseProvider?.CustomCodeView is not null ||
+                currentBaseProvider?.BaseType is not null ||
                 currentBase.External is not null ||
                 currentBase.BaseModel is not null ||
                 currentBase.Properties.Count > 0 ||

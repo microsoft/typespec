@@ -743,6 +743,81 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task BackCompat_BaseTypeRestorationRejectsDerivedMappedPropertyCollision()
+        {
+            var previousBase = InputFactory.Model(
+                "PreviousBase",
+                properties: [InputFactory.Property("items", InputFactory.Array(InputPrimitiveType.String))]);
+            var currentBase = InputFactory.Model(
+                "CurrentBase",
+                properties: [InputFactory.Property("items", InputFactory.Array(InputPrimitiveType.String))]);
+            var derivedModel = InputFactory.Model(
+                "DerivedModel",
+                properties: [InputFactory.Property("items", InputFactory.Array(InputPrimitiveType.Int32))],
+                baseModel: currentBase);
+            var mappedType = new CSharpType(typeof(Exception));
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                createModelCore: input => input == previousBase
+                    ? new SystemObjectModelProvider(mappedType, input)
+                    : new ModelProvider(input),
+                inputModelTypes: [previousBase, currentBase, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_BaseTypeChangePreservesMappedRootBase)));
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.AreEqual("CurrentBase", provider.BaseType?.Name);
+        }
+
+        [Test]
+        public async Task BackCompat_BaseTypeRestorationRejectsPolymorphicCandidate()
+        {
+            var variant = InputFactory.Model("Variant", discriminatedKind: "variant", properties: []);
+            var previousBase = InputFactory.Model(
+                "PreviousBase",
+                properties: [InputFactory.Property("kind", InputPrimitiveType.String, isDiscriminator: true)],
+                discriminatedModels: new Dictionary<string, InputModelType> { ["variant"] = variant });
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [previousBase, variant, currentBase, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_BaseTypeChangePreservesGeneratedRootBase)));
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.AreEqual("CurrentBase", provider.BaseType?.Name);
+        }
+
+        [Test]
+        public async Task BackCompat_BaseTypeRestorationRejectsCurrentEffectiveBase()
+        {
+            var previousBase = InputFactory.Model("PreviousBase", properties: []);
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                createModelCore: input => input == currentBase
+                    ? new BuildBaseTypeOverridingModelProvider(input, new CSharpType(typeof(Exception)))
+                    : new ModelProvider(input),
+                inputModelTypes: [previousBase, currentBase, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_BaseTypeChangePreservesGeneratedRootBase)));
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.AreEqual("CurrentBase", provider.BaseType?.Name);
+        }
+
+        [Test]
         public async Task BackCompat_BaseTypeRestorationHonorsApiCompatSuppression()
         {
             var previousBase = InputFactory.Model("PreviousBase", properties: []);
