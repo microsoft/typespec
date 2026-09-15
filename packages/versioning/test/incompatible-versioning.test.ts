@@ -689,6 +689,53 @@ describe("versioning: validate incompatible references", () => {
         message: "Property 'name?' marked with @madeRequired but is optional. Should be 'name'",
       });
     });
+
+    it.each([
+      "model Derived is OptionalProperties<Source>;",
+      "model Derived { ...OptionalProperties<Source>; }",
+      "@withOptionalProperties model Derived { @madeRequired(Versions.v2) name: string; }",
+      `
+        model Spread { ...Source; }
+        model Copy is Spread;
+        model Optional is OptionalProperties<Copy>;
+        model AfterSpread { ...Optional; }
+        model Derived is AfterSpread;
+      `,
+    ])("allows optionality changed from the declaration: %s", async (derived) => {
+      const diagnostics = await runner.diagnose(`
+        model Source {
+          @madeRequired(Versions.v2)
+          name: string;
+        }
+        ${derived}
+      `);
+      expectDiagnosticEmpty(diagnostics);
+    });
+
+    it.each([
+      `
+        @withOptionalProperties
+        model Derived { ...Source; }
+      `,
+      `
+        @withOptionalProperties
+        model Changed { ...Source; }
+        model Derived { ...Changed; }
+      `,
+    ])(
+      "cannot distinguish new augments when optionality differs from the declaration: %s",
+      async (derived) => {
+        const diagnostics = await runner.diagnose(`
+        model Source {
+          @madeRequired(Versions.v2)
+          name: string;
+        }
+        ${derived}
+        @@madeRequired(Derived.name, Versions.v2);
+      `);
+        expectDiagnosticEmpty(diagnostics);
+      },
+    );
   });
 
   describe("operations", () => {
