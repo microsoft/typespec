@@ -360,7 +360,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.AreEqual(2, customMethodParams.Count);
             Assert.AreEqual("p1", customMethodParams[0].Name);
             Assert.AreEqual("MyStruct", customMethodParams[0].Type.Name);
-            Assert.AreEqual(isStructCustomized ? "Sample.TestClient" : string.Empty, customMethodParams[0].Type.Namespace);
+            Assert.AreEqual("Sample.TestClient", customMethodParams[0].Type.Namespace);
 
             Assert.IsTrue(customMethodParams[0].Type.IsStruct);
             Assert.IsTrue(customMethodParams[0].Type.IsNullable);
