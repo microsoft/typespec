@@ -200,3 +200,31 @@ it("can be referenced using union", async () => {
     Foo.one;
   `);
 });
+
+it("uses the json encoded name as the value of a member without a value", async () => {
+  const code = `
+    enum Foo {
+      @encodedName("application/json", "on")
+      active,
+      @encodedName("application/json", "off")
+      inactive: "inactive-value",
+      pending,
+    }
+  `;
+  const output = await getEmitOutput(code, (program) => {
+    const Foo = program.resolveTypeReference("Foo")[0]! as Enum;
+    return (
+      <TspContext.Provider value={{ program }}>
+        <EnumDeclaration type={Foo} />
+      </TspContext.Provider>
+    );
+  });
+
+  expect(output).toBe(d`
+    enum Foo {
+      active = "on",
+      inactive = "off",
+      pending = "pending"
+    }
+  `);
+});

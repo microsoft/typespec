@@ -31,6 +31,7 @@ import {
   getMaxValueExclusive,
   getMinValueExclusive,
   getSummary,
+  resolveEncodedEnumMemberValue,
 } from "@typespec/compiler";
 import type { MetadataInfo } from "@typespec/http";
 import { getOneOf } from "./decorators.js";
@@ -204,8 +205,9 @@ export class OpenAPI31SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPISch
     const enumTypes = new Set<JsonType>();
     const enumValues = new Set<string | number>();
     for (const member of en.members.values()) {
-      enumTypes.add(typeof member.value === "number" ? "number" : "string");
-      enumValues.add(member.value ?? member.name);
+      const value = resolveEncodedEnumMemberValue(program, member, "application/json");
+      enumTypes.add(typeof value === "number" ? "number" : "string");
+      enumValues.add(value);
     }
 
     const enumTypesArray = [...enumTypes];
@@ -222,7 +224,7 @@ export class OpenAPI31SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPISch
     const program = this.emitter.getProgram();
     const oneOf: OpenAPISchema3_1[] = [];
     for (const member of en.members.values()) {
-      const value = member.value ?? member.name;
+      const value = resolveEncodedEnumMemberValue(program, member, "application/json");
       const subschema: OpenAPISchema3_1 = { const: value };
       const title = getSummary(program, member);
       if (title !== undefined) {
