@@ -415,6 +415,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 ? mappedBase.SystemType.IsFrameworkType &&
                     mappedBase.SystemType.FrameworkType.IsClass &&
                     !mappedBase.SystemType.FrameworkType.IsSealed &&
+                    mappedBase._inputModel.DiscriminatorProperty is null &&
+                    mappedBase._inputModel.DiscriminatorValue is null &&
+                    mappedBase._inputModel.DerivedModels.Count == 0 &&
+                    mappedBase._inputModel.DiscriminatedSubtypes.Count == 0 &&
                     (!DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public) ||
                         IsPublicFrameworkType(mappedBase.SystemType.FrameworkType))
                 :
@@ -432,6 +436,19 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private bool CanUseMappedBase(SystemObjectModelProvider mappedBase)
         {
+            var mappedByWireName = mappedBase._inputModel.Properties
+                .GroupBy(property => property.SerializedName ?? property.Name, StringComparer.Ordinal)
+                .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
+            var mappedByClrName = mappedBase._inputModel.Properties
+                .GroupBy(GetInputPropertyClrName, StringComparer.Ordinal)
+                .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
+
+            if (!_inputModel.Properties.Where(property => !property.IsHttpMetadata).All(property =>
+                IsMappedPropertyCompatible(property, mappedByWireName, mappedByClrName, requireMatch: false)))
+            {
+                return false;
+            }
+
             var currentBase = _inputModel.BaseModel;
             if (currentBase is null)
             {
@@ -439,25 +456,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             var currentBaseProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(currentBase);
-            if (currentBaseProvider?.CustomCodeView is not null ||
+            if (currentBaseProvider is SystemObjectModelProvider ||
+                currentBaseProvider?.CustomCodeView is not null ||
                 currentBaseProvider?.BaseType is not null ||
                 currentBase.External is not null ||
                 currentBase.BaseModel is not null ||
                 currentBase.DiscriminatorProperty is not null ||
-                currentBase.DiscriminatorValue is not null)
-            {
-                return false;
-            }
-
-            var mappedProperties = mappedBase._inputModel.Properties
-                .GroupBy(property => property.SerializedName ?? property.Name, StringComparer.Ordinal)
-                .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
-            if (!currentBase.Properties.All(property =>
-                    mappedProperties.TryGetValue(property.SerializedName ?? property.Name, out var mappedProperty) &&
-                    AreMappedPropertyShapesCompatible(property, mappedProperty)) ||
-                !_inputModel.Properties.All(property =>
-                    !mappedProperties.TryGetValue(property.SerializedName ?? property.Name, out var mappedProperty) ||
-                    AreMappedPropertyShapesCompatible(property, mappedProperty)))
+                currentBase.DiscriminatorValue is not null ||
+                !currentBase.Properties.All(property =>
+                    IsMappedPropertyCompatible(property, mappedByWireName, mappedByClrName, requireMatch: true)))
             {
                 return false;
             }
@@ -470,6 +477,31 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return mappedBase._inputModel.AdditionalProperties is { } mappedAdditionalProperties &&
                 AreInputTypesStructurallyEqual(currentBase.AdditionalProperties, mappedAdditionalProperties);
         }
+
+        private static bool IsMappedPropertyCompatible(
+            InputModelProperty property,
+            IReadOnlyDictionary<string, InputModelProperty> mappedByWireName,
+            IReadOnlyDictionary<string, InputModelProperty> mappedByClrName,
+            bool requireMatch)
+        {
+            var wireName = property.SerializedName ?? property.Name;
+            var clrName = GetInputPropertyClrName(property);
+            var hasWireMatch = mappedByWireName.TryGetValue(wireName, out var wireMatch);
+            var hasClrMatch = mappedByClrName.TryGetValue(clrName, out var clrMatch);
+            if (!hasWireMatch && !hasClrMatch)
+            {
+                return !requireMatch;
+            }
+
+            return hasWireMatch && hasClrMatch &&
+                ReferenceEquals(wireMatch, clrMatch) &&
+                AreMappedPropertyShapesCompatible(property, wireMatch!);
+        }
+
+        private static string GetInputPropertyClrName(InputModelProperty property)
+            => property.IsExactName
+                ? property.Name
+                : property.Name.ToIdentifierName().NormalizeCSharpAcronyms(property.Type.IsDateTimeInputType());
 
         private static bool AreMappedPropertyShapesCompatible(InputModelProperty current, InputModelProperty mapped)
             => current.IsRequired == mapped.IsRequired &&
@@ -511,12 +543,20 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (current is InputModelType || mapped is InputModelType)
             {
                 return current is InputModelType currentModel && mapped is InputModelType mappedModel &&
-                    currentModel.CrossLanguageDefinitionId == mappedModel.CrossLanguageDefinitionId;
+                    (!string.IsNullOrEmpty(currentModel.CrossLanguageDefinitionId) &&
+                        currentModel.CrossLanguageDefinitionId == mappedModel.CrossLanguageDefinitionId ||
+                    string.IsNullOrEmpty(currentModel.CrossLanguageDefinitionId) &&
+                        string.IsNullOrEmpty(mappedModel.CrossLanguageDefinitionId) &&
+                        currentModel.Namespace == mappedModel.Namespace && currentModel.Name == mappedModel.Name);
             }
             if (current is InputEnumType || mapped is InputEnumType)
             {
                 return current is InputEnumType currentEnum && mapped is InputEnumType mappedEnum &&
-                    currentEnum.CrossLanguageDefinitionId == mappedEnum.CrossLanguageDefinitionId;
+                    (!string.IsNullOrEmpty(currentEnum.CrossLanguageDefinitionId) &&
+                        currentEnum.CrossLanguageDefinitionId == mappedEnum.CrossLanguageDefinitionId ||
+                    string.IsNullOrEmpty(currentEnum.CrossLanguageDefinitionId) &&
+                        string.IsNullOrEmpty(mappedEnum.CrossLanguageDefinitionId) &&
+                        currentEnum.Namespace == mappedEnum.Namespace && currentEnum.Name == mappedEnum.Name);
             }
             return false;
         }
