@@ -440,7 +440,7 @@ namespace SampleTypeSpec
 
         /// <summary>
         /// Base animal with discriminator
-        /// Please note this is the abstract base class. The derived classes available for instantiation are: <see cref="SampleTypeSpec.Pet"/> and <see cref="SampleTypeSpec.Dog"/>.
+        /// Please note this is the abstract base class. The derived classes available for instantiation are: <see cref="SampleTypeSpec.Dog"/> and <see cref="SampleTypeSpec.Pet"/>.
         /// </summary>
         /// <param name="kind"> The kind of animal. </param>
         /// <param name="name"> Name of the animal. </param>

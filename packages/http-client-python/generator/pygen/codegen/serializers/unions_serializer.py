@@ -23,6 +23,11 @@ class UnionsSerializer(BaseSerializer):
         if self.code_model.named_unions:
             file_import.add_submodule_import(
                 "typing",
+                "TypeAlias",
+                ImportType.STDLIB,
+            )
+            file_import.add_submodule_import(
+                "typing",
                 "Union",
                 ImportType.STDLIB,
             )
