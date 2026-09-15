@@ -2,6 +2,7 @@ import { mutate } from "../utils/misc.js";
 import { compilerAssert } from "./diagnostics.js";
 import { isCompilerFeatureEnabled } from "./features.js";
 import { getLocationContext } from "./helpers/location-context.js";
+import { createDiagnostic } from "./messages.js";
 import { visitChildren } from "./parser.js";
 import type { Program } from "./program.js";
 import type {
@@ -637,6 +638,12 @@ export function createBinder(program: Program): Binder {
     ) {
       return;
     }
+    if (
+      flags & SymbolFlags.Interface &&
+      mergePartialInterfaceDeclarations(node as InterfaceStatementNode, scope)
+    ) {
+      return;
+    }
     const key = name ?? node.id.sv;
     const symbol = createSymbol(node, key, flags, scope.symbol);
     mutate(node).symbol = symbol;
@@ -653,6 +660,12 @@ export function createBinder(program: Program): Binder {
     if (
       flags & SymbolFlags.Namespace &&
       mergeNamespaceDeclarations(node as NamespaceStatementNode, effectiveScope)
+    ) {
+      return;
+    }
+    if (
+      flags & SymbolFlags.Interface &&
+      mergePartialInterfaceDeclarations(node as InterfaceStatementNode, effectiveScope)
     ) {
       return;
     }
@@ -683,6 +696,48 @@ export function createBinder(program: Program): Binder {
     mutate(node).symbol = symbol;
     mutate(scope.symbol.members!).set(name, symbol);
     return symbol;
+  }
+
+  /**
+   * Merge a `partial interface` declaration into the symbol of a previously bound
+   * declaration of the same name, provided every declaration sharing that name is
+   * marked `partial`. Once merged, the declarations share a single symbol so that
+   * their members (operations) end up in the same symbol table, and the checker can
+   * later combine all of the declarations into a single `Interface` type.
+   *
+   * @returns `true` if the node was merged into an existing declaration (in which case
+   *   the caller should not create a new symbol for it), `false` otherwise.
+   */
+  function mergePartialInterfaceDeclarations(node: InterfaceStatementNode, scope: ScopeNode) {
+    const isPartial = (node.modifierFlags & ModifierFlags.Partial) !== 0;
+    const existingBinding = scope.symbol.exports!.get(node.id.sv);
+    if (!existingBinding || !(existingBinding.flags & SymbolFlags.Interface)) {
+      // No prior declaration with this name: nothing to merge with yet. Even if this
+      // declaration is `partial`, it becomes the first declaration and is bound normally.
+      return false;
+    }
+
+    const existingIsPartial = existingBinding.declarations.every(
+      (decl) => ((decl as InterfaceStatementNode).modifierFlags & ModifierFlags.Partial) !== 0,
+    );
+
+    if (!isPartial || !existingIsPartial) {
+      program.reportDiagnostic(
+        createDiagnostic({
+          code: "partial-interface-mismatch",
+          format: { name: node.id.sv },
+          target: node,
+        }),
+      );
+      // Fall through to normal declaration handling, which will register this as a
+      // duplicate symbol and produce a `duplicate-symbol` diagnostic as well.
+      return false;
+    }
+
+    // we have an existing binding, so just push this node to its declarations
+    mutate(existingBinding.declarations).push(node);
+    mutate(node).symbol = existingBinding;
+    return true;
   }
 
   function mergeNamespaceDeclarations(node: NamespaceStatementNode, scope: ScopeNode) {
