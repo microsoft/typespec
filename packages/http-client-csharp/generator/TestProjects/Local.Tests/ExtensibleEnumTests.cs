@@ -2,9 +2,13 @@
 // Licensed under the MIT License.
 
 using System;
+using System.ClientModel;
+using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
+using Moq;
 using NUnit.Framework;
 using SampleTypeSpec;
 
@@ -12,6 +16,27 @@ namespace TestProjects.Local.Tests
 {
     public class ExtensibleEnumTests
     {
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task EnumResponseDeserialization(bool isAsync)
+        {
+            var content = BinaryData.FromString("Monday");
+            var response = new Mock<PipelineResponse>();
+            response.SetupGet(r => r.Content).Returns(content);
+            var protocolResult = ClientResult.FromResponse(response.Object);
+            var client = new Mock<SampleTypeSpecClient> { CallBase = true };
+            client.Setup(c => c.GetUnknownValue(It.IsAny<RequestOptions>())).Returns(protocolResult);
+            client.Setup(c => c.GetUnknownValueAsync(It.IsAny<RequestOptions>())).ReturnsAsync(protocolResult);
+
+            var result = isAsync
+                ? await client.Object.GetUnknownValueAsync()
+                : client.Object.GetUnknownValue();
+
+            Assert.AreEqual("Monday", result.Value.ToString());
+            Assert.AreSame(response.Object, result.GetRawResponse());
+            Assert.AreSame(content, result.GetRawResponse().Content);
+        }
+
         [TestCase("a", "A", true)]
         [TestCase("A", "A", true)]
         [TestCase("A", "B", false)]
