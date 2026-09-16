@@ -258,6 +258,9 @@ catalogs:
     cross-spawn:
       specifier: ^7.0.6
       version: 7.0.6
+    cspell:
+      specifier: ^10.3.0
+      version: 10.3.0
     debounce:
       specifier: ^3.0.0
       version: 3.0.0
@@ -527,7 +530,7 @@ importers:
         specifier: 'catalog:'
         version: 12.0.0
       cspell:
-        specifier: 10.3.0
+        specifier: 'catalog:'
         version: 10.3.0
       execa:
         specifier: 'catalog:'
