@@ -671,6 +671,64 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task BackCompat_BaseTypeRestorationRejectsPartiallyCompatibleMappedCandidates()
+        {
+            var compatibleMappedInput = InputFactory.Model(
+                "CompatibleMappedInput",
+                properties: [InputFactory.Property("id", InputPrimitiveType.String)]);
+            var incompatibleMappedInput = InputFactory.Model(
+                "IncompatibleMappedInput",
+                properties: [InputFactory.Property("other", InputPrimitiveType.String)]);
+            var currentBase = InputFactory.Model(
+                "CurrentBase",
+                properties: [InputFactory.Property("id", InputPrimitiveType.String)]);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+            var mappedType = new CSharpType(typeof(Exception));
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                createModelCore: input => input == compatibleMappedInput || input == incompatibleMappedInput
+                    ? new SystemObjectModelProvider(mappedType, input)
+                    : new ModelProvider(input),
+                inputModelTypes: [compatibleMappedInput, incompatibleMappedInput, currentBase, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_BaseTypeChangePreservesMappedRootBase)));
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.AreEqual("CurrentBase", provider.BaseType?.Name,
+                "Every ambiguous mapped candidate must expose a compatible contract");
+        }
+
+        [Test]
+        public async Task BackCompat_BaseTypeRestorationRejectsMappedAdditionalPropertiesMismatch()
+        {
+            var mappedInput = InputFactory.Model(
+                "MappedInput",
+                properties: [],
+                additionalProperties: InputPrimitiveType.String);
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+            var mappedType = new CSharpType(typeof(Exception));
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                createModelCore: input => input == mappedInput
+                    ? new SystemObjectModelProvider(mappedType, input)
+                    : new ModelProvider(input),
+                inputModelTypes: [mappedInput, currentBase, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_BaseTypeChangePreservesMappedRootBase)));
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.AreEqual("CurrentBase", provider.BaseType?.Name,
+                "A mapped base must not introduce additional-properties behavior absent from the current base");
+        }
+
+        [Test]
         public async Task BackCompat_BaseTypeRestorationRejectsInvalidMappedBase()
         {
             var previousBase = InputFactory.Model("PreviousBase", properties: []);
@@ -957,12 +1015,14 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             });
 
             _ = providers.Single(p => p.Name == "UnavailableDerived").BaseType;
+            _ = providers.Single(p => p.Name == "UnavailableDerived").BaseType;
             emitterStream.Position = 0;
             using var reader = new StreamReader(emitterStream, Encoding.UTF8, leaveOpen: true);
             var output = await reader.ReadToEndAsync();
             Assert.Multiple(() =>
             {
-                Assert.That(output, Does.Contain(DiagnosticCodes.IncompatibleBackcompatBaseType));
+                Assert.That(output.Split("UnavailableDerived", StringSplitOptions.None).Length - 1, Is.EqualTo(1),
+                    "Repeated null base-type evaluation must not emit duplicate diagnostics for the same model");
                 Assert.That(output, Does.Contain("automatic restoration is limited"));
                 Assert.That(output, Does.Contain("\"severity\":\"warning\""));
             });

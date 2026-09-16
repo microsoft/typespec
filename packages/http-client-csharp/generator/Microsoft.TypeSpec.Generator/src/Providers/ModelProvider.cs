@@ -304,9 +304,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         _inputModel.AdditionalProperties is not null ||
                         CurrentBaseRequiresReconciliation()))
             {
-                CodeModelGenerator.Instance.Emitter.ReportDiagnostic(
-                    DiagnosticCodes.IncompatibleBackcompatBaseType,
-                    $"Could not preserve base type '{previousBase.FullyQualifiedName}' on model '{BuildNamespace()}.{BuildName()}'; automatic restoration is limited to compatible generated or mapped root-model bases.");
+                if (!_hasReportedIncompatibleBackcompatBaseType)
+                {
+                    CodeModelGenerator.Instance.Emitter.ReportDiagnostic(
+                        DiagnosticCodes.IncompatibleBackcompatBaseType,
+                        $"Could not preserve base type '{previousBase.FullyQualifiedName}' on model '{BuildNamespace()}.{BuildName()}'; automatic restoration is limited to compatible generated or mapped root-model bases.");
+                    _hasReportedIncompatibleBackcompatBaseType = true;
+                }
                 return currentBase;
             }
 
@@ -316,6 +320,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 BackCompatibilityChangeCategory.ModelBaseTypePreserved);
             return previousBaseProvider.Type;
         }
+
+        private bool _hasReportedIncompatibleBackcompatBaseType;
 
         private CSharpType? BuildCurrentBaseType()
         {
@@ -444,7 +450,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     .OfType<SystemObjectModelProvider>()
                     .Where(CanUseMappedBase)
                     .ToArray();
-                if (compatibleMappedCandidates.Length > 0 &&
+                if (compatibleMappedCandidates.Length == candidates.Length &&
                     compatibleMappedCandidates.Skip(1).All(candidate =>
                         AreMappedContractsEquivalent(compatibleMappedCandidates[0], candidate)))
                 {
@@ -565,7 +571,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             if (currentBase.AdditionalProperties is null)
             {
-                return true;
+                return mappedBase._inputModel.AdditionalProperties is null;
             }
 
             return mappedBase._inputModel.AdditionalProperties is { } mappedAdditionalProperties &&
