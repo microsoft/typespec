@@ -110,23 +110,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var indexDeclaration = Declare<int>("i", out var indexVar);
             var allIndices = new List<ValueExpression>(parentIndices) { indexVar };
             var jsonPathTemplate = BuildJsonPathForElement(serializedName, parentIndices);
-            ScopedApi<bool> patchIsRemovedCondition;
+            var patchIsRemovedCondition = patchSnippet.IsRemoved(
+                Utf8Snippets.GetBytes(
+                    new FormattableStringExpression(jsonPathTemplate + $"[{{{parentIndices.Count}}}]", allIndices)
+                .As<string>()));
 
             // Handle model types with their own patch property
             if (ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(type, out var provider) &&
                 provider is ScmModelProvider scmModelProvider && scmModelProvider.JsonPatchProperty != null)
             {
-                patchIsRemovedCondition = new IndexerExpression(collection, indexVar)
+                var childIsRemoved = new IndexerExpression(collection, indexVar)
                     .Property(scmModelProvider.JsonPatchProperty.Name)
                     .As<JsonPatch>()
                     .IsRemoved(LiteralU8("$"));
-            }
-            else
-            {
-                patchIsRemovedCondition = patchSnippet.IsRemoved(
-                    Utf8Snippets.GetBytes(
-                        new FormattableStringExpression(jsonPathTemplate + $"[{{{parentIndices.Count}}}]", allIndices)
-                    .As<string>()));
+                if (!type.IsValueType)
+                {
+                    childIsRemoved = new IndexerExpression(collection, indexVar).NotEqual(Null).And(childIsRemoved);
+                }
+                patchIsRemovedCondition = patchIsRemovedCondition.Or(childIsRemoved);
             }
 
             string lengthProperty = isReadOnlySpan || type.IsArray
@@ -335,29 +336,35 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 var patchProperty = ((MemberExpression)property).Property("Patch").As<JsonPatch>();
                 var jsonSerializedName = GetJsonSerializedName(property.WireInfo!);
-                statements.Add(
-                    new IfStatement(localVariable.Invoke("StartsWith", LiteralU8(jsonSerializedName)))
+                var ifStatement = new IfStatement(localVariable.Invoke("StartsWith", LiteralU8(jsonSerializedName)));
+                if (!property.Type.IsValueType)
+                {
+                    ifStatement.Add(new IfStatement(((ValueExpression)property).Equal(Null))
                     {
-                        propagateGet
-                            ? Return(patchProperty.TryGetEncodedValue(
+                        Return(False)
+                    });
+                }
+                ifStatement.Add(
+                    propagateGet
+                        ? Return(patchProperty.TryGetEncodedValue(
+                            IndexerExpression.FromCollection(
+                                Spread(LiteralU8("$")),
+                                Spread(ReadOnlySpanSnippets.Slice(
+                                    localVariable,
+                                    LiteralU8(jsonSerializedName).Property("Length")))),
+                            valueParameter))
+                        : new MethodBodyStatement[]
+                        {
+                            patchProperty.Set(
                                 IndexerExpression.FromCollection(
                                     Spread(LiteralU8("$")),
                                     Spread(ReadOnlySpanSnippets.Slice(
                                         localVariable,
                                         LiteralU8(jsonSerializedName).Property("Length")))),
-                                valueParameter))
-                            : new MethodBodyStatement[]
-                            {
-                                    patchProperty.Set(
-                                    IndexerExpression.FromCollection(
-                                        Spread(LiteralU8("$")),
-                                        Spread(ReadOnlySpanSnippets.Slice(
-                                            localVariable,
-                                            LiteralU8(jsonSerializedName).Property("Length")))),
-                                    valueParameter),
-                                Return(True)
-                            }
-                    });
+                                valueParameter),
+                            Return(True)
+                        });
+                statements.Add(ifStatement);
             }
 
             foreach (var property in allDynamicCollectionProperties)
@@ -406,6 +413,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             while (currentType.IsCollection)
             {
                 bool hasNestedCollection = currentType.ElementType.IsCollection;
+                if (!currentType.IsValueType)
+                {
+                    statements.Add(new IfStatement(accessorChain.Last().Equal(Null))
+                    {
+                        Return(False)
+                    });
+                }
 
                 if (currentType.IsList || currentType.IsArray)
                 {
@@ -479,6 +493,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             var finalAccessor = accessorChain.Last();
+            if (!currentType.IsValueType)
+            {
+                statements.Add(new IfStatement(finalAccessor.Equal(Null))
+                {
+                    Return(False)
+                });
+            }
             var patchProperty = finalAccessor.Property("Patch").As<JsonPatch>();
 
             statements.Add(propagateGet
@@ -578,14 +599,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             string lengthPropertyName = property.Type.IsArray ? "Length" : "Count";
 
             var indexDeclaration = Declare<int>("i", out var indexVar);
+            var item = propertyExpr[indexVar];
+            var isActive = Not(item.Property("Patch").As<JsonPatch>().IsRemoved(LiteralU8("$")));
+            if (!elementType.IsValueType)
+            {
+                isActive = item.Equal(Null).Or(isActive);
+            }
+            var itemPath = Utf8Snippets.GetBytes(new FormattableStringExpression(
+                BuildJsonPathForElement(GetJsonSerializedName(property.WireInfo!), [indexVar]),
+                [indexVar]).As<string>());
+            isActive = Not(_jsonPatchProperty!.As<JsonPatch>().IsRemoved(itemPath)).And(isActive);
             var forStatement = new ForStatement(
                 indexDeclaration.Assign(Literal(0)),
                 indexVar.LessThan(((ValueExpression)property).Property(lengthPropertyName)),
                 indexVar.Increment())
             {
-                new IfStatement(Not(propertyExpr[indexVar].Property("Patch").As<JsonPatch>().IsRemoved(LiteralU8("$"))))
+                new IfStatement(isActive)
                 {
-                    YieldReturn(propertyExpr[indexVar])
+                    YieldReturn(item)
                 }
             };
 

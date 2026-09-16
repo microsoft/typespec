@@ -909,6 +909,40 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.IsTrue(HasMethodBodyStatement(serialization.BuildJsonModelWriteCoreMethod().BodyStatements, encode is null ? "writer.WriteNumberValue(RequiredInt);\n" : "writer.WriteStringValue(RequiredInt.ToString());\n"));
         }
 
+        [TestCase("string")]
+        [TestCase(null)]
+        public void TestBooleanSerialization(string? encode)
+        {
+            MockHelpers.LoadMockGenerator();
+            var input = new InputPrimitiveType(InputPrimitiveTypeKind.Boolean, "boolean", "TypeSpec.boolean", encode);
+            var format = ScmCodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(input);
+            var statement = MrwSerializationTypeDefinition.SerializeJsonValueCore(
+                typeof(bool),
+                new VariableExpression(typeof(bool), "value"),
+                new ScopedApi<Utf8JsonWriter>(new VariableExpression(typeof(Utf8JsonWriter), "writer")),
+                new ScopedApi<ModelReaderWriterOptions>(new VariableExpression(typeof(ModelReaderWriterOptions), "options")),
+                format);
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(encode ?? "default"), statement.ToDisplayString());
+        }
+
+        [TestCase("string")]
+        [TestCase(null)]
+        public void TestBooleanDeserialization(string? encode)
+        {
+            MockHelpers.LoadMockGenerator();
+            var input = new InputPrimitiveType(InputPrimitiveTypeKind.Boolean, "boolean", "TypeSpec.boolean", encode);
+            var format = ScmCodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(input);
+            var expression = MrwSerializationTypeDefinition.DeserializeJsonValueCore(
+                typeof(bool),
+                new ScopedApi<JsonElement>(new VariableExpression(typeof(JsonElement), "foo")),
+                new ScopedApi<BinaryData>(new VariableExpression(typeof(BinaryData), "data")),
+                new ScopedApi<ModelReaderWriterOptions>(new VariableExpression(typeof(ModelReaderWriterOptions), "options")),
+                format);
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(encode ?? "default").TrimEnd(), expression.ToDisplayString());
+        }
+
         [TestCase(typeof(long), SerializationFormat.Int_String, ExpectedResult = "long.Parse(foo.GetString())")]
         [TestCase(typeof(int), SerializationFormat.Int_String, ExpectedResult = "int.Parse(foo.GetString())")]
         [TestCase(typeof(short), SerializationFormat.Int_String, ExpectedResult = "short.Parse(foo.GetString())")]
@@ -1534,8 +1568,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.AreEqual(Helpers.GetExpectedFromFile(format), methodBody);
         }
 
-        [Test]
-        public void TestDeserializationOfNonBase64ByteArrayPropertyUsesGetRawText()
+        [TestCase(typeof(BinaryData))]
+        [TestCase(typeof(byte[]))]
+        [TestCase(typeof(System.IO.Stream))]
+        public void TestDeserializationOfNonBase64PropertyUsesGetUtf8Bytes(Type propertyType)
         {
             var bytesNoEncoding = new InputPrimitiveType(InputPrimitiveTypeKind.Bytes, "bytes", "TypeSpec.bytes");
             var inputModel = InputFactory.Model("TestModel", properties:
@@ -1546,7 +1582,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 createSerializationsCore: (inputType, typeProvider) =>
                     inputType is InputModelType modelType ? [new MrwSerializationTypeDefinition(modelType, (typeProvider as ModelProvider)!)] : [],
                 createCSharpTypeCore: (inputType) => inputType is InputPrimitiveType { Kind: InputPrimitiveTypeKind.Bytes }
-                    ? new CSharpType(typeof(byte[]))
+                    ? new CSharpType(propertyType)
                     : null!,
                 createCSharpTypeCoreFallback: (inputType) => inputType is InputPrimitiveType { Kind: InputPrimitiveTypeKind.Bytes });
 
@@ -1557,10 +1593,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var deserializationMethod = serialization!.BuildDeserializationMethod();
             var methodBody = deserializationMethod!.BodyStatements!.ToDisplayString();
 
-            Assert.IsTrue(methodBody.Contains("GetRawText"),
-                $"byte[] property with no encoding should use GetRawText() fallback. Actual:\n{methodBody}");
-            Assert.IsTrue(methodBody.Contains("ToArray"),
-                $"byte[] property with no encoding should call ToArray(). Actual:\n{methodBody}");
+            Assert.IsTrue(methodBody.Contains("GetUtf8Bytes"),
+                $"Property with no encoding should use GetUtf8Bytes(). Actual:\n{methodBody}");
+            Assert.IsFalse(methodBody.Contains("GetRawText"),
+                $"Property with no encoding should not transcode raw JSON. Actual:\n{methodBody}");
+            if (propertyType == typeof(byte[]))
+            {
+                Assert.IsTrue(methodBody.Contains("ToArray"),
+                    $"byte[] property with no encoding should call ToArray(). Actual:\n{methodBody}");
+            }
+            else if (propertyType == typeof(System.IO.Stream))
+            {
+                Assert.IsTrue(methodBody.Contains("ToStream"),
+                    $"Stream property with no encoding should call ToStream(). Actual:\n{methodBody}");
+            }
             Assert.IsFalse(methodBody.Contains("EnumerateArray"),
                 $"byte[] property should not use array enumeration. Actual:\n{methodBody}");
         }

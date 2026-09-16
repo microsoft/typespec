@@ -67,12 +67,14 @@ import type {
   AliasStatementNode,
   AugmentDecoratorStatementNode,
   DecoratorExpressionNode,
+  EnumDeclarationExpressionNode,
   EnumStatementNode,
   Expression,
   IdentifierNode,
   InterfaceStatementNode,
   IntersectionExpressionNode,
   MemberExpressionNode,
+  ModelDeclarationExpressionNode,
   ModelExpressionNode,
   ModelPropertyNode,
   ModelStatementNode,
@@ -81,6 +83,7 @@ import type {
   NodeLinks,
   OperationStatementNode,
   ResolutionResult,
+  ScalarDeclarationExpressionNode,
   ScalarStatementNode,
   Sym,
   SymbolLinks,
@@ -88,6 +91,7 @@ import type {
   TemplateParameterDeclarationNode,
   TypeReferenceNode,
   TypeSpecScriptNode,
+  UnionDeclarationExpressionNode,
   UnionStatementNode,
   UsingStatementNode,
 } from "./types.js";
@@ -452,16 +456,20 @@ export function createResolver(program: Program): NameResolver {
 
     switch (baseNode.kind) {
       case SyntaxKind.ModelStatement:
+      case SyntaxKind.ModelDeclarationExpression:
       case SyntaxKind.ModelExpression:
       case SyntaxKind.IntersectionExpression:
         return resolveModelMember(baseSym, baseNode, id);
       case SyntaxKind.InterfaceStatement:
         return resolveInterfaceMember(baseSym, id);
       case SyntaxKind.EnumStatement:
+      case SyntaxKind.EnumDeclarationExpression:
         return resolveEnumMember(baseSym, id);
       case SyntaxKind.UnionStatement:
+      case SyntaxKind.UnionDeclarationExpression:
         return resolveUnionVariant(baseSym, id);
       case SyntaxKind.ScalarStatement:
+      case SyntaxKind.ScalarDeclarationExpression:
         return resolveScalarConstructor(baseSym, id);
     }
 
@@ -494,7 +502,11 @@ export function createResolver(program: Program): NameResolver {
 
   function resolveModelMember(
     modelSym: Sym,
-    modelNode: ModelStatementNode | ModelExpressionNode | IntersectionExpressionNode,
+    modelNode:
+      | ModelStatementNode
+      | ModelDeclarationExpressionNode
+      | ModelExpressionNode
+      | IntersectionExpressionNode,
     id: IdentifierNode,
   ): ResolutionResult {
     // step 1: check direct members
@@ -509,7 +521,11 @@ export function createResolver(program: Program): NameResolver {
     // step 2: check extends. Don't look up to extends references if we have
     // unknown members, and resolve any property as unknown if we extend
     // something unknown.
-    const extendsRef = modelNode.kind === SyntaxKind.ModelStatement ? modelNode.extends : undefined;
+    const extendsRef =
+      modelNode.kind === SyntaxKind.ModelStatement ||
+      modelNode.kind === SyntaxKind.ModelDeclarationExpression
+        ? modelNode.extends
+        : undefined;
     if (
       extendsRef &&
       extendsRef.kind === SyntaxKind.TypeReference &&
@@ -727,6 +743,11 @@ export function createResolver(program: Program): NameResolver {
 
   function resolveMetaMemberByName(baseSym: Sym, sv: string): ResolutionResult {
     const baseNode = getSymNode(baseSym);
+
+    if (!baseNode) {
+      return failedResult(ResolutionResultFlags.NotFound);
+    }
+
     const prototype = getMetaTypePrototypeForSymbol(baseSym, baseNode);
 
     if (!prototype || isReflectionMetaProjectionSymbol(baseSym, baseNode)) {
@@ -745,6 +766,9 @@ export function createResolver(program: Program): NameResolver {
   /** Get the available meta-member names for a symbol's meta-type prototype. */
   function getMetaMemberNames(baseSym: Sym): readonly string[] {
     const baseNode = getSymNode(baseSym);
+    if (!baseNode) {
+      return [];
+    }
     const prototype = getMetaTypePrototypeForSymbol(baseSym, baseNode);
     return prototype ? [...prototype.keys()] : [];
   }
@@ -815,6 +839,7 @@ export function createResolver(program: Program): NameResolver {
 
     switch (node.kind) {
       case SyntaxKind.ModelStatement:
+      case SyntaxKind.ModelDeclarationExpression:
       case SyntaxKind.ModelExpression:
         bindModelMembers(node);
         return;
@@ -825,12 +850,15 @@ export function createResolver(program: Program): NameResolver {
         bindInterfaceMembers(node);
         return;
       case SyntaxKind.EnumStatement:
+      case SyntaxKind.EnumDeclarationExpression:
         bindEnumMembers(node);
         return;
       case SyntaxKind.UnionStatement:
+      case SyntaxKind.UnionDeclarationExpression:
         bindUnionMembers(node);
         return;
       case SyntaxKind.ScalarStatement:
+      case SyntaxKind.ScalarDeclarationExpression:
         bindScalarMembers(node);
         return;
     }
@@ -886,14 +914,19 @@ export function createResolver(program: Program): NameResolver {
     links.resolvedSymbol = sym;
     links.resolutionResult = ResolutionResultFlags.Resolved;
   }
-  function bindModelMembers(node: ModelStatementNode | ModelExpressionNode) {
+  function bindModelMembers(
+    node: ModelStatementNode | ModelDeclarationExpressionNode | ModelExpressionNode,
+  ) {
     const modelSym = node.symbol!;
 
     const modelSymLinks = getSymbolLinks(modelSym);
 
     const targetTable = getAugmentedSymbolTable(modelSym.members!);
 
-    const isRef = node.kind === SyntaxKind.ModelStatement ? node.is : undefined;
+    const isRef =
+      node.kind === SyntaxKind.ModelStatement || node.kind === SyntaxKind.ModelDeclarationExpression
+        ? node.is
+        : undefined;
     if (isRef && isRef.kind === SyntaxKind.TypeReference) {
       const { finalSymbol: isSym, resolutionResult: isResult } = resolveTypeReference(isRef);
 
@@ -906,7 +939,10 @@ export function createResolver(program: Program): NameResolver {
     }
 
     // here we just need to check if we're extending something with unknown symbols
-    const extendsRef = node.kind === SyntaxKind.ModelStatement ? node.extends : undefined;
+    const extendsRef =
+      node.kind === SyntaxKind.ModelStatement || node.kind === SyntaxKind.ModelDeclarationExpression
+        ? node.extends
+        : undefined;
     if (extendsRef && extendsRef.kind === SyntaxKind.TypeReference) {
       const { finalSymbol: sym, resolutionResult: result } = resolveTypeReference(extendsRef);
       setUnknownMembers(modelSymLinks, sym, result);
@@ -1008,7 +1044,7 @@ export function createResolver(program: Program): NameResolver {
     }
   }
 
-  function bindEnumMembers(node: EnumStatementNode) {
+  function bindEnumMembers(node: EnumStatementNode | EnumDeclarationExpressionNode) {
     const enumSym = node.symbol!;
     const enumSymLinks = getSymbolLinks(enumSym);
     const targetTable = getAugmentedSymbolTable(enumSym.members!);
@@ -1040,10 +1076,10 @@ export function createResolver(program: Program): NameResolver {
     }
   }
 
-  function bindUnionMembers(node: UnionStatementNode) {
+  function bindUnionMembers(node: UnionStatementNode | UnionDeclarationExpressionNode) {
     // Everything is already bound in binder.ts
   }
-  function bindScalarMembers(node: ScalarStatementNode) {
+  function bindScalarMembers(node: ScalarStatementNode | ScalarDeclarationExpressionNode) {
     const scalarSym = node.symbol!;
     const targetTable = getAugmentedSymbolTable(scalarSym.members!);
     const scalarSymLinks = getSymbolLinks(scalarSym);
@@ -1332,11 +1368,15 @@ export function createResolver(program: Program): NameResolver {
         resolveTypeReference(node);
         break;
       case SyntaxKind.ModelStatement:
+      case SyntaxKind.ModelDeclarationExpression:
       case SyntaxKind.ModelExpression:
       case SyntaxKind.InterfaceStatement:
       case SyntaxKind.EnumStatement:
+      case SyntaxKind.EnumDeclarationExpression:
       case SyntaxKind.ScalarStatement:
+      case SyntaxKind.ScalarDeclarationExpression:
       case SyntaxKind.UnionStatement:
+      case SyntaxKind.UnionDeclarationExpression:
       case SyntaxKind.IntersectionExpression:
         bindMemberContainer(node);
         break;
@@ -1379,8 +1419,9 @@ export function createResolver(program: Program): NameResolver {
     // model properties
     const modelPropertyPrototype: TypePrototype = new Map();
     modelPropertyPrototype.set("type", (baseSym) => {
-      const node = baseSym.node as ModelPropertyNode;
-      return resolveExpression(node.value);
+      const node = getSymNode(baseSym);
+      compilerAssert(node, "Expected model property symbol to have a node");
+      return resolveExpression((node as ModelPropertyNode).value);
     });
     nodeInterfaces.set(SyntaxKind.ModelProperty, modelPropertyPrototype);
 

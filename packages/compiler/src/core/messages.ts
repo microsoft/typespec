@@ -207,6 +207,13 @@ const diagnostics = {
       default: paramMessage`Cannot decorate ${"nodeName"}.`,
     },
   },
+  "templated-declaration-in-expression": {
+    severity: "error",
+    messages: {
+      default:
+        "A declaration used as an expression cannot have template parameters as it cannot be referenced or instantiated.",
+    },
+  },
   "default-required": {
     severity: "error",
     messages: {
@@ -267,6 +274,13 @@ const diagnostics = {
       default: paramMessage`${"feature"} is an experimental feature. It may change in the future or be removed. Use with caution and consider providing feedback on this feature.`,
       functionDeclarations:
         "Function declarations are an experimental feature that may change in the future. Use with caution and consider providing feedback to the TypeSpec team.",
+    },
+  },
+  "declaration-expression-disabled": {
+    severity: "error",
+    messages: {
+      default:
+        "Declaration expressions require the 'declaration-expressions' feature to be enabled. Add 'declaration-expressions' to the 'features' list in your tspconfig.yaml.",
     },
   },
   "union-extends-disabled": {
