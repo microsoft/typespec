@@ -32,6 +32,7 @@ import {
   getAvailabilityMap,
   getVersionDependencies,
   getVersions,
+  hasChangedOptionality,
 } from "./versioning.js";
 
 const relationCacheKey = Symbol.for("TypeSpec.Versioning.NamespaceRelationCache");
@@ -480,7 +481,7 @@ function validateVersionedPropertyNames(program: Program, source: Type) {
 }
 
 function validateMadeOptional(program: Program, target: Type) {
-  if (target.kind === "ModelProperty") {
+  if (target.kind === "ModelProperty" && !hasChangedOptionality(target)) {
     const madeOptionalOn = getMadeOptionalOn(program, target);
     if (!madeOptionalOn) {
       return;
@@ -500,7 +501,7 @@ function validateMadeOptional(program: Program, target: Type) {
 }
 
 function validateMadeRequired(program: Program, target: Type) {
-  if (target.kind === "ModelProperty") {
+  if (target.kind === "ModelProperty" && !hasChangedOptionality(target)) {
     const madeRequiredOn = getMadeRequiredOn(program, target);
     if (!madeRequiredOn) {
       return;
