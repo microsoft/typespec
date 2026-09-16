@@ -1,12 +1,13 @@
 import { code, type Children } from "@alloy-js/core";
 import * as cs from "@alloy-js/csharp";
 import { Attribute } from "@alloy-js/csharp";
-import { isErrorModel, isVoidType } from "@typespec/compiler";
+import { isVoidType, type Operation } from "@typespec/compiler";
 import { useTsp } from "@typespec/emitter-framework";
 import { getDocComments } from "@typespec/emitter-framework/csharp";
 import type { OperationHttpCanonicalization } from "@typespec/http-canonicalization";
 import { AspNetMvc } from "../../utils/csharp-libs.jsx";
 import { getHttpVerbAttribute, getRouteTemplate } from "../../utils/http-helpers.js";
+import { getSuccessReturnType } from "../../utils/return-type-helpers.js";
 import type { RequestModelInfo } from "../request-models.jsx";
 import {
   getNullableValueTypeUnionInnerType,
@@ -18,6 +19,8 @@ import { getSuccessStatusCode } from "./response-analysis.js";
 export interface ControllerActionProps {
   /** The canonicalized HTTP operation to generate an action method for. */
   operation: OperationHttpCanonicalization;
+  /** The operation used to generate the matching business interface method. */
+  businessOperation?: Operation;
   /** The name of the business logic implementation field (e.g., "petStoreImpl"). */
   implFieldName: string;
   /** Request model info if this operation uses a synthetic request model. */
@@ -48,6 +51,7 @@ export function ControllerAction(props: ControllerActionProps): Children {
   // Map all HTTP parameters (path, query, header) to C# method parameters
   const pathParams: ParamInfo[] = [];
   const queryHeaderParams: ParamInfo[] = [];
+  const callArgBySourceName = new Map<string, string>();
   for (const p of props.operation.requestParameters.properties) {
     if (p.property.isContentTypeProperty) continue;
     const isOptional = p.property.sourceType.optional;
@@ -58,6 +62,7 @@ export function ControllerAction(props: ControllerActionProps): Children {
     if (p.kind === "path") {
       const paramName = namePolicy.getName(p.property.sourceType.name, "parameter");
       const attr = getBindingAttribute(p, paramName);
+      callArgBySourceName.set(p.property.sourceType.name, paramName);
       pathParams.push({
         name: paramName,
         type: <TypeExpression type={nullableValueType ?? p.property.sourceType.type} />,
@@ -67,8 +72,10 @@ export function ControllerAction(props: ControllerActionProps): Children {
       });
     } else if (p.kind === "query" || p.kind === "header") {
       const attr = getBindingAttribute(p);
+      const paramName = namePolicy.getName(p.property.sourceType.name, "parameter");
+      callArgBySourceName.set(p.property.sourceType.name, paramName);
       queryHeaderParams.push({
-        name: namePolicy.getName(p.property.sourceType.name, "parameter"),
+        name: paramName,
         type: <TypeExpression type={nullableValueType ?? p.property.sourceType.type} />,
         attributes: attr ? [attr] : undefined,
         optional: isOptional,
@@ -85,6 +92,15 @@ export function ControllerAction(props: ControllerActionProps): Children {
   };
   // Default: path params, then query/header params (sorted by default presence)
   let parameters: ParamInfo[] = [...pathParams, ...queryHeaderParams.sort(sortByDefault)];
+  const getOrderedCallArgs = () =>
+    Array.from(
+      (props.businessOperation ?? props.operation.sourceType).parameters.properties.entries(),
+    )
+      .filter(([_, prop]) => !isVoidType(prop.type))
+      .map(([name, prop]) => ({ arg: callArgBySourceName.get(name), optional: prop.optional }))
+      .filter((item): item is { arg: string; optional: boolean } => item.arg !== undefined)
+      .sort((a, b) => (a.optional === b.optional ? 0 : a.optional ? 1 : -1))
+      .map((item) => item.arg);
 
   // Add body parameter if present (but NOT for GET requests)
   const body = props.operation.requestParameters.body;
@@ -104,10 +120,10 @@ export function ControllerAction(props: ControllerActionProps): Children {
 
   if (isGet) {
     // GET requests suppress body parameters entirely
-    callArgs = parameters.map((p) => p.name).join(", ");
+    callArgs = getOrderedCallArgs().join(", ");
   } else if (isMultipart) {
     // Multipart body: don't add body as parameter — we'll create a MultipartReader in the method body
-    callArgs = [...parameters.map((p) => p.name), "reader"].join(", ");
+    callArgs = [...getOrderedCallArgs(), "reader"].join(", ");
   } else if (isBodyRoot) {
     // @bodyRoot — the whole model is the body, no other HTTP params extracted
     parameters = [
@@ -121,15 +137,13 @@ export function ControllerAction(props: ControllerActionProps): Children {
     // Call args: path params, then body property accesses, then query/header params
     const bodyType = body.bodies[0].type.sourceType;
     if (bodyType.kind === "Model") {
-      const bodyArgs = Array.from(bodyType.properties.values()).map((p) => {
+      for (const p of bodyType.properties.values()) {
         const propName = namePolicy.getName(p.name, "class-property");
-        return `body.${propName}`;
-      });
-      const pathArgNames = pathParams.map((p) => p.name);
-      const queryArgNames = queryHeaderParams.map((p) => p.name);
-      callArgs = [...pathArgNames, ...bodyArgs, ...queryArgNames].join(", ");
+        callArgBySourceName.set(p.name, `body.${propName}`);
+      }
+      callArgs = getOrderedCallArgs().join(", ");
     } else {
-      callArgs = parameters.map((p) => p.name).join(", ");
+      callArgs = getOrderedCallArgs().join(", ");
     }
   } else if (hasExplicitBody) {
     parameters.push({
@@ -137,44 +151,34 @@ export function ControllerAction(props: ControllerActionProps): Children {
       type: <TypeExpression type={body!.bodies[0].type.sourceType} />,
       attributes: [{ name: AspNetMvc.FromBodyAttribute }],
     });
-    callArgs = parameters.map((p) => p.name).join(", ");
+    const sourceProperty = body.bodies[0].property?.sourceType;
+    if (sourceProperty) callArgBySourceName.set(sourceProperty.name, "body");
+    callArgs = sourceProperty
+      ? getOrderedCallArgs().join(", ")
+      : parameters.map((p) => p.name).join(", ");
   } else if (body?.bodyKind === "single" && body.bodies.length > 0) {
     parameters.push({
       name: "body",
       type: <TypeExpression type={body.bodies[0].type.sourceType} />,
       attributes: [{ name: AspNetMvc.FromBodyAttribute }],
     });
-    callArgs = parameters.map((p) => p.name).join(", ");
+    const sourceProperty = body.bodies[0].property?.sourceType;
+    if (sourceProperty) callArgBySourceName.set(sourceProperty.name, "body");
+    callArgs = sourceProperty
+      ? getOrderedCallArgs().join(", ")
+      : parameters.map((p) => p.name).join(", ");
   } else {
-    callArgs = parameters.map((p) => p.name).join(", ");
+    callArgs = getOrderedCallArgs().join(", ");
   }
 
   // Determine the success status code from the response
-  const { statusCode, hasBody } = getSuccessStatusCode(props.operation);
+  const { statusCode, hasBody } = getSuccessStatusCode($.program, props.operation);
 
   // Determine response type for ProducesResponseType attribute
   const returnType = props.operation.sourceType.returnType;
   const responseStatusCode = hasBody ? "OK" : "NoContent";
-  let responseTypeExpr: Children | undefined = undefined;
-
-  if (hasBody) {
-    if (returnType.kind === "Union") {
-      for (const variant of returnType.variants.values()) {
-        const vt = variant.type;
-        if (isVoidType(vt)) continue;
-        if (vt.kind === "Model") {
-          try {
-            if (isErrorModel($.program, vt)) continue;
-          } catch {}
-          if (vt.name?.toLowerCase() === "error") continue;
-        }
-        responseTypeExpr = <TypeExpression type={vt} />;
-        break;
-      }
-    } else if (!isVoidType(returnType)) {
-      responseTypeExpr = <TypeExpression type={returnType} />;
-    }
-  }
+  const successType = hasBody ? getSuccessReturnType($.program, returnType) : undefined;
+  const responseTypeExpr = successType ? <TypeExpression type={successType} /> : undefined;
 
   const attributes: Children[] = [
     <Attribute name={verb} />,
