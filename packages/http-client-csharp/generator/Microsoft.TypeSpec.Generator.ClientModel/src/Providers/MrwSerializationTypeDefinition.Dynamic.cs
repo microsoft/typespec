@@ -815,32 +815,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private static string BuildJsonPathForProperty(string propertySerializedName, bool escapeForCSharpString)
         {
-            var jsonPath = RequiresJsonPathBracketNotation(propertySerializedName)
-                ? BuildJsonPathQuotedProperty(propertySerializedName)
+            var jsonPath = propertySerializedName.Contains('.')
+                ? $"$[\"{propertySerializedName}\"]"
                 : $"$.{propertySerializedName}";
 
-            // FormattableStringExpression writes this text raw into a C# interpolated string, so the literal
-            // portion must be escaped for both C# string syntax and interpolation-hole syntax.
             return escapeForCSharpString
-                ? jsonPath.Replace("\\", "\\\\").Replace("\"", "\\\"").Replace("{", "{{{{").Replace("}", "}}}}")
+                ? jsonPath.Replace("\"", "\\\"")
                 : jsonPath;
-        }
-
-        private static string BuildJsonPathQuotedProperty(string propertySerializedName)
-        {
-            // The JsonPath reader has no escape syntax: a quoted segment ends at the first occurrence of the
-            // chosen delimiter immediately followed by ']'. Pick whichever delimiter doesn't form that sequence
-            // in the property name so a name containing both quote characters (e.g. `a"b'c`) is not truncated.
-            bool doubleQuoteCollides = propertySerializedName.Contains("\"]", StringComparison.Ordinal);
-            bool singleQuoteCollides = propertySerializedName.Contains("']", StringComparison.Ordinal);
-            char quote = doubleQuoteCollides && !singleQuoteCollides ? '\'' : '\"';
-            return $"$[{quote}{propertySerializedName}{quote}]";
-        }
-
-        private static bool RequiresJsonPathBracketNotation(string propertySerializedName)
-        {
-            return propertySerializedName.IndexOfAny(['.', '[', ']', '"', '\'', '\\']) >= 0 ||
-                propertySerializedName.Any(char.IsWhiteSpace);
         }
 
         private static ValueExpression GetDeserializationMethodInvocationForType(
