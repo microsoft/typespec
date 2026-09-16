@@ -68,7 +68,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             var jsonPathTemplate = BuildJsonPathForElement(serializedName, parentIndices);
-            var csharpJsonPathTemplate = BuildJsonPathForElement(serializedName, parentIndices, escapeForCSharpString: true);
             MethodBodyStatement? hasPatchDeclaration = null;
             ValueExpression hasPatch;
             if (parentHasPatch == null)
@@ -86,7 +85,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             ValueExpression jsonPath = parentIndices.Count > 0
-                ? Utf8Snippets.GetBytes(new FormattableStringExpression(csharpJsonPathTemplate, [.. parentIndices]).As<string>())
+                ? Utf8Snippets.GetBytes(new FormattableStringExpression(jsonPathTemplate, [.. parentIndices]).As<string>())
                 : LiteralU8(jsonPathTemplate);
 
             var foreachStatement = new ForEachStatement("item", dictionary, out KeyValuePairExpression keyValuePair);
@@ -117,7 +116,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // Process key-value pair if patch doesn't contain it
             var ifPatchDoesNotContainStatement = new IfStatement(Not(patchContainsNet8Var))
             {
-                CreateDictionaryItemSerialization(keyValuePair, patchContainsNet8Var, itemSuppressPatchLogic: false)
+                CreateDictionaryItemSerialization(keyValuePair, hasPatch, itemSuppressPatchLogic: false)
             };
 
             var innerIfElseProcessorStatement = new IfElsePreprocessorStatement(
@@ -223,7 +222,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             var jsonPathTemplate = BuildJsonPathForElement(serializedName, parentIndices);
-            var csharpJsonPathTemplate = BuildJsonPathForElement(serializedName, parentIndices, escapeForCSharpString: true);
             // The prefix overload includes indexed descendants, unlike an exact-path Contains check.
             // Nested collections under the same serialized property can reuse the parent guard.
             MethodBodyStatement? hasPatchDeclaration = null;
@@ -244,7 +242,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             var patchIsRemovedCondition = hasPatch.As<bool>().And(patchSnippet.IsRemoved(
                 Utf8Snippets.GetBytes(
-                    new FormattableStringExpression(csharpJsonPathTemplate + $"[{{{parentIndices.Count}}}]", allIndices)
+                    new FormattableStringExpression(jsonPathTemplate + $"[{{{parentIndices.Count}}}]", allIndices)
                 .As<string>())));
 
             if (childIsRemovedCondition != null)
@@ -273,7 +271,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             MethodBodyStatement writeToPatchStatement = parentIndices.Count == 0
                 ? patchSnippet.WriteTo(_utf8JsonWriterSnippet, LiteralU8(jsonPathTemplate)).Terminate()
-                : patchSnippet.WriteTo(_utf8JsonWriterSnippet, Utf8Snippets.GetBytes(new FormattableStringExpression(csharpJsonPathTemplate, parentIndices).As<string>())).Terminate();
+                : patchSnippet.WriteTo(_utf8JsonWriterSnippet, Utf8Snippets.GetBytes(new FormattableStringExpression(jsonPathTemplate, parentIndices).As<string>())).Terminate();
             if (parentIndices.Count > 0)
             {
                 writeToPatchStatement = new IfStatement(hasPatch.As<bool>()) { writeToPatchStatement };
@@ -748,7 +746,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 _jsonPatchProperty!.As<JsonPatch>().Contains(LiteralU8("$"), LiteralU8(serializedName)),
                 out var hasPatch);
             var itemPath = Utf8Snippets.GetBytes(new FormattableStringExpression(
-                BuildJsonPathForElement(serializedName, [indexVar], escapeForCSharpString: true),
+                BuildJsonPathForElement(serializedName, [indexVar]),
                 [indexVar]).As<string>());
             isActive = Not(hasPatch).Or(Not(_jsonPatchProperty!.As<JsonPatch>().IsRemoved(itemPath))).And(isActive);
             var forStatement = new ForStatement(
@@ -799,10 +797,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
 #pragma warning restore SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
 
-        private static string BuildJsonPathForElement(string propertySerializedName, List<ValueExpression> indices, bool escapeForCSharpString = false)
+        private static string BuildJsonPathForElement(string propertySerializedName, List<ValueExpression> indices)
         {
             var count = indices.Count;
-            var result = BuildJsonPathForProperty(propertySerializedName, escapeForCSharpString);
+            var result = $"$.{propertySerializedName}";
             for (int i = 0; i < count; i++)
             {
                 result += indices[i] is MemberExpression
@@ -811,17 +809,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return result;
-        }
-
-        private static string BuildJsonPathForProperty(string propertySerializedName, bool escapeForCSharpString)
-        {
-            var jsonPath = propertySerializedName.Contains('.')
-                ? $"$[\"{propertySerializedName}\"]"
-                : $"$.{propertySerializedName}";
-
-            return escapeForCSharpString
-                ? jsonPath.Replace("\"", "\\\"")
-                : jsonPath;
         }
 
         private static ValueExpression GetDeserializationMethodInvocationForType(

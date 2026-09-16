@@ -64,7 +64,7 @@ namespace Sample
                                 continue;
                             }
                             writer.WriteStartObject();
-                            if (patchContains)
+                            if (hasPatch)
                             {
 #if NET8_0_OR_GREATER
                                 global::System.Span<byte> buffer0 = stackalloc byte[256];
@@ -86,7 +86,7 @@ namespace Sample
                                             continue;
                                         }
                                         writer.WriteStartObject();
-                                        if (patchContains0)
+                                        if (hasPatch)
                                         {
 #if NET8_0_OR_GREATER
                                             global::System.Span<byte> buffer1 = stackalloc byte[256];
