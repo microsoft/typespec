@@ -20,33 +20,37 @@ allowBuilds:
   tree-sitter-typescript: false
 
 catalog:
-  "@alloy-js/cli": ^0.24.0
-  "@alloy-js/core": ^0.24.1
-  "@alloy-js/csharp": ^0.24.0
-  "@alloy-js/markdown": ^0.24.0
-  "@alloy-js/msbuild": ^0.24.0
-  "@alloy-js/python": ^0.5.0
-  "@alloy-js/rollup-plugin": ^0.1.2
-  "@alloy-js/typescript": ^0.24.0
+  "@alloy-js/cli": ^0.25.0
+  "@alloy-js/core": ^0.25.0
+  "@alloy-js/csharp": ^0.25.0
+  "@alloy-js/markdown": ^0.25.0
+  "@alloy-js/msbuild": ^0.25.0
+  "@alloy-js/python": ^0.6.0
+  "@alloy-js/rollup-plugin": ^0.2.0
+  "@alloy-js/typescript": ^0.25.0
   "@astrojs/check": ^0.9.10
+  "@astrojs/markdown-remark": ^7.3.0
   "@astrojs/react": ^6.0.4
-  "@astrojs/starlight": ^0.41.8
+  "@astrojs/starlight": ^0.42.0
   "@azure/identity": ^4.13.2
   "@azure/storage-blob": ^12.33.0
-  "@babel/code-frame": ^7.29.0
-  "@babel/core": ^7.29.0
+  "@babel/code-frame": ^8.0.0
+  "@babel/core": ^8.0.1
   "@chronus/chronus": ^1.5.0
   "@chronus/github": ^1.2.0
   "@chronus/github-pr-commenter": ^1.1.1
-  "@docsearch/css": ^4.7.0
-  "@docsearch/js": ^4.7.0
+  "@docsearch/css": ^5.0.5
+  "@docsearch/js": ^5.0.5
   "@expressive-code/core": ^0.44.1
   # Pinned to pre-upgrade versions: newer @fluentui/react-components pulls tabster@8.8.0,
   # whose entry-point change breaks ESM named imports. See https://github.com/microsoft/tabster/issues/532
-  "@fluentui/react-components": 9.74.3
-  "@fluentui/react-icons": 2.0.333
-  "@fluentui/react-list": 9.6.16
-  "@inquirer/prompts": ^8.6.0
+  "@fluentui/react-components": 9.74.7
+  "@fluentui/react-icons": 2.0.339
+  "@fluentui/react-list": 9.6.18
+  "@inquirer/checkbox": ^5.2.2
+  "@inquirer/confirm": ^6.2.0
+  "@inquirer/input": ^5.1.3
+  "@inquirer/select": ^5.2.2
   "@microsoft/api-extractor": ~7.58.1
   "@microsoft/api-extractor-model": ^7.33.11
   "@microsoft/tsdoc": ^0.16.0
@@ -57,8 +61,9 @@ catalog:
   "@playwright/test": ^1.62.1
   "@pinterest/alloy-graphql": ^1.1.1
   "@scalar/json-magic": ^0.13.2
-  "@scalar/openapi-parser": ^0.28.16
+  "@scalar/openapi-parser": ^0.29.1
   "@scalar/openapi-types": ^0.9.5
+  "@scalar/types": ^0.19.0
   "@storybook/react-vite": ^10.5.10
   "@testing-library/dom": ^10.4.1
   "@testing-library/jest-dom": ^7.0.1
@@ -81,10 +86,10 @@ catalog:
   "@types/swagger-ui-express": ^4.1.8
   "@types/which": ^3.0.4
   "@types/yargs": ^17.0.35
-  "@typespec/ts-http-runtime": 0.3.8
+  "@typespec/ts-http-runtime": 0.3.9
   "@vitejs/plugin-react": ^6.1.0
-  "@vitest/coverage-v8": ^4.1.11
-  "@vitest/ui": ^4.1.11
+  "@vitest/coverage-v8": ^5.0.0
+  "@vitest/ui": ^5.0.0
   "@vscode/extension-telemetry": ^1.5.2
   "@vscode/test-electron": ^3.1.0
   "@vscode/test-web": ^0.0.81
@@ -170,14 +175,14 @@ catalog:
   uri-template: ^2.0.0
   vite: ^8.2.2
   vite-plugin-checker: ^0.14.5
-  vite-plugin-dts: 5.0.3
-  vitest: ^4.1.11
+  vite-plugin-dts: 5.1.0
+  vitest: ^5.0.0
   vscode-languageclient: ^10.1.0
   vscode-languageserver: ^10.1.0
   vscode-languageserver-textdocument: ^1.0.13
   vscode-oniguruma: ^2.0.1
   vscode-textmate: ^9.3.2
-  web-tree-sitter: ^0.26.13
+  web-tree-sitter: ^0.27.0
   which: ^7.0.0
   yaml: ^2.9.0
   yargs: ^18.1.0
@@ -187,22 +192,12 @@ ignoredBuiltDependencies:
 
 minimumReleaseAge: 10080 # 7 days
 
-minimumReleaseAgeExclude:
-  - "@alloy-js/*"
-  - "@pinterest/alloy-graphql"
-
-packageExtensions:
-  # The alloy toolchain (@alloy-js/rollup-plugin -> @babel/preset-typescript@7.x) only supports
-  # Babel 7. Because @alloy-js/rollup-plugin doesn't depend on @babel/core directly, pnpm
-  # auto-installs the transitive @babel/core peer as the latest version (8.x), which breaks with
-  # "Requires Babel ^7.0.0-0". Give the plugin an explicit @babel/core dependency so the whole
-  # toolchain resolves against Babel 7.
-  "@alloy-js/rollup-plugin":
-    dependencies:
-      "@babel/core": ^7.29.0
-
 overrides:
+  "@pinterest/alloy-graphql@1.1.1>@alloy-js/core": ^0.25.0
   cross-spawn@>=7.0.0 <7.0.5: ">=7.0.5"
   diff@>=6.0.0 <8.0.3: ">=8.0.3"
   dompurify: ^3.3.3
+  # Pinned because 20.14.x reports Animation.cancel() as an unhandled rejection.
+  # See https://github.com/capricorn86/happy-dom/issues/2412.
+  happy-dom: 20.11.6
   yaml@>=2.0.0 <2.8.3: ">=2.8.3"

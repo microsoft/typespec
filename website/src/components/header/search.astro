@@ -37,7 +37,7 @@ import "@docsearch/css";
     constructor() {
       super();
       window.addEventListener("DOMContentLoaded", async () => {
-        const { default: docsearch } = await import("@docsearch/js");
+        const { default: docsearch } = await import("@docsearch/js/docsearch");
         const options: Parameters<typeof docsearch>[0] = {
           ...algoliaConfig,
           container: "sl-doc-search",

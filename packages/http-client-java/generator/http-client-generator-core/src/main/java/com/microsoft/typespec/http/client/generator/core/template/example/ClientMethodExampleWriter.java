@@ -60,11 +60,11 @@ public class ClientMethodExampleWriter {
                 .filter(methodParameter -> !pageDetails.shouldHideParameter(methodParameter.getClientMethodParameter()))
                 .collect(Collectors.toList());
         }
-        List<ExampleNode> exampleNodes = methodParameters.stream()
-            .map(methodParameter -> parseNodeFromParameter(method, proxyMethodExample, methodParameter))
-            .collect(Collectors.toList());
-
-        String parameterInvocations = exampleNodes.stream().map(nodeVisitor::accept).collect(Collectors.joining(", "));
+        String parameterInvocations = methodParameters.stream()
+            .map(methodParameter -> ExampleWriterUtil.getParameterExpression(
+                methodParameter.getClientMethodParameter().getClientType(),
+                nodeVisitor.accept(parseNodeFromParameter(method, proxyMethodExample, methodParameter))))
+            .collect(Collectors.joining(", "));
 
         // assertion
         this.imports.add("org.junit.jupiter.api.Assertions");

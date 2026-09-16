@@ -13,6 +13,38 @@ namespace TestProjects.Local.Tests
 {
     public class ModelSerializationExtensionsTests
     {
+        [TestCase("{ \"text\": \"こんにちは 🌍\", \"escaped\": \"\\u0061\" }")]
+        [TestCase("[1, true, null, {\"nested\": []}]")]
+        [TestCase("\"hello\"")]
+        [TestCase("1.2300e+10")]
+        [TestCase("null")]
+        public void GetUtf8BytesPreservesRawJsonAfterDocumentIsDisposed(string json)
+        {
+            BinaryData data;
+            using (var document = JsonDocument.Parse($"{{\"value\":{json}}}"))
+            {
+                data = document.RootElement.GetProperty("value").GetUtf8Bytes();
+            }
+
+            CollectionAssert.AreEqual(Encoding.UTF8.GetBytes(json), data.ToArray());
+        }
+
+        [Test]
+        public void GetUtf8BytesRejectsUndefinedElement()
+        {
+            Assert.Throws<InvalidOperationException>(() => default(JsonElement).GetUtf8Bytes());
+        }
+
+        [Test]
+        public void GetUtf8BytesRejectsDisposedDocument()
+        {
+            var document = JsonDocument.Parse("{}");
+            var element = document.RootElement;
+            document.Dispose();
+
+            Assert.Throws<ObjectDisposedException>(() => element.GetUtf8Bytes());
+        }
+
         [TestCase(0, "D")]
         [TestCase(1, "D")]
         [TestCase(2, "D")]

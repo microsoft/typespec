@@ -79,6 +79,7 @@
   "devDependencies": {
     "@alloy-js/cli": "catalog:",
     "@alloy-js/core": "catalog:",
+    "@alloy-js/csharp": "catalog:",
     "@alloy-js/python": "catalog:",
     "@alloy-js/rollup-plugin": "catalog:",
     "@alloy-js/typescript": "catalog:",

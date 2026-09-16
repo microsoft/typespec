@@ -78,7 +78,8 @@ public class ProtocolExampleWriter {
         // parameter values and required invocation on RequestOptions
         List<String> params = new ArrayList<>();
         for (ClientMethodParameter parameter : method.getParameters()) {
-            params.add(parameter.getClientType().defaultValueExpression());
+            params.add(ExampleWriterUtil.getParameterExpression(parameter.getClientType(),
+                parameter.getClientType().defaultValueExpression()));
         }
 
         StringBuilder binaryDataStmt = new StringBuilder();

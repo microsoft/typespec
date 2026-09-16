@@ -31,9 +31,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
         }
 
         [Test]
-        public void Resolve_ReturnsNullAndLogsWhenAssemblyCannotBeLoaded()
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Resolve_ReturnsNullAndLogsWhenAssemblyCannotBeLoaded(bool addToClosure)
         {
-            var packageName = $"Test.InvalidAssembly.{Guid.NewGuid():N}";
+            var packageName = $"Test.InvalidAssembly.P{Guid.NewGuid():N}";
             var assemblyPath = Path.Combine(
                 _tempDirectory!,
                 packageName.ToLowerInvariant(),
@@ -41,33 +43,60 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
                 "lib",
                 "netstandard2.0",
                 $"{packageName}.dll");
-            Directory.CreateDirectory(Path.GetDirectoryName(assemblyPath)!);
-            File.WriteAllText(assemblyPath, "not an assembly");
+            CreateFakeNuGetPackage(packageName);
+            
             var debugMessages = new List<string>();
             var resolver = new NugetAssemblyResolver(_tempDirectory!, debugMessages.Add, _ => { });
-
+            if (addToClosure)
+            {
+                resolver.RegisterPackageClosure(assemblyPath);
+            }
+            // Break the package.
+            File.WriteAllText(assemblyPath, "not an assembly");
             var resolved = resolver.Resolve(new AssemblyName($"{packageName}, Version=1.0.0.0"));
 
             Assert.IsNull(resolved);
-            Assert.That(debugMessages, Has.Some.Contains("Failed to load dependency assembly"));
+            if (addToClosure)
+            {
+                Assert.That(debugMessages, Has.Some.Contains("Failed to load dependency assembly"));
+            }
+            else
+            {
+                Assert.That(debugMessages, Has.Some.Contains("Could not locate dependency assembly"));
+            }
         }
 
         [Test]
-        public void Resolve_ReturnsAssemblyWhenMetadataReferenceRegistrationFails()
+        [TestCase(true)]
+        [TestCase(false)]
+        public void Resolve_ReturnsAssemblyWhenMetadataReferenceRegistrationFails(bool addToClosure)
         {
             var packageName = $"Test.MetadataFailure.P{Guid.NewGuid():N}";
+            var packageVersion = "1.0.0.0";
             CreateFakeNuGetPackage(packageName);
             var debugMessages = new List<string>();
             var resolver = new NugetAssemblyResolver(
                 _tempDirectory!,
                 debugMessages.Add,
                 _ => throw new InvalidOperationException("metadata failure"));
+            if (addToClosure)
+            {
+                var assemblyPath = Path.Combine(_tempDirectory!, packageName.ToLowerInvariant(), "1.0.0", "lib", "netstandard2.0", $"{packageName}.dll");
+                resolver.RegisterPackageClosure(assemblyPath);
+            }
 
-            var resolved = resolver.Resolve(new AssemblyName($"{packageName}, Version=1.0.0.0"));
+            var resolved = resolver.Resolve(new AssemblyName($"{packageName}, Version={packageVersion}"));
 
-            Assert.IsNotNull(resolved);
-            Assert.AreEqual(packageName, resolved!.GetName().Name);
-            Assert.That(debugMessages, Has.Some.Contains("Failed to add metadata reference"));
+            if (addToClosure)
+            {
+                Assert.IsNotNull(resolved);
+                Assert.AreEqual(packageName, resolved!.GetName().Name);
+                Assert.That(debugMessages, Has.Some.Contains("Failed to add metadata reference"));
+            }
+            else
+            {
+                Assert.IsNull(resolved);
+            }
         }
 
         [Test]

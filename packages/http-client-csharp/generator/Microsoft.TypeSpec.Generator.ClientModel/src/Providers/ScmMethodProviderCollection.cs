@@ -7,6 +7,7 @@ using System.ClientModel.Primitives;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.ServerSentEvents;
@@ -295,7 +296,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     Declare("result", This.Invoke(protocolMethod.Signature, [.. GetProtocolMethodArguments(paramDeclarations)], isAsync).ToApi<ClientResponseApi>(), out ClientResponseApi result),
                     .. GetStackVariablesForReturnValueConversion(result, responseBodyType, isAsync, out var resultDeclarations),
                     IsConvertibleFromBinaryData(responseBodyType)
-                        ? Return(result.FromValue(GetResultConversion(result, result.GetRawResponse(), responseBodyType, resultDeclarations), result.GetRawResponse()))
+                        || GetPlainTextParseType(responseBodyType, out _) is not null
+                        ? GetResultConversionStatements(result, result.GetRawResponse(), responseBodyType, resultDeclarations)
                         :
                         new[]
                         {
@@ -634,6 +636,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     out declarations);
             }
 
+            if ((IsConvertibleFromBinaryData(responseBodyType) || GetPlainTextParseType(responseBodyType, out _) is not null)
+                && (responseBodyType.IsFrameworkType || responseBodyType.IsEnum)
+                && !responseBodyType.Equals(typeof(BinaryData))
+                && !HasOnlyPlainTextContentType())
+            {
+                var data = result.GetRawResponse().Content();
+                var statements = new MethodBodyStatement[]
+                {
+                    UsingDeclare("document", data.Parse(), out var document)
+                };
+                declarations["data"] = data;
+                declarations["document"] = document;
+                return statements;
+            }
+
             return [];
         }
 
@@ -764,7 +781,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return new IfElseStatement(
                     item.ValueKind().Equal(JsonValueKindSnippets.Null),
                     AddElement(dictKey, Null, value),
-                    AddElement(dictKey, BinaryDataSnippets.FromString(item.GetRawText()), value));
+                    AddElement(dictKey, item.GetUtf8Bytes(), value));
             }
             else
             {
@@ -837,6 +854,47 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return scopedApi.Add(element);
         }
 
+        private MethodBodyStatement[] GetResultConversionStatements(ClientResponseApi result, HttpResponseApi response, CSharpType responseBodyType, Dictionary<string, ValueExpression> declarations)
+        {
+            var plainTextParseType = GetPlainTextParseType(responseBodyType, out var enumType);
+            if (!responseBodyType.Equals(typeof(string)) && plainTextParseType is not null && HasOnlyPlainTextContentType())
+            {
+                return
+                [
+                    Declare("value", responseBodyType, GetPlainTextValueConversion(responseBodyType, plainTextParseType, enumType, response.Content().InvokeToString()), out var value),
+                    Return(result.FromValue(value, response))
+                ];
+            }
+
+            var isSpecialCaseType = responseBodyType.Equals(typeof(BinaryData))
+                || responseBodyType.IsCollection
+                || (responseBodyType.Equals(typeof(string)) && HasOnlyPlainTextContentType());
+
+            if (!isSpecialCaseType && (responseBodyType.IsFrameworkType || responseBodyType.IsEnum))
+            {
+                var element = declarations["document"].As<JsonDocument>().RootElement();
+                var deserializedValue = ScmCodeModelGenerator.Instance.TypeFactory.DeserializeJsonValue(
+                    responseBodyType.WithNullable(false),
+                    element,
+                    declarations["data"].As<BinaryData>(),
+                    ScmCodeModelGenerator.Instance.ModelSerializationExtensionsDefinition.WireOptionsField.As<ModelReaderWriterOptions>(),
+                    responseBodyType.Equals(typeof(TimeSpan)) || responseBodyType.Equals(typeof(TimeSpan?))
+                        ? SerializationFormat.Duration_Constant
+                        : SerializationFormat.Default);
+                var valueExpression = responseBodyType.IsNullable
+                    ? new TernaryConditionalExpression(element.ValueKindEqualsNull(), Null.CastTo(responseBodyType), deserializedValue)
+                    : deserializedValue;
+
+                return
+                [
+                    Declare("value", responseBodyType, valueExpression, out var value),
+                    Return(result.FromValue(value, response))
+                ];
+            }
+
+            return [Return(result.FromValue(GetResultConversion(result, response, responseBodyType, declarations), response))];
+        }
+
         private ValueExpression GetResultConversion(ClientResponseApi result, HttpResponseApi response, CSharpType responseBodyType, Dictionary<string, ValueExpression> declarations)
         {
             if (responseBodyType.Equals(typeof(BinaryData)))
@@ -855,19 +913,157 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 return declarations["value"].CastTo(new CSharpType(responseBodyType.OutputType.FrameworkType, responseBodyType.Arguments[0], responseBodyType.Arguments[1]));
             }
-            if (responseBodyType.Equals(typeof(string)) && ServiceMethod.Operation.Responses.Any(r => r.IsErrorResponse is false && r.ContentTypes.Contains("text/plain")))
+            if (responseBodyType.Equals(typeof(string)) && HasOnlyPlainTextContentType())
             {
                 return response.Content().InvokeToString();
             }
-            if (responseBodyType.IsFrameworkType)
-            {
-                return response.Content().ToObjectFromJson(responseBodyType);
-            }
-            if (responseBodyType.IsEnum)
-            {
-                return responseBodyType.ToEnum(response.Content().ToObjectFromJson(responseBodyType.UnderlyingEnumType));
-            }
             return result.CastTo(responseBodyType);
+        }
+
+        private ValueExpression GetPlainTextValueConversion(CSharpType responseBodyType, Type parseType, CSharpType? enumType, ValueExpression content)
+        {
+            var invariantCulture = new MemberExpression(typeof(CultureInfo), nameof(CultureInfo.InvariantCulture));
+            var deserializedValue = parseType switch
+            {
+                Type t when t == typeof(string) => content,
+                Type t when t == typeof(bool) => Static<bool>().Invoke(nameof(bool.Parse), content).As<bool>(),
+                Type t when t == typeof(Guid) => Static<Guid>().Invoke(nameof(Guid.Parse), content).As<Guid>(),
+                Type t when t == typeof(Uri) => New.Instance<Uri>(content, FrameworkEnumValue(UriKind.RelativeOrAbsolute)),
+                Type t when t == typeof(TimeSpan) => GetPlainTextTimeSpanConversion(content, invariantCulture),
+                Type t when t == typeof(DateTimeOffset) => content.As<string>().ParseDateTimeOffset(Literal(GetResponseSerializationFormat().ToFormatSpecifier())),
+                // The remaining supported types are numeric and all expose a static Parse(string, IFormatProvider) method.
+                _ => Static(parseType).Invoke(nameof(int.Parse), [content, invariantCulture]).As(parseType)
+            };
+
+            if (enumType is not null)
+            {
+                deserializedValue = enumType.ToEnum(deserializedValue);
+            }
+
+            return responseBodyType.IsNullable
+                ? new TernaryConditionalExpression(content.As<string>().Trim().Equal(Literal("null")), Null.CastTo(responseBodyType), deserializedValue)
+                : deserializedValue;
+        }
+
+        /// <summary>
+        /// Builds the raw-text conversion for a <see cref="TimeSpan"/> response, honoring the response body's wire
+        /// encoding. Numeric duration encodings (seconds/milliseconds) parse the content as a number and construct
+        /// the <see cref="TimeSpan"/> from it, matching <see cref="MrwSerializationTypeDefinition"/>'s JSON handling;
+        /// all other encodings (ISO 8601, constant, plain time) parse the content directly using the corresponding
+        /// format specifier.
+        /// </summary>
+        private ValueExpression GetPlainTextTimeSpanConversion(ValueExpression content, ValueExpression invariantCulture)
+        {
+            var format = GetResponseSerializationFormat();
+            switch (format)
+            {
+                case SerializationFormat.Duration_Seconds:
+                    return TimeSpanSnippets.FromSeconds(ParseNumeric<int>(content, invariantCulture));
+                case SerializationFormat.Duration_Seconds_Int64:
+                    return TimeSpanSnippets.FromSeconds(ParseNumeric<long>(content, invariantCulture));
+                case SerializationFormat.Duration_Seconds_Float:
+                case SerializationFormat.Duration_Seconds_Double:
+                    // Float and Double wire encodings are intentionally collapsed to a single double.Parse,
+                    // matching MrwSerializationTypeDefinition's JSON path, which uses GetDouble() for both.
+                    return TimeSpanSnippets.FromSeconds(ParseNumeric<double>(content, invariantCulture));
+                case SerializationFormat.Duration_Milliseconds:
+                    return TimeSpanSnippets.FromMilliseconds(ParseNumeric<int>(content, invariantCulture));
+                case SerializationFormat.Duration_Milliseconds_Int64:
+                    return TimeSpanSnippets.FromMilliseconds(ParseNumeric<long>(content, invariantCulture));
+                case SerializationFormat.Duration_Milliseconds_Float:
+                case SerializationFormat.Duration_Milliseconds_Double:
+                    // See the Duration_Seconds_Float/Double comment above.
+                    return TimeSpanSnippets.FromMilliseconds(ParseNumeric<double>(content, invariantCulture));
+            }
+
+            var formatSpecifier = format.ToFormatSpecifier();
+            if (formatSpecifier is null)
+            {
+                ScmCodeModelGenerator.Instance.Emitter.ReportDiagnostic(
+                    DiagnosticCodes.UnsupportedSerialization,
+                    $"Unsupported duration serialization format: {format}. Falling back to constant duration format.",
+                    ServiceMethod.Operation.CrossLanguageDefinitionId);
+                formatSpecifier = SerializationFormat.Duration_Constant.ToFormatSpecifier()!;
+            }
+
+            // ISO 8601 ("P"), constant ("c") and plain time ("T") encodings all parse the content directly.
+            return content.As<string>().ParseTimeSpan(Literal(formatSpecifier));
+        }
+
+        /// <summary>
+        /// Builds a <c>T.Parse(content, invariantCulture)</c> invocation for the given numeric <typeparamref name="T"/>.
+        /// </summary>
+        private static ScopedApi<T> ParseNumeric<T>(ValueExpression content, ValueExpression invariantCulture)
+            where T : struct
+        {
+            // Static members on a generic type parameter cannot be referenced by nameof.
+            return Static<T>().Invoke("Parse", [content, invariantCulture]).As<T>();
+        }
+
+        /// <summary>
+        /// Gets the framework type that a raw text response body is parsed into, or <c>null</c> when the response body
+        /// type isn't a primitive or enum that can be parsed from raw text. Types such as <see cref="BinaryData"/>,
+        /// collections and generated models keep their existing conversion.
+        /// </summary>
+        private static Type? GetPlainTextParseType(CSharpType responseBodyType, out CSharpType? enumType)
+        {
+            enumType = null;
+            var typeToParse = responseBodyType.WithNullable(false);
+            if (typeToParse is { IsEnum: true, UnderlyingEnumType: { } underlyingEnumType })
+            {
+                enumType = typeToParse;
+                typeToParse = underlyingEnumType;
+            }
+
+            if (!typeToParse.IsFrameworkType)
+            {
+                return null;
+            }
+
+            var frameworkType = typeToParse.FrameworkType;
+            return frameworkType switch
+            {
+                Type t when t == typeof(string)
+                    || t == typeof(bool)
+                    || t == typeof(Guid)
+                    || t == typeof(Uri)
+                    || t == typeof(TimeSpan)
+                    || t == typeof(DateTimeOffset)
+                    || t == typeof(byte)
+                    || t == typeof(sbyte)
+                    || t == typeof(short)
+                    || t == typeof(ushort)
+                    || t == typeof(int)
+                    || t == typeof(uint)
+                    || t == typeof(long)
+                    || t == typeof(ulong)
+                    || t == typeof(float)
+                    || t == typeof(double)
+                    || t == typeof(decimal) => frameworkType,
+                _ => null
+            };
+        }
+
+        private bool HasOnlyPlainTextContentType()
+        {
+            var contentTypes = ServiceMethod.Operation.Responses
+                .Where(r => r.IsErrorResponse is false)
+                .SelectMany(r => r.ContentTypes);
+            return contentTypes.Any() && contentTypes.All(IsPlainTextContentType);
+        }
+
+        private static bool IsPlainTextContentType(string contentType)
+        {
+            return contentType.Split(';')[0].Trim().Equals("text/plain", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private SerializationFormat GetResponseSerializationFormat()
+        {
+            var responseBodyType = ServiceMethod.Operation.Responses
+                .FirstOrDefault(r => r.IsErrorResponse is false)?.BodyType;
+            return responseBodyType is null
+                ? SerializationFormat.Default
+                : ScmCodeModelGenerator.Instance.TypeFactory.GetSerializationFormat(responseBodyType);
         }
 
         private static bool ShouldBuildStackVarForFrameworkType(CSharpType type)
