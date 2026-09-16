@@ -135,7 +135,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     AreInputTypesStructurallyEqual(left.InputModel.AdditionalProperties, rightAdditionalProperties);
         }
 
-        private static bool HasCompatibleLastContractProperties(ModelProvider candidate)
+        private bool HasCompatibleLastContractProperties(ModelProvider candidate)
         {
             if (candidate.LastContractView is not { } lastContract)
             {
@@ -153,10 +153,22 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     currentProperty.Type.Equals(previousProperty.Type, ignoreNullable: true) &&
                     currentProperty.Body.HasSetter == previousProperty.Body.HasSetter) &&
                 !currentProperties.Values.Any(property =>
-                    !previousProperties.ContainsKey(property.Name) &&
-                    property.WireInfo is { IsRequired: true, IsReadOnly: false } &&
-                    !property.Type.IsLiteral);
+                    IsRequiredInitializationProperty(property) &&
+                    (!previousProperties.ContainsKey(property.Name) ||
+                        !LastContractConstructorHasParameter(property)));
         }
+
+        private static bool IsRequiredInitializationProperty(PropertyProvider property)
+            => property.WireInfo is { IsRequired: true, IsReadOnly: false } &&
+                !property.Type.IsLiteral;
+
+        private bool LastContractConstructorHasParameter(PropertyProvider property)
+            => _model.LastContractView?.Constructors.Any(constructor =>
+                MethodSignatureHelper.IsPublicApi(constructor.Signature.Modifiers) &&
+                constructor.Signature.Parameters.Any(parameter =>
+                    parameter.Name == property.AsParameter.Name &&
+                    parameter.Type.Equals(property.Type, ignoreNullable: true) &&
+                    parameter.DefaultValue is null)) == true;
 
         private static bool IsMappedPropertyCompatible(
             InputModelProperty property,
@@ -230,6 +242,45 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     currentPrimitive.Kind == mappedPrimitive.Kind &&
                     currentPrimitive.Encode == mappedPrimitive.Encode;
             }
+            if (current is InputDateTimeType || mapped is InputDateTimeType)
+            {
+                return current is InputDateTimeType currentDateTime && mapped is InputDateTimeType mappedDateTime &&
+                    currentDateTime.CrossLanguageDefinitionId == mappedDateTime.CrossLanguageDefinitionId &&
+                    currentDateTime.Encode == mappedDateTime.Encode &&
+                    AreInputTypesStructurallyEqual(currentDateTime.WireType, mappedDateTime.WireType) &&
+                    AreOptionalInputTypesStructurallyEqual(currentDateTime.BaseType, mappedDateTime.BaseType);
+            }
+            if (current is InputDurationType || mapped is InputDurationType)
+            {
+                return current is InputDurationType currentDuration && mapped is InputDurationType mappedDuration &&
+                    currentDuration.CrossLanguageDefinitionId == mappedDuration.CrossLanguageDefinitionId &&
+                    currentDuration.Encode == mappedDuration.Encode &&
+                    AreInputTypesStructurallyEqual(currentDuration.WireType, mappedDuration.WireType) &&
+                    AreOptionalInputTypesStructurallyEqual(currentDuration.BaseType, mappedDuration.BaseType);
+            }
+            if (current is InputLiteralType || mapped is InputLiteralType)
+            {
+                return current is InputLiteralType currentLiteral && mapped is InputLiteralType mappedLiteral &&
+                    Equals(currentLiteral.Value, mappedLiteral.Value) &&
+                    AreInputTypesStructurallyEqual(currentLiteral.ValueType, mappedLiteral.ValueType);
+            }
+            if (current is InputEnumTypeValue || mapped is InputEnumTypeValue)
+            {
+                return current is InputEnumTypeValue currentEnumValue && mapped is InputEnumTypeValue mappedEnumValue &&
+                    Equals(currentEnumValue.Value, mappedEnumValue.Value) &&
+                    AreInputTypesStructurallyEqual(currentEnumValue.ValueType, mappedEnumValue.ValueType) &&
+                    AreInputTypesStructurallyEqual(currentEnumValue.EnumType, mappedEnumValue.EnumType);
+            }
+            if (current is InputStreamingType || mapped is InputStreamingType)
+            {
+                return current is InputStreamingType currentStreaming && mapped is InputStreamingType mappedStreaming &&
+                    currentStreaming.CrossLanguageDefinitionId == mappedStreaming.CrossLanguageDefinitionId &&
+                    currentStreaming.StreamKind == mappedStreaming.StreamKind &&
+                    currentStreaming.ContentTypes.SequenceEqual(mappedStreaming.ContentTypes) &&
+                    currentStreaming.TerminalEventType == mappedStreaming.TerminalEventType &&
+                    currentStreaming.TerminalEventValue == mappedStreaming.TerminalEventValue &&
+                    AreInputTypesStructurallyEqual(currentStreaming.ValueType, mappedStreaming.ValueType);
+            }
             if (current is InputModelType || mapped is InputModelType)
             {
                 return current is InputModelType currentModel && mapped is InputModelType mappedModel &&
@@ -253,6 +304,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return false;
         }
 
+        private static bool AreOptionalInputTypesStructurallyEqual(InputType? current, InputType? mapped)
+            => current is null
+                ? mapped is null
+                : mapped is not null && AreInputTypesStructurallyEqual(current, mapped);
+
         private static bool IsPublicFrameworkType(Type type)
         {
             for (var current = type; current is not null; current = current.DeclaringType)
@@ -274,7 +330,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             var currentBaseProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(currentBase);
-            return currentBaseProvider?.CustomCodeView is not null ||
+            return currentBaseProvider is SystemObjectModelProvider ||
+                currentBaseProvider?.CustomCodeView is not null ||
                 currentBaseProvider?.BaseType is not null ||
                 currentBase.External is not null ||
                 currentBase.BaseModel is not null ||

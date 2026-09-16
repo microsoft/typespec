@@ -606,6 +606,84 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             });
         }
 
+        [TestCase("dateTime")]
+        [TestCase("duration")]
+        [TestCase("literal")]
+        [TestCase("streaming")]
+        public async Task BackCompat_BaseTypeRestorationSupportsMappedLeafPropertyShape(string inputTypeKind)
+        {
+            InputType CreatePropertyType() => inputTypeKind switch
+            {
+                "dateTime" => new InputDateTimeType(
+                    DateTimeKnownEncoding.Rfc3339,
+                    "utcDateTime",
+                    "TypeSpec.utcDateTime",
+                    InputPrimitiveType.String),
+                "duration" => new InputDurationType(
+                    DurationKnownEncoding.Iso8601,
+                    "duration",
+                    "TypeSpec.duration",
+                    InputPrimitiveType.String,
+                    null),
+                "literal" => InputFactory.Literal.String("fixed"),
+                "streaming" => new InputStreamingType(
+                    "jsonLines",
+                    "Sample.jsonLines",
+                    InputPrimitiveType.String,
+                    ["application/jsonl"]),
+                _ => throw new InvalidOperationException($"Unsupported input type kind '{inputTypeKind}'.")
+            };
+            var previousBase = InputFactory.Model(
+                "PreviousBase",
+                properties: [InputFactory.Property("value", CreatePropertyType())]);
+            var currentBase = InputFactory.Model(
+                "CurrentBase",
+                properties: [InputFactory.Property("value", CreatePropertyType())]);
+            var derivedModel = InputFactory.Model(
+                "DerivedModel",
+                properties: [InputFactory.Property("value", CreatePropertyType())],
+                baseModel: currentBase);
+            var mappedType = new CSharpType(typeof(Exception));
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                createModelCore: input => input == previousBase
+                    ? new SystemObjectModelProvider(mappedType, input)
+                    : new ModelProvider(input),
+                inputModelTypes: [previousBase, currentBase, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_BaseTypeChangePreservesMappedRootBase)));
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.AreEqual(nameof(Exception), provider.BaseType?.Name);
+        }
+
+        [Test]
+        public async Task BackCompat_BaseTypeRestorationKeepsMappedCurrentBaseAuthoritative()
+        {
+            var previousBase = InputFactory.Model("PreviousBase", properties: []);
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+            var mappedType = new CSharpType(typeof(Exception));
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                createModelCore: input => input == currentBase
+                    ? new SystemObjectModelProvider(mappedType, input)
+                    : new ModelProvider(input),
+                inputModelTypes: [previousBase, currentBase, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_BaseTypeChangePreservesGeneratedRootBase)));
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.AreEqual(nameof(Exception), provider.BaseType?.Name,
+                "A mapped current base remains authoritative even when its input contract is empty");
+        }
+
         [Test]
         public async Task BackCompat_BaseTypeRestorationSkipsConstructedGenericBase()
         {
@@ -697,7 +775,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
-        public async Task BackCompat_BaseTypeRestorationRejectsPartiallyCompatibleMappedCandidates()
+        public async Task BackCompat_BaseTypeRestorationSelectsSoleCompatibleMappedCandidate()
         {
             var compatibleMappedInput = InputFactory.Model(
                 "CompatibleMappedInput",
@@ -723,8 +801,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 .OfType<ModelProvider>()
                 .Single(model => model.Name == "DerivedModel");
 
-            Assert.AreEqual("CurrentBase", provider.BaseType?.Name,
-                "Every ambiguous mapped candidate must expose a compatible contract");
+            Assert.AreEqual(nameof(Exception), provider.BaseType?.Name,
+                "An incompatible mapping to the same CLR type must not hide the sole compatible contract");
         }
 
         [Test]
@@ -1091,6 +1169,27 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             Assert.AreEqual("CurrentBase", provider.BaseType?.Name,
                 "A generated base with a new required constructor property must not be restored");
+        }
+
+        [Test]
+        public async Task BackCompat_BaseTypeRestorationRejectsGeneratedBaseWithPropertyBecomingRequired()
+        {
+            var previousBase = InputFactory.Model(
+                "PreviousBase",
+                properties: [InputFactory.Property("name", InputPrimitiveType.String, isRequired: true)]);
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [previousBase, currentBase, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.AreEqual("CurrentBase", provider.BaseType?.Name,
+                "A generated base property becoming required must not replace a shipped parameterless constructor");
         }
 
         [Test]

@@ -104,9 +104,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     .OfType<SystemObjectModelProvider>()
                     .Where(_compatibility.CanUseMappedBase)
                     .ToArray();
-                if (compatibleMappedCandidates.Length == candidates.Length &&
-                    compatibleMappedCandidates.Skip(1).All(candidate =>
-                        ModelBaseTypeCompatibility.AreMappedContractsEquivalent(compatibleMappedCandidates[0], candidate)))
+                if (compatibleMappedCandidates.Length == 1 ||
+                    (compatibleMappedCandidates.Length > 1 &&
+                        compatibleMappedCandidates.Skip(1).All(candidate =>
+                            ModelBaseTypeCompatibility.AreMappedContractsEquivalent(compatibleMappedCandidates[0], candidate))))
                 {
                     provider = compatibleMappedCandidates[0];
                     foundAmbiguousMapping = false;
