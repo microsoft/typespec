@@ -819,8 +819,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 ? BuildJsonPathQuotedProperty(propertySerializedName)
                 : $"$.{propertySerializedName}";
 
+            // FormattableStringExpression writes this text raw into a C# interpolated string, so the literal
+            // portion must be escaped for both C# string syntax and interpolation-hole syntax.
             return escapeForCSharpString
-                ? EscapeForCSharpInterpolatedString(jsonPath)
+                ? jsonPath.Replace("\\", "\\\\").Replace("\"", "\\\"").Replace("{", "{{{{").Replace("}", "}}}}")
                 : jsonPath;
         }
 
@@ -839,11 +841,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             return propertySerializedName.IndexOfAny(['.', '[', ']', '"', '\'', '\\']) >= 0 ||
                 propertySerializedName.Any(char.IsWhiteSpace);
-        }
-
-        private static string EscapeForCSharpInterpolatedString(string value)
-        {
-            return value.Replace("\\", "\\\\").Replace("\"", "\\\"").Replace("{", "{{{{").Replace("}", "}}}}");
         }
 
         private static ValueExpression GetDeserializationMethodInvocationForType(
