@@ -993,6 +993,52 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task BackCompat_BaseTypeRestorationAllowsOptionalReferenceNullabilityDifference()
+        {
+            var previousBase = InputFactory.Model(
+                "PreviousBase",
+                properties: [InputFactory.Property("id", InputPrimitiveType.String)]);
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [previousBase, currentBase, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.AreEqual("PreviousBase", provider.BaseType?.Name,
+                "Missing Roslyn top-level nullable metadata must not block an otherwise compatible base");
+        }
+
+        [Test]
+        public async Task BackCompat_BaseTypeRestorationRejectsGeneratedBaseWithNewRequiredProperty()
+        {
+            var previousBase = InputFactory.Model(
+                "PreviousBase",
+                properties:
+                [
+                    InputFactory.Property("name", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.Property("id", InputPrimitiveType.String, isRequired: true)
+                ]);
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [previousBase, currentBase, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.AreEqual("CurrentBase", provider.BaseType?.Name,
+                "A generated base with a new required constructor property must not be restored");
+        }
+
+        [Test]
         public async Task BackCompat_BaseTypeRestorationSkipsUnsupportedCases()
         {
             var previousBase = InputFactory.Model(

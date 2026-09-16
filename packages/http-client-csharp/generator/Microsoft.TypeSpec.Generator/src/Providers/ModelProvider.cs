@@ -527,12 +527,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var currentProperties = candidate.Properties
                 .Where(property => MethodSignatureHelper.IsPublicApi(property.Modifiers))
                 .ToDictionary(property => property.Name, StringComparer.Ordinal);
-            return lastContract.Properties
+            var previousProperties = lastContract.Properties
                 .Where(property => MethodSignatureHelper.IsPublicApi(property.Modifiers))
-                .All(previousProperty =>
+                .ToDictionary(property => property.Name, StringComparer.Ordinal);
+            return previousProperties.Values.All(previousProperty =>
                     currentProperties.TryGetValue(previousProperty.Name, out var currentProperty) &&
-                    currentProperty.Type.Equals(previousProperty.Type) &&
-                    currentProperty.Body.HasSetter == previousProperty.Body.HasSetter);
+                    currentProperty.Type.Equals(previousProperty.Type, ignoreNullable: true) &&
+                    currentProperty.Body.HasSetter == previousProperty.Body.HasSetter) &&
+                !currentProperties.Values.Any(property =>
+                    !previousProperties.ContainsKey(property.Name) &&
+                    property.WireInfo is { IsRequired: true, IsReadOnly: false } &&
+                    !property.Type.IsLiteral);
         }
 
         private bool CanUseMappedBase(SystemObjectModelProvider mappedBase)
