@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
@@ -547,9 +548,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var currentBase = InputFactory.Model("CurrentBase", properties: []);
             var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
 
-            await MockHelpers.LoadMockGeneratorAsync(
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: [derivedModel, currentBase, previousBase],
                 lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            using var emitterStream = new MemoryStream();
+            using var emitter = new Emitter(emitterStream);
+            mockGenerator.Setup(generator => generator.Emitter).Returns(emitter);
 
             var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
                 .OfType<ModelProvider>()
@@ -557,6 +561,19 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             Assert.AreEqual("PreviousBase", provider.BaseType?.Name);
             Assert.AreEqual("PreviousBase", provider.BaseModelProvider?.Name);
+
+            emitter.WriteBufferedMessages();
+            emitterStream.Position = 0;
+            using var reader = new StreamReader(emitterStream, Encoding.UTF8, leaveOpen: true);
+            using var output = JsonDocument.Parse(await reader.ReadToEndAsync());
+            var trace = output.RootElement.GetProperty("params");
+            var message = trace.GetProperty("message").GetString();
+            Assert.Multiple(() =>
+            {
+                Assert.That(trace.GetProperty("level").GetString(), Is.EqualTo("info"));
+                Assert.That(message, Does.Contain("Model Base Type Preserved"));
+                Assert.That(message, Does.Contain("Changed base type of model 'DerivedModel' from 'Sample.Models.CurrentBase' to 'Sample.Models.PreviousBase'"));
+            });
         }
 
         [Test]
