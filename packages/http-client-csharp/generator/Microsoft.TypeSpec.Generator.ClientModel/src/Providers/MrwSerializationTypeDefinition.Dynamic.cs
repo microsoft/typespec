@@ -117,7 +117,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // Process key-value pair if patch doesn't contain it
             var ifPatchDoesNotContainStatement = new IfStatement(Not(patchContainsNet8Var))
             {
-                CreateDictionaryItemSerialization(keyValuePair, hasPatch, itemSuppressPatchLogic: false)
+                CreateDictionaryItemSerialization(keyValuePair, patchContainsNet8Var, itemSuppressPatchLogic: false)
             };
 
             var innerIfElseProcessorStatement = new IfElsePreprocessorStatement(

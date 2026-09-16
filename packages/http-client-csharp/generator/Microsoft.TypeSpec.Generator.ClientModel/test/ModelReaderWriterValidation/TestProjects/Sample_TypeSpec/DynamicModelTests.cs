@@ -463,6 +463,93 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ModelReaderWriterValida
                 Is.EqualTo(Count));
         }
 
+        [TestCase("nestedChildren")]
+        [TestCase("nestedChildDictionary")]
+        [TestCase("dictionaryChildren")]
+        [TestCase("listOfDictionaries")]
+        public void JsonModelWrite_PatchedNestedCollectionSerializesParentPatch(string propertyName)
+        {
+            var model = new NullableDynamicModel();
+            var patchPath = propertyName switch
+            {
+                "nestedChildren" => SetNestedChildren(model),
+                "nestedChildDictionary" => SetNestedChildDictionary(model),
+                "dictionaryChildren" => SetDictionaryChildren(model),
+                "listOfDictionaries" => SetListOfDictionaries(model),
+                _ => throw new ArgumentOutOfRangeException(nameof(propertyName), propertyName, null)
+            };
+
+#pragma warning disable SCME0001
+            model.Patch.Set(Encoding.UTF8.GetBytes(patchPath), "patched");
+#pragma warning restore SCME0001
+
+            var data = ModelReaderWriter.Write(model, ModelReaderWriterOptions.Json, SampleTypeSpecContext.Default);
+            using var document = JsonDocument.Parse(data);
+            JsonElement patchedElement;
+            switch (propertyName)
+            {
+                case "nestedChildren":
+                    var nestedChildren = document.RootElement.GetProperty("nestedChildren")[0];
+                    patchedElement = nestedChildren[0];
+                    break;
+                case "nestedChildDictionary":
+                    var nestedChildDictionary = document.RootElement.GetProperty("nestedChildDictionary").GetProperty("outer");
+                    patchedElement = nestedChildDictionary.GetProperty("patched");
+                    break;
+                case "dictionaryChildren":
+                    var dictionaryChildren = document.RootElement.GetProperty("dictionaryChildren").GetProperty("outer");
+                    patchedElement = dictionaryChildren[0];
+                    break;
+                case "listOfDictionaries":
+                    var listOfDictionaries = document.RootElement.GetProperty("listOfDictionaries")[0];
+                    patchedElement = listOfDictionaries.GetProperty("patched");
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(propertyName), propertyName, null);
+            }
+
+            Assert.That(patchedElement.GetProperty("extra").GetString(), Is.EqualTo("patched"));
+
+            static string SetNestedChildren(NullableDynamicModel model)
+            {
+                model.NestedChildren = [[null!]];
+                return "$.nestedChildren[0][0].extra";
+            }
+
+            static string SetNestedChildDictionary(NullableDynamicModel model)
+            {
+                model.NestedChildDictionary = new Dictionary<string, IDictionary<string, AnotherDynamicModel>>
+                {
+                    ["outer"] = new Dictionary<string, AnotherDynamicModel>
+                    {
+                        ["patched"] = null!
+                    }
+                };
+                return "$.nestedChildDictionary.outer.patched.extra";
+            }
+
+            static string SetDictionaryChildren(NullableDynamicModel model)
+            {
+                model.DictionaryChildren = new Dictionary<string, IList<AnotherDynamicModel>>
+                {
+                    ["outer"] = [null!]
+                };
+                return "$.dictionaryChildren.outer[0].extra";
+            }
+
+            static string SetListOfDictionaries(NullableDynamicModel model)
+            {
+                model.ListOfDictionaries =
+                [
+                    new Dictionary<string, AnotherDynamicModel>
+                    {
+                        ["patched"] = null!
+                    }
+                ];
+                return "$.listOfDictionaries[0].patched.extra";
+            }
+        }
+
         [TestCase(false)]
         [TestCase(true)]
         public void JsonPatchRemove_ChildRootWithUnpatchedParentCollection(bool unrelatedPatch)
