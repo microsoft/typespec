@@ -20,7 +20,7 @@ namespace Sample
                 throw new global::System.FormatException($"The model {nameof(global::Sample.Models.DynamicModel)} does not support writing '{format}' format.");
             }
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-            if ((global::Sample.Optional.IsCollectionDefined(Metadata) && !Patch.Contains("$[\"foo.bar\"]"u8)))
+            if ((global::Sample.Optional.IsCollectionDefined(Metadata) && !Patch.Contains("$.foo.bar"u8)))
             {
                 writer.WritePropertyName("foo.bar"u8);
                 writer.WriteStartObject();

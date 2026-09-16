@@ -403,6 +403,66 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ModelReaderWriterValida
             Assert.That(document.RootElement.GetProperty("children").GetArrayLength(), Is.EqualTo(256));
         }
 
+        [TestCase("nestedChildren")]
+        [TestCase("nestedChildDictionary")]
+        [TestCase("dictionaryChildren")]
+        [TestCase("listOfDictionaries")]
+        public void JsonModelWrite_UnpatchedNestedCollectionSerializes(string propertyName)
+        {
+            const int Count = 256;
+            var model = new NullableDynamicModel();
+            switch (propertyName)
+            {
+                case "nestedChildren":
+                    model.NestedChildren = Enumerable.Range(0, Count)
+                        .Select(_ => (IList<AnotherDynamicModel>)[new AnotherDynamicModel("value")])
+                        .ToList();
+                    break;
+                case "nestedChildDictionary":
+                    model.NestedChildDictionary = Enumerable.Range(0, Count)
+                        .ToDictionary(
+                            index => index.ToString(),
+                            _ => (IDictionary<string, AnotherDynamicModel>)new Dictionary<string, AnotherDynamicModel>
+                            {
+                                ["value"] = new AnotherDynamicModel("value")
+                            });
+                    break;
+                case "dictionaryChildren":
+                    model.DictionaryChildren = Enumerable.Range(0, Count)
+                        .ToDictionary(
+                            index => index.ToString(),
+                            _ => (IList<AnotherDynamicModel>)[new AnotherDynamicModel("value")]);
+                    break;
+                case "listOfDictionaries":
+                    model.ListOfDictionaries = Enumerable.Range(0, Count)
+                        .Select(_ => (IDictionary<string, AnotherDynamicModel>)new Dictionary<string, AnotherDynamicModel>
+                        {
+                            ["value"] = new AnotherDynamicModel("value")
+                        })
+                        .ToList();
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(propertyName), propertyName, null);
+            }
+
+            var buffer = new ArrayBufferWriter<byte>();
+            using var writer = new Utf8JsonWriter(buffer);
+            var jsonModel = (IJsonModel<NullableDynamicModel>)model;
+            jsonModel.Write(writer, ModelReaderWriterOptions.Json);
+            writer.Flush();
+            buffer.Clear();
+            writer.Reset(buffer);
+
+            jsonModel.Write(writer, ModelReaderWriterOptions.Json);
+            writer.Flush();
+
+            using var document = JsonDocument.Parse(buffer.WrittenMemory);
+            var collection = document.RootElement.GetProperty(propertyName);
+            Assert.That(
+                collection.ValueKind == JsonValueKind.Array ? collection.GetArrayLength() : collection.EnumerateObject().Count(),
+                Is.EqualTo(Count));
+        }
+
         [TestCase(false)]
         [TestCase(true)]
         public void JsonPatchRemove_ChildRootWithUnpatchedParentCollection(bool unrelatedPatch)
