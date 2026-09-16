@@ -13,7 +13,7 @@ public class ClassNameUtilTests {
 
     @Test
     public void testTruncateClassName() {
-        final int maxFileLength = 260 - 30;
+        final int maxFileLength = ClassNameUtil.MAX_PATH_LENGTH - ClassNameUtil.BASE_PATH_LENGTH;
 
         // names that previously required truncation now fit
         String name = ClassNameUtil.truncateClassName("com.azure.resourcemanager.deviceprovisioningservices",
@@ -55,7 +55,7 @@ public class ClassNameUtilTests {
             "azure-resourcemanager-" + KUBERNETES_CONFIGURATION + "-extensiontypes");
         Assertions.assertFalse(directoryName.contains("azure-resourcemanager-"));
 
-        // directory length not over 218, but full filename length over 230
+        // directory and full filename fit the relaxed limits
         directoryName = ClassNameUtil.getDirectoryNameForGraalVmConfig("com.azure.resourcemanager",
             "azure-resourcemanager-" + "recovery" + "services" + "data" + "replication");
         Assertions.assertTrue(directoryName.contains("azure-resourcemanager-"));

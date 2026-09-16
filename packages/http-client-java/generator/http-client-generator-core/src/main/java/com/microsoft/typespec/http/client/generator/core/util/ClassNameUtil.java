@@ -8,9 +8,9 @@ import java.util.regex.Pattern;
 
 public final class ClassNameUtil {
 
-    private static final int MAX_PATH_LENGTH = 260;
+    static final int MAX_PATH_LENGTH = 260;
     private static final int MAX_DIRECTORY_LENGTH = 248;
-    private static final int BASE_PATH_LENGTH = 30;
+    static final int BASE_PATH_LENGTH = 30;
 
     /**
      * Truncate class name to avoid path too long.
