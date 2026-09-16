@@ -348,6 +348,9 @@ catalogs:
     prettier:
       specifier: ^3.9.6
       version: 3.9.6
+    prettier-plugin-astro:
+      specifier: ^1.0.0
+      version: 1.0.0
     prettier-plugin-organize-imports:
       specifier: ^4.3.0
       version: 4.3.0
@@ -551,7 +554,7 @@ importers:
         specifier: 'catalog:'
         version: 3.9.6
       prettier-plugin-astro:
-        specifier: 1.0.0
+        specifier: 'catalog:'
         version: 1.0.0(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.3)(prettier@3.9.6)
       prettier-plugin-organize-imports:
         specifier: 'catalog:'
