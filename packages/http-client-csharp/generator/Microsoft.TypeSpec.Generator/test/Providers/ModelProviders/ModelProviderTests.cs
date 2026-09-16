@@ -661,6 +661,28 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task BackCompat_BaseTypeRestorationRejectsAbstractMappedBase()
+        {
+            var mappedInput = InputFactory.Model("MappedInput", properties: []);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: []);
+            var mappedType = new CSharpType(typeof(Stream));
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                createModelCore: input => input == mappedInput
+                    ? new SystemObjectModelProvider(mappedType, input)
+                    : new ModelProvider(input),
+                inputModelTypes: [mappedInput, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.IsNull(provider.BaseType,
+                "A concrete generated model cannot inherit an abstract mapped base without implementing its abstract members");
+        }
+
+        [Test]
         public async Task BackCompat_BaseTypeRestorationKeepsMappedCurrentBaseAuthoritative()
         {
             var previousBase = InputFactory.Model("PreviousBase", properties: []);

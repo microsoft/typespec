@@ -42,6 +42,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             => candidate is SystemObjectModelProvider mappedBase
                 ? mappedBase.SystemType.IsFrameworkType &&
                     mappedBase.SystemType.FrameworkType.IsClass &&
+                    !mappedBase.SystemType.FrameworkType.IsAbstract &&
                     !mappedBase.SystemType.FrameworkType.IsSealed &&
                     mappedBase.SystemType.FrameworkType != typeof(Array) &&
                     mappedBase.SystemType.FrameworkType != typeof(Delegate) &&
