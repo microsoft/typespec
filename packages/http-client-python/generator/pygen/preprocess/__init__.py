@@ -271,17 +271,8 @@ def _process_operation_etag_headers(
             elif role == "ifNoneMatch":
                 if_none_match_candidates.append(p)
 
-    default_match_condition = None
-    if len(if_match_candidates) == 1 and not if_none_match_candidates and not if_match_candidates[0]["optional"]:
-        default_match_condition = "MatchConditions.IfNotModified"
-    elif len(if_none_match_candidates) == 1 and not if_match_candidates and not if_none_match_candidates[0]["optional"]:
-        default_match_condition = "MatchConditions.IfModified"
-
     property_if_match, property_if_none_match = _resolve_etag_pair(if_match_candidates, if_none_match_candidates)
     if property_if_match and property_if_none_match:
-        if default_match_condition:
-            property_if_none_match["clientDefaultValue"] = default_match_condition
-
         etag_params = {id(property_if_match), id(property_if_none_match)}
         operation["parameters"] = [item for item in operation["parameters"] if id(item) not in etag_params] + [
             property_if_match,
