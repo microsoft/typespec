@@ -54,6 +54,135 @@ worksFor(supportedVersions, ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) =
       });
     });
 
+    it.each([
+      { type: "string", declaration: "", schema: { type: "string" } },
+      {
+        type: "Payload",
+        declaration: "model Payload { value: string; }",
+        schema: { $ref: "#/components/schemas/Payload" },
+      },
+    ])(
+      "preserves distinct envelopes for variants sharing $type",
+      async ({ type, declaration, schema }) => {
+        const res = await openApiFor(
+          `
+        @service namespace Example;
+        ${declaration}
+
+        @discriminated(#{
+          discriminatorPropertyName: "tag",
+          envelopePropertyName: "contents"
+        })
+        union Limit {
+          daily: ${type},
+          weekly: ${type},
+          monthly: ${type},
+        }
+
+        @route("/limit") @get op read(): Limit;
+        @route("/limit") @post op write(@body body: Limit): void;
+        `,
+        );
+
+        deepStrictEqual(res.components.schemas.Limit, {
+          type: "object",
+          oneOf: [
+            { $ref: "#/components/schemas/LimitDaily" },
+            { $ref: "#/components/schemas/LimitWeekly" },
+            { $ref: "#/components/schemas/LimitMonthly" },
+          ],
+          discriminator: {
+            propertyName: "tag",
+            mapping: {
+              daily: "#/components/schemas/LimitDaily",
+              weekly: "#/components/schemas/LimitWeekly",
+              monthly: "#/components/schemas/LimitMonthly",
+            },
+          },
+        });
+        for (const [name, tag] of [
+          ["LimitDaily", "daily"],
+          ["LimitWeekly", "weekly"],
+          ["LimitMonthly", "monthly"],
+        ]) {
+          deepStrictEqual(res.components.schemas[name], {
+            type: "object",
+            properties: {
+              tag: { type: "string", enum: [tag] },
+              contents: schema,
+            },
+            required: ["tag", "contents"],
+          });
+        }
+      },
+    );
+
+    it("preserves distinct envelopes for variants sharing a visibility-transformed model", async () => {
+      const res = await openApiFor(
+        `
+        model A {
+          value: string;
+          @visibility(Lifecycle.Create)
+          co: string;
+        }
+
+        @discriminated
+        union U {
+          a: A,
+          b: A,
+        }
+
+        @put op update(@body data: U): U;
+        `,
+      );
+
+      for (const suffix of ["", "CreateOrUpdate"]) {
+        deepStrictEqual(res.components.schemas[`U${suffix}`], {
+          type: "object",
+          oneOf: [
+            { $ref: `#/components/schemas/UA${suffix}` },
+            { $ref: `#/components/schemas/UB${suffix}` },
+          ],
+          discriminator: {
+            propertyName: "kind",
+            mapping: {
+              a: `#/components/schemas/UA${suffix}`,
+              b: `#/components/schemas/UB${suffix}`,
+            },
+          },
+        });
+        for (const [name, kind] of [
+          ["UA", "a"],
+          ["UB", "b"],
+        ]) {
+          deepStrictEqual(res.components.schemas[`${name}${suffix}`], {
+            type: "object",
+            properties: {
+              kind: { type: "string", enum: [kind] },
+              value: { $ref: `#/components/schemas/A${suffix}` },
+            },
+            required: ["kind", "value"],
+          });
+        }
+      }
+      deepStrictEqual(res.components.schemas.A, {
+        type: "object",
+        properties: { value: { type: "string" } },
+        required: ["value"],
+      });
+      deepStrictEqual(res.components.schemas.ACreateOrUpdate, {
+        type: "object",
+        properties: { value: { type: "string" }, co: { type: "string" } },
+        required: ["value", "co"],
+      });
+      deepStrictEqual(res.paths["/"].put.requestBody.content["application/json"].schema, {
+        $ref: "#/components/schemas/UCreateOrUpdate",
+      });
+      deepStrictEqual(res.paths["/"].put.responses["200"].content["application/json"].schema, {
+        $ref: "#/components/schemas/U",
+      });
+    });
+
     it("envelope none", async () => {
       const res = await openApiFor(
         `
