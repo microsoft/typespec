@@ -1092,10 +1092,6 @@ public virtual ClientResult UpdateSkillDefaultVersion(string skillId, string con
 
 ### Client Methods
 
-Compatibility overloads use the **current method's XML documentation**, not prose reconstructed from the released contract. This preserves structured summaries, current operation metadata, type references, and return documentation. Parameter documentation and exception parameter references are mapped to the compatibility signature; entries that refer only to omitted parameters are excluded. Additional validation performed by a shim, such as a null check before unwrapping a nullable value, is documented without changing the current method's documentation.
-
-The previous contract's DLL and XML documentation are selected by `ApiCompatVersion`. Using current documentation avoids retaining stale metadata or accumulating indentation as successive releases become the baseline. Repeated generation against the same unchanged baseline does not itself advance that baseline. Missing or empty current documentation does not fall back to released prose.
-
 #### Scenario: New Optional Non-Body Parameter Added to a Service Method
 
 **Description:** When the current TypeSpec adds one or more new optional non-body parameters (e.g. query, header, path) to an existing service method, the generator emits a hidden back-compat overload that matches the previous contract's signature and delegates to the new method, passing `default` for the new parameter(s). The behavior is **intentionally restricted to non-body parameters** because adding a body parameter typically reflects a schema change and is handled differently.
