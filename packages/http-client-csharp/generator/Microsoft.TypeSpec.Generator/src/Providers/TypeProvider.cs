@@ -197,7 +197,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         private CSharpType? _type;
+
+        // Returns the already-materialized type without invoking the lazy Type builder. This is used
+        // during provider discovery, where building Type would also build BaseType and could re-enter
+        // the discovery operation or mutate provider caches while they are being inspected.
         internal CSharpType? CachedType => _type;
+
         private CSharpType[]? _arguments;
         public CSharpType Type => _type ??=
             new(
