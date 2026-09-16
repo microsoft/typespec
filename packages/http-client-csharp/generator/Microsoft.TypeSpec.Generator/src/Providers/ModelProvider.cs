@@ -531,7 +531,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 .Where(property => MethodSignatureHelper.IsPublicApi(property.Modifiers))
                 .All(previousProperty =>
                     currentProperties.TryGetValue(previousProperty.Name, out var currentProperty) &&
-                    currentProperty.Type.Equals(previousProperty.Type));
+                    currentProperty.Type.Equals(previousProperty.Type) &&
+                    currentProperty.Body.HasSetter == previousProperty.Body.HasSetter);
         }
 
         private bool CanUseMappedBase(SystemObjectModelProvider mappedBase)
