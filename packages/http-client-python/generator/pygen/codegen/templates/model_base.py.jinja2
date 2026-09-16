@@ -4,6 +4,7 @@
 {% endif %}
 # pylint: disable=protected-access, broad-except
 
+import contextvars
 import copy
 import calendar
 import decimal
@@ -656,41 +657,32 @@ def _create_value(rf: typing.Optional["_RestField"], value: typing.Any) -> typin
     if rf._is_multipart_file_input:
         return value
     if rf._is_model:
-        return _deserialize(rf._type, value)
+        if _is_model(value):
+            return value
+        return _deserialize_public(rf._type, value)
     if isinstance(value, ET.Element):
         value = _deserialize(rf._type, value)
     return _serialize(value, rf._format)
 
 
-def _clone_wire_value(value: typing.Any) -> typing.Any:
-    if isinstance(value, list):
-        return [_clone_wire_value(entry) for entry in value]
-    if isinstance(value, dict):
-        return {key: _clone_wire_value(entry) for key, entry in value.items()}
-    if isinstance(value, set):
-        return {_clone_wire_value(entry) for entry in value}
-    if isinstance(value, tuple):
-        return tuple(_clone_wire_value(entry) for entry in value)
-    return value
-
-
 def _create_public_value(rf: typing.Optional["_RestField"], value: typing.Any) -> typing.Any:
-    if rf and rf._is_model:
-        value = _clone_wire_value(value)
     return _create_value(rf, value)
 
 
-class _OwnedWireValue:
-    __slots__ = ("value",)
-
-    def __init__(self, value: typing.Mapping[str, typing.Any]) -> None:
-        self.value = value
+_WIRE_VALUE = contextvars.ContextVar("_WIRE_VALUE", default=None)
+_DESERIALIZING_PUBLIC_VALUE = contextvars.ContextVar("_DESERIALIZING_PUBLIC_VALUE", default=False)
 
 
 def _construct_from_wire(cls: type, data: typing.Any) -> typing.Any:
-    # ET.Element payloads are passed through as-is; JSON payloads are wrapped in
-    # _OwnedWireValue so the constructed model takes zero-copy ownership of the wire data.
-    return cls(data) if isinstance(data, ET.Element) else cls(_OwnedWireValue(data))
+    token = _WIRE_VALUE.set(data)
+    try:
+        return cls(data)
+    finally:
+        _WIRE_VALUE.reset(token)
+
+
+def _construct_model(cls: type, data: typing.Any) -> typing.Any:
+    return cls(data) if _DESERIALIZING_PUBLIC_VALUE.get() else _construct_from_wire(cls, data)
 
 
 def _create_value_from_wire(rf: typing.Optional["_RestField"], value: typing.Any) -> typing.Any:
@@ -707,7 +699,7 @@ def _create_value_from_wire(rf: typing.Optional["_RestField"], value: typing.Any
     :rtype: any
     """
     if not rf:
-        return _serialize(value, None)
+        return value
     if rf._is_multipart_file_input:
         return value
     if rf._is_model:
@@ -890,6 +882,12 @@ def _extract_xml_model_type(rf_type):
     return None
 
 
+def _deserialize_xml_model(model_cls, value):
+    if isinstance(value, list):
+        return value
+    return model_cls._deserialize(value, [])
+
+
 def _build_xml_field_plan(  # pylint: disable=docstring-missing-return, docstring-missing-rtype, unused-variable
     cls, attr_to_rest_field: dict
 ) -> list:
@@ -926,7 +924,7 @@ def _build_xml_field_plan(  # pylint: disable=docstring-missing-return, docstrin
         if deser is None and rf._type is not None:
             model_cls = _extract_xml_model_type(rf._type)
             if model_cls is not None:
-                deser = model_cls
+                deser = functools.partial(_deserialize_xml_model, model_cls)
 
         if prop_meta.get("attribute", False):
             plan.append((rf._rest_name, xml_name, 1, deser, rf._type, is_optional, None))
@@ -967,11 +965,7 @@ class Model(_MyMutableMapping):
             else:
                 rest_field_by_rest_name = self._rest_field_by_rest_name
                 mapping = args[0]
-                if isinstance(mapping, _OwnedWireValue):
-                    mapping = mapping.value
-                    create_value = _create_value_from_wire
-                else:
-                    create_value = _create_public_value
+                create_value = _create_value_from_wire if _WIRE_VALUE.get() is mapping else _create_public_value
                 dict_to_pass.update(
                     {
                         k: create_value(rest_field_by_rest_name.get(k), v)
@@ -1171,10 +1165,10 @@ class Model(_MyMutableMapping):
     @classmethod
     def _deserialize(cls, data, exist_discriminators):
         if not hasattr(cls, "__mapping__"):
-            return _construct_from_wire(cls, data)
+            return _construct_model(cls, data)
         discriminator = cls._get_discriminator(exist_discriminators)
         if discriminator is None:
-            return _construct_from_wire(cls, data)
+            return _construct_model(cls, data)
         exist_discriminators.append(discriminator._rest_name)
         if isinstance(data, ET.Element):
             model_meta = getattr(cls, "_xml", {})
@@ -1317,7 +1311,7 @@ def _deserialize_primitive_sequence(
     """Deserialize a homogeneous sequence of scalars.
 
     Plain ``list``/``tuple``/``set`` inputs are converted with ``map(builtin, obj)``, falling
-    back to a per-element conversion that returns the raw entry when it cannot be converted.
+    back to the generic per-element deserializer when an entry cannot be converted directly.
     Any other shape (encoded ``str``, ``ET.Element``, ...) is delegated to
     :func:`_deserialize_sequence`.
 
@@ -1335,6 +1329,8 @@ def _deserialize_primitive_sequence(
     if obj is None:
         return obj
     if isinstance(obj, (list, tuple, set)):
+        if obj and isinstance(next(iter(obj)), ET.Element):
+            return _deserialize_sequence(deserializer, module, obj)
         try:
             return type(obj)(map(builtin, obj))
         except (TypeError, ValueError):
@@ -1345,7 +1341,7 @@ def _deserialize_primitive_sequence(
                 try:
                     return builtin(entry)
                 except (TypeError, ValueError):
-                    return entry
+                    return _deserialize(deserializer, entry, module)
 
             return type(obj)(_lenient(entry) for entry in obj)
     return _deserialize_sequence(deserializer, module, obj)
@@ -1498,10 +1494,15 @@ def _resolve_deserialize_callable_from_annotation(  # pylint: disable=too-many-r
             pass
         return obj
 
-    if get_deserializer(annotation, rf):
-        return functools.partial(_deserialize_default, get_deserializer(annotation, rf))
+    deserializer = get_deserializer(annotation, rf)
+    {% if code_model.has_external_type %}
+    if deserializer is TYPE_HANDLER_REGISTRY.get_deserializer(annotation):
+        def _deserialize_external_default(obj):
+            return _deserialize_default(TYPE_HANDLER_REGISTRY.get_deserializer(annotation) or annotation, obj)
 
-    return functools.partial(_deserialize_default, annotation)
+        return _deserialize_external_default
+    {% endif %}
+    return functools.partial(_deserialize_default, deserializer or annotation)
 
 
 def _deserialize_with_callable(
@@ -1555,6 +1556,17 @@ def _deserialize(
     if not isinstance(deserializer, functools.partial):
         deserializer = _get_deserialize_callable_from_annotation(deserializer, module, rf)
     return _deserialize_with_callable(deserializer, value)
+
+
+def _deserialize_public(
+    deserializer: typing.Any,
+    value: typing.Any,
+) -> typing.Any:
+    token = _DESERIALIZING_PUBLIC_VALUE.set(True)
+    try:
+        return _deserialize(deserializer, value)
+    finally:
+        _DESERIALIZING_PUBLIC_VALUE.reset(token)
 
 
 def _failsafe_deserialize(
@@ -1686,7 +1698,7 @@ class _RestField:
             return
         if self._is_model:
             if not _is_model(value):
-                value = _deserialize(self._type, value)
+                value = _deserialize_public(self._type, value)
             obj.__setitem__(self._rest_name, value)
             return
         obj.__setitem__(self._rest_name, _serialize(value, self._format))
