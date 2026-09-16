@@ -52,12 +52,12 @@ public class ClassNameUtilTests {
     public void testGetDirectoryNameForGraalVmConfig() {
         // directory length over 218
         String directoryName = ClassNameUtil.getDirectoryNameForGraalVmConfig("com.azure.resourcemanager",
-            "azure-resourcemanager-" + KUBERNETES_CONFIGURATION + "-extensiontypes");
+            "azure-resourcemanager-" + KUBERNETES_CONFIGURATION + "-extensiontypesabc");
         Assertions.assertFalse(directoryName.contains("azure-resourcemanager-"));
 
-        // directory and full filename fit the relaxed limits
+        // reflect-config.json fits exactly at 230, but resource-config.json exceeds the limit by one
         directoryName = ClassNameUtil.getDirectoryNameForGraalVmConfig("com.azure.resourcemanager",
             "azure-resourcemanager-" + "recovery" + "services" + "data" + "replication");
-        Assertions.assertTrue(directoryName.contains("azure-resourcemanager-"));
+        Assertions.assertFalse(directoryName.contains("azure-resourcemanager-"));
     }
 }

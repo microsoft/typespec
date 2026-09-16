@@ -70,7 +70,7 @@ public final class ClassNameUtil {
             ? artifactIdSegments[2]
             : artifactIdSegments[artifactIdSegments.length - 1]);
         final int parentDirectoryLength = ("sdk/" + group + "/" + artifactId + "/").length();
-        final int fileNameLength = "/reflect-config.json".length();
+        final int fileNameLength = "/resource-config.json".length();
 
         if (parentDirectoryLength + metaInfPath.length() > (MAX_DIRECTORY_LENGTH - BASE_PATH_LENGTH)
             || parentDirectoryLength + metaInfPath.length() + fileNameLength > (MAX_PATH_LENGTH - BASE_PATH_LENGTH)) {
