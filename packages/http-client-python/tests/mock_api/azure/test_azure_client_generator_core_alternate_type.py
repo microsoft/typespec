@@ -7,6 +7,7 @@ import pytest
 import geojson
 from specs.azure.clientgenerator.core.alternatetype import AlternateTypeClient
 from specs.azure.clientgenerator.core.alternatetype import models
+from specs.azure.clientgenerator.core.alternatetype._utils.model_base import TYPE_HANDLER_REGISTRY, _deserialize
 
 # Shared test data
 PROPERTIES = {"name": "A single point of interest", "category": "landmark", "elevation": 100}
@@ -67,3 +68,23 @@ def test_external_type_put_property(client: AlternateTypeClient, feature_geojson
     # Should return None (204/empty response)
     result = client.external_type.put_property(body=model_with_feature)
     assert result is None
+
+
+def test_external_type_deserializer_registered_after_first_use():
+    class LateRegisteredType:
+        def __init__(self, data):
+            self.source = "default"
+            self.data = data
+
+    first = _deserialize(LateRegisteredType, {"value": 1})
+    assert first.source == "default"
+
+    @TYPE_HANDLER_REGISTRY.register_deserializer(LateRegisteredType)
+    def deserialize_late_registered_type(cls, data):
+        result = cls(data)
+        result.source = "registered"
+        return result
+
+    second = _deserialize(LateRegisteredType, {"value": 2})
+    assert second.source == "registered"
+    assert second.data == {"value": 2}
