@@ -609,5 +609,17 @@ namespace SampleTypeSpec
         {
             return new OptionalNullableContainer(child, additionalBinaryDataProperties: null);
         }
+
+        /// <summary> The OptionalNullableFieldNames. </summary>
+        /// <param name="additionalStringProperties"></param>
+        /// <param name="additionalStringPropertiesIsDefined"></param>
+        /// <param name="additionalProperties"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.OptionalNullableFieldNames"/> instance for mocking. </returns>
+        public static OptionalNullableFieldNames OptionalNullableFieldNames(string additionalStringProperties = default, string additionalStringPropertiesIsDefined = default, IDictionary<string, string> additionalProperties = default)
+        {
+            additionalProperties ??= new ChangeTrackingDictionary<string, string>();
+
+            return new OptionalNullableFieldNames(additionalStringProperties, additionalStringPropertiesIsDefined, additionalProperties, additionalBinaryDataProperties: null);
+        }
     }
 }

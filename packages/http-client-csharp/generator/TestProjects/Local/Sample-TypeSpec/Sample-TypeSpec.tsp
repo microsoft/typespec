@@ -374,6 +374,13 @@ model OptionalNullableContainer {
   child: OptionalNullableProperties;
 }
 
+@usage(Usage.input | Usage.output | Usage.json)
+@access(Access.public)
+model OptionalNullableFieldNames extends Record<string | null> {
+  additionalStringProperties?: string | null;
+  additionalStringPropertiesIsDefined?: string | null;
+}
+
 @nsDeclarations
 enum XmlNamespaces {
   ns1: "https://example.com/ns1",

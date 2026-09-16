@@ -32,6 +32,7 @@ namespace SampleTypeSpec
     [ModelReaderWriterBuildable(typeof(OptionalNullableChild))]
     [ModelReaderWriterBuildable(typeof(OptionalNullableContainer))]
     [ModelReaderWriterBuildable(typeof(OptionalNullableDynamicProperties))]
+    [ModelReaderWriterBuildable(typeof(OptionalNullableFieldNames))]
     [ModelReaderWriterBuildable(typeof(OptionalNullableProperties))]
     [ModelReaderWriterBuildable(typeof(PageThing))]
     [ModelReaderWriterBuildable(typeof(Pet))]

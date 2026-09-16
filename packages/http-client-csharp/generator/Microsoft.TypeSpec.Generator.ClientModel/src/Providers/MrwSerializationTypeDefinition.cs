@@ -986,16 +986,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private IReadOnlyDictionary<ValueExpression, ValueExpression>? GetNullablePresenceInitializer()
         {
-            var values = new Dictionary<ValueExpression, ValueExpression>();
+            Dictionary<ValueExpression, ValueExpression>? values = null;
             foreach (var parameter in SerializationConstructor.Signature.Parameters)
             {
                 if (parameter.Property is { } property &&
                     ScmModelProvider.GetNullablePropertyPresence(property) is { } presence)
                 {
+                    values ??= [];
                     values[presence] = presence.AsVariableExpression;
                 }
             }
-            return values.Count == 0 ? null : values;
+            return values;
         }
 
         private MethodBodyStatement GetPropertyVariableDeclarations(bool preserveJsonPresence = true)

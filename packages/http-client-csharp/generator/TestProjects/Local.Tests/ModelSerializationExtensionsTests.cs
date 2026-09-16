@@ -96,6 +96,34 @@ namespace TestProjects.Local.Tests
         private static IEnumerable<string> OptionalNullableScalarNames => OptionalNullableScalarCases.Keys;
 
         [Test]
+        public void OptionalNullableFieldNames_PreserveAdditionalProperties([Values("W", "J")] string format)
+        {
+            var model = new OptionalNullableFieldNames();
+            model.AdditionalProperties["extra"] = "additional";
+            AssertModelJson(model, """{"extra":"additional"}""", format);
+
+            model.AdditionalStringProperties = null;
+            model.AdditionalStringPropertiesIsDefined = "defined";
+            AssertModelJson(model, """{"additionalStringProperties":null,"additionalStringPropertiesIsDefined":"defined","extra":"additional"}""", format);
+
+            model.AdditionalStringProperties = "value";
+            model.AdditionalStringPropertiesIsDefined = null;
+            AssertModelJson(model, """{"additionalStringProperties":"value","additionalStringPropertiesIsDefined":null,"extra":"additional"}""", format);
+        }
+
+        [Test]
+        public void OptionalNullableFieldNames_RoundTrip(
+            [Values("{}", """{"additionalStringProperties":null}""", """{"additionalStringProperties":"value","additionalStringPropertiesIsDefined":null,"extra":"additional"}""")] string json,
+            [Values("W", "J")] string readFormat,
+            [Values("W", "J")] string writeFormat)
+        {
+            var model = ModelReaderWriter.Read<OptionalNullableFieldNames>(BinaryData.FromString(json),
+                new ModelReaderWriterOptions(readFormat), SampleTypeSpecContext.Default)!;
+
+            AssertModelJson(model, json, writeFormat);
+        }
+
+        [Test]
         public void OptionalNullableProperties_PublicPropertyTypesAreUnchanged()
         {
             var propertyTypes = new Dictionary<string, Type>
