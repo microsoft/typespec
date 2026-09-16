@@ -411,8 +411,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
             [NotNullWhen(true)] out ModelProvider? provider,
             out bool foundAmbiguousMapping)
         {
-            var candidates = CodeModelGenerator.Instance.TypeFactory.CreatedModelProviders
-                .Concat(CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.Values.OfType<ModelProvider>())
+            // Candidate validation can build model-typed properties and create additional providers.
+            // Snapshot the provider collections before evaluating any candidate to avoid mutating
+            // their backing dictionaries while they are being enumerated.
+            var createdCandidates = CodeModelGenerator.Instance.TypeFactory.CreatedModelProviders.ToArray();
+            var mappedCandidates = CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.Values.OfType<ModelProvider>().ToArray();
+            var candidates = createdCandidates
+                .Concat(mappedCandidates)
                 .Where(candidate => candidate is SystemObjectModelProvider
                     ? candidate.Type.AreNamesEqual(previousBase)
                     : candidate.CachedType?.AreNamesEqual(previousBase) == true)
