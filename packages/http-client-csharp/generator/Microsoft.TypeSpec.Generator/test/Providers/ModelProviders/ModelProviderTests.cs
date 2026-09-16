@@ -729,6 +729,35 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task BackCompat_BaseTypeRestorationRejectsDuplicateAdditionalPropertiesOwnership()
+        {
+            var mappedInput = InputFactory.Model(
+                "MappedInput",
+                properties: [],
+                additionalProperties: InputPrimitiveType.String);
+            var derivedModel = InputFactory.Model(
+                "DerivedModel",
+                properties: [],
+                additionalProperties: InputPrimitiveType.String);
+            var mappedType = new CSharpType(typeof(Exception));
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                createModelCore: input => input == mappedInput
+                    ? new SystemObjectModelProvider(mappedType, input)
+                    : new ModelProvider(input),
+                inputModelTypes: [mappedInput, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_BaseTypeChangePreservesMappedRootBase)));
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.IsNull(provider.BaseType,
+                "The derived model and restored mapped base must not both own additional-properties state");
+        }
+
+        [Test]
         public async Task BackCompat_BaseTypeRestorationRejectsInvalidMappedBase()
         {
             var previousBase = InputFactory.Model("PreviousBase", properties: []);

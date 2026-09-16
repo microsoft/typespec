@@ -542,6 +542,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private bool CanUseMappedBase(SystemObjectModelProvider mappedBase)
         {
+            if (_inputModel.AdditionalProperties is not null && mappedBase._inputModel.AdditionalProperties is not null)
+            {
+                return false;
+            }
+
             var mappedByWireName = mappedBase._inputModel.Properties
                 .GroupBy(property => property.SerializedName ?? property.Name, StringComparer.Ordinal)
                 .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
