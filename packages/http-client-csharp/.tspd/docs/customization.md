@@ -6,6 +6,14 @@ Before customizing generated code, consider whether your change should be made i
 
 Use C# code customizations (partial classes) when TypeSpec cannot express the behavior you need.
 
+## Optional nullable model properties
+
+For a TypeSpec property such as `feature?: Feature | null`, generated model classes distinguish an omitted property from an explicitly assigned `null` during JSON serialization. Leaving the property untouched omits it; assigning `null` writes `"feature": null`; assigning a value writes that value. Reading JSON preserves the same distinction when the model is serialized again, including nested models and wire-format serialization.
+
+Presence tracking does not change the public property type or constructor/model-factory signatures. Defaulted constructor and model-factory arguments retain their existing behavior: a scalar `null` argument is treated as omitted, since C# cannot distinguish an omitted argument from an explicitly supplied default value. Model factories also retain their existing collection initialization behavior, which can materialize a defaulted list argument as an empty list. To write explicit null for a writable property, assign the property after construction.
+
+A handwritten property or field that replaces a generated member (including a `[CodeGenMember]` replacement) retains its existing customization behavior; the generator cannot observe assignments inside a handwritten setter. There is no presence-tracking opt-in for replacement members. Models customized as readonly structs also retain their existing constructor-only behavior, because readonly structs cannot contain the mutable backing fields and presence flags used by generated classes. Keep the generated class property when its omitted/null distinction is needed. Similarly, plugins that replace generated property bodies or serialization methods must preserve the tracking behavior themselves rather than relying on a replacement auto-property.
+
 ## Make a model internal
 
 Define a class with the same namespace and name as generated model and use the desired accessibility.

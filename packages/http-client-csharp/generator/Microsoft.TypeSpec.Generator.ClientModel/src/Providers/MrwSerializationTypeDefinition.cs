@@ -980,11 +980,26 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 new IfStatement(_jsonElementParameterSnippet.ValueKindEqualsNull()) { valueKindEqualsNullReturn },
                 GetPropertyVariableDeclarations(),
                 deserializePropertiesForEachStatement,
-                Return(New.Instance(_model.Type, GetSerializationCtorParameterValues()))
+                Return(New.Instance(SerializationConstructor.Signature, GetSerializationCtorParameterValues(), GetNullablePresenceInitializer()))
             ];
         }
 
-        private MethodBodyStatement GetPropertyVariableDeclarations()
+        private IReadOnlyDictionary<ValueExpression, ValueExpression>? GetNullablePresenceInitializer()
+        {
+            Dictionary<ValueExpression, ValueExpression>? values = null;
+            foreach (var parameter in SerializationConstructor.Signature.Parameters)
+            {
+                if (parameter.Property is { } property &&
+                    ScmModelProvider.GetNullablePropertyPresence(property) is { } presence)
+                {
+                    values ??= [];
+                    values[presence] = presence.AsVariableExpression;
+                }
+            }
+            return values;
+        }
+
+        private MethodBodyStatement GetPropertyVariableDeclarations(bool preserveJsonPresence = true)
         {
             var parameters = SerializationConstructor.Signature.Parameters;
             var propertyDeclarationStatements = new List<MethodBodyStatement>(parameters.Count);
@@ -1022,6 +1037,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     }
                     else
                     {
+                        if (preserveJsonPresence && ScmModelProvider.GetNullablePropertyPresence(property) is { } presence)
+                        {
+                            propertyDeclarationStatements.Add(Declare(presence.AsVariableExpression, False));
+                        }
                         ValueExpression defaultValue;
                         if (property.IsDiscriminator && _model.DiscriminatorValue != null && property.Type.IsFrameworkType)
                         {
@@ -1030,6 +1049,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         else if (IsXmlUnwrappedRequiredCollection(property))
                         {
                             defaultValue = New.List(property.Type.ElementType);
+                        }
+                        else if (preserveJsonPresence && IsOptionalNullableCollection(property))
+                        {
+                            defaultValue = New.Instance(property.Type.PropertyInitializationType);
                         }
                         else
                         {
@@ -1149,7 +1172,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// <summary>
         /// Builds the values for the serialization constructor parameters.
         /// </summary>
-        private ValueExpression[] GetSerializationCtorParameterValues()
+        private ValueExpression[] GetSerializationCtorParameterValues(bool preserveJsonPresence = true)
         {
             var parameters = SerializationConstructor.Signature.Parameters;
             ValueExpression[] serializationCtorParameters = new ValueExpression[parameters.Count];
@@ -1160,7 +1183,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 var parameter = parameters[i];
                 if (parameter.Property is { } property)
                 {
-                    serializationCtorParameters[i] = GetValueForSerializationConstructor(property);
+                    serializationCtorParameters[i] = GetValueForSerializationConstructor(property, preserveJsonPresence);
                     continue;
                 }
                 else
@@ -1174,9 +1197,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return serializationCtorParameters;
         }
 
-        private static ValueExpression GetValueForSerializationConstructor(PropertyProvider propertyProvider)
+        private static ValueExpression GetValueForSerializationConstructor(PropertyProvider propertyProvider, bool preserveJsonPresence)
         {
             var isRequired = propertyProvider.WireInfo?.IsRequired ?? false;
+
+            if (preserveJsonPresence && IsOptionalNullableCollection(propertyProvider))
+            {
+                return propertyProvider.AsVariableExpression;
+            }
 
             if (!propertyProvider.Type.IsFrameworkType || propertyProvider.IsAdditionalProperties)
             {
@@ -1191,6 +1219,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             return propertyProvider.AsVariableExpression;
         }
+
+        private static bool IsOptionalNullableCollection(PropertyProvider property)
+            => property.WireInfo is { IsRequired: false, IsNullable: true } &&
+                property.Type is { IsCollection: true, IsReadOnlyMemory: false };
 
         private List<MethodBodyStatement> BuildDeserializePropertiesStatements(ScopedApi<JsonProperty> jsonProperty)
         {
@@ -1226,10 +1258,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     var propertyName = parameter.Property?.Name ?? parameter.Field?.Name;
                     var propertyType = parameter.Property?.Type ?? parameter.Field?.Type;
                     var propertyExpression = parameter.Property?.AsVariableExpression ?? parameter.Field?.AsVariableExpression;
-                    var checkIfJsonPropEqualsName = new IfStatement(jsonProperty.NameEquals(propertySerializationName))
+                    var checkIfJsonPropEqualsName = new IfStatement(jsonProperty.NameEquals(propertySerializationName));
+                    if (parameter.Property is { } property &&
+                        ScmModelProvider.GetNullablePropertyPresence(property) is { } presence)
                     {
-                        DeserializeProperty(propertyName!, propertyType!, wireInfo, propertyExpression!, jsonProperty, serializationAttributes, wireInfo.SerializationFormat)
-                    };
+                        checkIfJsonPropEqualsName.Add(presence.AsVariableExpression.Assign(True).Terminate());
+                    }
+                    checkIfJsonPropEqualsName.Add(
+                        DeserializeProperty(propertyName!, propertyType!, wireInfo, propertyExpression!, jsonProperty, serializationAttributes, wireInfo.SerializationFormat));
                     propertyDeserializationStatements.Add(checkIfJsonPropEqualsName);
                 }
                 else
@@ -1633,7 +1669,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             if ((serializedType.IsNullable || !serializedType.IsValueType) && wireInfo.IsNullable)
             {
-                if (!serializedType.IsCollection)
+                if (!serializedType.IsCollection || !propertyIsRequired)
                 {
                     return new IfStatement(checkEmptyProperty)
                     {
@@ -1879,7 +1915,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             continue;
                         }
 
-                        propertyStatements.Add(CreateWritePropertyStatement(property.WireInfo, property.Type, property.Name, property, property.WireInfo?.SerializationFormat));
+                        propertyStatements.Add(CreateWritePropertyStatement(property.WireInfo, property.Type, property.Name, property, property.WireInfo?.SerializationFormat,
+                            ScmModelProvider.GetNullablePropertyPresence(property)));
                     }
 
                     foreach (var field in baseModelProvider.CanonicalView.Fields)
@@ -1903,7 +1940,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     continue;
                 }
 
-                propertyStatements.Add(CreateWritePropertyStatement(property.WireInfo, property.Type, property.Name, property, property.WireInfo.SerializationFormat));
+                propertyStatements.Add(CreateWritePropertyStatement(property.WireInfo, property.Type, property.Name, property, property.WireInfo.SerializationFormat,
+                    ScmModelProvider.GetNullablePropertyPresence(property)));
             }
 
             foreach (var field in _model.CanonicalView.Fields)
@@ -1924,7 +1962,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             CSharpType propertyType,
             string propertyName,
             MemberExpression propertyExpression,
-            SerializationFormat? serializationFormat)
+            SerializationFormat? serializationFormat,
+            FieldProvider? presence = null)
         {
             var propertySerializationName = GetJsonSerializedName(wireInfo);
             var propertySerializationFormat = wireInfo.SerializationFormat;
@@ -1985,7 +2024,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 propertyIsRequired,
                 propertyIsReadOnly,
                 propertyIsNullable,
-                writePropertySerializationStatements);
+                writePropertySerializationStatements,
+                presence);
 
             return wrapInIsDefinedStatement;
         }
@@ -1997,7 +2037,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             bool propertyIsRequired,
             bool propertyIsReadOnly,
             bool propertyIsNullable,
-            MethodBodyStatement writePropertySerializationStatement)
+            MethodBodyStatement writePropertySerializationStatement,
+            FieldProvider? presence)
         {
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
             ScopedApi<bool>? patchCheck = _jsonPatchProperty != null
@@ -2029,7 +2070,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 propertyIsRequired,
                 jsonSerializedName,
                 patchCheck,
-                writePropertySerializationStatement);
+                writePropertySerializationStatement,
+                presence);
         }
 
         /// <summary>
@@ -2598,7 +2640,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             bool isRequired,
             string serializedName,
             ValueExpression? patchCheck,
-            MethodBodyStatement writePropertySerializationStatement)
+            MethodBodyStatement writePropertySerializationStatement,
+            FieldProvider? presence)
         {
             ScopedApi<bool> condition;
             bool shouldCheckJsonPath = patchCheck != null && (propertyType.IsList || propertyType.IsArray);
@@ -2628,6 +2671,31 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var isDefinedCondition = propertyType is { IsCollection: true, IsReadOnlyMemory: false }
                 ? OptionalSnippets.IsCollectionDefined(propertyMemberExpression)
                 : OptionalSnippets.IsDefined(propertyMemberExpression);
+
+            if (!isRequired && isNullable)
+            {
+                if (presence != null || propertyType is { IsCollection: true, IsReadOnlyMemory: false })
+                {
+                    if (presence != null)
+                    {
+                        isDefinedCondition = presence.As<bool>().Or(isDefinedCondition);
+                    }
+                    var writeNullableProperty = new IfElseStatement(
+                        new IfStatement(propertyMemberExpression.NotEqual(Null)) { writePropertySerializationStatement },
+                        _utf8JsonWriterSnippet.WriteNull(serializedName));
+                    condition = isReadOnly ? _isNotEqualToWireConditionSnippet.And(isDefinedCondition) : isDefinedCondition;
+                    if (shouldCheckJsonPath)
+                    {
+                        return CreateConditionalPatchSerializationStatement(
+                            serializedName, condition, writeNullableProperty, null);
+                    }
+                    if (patchCheck != null)
+                    {
+                        condition = condition.And(patchCheck);
+                    }
+                    return new IfStatement(condition) { writeNullableProperty };
+                }
+            }
 
             if (patchCheck != null && !shouldCheckJsonPath)
             {

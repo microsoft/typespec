@@ -622,7 +622,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 new IfStatement(_xmlElementParameterSnippet.Equal(Null)) { valueKindEqualsNullReturn },
                 MethodBodyStatement.EmptyLine,
                 GetXmlNamespaceDeclarations(categorizedProperties.Namespaces),
-                GetPropertyVariableDeclarations(),
+                GetPropertyVariableDeclarations(preserveJsonPresence: false),
                 MethodBodyStatement.EmptyLine
             };
 
@@ -651,7 +651,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 statements.Add(MethodBodyStatement.EmptyLine);
             }
 
-            statements.Add(Return(New.Instance(_model.Type, GetSerializationCtorParameterValues())));
+            statements.Add(Return(New.Instance(_model.Type, GetSerializationCtorParameterValues(preserveJsonPresence: false))));
 
             return [.. statements];
         }
