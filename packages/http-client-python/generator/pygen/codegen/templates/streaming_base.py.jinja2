@@ -436,7 +436,13 @@ async def _aiter_sse_lines(iter_bytes: AsyncIterator[bytes]) -> AsyncGenerator[s
 
 
 def _update_sse_request_headers(request: HttpRequest, last_event_id: Optional[str]) -> None:
-    """Update the last event ID header for an SSE reconnection request."""
+    """Update the last event ID header for an SSE reconnection request.
+
+    :param request: The reconnection request to update.
+    :type request: HttpRequest
+    :param last_event_id: The current value of the SSE last event ID buffer.
+    :type last_event_id: str or None
+    """
     if last_event_id:
         request.headers["Last-Event-ID"] = last_event_id
     else:
