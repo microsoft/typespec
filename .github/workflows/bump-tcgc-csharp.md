@@ -14,9 +14,7 @@ permissions:
   issues: read
   copilot-requests: write
 
-network:
-  allowed:
-    - pkgs.dev.azure.com
+network: defaults
 
 safe-outputs:
   messages:
