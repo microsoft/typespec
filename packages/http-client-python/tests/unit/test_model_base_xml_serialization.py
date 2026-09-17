@@ -213,6 +213,27 @@ class TestXmlDeserialization:
         result = _deserialize_xml(AppleBarrel, basic_xml)
         assert result.good_apples == ["granny", "fuji"]
 
+    def test_unwrapped_integer_list(self):
+        basic_xml = """<?xml version="1.0"?>
+            <Numbers>
+                <Value>1</Value>
+                <Value>2</Value>
+            </Numbers>"""
+
+        class Numbers(Model):
+            values: list[int] = rest_field(
+                name="Values",
+                xml={"name": "Values", "unwrapped": True, "itemsName": "Value"},
+            )
+
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+
+            _xml = {"name": "Numbers"}
+
+        result = _deserialize_xml(Numbers, basic_xml)
+        assert result.values == [1, 2]
+
     def test_list_wrapped_items_name_complex_types(self):
         """Test XML list and wrap, items is ref and there is itemsName."""
 
