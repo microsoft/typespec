@@ -1,7 +1,7 @@
 ---
 description: |
-  Daily TCGC version watcher for the http-client-csharp emitter. Checks the Azure SDK
-  npm registry for new non-dev releases of @azure-tools/typespec-client-generator-core
+  Daily TCGC version watcher for the http-client-csharp emitter. Uses npm to check
+  the public npm registry for new non-dev releases of @azure-tools/typespec-client-generator-core
   and, when a newer stable version is available and no equivalent issue already
   exists, files a tracking issue assigned to GitHub Copilot to perform the upgrade.
 
