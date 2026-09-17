@@ -14,7 +14,10 @@ permissions:
   issues: read
   copilot-requests: write
 
-network: defaults
+network:
+  allowed:
+    - defaults
+    - registry.npmjs.org
 
 safe-outputs:
   messages:
