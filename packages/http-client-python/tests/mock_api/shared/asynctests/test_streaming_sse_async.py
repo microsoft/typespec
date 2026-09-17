@@ -335,6 +335,30 @@ async def test_sse_reconnects_on_eof_using_metadata_only_block():
 
 
 @pytest.mark.asyncio
+async def test_sse_reconnect_ignores_event_id_from_incomplete_block():
+    responses = [
+        _FakeAsyncResponse(b"id: first\nretry: 0\ndata: one\n\nid: second\ndata: incomplete"),
+        _FakeAsyncResponse(b"data: [DONE]\n\n"),
+    ]
+    reconnect_ids = []
+
+    async def reconnect(last_event_id, _reconnect_delay):
+        reconnect_ids.append(last_event_id)
+        return responses.pop(0)
+
+    stream = AsyncStream(
+        response=responses.pop(0),
+        deserialization_callback=lambda _response, event: event.data,
+        terminal_event="[DONE]",
+        reconnect_callback=reconnect,
+    )
+
+    assert [item async for item in stream] == ["one"]
+    assert reconnect_ids == ["first"]
+    assert stream.last_event_id == "first"
+
+
+@pytest.mark.asyncio
 async def test_sse_reconnects_with_default_delay():
     responses = [_FakeAsyncResponse(b"data: one\n\n"), _FakeAsyncResponse(b"data: [DONE]\n\n")]
     sleeps = []

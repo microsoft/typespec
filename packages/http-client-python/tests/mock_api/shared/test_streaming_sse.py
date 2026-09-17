@@ -296,6 +296,29 @@ def test_sse_reconnects_on_eof_using_metadata_only_block():
     assert stream.retry == 0
 
 
+def test_sse_reconnect_ignores_event_id_from_incomplete_block():
+    responses = [
+        _FakeResponse(b"id: first\nretry: 0\ndata: one\n\nid: second\ndata: incomplete"),
+        _FakeResponse(b"data: [DONE]\n\n"),
+    ]
+    reconnect_ids = []
+
+    def reconnect(last_event_id, _reconnect_delay):
+        reconnect_ids.append(last_event_id)
+        return responses.pop(0)
+
+    stream = Stream(
+        response=responses.pop(0),
+        deserialization_callback=lambda _response, event: event.data,
+        terminal_event="[DONE]",
+        reconnect_callback=reconnect,
+    )
+
+    assert list(stream) == ["one"]
+    assert reconnect_ids == ["first"]
+    assert stream.last_event_id == "first"
+
+
 def test_sse_reconnects_with_default_delay():
     responses = [_FakeResponse(b"data: one\n\n"), _FakeResponse(b"data: [DONE]\n\n")]
     sleeps = []

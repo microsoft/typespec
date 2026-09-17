@@ -460,6 +460,7 @@ class _SSEEventBuilder:
         self._data: List[str] = []
         self._event_type = ""
         self._last_id = last_event_id
+        self._pending_last_id = last_event_id
         self._retry: Optional[int] = None
 
     def add_line(self, line: str) -> Optional[ServerSentEvent]:
@@ -487,7 +488,7 @@ class _SSEEventBuilder:
             self._data.append(value)
         elif field == "id":
             if "\x00" not in value:
-                self._last_id = value
+                self._pending_last_id = value
         elif field == "retry":
             if value.isascii() and value.isdigit():
                 try:
@@ -500,6 +501,7 @@ class _SSEEventBuilder:
         return None
 
     def _dispatch(self) -> Optional[ServerSentEvent]:
+        self._last_id = self._pending_last_id
         if not self._data:
             # No data accumulated: reset and dispatch nothing.
             self._event_type = ""
