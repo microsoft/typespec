@@ -1,5 +1,13 @@
 # Change Log - @typespec/http-client-python
 
+## 0.37.3
+
+### Bug Fixes
+
+- [#11964](https://github.com/microsoft/typespec/pull/11964) Generate complete ETag handling for operations in nested operation groups.
+- [#11946](https://github.com/microsoft/typespec/pull/11946) Fix named single-member unions to emit valid Python type aliases without generating lone overloads.
+
+
 ## 0.37.2
 
 ### Bump dependencies
