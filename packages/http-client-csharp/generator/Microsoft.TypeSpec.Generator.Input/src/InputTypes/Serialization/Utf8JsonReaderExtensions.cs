@@ -185,10 +185,10 @@ namespace Microsoft.TypeSpec.Generator.Input
 
         public static T? ReadWithConverter<T>(this ref Utf8JsonReader reader, JsonSerializerOptions options)
         {
-            var referenceHandler = options.ReferenceHandler as TypeSpecReferenceHandler;
+            var resolver = (options.ReferenceHandler as TypeSpecReferenceHandler)?.CurrentResolver;
             var definitionReader = reader;
             string? id = null;
-            if (referenceHandler != null && definitionReader.TokenType == JsonTokenType.StartObject
+            if (resolver != null && definitionReader.TokenType == JsonTokenType.StartObject
                 && definitionReader.Read() && definitionReader.TokenType == JsonTokenType.PropertyName
                 && definitionReader.ValueTextEquals("$id") && definitionReader.Read() && definitionReader.TokenType == JsonTokenType.String)
             {
@@ -198,7 +198,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             var converter = (JsonConverter<T>)options.GetConverter(typeof(T));
             var value = converter.Read(ref reader, typeof(T), options);
             reader.Read();
-            if (id != null && referenceHandler!.CurrentResolver.GetPreviouslyResolvedReference(id) is T canonical)
+            if (id != null && resolver != null && resolver.GetPreviouslyResolvedReference(id) is T canonical)
             {
                 return canonical;
             }

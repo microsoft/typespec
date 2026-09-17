@@ -22,6 +22,7 @@ namespace Microsoft.TypeSpec.Generator.Input
         {
             private readonly Dictionary<string, object> _referenceIdToObjectMap = new();
             private readonly Dictionary<string, JsonElement> _referenceDefinitions = new();
+            private readonly Dictionary<string, int> _resolvingReferences = new();
             private int _referenceDepth;
             private JsonSerializerOptions? _options;
 
@@ -74,12 +75,20 @@ namespace Microsoft.TypeSpec.Generator.Input
                 }
 
                 // Allow re-entry after a child registers an instance that can close a cycle,
-                // but bound reference chains independently of the JSON document's depth.
+                // but reject unresolved cycles and bound reference chains independently of the JSON document's depth.
                 if (_referenceDepth >= _options.MaxDepth)
                 {
                     throw new JsonException($"Cannot resolve reference {referenceId}: circular reference or maximum reference depth exceeded");
                 }
 
+                var referenceCount = _referenceIdToObjectMap.Count;
+                var isReentrantReference = _resolvingReferences.TryGetValue(referenceId, out var previousReferenceCount);
+                if (isReentrantReference && referenceCount <= previousReferenceCount)
+                {
+                    throw new JsonException($"Cannot resolve reference {referenceId}: circular reference or maximum reference depth exceeded");
+                }
+
+                _resolvingReferences[referenceId] = referenceCount;
                 _referenceDepth++;
                 try
                 {
@@ -89,6 +98,14 @@ namespace Microsoft.TypeSpec.Generator.Input
                 finally
                 {
                     _referenceDepth--;
+                    if (isReentrantReference)
+                    {
+                        _resolvingReferences[referenceId] = previousReferenceCount;
+                    }
+                    else
+                    {
+                        _resolvingReferences.Remove(referenceId);
+                    }
                 }
             }
 
@@ -96,10 +113,18 @@ namespace Microsoft.TypeSpec.Generator.Input
             {
                 // Indexed definitions are unique. A cycle through a late-registering type
                 // can materialize one definition twice; readers must reuse the first instance.
-                if (!_referenceIdToObjectMap.TryAdd(referenceId, value) && !_referenceDefinitions.ContainsKey(referenceId))
+                if (_referenceIdToObjectMap.TryGetValue(referenceId, out var existingValue))
                 {
+                    if (ReferenceEquals(existingValue, value)
+                        || (_referenceDefinitions.ContainsKey(referenceId) && existingValue.GetType() == value.GetType()))
+                    {
+                        return;
+                    }
+
                     throw new JsonException($"Failed to add reference ID '{referenceId}' with value type '{value.GetType()}'");
                 }
+
+                _referenceIdToObjectMap.Add(referenceId, value);
             }
 
             public override string GetReference(object value, out bool alreadyExists)
