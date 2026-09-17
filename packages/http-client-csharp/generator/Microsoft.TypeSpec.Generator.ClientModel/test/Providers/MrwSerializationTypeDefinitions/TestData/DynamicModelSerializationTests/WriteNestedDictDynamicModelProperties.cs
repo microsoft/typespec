@@ -110,10 +110,10 @@ namespace Sample
                                         }
                                         else
                                         {
-                                            foreach (var unpatchedItem in item0.Value)
+                                            foreach (var item1 in item0.Value)
                                             {
-                                                writer.WritePropertyName(unpatchedItem.Key);
-                                                writer.WriteObjectValue<global::Sample.Models.DynamicCat>(unpatchedItem.Value, options);
+                                                writer.WritePropertyName(item1.Key);
+                                                writer.WriteObjectValue<global::Sample.Models.DynamicCat>(item1.Value, options);
                                             }
                                         }
                                         writer.WriteEndObject();
@@ -124,19 +124,19 @@ namespace Sample
                             }
                             else
                             {
-                                foreach (var unpatchedItem in item.Value)
+                                foreach (var item0 in item.Value)
                                 {
-                                    writer.WritePropertyName(unpatchedItem.Key);
-                                    if ((unpatchedItem.Value == null))
+                                    writer.WritePropertyName(item0.Key);
+                                    if ((item0.Value == null))
                                     {
                                         writer.WriteNullValue();
                                         continue;
                                     }
                                     writer.WriteStartObject();
-                                    foreach (var unpatchedItem0 in unpatchedItem.Value)
+                                    foreach (var item1 in item0.Value)
                                     {
-                                        writer.WritePropertyName(unpatchedItem0.Key);
-                                        writer.WriteObjectValue<global::Sample.Models.DynamicCat>(unpatchedItem0.Value, options);
+                                        writer.WritePropertyName(item1.Key);
+                                        writer.WriteObjectValue<global::Sample.Models.DynamicCat>(item1.Value, options);
                                     }
                                     writer.WriteEndObject();
                                 }
@@ -149,28 +149,28 @@ namespace Sample
                 }
                 else
                 {
-                    foreach (var unpatchedItem in PropertyWithNestedDictionary)
+                    foreach (var item in PropertyWithNestedDictionary)
                     {
-                        writer.WritePropertyName(unpatchedItem.Key);
-                        if ((unpatchedItem.Value == null))
+                        writer.WritePropertyName(item.Key);
+                        if ((item.Value == null))
                         {
                             writer.WriteNullValue();
                             continue;
                         }
                         writer.WriteStartObject();
-                        foreach (var unpatchedItem0 in unpatchedItem.Value)
+                        foreach (var item0 in item.Value)
                         {
-                            writer.WritePropertyName(unpatchedItem0.Key);
-                            if ((unpatchedItem0.Value == null))
+                            writer.WritePropertyName(item0.Key);
+                            if ((item0.Value == null))
                             {
                                 writer.WriteNullValue();
                                 continue;
                             }
                             writer.WriteStartObject();
-                            foreach (var unpatchedItem1 in unpatchedItem0.Value)
+                            foreach (var item1 in item0.Value)
                             {
-                                writer.WritePropertyName(unpatchedItem1.Key);
-                                writer.WriteObjectValue<global::Sample.Models.DynamicCat>(unpatchedItem1.Value, options);
+                                writer.WritePropertyName(item1.Key);
+                                writer.WriteObjectValue<global::Sample.Models.DynamicCat>(item1.Value, options);
                             }
                             writer.WriteEndObject();
                         }

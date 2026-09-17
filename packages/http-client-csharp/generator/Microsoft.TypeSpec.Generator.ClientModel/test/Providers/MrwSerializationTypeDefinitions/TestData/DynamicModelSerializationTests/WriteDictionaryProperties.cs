@@ -66,10 +66,10 @@ namespace Sample
                 }
                 else
                 {
-                    foreach (var unpatchedItem in Cats)
+                    foreach (var item in Cats)
                     {
-                        writer.WritePropertyName(unpatchedItem.Key);
-                        writer.WriteObjectValue<global::Sample.Models.Cat>(unpatchedItem.Value, options);
+                        writer.WritePropertyName(item.Key);
+                        writer.WriteObjectValue<global::Sample.Models.Cat>(item.Value, options);
                     }
                 }
                 writer.WriteEndObject();
@@ -108,15 +108,15 @@ namespace Sample
                 }
                 else
                 {
-                    foreach (var unpatchedItem in Names)
+                    foreach (var item in Names)
                     {
-                        writer.WritePropertyName(unpatchedItem.Key);
-                        if ((unpatchedItem.Value == null))
+                        writer.WritePropertyName(item.Key);
+                        if ((item.Value == null))
                         {
                             writer.WriteNullValue();
                             continue;
                         }
-                        writer.WriteStringValue(unpatchedItem.Value);
+                        writer.WriteStringValue(item.Value);
                     }
                 }
                 writer.WriteEndObject();
@@ -155,15 +155,15 @@ namespace Sample
                 }
                 else
                 {
-                    foreach (var unpatchedItem in OptionalNames)
+                    foreach (var item in OptionalNames)
                     {
-                        writer.WritePropertyName(unpatchedItem.Key);
-                        if ((unpatchedItem.Value == null))
+                        writer.WritePropertyName(item.Key);
+                        if ((item.Value == null))
                         {
                             writer.WriteNullValue();
                             continue;
                         }
-                        writer.WriteStringValue(unpatchedItem.Value);
+                        writer.WriteStringValue(item.Value);
                     }
                 }
                 writer.WriteEndObject();

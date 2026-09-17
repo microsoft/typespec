@@ -56,7 +56,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // any path-dependent patch checks entirely instead of materializing a dead patched branch.
             if (suppressPatchLogic)
             {
-                var noPatchForeachStatement = new ForEachStatement("unpatchedItem", dictionary, out KeyValuePairExpression noPatchKeyValuePair);
+                var noPatchForeachStatement = new ForEachStatement("item", dictionary, out KeyValuePairExpression noPatchKeyValuePair);
                 noPatchForeachStatement.Add(CreateDictionaryItemSerialization(noPatchKeyValuePair, null, itemSuppressPatchLogic: true));
 
                 return new MethodBodyStatement[]
@@ -137,7 +137,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 patchSnippet.WriteTo(_utf8JsonWriterSnippet, jsonPath).Terminate()
             };
 
-            var unpatchedForeachStatement = new ForEachStatement("unpatchedItem", dictionary, out KeyValuePairExpression unpatchedKeyValuePair);
+            var unpatchedForeachStatement = new ForEachStatement("item", dictionary, out KeyValuePairExpression unpatchedKeyValuePair);
             // This branch only runs when the collection has no relevant patch, so serializers can skip path-dependent patch work.
             unpatchedForeachStatement.Add(CreateDictionaryItemSerialization(unpatchedKeyValuePair, null, itemSuppressPatchLogic: true));
 
