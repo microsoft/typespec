@@ -91,6 +91,7 @@ namespace Microsoft.TypeSpec.Generator.Input
 
                 _resolvingReferences[referenceId] = referenceCount;
                 _referenceDepth++;
+                EnterReferenceDefinition(referenceId);
                 try
                 {
                     var result = definition.Deserialize<T>(_options) ?? throw new JsonException($"cannot resolve reference {referenceId}");
@@ -98,6 +99,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                 }
                 finally
                 {
+                    ExitReferenceDefinition(referenceId);
                     _referenceDepth--;
                     if (isReentrantReference)
                     {
