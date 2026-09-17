@@ -16,7 +16,6 @@ permissions:
 
 network:
   allowed:
-    - defaults
     - pkgs.dev.azure.com
 
 safe-outputs:
