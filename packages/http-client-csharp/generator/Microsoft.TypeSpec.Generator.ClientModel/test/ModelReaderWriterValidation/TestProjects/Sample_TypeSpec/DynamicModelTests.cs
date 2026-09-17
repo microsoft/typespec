@@ -403,6 +403,86 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ModelReaderWriterValida
             Assert.That(document.RootElement.GetProperty("children").GetArrayLength(), Is.EqualTo(256));
         }
 
+        [TestCase("nestedChildren", false)]
+        [TestCase("nestedChildren", true)]
+        [TestCase("nestedChildDictionary", false)]
+        [TestCase("nestedChildDictionary", true)]
+        [TestCase("dictionaryChildren", false)]
+        [TestCase("dictionaryChildren", true)]
+        [TestCase("listOfDictionaries", false)]
+        [TestCase("listOfDictionaries", true)]
+        public void JsonModelWrite_UnpatchedNestedCollectionDoesNotAllocatePerElement(string propertyName, bool unrelatedPatch)
+        {
+            const int Count = 256;
+            var model = new NullableDynamicModel();
+            switch (propertyName)
+            {
+                case "nestedChildren":
+                    model.NestedChildren = Enumerable.Range(0, Count)
+                        .Select(_ => (IList<AnotherDynamicModel>)[new AnotherDynamicModel("value")])
+                        .ToList();
+                    break;
+                case "nestedChildDictionary":
+                    model.NestedChildDictionary = Enumerable.Range(0, Count)
+                        .ToDictionary(
+                            index => index.ToString(),
+                            _ => (IDictionary<string, AnotherDynamicModel>)new Dictionary<string, AnotherDynamicModel>
+                            {
+                                ["value"] = new AnotherDynamicModel("value")
+                            });
+                    break;
+                case "dictionaryChildren":
+                    model.DictionaryChildren = Enumerable.Range(0, Count)
+                        .ToDictionary(
+                            index => index.ToString(),
+                            _ => (IList<AnotherDynamicModel>)[new AnotherDynamicModel("value")]);
+                    break;
+                case "listOfDictionaries":
+                    model.ListOfDictionaries = Enumerable.Range(0, Count)
+                        .Select(_ => (IDictionary<string, AnotherDynamicModel>)new Dictionary<string, AnotherDynamicModel>
+                        {
+                            ["value"] = new AnotherDynamicModel("value")
+                        })
+                        .ToList();
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(propertyName), propertyName, null);
+            }
+
+#pragma warning disable SCME0001
+            if (unrelatedPatch)
+            {
+                model.Patch.Set("$.unrelated"u8, 1);
+            }
+#pragma warning restore SCME0001
+
+            var buffer = new ArrayBufferWriter<byte>();
+            using var writer = new Utf8JsonWriter(buffer);
+            var jsonModel = (IJsonModel<NullableDynamicModel>)model;
+            jsonModel.Write(writer, ModelReaderWriterOptions.Json);
+            writer.Flush();
+            buffer.Clear();
+            writer.Reset(buffer);
+
+            long before = GC.GetAllocatedBytesForCurrentThread();
+            jsonModel.Write(writer, ModelReaderWriterOptions.Json);
+            writer.Flush();
+            long allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+
+            // Shapes whose innermost collection element is an IDictionary<,> (nestedChildDictionary,
+            // listOfDictionaries) enumerate that dictionary via its interface once per outer element,
+            // which boxes a struct enumerator regardless of any patch guard. That is unrelated overhead
+            // this PR does not address, so those shapes use a higher bound; all shapes must stay far
+            // below what unconditional per-element interpolated-path formatting would cost (tens of KB).
+            long maxAllocated = propertyName is "nestedChildDictionary" or "listOfDictionaries" ? 20 * 1024 : 4096;
+            Assert.That(allocated, Is.LessThan(maxAllocated), "Indexed patch paths must not allocate for each unpatched nested element.");
+            using var document = JsonDocument.Parse(buffer.WrittenMemory);
+            var collection = document.RootElement.GetProperty(propertyName);
+            Assert.That(
+                collection.ValueKind == JsonValueKind.Array ? collection.GetArrayLength() : collection.EnumerateObject().Count(),
+                Is.EqualTo(Count));
+        }
+
         [TestCase("nestedChildren")]
         [TestCase("nestedChildDictionary")]
         [TestCase("dictionaryChildren")]
