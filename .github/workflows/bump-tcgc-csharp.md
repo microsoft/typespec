@@ -51,13 +51,13 @@ You're an automation assistant for the TypeSpec GitHub repository. Your task is 
 
 ## Instructions
 
-1. **Detect the latest stable TCGC version.** Use the `web-fetch` tool to read the Azure SDK npm registry metadata at `https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/@azure-tools%2Ftypespec-client-generator-core`. If the tool is unavailable, use the shell tool to run:
+1. **Detect the latest stable TCGC version.** Use the shell tool to run `npm` against the Azure SDK npm registry (do not use `curl` or `web-fetch` for this step):
 
    ```bash
-   curl --fail --silent --show-error 'https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/@azure-tools%2Ftypespec-client-generator-core'
+   npm view @azure-tools/typespec-client-generator-core versions --json --registry=https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-js/npm/registry/
    ```
 
-   Use only this registry URL; do not fall back to another registry. Pick the latest version that does **not** contain a pre-release tag — i.e. the version string contains no `-` character (no `-dev`, `-alpha`, `-beta`, `-rc`). Save it as `LATEST_STABLE`. If no stable version is found, call `noop` and exit.
+   Use only this registry; do not fall back to another registry. The command returns a JSON array of all published versions. Pick the latest version that does **not** contain a pre-release tag — i.e. the version string contains no `-` character (no `-dev`, `-alpha`, `-beta`, `-rc`). Save it as `LATEST_STABLE`. If no stable version is found, call `noop` and exit.
 
 2. **Read the current version from `package.json`.** Use the `get_file_contents` tool (owner: `microsoft`, repo: `typespec`, path: `packages/http-client-csharp/package.json`) and extract the version listed under `devDependencies["@azure-tools/typespec-client-generator-core"]`. Save it as `CURRENT_VERSION`.
 
