@@ -49,9 +49,10 @@ namespace Sample
             {
                 writer.WritePropertyName("cats"u8);
                 writer.WriteStartArray();
+                bool hasPatch = Patch.Contains("$"u8, "cats"u8);
                 for (int i = 0; (i < Cats.Count); i++)
                 {
-                    if (Patch.IsRemoved(global::System.Text.Encoding.UTF8.GetBytes($"$.cats[{i}]")))
+                    if ((hasPatch && Patch.IsRemoved(global::System.Text.Encoding.UTF8.GetBytes($"$.cats[{i}]"))))
                     {
                         continue;
                     }
@@ -72,9 +73,10 @@ namespace Sample
             {
                 writer.WritePropertyName("names"u8);
                 writer.WriteStartArray();
+                bool hasPatch = Patch.Contains("$"u8, "names"u8);
                 for (int i = 0; (i < Names.Count); i++)
                 {
-                    if (Patch.IsRemoved(global::System.Text.Encoding.UTF8.GetBytes($"$.names[{i}]")))
+                    if ((hasPatch && Patch.IsRemoved(global::System.Text.Encoding.UTF8.GetBytes($"$.names[{i}]"))))
                     {
                         continue;
                     }
@@ -100,9 +102,10 @@ namespace Sample
             {
                 writer.WritePropertyName("optionalNames"u8);
                 writer.WriteStartArray();
+                bool hasPatch = Patch.Contains("$"u8, "optionalNames"u8);
                 for (int i = 0; (i < OptionalNames.Count); i++)
                 {
-                    if (Patch.IsRemoved(global::System.Text.Encoding.UTF8.GetBytes($"$.optionalNames[{i}]")))
+                    if ((hasPatch && Patch.IsRemoved(global::System.Text.Encoding.UTF8.GetBytes($"$.optionalNames[{i}]"))))
                     {
                         continue;
                     }
