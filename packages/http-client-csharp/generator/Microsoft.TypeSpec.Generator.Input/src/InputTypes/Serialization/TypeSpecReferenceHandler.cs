@@ -35,10 +35,13 @@ namespace Microsoft.TypeSpec.Generator.Input
             {
                 if (element.ValueKind == JsonValueKind.Object)
                 {
-                    if (element.TryGetProperty("$id", out var id) && id.ValueKind == JsonValueKind.String
-                        && !_referenceDefinitions.TryAdd(id.GetString()!, element))
+                    if (element.TryGetProperty("$id", out var id) && id.ValueKind == JsonValueKind.String)
                     {
-                        throw new JsonException($"Duplicate reference ID '{id.GetString()}'");
+                        var referenceId = id.GetString() ?? throw new JsonException("$id can't be null");
+                        if (!_referenceDefinitions.TryAdd(referenceId, element))
+                        {
+                            throw new JsonException($"Duplicate reference ID '{referenceId}'");
+                        }
                     }
 
                     foreach (var property in element.EnumerateObject())

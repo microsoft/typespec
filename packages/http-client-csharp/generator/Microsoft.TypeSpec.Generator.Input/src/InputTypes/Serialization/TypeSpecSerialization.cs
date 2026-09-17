@@ -87,7 +87,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             // Opaque decorator arguments and unknown properties can contain the first
             // definition of an object referenced by the typed code-model graph.
             referenceHandler.CurrentResolver.RegisterReferenceDefinitions(document.RootElement, options);
-            var inputNamespace = JsonSerializer.Deserialize<InputNamespace>(json, options);
+            var inputNamespace = document.RootElement.Deserialize<InputNamespace>(options);
 
             if (inputNamespace != null)
             {
