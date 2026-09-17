@@ -10,14 +10,18 @@ import {
   type Namespace as TspNamespace,
 } from "@typespec/compiler";
 import { useTsp } from "@typespec/emitter-framework";
-import { getDocComments } from "@typespec/emitter-framework/csharp";
+import { getDocComments, getNullableUnionInnerType } from "@typespec/emitter-framework/csharp";
 import { isStatusCode } from "@typespec/http";
 import { getUniqueItems } from "@typespec/json-schema";
 import { useEmitterOptions } from "../../context/emitter-options-context.js";
 import { getPropertyAttributes } from "../../utils/attributes.jsx";
 import { getSubNamespaceParts } from "../../utils/namespace-utils.js";
 import { CSharpFile } from "../csharp-file.jsx";
-import { efRefkey, TypeExpression } from "../type-expression/type-expression.jsx";
+import {
+  efRefkey,
+  getNullableValueTypeUnionInnerType,
+  TypeExpression,
+} from "../type-expression/type-expression.jsx";
 import { getErrorConstructor } from "./error-models.jsx";
 import {
   getDefaultValueString,
@@ -176,7 +180,7 @@ interface ServerPropertyProps {
 
 /**
  * Server-specific property that matches old emitter output.
- * No `required`, no `[JsonPropertyName]`, no nullable `?` for reference types.
+ * No `required` or `[JsonPropertyName]`. Nullable reference types are limited to error models.
  */
 function ServerProperty(props: ServerPropertyProps): Children {
   const { $ } = useTsp();
@@ -235,7 +239,14 @@ function ServerProperty(props: ServerPropertyProps): Children {
   // But not for union variant types — those should resolve to the enum type
   const resolveToScalar = (isLiteralOnly && !unionVariantInit) || isErrorProp;
   const resolvedType = resolveToScalar ? getScalarForLiteral(propType) : propType;
-  const needsNullable = props.type.optional && (isFloatEnum || isValueType($, resolvedType));
+  const nullableUnionInnerType =
+    propType.kind === "Union" ? getNullableUnionInnerType(propType) : undefined;
+  const typeExpressionIncludesNullable =
+    getNullableValueTypeUnionInnerType($, propType) !== undefined;
+  const needsNullable = isErrorProp
+    ? !typeExpressionIncludesNullable &&
+      (props.type.optional || nullableUnionInnerType !== undefined)
+    : props.type.optional && (isFloatEnum || isValueType($, resolvedType));
 
   // Check if this is a @uniqueItems array → ISet<T>
   const isUniqueItems = getUniqueItems($.program, props.type);
