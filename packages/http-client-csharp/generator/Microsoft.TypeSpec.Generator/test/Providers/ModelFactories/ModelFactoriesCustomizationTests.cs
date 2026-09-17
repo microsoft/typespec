@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
@@ -201,6 +202,66 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.IsNotNull(modelFactory);
             CollectionAssert.Contains(modelFactory!.Methods.Select(m => m.Signature.Name), "BaseModel");
             CollectionAssert.DoesNotContain(modelFactory.Methods.Select(m => m.Signature.Name), "DerivedModel");
+        }
+
+        [Test]
+        public async Task CustomFullConstructorFactoryMethodRetainsGeneratedModelParameterNamespaces()
+        {
+            var networkSubResource = InputFactory.Model("NetworkSubResource");
+            var association = InputFactory.Model("EffectiveNetworkSecurityGroupAssociation");
+            var rule = InputFactory.Model("EffectiveNetworkSecurityRule");
+            var effectiveNetworkSecurityGroup = InputFactory.Model(
+                "EffectiveNetworkSecurityGroup",
+                properties:
+                [
+                    InputFactory.Property("NetworkSecurityGroup", networkSubResource),
+                    InputFactory.Property("Association", association),
+                    InputFactory.Property("EffectiveSecurityRules", InputFactory.Array(rule)),
+                    InputFactory.Property("TagMap", InputPrimitiveType.String),
+                ]);
+
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [networkSubResource, association, rule, effectiveNetworkSecurityGroup],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                additionalMetadataReferences: [MetadataReference.CreateFromFile(typeof(BinaryData).Assembly.Location)]);
+
+            var csharpGen = new CSharpGen();
+            await csharpGen.ExecuteAsync();
+
+            var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(m => m.Name == "EffectiveNetworkSecurityGroup");
+            Assert.IsFalse(
+                modelProvider.Constructors.Contains(modelProvider.FullConstructor),
+                $"The generated full constructor should be suppressed. Actual signature: {string.Join(", ", modelProvider.FullConstructor.Signature.Parameters.Select(p => p.Type.ToString()))}");
+            Assert.IsTrue(modelProvider.CanonicalView.Constructors.Any(c => c.EnclosingType == modelProvider.CustomCodeView), "The custom internal constructor should replace the suppressed full constructor.");
+
+            var modelFactory = mockGenerator.Object.OutputLibrary.TypeProviders.SingleOrDefault(t => t is ModelFactoryProvider);
+            Assert.IsNotNull(modelFactory);
+
+            var customFactoryMethod = modelFactory!.CustomCodeView!.Methods
+                .Single(m => m.Signature.Name == "EffectiveNetworkSecurityGroup");
+            Assert.AreEqual(3, customFactoryMethod.Signature.Parameters.Count);
+
+            var generatedFactoryMethod = modelFactory.Methods
+                .SingleOrDefault(m => m.Signature.Name == "EffectiveNetworkSecurityGroup");
+            Assert.IsNotNull(generatedFactoryMethod);
+            Assert.AreEqual(4, generatedFactoryMethod!.Signature.Parameters.Count);
+
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            Assert.IsFalse(content.Contains("using ;"), $"Model factory wrote an empty using directive:\n{content}");
+            Assert.IsFalse(content.Contains("global::."), $"Model factory wrote an empty-namespace type reference:\n{content}");
+
+            var networkSecurityGroupParam = generatedFactoryMethod.Signature.Parameters.Single(p => p.Name == "networkSecurityGroup");
+            Assert.AreEqual("Sample.Models", networkSecurityGroupParam.Type.Namespace);
+
+            var associationParam = generatedFactoryMethod.Signature.Parameters.Single(p => p.Name == "association");
+            Assert.AreEqual("Sample.Models", associationParam.Type.Namespace);
+
+            var effectiveSecurityRulesParam = generatedFactoryMethod.Signature.Parameters.Single(p => p.Name == "effectiveSecurityRules");
+            Assert.AreEqual(typeof(IEnumerable<>), effectiveSecurityRulesParam.Type.FrameworkType);
+            Assert.AreEqual("Sample.Models", effectiveSecurityRulesParam.Type.Arguments[0].Namespace);
         }
 
         [TestCase(true)]
