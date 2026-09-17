@@ -267,7 +267,7 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
         }
 
         [Test]
-        public void UnmaterializableReferenceCycleThrows()
+        public void UnresolvedReferenceCycleThrows()
         {
             const string content = """
                 {
