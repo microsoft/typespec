@@ -23,6 +23,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             private readonly Dictionary<string, object> _referenceIdToObjectMap = new();
             private readonly Dictionary<string, JsonElement> _referenceDefinitions = new();
             private readonly Dictionary<string, int> _resolvingReferences = new();
+            private readonly Dictionary<string, int> _readingReferenceDefinitions = new();
             private int _referenceDepth;
             private JsonSerializerOptions? _options;
 
@@ -109,6 +110,25 @@ namespace Microsoft.TypeSpec.Generator.Input
                 }
             }
 
+            public void EnterReferenceDefinition(string referenceId)
+            {
+                _readingReferenceDefinitions.TryGetValue(referenceId, out var count);
+                _readingReferenceDefinitions[referenceId] = count + 1;
+            }
+
+            public void ExitReferenceDefinition(string referenceId)
+            {
+                var count = _readingReferenceDefinitions[referenceId];
+                if (count > 1)
+                {
+                    _readingReferenceDefinitions[referenceId] = count - 1;
+                }
+                else
+                {
+                    _readingReferenceDefinitions.Remove(referenceId);
+                }
+            }
+
             public override void AddReference(string referenceId, object value)
             {
                 // Indexed definitions are unique. A cycle through a late-registering type
@@ -116,7 +136,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                 if (_referenceIdToObjectMap.TryGetValue(referenceId, out var existingValue))
                 {
                     if (ReferenceEquals(existingValue, value)
-                        || (_referenceDefinitions.ContainsKey(referenceId) && existingValue.GetType() == value.GetType()))
+                        || (_readingReferenceDefinitions.ContainsKey(referenceId) && existingValue.GetType() == value.GetType()))
                     {
                         return;
                     }

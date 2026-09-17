@@ -187,22 +187,55 @@ namespace Microsoft.TypeSpec.Generator.Input
         {
             var resolver = (options.ReferenceHandler as TypeSpecReferenceHandler)?.CurrentResolver;
             var definitionReader = reader;
-            string? id = null;
-            if (resolver != null && definitionReader.TokenType == JsonTokenType.StartObject
-                && definitionReader.Read() && definitionReader.TokenType == JsonTokenType.PropertyName
-                && definitionReader.ValueTextEquals("$id") && definitionReader.Read() && definitionReader.TokenType == JsonTokenType.String)
-            {
-                id = definitionReader.GetString();
-            }
+            var id = resolver == null ? null : TryGetReferenceDefinitionId(ref definitionReader);
 
             var converter = (JsonConverter<T>)options.GetConverter(typeof(T));
-            var value = converter.Read(ref reader, typeof(T), options);
+            var enteredReferenceDefinition = false;
+            if (id != null && resolver != null)
+            {
+                resolver.EnterReferenceDefinition(id);
+                enteredReferenceDefinition = true;
+            }
+            T? value;
+            try
+            {
+                value = converter.Read(ref reader, typeof(T), options);
+            }
+            finally
+            {
+                if (enteredReferenceDefinition && resolver != null && id != null)
+                {
+                    resolver.ExitReferenceDefinition(id);
+                }
+            }
             reader.Read();
             if (id != null && resolver != null && resolver.GetPreviouslyResolvedReference(id) is T canonical)
             {
                 return canonical;
             }
             return value;
+        }
+
+        private static string? TryGetReferenceDefinitionId(ref Utf8JsonReader reader)
+        {
+            if (reader.TokenType != JsonTokenType.StartObject)
+            {
+                return null;
+            }
+
+            reader.Read();
+            while (reader.TokenType == JsonTokenType.PropertyName)
+            {
+                var isReferenceId = reader.ValueTextEquals("$id");
+                reader.Read();
+                if (isReferenceId)
+                {
+                    return reader.TokenType == JsonTokenType.String ? reader.GetString() : null;
+                }
+                reader.SkipValue();
+            }
+
+            return null;
         }
 
         public static T? ReadReferenceAndResolve<T>(this ref Utf8JsonReader reader, ReferenceResolver resolver) where T : class
