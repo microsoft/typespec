@@ -201,6 +201,49 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
         }
 
         [Test]
+        public void LoadsLateRegisteringCycleFromDecoratorArgument()
+        {
+            const string content = """
+                {
+                  "name": "Test",
+                  "models": [{
+                    "$id": "owner",
+                    "name": "Owner",
+                    "decorators": [{
+                      "name": "example",
+                      "arguments": {
+                        "value": {
+                          "$id": "array",
+                          "kind": "array",
+                          "valueType": {
+                            "$id": "node",
+                            "kind": "model",
+                            "name": "Node",
+                            "properties": [{
+                              "$id": "children",
+                              "name": "children",
+                              "type": { "$ref": "array" }
+                            }]
+                          }
+                        }
+                      }
+                    }],
+                    "additionalProperties": { "$ref": "array" }
+                  },
+                  { "$ref": "node" }]
+                }
+                """;
+
+            var inputNamespace = TypeSpecSerialization.Deserialize(content)!;
+            var array = inputNamespace.Models[0].AdditionalProperties as InputArrayType
+                ?? throw new AssertionException("Expected an array type.");
+            var node = inputNamespace.Models[1];
+
+            Assert.AreSame(node, array.ValueType);
+            Assert.AreSame(array, node.Properties[0].Type);
+        }
+
+        [Test]
         public void LoadsReferenceDefinedInUnknownProperty()
         {
             const string content = """
