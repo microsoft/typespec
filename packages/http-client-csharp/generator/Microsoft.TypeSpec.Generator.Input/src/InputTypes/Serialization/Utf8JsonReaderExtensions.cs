@@ -185,9 +185,23 @@ namespace Microsoft.TypeSpec.Generator.Input
 
         public static T? ReadWithConverter<T>(this ref Utf8JsonReader reader, JsonSerializerOptions options)
         {
+            var referenceHandler = options.ReferenceHandler as TypeSpecReferenceHandler;
+            var definitionReader = reader;
+            string? id = null;
+            if (referenceHandler != null && definitionReader.TokenType == JsonTokenType.StartObject
+                && definitionReader.Read() && definitionReader.TokenType == JsonTokenType.PropertyName
+                && definitionReader.ValueTextEquals("$id") && definitionReader.Read() && definitionReader.TokenType == JsonTokenType.String)
+            {
+                id = definitionReader.GetString();
+            }
+
             var converter = (JsonConverter<T>)options.GetConverter(typeof(T));
             var value = converter.Read(ref reader, typeof(T), options);
             reader.Read();
+            if (id != null && referenceHandler!.CurrentResolver.GetPreviouslyResolvedReference(id) is T canonical)
+            {
+                return canonical;
+            }
             return value;
         }
 
@@ -211,13 +225,13 @@ namespace Microsoft.TypeSpec.Generator.Input
                 {
                     var idReader = reader;
                     idReader.Read();
-                    var existing = indexedResolver.GetPreviouslyResolvedReference<T>(idReader.GetString() ?? throw new JsonException());
+                    var existing = indexedResolver.GetPreviouslyResolvedReference(idReader.GetString() ?? throw new JsonException());
                     if (existing != null)
                     {
                         // A forward reference may have already materialized this definition.
                         objectReader.Skip();
                         reader = objectReader;
-                        return existing;
+                        return (T)existing;
                     }
                 }
                 return null;
