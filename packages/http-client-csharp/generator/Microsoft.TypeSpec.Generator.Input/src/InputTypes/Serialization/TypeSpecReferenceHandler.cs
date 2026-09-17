@@ -14,13 +14,78 @@ namespace Microsoft.TypeSpec.Generator.Input
     /// </summary>
     internal sealed class TypeSpecReferenceHandler : ReferenceHandler
     {
-        public ReferenceResolver CurrentResolver { get; } = new TypeSpecReferenceResolver();
+        public TypeSpecReferenceResolver CurrentResolver { get; } = new TypeSpecReferenceResolver();
 
         public override ReferenceResolver CreateResolver() => CurrentResolver;
 
-        private class TypeSpecReferenceResolver : ReferenceResolver
+        internal sealed class TypeSpecReferenceResolver : ReferenceResolver
         {
             private readonly Dictionary<string, object> _referenceIdToObjectMap = new();
+            private readonly Dictionary<string, JsonElement> _referenceDefinitions = new();
+            private readonly HashSet<string> _resolvingReferences = new();
+            private JsonSerializerOptions? _options;
+
+            public void RegisterReferenceDefinitions(JsonElement root, JsonSerializerOptions options)
+            {
+                _options = options;
+                IndexReferenceDefinitions(root);
+            }
+
+            private void IndexReferenceDefinitions(JsonElement element)
+            {
+                if (element.ValueKind == JsonValueKind.Object)
+                {
+                    if (element.TryGetProperty("$id", out var id) && id.ValueKind == JsonValueKind.String
+                        && !_referenceDefinitions.TryAdd(id.GetString()!, element))
+                    {
+                        throw new JsonException($"Duplicate reference ID '{id.GetString()}'");
+                    }
+
+                    foreach (var property in element.EnumerateObject())
+                    {
+                        IndexReferenceDefinitions(property.Value);
+                    }
+                }
+                else if (element.ValueKind == JsonValueKind.Array)
+                {
+                    foreach (var item in element.EnumerateArray())
+                    {
+                        IndexReferenceDefinitions(item);
+                    }
+                }
+            }
+
+            public T? GetPreviouslyResolvedReference<T>(string referenceId) where T : class
+                => _referenceDefinitions.ContainsKey(referenceId) && _referenceIdToObjectMap.TryGetValue(referenceId, out var value) ? (T)value : null;
+
+            public T ResolveReference<T>(string referenceId) where T : class
+            {
+                if (_referenceIdToObjectMap.TryGetValue(referenceId, out var value))
+                {
+                    return (T)value;
+                }
+
+                if (_options == null || !_referenceDefinitions.TryGetValue(referenceId, out var definition))
+                {
+                    throw new JsonException($"cannot resolve reference {referenceId}");
+                }
+
+                // Reference chains can exceed the JSON document's depth, and some converters
+                // cannot register their instance until all of its children have been read.
+                if (_resolvingReferences.Count >= _options.MaxDepth || !_resolvingReferences.Add(referenceId))
+                {
+                    throw new JsonException($"Cannot resolve reference {referenceId}: circular reference or maximum reference depth exceeded");
+                }
+
+                try
+                {
+                    return definition.Deserialize<T>(_options) ?? throw new JsonException($"cannot resolve reference {referenceId}");
+                }
+                finally
+                {
+                    _resolvingReferences.Remove(referenceId);
+                }
+            }
 
             public override void AddReference(string referenceId, object value)
             {

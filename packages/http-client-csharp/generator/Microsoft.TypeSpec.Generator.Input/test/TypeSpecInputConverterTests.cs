@@ -9,6 +9,200 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
 {
     public class TypeSpecInputConverterTests
     {
+        [TestCase(true)]
+        [TestCase(false)]
+        public void LoadsReferencesDefinedInDecoratorArguments(bool definitionsFirst)
+        {
+            var directory = Helpers.GetAssetFileOrDirectoryPath(false);
+            var content = File.ReadAllText(Path.Combine(directory, "tspCodeModel.json"));
+            using var document = JsonDocument.Parse(content);
+            var root = document.RootElement;
+            if (!definitionsFirst)
+            {
+                content = $$"""
+                    {
+                      "name": "Test",
+                      "models": {{root.GetProperty("models").GetRawText()}},
+                      "enums": {{root.GetProperty("enums").GetRawText()}},
+                      "clients": {{root.GetProperty("clients").GetRawText()}}
+                    }
+                    """;
+            }
+
+            var inputNamespace = TypeSpecSerialization.Deserialize(content)!;
+            var sharedModel = inputNamespace.Models[1];
+            var owner = inputNamespace.Models[0];
+            var enumType = inputNamespace.Enums.Single();
+
+            Assert.AreEqual("SharedModel", sharedModel.Name);
+            Assert.AreSame(sharedModel, inputNamespace.Models[2]);
+            Assert.AreSame(sharedModel.Properties[0], owner.Properties[0]);
+            Assert.AreSame(owner, sharedModel.Properties[1].Type);
+            Assert.AreSame(owner, owner.Properties[1].Type);
+            Assert.AreSame(sharedModel, owner.Properties[2].Type);
+            Assert.AreSame(enumType, owner.Properties[3].Type);
+            Assert.AreSame(sharedModel.Properties[0].Type, enumType.ValueType);
+
+            var client = inputNamespace.Clients.Single();
+            Assert.AreEqual("Test", client.Namespace);
+            var decorator = client.Decorators.Single();
+            Assert.AreEqual("example", decorator.Name);
+            foreach (var argument in root.GetProperty("clients")[0].GetProperty("decorators")[0].GetProperty("arguments").EnumerateObject())
+            {
+                Assert.AreEqual(argument.Value.GetRawText(), decorator.Arguments![argument.Name].ToString());
+            }
+        }
+
+        [Test]
+        public void LoadsForwardReferenceWithoutDuplicatingDefinition()
+        {
+            const string content = """
+                {
+                  "name": "Test",
+                  "models": [
+                    { "$ref": "model" },
+                    { "$id": "model", "name": "SharedModel", "properties": [] },
+                    { "$ref": "model" }
+                  ]
+                }
+                """;
+
+            var inputNamespace = TypeSpecSerialization.Deserialize(content)!;
+
+            Assert.AreEqual("SharedModel", inputNamespace.Models[0].Name);
+            Assert.AreSame(inputNamespace.Models[0], inputNamespace.Models[1]);
+            Assert.AreSame(inputNamespace.Models[0], inputNamespace.Models[2]);
+        }
+
+        [Test]
+        public void LoadsReferenceDefinedInUnknownProperty()
+        {
+            const string content = """
+                {
+                  "name": "Test",
+                  "extension": {
+                    "nested": [{ "$id": "model", "name": "SharedModel" }]
+                  },
+                  "models": [{ "$ref": "model" }],
+                }
+                """;
+
+            var inputNamespace = TypeSpecSerialization.Deserialize(content)!;
+
+            Assert.AreEqual("SharedModel", inputNamespace.Models.Single().Name);
+        }
+
+        [Test]
+        public void UnresolvedReferenceStillThrows()
+        {
+            const string content = """
+                { "name": "Test", "models": [{ "$ref": "missing" }] }
+                """;
+
+            var exception = Assert.Throws<JsonException>(() => TypeSpecSerialization.Deserialize(content));
+
+            Assert.That(exception!.Message, Does.Contain("cannot resolve reference missing"));
+        }
+
+        [Test]
+        public void DuplicateReferenceDefinitionsStillThrow()
+        {
+            const string content = """
+                {
+                  "name": "Test",
+                  "models": [
+                    { "$id": "duplicate", "name": "First" },
+                    { "$id": "duplicate", "name": "Second" }
+                  ]
+                }
+                """;
+
+            var exception = Assert.Throws<JsonException>(() => TypeSpecSerialization.Deserialize(content));
+
+            Assert.That(exception!.Message, Does.Contain("duplicate"));
+        }
+
+        [Test]
+        public void ReferenceWithAdditionalPropertiesStillThrows()
+        {
+            const string content = """
+                {
+                  "name": "Test",
+                  "models": [
+                    { "$id": "model", "name": "SharedModel" },
+                    { "$ref": "model", "name": "Invalid" }
+                  ]
+                }
+                """;
+
+            var exception = Assert.Throws<JsonException>(() => TypeSpecSerialization.Deserialize(content));
+
+            Assert.That(exception!.Message, Does.Contain("$ref should be the only property"));
+        }
+
+        [Test]
+        public void UnmaterializableReferenceCycleThrows()
+        {
+            const string content = """
+                {
+                  "name": "Test",
+                  "extension": {
+                    "$id": "array",
+                    "kind": "array",
+                    "valueType": { "$ref": "array" }
+                  },
+                  "models": [{
+                    "$id": "model",
+                    "name": "Model",
+                    "additionalProperties": { "$ref": "array" }
+                  }]
+                }
+                """;
+
+            var exception = Assert.Throws<JsonException>(() => TypeSpecSerialization.Deserialize(content));
+
+            Assert.That(exception!.Message, Does.Contain("circular reference"));
+        }
+
+        [Test]
+        public void ExcessiveReferenceDepthThrows()
+        {
+            var definitions = string.Join(",", Enumerable.Range(0, 130).Select(i => $$"""
+                {
+                  "$id": "{{i}}",
+                  "name": "Model{{i}}",
+                  "baseModel": { "$ref": "{{i + 1}}" }
+                }
+                """));
+            var content = $$"""
+                {
+                  "name": "Test",
+                  "extension": [{{definitions}}, { "$id": "130", "name": "End" }],
+                  "models": [{ "$ref": "0" }]
+                }
+                """;
+
+            var exception = Assert.Throws<JsonException>(() => TypeSpecSerialization.Deserialize(content));
+
+            Assert.That(exception!.Message, Does.Contain("maximum reference depth"));
+        }
+
+        [TestCase(100)]
+        [TestCase(130)]
+        public void ReferenceIndexRespectsDocumentDepth(int depth)
+        {
+            var content = """{ "name": "Test", "extension": """ + new string('[', depth) + "0" + new string(']', depth) + "}";
+
+            if (depth < 128)
+            {
+                Assert.IsNotNull(TypeSpecSerialization.Deserialize(content));
+            }
+            else
+            {
+                Assert.Catch<JsonException>(() => TypeSpecSerialization.Deserialize(content));
+            }
+        }
+
         [Test]
         public void LoadsPagingWithNextLink()
         {

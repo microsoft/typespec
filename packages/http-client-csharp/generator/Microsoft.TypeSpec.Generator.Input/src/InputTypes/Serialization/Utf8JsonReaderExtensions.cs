@@ -197,6 +197,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             {
                 throw new JsonException();
             }
+            var objectReader = reader;
             reader.Read();
 
             if (reader.TokenType != JsonTokenType.PropertyName)
@@ -206,12 +207,27 @@ namespace Microsoft.TypeSpec.Generator.Input
 
             if (reader.GetString() != "$ref")
             {
+                if (reader.GetString() == "$id" && resolver is TypeSpecReferenceHandler.TypeSpecReferenceResolver indexedResolver)
+                {
+                    var idReader = reader;
+                    idReader.Read();
+                    var existing = indexedResolver.GetPreviouslyResolvedReference<T>(idReader.GetString() ?? throw new JsonException());
+                    if (existing != null)
+                    {
+                        // A forward reference may have already materialized this definition.
+                        objectReader.Skip();
+                        reader = objectReader;
+                        return existing;
+                    }
+                }
                 return null;
             }
 
             reader.Read();
             var idRef = reader.GetString() ?? throw new JsonException("$ref can't be null");
-            var result = (T)resolver.ResolveReference(idRef);
+            var result = resolver is TypeSpecReferenceHandler.TypeSpecReferenceResolver typeSpecResolver
+                ? typeSpecResolver.ResolveReference<T>(idRef)
+                : (T)resolver.ResolveReference(idRef);
 
             reader.Read();
             if (reader.TokenType != JsonTokenType.EndObject)
