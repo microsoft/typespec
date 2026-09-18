@@ -99,12 +99,15 @@ def test_generated_unnamed_discriminator_dispatch_and_terminal_predicate(async_m
         stream_class_name=lambda is_async: "AsyncStream" if is_async else "Stream",
     )
     code_model = SimpleNamespace(
+        is_azure_flavor=False,
         options={"models-mode": "dpg"},
         get_serialize_namespace=lambda *args, **kwargs: "test",
     )
     serializer = OperationSerializer(code_model, async_mode=async_mode, client_namespace="test")
 
-    generated = "\n".join(serializer.handle_structured_stream_response(SimpleNamespace(responses=[response])))
+    generated = "\n".join(
+        serializer.handle_structured_stream_response(SimpleNamespace(responses=[response], success_status_codes=[200]))
+    )
 
     assert ("if isinstance(_event_json, dict) and " "_event_json.get('kind') == 'connected':") in generated
     assert "_deserialize(_models.Connected, _event_json)" in generated
@@ -114,6 +117,22 @@ def test_generated_unnamed_discriminator_dispatch_and_terminal_predicate(async_m
     assert "_event_json.get('kind') in ['disconnected']" in generated
     assert f"deserialized: {stream_class}[" in generated
     assert "terminal_event_predicate=_is_terminal_event" in generated
+    assert (
+        "async def _reconnect(_last_event_id, _reconnect_delay):"
+        if async_mode
+        else "def _reconnect(_last_event_id, _reconnect_delay):"
+    ) in generated
+    assert "_transport: Any = pipeline_response.context.transport" in generated
+    assert f"{'await ' if async_mode else ''}_transport.sleep(_reconnect_delay)" in generated
+    assert (
+        f"_reconnect_response = {'await ' if async_mode else ''}"
+        "self._client.send_request(_request, stream=True, **kwargs)"
+    ) in generated
+    assert "_update_sse_request_headers(_request, _last_event_id)" in generated
+    assert "if _reconnect_response.status_code not in [200, 204]:" in generated
+    assert "raise HttpResponseError(response=_reconnect_response)" in generated
+    assert "last_event_id=_last_event_id" in generated
+    assert "reconnect_callback=_reconnect" in generated
     assert generated.count("return cls(pipeline_response, deserialized, {})") == 1
     assert 'raise ValueError(f"Unknown SSE event type: {_event.event!r}")' in generated
     assert not any(line.strip().startswith("_event.event =") for line in generated.splitlines())
