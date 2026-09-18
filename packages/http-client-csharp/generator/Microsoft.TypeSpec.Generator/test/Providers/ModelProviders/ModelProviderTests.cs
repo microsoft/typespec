@@ -175,8 +175,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
         [TestCase(false, "Sample.Models", "WidgetResponse")]
         [TestCase(true, "Sample.Models", "WidgetResponse")]
-        [TestCase(false, "Other.Models", "WidgetResult")]
-        [TestCase(true, "Other.Models", "WidgetResult")]
+        [TestCase(false, "Other.Models", "WidgetResponse")]
+        [TestCase(true, "Other.Models", "WidgetResponse")]
         public void TestBuildName_ResponseSuffixAvoidsTypeNameCollision(bool isEnum, string otherNamespace, string expectedName)
         {
             var inputModel = InputFactory.Model("WidgetResponse");
@@ -191,13 +191,57 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual(expectedName, modelProvider.Name);
         }
 
-        [TestCase(false, false)]
-        [TestCase(true, false)]
-        [TestCase(true, true)]
-        public async Task TestBuildName_ResponseSuffixPreservesExistingName(bool isLastContract, bool updateNamespace)
+        [Test]
+        public async Task TestBuildName_ResponseSuffixAvoidsCustomizedTypeNameCollision()
+        {
+            var inputModel = InputFactory.Model("WidgetResponse");
+            var otherModel = InputFactory.Model("Other");
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel, otherModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
+            var otherProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(otherModel)!;
+
+            Assert.AreEqual("WidgetResponse", modelProvider.Name);
+            Assert.AreEqual("WidgetResult", otherProvider.Name);
+            Assert.IsNull(modelProvider.CustomCodeView);
+        }
+
+        [Test]
+        public async Task TestBuildName_ResponseSuffixAvoidsCustomizationAliasCollision()
+        {
+            var inputModel = InputFactory.Model("WidgetResponse");
+            var otherModel = InputFactory.Model("WidgetResult");
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel, otherModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
+            var otherProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(otherModel)!;
+
+            Assert.AreEqual("WidgetResponse", modelProvider.Name);
+            Assert.AreEqual("CustomizedResult", otherProvider.Name);
+            Assert.IsNull(modelProvider.CustomCodeView);
+        }
+
+        [TestCase("WidgetResponse", "WidgetResult", "WidgetResponse", false, false)]
+        [TestCase("WidgetResponse", "WidgetResult", "WidgetResponse", false, true)]
+        [TestCase("WidgetResponse", "WidgetResult", "WidgetResponse", true, false)]
+        [TestCase("WidgetResponse", "WidgetResult", "WidgetResponse", true, true)]
+        [TestCase("IpResponse", "IPResult", "IPResponse", false, false)]
+        [TestCase("IpResponse", "IPResult", "IPResponse", false, true)]
+        [TestCase("IpResponse", "IPResult", "IPResponse", true, false)]
+        [TestCase("IpResponse", "IPResult", "IPResponse", true, true)]
+        public async Task TestBuildName_ResponseSuffixPreservesExistingName(
+            string inputName,
+            string generatedName,
+            string existingName,
+            bool isLastContract,
+            bool updateNamespace)
         {
             var inputModel = InputFactory.Model(
-                "WidgetResponse",
+                inputName,
                 @namespace: updateNamespace ? "Sample" : "Sample.Models");
             await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: [inputModel],
@@ -207,11 +251,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var modelProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
             if (updateNamespace)
             {
-                Assert.AreEqual("WidgetResult", modelProvider.Name);
+                Assert.AreEqual(generatedName, modelProvider.Name);
                 modelProvider.Update(@namespace: "Sample.Models");
             }
 
-            Assert.AreEqual("WidgetResponse", modelProvider.Name);
+            Assert.AreEqual(existingName, modelProvider.Name);
             Assert.IsNotNull(isLastContract ? modelProvider.LastContractView : modelProvider.CustomCodeView);
         }
 
