@@ -13,65 +13,65 @@ using System.Text.Json;
 
 namespace SampleTypeSpec
 {
-    /// <summary> The ListWithContinuationTokenHeaderResponseResponse. </summary>
-    internal partial class ListWithContinuationTokenHeaderResponseResponse : IJsonModel<ListWithContinuationTokenHeaderResponseResponse>
+    /// <summary> The ListWithContinuationTokenHeaderResponseResult. </summary>
+    internal partial class ListWithContinuationTokenHeaderResponseResult : IJsonModel<ListWithContinuationTokenHeaderResponseResult>
     {
-        /// <summary> Initializes a new instance of <see cref="ListWithContinuationTokenHeaderResponseResponse"/> for deserialization. </summary>
-        internal ListWithContinuationTokenHeaderResponseResponse()
+        /// <summary> Initializes a new instance of <see cref="ListWithContinuationTokenHeaderResponseResult"/> for deserialization. </summary>
+        internal ListWithContinuationTokenHeaderResponseResult()
         {
         }
 
         /// <param name="data"> The data to parse. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual ListWithContinuationTokenHeaderResponseResponse PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
+        protected virtual ListWithContinuationTokenHeaderResponseResult PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
         {
-            string format = options.Format == "W" ? ((IPersistableModel<ListWithContinuationTokenHeaderResponseResponse>)this).GetFormatFromOptions(options) : options.Format;
+            string format = options.Format == "W" ? ((IPersistableModel<ListWithContinuationTokenHeaderResponseResult>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
                 case "J":
                     using (JsonDocument document = JsonDocument.Parse(data, ModelSerializationExtensions.JsonDocumentOptions))
                     {
-                        return DeserializeListWithContinuationTokenHeaderResponseResponse(document.RootElement, options);
+                        return DeserializeListWithContinuationTokenHeaderResponseResult(document.RootElement, options);
                     }
                 default:
-                    throw new FormatException($"The model {nameof(ListWithContinuationTokenHeaderResponseResponse)} does not support reading '{options.Format}' format.");
+                    throw new FormatException($"The model {nameof(ListWithContinuationTokenHeaderResponseResult)} does not support reading '{options.Format}' format.");
             }
         }
 
         /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
         {
-            string format = options.Format == "W" ? ((IPersistableModel<ListWithContinuationTokenHeaderResponseResponse>)this).GetFormatFromOptions(options) : options.Format;
+            string format = options.Format == "W" ? ((IPersistableModel<ListWithContinuationTokenHeaderResponseResult>)this).GetFormatFromOptions(options) : options.Format;
             switch (format)
             {
                 case "J":
                     return ModelReaderWriter.Write(this, options, SampleTypeSpecContext.Default);
                 default:
-                    throw new FormatException($"The model {nameof(ListWithContinuationTokenHeaderResponseResponse)} does not support writing '{options.Format}' format.");
+                    throw new FormatException($"The model {nameof(ListWithContinuationTokenHeaderResponseResult)} does not support writing '{options.Format}' format.");
             }
         }
 
         /// <param name="options"> The client options for reading and writing models. </param>
-        BinaryData IPersistableModel<ListWithContinuationTokenHeaderResponseResponse>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
+        BinaryData IPersistableModel<ListWithContinuationTokenHeaderResponseResult>.Write(ModelReaderWriterOptions options) => PersistableModelWriteCore(options);
 
         /// <param name="data"> The data to parse. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        ListWithContinuationTokenHeaderResponseResponse IPersistableModel<ListWithContinuationTokenHeaderResponseResponse>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
+        ListWithContinuationTokenHeaderResponseResult IPersistableModel<ListWithContinuationTokenHeaderResponseResult>.Create(BinaryData data, ModelReaderWriterOptions options) => PersistableModelCreateCore(data, options);
 
         /// <param name="options"> The client options for reading and writing models. </param>
-        string IPersistableModel<ListWithContinuationTokenHeaderResponseResponse>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+        string IPersistableModel<ListWithContinuationTokenHeaderResponseResult>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
 
-        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="ListWithContinuationTokenHeaderResponseResponse"/> from. </param>
-        public static explicit operator ListWithContinuationTokenHeaderResponseResponse(ClientResult result)
+        /// <param name="result"> The <see cref="ClientResult"/> to deserialize the <see cref="ListWithContinuationTokenHeaderResponseResult"/> from. </param>
+        public static explicit operator ListWithContinuationTokenHeaderResponseResult(ClientResult result)
         {
             PipelineResponse response = result.GetRawResponse();
             using JsonDocument document = JsonDocument.Parse(response.Content, ModelSerializationExtensions.JsonDocumentOptions);
-            return DeserializeListWithContinuationTokenHeaderResponseResponse(document.RootElement, ModelSerializationExtensions.WireOptions);
+            return DeserializeListWithContinuationTokenHeaderResponseResult(document.RootElement, ModelSerializationExtensions.WireOptions);
         }
 
         /// <param name="writer"> The JSON writer. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        void IJsonModel<ListWithContinuationTokenHeaderResponseResponse>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+        void IJsonModel<ListWithContinuationTokenHeaderResponseResult>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
             writer.WriteStartObject();
             JsonModelWriteCore(writer, options);
@@ -82,10 +82,10 @@ namespace SampleTypeSpec
         /// <param name="options"> The client options for reading and writing models. </param>
         protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
         {
-            string format = options.Format == "W" ? ((IPersistableModel<ListWithContinuationTokenHeaderResponseResponse>)this).GetFormatFromOptions(options) : options.Format;
+            string format = options.Format == "W" ? ((IPersistableModel<ListWithContinuationTokenHeaderResponseResult>)this).GetFormatFromOptions(options) : options.Format;
             if (format != "J")
             {
-                throw new FormatException($"The model {nameof(ListWithContinuationTokenHeaderResponseResponse)} does not support writing '{format}' format.");
+                throw new FormatException($"The model {nameof(ListWithContinuationTokenHeaderResponseResult)} does not support writing '{format}' format.");
             }
             writer.WritePropertyName("things"u8);
             writer.WriteStartArray();
@@ -113,24 +113,24 @@ namespace SampleTypeSpec
 
         /// <param name="reader"> The JSON reader. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        ListWithContinuationTokenHeaderResponseResponse IJsonModel<ListWithContinuationTokenHeaderResponseResponse>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => JsonModelCreateCore(ref reader, options);
+        ListWithContinuationTokenHeaderResponseResult IJsonModel<ListWithContinuationTokenHeaderResponseResult>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => JsonModelCreateCore(ref reader, options);
 
         /// <param name="reader"> The JSON reader. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        protected virtual ListWithContinuationTokenHeaderResponseResponse JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
+        protected virtual ListWithContinuationTokenHeaderResponseResult JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
         {
-            string format = options.Format == "W" ? ((IPersistableModel<ListWithContinuationTokenHeaderResponseResponse>)this).GetFormatFromOptions(options) : options.Format;
+            string format = options.Format == "W" ? ((IPersistableModel<ListWithContinuationTokenHeaderResponseResult>)this).GetFormatFromOptions(options) : options.Format;
             if (format != "J")
             {
-                throw new FormatException($"The model {nameof(ListWithContinuationTokenHeaderResponseResponse)} does not support reading '{format}' format.");
+                throw new FormatException($"The model {nameof(ListWithContinuationTokenHeaderResponseResult)} does not support reading '{format}' format.");
             }
             using JsonDocument document = JsonDocument.ParseValue(ref reader);
-            return DeserializeListWithContinuationTokenHeaderResponseResponse(document.RootElement, options);
+            return DeserializeListWithContinuationTokenHeaderResponseResult(document.RootElement, options);
         }
 
         /// <param name="element"> The JSON element to deserialize. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
-        internal static ListWithContinuationTokenHeaderResponseResponse DeserializeListWithContinuationTokenHeaderResponseResponse(JsonElement element, ModelReaderWriterOptions options)
+        internal static ListWithContinuationTokenHeaderResponseResult DeserializeListWithContinuationTokenHeaderResponseResult(JsonElement element, ModelReaderWriterOptions options)
         {
             if (element.ValueKind == JsonValueKind.Null)
             {
@@ -155,7 +155,7 @@ namespace SampleTypeSpec
                     additionalBinaryDataProperties.Add(prop.Name, prop.Value.GetUtf8Bytes());
                 }
             }
-            return new ListWithContinuationTokenHeaderResponseResponse(things, additionalBinaryDataProperties);
+            return new ListWithContinuationTokenHeaderResponseResult(things, additionalBinaryDataProperties);
         }
     }
 }

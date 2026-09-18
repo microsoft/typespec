@@ -165,11 +165,11 @@ namespace SampleTypeSpec
             return new RenamedModelCustom(name, additionalBinaryDataProperties: null, otherName);
         }
 
-        /// <summary> The ReturnsAnonymousModelResponse. </summary>
-        /// <returns> A new <see cref="SampleTypeSpec.ReturnsAnonymousModelResponse"/> instance for mocking. </returns>
-        public static ReturnsAnonymousModelResponse ReturnsAnonymousModelResponse()
+        /// <summary> The ReturnsAnonymousModelResult. </summary>
+        /// <returns> A new <see cref="SampleTypeSpec.ReturnsAnonymousModelResult"/> instance for mocking. </returns>
+        public static ReturnsAnonymousModelResult ReturnsAnonymousModelResult()
         {
-            return new ReturnsAnonymousModelResponse(additionalBinaryDataProperties: null);
+            return new ReturnsAnonymousModelResult(additionalBinaryDataProperties: null);
         }
 
         /// <summary> The ModelWithEmbeddedNonBodyParameters. </summary>
@@ -492,22 +492,22 @@ namespace SampleTypeSpec
             return new UnknownPlant(species, id, height, additionalBinaryDataProperties: null);
         }
 
-        /// <summary> The GetWidgetMetricsResponse. </summary>
+        /// <summary> The GetWidgetMetricsResult. </summary>
         /// <param name="numSold"></param>
         /// <param name="averagePrice"></param>
-        /// <returns> A new <see cref="SampleTypeSpec.GetWidgetMetricsResponse"/> instance for mocking. </returns>
-        public static GetWidgetMetricsResponse GetWidgetMetricsResponse(int numSold = default, float averagePrice = default)
+        /// <returns> A new <see cref="SampleTypeSpec.GetWidgetMetricsResult"/> instance for mocking. </returns>
+        public static GetWidgetMetricsResult GetWidgetMetricsResult(int numSold = default, float averagePrice = default)
         {
-            return new GetWidgetMetricsResponse(numSold, averagePrice, additionalBinaryDataProperties: null);
+            return new GetWidgetMetricsResult(numSold, averagePrice, additionalBinaryDataProperties: null);
         }
 
-        /// <summary> The GetNotebookResponse. </summary>
+        /// <summary> The GetNotebookResult. </summary>
         /// <param name="name"></param>
         /// <param name="content"></param>
-        /// <returns> A new <see cref="SampleTypeSpec.GetNotebookResponse"/> instance for mocking. </returns>
-        public static GetNotebookResponse GetNotebookResponse(string name = default, string content = default)
+        /// <returns> A new <see cref="SampleTypeSpec.GetNotebookResult"/> instance for mocking. </returns>
+        public static GetNotebookResult GetNotebookResult(string name = default, string content = default)
         {
-            return new GetNotebookResponse(name, content, additionalBinaryDataProperties: null);
+            return new GetNotebookResult(name, content, additionalBinaryDataProperties: null);
         }
 
         /// <summary> The NullableDynamicModel. </summary>

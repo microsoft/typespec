@@ -130,6 +130,247 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual(expectedName, modelProvider.Name);
         }
 
+        [TestCase("WidgetResponse", false, "WidgetResult")]
+        [TestCase("Response", false, "Result")]
+        [TestCase("widget_response", false, "WidgetResult")]
+        [TestCase("IpResponse", false, "IPResult")]
+        [TestCase("WidgetResponseResponse", false, "WidgetResponseResult")]
+        [TestCase("WidgetResponse", true, "WidgetResponse")]
+        [TestCase("IpResponse", true, "IpResponse")]
+        [TestCase("WidgetResult", false, "WidgetResult")]
+        [TestCase("ResponseWidget", false, "ResponseWidget")]
+        [TestCase("WidgetResponses", false, "WidgetResponses")]
+        [TestCase("Widgetresponse", false, "Widgetresponse")]
+        public void TestBuildName_ResponseSuffix(string inputName, bool isExactName, string expectedName)
+        {
+            var inputModel = InputFactory.Model(
+                inputName,
+                isExactName: isExactName,
+                properties: [InputFactory.Property("serviceResponse", InputPrimitiveType.String)]);
+            var model = new ModelProvider(inputModel);
+
+            Assert.AreEqual(expectedName, model.Name);
+            Assert.AreEqual($"{expectedName}.cs", Path.GetFileName(model.RelativeFilePath));
+            Assert.AreEqual("ServiceResponse", model.Properties[0].Name);
+        }
+
+        [TestCase("WidgetResponse", false, "WidgetResult")]
+        [TestCase("WidgetResponse", true, "WidgetResponse")]
+        [TestCase("IpResponse", false, "IPResult")]
+        [TestCase("IpResponse", true, "IpResponse")]
+        [TestCase("widget_response", false, "WidgetResult")]
+        [TestCase("widget_response", true, "widget_response")]
+        public void TestBuildName_ResponseSuffixHonorsExactName(string inputName, bool isExactName, string expectedName)
+        {
+            var inputModel = InputFactory.Model(inputName, isExactName: isExactName);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [inputModel]);
+
+            var model = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
+
+            Assert.AreEqual(expectedName, model.Name);
+            Assert.AreEqual($"{expectedName}.cs", Path.GetFileName(model.RelativeFilePath));
+            model.Reset();
+            Assert.AreEqual(expectedName, model.Name);
+        }
+
+        [TestCase("WidgetResponse", false, "WidgetResult")]
+        [TestCase("WidgetResponse", true, "WidgetResponse")]
+        [TestCase("IpResponse", false, "IPResult")]
+        [TestCase("IpResponse", true, "IPResponse")]
+        [TestCase("DbResponse", false, "DBResult")]
+        [TestCase("DbResponse", true, "DbResponse")]
+        public async Task TestBuildName_ResponseSuffixHonorsLastContract(
+            string inputName, bool hasLastContract, string expectedName)
+        {
+            var inputModel = InputFactory.Model(inputName);
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: hasLastContract
+                    ? async () => await Helpers.GetCompilationFromDirectoryAsync(
+                        method: nameof(TestBuildName_ResponseSuffixPreservesExistingName))
+                    : null);
+
+            var model = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
+
+            Assert.AreEqual(expectedName, model.Name);
+            Assert.AreEqual(hasLastContract, model.LastContractView is not null);
+            Assert.IsNull(model.CustomCodeView);
+            model.Reset();
+            Assert.AreEqual(expectedName, model.Name);
+        }
+
+        [TestCase("WidgetResponse", "WidgetResponse", false, false)]
+        [TestCase("WidgetResponse", "WidgetResponse", true, false)]
+        [TestCase("WidgetResponse", "WidgetResponse", false, true)]
+        [TestCase("WidgetResponse", "WidgetResponse", true, true)]
+        [TestCase("IpResponse", "IPResponse", false, false)]
+        [TestCase("IpResponse", "IPResponse", true, false)]
+        [TestCase("IpResponse", "IPResponse", false, true)]
+        [TestCase("IpResponse", "IPResponse", true, true)]
+        [TestCase("DbResponse", "DbResponse", false, false)]
+        [TestCase("DbResponse", "DbResponse", true, false)]
+        [TestCase("DbResponse", "DbResponse", false, true)]
+        [TestCase("DbResponse", "DbResponse", true, true)]
+        public async Task TestBuildName_ResponseSuffixPreservesExistingName(
+            string inputName, string expectedName, bool lastContract, bool updateNamespace)
+        {
+            var inputModel = InputFactory.Model(
+                inputName, @namespace: updateNamespace ? "Sample" : "Sample.Models");
+            var compilation = await Helpers.GetCompilationFromDirectoryAsync();
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                compilation: lastContract ? null : () => Task.FromResult(compilation),
+                lastContractCompilation: lastContract ? () => Task.FromResult(compilation) : null);
+            var model = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
+
+            if (updateNamespace)
+            {
+                Assert.That(model.Name, Does.EndWith("Result"));
+                model.Update(@namespace: "Sample.Models");
+            }
+
+            Assert.AreEqual(expectedName, model.Name);
+            Assert.IsNotNull(lastContract ? model.LastContractView : model.CustomCodeView);
+        }
+
+        [TestCase("WidgetResponse", "CustomizedWidget")]
+        [TestCase("IpResponse", "CustomizedIP")]
+        [TestCase("GadgetResponse", "CustomizedGadget")]
+        public async Task TestBuildName_ResponseSuffixPreservesCustomName(string inputName, string expectedName)
+        {
+            var inputModel = InputFactory.Model(inputName);
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var model = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
+
+            Assert.AreEqual(expectedName, model.Name);
+            Assert.IsNotNull(model.CustomCodeView);
+        }
+
+        [Test]
+        public async Task TestBuildName_ResponseSuffixPreservesCustomResponseRenameWithoutLastContract()
+        {
+            var inputModel = InputFactory.Model("FooResponse");
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var model = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
+
+            Assert.AreEqual("FooModel", model.Name);
+            Assert.IsNotNull(model.CustomCodeView);
+            Assert.IsNull(model.LastContractView);
+        }
+
+        [TestCase(false, false, "WidgetResult", false)]
+        [TestCase(false, true, "WidgetResult", false)]
+        [TestCase(true, false, "WidgetResult", false)]
+        [TestCase(true, true, "WidgetResult", false)]
+        [TestCase(false, false, "widgetResult", true)]
+        public void TestBuildName_ResponseSuffixAvoidsModelCollision(
+            bool reverseOrder, bool differentNamespace, string resultName, bool isExactName)
+        {
+            var response = InputFactory.Model("WidgetResponse");
+            var result = InputFactory.Model(
+                resultName, @namespace: differentNamespace ? "Other" : "Sample.Models", isExactName: isExactName);
+            InputModelType[] models = reverseOrder ? [result, response] : [response, result];
+            MockHelpers.LoadMockGenerator(inputModelTypes: models);
+
+            var providers = models.Select(m => CodeModelGenerator.Instance.TypeFactory.CreateModel(m)!).ToArray();
+
+            CollectionAssert.AreEquivalent(new[] { "WidgetResponse", resultName }, providers.Select(p => p.Name));
+        }
+
+        [TestCase("Sample.Models", "WidgetResponse")]
+        [TestCase("Other", "WidgetResult")]
+        public void TestBuildName_ResponseSuffixAvoidsClientCollision(string clientNamespace, string expectedName)
+        {
+            var response = InputFactory.Model("WidgetResponse");
+            var client = InputFactory.Client("WidgetResult");
+            client.Update(@namespace: clientNamespace);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [response], inputClients: [client]);
+
+            Assert.AreEqual(expectedName, CodeModelGenerator.Instance.TypeFactory.CreateModel(response)!.Name);
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void TestBuildName_ResponseSuffixAvoidsEnumCollision(bool isExtensible)
+        {
+            var response = InputFactory.Model("IpResponse");
+            var result = InputFactory.StringEnum("IpResult", [("Value", "value")], isExtensible: isExtensible);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [response], inputEnumTypes: [result]);
+
+            Assert.AreEqual("IPResponse", CodeModelGenerator.Instance.TypeFactory.CreateModel(response)!.Name);
+            Assert.AreEqual("IPResult", CodeModelGenerator.Instance.TypeFactory.CreateEnum(result)!.Name);
+        }
+
+        [TestCase("OtherModel")]
+        [TestCase("WidgetResult")]
+        public async Task TestBuildName_ResponseSuffixAvoidsCustomizationCollision(string otherName)
+        {
+            var response = InputFactory.Model("WidgetResponse");
+            var other = InputFactory.Model(otherName);
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [response, other],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            Assert.AreEqual("WidgetResponse", CodeModelGenerator.Instance.TypeFactory.CreateModel(response)!.Name);
+            Assert.AreEqual("WidgetResult", CodeModelGenerator.Instance.TypeFactory.CreateModel(other)!.Name);
+        }
+
+        [Test]
+        public async Task TestBuildName_ResponseSuffixAllowsCustomizedModelResultName()
+        {
+            var response = InputFactory.Model("WidgetResponse");
+            var result = InputFactory.Model("WidgetResult");
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [response, result],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            Assert.AreEqual("WidgetResult", CodeModelGenerator.Instance.TypeFactory.CreateModel(response)!.Name);
+            Assert.AreEqual("CustomWidgetResult", CodeModelGenerator.Instance.TypeFactory.CreateModel(result)!.Name);
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task TestBuildName_ResponseSuffixAvoidsResultCustomizationAliasCollision(bool reverseOrder)
+        {
+            var widget = InputFactory.Model("WidgetResponse");
+            var gadget = InputFactory.Model("GadgetResponse");
+            InputModelType[] models = reverseOrder ? [gadget, widget] : [widget, gadget];
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: models,
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var providers = models.Select(m => CodeModelGenerator.Instance.TypeFactory.CreateModel(m)!).ToArray();
+
+            CollectionAssert.AreEquivalent(new[] { "WidgetResponse", "WidgetResult" }, providers.Select(p => p.Name));
+        }
+
+        [TestCase("IpResponse", false)]
+        [TestCase("IpResponse", true)]
+        [TestCase("IPResponse", false)]
+        [TestCase("IPResponse", true)]
+        public async Task TestBuildName_ResponseSuffixIgnoresResultAliasForShippedModel(
+            string inputName, bool reverseOrder)
+        {
+            var widget = InputFactory.Model("WidgetResponse");
+            var shipped = InputFactory.Model(inputName);
+            InputModelType[] models = reverseOrder ? [shipped, widget] : [widget, shipped];
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: models,
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    parameters: "LastContract"));
+
+            var providers = models.Select(m => CodeModelGenerator.Instance.TypeFactory.CreateModel(m)!).ToArray();
+
+            CollectionAssert.AreEquivalent(new[] { "WidgetResult", "IPResponse" }, providers.Select(p => p.Name));
+        }
+
         [Test]
         public async Task TestBuildName_BackCompatTakesPrecedenceOverAcronymNormalization()
         {
@@ -3554,7 +3795,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [TearDown]
         public void CleanUp()
         {
-            if(_projectDir != null && Directory.Exists(_projectDir))
+            if (_projectDir != null && Directory.Exists(_projectDir))
             {
                 Directory.Delete(_projectDir, true);
             }
