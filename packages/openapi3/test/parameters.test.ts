@@ -51,6 +51,26 @@ worksFor(supportedVersions, ({ diagnoseOpenApiFor, openApiFor, version }) => {
       });
     });
 
+    it("can set style to deepObject with @query", async () => {
+      const param = await getQueryParam(
+        `op test(@query(#{style: "deepObject"}) filter: Record<string>): void;`,
+      );
+      expect(param).toMatchObject({
+        style: "deepObject",
+        explode: true,
+      });
+    });
+
+    it("preserves an explicit explode value with deepObject style", async () => {
+      const param = await getQueryParam(
+        `op test(@query(#{style: "deepObject", explode: false}) filter: Record<string>): void;`,
+      );
+      expect(param).toMatchObject({
+        style: "deepObject",
+        explode: false,
+      });
+    });
+
     it("propagates @JsonSchema.uniqueItems to a query parameter schema", async () => {
       const param = await getQueryParam(
         `op test(@query @JsonSchema.uniqueItems myParam: string[]): void;`,

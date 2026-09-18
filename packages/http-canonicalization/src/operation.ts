@@ -51,6 +51,7 @@ export interface CanonicalCookieParameterOptions {
 export interface CanonicalQueryParameterOptions {
   readonly name: string;
   readonly explode: boolean;
+  readonly style: "form" | "deepObject";
 }
 
 export interface CanonicalPathParameterOptions {
@@ -600,6 +601,7 @@ export class OperationHttpCanonicalization
           options: {
             name: property.options.name,
             explode: property.options.explode,
+            style: property.options.style,
           },
         };
       case "path":
