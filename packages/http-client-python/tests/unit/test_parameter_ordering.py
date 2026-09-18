@@ -4,6 +4,7 @@
 # license information.
 # --------------------------------------------------------------------------
 from pygen.codegen.models import Parameter, AnyType, CodeModel, StringType
+from pygen.codegen.models.parameter import ParameterMethodLocation
 from pygen.codegen.models.parameter_list import ParameterList
 
 
@@ -53,6 +54,22 @@ def get_parameter(name, required, default_value=None, type=None):
         code_model=get_code_model(),
         type=type,
     )
+
+
+def test_non_wire_keyword_parameter_is_keyword_only():
+    parameter = Parameter(
+        yaml_data={
+            "wireName": "",
+            "clientName": "match_condition",
+            "location": "keyword",
+            "optional": False,
+            "implementation": "Method",
+        },
+        code_model=get_code_model(),
+        type=AnyType(yaml_data={"type": "any"}, code_model=get_code_model()),
+    )
+
+    assert parameter.method_location == ParameterMethodLocation.KEYWORD_ONLY
 
 
 def test_sort_parameters_with_default_value_from_schema():
