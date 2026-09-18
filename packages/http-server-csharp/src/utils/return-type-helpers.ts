@@ -7,37 +7,42 @@ import { isErrorModel, isVoidType } from "@typespec/compiler";
  * If the return type is void, returns undefined.
  */
 export function getSuccessReturnType(program: Program, returnType: Type): Type | undefined {
-  if (isVoidType(returnType)) return undefined;
+  const visitedUnions = new Set<Type>();
 
-  if (returnType.kind === "Union") {
-    for (const variant of returnType.variants.values()) {
-      const variantType = variant.type;
-      if (isVoidType(variantType)) continue;
-      // Skip error models by checking the @error decorator or name convention
-      if (variantType.kind === "Model") {
-        try {
-          if (isErrorModel(program, variantType)) continue;
-        } catch {
-          // isErrorModel may fail on certain types
-        }
-        if (variantType.name && variantType.name.toLowerCase() === "error") {
-          continue;
-        }
-        // Skip response-only models (only @statusCode, no body props)
-        if (isStatusCodeOnlyModel(variantType)) continue;
+  function findSuccessType(type: Type): Type | undefined {
+    if (isVoidType(type)) return undefined;
+
+    if (type.kind === "Union") {
+      if (visitedUnions.has(type)) return undefined;
+      visitedUnions.add(type);
+
+      for (const variant of type.variants.values()) {
+        const successType = findSuccessType(variant.type);
+        if (successType !== undefined) return successType;
       }
-      return variantType;
+      return undefined;
     }
-    // All variants are errors or void
-    return undefined;
+
+    // Skip error models by checking the @error decorator or name convention
+    if (type.kind === "Model") {
+      try {
+        if (isErrorModel(program, type)) return undefined;
+      } catch {
+        // isErrorModel may fail on certain types
+      }
+      if (type.name && type.name.toLowerCase() === "error") {
+        return undefined;
+      }
+      // Skip response-only models (only @statusCode, no body props)
+      if (isStatusCodeOnlyModel(type)) {
+        return undefined;
+      }
+    }
+
+    return type;
   }
 
-  // Check if it's a status-code-only model (e.g., OkResponse, NoContentResponse)
-  if (returnType.kind === "Model" && isStatusCodeOnlyModel(returnType)) {
-    return undefined;
-  }
-
-  return returnType;
+  return findSuccessType(returnType);
 }
 
 /** Returns true if the model only has statusCode-related properties (no body). Walks inherited properties too. */

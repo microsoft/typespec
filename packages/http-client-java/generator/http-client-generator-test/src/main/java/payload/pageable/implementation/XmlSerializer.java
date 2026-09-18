@@ -33,7 +33,7 @@ public final class XmlSerializer implements ObjectSerializer {
     @Override
     @SuppressWarnings("unchecked")
     public <T> T deserialize(InputStream stream, TypeReference<T> typeReference) {
-        Class<T> clazz = (Class<T>) typeReference.getJavaClass();
+        Class<T> clazz = typeReference.getJavaClass();
         Method fromXml = FROM_XML_CACHE.computeIfAbsent(clazz, c -> {
             try {
                 return c.getDeclaredMethod("fromXml", XmlReader.class);

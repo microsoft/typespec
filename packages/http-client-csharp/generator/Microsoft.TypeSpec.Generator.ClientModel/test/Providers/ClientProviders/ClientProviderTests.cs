@@ -10,6 +10,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
@@ -3049,13 +3050,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             var body = syncConvenienceMethod!.BodyStatements;
             Assert.IsNotNull(body);
 
-            var result = body!.ToDisplayString();
-            Assert.AreEqual(
-                "global::Sample.Argument.AssertNotNullOrEmpty(param1, nameof(param1));\n\n" +
-                "using global::System.ClientModel.BinaryContent content = global::System.ClientModel.BinaryContent.Create(global::System.BinaryData.FromString(param1));\n" +
-                "global::System.ClientModel.ClientResult result = this.GetData(param3, param2, content, cancellationToken.ToRequestOptions());\n" +
-                "return global::System.ClientModel.ClientResult.FromValue(result.GetRawResponse().Content.ToObjectFromJson<string>(), result.GetRawResponse());\n",
-                result);
+            using var syncWriter = new CodeWriter();
+            syncWriter.WriteMethod(syncConvenienceMethod);
+            Assert.AreEqual(Helpers.GetExpectedFromFile("Sync"), syncWriter.ToString(false));
 
             var asyncConvenienceMethod = convenienceMethods
                 .FirstOrDefault(m => m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Async));
@@ -3064,13 +3061,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             body = asyncConvenienceMethod!.BodyStatements;
             Assert.IsNotNull(body);
 
-            result = body!.ToDisplayString();
-            Assert.AreEqual(
-                "global::Sample.Argument.AssertNotNullOrEmpty(param1, nameof(param1));\n\n" +
-                "using global::System.ClientModel.BinaryContent content = global::System.ClientModel.BinaryContent.Create(global::System.BinaryData.FromString(param1));\n" +
-                "global::System.ClientModel.ClientResult result = await this.GetDataAsync(param3, param2, content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);\n" +
-                "return global::System.ClientModel.ClientResult.FromValue(result.GetRawResponse().Content.ToObjectFromJson<string>(), result.GetRawResponse());\n",
-               result);
+            using var asyncWriter = new CodeWriter();
+            asyncWriter.WriteMethod(asyncConvenienceMethod);
+            Assert.AreEqual(Helpers.GetExpectedFromFile("Async"), asyncWriter.ToString(false));
         }
 
         [Test]
@@ -3146,13 +3139,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             var body = syncConvenienceMethod!.BodyStatements;
             Assert.IsNotNull(body);
 
-            var result = body!.ToDisplayString();
-            Assert.AreEqual(
-                "global::Sample.Argument.AssertNotNullOrEmpty(param1, nameof(param1));\n\n" +
-                "using global::System.ClientModel.BinaryContent content = global::System.ClientModel.BinaryContent.Create(global::System.BinaryData.FromString(param1));\n" +
-                "global::System.ClientModel.ClientResult result = this.UpdateResource(content, param2, param3, cancellationToken.ToRequestOptions());\n" +
-                "return global::System.ClientModel.ClientResult.FromValue(result.GetRawResponse().Content.ToObjectFromJson<string>(), result.GetRawResponse());\n",
-                result);
+            using var syncWriter = new CodeWriter();
+            syncWriter.WriteMethod(syncConvenienceMethod);
+            Assert.AreEqual(Helpers.GetExpectedFromFile("Sync"), syncWriter.ToString(false));
 
             var asyncConvenienceMethod = convenienceMethods
                 .FirstOrDefault(m => m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Async));
@@ -3161,13 +3150,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             body = asyncConvenienceMethod!.BodyStatements;
             Assert.IsNotNull(body);
 
-            result = body!.ToDisplayString();
-            Assert.AreEqual(
-               "global::Sample.Argument.AssertNotNullOrEmpty(param1, nameof(param1));\n\n" +
-               "using global::System.ClientModel.BinaryContent content = global::System.ClientModel.BinaryContent.Create(global::System.BinaryData.FromString(param1));\n" +
-               "global::System.ClientModel.ClientResult result = await this.UpdateResourceAsync(content, param2, param3, cancellationToken.ToRequestOptions()).ConfigureAwait(false);\n" +
-               "return global::System.ClientModel.ClientResult.FromValue(result.GetRawResponse().Content.ToObjectFromJson<string>(), result.GetRawResponse());\n",
-               result);
+            using var asyncWriter = new CodeWriter();
+            asyncWriter.WriteMethod(asyncConvenienceMethod);
+            Assert.AreEqual(Helpers.GetExpectedFromFile("Async"), asyncWriter.ToString(false));
         }
 
         [Test]
@@ -3329,6 +3314,69 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(clientProvider!, name => name == "GetData" || name == "GetDataAsync"));
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public async Task BackCompatibility_CurrentDocumentationSurvivesClientProcessing()
+        {
+            var operation = InputFactory.Operation(
+                "GetData",
+                parameters:
+                [
+                    InputFactory.QueryParameter("param1", InputPrimitiveType.Int32, isRequired: true),
+                    InputFactory.BodyParameter("param2", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.HeaderParameter("param3", InputPrimitiveType.Boolean)
+                ],
+                responses: [InputFactory.OperationResponse([200], bodytype: InputPrimitiveType.String)]);
+            var method = InputFactory.BasicServiceMethod("GetData", operation, parameters:
+            [
+                InputFactory.MethodParameter("param1", InputPrimitiveType.Int32, location: InputRequestLocation.Query, isRequired: true),
+                InputFactory.MethodParameter("param2", InputPrimitiveType.String, location: InputRequestLocation.Body, isRequired: true),
+                InputFactory.MethodParameter("param3", InputPrimitiveType.Boolean, location: InputRequestLocation.Header)
+            ]);
+            var client = InputFactory.Client(TestClientName, methods: [method]);
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [client],
+                lastContractCompilation: () => Helpers.GetCompilationFromDirectoryAsync(method: nameof(BackCompatibility_NewOptionalNonBodyParameterAdded)),
+                configuration: """{"disable-xml-docs": false}""");
+            var provider = generator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().Single();
+            var originalMethods = provider.Methods.ToArray();
+            foreach (var original in originalMethods.Where(m => m.Signature.Name is "GetData" or "GetDataAsync"))
+            {
+                original.XmlDocs.Update(summary: new XmlDocSummaryStatement([$"Current operation."],
+                    new XmlDocStatement("list", [], new XmlDocStatement("item", [$"Current metadata."]))));
+            }
+            var originalDocs = originalMethods.ToDictionary(m => m, RenderDocs);
+
+            provider.ProcessTypeForBackCompatibility();
+
+            var shims = provider.Methods.Except(originalMethods).ToArray();
+            Assert.AreEqual(2, shims.Length);
+            foreach (var shim in shims)
+            {
+                string rendered = RenderDocs(shim);
+                var docs = XElement.Parse("<member>" + string.Join("\n", rendered.Split('\n')
+                    .Where(line => line.StartsWith("///")).Select(line => line[3..])) + "</member>");
+                Assert.IsNotNull(docs.Element("summary")?.Element("list"));
+                StringAssert.Contains("Current operation.", rendered);
+                Assert.AreEqual(new[] { "param1", "param2", "cancellationToken" },
+                    docs.Elements("param").Select(p => (string?)p.Attribute("name")));
+                Assert.IsTrue(docs.Descendants("paramref").All(p => (string?)p.Attribute("name") != "param3"));
+                Assert.AreEqual(1, shim.Suppressions.Count);
+            }
+            foreach (var original in originalMethods)
+            {
+                Assert.AreEqual(originalDocs[original], RenderDocs(original));
+            }
+
+            static string RenderDocs(MethodProvider method)
+            {
+                using var writer = new CodeWriter();
+                using (writer.WriteXmlDocs(method.XmlDocs))
+                {
+                    return writer.ToString(false);
+                }
+            }
         }
 
         // The current TypeSpec adds two new optional non-body parameters relative to the last contract.

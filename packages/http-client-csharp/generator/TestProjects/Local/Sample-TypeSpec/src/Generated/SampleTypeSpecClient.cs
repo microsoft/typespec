@@ -1086,7 +1086,8 @@ namespace SampleTypeSpec
         public virtual ClientResult<DaysOfWeekExtensibleEnum> GetUnknownValue(CancellationToken cancellationToken = default)
         {
             ClientResult result = GetUnknownValue(cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue(new DaysOfWeekExtensibleEnum(result.GetRawResponse().Content.ToObjectFromJson<string>()), result.GetRawResponse());
+            DaysOfWeekExtensibleEnum value = new DaysOfWeekExtensibleEnum(result.GetRawResponse().Content.ToString());
+            return ClientResult.FromValue(value, result.GetRawResponse());
         }
 
         /// <summary> get extensible enum. </summary>
@@ -1095,7 +1096,8 @@ namespace SampleTypeSpec
         public virtual async Task<ClientResult<DaysOfWeekExtensibleEnum>> GetUnknownValueAsync(CancellationToken cancellationToken = default)
         {
             ClientResult result = await GetUnknownValueAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue(new DaysOfWeekExtensibleEnum(result.GetRawResponse().Content.ToObjectFromJson<string>()), result.GetRawResponse());
+            DaysOfWeekExtensibleEnum value = new DaysOfWeekExtensibleEnum(result.GetRawResponse().Content.ToString());
+            return ClientResult.FromValue(value, result.GetRawResponse());
         }
 
         /// <summary>
@@ -2006,26 +2008,22 @@ namespace SampleTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-#pragma warning disable SCME0005 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-        public virtual async Task<AsyncStreamingClientResult<BinaryData>> ReceiveJsonLinesAsync(RequestOptions options)
+        public virtual async Task<AsyncStreamingResult<BinaryData>> ReceiveJsonLinesAsync(RequestOptions options)
         {
             using PipelineMessage message = CreateReceiveJsonLinesRequest(options);
             message.BufferResponse = false;
-            return AsyncStreamingClientResult.CreateJsonLines(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            return AsyncStreamingResult.CreateJsonLines(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
-#pragma warning restore SCME0005 // Type is for evaluation purposes only and is subject to change or removal in future updates.
 
         /// <summary> ReceiveJsonLines. </summary>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-#pragma warning disable SCME0005 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-        public virtual async Task<AsyncStreamingClientResult<StreamingItem>> ReceiveJsonLinesAsync(CancellationToken cancellationToken = default)
+        public virtual async Task<AsyncStreamingResult<StreamingItem>> ReceiveJsonLinesAsync(CancellationToken cancellationToken = default)
         {
             using PipelineMessage message = CreateReceiveJsonLinesRequest(cancellationToken.ToRequestOptions());
             message.BufferResponse = false;
-            return AsyncStreamingClientResult.CreateJsonLines<StreamingItem>(await Pipeline.ProcessMessageAsync(message, cancellationToken.ToRequestOptions()).ConfigureAwait(false), data => ModelReaderWriter.Read<StreamingItem>(data, ModelSerializationExtensions.WireOptions, SampleTypeSpecContext.Default), cancellationToken);
+            return AsyncStreamingResult.CreateJsonLines<StreamingItem>(await Pipeline.ProcessMessageAsync(message, cancellationToken.ToRequestOptions()).ConfigureAwait(false), data => ModelReaderWriter.Read<StreamingItem>(data, ModelSerializationExtensions.WireOptions, SampleTypeSpecContext.Default), cancellationToken);
         }
-#pragma warning restore SCME0005 // Type is for evaluation purposes only and is subject to change or removal in future updates.
 
         /// <summary>
         /// [Protocol Method] ReceiveSse
@@ -2038,26 +2036,22 @@ namespace SampleTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-#pragma warning disable SCME0005 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-        public virtual async Task<AsyncStreamingClientResult<SseItem<BinaryData>>> ReceiveSseAsync(RequestOptions options)
+        public virtual async Task<AsyncStreamingResult<SseItem<BinaryData>>> ReceiveSseAsync(RequestOptions options)
         {
             using PipelineMessage message = CreateReceiveSseRequest(options);
             message.BufferResponse = false;
-            return AsyncStreamingClientResult.CreateSse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false), item => item.Data.ToString() == "[DONE]");
+            return AsyncStreamingResult.CreateSse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false), item => item.Data.ToString() == "[DONE]");
         }
-#pragma warning restore SCME0005 // Type is for evaluation purposes only and is subject to change or removal in future updates.
 
         /// <summary> ReceiveSse. </summary>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-#pragma warning disable SCME0005 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-        public virtual async Task<AsyncStreamingClientResult<SseItem<StreamingItem>>> ReceiveSseAsync(CancellationToken cancellationToken = default)
+        public virtual async Task<AsyncStreamingResult<SseItem<StreamingItem>>> ReceiveSseAsync(CancellationToken cancellationToken = default)
         {
             using PipelineMessage message = CreateReceiveSseRequest(cancellationToken.ToRequestOptions());
             message.BufferResponse = false;
-            return AsyncStreamingClientResult.CreateSse<StreamingItem>(await Pipeline.ProcessMessageAsync(message, cancellationToken.ToRequestOptions()).ConfigureAwait(false), (@_, data) => ModelReaderWriter.Read<StreamingItem>(BinaryData.FromBytes(data.ToArray()), ModelSerializationExtensions.WireOptions, SampleTypeSpecContext.Default), item => item.Data.ToString() == "[DONE]", cancellationToken);
+            return AsyncStreamingResult.CreateSse<StreamingItem>(await Pipeline.ProcessMessageAsync(message, cancellationToken.ToRequestOptions()).ConfigureAwait(false), (@_, data) => ModelReaderWriter.Read<StreamingItem>(BinaryData.FromBytes(data.ToArray()), ModelSerializationExtensions.WireOptions, SampleTypeSpecContext.Default), item => item.Data.ToString() == "[DONE]", cancellationToken);
         }
-#pragma warning restore SCME0005 // Type is for evaluation purposes only and is subject to change or removal in future updates.
 
         /// <summary> Initializes a new instance of AnimalOperations. </summary>
         public virtual AnimalOperations GetAnimalOperationsClient()

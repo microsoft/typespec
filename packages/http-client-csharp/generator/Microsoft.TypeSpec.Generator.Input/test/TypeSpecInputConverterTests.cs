@@ -1,5 +1,6 @@
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.TypeSpec.Generator.Tests.Common;
@@ -9,6 +10,387 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
 {
     public class TypeSpecInputConverterTests
     {
+        [TestCase(true)]
+        [TestCase(false)]
+        public void LoadsReferencesDefinedInDecoratorArguments(bool definitionsFirst)
+        {
+            var directory = Helpers.GetAssetFileOrDirectoryPath(false);
+            var content = File.ReadAllText(Path.Combine(directory, "tspCodeModel.json"));
+            using var document = JsonDocument.Parse(content);
+            var root = document.RootElement;
+            if (!definitionsFirst)
+            {
+                content = $$"""
+                    {
+                      "name": "Test",
+                      "models": {{root.GetProperty("models").GetRawText()}},
+                      "enums": {{root.GetProperty("enums").GetRawText()}},
+                      "clients": {{root.GetProperty("clients").GetRawText()}}
+                    }
+                    """;
+            }
+
+            var inputNamespace = TypeSpecSerialization.Deserialize(content)!;
+            var sharedModel = inputNamespace.Models[1];
+            var owner = inputNamespace.Models[0];
+            var enumType = inputNamespace.Enums.Single();
+
+            Assert.AreEqual("SharedModel", sharedModel.Name);
+            Assert.AreSame(sharedModel, inputNamespace.Models[2]);
+            Assert.AreSame(sharedModel.Properties[0], owner.Properties[0]);
+            Assert.AreSame(owner, sharedModel.Properties[1].Type);
+            Assert.AreSame(owner, owner.Properties[1].Type);
+            Assert.AreSame(sharedModel, owner.Properties[2].Type);
+            Assert.AreSame(enumType, owner.Properties[3].Type);
+            Assert.AreSame(sharedModel.Properties[0].Type, enumType.ValueType);
+
+            var client = inputNamespace.Clients.Single();
+            Assert.AreEqual("Test", client.Namespace);
+            var decorator = client.Decorators.Single();
+            Assert.AreEqual("example", decorator.Name);
+            foreach (var argument in root.GetProperty("clients")[0].GetProperty("decorators")[0].GetProperty("arguments").EnumerateObject())
+            {
+                Assert.AreEqual(argument.Value.GetRawText(), decorator.Arguments![argument.Name].ToString());
+            }
+        }
+
+        [Test]
+        public void LoadsForwardReferenceWithoutDuplicatingDefinition()
+        {
+            const string content = """
+                {
+                  "name": "Test",
+                  "models": [
+                    { "$ref": "model" },
+                    { "$id": "model", "name": "SharedModel", "properties": [] },
+                    { "$ref": "model" }
+                  ]
+                }
+                """;
+
+            var inputNamespace = TypeSpecSerialization.Deserialize(content)!;
+
+            Assert.AreEqual("SharedModel", inputNamespace.Models[0].Name);
+            Assert.AreSame(inputNamespace.Models[0], inputNamespace.Models[1]);
+            Assert.AreSame(inputNamespace.Models[0], inputNamespace.Models[2]);
+        }
+
+        [TestCase("array", "valueType", true)]
+        [TestCase("array", "valueType", false)]
+        [TestCase("dict", "valueType", true)]
+        [TestCase("dict", "valueType", false)]
+        [TestCase("nullable", "type", true)]
+        [TestCase("nullable", "type", false)]
+        public void LoadsRecursiveDecoratorTypeBeforeContainingModel(string kind, string valueProperty, bool definitionInDecorator)
+        {
+            var keyType = kind == "dict" ? """
+                "keyType": { "kind": "string" },
+                """ : "";
+            var wrapper = $$"""
+                {
+                  "$id": "wrapper",
+                  "kind": "{{kind}}",
+                  {{keyType}}
+                  "{{valueProperty}}": { "$ref": "node" }
+                }
+                """;
+            const string reference = """{ "$ref": "wrapper" }""";
+            var content = $$"""
+                {
+                  "name": "Test",
+                  "models": [
+                    {
+                      "$id": "owner",
+                      "name": "Owner",
+                      "decorators": [{
+                        "name": "example",
+                        "arguments": {
+                          "value": {
+                            "$id": "node",
+                            "kind": "model",
+                            "name": "Node",
+                            "properties": [{
+                              "$id": "children",
+                              "name": "children",
+                              "type": {{(definitionInDecorator ? wrapper : reference)}}
+                            }]
+                          }
+                        }
+                      }],
+                      "properties": [{
+                        "$id": "nodes",
+                        "name": "nodes",
+                        "type": {{(definitionInDecorator ? reference : wrapper)}}
+                      }]
+                    },
+                    { "$ref": "node" }
+                  ]
+                }
+                """;
+
+            var inputNamespace = TypeSpecSerialization.Deserialize(content)!;
+            var node = inputNamespace.Models[1];
+            var wrapperType = inputNamespace.Models[0].Properties[0].Type;
+            var wrappedType = wrapperType switch
+            {
+                InputArrayType array => array.ValueType,
+                InputDictionaryType dictionary => dictionary.ValueType,
+                InputNullableType nullable => nullable.Type,
+                _ => null
+            };
+
+            Assert.AreSame(node, wrappedType);
+            Assert.AreSame(wrapperType, node.Properties[0].Type);
+        }
+
+        [TestCase("array", "valueType")]
+        [TestCase("dict", "valueType")]
+        [TestCase("nullable", "type")]
+        public void LoadsRecursiveModelInsideDecoratorWrapper(string kind, string valueProperty)
+        {
+            var keyType = kind == "dict" ? """
+                "keyType": { "kind": "string" },
+                """ : "";
+            var content = $$"""
+                {
+                  "name": "Test",
+                  "models": [
+                    {
+                      "$id": "owner",
+                      "name": "Owner",
+                      "decorators": [{
+                        "name": "example",
+                        "arguments": {
+                          "value": {
+                            "$id": "wrapper",
+                            "kind": "{{kind}}",
+                            {{keyType}}
+                            "{{valueProperty}}": {
+                              "$id": "node",
+                              "kind": "model",
+                              "name": "Node",
+                              "properties": [{
+                                "$id": "children",
+                                "name": "children",
+                                "type": { "$ref": "wrapper" }
+                              }]
+                            }
+                          }
+                        }
+                      }],
+                      "additionalProperties": { "$ref": "wrapper" }
+                    },
+                    { "$ref": "node" }
+                  ]
+                }
+                """;
+
+            var inputNamespace = TypeSpecSerialization.Deserialize(content)!;
+            var node = inputNamespace.Models[1];
+            var wrapperType = inputNamespace.Models[0].AdditionalProperties;
+            var wrappedType = wrapperType switch
+            {
+                InputArrayType array => array.ValueType,
+                InputDictionaryType dictionary => dictionary.ValueType,
+                InputNullableType nullable => nullable.Type,
+                _ => null
+            };
+
+            Assert.AreSame(node, wrappedType);
+            Assert.AreSame(wrapperType, node.Properties[0].Type);
+        }
+
+        [Test]
+        public void LoadsLateRegisteringCycleFromDecoratorArgument()
+        {
+            const string content = """
+                {
+                  "name": "Test",
+                  "models": [{
+                    "$id": "owner",
+                    "name": "Owner",
+                    "decorators": [{
+                      "name": "example",
+                      "arguments": {
+                        "value": {
+                          "$id": "array",
+                          "kind": "array",
+                          "valueType": {
+                            "$id": "node",
+                            "kind": "model",
+                            "name": "Node",
+                            "properties": [{
+                              "$id": "children",
+                              "name": "children",
+                              "type": { "$ref": "array" }
+                            }]
+                          }
+                        }
+                      }
+                    }],
+                    "additionalProperties": { "$ref": "array" }
+                  },
+                  { "$ref": "node" }]
+                }
+                """;
+
+            var inputNamespace = TypeSpecSerialization.Deserialize(content)!;
+            var array = inputNamespace.Models[0].AdditionalProperties as InputArrayType
+                ?? throw new AssertionException("Expected an array type.");
+            var node = inputNamespace.Models[1];
+
+            Assert.AreSame(node, array.ValueType);
+            Assert.AreSame(array, node.Properties[0].Type);
+        }
+
+        [Test]
+        public void LoadsReferenceDefinedInUnknownProperty()
+        {
+            const string content = """
+                {
+                  "name": "Test",
+                  "extension": {
+                    "nested": [{ "$id": "model", "name": "SharedModel" }]
+                  },
+                  "models": [{ "$ref": "model" }],
+                }
+                """;
+
+            var inputNamespace = TypeSpecSerialization.Deserialize(content)!;
+
+            Assert.AreEqual("SharedModel", inputNamespace.Models.Single().Name);
+        }
+
+        [Test]
+        public void UnresolvedReferenceStillThrows()
+        {
+            const string content = """
+                { "name": "Test", "models": [{ "$ref": "missing" }] }
+                """;
+
+            var exception = Assert.Throws<JsonException>(() => TypeSpecSerialization.Deserialize(content));
+
+            Assert.That(exception!.Message, Does.Contain("cannot resolve reference missing"));
+        }
+
+        [Test]
+        public void DuplicateReferenceDefinitionsStillThrow()
+        {
+            const string content = """
+                {
+                  "name": "Test",
+                  "models": [
+                    { "$id": "duplicate", "name": "First" },
+                    { "$id": "duplicate", "name": "Second" }
+                  ]
+                }
+                """;
+
+            var exception = Assert.Throws<JsonException>(() => TypeSpecSerialization.Deserialize(content));
+
+            Assert.That(exception!.Message, Does.Contain("duplicate"));
+        }
+
+        [Test]
+        public void ReferenceWithAdditionalPropertiesStillThrows()
+        {
+            const string content = """
+                {
+                  "name": "Test",
+                  "models": [
+                    { "$id": "model", "name": "SharedModel" },
+                    { "$ref": "model", "name": "Invalid" }
+                  ]
+                }
+                """;
+
+            var exception = Assert.Throws<JsonException>(() => TypeSpecSerialization.Deserialize(content));
+
+            Assert.That(exception!.Message, Does.Contain("$ref should be the only property"));
+        }
+
+        [Test]
+        public void UnresolvableReferenceCycleThrows()
+        {
+            const string content = """
+                {
+                  "name": "Test",
+                  "extension": {
+                    "$id": "array",
+                    "kind": "array",
+                    "valueType": { "$ref": "array" }
+                  },
+                  "models": [{
+                    "$id": "model",
+                    "name": "Model",
+                    "additionalProperties": { "$ref": "array" }
+                  }]
+                }
+                """;
+
+            var exception = Assert.Throws<JsonException>(() => TypeSpecSerialization.Deserialize(content));
+
+            Assert.That(exception!.Message, Does.Contain("circular reference"));
+        }
+
+        [Test]
+        public void ExcessiveReferenceDepthThrows()
+        {
+            var definitions = string.Join(",", Enumerable.Range(0, 130).Select(i => $$"""
+                {
+                  "$id": "{{i}}",
+                  "name": "Model{{i}}",
+                  "baseModel": { "$ref": "{{i + 1}}" }
+                }
+                """));
+            var content = $$"""
+                {
+                  "name": "Test",
+                  "extension": [{{definitions}}, { "$id": "130", "name": "End" }],
+                  "models": [{ "$ref": "0" }]
+                }
+                """;
+
+            var exception = Assert.Throws<JsonException>(() => TypeSpecSerialization.Deserialize(content));
+
+            Assert.That(exception!.Message, Does.Contain("maximum reference depth"));
+        }
+
+        [TestCase(100)]
+        [TestCase(130)]
+        public void ReferenceIndexRespectsDocumentDepth(int depth)
+        {
+            var content = """{ "name": "Test", "extension": """ + new string('[', depth) + "0" + new string(']', depth) + "}";
+
+            if (depth < 128)
+            {
+                Assert.IsNotNull(TypeSpecSerialization.Deserialize(content));
+            }
+            else
+            {
+                Assert.Catch<JsonException>(() => TypeSpecSerialization.Deserialize(content));
+            }
+        }
+
+        [TestCase("\"raw\"")]
+        [TestCase("42")]
+        [TestCase("null")]
+        public void ReadingRawJsonDoesNotResolveReferenceMetadata(string id)
+        {
+            var content = $$"""{ "$id": {{id}}, "name": "Raw" }""";
+            using var document = JsonDocument.Parse(content);
+            var referenceHandler = new TypeSpecReferenceHandler();
+            var options = new JsonSerializerOptions { ReferenceHandler = referenceHandler, MaxDepth = 128 };
+            referenceHandler.CurrentResolver.RegisterReferenceDefinitions(document.RootElement, options);
+            referenceHandler.CurrentResolver.AddReference("raw", InputFactory.Model("Raw"));
+            var reader = new Utf8JsonReader(Encoding.UTF8.GetBytes(content));
+            reader.Read();
+
+            var value = reader.ReadWithConverter<JsonElement>(options);
+
+            Assert.AreEqual(content, value.GetRawText());
+        }
+
         [Test]
         public void LoadsPagingWithNextLink()
         {

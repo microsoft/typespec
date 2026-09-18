@@ -1,4 +1,4 @@
-import { checkbox as inquirerCheckbox } from "@inquirer/prompts";
+import inquirerCheckbox from "@inquirer/checkbox";
 import pc from "picocolors";
 
 export function checkbox<Value>(config: Parameters<typeof inquirerCheckbox<Value>>[0]) {
