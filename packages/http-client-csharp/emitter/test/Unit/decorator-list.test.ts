@@ -1,6 +1,10 @@
 vi.resetModules();
 
-import type { TestHost } from "@typespec/compiler/testing";
+import {
+  expectDiagnosticEmpty,
+  expectDiagnostics,
+  type TestHost,
+} from "@typespec/compiler/testing";
 import { deepStrictEqual, strictEqual } from "assert";
 import { ok } from "assert/strict";
 import { beforeEach, describe, it, vi } from "vitest";
@@ -108,6 +112,56 @@ describe("Test emitting decorator list", () => {
         },
       },
     ]);
+  });
+
+  it("does not convert model arguments on generic decorators to SDK models", async () => {
+    const program = await typeSpecCompile(`op test(): void;`, runner);
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context, {
+      additionalDecorators: ["TypeSpec\\.Http\\.@useAuth"],
+    });
+
+    expectDiagnostics(sdkContext.diagnostics, [
+      {
+        code: "@azure-tools/typespec-client-generator-core/unsupported-generic-decorator-arg-type",
+      },
+    ]);
+    const [root] = createModel(sdkContext);
+    strictEqual(root.models.length, 0);
+  });
+
+  it("preserves model arguments on clientOption decorators", async () => {
+    const program = await typeSpecCompile(
+      `
+      model Options {
+        enabled: boolean;
+      }
+
+      #suppress "@azure-tools/typespec-client-generator-core/client-option" "Testing model-valued client options."
+      @clientOption("options", Options, "csharp")
+      interface BookClient {
+        op test(): void;
+      }
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+
+    expectDiagnosticEmpty(sdkContext.diagnostics);
+    const [root] = createModel(sdkContext);
+    const childClient = root.clients[0].children?.[0];
+    ok(childClient);
+    const decorator = childClient.decorators?.find(
+      (decorator) => decorator.name === "Azure.ClientGenerator.Core.@clientOption",
+    );
+    ok(decorator);
+    strictEqual(decorator.arguments.name, "options");
+    const value = decorator.arguments.value;
+    ok(value && typeof value === "object" && "kind" in value && "name" in value);
+    strictEqual(value.kind, "model");
+    strictEqual(value.name, "Options");
   });
 
   it("emit decorator list on a model property", async () => {
