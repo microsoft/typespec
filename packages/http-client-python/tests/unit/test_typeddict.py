@@ -561,6 +561,27 @@ def test_unions_serializer_multiple_member_alias():
     )
 
 
+def test_unions_serializer_deduplicates_named_aliases():
+    """Equivalent named-union copies produce one alias declaration."""
+    code_model = _make_code_model(models_mode="dpg")
+    voice_model = _make_model(code_model, "GenerateVoiceAgentRequest", model_cls=DPGModelType)
+    first = CombinedType(
+        {"type": "combined", "name": "GenerateAgentRequest"},
+        code_model,
+        [voice_model],
+    )
+    duplicate = CombinedType(
+        {"type": "combined", "name": "GenerateAgentRequest"},
+        code_model,
+        [voice_model],
+    )
+    code_model.named_unions = [first, duplicate]
+
+    output = UnionsSerializer(code_model=code_model, env=_make_env()).serialize()
+
+    assert output.count("GenerateAgentRequest: TypeAlias =") == 1
+
+
 # ---------- typed-dict-only ----------
 
 

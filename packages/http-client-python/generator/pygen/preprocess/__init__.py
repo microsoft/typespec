@@ -54,13 +54,14 @@ def add_overload(yaml_data: dict[str, Any], body_type: dict[str, Any], for_flatt
     if yaml_data.get("initialOperation"):
         overload["initialOperation"] = yaml_data["initialOperation"]
 
+    # Reattach shared type objects before filtering parameters so positional
+    # alignment with the original operation is preserved.
+    for overload_p, original_p in zip(overload["parameters"], yaml_data["parameters"]):
+        overload_p["type"] = original_p["type"]
     if for_flatten_params:
         overload["bodyParameter"]["flattened"] = True
     else:
         overload["parameters"] = [p for p in overload["parameters"] if not p.get("inFlattenedBody")]
-    # for yaml sync, we need to make sure all of the responses, parameters, and exceptions' types have the same yaml id
-    for overload_p, original_p in zip(overload["parameters"], yaml_data["parameters"]):
-        overload_p["type"] = original_p["type"]
     update_overload_section(overload, yaml_data, "responses")
     update_overload_section(overload, yaml_data, "exceptions")
 
@@ -271,15 +272,26 @@ def _process_operation_etag_headers(
             elif role == "ifNoneMatch":
                 if_none_match_candidates.append(p)
 
-    property_if_match, property_if_none_match = _resolve_etag_pair(if_match_candidates, if_none_match_candidates)
-    if property_if_match and property_if_none_match:
-        etag_params = {id(property_if_match), id(property_if_none_match)}
-        operation["parameters"] = [item for item in operation["parameters"] if id(item) not in etag_params] + [
-            property_if_match,
-            property_if_none_match,
-        ]
-        operation["hasEtag"] = True
-        client["hasEtag"] = True
+    etag_candidates = if_match_candidates + if_none_match_candidates
+    if any(not parameter.get("optional", False) for parameter in etag_candidates):
+        # A required conditional header fixes the header choice and requires
+        # its value. Keep it direct instead of introducing the optional
+        # etag/MatchConditions convenience API.
+        for parameter in etag_candidates:
+            parameter.pop("etagRole", None)
+    else:
+        property_if_match, property_if_none_match = _resolve_etag_pair(if_match_candidates, if_none_match_candidates)
+        if property_if_match and property_if_none_match:
+            etag_params = {id(property_if_match), id(property_if_none_match)}
+            operation["parameters"] = [item for item in operation["parameters"] if id(item) not in etag_params] + [
+                property_if_match,
+                property_if_none_match,
+            ]
+            operation["hasEtag"] = True
+            client["hasEtag"] = True
+
+    for overload in operation.get("overloads", []):
+        _process_operation_etag_headers(overload, client, version_tolerant)
 
 
 def _process_operation_group_etag_headers(

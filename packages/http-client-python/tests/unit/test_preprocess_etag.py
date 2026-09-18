@@ -65,8 +65,8 @@ def _get_op(client: dict) -> dict:
     return client["operationGroups"][0]["operations"][0]
 
 
-def test_etag_headers_in_nested_operation_group_are_processed():
-    """Nested ETag operations get their partner parameter and enable client helpers."""
+def test_required_etag_header_in_nested_operation_group_remains_direct():
+    """A required explicit conditional header does not gain MatchConditions."""
     if_match = _header_param(
         "if_match",
         "If-Match",
@@ -91,21 +91,83 @@ def test_etag_headers_in_nested_operation_group_are_processed():
     plugin = _plugin()
     plugin.update_client(client)
 
-    assert client["hasEtag"] is True
+    assert "hasEtag" not in client
     assert "hasEtag" not in parent_group
+    assert "hasEtag" not in operation
+    assert operation["parameters"] == [if_match]
+    assert "etagRole" not in if_match
+
+    plugin.update_parameter(if_match)
+    assert if_match["clientName"] == "if_match"
+    assert if_match["type"] == {"type": "string"}
+
+
+def test_optional_etag_header_in_nested_operation_group_uses_match_conditions():
+    """The optional ETag convenience API remains available in nested groups."""
+    if_match = _header_param("if_match", "If-Match", "ifMatch")
+    operation = {
+        "name": "remove",
+        "parameters": [if_match],
+    }
+    client = _client_yaml([])
+    client["operationGroups"] = [
+        {
+            "operations": [],
+            "operationGroups": [
+                {
+                    "operations": [operation],
+                }
+            ],
+        }
+    ]
+
+    plugin = _plugin()
+    plugin.update_client(client)
+
+    assert client["hasEtag"] is True
     assert operation["hasEtag"] is True
     assert len(operation["parameters"]) == 2
-    assert operation["parameters"][0]["etagRole"] == "ifMatch"
-    assert operation["parameters"][1]["etagRole"] == "ifNoneMatch"
-    assert all(parameter["optional"] is False for parameter in operation["parameters"])
-    assert all("clientDefaultValue" not in parameter for parameter in operation["parameters"])
-
     for parameter in operation["parameters"]:
         plugin.update_parameter(parameter)
     assert [parameter["clientName"] for parameter in operation["parameters"]] == [
         "etag",
         "match_condition",
     ]
+
+
+def test_required_etag_roles_are_removed_from_existing_overloads():
+    """Required conditional headers stay direct in body overloads as well."""
+    operation_header = _header_param(
+        "if_match",
+        "If-Match",
+        "ifMatch",
+        optional=False,
+    )
+    overload_header = _header_param(
+        "if_match",
+        "If-Match",
+        "ifMatch",
+        optional=False,
+    )
+    operation = {
+        "name": "update",
+        "parameters": [operation_header],
+        "overloads": [
+            {
+                "name": "update",
+                "parameters": [overload_header],
+            }
+        ],
+    }
+    client = _client_yaml([])
+    client["operationGroups"][0]["operations"] = [operation]
+
+    _plugin().update_client(client)
+
+    assert "etagRole" not in operation_header
+    assert "etagRole" not in overload_header
+    assert "hasEtag" not in operation
+    assert "hasEtag" not in operation["overloads"][0]
 
 
 def test_etag_role_preserved_when_only_standard_pair_present():

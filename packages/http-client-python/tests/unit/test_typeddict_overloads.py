@@ -11,7 +11,7 @@ That left a lone ``@overload`` on the generated method, which mypy rejects with
 ``Single overload definition, multiple required``.  The preprocess plugin must
 instead keep the body as a plain single type so no ``@overload`` is emitted.
 """
-from pygen.preprocess import PreProcessPlugin, add_overloads_for_body_param
+from pygen.preprocess import PreProcessPlugin, add_overload, add_overloads_for_body_param
 
 
 def _plugin(models_mode: str, generate_typeddict: bool = True) -> PreProcessPlugin:
@@ -116,6 +116,53 @@ def test_named_multiple_member_union_emits_variant_overloads():
     add_overloads_for_body_param(yaml_data)
 
     assert len(yaml_data["overloads"]) == 2
+
+
+def test_add_overload_preserves_types_after_filtering_flattened_parameters():
+    """Filtering a flattened parameter must not shift later parameter types."""
+    yaml_data = _named_union_operation(member_count=2)
+    flattened_type = {"type": "string", "name": "FlattenedType"}
+    etag_type = {"type": "string", "name": "EtagType"}
+    match_condition_type = {"type": "sdkcore", "name": "MatchConditions"}
+    yaml_data["parameters"].extend(
+        [
+            {
+                "wireName": "flattened",
+                "clientName": "flattened",
+                "location": "body",
+                "optional": True,
+                "implementation": "Method",
+                "inFlattenedBody": True,
+                "type": flattened_type,
+            },
+            {
+                "wireName": "If-Match",
+                "clientName": "etag",
+                "location": "header",
+                "optional": True,
+                "implementation": "Method",
+                "type": etag_type,
+            },
+            {
+                "wireName": "If-None-Match",
+                "clientName": "match_condition",
+                "location": "header",
+                "optional": True,
+                "implementation": "Method",
+                "type": match_condition_type,
+            },
+        ]
+    )
+
+    overload = add_overload(yaml_data, yaml_data["bodyParameter"]["type"]["types"][0])
+
+    assert [parameter["clientName"] for parameter in overload["parameters"]] == [
+        "content_type",
+        "etag",
+        "match_condition",
+    ]
+    assert overload["parameters"][1]["type"] is etag_type
+    assert overload["parameters"][2]["type"] is match_condition_type
 
 
 def test_typeddict_only_single_body_emits_no_overload():
