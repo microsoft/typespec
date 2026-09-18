@@ -154,6 +154,51 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual("ServiceResponse", model.Properties[0].Name);
         }
 
+        [TestCase("WidgetResponse", false, "WidgetResult")]
+        [TestCase("WidgetResponse", true, "WidgetResponse")]
+        [TestCase("IpResponse", false, "IPResult")]
+        [TestCase("IpResponse", true, "IpResponse")]
+        [TestCase("widget_response", false, "WidgetResult")]
+        [TestCase("widget_response", true, "widget_response")]
+        public void TestBuildName_ResponseSuffixHonorsExactName(string inputName, bool isExactName, string expectedName)
+        {
+            var inputModel = InputFactory.Model(inputName, isExactName: isExactName);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [inputModel]);
+
+            var model = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
+
+            Assert.AreEqual(expectedName, model.Name);
+            Assert.AreEqual($"{expectedName}.cs", Path.GetFileName(model.RelativeFilePath));
+            model.Reset();
+            Assert.AreEqual(expectedName, model.Name);
+        }
+
+        [TestCase("WidgetResponse", false, "WidgetResult")]
+        [TestCase("WidgetResponse", true, "WidgetResponse")]
+        [TestCase("IpResponse", false, "IPResult")]
+        [TestCase("IpResponse", true, "IPResponse")]
+        [TestCase("DbResponse", false, "DBResult")]
+        [TestCase("DbResponse", true, "DbResponse")]
+        public async Task TestBuildName_ResponseSuffixHonorsLastContract(
+            string inputName, bool hasLastContract, string expectedName)
+        {
+            var inputModel = InputFactory.Model(inputName);
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                lastContractCompilation: hasLastContract
+                    ? async () => await Helpers.GetCompilationFromDirectoryAsync(
+                        method: nameof(TestBuildName_ResponseSuffixPreservesExistingName))
+                    : null);
+
+            var model = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
+
+            Assert.AreEqual(expectedName, model.Name);
+            Assert.AreEqual(hasLastContract, model.LastContractView is not null);
+            Assert.IsNull(model.CustomCodeView);
+            model.Reset();
+            Assert.AreEqual(expectedName, model.Name);
+        }
+
         [TestCase("WidgetResponse", "WidgetResponse", false, false)]
         [TestCase("WidgetResponse", "WidgetResponse", true, false)]
         [TestCase("WidgetResponse", "WidgetResponse", false, true)]
@@ -275,6 +320,27 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var providers = models.Select(m => CodeModelGenerator.Instance.TypeFactory.CreateModel(m)!).ToArray();
 
             CollectionAssert.AreEquivalent(new[] { "WidgetResponse", "WidgetResult" }, providers.Select(p => p.Name));
+        }
+
+        [TestCase("IpResponse", false)]
+        [TestCase("IpResponse", true)]
+        [TestCase("IPResponse", false)]
+        [TestCase("IPResponse", true)]
+        public async Task TestBuildName_ResponseSuffixIgnoresResultAliasForShippedModel(
+            string inputName, bool reverseOrder)
+        {
+            var widget = InputFactory.Model("WidgetResponse");
+            var shipped = InputFactory.Model(inputName);
+            InputModelType[] models = reverseOrder ? [shipped, widget] : [widget, shipped];
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: models,
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    parameters: "LastContract"));
+
+            var providers = models.Select(m => CodeModelGenerator.Instance.TypeFactory.CreateModel(m)!).ToArray();
+
+            CollectionAssert.AreEquivalent(new[] { "WidgetResult", "IPResponse" }, providers.Select(p => p.Name));
         }
 
         [Test]

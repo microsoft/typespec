@@ -337,55 +337,74 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var resultName = $"{normalizedName[..^ResponseSuffix.Length]}Result";
             var inputNamespace = CodeModelGenerator.Instance.InputLibrary.InputNamespace;
             // Model and enum files share a flat output directory, even across namespaces.
-            return inputNamespace.Models.Any(model => HasConflictingName(model, model.Namespace)) ||
-                inputNamespace.Enums.Any(@enum => HasConflictingName(@enum, @enum.Namespace)) ||
-                inputNamespace.Clients.Any(HasConflictingClientName)
+            return inputNamespace.Models.Any(model => HasConflictingName(model, model.Namespace, resultName)) ||
+                inputNamespace.Enums.Any(@enum => HasConflictingName(@enum, @enum.Namespace, resultName)) ||
+                inputNamespace.Clients.Any(client => HasConflictingName(client, typeNamespace, resultName))
                     ? normalizedName
                     : resultName;
+        }
 
-            bool HasConflictingName(InputType inputType, string inputTypeNamespace)
+        private bool HasConflictingName(InputType inputType, string inputTypeNamespace, string resultName)
+        {
+            if (inputType == _inputModel)
             {
-                if (inputType == _inputModel)
-                {
-                    return false;
-                }
-
-                var otherNamespace = string.IsNullOrEmpty(inputTypeNamespace)
-                    ? CodeModelGenerator.Instance.TypeFactory.PrimaryNamespace
-                    : CodeModelGenerator.Instance.TypeFactory.GetCleanNameSpace(inputTypeNamespace);
-                var otherName = inputType.IsExactName ? inputType.Name : inputType.Name.ToIdentifierName();
-                var customType = sourceInputModel.FindForTypeInCurrentCompilation(otherNamespace, otherName);
-                if (customType is null && !inputType.IsExactName)
-                {
-                    var normalizedOtherName = otherName.NormalizeCSharpAcronyms();
-                    customType = sourceInputModel.FindForTypeInCurrentCompilation(otherNamespace, normalizedOtherName);
-                    if (sourceInputModel.FindForTypeInLastContract(otherNamespace, otherName) is null)
-                    {
-                        otherName = normalizedOtherName;
-                        if (customType is null && inputType is InputModelType &&
-                            otherName.EndsWith(ResponseSuffix, StringComparison.Ordinal) &&
-                            sourceInputModel.FindForTypeInLastContract(otherNamespace, otherName) is null)
-                        {
-                            customType = sourceInputModel.FindForTypeInCurrentCompilation(
-                                otherNamespace, $"{otherName[..^ResponseSuffix.Length]}Result");
-                        }
-                    }
-                }
-
-                return string.Equals(otherName, resultName, StringComparison.OrdinalIgnoreCase) ||
-                    string.Equals(customType?.Name, resultName, StringComparison.OrdinalIgnoreCase);
+                return false;
             }
 
-            bool HasConflictingClientName(InputClient client)
+            var otherName = inputType.IsExactName ? inputType.Name : inputType.Name.ToIdentifierName();
+            // Acronym normalization only changes casing, so this also covers the normalized filename.
+            if (string.Equals(otherName, resultName, StringComparison.OrdinalIgnoreCase))
             {
-                var clientNamespace = string.IsNullOrEmpty(client.Namespace)
-                    ? CodeModelGenerator.Instance.TypeFactory.PrimaryNamespace
-                    : CodeModelGenerator.Instance.TypeFactory.GetCleanNameSpace(client.Namespace);
-                var clientName = client.IsExactName ? client.Name : client.Name.ToIdentifierName();
-                var customType = sourceInputModel.FindForTypeInCurrentCompilation(clientNamespace, clientName);
-                return (customType?.Type.Namespace ?? clientNamespace) == typeNamespace &&
-                    (customType?.Name ?? clientName) == resultName;
+                return true;
             }
+
+            var sourceInputModel = CodeModelGenerator.Instance.SourceInputModel;
+            if (sourceInputModel.Customization is null)
+            {
+                return false;
+            }
+
+            var otherNamespace = string.IsNullOrEmpty(inputTypeNamespace)
+                ? CodeModelGenerator.Instance.TypeFactory.PrimaryNamespace
+                : CodeModelGenerator.Instance.TypeFactory.GetCleanNameSpace(inputTypeNamespace);
+            var customType = sourceInputModel.FindForTypeInCurrentCompilation(otherNamespace, otherName);
+            if (customType is not null || inputType.IsExactName)
+            {
+                return string.Equals(customType?.Name, resultName, StringComparison.OrdinalIgnoreCase);
+            }
+
+            var normalizedOtherName = otherName.NormalizeCSharpAcronyms();
+            if (normalizedOtherName != otherName)
+            {
+                customType = sourceInputModel.FindForTypeInCurrentCompilation(otherNamespace, normalizedOtherName);
+            }
+            if (customType is not null)
+            {
+                return string.Equals(customType.Name, resultName, StringComparison.OrdinalIgnoreCase);
+            }
+
+            if (inputType is not InputModelType || !normalizedOtherName.EndsWith(ResponseSuffix, StringComparison.Ordinal))
+            {
+                return false;
+            }
+
+            customType = sourceInputModel.FindForTypeInCurrentCompilation(
+                otherNamespace, $"{normalizedOtherName[..^ResponseSuffix.Length]}Result");
+            return string.Equals(customType?.Name, resultName, StringComparison.OrdinalIgnoreCase) &&
+                sourceInputModel.FindForTypeInLastContract(otherNamespace, otherName) is null &&
+                (normalizedOtherName == otherName ||
+                    sourceInputModel.FindForTypeInLastContract(otherNamespace, normalizedOtherName) is null);
+        }
+
+        private bool HasConflictingName(InputClient client, string typeNamespace, string resultName)
+        {
+            var clientNamespace = string.IsNullOrEmpty(client.Namespace)
+                ? CodeModelGenerator.Instance.TypeFactory.PrimaryNamespace
+                : CodeModelGenerator.Instance.TypeFactory.GetCleanNameSpace(client.Namespace);
+            var clientName = client.IsExactName ? client.Name : client.Name.ToIdentifierName();
+            var customType = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(clientNamespace, clientName);
+            return (customType?.Type.Namespace ?? clientNamespace) == typeNamespace &&
+                (customType?.Name ?? clientName) == resultName;
         }
 
         private protected override TypeProvider? BuildCustomCodeView(string? generatedTypeName = null, string? generatedTypeNamespace = null)
