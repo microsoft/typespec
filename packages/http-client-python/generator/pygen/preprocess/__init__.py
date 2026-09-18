@@ -272,23 +272,15 @@ def _process_operation_etag_headers(
             elif role == "ifNoneMatch":
                 if_none_match_candidates.append(p)
 
-    etag_candidates = if_match_candidates + if_none_match_candidates
-    if any(not parameter.get("optional", False) for parameter in etag_candidates):
-        # A required conditional header fixes the header choice and requires
-        # its value. Keep it direct instead of introducing the optional
-        # etag/MatchConditions convenience API.
-        for parameter in etag_candidates:
-            parameter.pop("etagRole", None)
-    else:
-        property_if_match, property_if_none_match = _resolve_etag_pair(if_match_candidates, if_none_match_candidates)
-        if property_if_match and property_if_none_match:
-            etag_params = {id(property_if_match), id(property_if_none_match)}
-            operation["parameters"] = [item for item in operation["parameters"] if id(item) not in etag_params] + [
-                property_if_match,
-                property_if_none_match,
-            ]
-            operation["hasEtag"] = True
-            client["hasEtag"] = True
+    property_if_match, property_if_none_match = _resolve_etag_pair(if_match_candidates, if_none_match_candidates)
+    if property_if_match and property_if_none_match:
+        etag_params = {id(property_if_match), id(property_if_none_match)}
+        operation["parameters"] = [item for item in operation["parameters"] if id(item) not in etag_params] + [
+            property_if_match,
+            property_if_none_match,
+        ]
+        operation["hasEtag"] = True
+        client["hasEtag"] = True
 
     for overload in operation.get("overloads", []):
         _process_operation_etag_headers(overload, client, version_tolerant)
