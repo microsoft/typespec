@@ -205,6 +205,16 @@ def _pick_etag_slot(candidates: list[dict[str, Any]], standard_wire_name: str) -
     return candidates[0]
 
 
+def _make_non_wire_etag_companion(source: dict[str, Any], replacement: dict[str, Any]) -> dict[str, Any]:
+    """Create the missing convenience parameter without inventing a request header."""
+    companion = source.copy()
+    companion.update(replacement)
+    companion["wireName"] = ""
+    companion["location"] = "keyword"
+    companion.pop("etagRole", None)
+    return companion
+
+
 def _resolve_etag_pair(
     if_match_candidates: list[dict[str, Any]],
     if_none_match_candidates: list[dict[str, Any]],
@@ -212,8 +222,8 @@ def _resolve_etag_pair(
     """Select and reconcile the etag header pair for an operation.
 
     When multiple etag-typed headers are present, prefer the standard
-    If-Match / If-None-Match pair.  Synthesize a missing partner when only
-    one side is present, and strip etagRole from non-selected candidates.
+    If-Match / If-None-Match pair. Add a non-wire convenience parameter when
+    only one side is present, and strip etagRole from non-selected candidates.
 
     Returns (property_if_match, property_if_none_match) — both None when
     there are no etag candidates.
@@ -223,27 +233,19 @@ def _resolve_etag_pair(
 
     # Ensure the promoted pair come from the same family.  When one slot is
     # standard and the other custom (cross-family), replace the custom slot
-    # with a synthetic standard partner.  Also synthesize the missing partner
-    # when only one side is present.
+    # with a non-wire convenience parameter. Also add the missing API parameter
+    # when only one side is present without inventing a request header.
     if property_if_match and property_if_none_match:
         match_is_std = get_wire_name_lower(property_if_match) == STANDARD_IF_MATCH_WIRE_NAME
         none_match_is_std = get_wire_name_lower(property_if_none_match) == STANDARD_IF_NONE_MATCH_WIRE_NAME
         if match_is_std and not none_match_is_std:
-            property_if_none_match = property_if_match.copy()
-            property_if_none_match["wireName"] = STANDARD_IF_NONE_MATCH_WIRE_NAME
-            property_if_none_match["etagRole"] = "ifNoneMatch"
+            property_if_none_match = _make_non_wire_etag_companion(property_if_match, ETAG_NONE_MATCH_DATA)
         elif none_match_is_std and not match_is_std:
-            property_if_match = property_if_none_match.copy()
-            property_if_match["wireName"] = STANDARD_IF_MATCH_WIRE_NAME
-            property_if_match["etagRole"] = "ifMatch"
+            property_if_match = _make_non_wire_etag_companion(property_if_none_match, ETAG_MATCH_DATA)
     elif not property_if_match and property_if_none_match:
-        property_if_match = property_if_none_match.copy()
-        property_if_match["wireName"] = STANDARD_IF_MATCH_WIRE_NAME
-        property_if_match["etagRole"] = "ifMatch"
+        property_if_match = _make_non_wire_etag_companion(property_if_none_match, ETAG_MATCH_DATA)
     elif property_if_match and not property_if_none_match:
-        property_if_none_match = property_if_match.copy()
-        property_if_none_match["wireName"] = STANDARD_IF_NONE_MATCH_WIRE_NAME
-        property_if_none_match["etagRole"] = "ifNoneMatch"
+        property_if_none_match = _make_non_wire_etag_companion(property_if_match, ETAG_NONE_MATCH_DATA)
 
     for c in if_match_candidates:
         if c is not property_if_match:

@@ -113,9 +113,9 @@ def _etag_parameters(*, optional: bool) -> tuple[list[dict], dict, dict]:
                 "type": etag_type,
             },
             {
-                "wireName": "If-None-Match",
+                "wireName": "",
                 "clientName": "match_condition",
-                "location": "header",
+                "location": "keyword",
                 "optional": optional,
                 "implementation": "Method",
                 "type": match_condition_type,
@@ -192,9 +192,9 @@ def test_add_overload_preserves_types_after_filtering_flattened_parameters():
                 "type": etag_type,
             },
             {
-                "wireName": "If-None-Match",
+                "wireName": "",
                 "clientName": "match_condition",
-                "location": "header",
+                "location": "keyword",
                 "optional": True,
                 "implementation": "Method",
                 "type": match_condition_type,
