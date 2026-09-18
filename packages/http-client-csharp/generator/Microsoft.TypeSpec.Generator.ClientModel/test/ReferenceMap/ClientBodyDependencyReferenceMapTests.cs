@@ -177,7 +177,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ReferenceMap
                 clients: [client],
                 customFiles: [],
                 expectedFiles: [],
-                publicModelNames: ["MetadataOnlyResponse"]);
+                publicModelNames: ["MetadataOnlyResult"]);
         }
 
         [Test]
@@ -227,13 +227,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ReferenceMap
                 clients: [client],
                 customFiles: [],
                 expectedFiles: [
-                    Path.Combine("src", "Generated", "Models", "MetadataOnlyResponse.cs"),
-                    Path.Combine("src", "Generated", "Models", "MetadataOnlyResponse.Serialization.cs")
+                    Path.Combine("src", "Generated", "Models", "MetadataOnlyResult.cs"),
+                    Path.Combine("src", "Generated", "Models", "MetadataOnlyResult.Serialization.cs")
                 ],
-                internalModelNames: ["MetadataOnlyResponse"],
+                internalModelNames: ["MetadataOnlyResult"],
                 configureGenerator: () =>
                 {
-                    var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.Single(provider => provider.Name == "MetadataOnlyResponse");
+                    var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.Single(provider => provider.Name == "MetadataOnlyResult");
                     CodeModelGenerator.Instance.AddTypeToKeep(provider);
                 });
         }

@@ -204,20 +204,35 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.IsNotNull(model.CustomCodeView);
         }
 
-        [TestCase(false, false)]
-        [TestCase(false, true)]
-        [TestCase(true, false)]
-        [TestCase(true, true)]
-        public void TestBuildName_ResponseSuffixAvoidsModelCollision(bool reverseOrder, bool differentNamespace)
+        [TestCase(false, false, "WidgetResult", false)]
+        [TestCase(false, true, "WidgetResult", false)]
+        [TestCase(true, false, "WidgetResult", false)]
+        [TestCase(true, true, "WidgetResult", false)]
+        [TestCase(false, false, "widgetResult", true)]
+        public void TestBuildName_ResponseSuffixAvoidsModelCollision(
+            bool reverseOrder, bool differentNamespace, string resultName, bool isExactName)
         {
             var response = InputFactory.Model("WidgetResponse");
-            var result = InputFactory.Model("WidgetResult", @namespace: differentNamespace ? "Other" : "Sample.Models");
+            var result = InputFactory.Model(
+                resultName, @namespace: differentNamespace ? "Other" : "Sample.Models", isExactName: isExactName);
             InputModelType[] models = reverseOrder ? [result, response] : [response, result];
             MockHelpers.LoadMockGenerator(inputModelTypes: models);
 
             var providers = models.Select(m => CodeModelGenerator.Instance.TypeFactory.CreateModel(m)!).ToArray();
 
-            CollectionAssert.AreEquivalent(new[] { "WidgetResponse", "WidgetResult" }, providers.Select(p => p.Name));
+            CollectionAssert.AreEquivalent(new[] { "WidgetResponse", resultName }, providers.Select(p => p.Name));
+        }
+
+        [TestCase("Sample.Models", "WidgetResponse")]
+        [TestCase("Other", "WidgetResult")]
+        public void TestBuildName_ResponseSuffixAvoidsClientCollision(string clientNamespace, string expectedName)
+        {
+            var response = InputFactory.Model("WidgetResponse");
+            var client = InputFactory.Client("WidgetResult");
+            client.Update(@namespace: clientNamespace);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [response], inputClients: [client]);
+
+            Assert.AreEqual(expectedName, CodeModelGenerator.Instance.TypeFactory.CreateModel(response)!.Name);
         }
 
         [TestCase(false)]

@@ -11,34 +11,34 @@ using System.Linq;
 
 namespace SampleTypeSpec
 {
-    /// <summary> The ListWithContinuationTokenResponse. </summary>
-    internal partial class ListWithContinuationTokenResponse
+    /// <summary> The ListWithStringNextLinkResult. </summary>
+    internal partial class ListWithStringNextLinkResult
     {
         /// <summary> Keeps track of any properties unknown to the library. </summary>
         private protected readonly IDictionary<string, BinaryData> _additionalBinaryDataProperties;
 
-        /// <summary> Initializes a new instance of <see cref="ListWithContinuationTokenResponse"/>. </summary>
+        /// <summary> Initializes a new instance of <see cref="ListWithStringNextLinkResult"/>. </summary>
         /// <param name="things"></param>
-        internal ListWithContinuationTokenResponse(IEnumerable<Thing> things)
+        internal ListWithStringNextLinkResult(IEnumerable<Thing> things)
         {
             Things = things.ToList();
         }
 
-        /// <summary> Initializes a new instance of <see cref="ListWithContinuationTokenResponse"/>. </summary>
+        /// <summary> Initializes a new instance of <see cref="ListWithStringNextLinkResult"/>. </summary>
         /// <param name="things"></param>
-        /// <param name="nextToken"></param>
+        /// <param name="next"></param>
         /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
-        internal ListWithContinuationTokenResponse(IList<Thing> things, string nextToken, IDictionary<string, BinaryData> additionalBinaryDataProperties)
+        internal ListWithStringNextLinkResult(IList<Thing> things, string next, IDictionary<string, BinaryData> additionalBinaryDataProperties)
         {
             Things = things;
-            NextToken = nextToken;
+            Next = next;
             _additionalBinaryDataProperties = additionalBinaryDataProperties;
         }
 
         /// <summary> Gets the Things. </summary>
         public IList<Thing> Things { get; }
 
-        /// <summary> Gets the NextToken. </summary>
-        public string NextToken { get; }
+        /// <summary> Gets the Next. </summary>
+        public string Next { get; }
     }
 }

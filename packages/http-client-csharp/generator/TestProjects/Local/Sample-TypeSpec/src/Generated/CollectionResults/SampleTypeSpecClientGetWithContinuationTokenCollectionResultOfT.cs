@@ -40,7 +40,7 @@ namespace SampleTypeSpec
                 ClientResult result = GetNextResponse(message);
                 yield return result;
 
-                nextToken = ((ListWithContinuationTokenResponse)result).NextToken;
+                nextToken = ((ListWithContinuationTokenResult)result).NextToken;
                 if (string.IsNullOrEmpty(nextToken))
                 {
                     yield break;
@@ -54,7 +54,7 @@ namespace SampleTypeSpec
         /// <returns> The continuation token for the specified page. </returns>
         public override ContinuationToken GetContinuationToken(ClientResult page)
         {
-            string nextPage = ((ListWithContinuationTokenResponse)page).NextToken;
+            string nextPage = ((ListWithContinuationTokenResult)page).NextToken;
             if (!string.IsNullOrEmpty(nextPage))
             {
                 return ContinuationToken.FromBytes(BinaryData.FromString(nextPage));
@@ -70,7 +70,7 @@ namespace SampleTypeSpec
         /// <returns> The values from the specified page. </returns>
         protected override IEnumerable<Thing> GetValuesFromPage(ClientResult page)
         {
-            return ((ListWithContinuationTokenResponse)page).Things;
+            return ((ListWithContinuationTokenResult)page).Things;
         }
 
         /// <summary> Sends the request in the pipeline message and returns the response. </summary>
