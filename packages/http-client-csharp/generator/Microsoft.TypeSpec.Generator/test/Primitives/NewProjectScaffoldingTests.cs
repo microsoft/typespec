@@ -2,7 +2,9 @@
 // Licensed under the MIT License.
 
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using Microsoft.TypeSpec.Generator.Primitives;
 using NUnit.Framework;
 
@@ -42,6 +44,19 @@ namespace Microsoft.TypeSpec.Generator.Tests.Primitives
             Assert.IsTrue(result);
             Assert.IsTrue(File.Exists(Path.Combine(_outputDir, "TestPackage.slnx")));
             Assert.IsTrue(File.Exists(Path.Combine(_outputDir, "src", "TestPackage.csproj")));
+        }
+
+        [Test]
+        public async Task Execute_ReferencesStableSystemClientModel()
+        {
+            var scaffolding = new NewProjectScaffolding();
+            await scaffolding.Execute();
+
+            var project = XDocument.Load(Path.Combine(_outputDir, "src", "TestPackage.csproj"));
+            var reference = project.Descendants("PackageReference")
+                .Single(element => (string?)element.Attribute("Include") == "System.ClientModel");
+
+            Assert.AreEqual("1.16.0", (string?)reference.Attribute("Version"));
         }
 
         [Test]

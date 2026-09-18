@@ -9,17 +9,16 @@ using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
 {
-#pragma warning disable SCME0005 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-    internal static class AsyncStreamingClientResultSnippets
+    internal static class AsyncStreamingResultSnippets
     {
         public static CSharpType Of(CSharpType itemType)
-            => new(typeof(AsyncStreamingClientResult<>), itemType);
+            => new(typeof(AsyncStreamingResult<>), itemType);
 
         public static ValueExpression CreateSse(
             ValueExpression response,
             IReadOnlyList<ValueExpression> arguments,
             CSharpType? payloadType = null)
-            => Static(typeof(AsyncStreamingClientResult)).Invoke(
+            => Static(typeof(AsyncStreamingResult)).Invoke(
                 "CreateSse",
                 [response, .. arguments],
                 payloadType is null ? [] : [payloadType]);
@@ -28,10 +27,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
             ValueExpression response,
             IReadOnlyList<ValueExpression> arguments,
             CSharpType? itemType = null)
-            => Static(typeof(AsyncStreamingClientResult)).Invoke(
+            => Static(typeof(AsyncStreamingResult)).Invoke(
                 "CreateJsonLines",
                 [response, .. arguments],
                 itemType is null ? [] : [itemType]);
     }
-#pragma warning restore SCME0005
 }
