@@ -24,6 +24,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private Lazy<CanonicalTypeProvider> _canonicalView;
         private Lazy<TypeProvider> _specView;
         private Lazy<string?> _declaringTypeName;
+        private protected string? DeclaringTypeName => _declaringTypeName.Value;
         private readonly InputType? _inputType;
         private readonly Dictionary<string, PropertyProvider> _generatedPropertiesBySpecName = new(StringComparer.Ordinal);
 
@@ -761,76 +762,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return lastContractType is null ? normalizedName : name;
         }
 
-        private protected string NormalizeTypeName(string name)
-        {
-            var normalizedName = name.NormalizeCSharpAcronyms();
-            const string responseSuffix = "Response";
-            if (this is not ModelProvider || !normalizedName.EndsWith(responseSuffix, StringComparison.Ordinal))
-            {
-                return normalizedName;
-            }
-
-            var typeNamespace = BuildNamespace();
-            var sourceInputModel = CodeModelGenerator.Instance.SourceInputModel;
-            if (sourceInputModel.FindForTypeInCurrentCompilation(typeNamespace, normalizedName, _declaringTypeName.Value) is not null ||
-                sourceInputModel.FindForTypeInLastContract(typeNamespace, normalizedName, _declaringTypeName.Value) is not null)
-            {
-                return normalizedName;
-            }
-
-            var resultName = $"{normalizedName[..^responseSuffix.Length]}Result";
-            var inputNamespace = CodeModelGenerator.Instance.InputLibrary.InputNamespace;
-            // Model and enum files share a flat output directory, even across namespaces.
-            return inputNamespace.Models.Any(model => HasConflictingName(model, model.Namespace)) ||
-                inputNamespace.Enums.Any(@enum => HasConflictingName(@enum, @enum.Namespace)) ||
-                inputNamespace.Clients.Any(HasConflictingClientName)
-                    ? normalizedName
-                    : resultName;
-
-            bool HasConflictingName(InputType inputType, string inputTypeNamespace)
-            {
-                if (inputType == _inputType)
-                {
-                    return false;
-                }
-
-                var otherNamespace = string.IsNullOrEmpty(inputTypeNamespace)
-                    ? CodeModelGenerator.Instance.TypeFactory.PrimaryNamespace
-                    : CodeModelGenerator.Instance.TypeFactory.GetCleanNameSpace(inputTypeNamespace);
-                var otherName = inputType.IsExactName ? inputType.Name : inputType.Name.ToIdentifierName();
-                var customType = sourceInputModel.FindForTypeInCurrentCompilation(otherNamespace, otherName);
-                if (customType is null && !inputType.IsExactName)
-                {
-                    var normalizedOtherName = otherName.NormalizeCSharpAcronyms();
-                    customType = sourceInputModel.FindForTypeInCurrentCompilation(otherNamespace, normalizedOtherName);
-                    if (sourceInputModel.FindForTypeInLastContract(otherNamespace, otherName) is null)
-                    {
-                        otherName = normalizedOtherName;
-                        if (customType is null && inputType is InputModelType &&
-                            otherName.EndsWith(responseSuffix, StringComparison.Ordinal) &&
-                            sourceInputModel.FindForTypeInLastContract(otherNamespace, otherName) is null)
-                        {
-                            customType = sourceInputModel.FindForTypeInCurrentCompilation(
-                                otherNamespace, $"{otherName[..^responseSuffix.Length]}Result");
-                        }
-                    }
-                }
-
-                return string.Equals(otherName, resultName, StringComparison.OrdinalIgnoreCase) ||
-                    string.Equals(customType?.Name, resultName, StringComparison.OrdinalIgnoreCase);
-            }
-
-            bool HasConflictingClientName(InputClient client)
-            {
-                var clientNamespace = string.IsNullOrEmpty(client.Namespace)
-                    ? CodeModelGenerator.Instance.TypeFactory.PrimaryNamespace
-                    : CodeModelGenerator.Instance.TypeFactory.GetCleanNameSpace(client.Namespace);
-                var clientName = client.IsExactName ? client.Name : client.Name.ToIdentifierName();
-                var customType = sourceInputModel.FindForTypeInCurrentCompilation(clientNamespace, clientName);
-                return (customType?.Type.Namespace ?? clientNamespace) == typeNamespace &&
-                    (customType?.Name ?? clientName) == resultName;
-            }
-        }
+        private protected virtual string NormalizeTypeName(string name) => name.NormalizeCSharpAcronyms();
 
         /// <summary>
         /// Resets only the cached methods so they are rebuilt on next access.
