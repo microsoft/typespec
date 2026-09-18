@@ -4,6 +4,8 @@
 # license information.
 # --------------------------------------------------------------------------
 """Tests for etag-typed header handling in the preprocess plugin."""
+import pytest
+
 from pygen.preprocess import PreProcessPlugin
 
 
@@ -142,19 +144,20 @@ def test_optional_etag_header_in_nested_operation_group_uses_match_conditions():
     ]
 
 
-def test_required_etag_roles_are_processed_in_existing_overloads():
-    """Required body overloads receive the same ETag convenience pair."""
+@pytest.mark.parametrize("optional", [False, True])
+def test_etag_roles_are_processed_in_existing_overloads(optional: bool):
+    """Required and optional body overloads receive the ETag convenience pair."""
     operation_header = _header_param(
         "if_match",
         "If-Match",
         "ifMatch",
-        optional=False,
+        optional=optional,
     )
     overload_header = _header_param(
         "if_match",
         "If-Match",
         "ifMatch",
-        optional=False,
+        optional=optional,
     )
     operation = {
         "name": "update",
@@ -179,7 +182,7 @@ def test_required_etag_roles_are_processed_in_existing_overloads():
             "ifMatch",
             "ifNoneMatch",
         ]
-        assert all(parameter["optional"] is False for parameter in target["parameters"])
+        assert all(parameter["optional"] is optional for parameter in target["parameters"])
 
 
 def test_etag_role_preserved_when_only_standard_pair_present():

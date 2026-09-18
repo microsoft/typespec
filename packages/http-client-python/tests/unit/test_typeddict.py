@@ -7,6 +7,7 @@
 """Tests for TypedDict generation, unions generation, and models-mode interactions."""
 
 from jinja2 import PackageLoader, Environment
+import pytest
 
 from pygen.codegen.models import CodeModel, CombinedType, JSONModelType, DPGModelType, build_type
 from pygen.codegen.models.imports import ImportType, FileImport, TypingSection
@@ -561,25 +562,50 @@ def test_unions_serializer_multiple_member_alias():
     )
 
 
-def test_unions_serializer_deduplicates_named_aliases():
-    """Equivalent named-union copies produce one alias declaration."""
+@pytest.mark.parametrize("member_count", [1, 2])
+def test_unions_serializer_deduplicates_named_aliases(member_count: int):
+    """Equivalent single- and multi-member copies produce one alias declaration."""
     code_model = _make_code_model(models_mode="dpg")
     voice_model = _make_model(code_model, "GenerateVoiceAgentRequest", model_cls=DPGModelType)
+    text_model = _make_model(code_model, "GenerateTextAgentRequest", model_cls=DPGModelType)
+    members = [voice_model, text_model][:member_count]
     first = CombinedType(
         {"type": "combined", "name": "GenerateAgentRequest"},
         code_model,
-        [voice_model],
+        members,
     )
     duplicate = CombinedType(
         {"type": "combined", "name": "GenerateAgentRequest"},
         code_model,
-        [voice_model],
+        members.copy(),
     )
     code_model.named_unions = [first, duplicate]
 
     output = UnionsSerializer(code_model=code_model, env=_make_env()).serialize()
 
     assert output.count("GenerateAgentRequest: TypeAlias =") == 1
+
+
+def test_unions_serializer_rejects_conflicting_duplicate_aliases():
+    """One Python alias name cannot silently represent different unions."""
+    code_model = _make_code_model(models_mode="dpg")
+    voice_model = _make_model(code_model, "GenerateVoiceAgentRequest", model_cls=DPGModelType)
+    text_model = _make_model(code_model, "GenerateTextAgentRequest", model_cls=DPGModelType)
+    code_model.named_unions = [
+        CombinedType(
+            {"type": "combined", "name": "GenerateAgentRequest"},
+            code_model,
+            [voice_model],
+        ),
+        CombinedType(
+            {"type": "combined", "name": "GenerateAgentRequest"},
+            code_model,
+            [text_model],
+        ),
+    ]
+
+    with pytest.raises(ValueError, match="Conflicting definitions for named union GenerateAgentRequest"):
+        UnionsSerializer(code_model=code_model, env=_make_env()).serialize()
 
 
 # ---------- typed-dict-only ----------

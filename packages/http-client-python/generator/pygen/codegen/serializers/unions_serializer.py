@@ -21,11 +21,17 @@ class UnionsSerializer(BaseSerializer):
     @property
     def named_unions(self) -> list[CombinedType]:
         result: list[CombinedType] = []
-        seen_names: set[str] = set()
+        definitions: dict[str, str] = {}
         for union in self.code_model.named_unions:
-            if union.name and union.name not in seen_names:
+            if not union.name:
+                continue
+            definition = union.type_definition()
+            if union.name in definitions:
+                if definitions[union.name] != definition:
+                    raise ValueError(f"Conflicting definitions for named union {union.name}")
+            else:
                 result.append(union)
-                seen_names.add(union.name)
+                definitions[union.name] = definition
         return result
 
     def imports(self) -> FileImport:
