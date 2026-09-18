@@ -4,7 +4,7 @@
 
 namespace _Type.Union
 {
-    public partial class GetResponse
+    public partial class GetResult
     {
         public GetResponseProp Prop => throw null;
     }
