@@ -292,7 +292,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         [TestCase("jsonl", "application/jsonl", false)]
         [TestCase("sse", "text/event-stream", true)]
         [TestCase("sse", "text/event-stream", false)]
-        public void StreamingResponsesUseStableResults(
+        public void StreamingResponsesUseAsyncStreamingResult(
             string streamKind,
             string contentType,
             bool generateConvenienceMethod)

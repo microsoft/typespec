@@ -47,7 +47,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Primitives
         }
 
         [Test]
-        public async Task Execute_ReferencesStableSystemClientModel()
+        public async Task Execute_ReferencesSystemClientModelVersion()
         {
             var scaffolding = new NewProjectScaffolding();
             await scaffolding.Execute();
