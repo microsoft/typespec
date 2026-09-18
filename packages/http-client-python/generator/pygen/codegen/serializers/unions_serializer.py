@@ -20,19 +20,13 @@ class UnionsSerializer(BaseSerializer):
 
     @property
     def named_unions(self) -> list[CombinedType]:
-        result: list[CombinedType] = []
-        definitions: dict[str, str] = {}
+        # The same named union can reach codegen as multiple objects, so collapse
+        # by emitted alias name (keeping insertion order) to avoid duplicate aliases.
+        deduped: dict[str, CombinedType] = {}
         for union in self.code_model.named_unions:
-            if not union.name:
-                continue
-            definition = union.type_definition()
-            if union.name in definitions:
-                if definitions[union.name] != definition:
-                    raise ValueError(f"Conflicting definitions for named union {union.name}")
-            else:
-                result.append(union)
-                definitions[union.name] = definition
-        return result
+            if union.name:
+                deduped.setdefault(union.name, union)
+        return list(deduped.values())
 
     def imports(self) -> FileImport:
         file_import = FileImport(self.code_model)
