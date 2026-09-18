@@ -350,8 +350,6 @@ class Parameter(_ParameterBase):
             if self.in_overload:
                 return ParameterMethodLocation.KEYWORD_ONLY
             return ParameterMethodLocation.KWARG
-        if self.location == ParameterLocation.KEYWORD:
-            return ParameterMethodLocation.KEYWORD_ONLY
         query_or_header = self.location in (
             ParameterLocation.HEADER,
             ParameterLocation.QUERY,
