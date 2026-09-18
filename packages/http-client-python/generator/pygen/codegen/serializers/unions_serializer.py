@@ -3,7 +3,7 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
-from ..models import CodeModel
+from ..models import CodeModel, CombinedType
 from ..models.imports import FileImport, ImportType
 from ..models.utils import NamespaceType
 from .import_serializer import FileImportSerializer
@@ -18,9 +18,19 @@ class UnionsSerializer(BaseSerializer):
     ):
         super().__init__(code_model=code_model, env=env)
 
+    @property
+    def named_unions(self) -> list[CombinedType]:
+        # The same named union can reach codegen as multiple objects, so collapse
+        # by emitted alias name (keeping insertion order) to avoid duplicate aliases.
+        deduped: dict[str, CombinedType] = {}
+        for union in self.code_model.named_unions:
+            if union.name:
+                deduped.setdefault(union.name, union)
+        return list(deduped.values())
+
     def imports(self) -> FileImport:
         file_import = FileImport(self.code_model)
-        if self.code_model.named_unions:
+        if self.named_unions:
             file_import.add_submodule_import(
                 "typing",
                 "TypeAlias",
@@ -31,7 +41,7 @@ class UnionsSerializer(BaseSerializer):
                 "Union",
                 ImportType.STDLIB,
             )
-        for nu in self.code_model.named_unions:
+        for nu in self.named_unions:
             file_import.merge(
                 nu.imports(
                     serialize_namespace=self.serialize_namespace,
@@ -44,6 +54,7 @@ class UnionsSerializer(BaseSerializer):
         template = self.env.get_template("unions.py.jinja2")
         return template.render(
             code_model=self.code_model,
+            named_unions=self.named_unions,
             imports=FileImportSerializer(self.imports()),
             serializer=self,
         )
