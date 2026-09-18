@@ -97,6 +97,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         [TestCase(false, "IPV4AddressIPV6", false, "IPV4AddressIPV6")]
         [TestCase(true, "OsloIpsumOsmosisDbz", false, "OsloIpsumOsmosisDbz")]
         [TestCase(false, "IpKind", true, "IpKind")]
+        [TestCase(false, "WidgetResponse", false, "WidgetResponse")]
+        [TestCase(true, "IpResponse", false, "IPResponse")]
         public void BuildEnumType_NormalizesTypeAcronymCasing(
             bool isExtensible,
             string inputName,
