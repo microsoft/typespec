@@ -336,13 +336,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             var resultName = $"{normalizedName[..^ResponseSuffix.Length]}Result";
             var inputNamespace = CodeModelGenerator.Instance.InputLibrary.InputNamespace;
-            // Model and enum files share a flat output directory, even across namespaces.
-            return inputNamespace.Models.Any(model => HasConflictingName(model, model.Namespace, resultName)) ||
-                inputNamespace.Enums.Any(@enum => HasConflictingName(@enum, @enum.Namespace, resultName)) ||
-                inputNamespace.Clients.Any(client => HasConflictingName(client, typeNamespace, resultName))
-                    ? normalizedName
-                    : resultName;
+            return HasConflictingResultName(inputNamespace, typeNamespace, resultName)
+                ? normalizedName
+                : resultName;
         }
+
+        private bool HasConflictingResultName(InputNamespace inputNamespace, string typeNamespace, string resultName)
+            // Model and enum files share a flat output directory, even across namespaces.
+            => inputNamespace.Models.Any(model => HasConflictingName(model, model.Namespace, resultName)) ||
+                inputNamespace.Enums.Any(@enum => HasConflictingName(@enum, @enum.Namespace, resultName)) ||
+                inputNamespace.Clients.Any(client => HasConflictingName(client, typeNamespace, resultName));
 
         private bool HasConflictingName(InputType inputType, string inputTypeNamespace, string resultName)
         {
@@ -367,33 +370,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var otherNamespace = string.IsNullOrEmpty(inputTypeNamespace)
                 ? CodeModelGenerator.Instance.TypeFactory.PrimaryNamespace
                 : CodeModelGenerator.Instance.TypeFactory.GetCleanNameSpace(inputTypeNamespace);
-            var customType = sourceInputModel.FindForTypeInCurrentCompilation(otherNamespace, otherName);
-            if (customType is not null || inputType.IsExactName)
-            {
-                return string.Equals(customType?.Name, resultName, StringComparison.OrdinalIgnoreCase);
-            }
-
-            var normalizedOtherName = otherName.NormalizeCSharpAcronyms();
-            if (normalizedOtherName != otherName)
-            {
-                customType = sourceInputModel.FindForTypeInCurrentCompilation(otherNamespace, normalizedOtherName);
-            }
-            if (customType is not null)
-            {
-                return string.Equals(customType.Name, resultName, StringComparison.OrdinalIgnoreCase);
-            }
-
-            if (inputType is not InputModelType || !normalizedOtherName.EndsWith(ResponseSuffix, StringComparison.Ordinal))
-            {
-                return false;
-            }
-
-            customType = sourceInputModel.FindForTypeInCurrentCompilation(
-                otherNamespace, $"{normalizedOtherName[..^ResponseSuffix.Length]}Result");
-            return string.Equals(customType?.Name, resultName, StringComparison.OrdinalIgnoreCase) &&
-                sourceInputModel.FindForTypeInLastContract(otherNamespace, otherName) is null &&
-                (normalizedOtherName == otherName ||
-                    sourceInputModel.FindForTypeInLastContract(otherNamespace, normalizedOtherName) is null);
+            var customType = FindCustomizationType(otherNamespace, GetCustomizationLookupNames(inputType, otherName));
+            return customType is { } &&
+                string.Equals(customType.Value.Type.Name, resultName, StringComparison.OrdinalIgnoreCase) &&
+                (!customType.Value.IsResultAlias || !HasLastContractName(otherNamespace, otherName));
         }
 
         private bool HasConflictingName(InputClient client, string typeNamespace, string resultName)
@@ -407,26 +387,65 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 (customType?.Name ?? clientName) == resultName;
         }
 
+        private (TypeProvider Type, bool IsResultAlias)? FindCustomizationType(
+            string typeNamespace,
+            IEnumerable<(string Name, bool IsResultAlias)> lookupNames)
+        {
+            var sourceInputModel = CodeModelGenerator.Instance.SourceInputModel;
+            foreach (var lookupName in lookupNames)
+            {
+                var customType = sourceInputModel.FindForTypeInCurrentCompilation(typeNamespace, lookupName.Name);
+                if (customType is not null)
+                {
+                    return (customType, lookupName.IsResultAlias);
+                }
+            }
+
+            return null;
+        }
+
+        private static IEnumerable<(string Name, bool IsResultAlias)> GetCustomizationLookupNames(InputType inputType, string name)
+        {
+            yield return (name, false);
+            if (inputType.IsExactName)
+            {
+                yield break;
+            }
+
+            var normalizedName = name.NormalizeCSharpAcronyms();
+            if (normalizedName != name)
+            {
+                yield return (normalizedName, false);
+            }
+
+            if (inputType is InputModelType && normalizedName.EndsWith(ResponseSuffix, StringComparison.Ordinal))
+            {
+                yield return ($"{normalizedName[..^ResponseSuffix.Length]}Result", true);
+            }
+        }
+
+        private bool HasLastContractName(string typeNamespace, string name)
+        {
+            var sourceInputModel = CodeModelGenerator.Instance.SourceInputModel;
+            if (sourceInputModel.FindForTypeInLastContract(typeNamespace, name) is not null)
+            {
+                return true;
+            }
+
+            var normalizedName = name.NormalizeCSharpAcronyms();
+            return normalizedName != name &&
+                sourceInputModel.FindForTypeInLastContract(typeNamespace, normalizedName) is not null;
+        }
+
         private protected override TypeProvider? BuildCustomCodeView(string? generatedTypeName = null, string? generatedTypeNamespace = null)
         {
             var typeNamespace = generatedTypeNamespace ?? BuildNamespace();
             var typeName = generatedTypeName ?? BuildName();
             var customCodeView = base.BuildCustomCodeView(typeName, typeNamespace);
-            if (customCodeView is not null || _inputModel.IsExactName)
-            {
-                return customCodeView;
-            }
-
-            var originalName = _inputModel.Name.ToIdentifierName();
-            if (!originalName.EndsWith(ResponseSuffix, StringComparison.Ordinal) ||
-                originalName == typeName ||
-                typeName != NormalizeTypeName(originalName))
-            {
-                return null;
-            }
-
-            return base.BuildCustomCodeView(originalName, typeNamespace) ??
-                base.BuildCustomCodeView(originalName.NormalizeCSharpAcronyms(), typeNamespace);
+            return customCodeView ?? BuildResponseSuffixFallbackView(
+                typeName,
+                typeNamespace,
+                (name, ns) => base.BuildCustomCodeView(name, ns));
         }
 
         private protected override TypeProvider? BuildLastContractView(string? generatedTypeName = null, string? generatedTypeNamespace = null)
@@ -434,21 +453,33 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var typeNamespace = generatedTypeNamespace ?? CustomCodeView?.Type.Namespace ?? BuildNamespace();
             var typeName = generatedTypeName ?? CustomCodeView?.Name ?? BuildName();
             var lastContractView = base.BuildLastContractView(typeName, typeNamespace);
-            if (lastContractView is not null || _inputModel.IsExactName)
-            {
-                return lastContractView;
-            }
+            return lastContractView ?? BuildResponseSuffixFallbackView(
+                typeName,
+                typeNamespace,
+                (name, ns) => base.BuildLastContractView(name, ns));
+        }
 
-            var originalName = _inputModel.Name.ToIdentifierName();
-            if (!originalName.EndsWith(ResponseSuffix, StringComparison.Ordinal) ||
-                originalName == typeName ||
-                typeName != NormalizeTypeName(originalName))
+        private TypeProvider? BuildResponseSuffixFallbackView(
+            string typeName,
+            string typeNamespace,
+            Func<string, string, TypeProvider?> buildView)
+        {
+            if (_inputModel.IsExactName)
             {
                 return null;
             }
 
-            return base.BuildLastContractView(originalName, typeNamespace) ??
-                base.BuildLastContractView(originalName.NormalizeCSharpAcronyms(), typeNamespace);
+            var originalName = _inputModel.Name.ToIdentifierName();
+            var normalizedOriginalName = originalName.NormalizeCSharpAcronyms();
+            if (!normalizedOriginalName.EndsWith(ResponseSuffix, StringComparison.Ordinal) ||
+                originalName == typeName ||
+                typeName != $"{normalizedOriginalName[..^ResponseSuffix.Length]}Result")
+            {
+                return null;
+            }
+
+            return buildView(originalName, typeNamespace) ??
+                (normalizedOriginalName == originalName ? null : buildView(normalizedOriginalName, typeNamespace));
         }
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers()

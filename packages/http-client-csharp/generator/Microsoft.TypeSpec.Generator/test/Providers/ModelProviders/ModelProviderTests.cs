@@ -249,6 +249,21 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.IsNotNull(model.CustomCodeView);
         }
 
+        [Test]
+        public async Task TestBuildName_ResponseSuffixPreservesCustomResponseRenameWithoutLastContract()
+        {
+            var inputModel = InputFactory.Model("FooResponse");
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var model = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
+
+            Assert.AreEqual("FooModel", model.Name);
+            Assert.IsNotNull(model.CustomCodeView);
+            Assert.IsNull(model.LastContractView);
+        }
+
         [TestCase(false, false, "WidgetResult", false)]
         [TestCase(false, true, "WidgetResult", false)]
         [TestCase(true, false, "WidgetResult", false)]
@@ -3767,7 +3782,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         [TearDown]
         public void CleanUp()
         {
-            if(_projectDir != null && Directory.Exists(_projectDir))
+            if (_projectDir != null && Directory.Exists(_projectDir))
             {
                 Directory.Delete(_projectDir, true);
             }
