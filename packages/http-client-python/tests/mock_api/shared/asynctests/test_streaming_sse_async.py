@@ -12,7 +12,7 @@ from streaming.sse.aio import SseClient
 from streaming.sse._utils.streaming_base import AsyncStream
 from streaming.sse.named.models import ResponseCreated, ResponseDelta
 from streaming.sse.protocol.data.models import WithEnvelope1
-from streaming.sse.protocol.models import Info as ProtocolInfo
+from streaming.sse.protocol.models import ProtocolInfo
 from streaming.sse.retrieve.models import FinalResult, PartialResult, RetrievalRequest
 from streaming.sse.unnamed.models import Info
 
