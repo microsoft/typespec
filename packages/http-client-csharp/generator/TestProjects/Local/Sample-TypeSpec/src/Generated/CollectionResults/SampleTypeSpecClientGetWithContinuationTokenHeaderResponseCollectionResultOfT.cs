@@ -72,7 +72,7 @@ namespace SampleTypeSpec
         /// <returns> The values from the specified page. </returns>
         protected override IEnumerable<Thing> GetValuesFromPage(ClientResult page)
         {
-            return ((ListWithContinuationTokenHeaderResponseResponse)page).Things;
+            return ((ListWithContinuationTokenHeaderResponseResult)page).Things;
         }
 
         /// <summary> Sends the request in the pipeline message and returns the response. </summary>

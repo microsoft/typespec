@@ -64,7 +64,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             var originalName = _inputType.Name.ToIdentifierName();
-            var normalizedOriginalName = originalName.NormalizeCSharpAcronyms();
+            var normalizedOriginalName = NormalizeTypeName(originalName);
             if (normalizedOriginalName == originalName || typeName != normalizedOriginalName)
             {
                 return null;
@@ -748,7 +748,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return name;
             }
 
-            var normalizedName = name.NormalizeCSharpAcronyms();
+            var normalizedName = NormalizeTypeName(name);
             if (normalizedName == name)
             {
                 return name;
@@ -759,6 +759,33 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 name,
                 _declaringTypeName.Value);
             return lastContractType is null ? normalizedName : name;
+        }
+
+        private string NormalizeTypeName(string name)
+        {
+            var normalizedName = name.NormalizeCSharpAcronyms();
+            const string responseSuffix = "Response";
+            if (this is not ModelProvider || !normalizedName.EndsWith(responseSuffix, StringComparison.Ordinal))
+            {
+                return normalizedName;
+            }
+
+            var resultName = $"{normalizedName[..^responseSuffix.Length]}Result";
+            var typeNamespace = BuildNamespace();
+            var inputNamespace = CodeModelGenerator.Instance.InputLibrary.InputNamespace;
+            return inputNamespace.Models.Any(model => HasConflictingName(model, model.Namespace)) ||
+                inputNamespace.Enums.Any(@enum => HasConflictingName(@enum, @enum.Namespace))
+                    ? normalizedName
+                    : resultName;
+
+            bool HasConflictingName(InputType inputType, string inputTypeNamespace)
+            {
+                var otherNamespace = string.IsNullOrEmpty(inputTypeNamespace)
+                    ? CodeModelGenerator.Instance.TypeFactory.PrimaryNamespace
+                    : CodeModelGenerator.Instance.TypeFactory.GetCleanNameSpace(inputTypeNamespace);
+                var otherName = inputType.IsExactName ? inputType.Name : inputType.Name.ToIdentifierName().NormalizeCSharpAcronyms();
+                return inputType != _inputType && otherNamespace == typeNamespace && otherName == resultName;
+            }
         }
 
         /// <summary>
