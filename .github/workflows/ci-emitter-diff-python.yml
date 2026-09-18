@@ -1,8 +1,8 @@
 name: "python / emitter diff"
 
 # Diffs generated code between this PR's emitter and the merge-base baseline.
-# Informational only: reports a sticky PR comment + HTML artifact, and fails the
-# job only on a tool/build error (never on a diff). See eng/emitter-diff.
+# Informational only: reports a job summary + HTML artifact (and a sticky comment
+# for same-repo PRs), and fails only on a tool/build error. See eng/emitter-diff.
 #
 # The tool runs `npm run regenerate` verbatim in each tree. It auto-prepares the
 # baseline tree it fetches from GitHub (via the preset's --setup: install +
@@ -24,7 +24,6 @@ on:
 
 permissions:
   contents: read
-  pull-requests: write
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -34,12 +33,15 @@ jobs:
   emitter-diff:
     name: "Generate & Diff"
     runs-on: ubuntu-latest
-    # Fork PRs are intentionally skipped
-    if: github.event.pull_request.head.repo.fork != true
+    outputs:
+      baseline: ${{ steps.baseline.outputs.ref }}
+      status: ${{ steps.diff.outputs.status }}
+      summary: ${{ steps.diff.outputs.summary }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false
       - uses: ./.github/actions/setup
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
@@ -116,14 +118,30 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
 
+      - name: Fail on tool error
+        if: always()
+        env:
+          STATUS: ${{ steps.diff.outputs.status }}
+        run: '[ "$STATUS" = "0" ] || { echo "::error::emitter-diff failed (exit $STATUS)."; exit 1; }'
+
+  comment:
+    name: "Comment on PR"
+    needs: emitter-diff
+    # Keep write access out of the job that builds and executes PR code.
+    if: >-
+      always() && github.event_name == 'pull_request' &&
+      github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
       - name: Comment on PR
-        if: always() && github.event_name == 'pull_request'
         continue-on-error: true
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         env:
-          BASELINE: ${{ steps.baseline.outputs.sha || steps.baseline.outputs.ref }}
-          STATUS: ${{ steps.diff.outputs.status }}
-          SUMMARY: ${{ steps.diff.outputs.summary }}
+          BASELINE: ${{ needs.emitter-diff.outputs.baseline }}
+          STATUS: ${{ needs.emitter-diff.outputs.status }}
+          SUMMARY: ${{ needs.emitter-diff.outputs.summary }}
         with:
           script: |
             const marker = "<!-- emitter-diff-python -->";
@@ -139,9 +157,3 @@ jobs:
             const hit = data.find((c) => c.body && c.body.includes(marker));
             if (hit) await github.rest.issues.updateComment({ owner, repo, comment_id: hit.id, body });
             else await github.rest.issues.createComment({ owner, repo, issue_number, body });
-
-      - name: Fail on tool error
-        if: always()
-        env:
-          STATUS: ${{ steps.diff.outputs.status }}
-        run: '[ "$STATUS" = "0" ] || { echo "::error::emitter-diff failed (exit $STATUS)."; exit 1; }'

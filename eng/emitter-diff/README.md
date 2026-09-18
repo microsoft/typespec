@@ -156,16 +156,27 @@ tool. The **baseline** is the base-branch commit the PR is based on (the `git me
 target branch). Because the tool runs the regenerate command as-is, the workflow **prepares both
 trees** (installs deps, builds the emitter, creates any venv) before invoking the tool, then:
 
-- posts a **sticky PR comment** (updated in place on each push) linking the diff artifact, and
+- writes a **job summary** with the rendered diff,
+- posts a **sticky PR comment** for same-repository PRs (updated in place on each push), and
 - uploads the rendered **HTML report** as an artifact.
 
 **Informational:** the check **always passes unless the tool hits a real tool/build error** — a
 generated-output diff does not fail the PR. CI runs the tool without `--fail-on-diff`, so a diff
 still exits `0`; only a non-zero exit (a build/venv/generate failure) fails the job.
 
-**Fork PRs are not run.** The job checks out and executes the PR's code (builds the emitter, runs
-`regenerate`), so a job-level `if` guard restricts it to same-repo PRs — it skips any PR whose head
-is a fork.
+**Fork PRs run without PR comments.** The Python workflow stays on `pull_request`, and generation
+uses only `contents: read` with checkout credentials not persisted. A separate job, which does not
+check out or execute PR code, has `pull-requests: write` and posts comments only for same-repository
+PRs. Fork runs may require maintainer approval under the repository's Actions policy.
+
+To review a fork PR's diff, open its **python / emitter diff** check and follow **Details** to the
+workflow run. Read the rendered diff in the job summary or download **emitter-diff-html** from
+the run's **Artifacts** section (retained for seven days). Manual `workflow_dispatch` runs also
+produce reports without posting PR comments.
+
+An existing PR needs a new run using the updated workflow revision; rerunning an old run retains
+its original revision. After this workflow change lands, updating the PR branch from its target
+branch and pushing starts a new run with fork reporting enabled.
 
 ## Adding a new language
 
