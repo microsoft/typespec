@@ -45,36 +45,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         private protected virtual TypeProvider? BuildCustomCodeView(string? generatedTypeName = null, string? generatedTypeNamespace = null)
-        {
-            var typeNamespace = generatedTypeNamespace ?? BuildNamespace();
-            var typeName = generatedTypeName ?? BuildName();
-            var sourceInputModel = CodeModelGenerator.Instance.SourceInputModel;
-            var customCodeView = sourceInputModel.FindForTypeInCurrentCompilation(
-                typeNamespace,
-                typeName,
+            => CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(
+                generatedTypeNamespace ?? BuildNamespace(),
+                generatedTypeName ?? BuildName(),
                 _declaringTypeName.Value);
-            if (customCodeView is not null || this is not ModelProvider || _inputType is null || _inputType.IsExactName)
-            {
-                return customCodeView;
-            }
-
-            var originalName = _inputType.Name.ToIdentifierName();
-            if (!originalName.EndsWith("Response", StringComparison.Ordinal) ||
-                originalName == typeName ||
-                typeName != NormalizeTypeName(originalName))
-            {
-                return null;
-            }
-
-            return sourceInputModel.FindForTypeInCurrentCompilation(
-                typeNamespace,
-                originalName,
-                _declaringTypeName.Value) ??
-                sourceInputModel.FindForTypeInCurrentCompilation(
-                    typeNamespace,
-                    originalName.NormalizeCSharpAcronyms(),
-                    _declaringTypeName.Value);
-        }
 
         private protected virtual TypeProvider? BuildLastContractView(string? generatedTypeName = null, string? generatedTypeNamespace = null)
         {
@@ -90,7 +64,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             var originalName = _inputType.Name.ToIdentifierName();
-            var normalizedOriginalName = NormalizeTypeName(originalName);
+            var normalizedOriginalName = originalName.NormalizeCSharpAcronyms();
             if (normalizedOriginalName == originalName || typeName != normalizedOriginalName)
             {
                 return null;
@@ -99,11 +73,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return CodeModelGenerator.Instance.SourceInputModel.FindForTypeInLastContract(
                 typeNamespace,
                 originalName,
-                _declaringTypeName.Value) ??
-                CodeModelGenerator.Instance.SourceInputModel.FindForTypeInLastContract(
-                    typeNamespace,
-                    originalName.NormalizeCSharpAcronyms(),
-                    _declaringTypeName.Value);
+                _declaringTypeName.Value);
         }
 
         private static string? GetDeclaringTypeName(TypeProvider? declaringTypeProvider)
@@ -791,7 +761,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return lastContractType is null ? normalizedName : name;
         }
 
-        private string NormalizeTypeName(string name)
+        private protected string NormalizeTypeName(string name)
         {
             var normalizedName = name.NormalizeCSharpAcronyms();
             const string responseSuffix = "Response";

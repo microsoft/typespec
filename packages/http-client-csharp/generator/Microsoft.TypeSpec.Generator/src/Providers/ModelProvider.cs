@@ -317,6 +317,50 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return NormalizeTypeNameForNewContract(_inputModel.Name.ToIdentifierName());
         }
 
+        private protected override TypeProvider? BuildCustomCodeView(string? generatedTypeName = null, string? generatedTypeNamespace = null)
+        {
+            var typeNamespace = generatedTypeNamespace ?? BuildNamespace();
+            var typeName = generatedTypeName ?? BuildName();
+            var customCodeView = base.BuildCustomCodeView(typeName, typeNamespace);
+            if (customCodeView is not null || _inputModel.IsExactName)
+            {
+                return customCodeView;
+            }
+
+            var originalName = _inputModel.Name.ToIdentifierName();
+            if (!originalName.EndsWith("Response", StringComparison.Ordinal) ||
+                originalName == typeName ||
+                typeName != NormalizeTypeName(originalName))
+            {
+                return null;
+            }
+
+            return base.BuildCustomCodeView(originalName, typeNamespace) ??
+                base.BuildCustomCodeView(originalName.NormalizeCSharpAcronyms(), typeNamespace);
+        }
+
+        private protected override TypeProvider? BuildLastContractView(string? generatedTypeName = null, string? generatedTypeNamespace = null)
+        {
+            var typeNamespace = generatedTypeNamespace ?? CustomCodeView?.Type.Namespace ?? BuildNamespace();
+            var typeName = generatedTypeName ?? CustomCodeView?.Name ?? BuildName();
+            var lastContractView = base.BuildLastContractView(typeName, typeNamespace);
+            if (lastContractView is not null || _inputModel.IsExactName)
+            {
+                return lastContractView;
+            }
+
+            var originalName = _inputModel.Name.ToIdentifierName();
+            if (!originalName.EndsWith("Response", StringComparison.Ordinal) ||
+                originalName == typeName ||
+                typeName != NormalizeTypeName(originalName))
+            {
+                return null;
+            }
+
+            return base.BuildLastContractView(originalName, typeNamespace) ??
+                base.BuildLastContractView(originalName.NormalizeCSharpAcronyms(), typeNamespace);
+        }
+
         protected override TypeSignatureModifiers BuildDeclarationModifiers()
         {
             var customCodeModifiers = CustomCodeView?.DeclarationModifiers ?? TypeSignatureModifiers.None;
