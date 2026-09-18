@@ -355,24 +355,24 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             var otherName = inputType.IsExactName ? inputType.Name : inputType.Name.ToIdentifierName();
-            // Acronym normalization only changes casing, so this also covers the normalized filename.
-            if (string.Equals(otherName, resultName, StringComparison.OrdinalIgnoreCase))
-            {
-                return true;
-            }
-
             var sourceInputModel = CodeModelGenerator.Instance.SourceInputModel;
+            // Acronym normalization only changes casing, so this also covers the normalized filename.
+            var hasMatchingInputName = string.Equals(otherName, resultName, StringComparison.OrdinalIgnoreCase);
             if (sourceInputModel.Customization is null)
             {
-                return false;
+                return hasMatchingInputName;
             }
 
             var otherNamespace = string.IsNullOrEmpty(inputTypeNamespace)
                 ? CodeModelGenerator.Instance.TypeFactory.PrimaryNamespace
                 : CodeModelGenerator.Instance.TypeFactory.GetCleanNameSpace(inputTypeNamespace);
             var customType = FindCustomizationType(otherNamespace, GetCustomizationLookupNames(inputType, otherName));
-            return customType is { } &&
-                string.Equals(customType.Value.Type.Name, resultName, StringComparison.OrdinalIgnoreCase) &&
+            if (customType is null)
+            {
+                return hasMatchingInputName;
+            }
+
+            return string.Equals(customType.Value.Type.Name, resultName, StringComparison.OrdinalIgnoreCase) &&
                 (!customType.Value.IsResultAlias || !HasLastContractName(otherNamespace, otherName));
         }
 
@@ -441,11 +441,46 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             var typeNamespace = generatedTypeNamespace ?? BuildNamespace();
             var typeName = generatedTypeName ?? BuildName();
-            var customCodeView = base.BuildCustomCodeView(typeName, typeNamespace);
+            var customCodeView = HasCustomizedSiblingInputName(typeName)
+                ? null
+                : base.BuildCustomCodeView(typeName, typeNamespace);
             return customCodeView ?? BuildResponseSuffixFallbackView(
                 typeName,
                 typeNamespace,
                 (name, ns) => base.BuildCustomCodeView(name, ns));
+        }
+
+        private bool HasCustomizedSiblingInputName(string typeName)
+        {
+            if (CodeModelGenerator.Instance.SourceInputModel.Customization is null)
+            {
+                return false;
+            }
+
+            var inputNamespace = CodeModelGenerator.Instance.InputLibrary.InputNamespace;
+            return inputNamespace.Models.Any(model => HasCustomizedSiblingInputName(model, model.Namespace, typeName)) ||
+                inputNamespace.Enums.Any(@enum => HasCustomizedSiblingInputName(@enum, @enum.Namespace, typeName));
+        }
+
+        private bool HasCustomizedSiblingInputName(InputType inputType, string inputTypeNamespace, string typeName)
+        {
+            if (inputType == _inputModel)
+            {
+                return false;
+            }
+
+            var otherName = inputType.IsExactName ? inputType.Name : inputType.Name.ToIdentifierName();
+            if (!string.Equals(otherName, typeName, StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            var otherNamespace = string.IsNullOrEmpty(inputTypeNamespace)
+                ? CodeModelGenerator.Instance.TypeFactory.PrimaryNamespace
+                : CodeModelGenerator.Instance.TypeFactory.GetCleanNameSpace(inputTypeNamespace);
+            var customType = FindCustomizationType(otherNamespace, GetCustomizationLookupNames(inputType, otherName));
+            return customType is not null &&
+                !string.Equals(customType.Value.Type.Name, typeName, StringComparison.OrdinalIgnoreCase);
         }
 
         private protected override TypeProvider? BuildLastContractView(string? generatedTypeName = null, string? generatedTypeNamespace = null)

@@ -321,6 +321,19 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual("WidgetResult", CodeModelGenerator.Instance.TypeFactory.CreateModel(other)!.Name);
         }
 
+        [Test]
+        public async Task TestBuildName_ResponseSuffixAllowsCustomizedModelResultName()
+        {
+            var response = InputFactory.Model("WidgetResponse");
+            var result = InputFactory.Model("WidgetResult");
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [response, result],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            Assert.AreEqual("WidgetResult", CodeModelGenerator.Instance.TypeFactory.CreateModel(response)!.Name);
+            Assert.AreEqual("CustomWidgetResult", CodeModelGenerator.Instance.TypeFactory.CreateModel(result)!.Name);
+        }
+
         [TestCase(false)]
         [TestCase(true)]
         public async Task TestBuildName_ResponseSuffixAvoidsResultCustomizationAliasCollision(bool reverseOrder)
