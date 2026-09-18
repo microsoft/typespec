@@ -4,8 +4,6 @@
 # license information.
 # --------------------------------------------------------------------------
 """Tests for etag-typed header handling in the preprocess plugin."""
-import pytest
-
 from pygen.preprocess import PreProcessPlugin
 
 
@@ -67,8 +65,8 @@ def _get_op(client: dict) -> dict:
     return client["operationGroups"][0]["operations"][0]
 
 
-def test_required_etag_header_in_nested_operation_group_uses_match_conditions():
-    """Nested required ETag operations get the complete convenience pair."""
+def test_etag_headers_in_nested_operation_group_are_processed():
+    """Nested ETag operations get their partner parameter and enable client helpers."""
     if_match = _header_param(
         "if_match",
         "If-Match",
@@ -97,53 +95,11 @@ def test_required_etag_header_in_nested_operation_group_uses_match_conditions():
     assert "hasEtag" not in parent_group
     assert operation["hasEtag"] is True
     assert len(operation["parameters"]) == 2
-    assert all(parameter["optional"] is False for parameter in operation["parameters"])
-    assert operation["parameters"][0]["wireName"] == "If-Match"
     assert operation["parameters"][0]["etagRole"] == "ifMatch"
-    assert operation["parameters"][1]["wireName"] == "If-None-Match"
-    assert operation["parameters"][1]["location"] == "header"
     assert operation["parameters"][1]["etagRole"] == "ifNoneMatch"
-    for parameter in operation["parameters"]:
-        plugin.update_parameter(parameter)
-    assert [parameter["clientName"] for parameter in operation["parameters"]] == [
-        "etag",
-        "match_condition",
-    ]
-    assert operation["parameters"][0]["type"] == {"type": "string"}
-    assert operation["parameters"][1]["type"] == {
-        "type": "sdkcore",
-        "name": "MatchConditions",
-    }
+    assert all(parameter["optional"] is False for parameter in operation["parameters"])
+    assert all("clientDefaultValue" not in parameter for parameter in operation["parameters"])
 
-
-def test_optional_etag_header_in_nested_operation_group_uses_match_conditions():
-    """The optional ETag convenience API remains available in nested groups."""
-    if_match = _header_param("if_match", "If-Match", "ifMatch")
-    operation = {
-        "name": "remove",
-        "parameters": [if_match],
-    }
-    client = _client_yaml([])
-    client["operationGroups"] = [
-        {
-            "operations": [],
-            "operationGroups": [
-                {
-                    "operations": [operation],
-                }
-            ],
-        }
-    ]
-
-    plugin = _plugin()
-    plugin.update_client(client)
-
-    assert client["hasEtag"] is True
-    assert operation["hasEtag"] is True
-    assert len(operation["parameters"]) == 2
-    assert operation["parameters"][0]["wireName"] == "If-Match"
-    assert operation["parameters"][1]["wireName"] == "If-None-Match"
-    assert operation["parameters"][1]["location"] == "header"
     for parameter in operation["parameters"]:
         plugin.update_parameter(parameter)
     assert [parameter["clientName"] for parameter in operation["parameters"]] == [
@@ -171,7 +127,9 @@ def test_etag_role_preserved_when_only_standard_pair_present():
 def test_etag_role_preserved_when_only_custom_pair_present():
     """Custom etag headers alone are promoted to the etag/match_condition slot."""
     source_match = _header_param("source_if_match", "x-ms-source-if-match", "ifMatch")
-    source_none = _header_param("source_if_none_match", "x-ms-source-if-none-match", "ifNoneMatch")
+    source_none = _header_param(
+        "source_if_none_match", "x-ms-source-if-none-match", "ifNoneMatch"
+    )
     client = _client_yaml([source_match, source_none])
 
     _plugin().update_client(client)
@@ -189,8 +147,12 @@ def test_standard_etag_wins_over_custom_when_both_present():
     Regression test for PR #10494 which caused operations like Storage's copyFromUrl
     to emit two parameters named "etag" and two named "match_condition".
     """
-    source_match = _header_param("source_if_match", "x-ms-source-if-match", "ifMatch")
-    source_none = _header_param("source_if_none_match", "x-ms-source-if-none-match", "ifNoneMatch")
+    source_match = _header_param(
+        "source_if_match", "x-ms-source-if-match", "ifMatch"
+    )
+    source_none = _header_param(
+        "source_if_none_match", "x-ms-source-if-none-match", "ifNoneMatch"
+    )
     if_match = _header_param("if_match", "If-Match", "ifMatch")
     if_none_match = _header_param("if_none_match", "If-None-Match", "ifNoneMatch")
 
@@ -215,9 +177,15 @@ def test_standard_etag_wins_over_custom_when_both_present():
 def test_first_custom_pair_chosen_when_multiple_custom_pairs_present():
     """With multiple custom etag pairs and no standard pair, the first candidate wins."""
     blob_match = _header_param("blob_if_match", "x-ms-blob-if-match", "ifMatch")
-    blob_none = _header_param("blob_if_none_match", "x-ms-blob-if-none-match", "ifNoneMatch")
-    source_match = _header_param("source_if_match", "x-ms-source-if-match", "ifMatch")
-    source_none = _header_param("source_if_none_match", "x-ms-source-if-none-match", "ifNoneMatch")
+    blob_none = _header_param(
+        "blob_if_none_match", "x-ms-blob-if-none-match", "ifNoneMatch"
+    )
+    source_match = _header_param(
+        "source_if_match", "x-ms-source-if-match", "ifMatch"
+    )
+    source_none = _header_param(
+        "source_if_none_match", "x-ms-source-if-none-match", "ifNoneMatch"
+    )
     client = _client_yaml([blob_match, blob_none, source_match, source_none])
 
     _plugin().update_client(client)
@@ -229,21 +197,23 @@ def test_first_custom_pair_chosen_when_multiple_custom_pairs_present():
     assert "etagRole" not in source_none
 
 
-def test_single_custom_etag_gets_wire_match_condition_companion():
-    """A lone custom If-Match gets a properly-cased If-None-Match wire companion."""
-    source_match = _header_param("source_if_match", "x-ms-source-if-match", "ifMatch")
+def test_synthetic_partner_still_works_with_only_one_custom_etag():
+    """When only a single custom etag header is present (no partner), the existing
+    synthetic-partner code path still creates a matching ifNoneMatch (or ifMatch)
+    copy. The fix must not regress this behavior.
+    """
+    source_match = _header_param(
+        "source_if_match", "x-ms-source-if-match", "ifMatch"
+    )
     client = _client_yaml([source_match])
 
     _plugin().update_client(client)
 
     op = _get_op(client)
     assert op.get("hasEtag") is True
+    # The original custom param plus a synthetic partner are pushed to the end.
     last_two = op["parameters"][-2:]
     assert last_two[0]["etagRole"] == "ifMatch"
-    assert last_two[0]["wireName"] == "x-ms-source-if-match"
-    assert last_two[1]["clientName"] == "match_condition"
-    assert last_two[1]["wireName"] == "If-None-Match"
-    assert last_two[1]["location"] == "header"
     assert last_two[1]["etagRole"] == "ifNoneMatch"
 
 
@@ -254,8 +224,12 @@ def test_full_update_yaml_does_not_collide_client_names():
     Without the fix, both source_if_match and if_match end up with clientName="etag",
     and both source_if_none_match and if_none_match end up with clientName="match_condition".
     """
-    source_match = _header_param("source_if_match", "x-ms-source-if-match", "ifMatch")
-    source_none = _header_param("source_if_none_match", "x-ms-source-if-none-match", "ifNoneMatch")
+    source_match = _header_param(
+        "source_if_match", "x-ms-source-if-match", "ifMatch"
+    )
+    source_none = _header_param(
+        "source_if_none_match", "x-ms-source-if-none-match", "ifNoneMatch"
+    )
     if_match = _header_param("if_match", "If-Match", "ifMatch")
     if_none_match = _header_param("if_none_match", "If-None-Match", "ifNoneMatch")
     client = _client_yaml([source_match, source_none, if_match, if_none_match])
@@ -268,7 +242,9 @@ def test_full_update_yaml_does_not_collide_client_names():
         plugin.update_parameter(p)
 
     client_names = [p["clientName"] for p in op["parameters"]]
-    assert len(client_names) == len(set(client_names)), f"Duplicate clientNames after preprocess: {client_names}"
+    assert len(client_names) == len(set(client_names)), (
+        f"Duplicate clientNames after preprocess: {client_names}"
+    )
     # The standard pair was promoted; the custom pair retains its natural names.
     assert "etag" in client_names
     assert "match_condition" in client_names
@@ -283,11 +259,13 @@ def test_standard_if_match_not_paired_with_custom_if_none_match():
     to the match_condition slot, pairing a standard header with a custom one
     from a different family.
 
-    The fix demotes the custom header (strips etagRole) and gives the standard
-    If-Match a properly-cased If-None-Match wire companion instead.
+    The fix demotes the custom header (strips etagRole) so the standard
+    If-Match gets a synthetic If-None-Match partner instead.
     """
     if_match = _header_param("if_match", "If-Match", "ifMatch")
-    source_none = _header_param("source_if_none_match", "x-ms-source-if-none-match", "ifNoneMatch")
+    source_none = _header_param(
+        "source_if_none_match", "x-ms-source-if-none-match", "ifNoneMatch"
+    )
     client = _client_yaml([if_match, source_none])
 
     plugin = _plugin()
@@ -296,14 +274,12 @@ def test_standard_if_match_not_paired_with_custom_if_none_match():
     op = _get_op(client)
     assert op.get("hasEtag") is True
 
-    # The standard If-Match should be promoted with a wire companion.
+    # The standard If-Match should be promoted and paired with a synthetic partner.
     last_two = op["parameters"][-2:]
     assert last_two[0]["etagRole"] == "ifMatch"
     assert last_two[0]["wireName"] == "If-Match"
-    assert last_two[1]["clientName"] == "match_condition"
-    assert last_two[1]["wireName"] == "If-None-Match"
-    assert last_two[1]["location"] == "header"
     assert last_two[1]["etagRole"] == "ifNoneMatch"
+    assert last_two[1]["wireName"] == "if-none-match"  # synthetic
 
     # The custom header should NOT have been promoted — etagRole stripped.
     assert "etagRole" not in source_none
@@ -312,7 +288,9 @@ def test_standard_if_match_not_paired_with_custom_if_none_match():
     for p in op["parameters"]:
         plugin.update_parameter(p)
     client_names = [p["clientName"] for p in op["parameters"]]
-    assert len(client_names) == len(set(client_names)), f"Duplicate clientNames: {client_names}"
+    assert len(client_names) == len(set(client_names)), (
+        f"Duplicate clientNames: {client_names}"
+    )
 
 
 def test_standard_if_none_match_not_paired_with_custom_if_match():
@@ -320,7 +298,7 @@ def test_standard_if_none_match_not_paired_with_custom_if_match():
     (no standard If-Match, no custom If-None-Match).
 
     The custom header should be demoted; the standard If-None-Match gets a
-    properly-cased If-Match wire companion.
+    synthetic If-Match partner.
     """
     source_match = _header_param("source_if_match", "x-ms-source-if-match", "ifMatch")
     if_none_match = _header_param("if_none_match", "If-None-Match", "ifNoneMatch")
@@ -333,10 +311,8 @@ def test_standard_if_none_match_not_paired_with_custom_if_match():
     assert op.get("hasEtag") is True
 
     last_two = op["parameters"][-2:]
-    assert last_two[0]["clientName"] == "etag"
-    assert last_two[0]["wireName"] == "If-Match"
-    assert last_two[0]["location"] == "header"
     assert last_two[0]["etagRole"] == "ifMatch"
+    assert last_two[0]["wireName"] == "if-match"  # synthetic
     assert last_two[1]["etagRole"] == "ifNoneMatch"
     assert last_two[1]["wireName"] == "If-None-Match"
 

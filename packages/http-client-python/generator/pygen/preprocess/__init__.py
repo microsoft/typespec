@@ -179,9 +179,6 @@ CLOUD_SETTING = {
 }
 STANDARD_IF_MATCH_WIRE_NAME = "if-match"
 STANDARD_IF_NONE_MATCH_WIRE_NAME = "if-none-match"
-# Canonical header casing used when synthesizing the missing side of the pair.
-STANDARD_IF_MATCH_HEADER_NAME = "If-Match"
-STANDARD_IF_NONE_MATCH_HEADER_NAME = "If-None-Match"
 
 
 def get_wire_name_lower(parameter: dict[str, Any]) -> str:
@@ -208,20 +205,6 @@ def _pick_etag_slot(candidates: list[dict[str, Any]], standard_wire_name: str) -
     return candidates[0]
 
 
-def _make_wire_etag_companion(source: dict[str, Any], replacement: dict[str, Any], wire_name: str) -> dict[str, Any]:
-    """Create the missing side of the etag pair as a properly-cased wire header.
-
-    The companion keeps ``location: "header"`` so it is emitted as a real request
-    header, and takes its client-facing shape (``clientName``/``etagRole``/``type``)
-    from *replacement*. Only ``wire_name`` fixes the header casing (e.g.
-    ``If-None-Match``) that the raw copy would otherwise inherit from *source*.
-    """
-    companion = source.copy()
-    companion.update(replacement)
-    companion["wireName"] = wire_name
-    return companion
-
-
 def _resolve_etag_pair(
     if_match_candidates: list[dict[str, Any]],
     if_none_match_candidates: list[dict[str, Any]],
@@ -229,9 +212,8 @@ def _resolve_etag_pair(
     """Select and reconcile the etag header pair for an operation.
 
     When multiple etag-typed headers are present, prefer the standard
-    If-Match / If-None-Match pair. Synthesize the missing side as a properly
-    cased wire header when only one side is present, and strip etagRole from
-    non-selected candidates.
+    If-Match / If-None-Match pair.  Synthesize a missing partner when only
+    one side is present, and strip etagRole from non-selected candidates.
 
     Returns (property_if_match, property_if_none_match) — both None when
     there are no etag candidates.
@@ -241,28 +223,27 @@ def _resolve_etag_pair(
 
     # Ensure the promoted pair come from the same family.  When one slot is
     # standard and the other custom (cross-family), replace the custom slot
-    # with the standard wire header. Also synthesize the missing side when only
-    # one side is present so the client always exposes the etag/match_condition
-    # pair.
+    # with a synthetic standard partner.  Also synthesize the missing partner
+    # when only one side is present.
     if property_if_match and property_if_none_match:
         match_is_std = get_wire_name_lower(property_if_match) == STANDARD_IF_MATCH_WIRE_NAME
         none_match_is_std = get_wire_name_lower(property_if_none_match) == STANDARD_IF_NONE_MATCH_WIRE_NAME
         if match_is_std and not none_match_is_std:
-            property_if_none_match = _make_wire_etag_companion(
-                property_if_match, ETAG_NONE_MATCH_DATA, STANDARD_IF_NONE_MATCH_HEADER_NAME
-            )
+            property_if_none_match = property_if_match.copy()
+            property_if_none_match["wireName"] = STANDARD_IF_NONE_MATCH_WIRE_NAME
+            property_if_none_match["etagRole"] = "ifNoneMatch"
         elif none_match_is_std and not match_is_std:
-            property_if_match = _make_wire_etag_companion(
-                property_if_none_match, ETAG_MATCH_DATA, STANDARD_IF_MATCH_HEADER_NAME
-            )
+            property_if_match = property_if_none_match.copy()
+            property_if_match["wireName"] = STANDARD_IF_MATCH_WIRE_NAME
+            property_if_match["etagRole"] = "ifMatch"
     elif not property_if_match and property_if_none_match:
-        property_if_match = _make_wire_etag_companion(
-            property_if_none_match, ETAG_MATCH_DATA, STANDARD_IF_MATCH_HEADER_NAME
-        )
+        property_if_match = property_if_none_match.copy()
+        property_if_match["wireName"] = STANDARD_IF_MATCH_WIRE_NAME
+        property_if_match["etagRole"] = "ifMatch"
     elif property_if_match and not property_if_none_match:
-        property_if_none_match = _make_wire_etag_companion(
-            property_if_match, ETAG_NONE_MATCH_DATA, STANDARD_IF_NONE_MATCH_HEADER_NAME
-        )
+        property_if_none_match = property_if_match.copy()
+        property_if_none_match["wireName"] = STANDARD_IF_NONE_MATCH_WIRE_NAME
+        property_if_none_match["etagRole"] = "ifNoneMatch"
 
     for c in if_match_candidates:
         if c is not property_if_match:
