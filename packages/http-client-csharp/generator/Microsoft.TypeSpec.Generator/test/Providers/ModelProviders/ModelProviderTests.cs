@@ -261,6 +261,22 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual("WidgetResult", CodeModelGenerator.Instance.TypeFactory.CreateModel(other)!.Name);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task TestBuildName_ResponseSuffixAvoidsResultCustomizationAliasCollision(bool reverseOrder)
+        {
+            var widget = InputFactory.Model("WidgetResponse");
+            var gadget = InputFactory.Model("GadgetResponse");
+            InputModelType[] models = reverseOrder ? [gadget, widget] : [widget, gadget];
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: models,
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var providers = models.Select(m => CodeModelGenerator.Instance.TypeFactory.CreateModel(m)!).ToArray();
+
+            CollectionAssert.AreEquivalent(new[] { "WidgetResponse", "WidgetResult" }, providers.Select(p => p.Name));
+        }
+
         [Test]
         public async Task TestBuildName_BackCompatTakesPrecedenceOverAcronymNormalization()
         {

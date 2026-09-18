@@ -836,6 +836,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     if (sourceInputModel.FindForTypeInLastContract(otherNamespace, otherName) is null)
                     {
                         otherName = normalizedOtherName;
+                        if (customType is null && inputType is InputModelType &&
+                            otherName.EndsWith(responseSuffix, StringComparison.Ordinal) &&
+                            sourceInputModel.FindForTypeInLastContract(otherNamespace, otherName) is null)
+                        {
+                            customType = sourceInputModel.FindForTypeInCurrentCompilation(
+                                otherNamespace, $"{otherName[..^responseSuffix.Length]}Result");
+                        }
                     }
                 }
 
