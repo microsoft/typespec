@@ -4,6 +4,7 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
+import re
 from abc import abstractmethod
 from collections import defaultdict
 from typing import Generic, Type, TypeVar, Union, Optional, cast
@@ -45,6 +46,9 @@ from ...utils import xml_serializable, json_serializable
 
 T = TypeVar("T")
 OrderedSet = dict[T, None]
+
+# Matches a use of the local ``response`` variable, but not ``pipeline_response``.
+_USES_RESPONSE = re.compile(r"(?<![\w.])response\b")
 
 
 def _sse_event_data_expression(payload_content_type: Optional[str]) -> str:
@@ -1842,15 +1846,15 @@ class _LROOperationSerializer(_OperationSerializer[LROOperationType]):
         if builder.lro_response:
             if builder.lro_response.headers:
                 retval.append("    response_headers = {}")
+            deserialization = self.response_headers_and_deserialization(builder, builder.lro_response)
             if (
                 (not self.code_model.options["models-mode"] and not self.code_model.generate_typeddict_only)
                 or self.code_model.options["models-mode"] == "dpg"
                 or builder.lro_response.headers
+                or any(_USES_RESPONSE.search(line) for line in deserialization)
             ):
                 retval.append("    response = pipeline_response.http_response")
-            retval.extend(
-                [f"    {line}" for line in self.response_headers_and_deserialization(builder, builder.lro_response)]
-            )
+            retval.extend([f"    {line}" for line in deserialization])
         retval.append("    if cls:")
         retval.append(
             "        return cls(pipeline_response, {}, {}){}".format(
