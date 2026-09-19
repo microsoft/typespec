@@ -20,6 +20,7 @@
     - [Removed Extensible Enum Member Re-added](#scenario-removed-extensible-enum-member-re-added)
   - [API Version Enum](#api-version-enum)
   - [Non-abstract Base Models](#non-abstract-base-models)
+  - [Model Base Types](#model-base-types)
   - [Model Constructors](#model-constructors)
     - [Required Property Becomes Optional](#scenario-required-property-becomes-optional)
     - [Parameterless Constructor Becomes Parameterized](#scenario-parameterless-constructor-becomes-parameterized)
@@ -1188,6 +1189,12 @@ public string GetData(string data, FileFormatType? value = default, bool? flag =
 - When the current parameter is required, the previous optional default is preserved so callers that omitted it still compile; the `AssertNotNull` guard turns a `null` argument into a clear `ArgumentNullException`.
 - A `ref`/`out` parameter is not eligible (its value cannot be forwarded through `.Value`), so no overload is generated in that case.
 - The overload is hidden via `[EditorBrowsable(EditorBrowsableState.Never)]`.
+
+### Model Base Types
+
+The generator can preserve a previously shipped model base when the current TypeSpec hierarchy no longer contains it. Automatic restoration is intentionally limited to compatible generated root models and mapped `SystemObjectModelProvider` bases. Mapped bases reuse the existing model-provider property, constructor, and serialization reconciliation used by custom CLR bases. For ordinary generated bases, both the derived model and displaced current base must be memberless.
+
+The current base is retained when broader reconciliation would be required, including custom partials, structs, polymorphic or derived hierarchies, arbitrary referenced types, and constructed generic bases. Downstream generators can override `BuildBaseTypeForBackCompatibility` when a concrete SDK scenario requires additional handling.
 
 #### Scenario: Nullable Optional Parameter Became Required
 

@@ -22,6 +22,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
     {
         private const string AdditionalBinaryDataPropsFieldDescription = "Keeps track of any properties unknown to the library.";
         private readonly InputModelType _inputModel;
+        internal InputModelType InputModel => _inputModel;
+
         // Note the description cannot be built from the constructor as it would lead to a circular dependency between the base
         // and derived models resulting in a stack overflow.
         protected override FormattableString BuildDescription()
@@ -251,13 +253,78 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override CSharpType? BuildBaseType()
         {
+            var currentBase = BuildCurrentBaseType();
+            return BuildBaseTypeForBackCompatibility(currentBase);
+        }
+
+        /// <summary>
+        /// Returns the model base type after applying backward compatibility against <see cref="LastContractView"/>.
+        /// The default implementation restores only a simple generated root-model base. More complex reconciliation
+        /// can be implemented by downstream generators when required by a concrete SDK scenario.
+        /// </summary>
+        /// <param name="currentBase">The base type selected from custom code or the current input model.</param>
+        protected virtual CSharpType? BuildBaseTypeForBackCompatibility(CSharpType? currentBase)
+        {
+            // A mapped external model's CLR hierarchy is owned by its wrapped system type.
+            if (this is SystemObjectModelProvider)
+            {
+                return currentBase;
+            }
+
+            var previousBase = LastContractView?.BaseType;
+            if (previousBase is null || previousBase.IsGenericType || IsInBaseTypeHierarchy(currentBase, previousBase))
+            {
+                return currentBase;
+            }
+
+            // Keep this policy deliberately conservative. Custom partials, structs, polymorphic models,
+            // and models with descendants require broader hierarchy reconciliation and are left unchanged.
+            if (CustomCodeView is not null ||
+                DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct) ||
+                _inputModel.DiscriminatorProperty is not null ||
+                _inputModel.DiscriminatorValue is not null ||
+                _inputModel.DerivedModels.Count > 0 ||
+                _inputModel.DiscriminatedSubtypes.Count > 0)
+            {
+                return currentBase;
+            }
+
+            if (CodeModelGenerator.Instance.SourceInputModel.ApiCompatBaseline.ReferencesSuppressedType(previousBase))
+            {
+                CodeModelGenerator.Instance.Emitter.Info(
+                    $"Skipping back-compat base type restoration for model '{BuildNamespace()}.{BuildName()}'; base type '{previousBase.FullyQualifiedName}' is an accepted removal in the ApiCompat baseline.",
+                    BackCompatibilityChangeCategory.BaselineAcceptedRemovalSkipped);
+                return currentBase;
+            }
+
+            var resolver = new BackCompatModelBaseResolver(this);
+            if (!resolver.TryResolve(previousBase, out var previousBaseProvider))
+            {
+                if (!_hasReportedIncompatibleBackcompatBaseType)
+                {
+                    CodeModelGenerator.Instance.Emitter.ReportDiagnostic(
+                        DiagnosticCodes.IncompatibleBackcompatBaseType,
+                        $"Could not preserve base type '{previousBase.FullyQualifiedName}' on model '{BuildNamespace()}.{BuildName()}'; automatic restoration is limited to compatible generated or mapped root-model bases.");
+                    _hasReportedIncompatibleBackcompatBaseType = true;
+                }
+                return currentBase;
+            }
+
+            CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[previousBaseProvider.Type] = previousBaseProvider;
+            CodeModelGenerator.Instance.Emitter.Info(
+                $"Changed base type of model '{BuildName()}' from '{currentBase?.FullyQualifiedName ?? "object"}' to '{previousBaseProvider.Type.FullyQualifiedName}' to match the last contract.",
+                BackCompatibilityChangeCategory.ModelBaseTypePreserved);
+            return previousBaseProvider.Type;
+        }
+
+        private bool _hasReportedIncompatibleBackcompatBaseType;
+
+        private CSharpType? BuildCurrentBaseType()
+        {
             if (CustomCodeView?.BaseType != null)
             {
                 var customBase = CustomCodeView.BaseType;
 
-                // If the custom base type doesn't have a resolved namespace, then try to resolve it from the input model map.
-                // This will happen if a model is customized to inherit from another generated model, but that generated model
-                // was not also defined in custom code so Roslyn does not recognize it.
                 if (string.IsNullOrEmpty(customBase.Namespace))
                 {
                     if (CodeModelGenerator.Instance.TypeFactory.TypeProvidersByName.TryGetValue(
@@ -267,8 +334,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         return resolvedModel.Type;
                     }
 
-                    // Force-create all input models so that visitors run (which may rename models
-                    // via TypeProvider.Update) and TypeProvidersByName is fully populated.
                     foreach (var model in CodeModelGenerator.Instance.InputLibrary.InputNamespace.Models)
                     {
                         CodeModelGenerator.Instance.TypeFactory.CreateModel(model);
@@ -292,12 +357,22 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return customBase;
             }
 
-            if (_inputModel.BaseModel == null)
-            {
-                return null;
-            }
+            return _inputModel.BaseModel is null
+                ? null
+                : CodeModelGenerator.Instance.TypeFactory.CreateModel(_inputModel.BaseModel)?.Type;
+        }
 
-            return CodeModelGenerator.Instance.TypeFactory.CreateModel(_inputModel.BaseModel)?.Type;
+        protected static bool IsInBaseTypeHierarchy(CSharpType? currentBase, CSharpType previousBase)
+        {
+            var visited = new HashSet<string>(StringComparer.Ordinal);
+            for (var type = currentBase; type is not null && visited.Add(type.FullyQualifiedName); type = type.BaseType)
+            {
+                if (type.AreNamesEqual(previousBase))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         protected override TypeProvider[] BuildSerializationProviders()
