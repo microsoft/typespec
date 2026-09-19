@@ -67,6 +67,29 @@ it("can get the discriminated union type", async () => {
   expect(union?.variants.get("dog")).toBe(Dog);
 });
 
+it("uses the json encoded name of enum member discriminator values in getDiscriminatedUnion", async () => {
+  const { Pet, Cat, Lion, program } = await Tester.compile(t.code`
+    @discriminator("kind")
+    model ${t.model("Pet")} {}
+
+    enum Kind {
+      @encodedName("application/json", "feline")
+      cat,
+    }
+
+    model ${t.model("Cat")} extends Pet { kind: Kind.cat }
+    model ${t.model("Lion")} extends Pet { kind: "cat" }
+  `);
+
+  assert.ok(Pet.kind === "Model");
+
+  const [union, diagnostics] = $(program).model.getDiscriminatedUnion.withDiagnostics(Pet);
+  expect(diagnostics).toHaveLength(0);
+  expect([...union!.variants.keys()]).toEqual(["feline", "cat"]);
+  expect(union!.variants.get("feline")).toBe(Cat);
+  expect(union!.variants.get("cat")).toBe(Lion);
+});
+
 it("can get diagnostics from getDiscriminatedUnion", async () => {
   const [{ Pet, program }] = await Tester.compileAndDiagnose(t.code`
     @discriminator("kind")

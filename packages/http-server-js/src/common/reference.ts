@@ -14,6 +14,7 @@ import {
   getEffectiveModelType,
   getFriendlyName,
   isArrayModelType,
+  resolveEncodedEnumMemberValue,
 } from "@typespec/compiler";
 import type { JsContext, Module } from "../ctx.js";
 import { isImportableType } from "../ctx.js";
@@ -235,16 +236,8 @@ export function emitTypeReference(
     case "Boolean":
       return String(type.value);
     case "EnumMember": {
-      if (typeof type.value === "string") {
-        return escapeUnsafeChars(JSON.stringify(type.value));
-      } else if (typeof type.value === "number") {
-        return String(type.value);
-      } else if (type.value === undefined) {
-        return escapeUnsafeChars(JSON.stringify(type.name));
-      } else {
-        void (type.value satisfies never);
-        return "unknown";
-      }
+      const value = resolveEncodedEnumMemberValue(ctx.program, type, "application/json");
+      return typeof value === "number" ? String(value) : escapeUnsafeChars(JSON.stringify(value));
     }
     case "Intrinsic":
       switch (type.name) {

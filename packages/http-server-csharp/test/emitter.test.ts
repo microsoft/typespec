@@ -120,3 +120,34 @@ it("emits the HTTP service exception filter for server output", async () => {
   expect(hasPathEndingWith("/generated/lib/HttpServiceException.cs")).toBe(true);
   expect(hasPathEndingWith("/generated/lib/HttpServiceExceptionFilter.cs")).toBe(true);
 });
+
+it("uses the json encoded name as the serialized value of an enum member without a value", async () => {
+  const [result] = await compileAndDiagnose(
+    tester,
+    getStandardService(`
+      enum Status {
+        @encodedName("application/json", "on")
+        active,
+        @encodedName("application/json", "off")
+        inactive: "inactive-value",
+        @encodedName("application/xml", "xml-pending")
+        pending,
+      }
+
+      model Item {
+        status: Status;
+      }
+
+      op read(): Item;
+    `),
+    { "skip-format": true },
+  );
+  const status = [...result.fs.fs.entries()].find(([path]) =>
+    path.endsWith("/generated/models/Status.cs"),
+  )?.[1];
+
+  expect(status).toContain(`[JsonStringEnumMemberName("on")]`);
+  expect(status).toContain(`[JsonStringEnumMemberName("off")]`);
+  expect(status).toContain(`[JsonStringEnumMemberName("pending")]`);
+  expect(status).not.toContain(`[JsonStringEnumMemberName("active")]`);
+});
