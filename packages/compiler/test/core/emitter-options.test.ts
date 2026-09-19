@@ -1,9 +1,11 @@
 import { ok, strictEqual } from "assert";
 import { describe, it } from "vitest";
-import type { Diagnostic, EmitContext } from "../../src/index.js";
+import { getSourceLocation } from "../../src/core/diagnostics.js";
+import type { CompilerOptions, Diagnostic, EmitContext } from "../../src/index.js";
 import { createTypeSpecLibrary } from "../../src/index.js";
 import { expectDiagnosticEmpty, expectDiagnostics } from "../../src/testing/expect.js";
 import { mockFile } from "../../src/testing/fs.js";
+import { parseYaml } from "../../src/yaml/parser.js";
 import { Tester } from "../tester.js";
 
 const fakeEmitter = createTypeSpecLibrary({
@@ -70,6 +72,139 @@ it("pass options", async () => {
   strictEqual(context.emitterOutputDir, "/out");
   strictEqual(context.options["asset-dir"], "/assets");
   strictEqual(context.options["max-files"], 10);
+});
+
+describe("subpath export emitters", () => {
+  const subpathLib = createTypeSpecLibrary({
+    name: "@org/fake-emitter/typescript",
+    diagnostics: {},
+    emitter: {
+      options: {
+        type: "object",
+        properties: {
+          "asset-dir": { type: "string", format: "absolute-path", nullable: true },
+          "max-files": { type: "number", nullable: true },
+        },
+        additionalProperties: false,
+      },
+    },
+  });
+
+  async function runSubpathEmitter(
+    options: Record<string, Record<string, unknown>>,
+    extraCompilerOptions: CompilerOptions = {},
+  ) {
+    let emitContext: EmitContext | undefined;
+    const diagnostics = await Tester.files({
+      "node_modules/@org/fake-emitter/package.json": JSON.stringify({
+        name: "@org/fake-emitter",
+        exports: {
+          ".": "./index.js",
+          "./typescript": "./typescript/index.js",
+        },
+      }),
+      "node_modules/@org/fake-emitter/index.js": mockFile.js({
+        $lib: createTypeSpecLibrary({ name: "@org/fake-emitter", diagnostics: {} }),
+      }),
+      "node_modules/@org/fake-emitter/typescript/index.js": mockFile.js({
+        $lib: subpathLib,
+        $onEmit: (ctx: EmitContext) => {
+          emitContext = ctx;
+        },
+      }),
+    }).diagnose("", {
+      compilerOptions: {
+        emit: ["@org/fake-emitter/typescript"],
+        options,
+        ...extraCompilerOptions,
+      },
+    });
+    return [emitContext, diagnostics] as const;
+  }
+
+  it("resolves options keyed by the subpath specifier", async () => {
+    const [context, diagnostics] = await runSubpathEmitter({
+      "@org/fake-emitter/typescript": {
+        "emitter-output-dir": "/out",
+        "asset-dir": "/assets",
+        "max-files": 10,
+      },
+    });
+    expectDiagnosticEmpty(diagnostics);
+    ok(context, "Emit context should have been set.");
+    strictEqual(context.emitterOutputDir, "/out");
+    strictEqual(context.options["asset-dir"], "/assets");
+    strictEqual(context.options["max-files"], 10);
+  });
+
+  it("falls back to package.json name when the subpath key is missing", async () => {
+    const [context, diagnostics] = await runSubpathEmitter({
+      "@org/fake-emitter": {
+        "emitter-output-dir": "/from-pkg",
+        "asset-dir": "/pkg-assets",
+      },
+    });
+    expectDiagnosticEmpty(diagnostics);
+    ok(context, "Emit context should have been set.");
+    strictEqual(context.emitterOutputDir, "/from-pkg");
+    strictEqual(context.options["asset-dir"], "/pkg-assets");
+  });
+
+  it("targets the package-name options key when validating fallback options", async () => {
+    const [, diagnostics] = await runSubpathEmitter({
+      "@org/fake-emitter": {
+        "invalid-option": "abc",
+      },
+    });
+    expectDiagnostics(diagnostics, {
+      code: "invalid-schema",
+      message: [
+        "Schema violation: must NOT have additional properties (/)",
+        "  additionalProperty: invalid-option",
+      ].join("\n"),
+    });
+  });
+
+  it("defaults emitter-output-dir using the subpath specifier", async () => {
+    const [context, diagnostics] = await runSubpathEmitter({}, { outputDir: "/out" });
+    expectDiagnosticEmpty(diagnostics);
+    ok(context, "Emit context should have been set.");
+    strictEqual(context.emitterOutputDir, "/out/@org/fake-emitter/typescript");
+  });
+
+  it("reports schema diagnostics against the options key that supplied them", async () => {
+    const yaml = ["options:", '  "@org/fake-emitter":', '    max-files: "not a number"', ""].join(
+      "\n",
+    );
+    const [script] = parseYaml(yaml);
+    const [_, diagnostics] = await runSubpathEmitter(
+      {
+        "@org/fake-emitter": {
+          "max-files": "not a number",
+        },
+      },
+      {
+        configFile: {
+          projectRoot: ".",
+          diagnostics: [],
+          outputDir: "tsp-output",
+          file: script,
+        },
+      },
+    );
+    expectDiagnostics(diagnostics, {
+      code: "invalid-schema",
+      message: "Schema violation: must be number (/max-files)",
+    });
+    const loc = getSourceLocation(diagnostics[0].target);
+    ok(loc, "Diagnostic should have a source location.");
+    ok(loc.pos > 0, "Diagnostic should point at the package-name options key, not pos 0.");
+    const snippet = loc.file.text.slice(loc.pos, loc.end);
+    ok(
+      snippet.includes("max-files"),
+      `Expected diagnostic to target max-files under @org/fake-emitter, got ${JSON.stringify(snippet)}`,
+    );
+  });
 });
 
 it("emit diagnostic if passing unknown option", async () => {
