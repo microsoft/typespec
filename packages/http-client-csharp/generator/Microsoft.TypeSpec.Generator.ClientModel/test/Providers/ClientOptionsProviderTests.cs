@@ -412,8 +412,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.IsNotNull(clientOptionsProvider.CustomCodeView);
             var customConstructor = clientOptionsProvider.CustomCodeView!.Constructors.Single();
             var customServiceVersionType = customConstructor.Signature.Parameters.Single().Type;
-            Assert.IsEmpty(customServiceVersionType.Namespace);
-            Assert.IsNull(customServiceVersionType.DeclaringType);
+            Assert.AreEqual(serviceVersionProvider.Type, customServiceVersionType);
+            Assert.AreEqual(clientOptionsProvider.Type, customServiceVersionType.DeclaringType);
 
             ProviderReferenceMapAnalyzer.ApplyPreWriteAccessibility(mockGenerator.Object.OutputLibrary.TypeProviders);
 
