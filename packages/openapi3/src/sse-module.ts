@@ -86,11 +86,12 @@ export async function resolveSSEModule(): Promise<SSEModule | undefined> {
           },
         };
 
-        // Only a sentinel terminal event pins its branch with a `data` const. A
-        // terminal event carrying a payload is described like its siblings:
-        // without the event const and the payload's contentSchema its `oneOf`
-        // branch constrains nothing and matches every event.
-        if (isTerminal && variant.type.kind === "String") {
+        // Only an unnamed sentinel pins its branch with a `data` const. Any
+        // named variant, terminal or not, needs its `event` const and its
+        // payload's contentSchema, otherwise its `oneOf` branch loses what
+        // identifies it -- for a terminal event with a model payload the branch
+        // constrains nothing at all and matches every event.
+        if (isTerminal && !eventType && variant.type.kind === "String") {
           (variantSchema.properties!.data as OpenAPISchema3_2).const = variant.type.value;
         } else {
           if (eventType) {

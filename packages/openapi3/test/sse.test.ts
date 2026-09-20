@@ -159,6 +159,38 @@ describe("openapi3: SSE (Server-Sent Events)", () => {
       deepStrictEqual(terminalVariant["x-ms-sse-terminal-event"], undefined);
     });
 
+    it("keeps the event const for a terminal event named with a literal payload", async () => {
+      const openApi = await openApiFor(
+        `
+        model StreamChunk {
+          content: string;
+        }
+
+        @events
+        union ChannelEvents {
+          chunk: StreamChunk,
+          @terminalEvent
+          done: "[DONE]",
+        }
+
+        @route("/channel")
+        @get op subscribe(): SSEStream<ChannelEvents>;
+        `,
+      );
+
+      const response = openApi.paths["/channel"].get.responses["200"];
+      const eventStreamContent = response.content["text/event-stream"];
+      deepStrictEqual(eventStreamContent.itemSchema.oneOf.length, 2);
+
+      // The variant is named, so it keeps the discriminator its siblings have.
+      const terminalVariant = eventStreamContent.itemSchema.oneOf[1];
+      deepStrictEqual(terminalVariant.properties.event.const, "done");
+      ok(
+        terminalVariant.properties.data.contentSchema,
+        "expected the payload schema for a named terminal event",
+      );
+    });
+
     it("emits a constrained branch for a terminal event carrying a model payload", async () => {
       const openApi = await openApiFor(
         `
