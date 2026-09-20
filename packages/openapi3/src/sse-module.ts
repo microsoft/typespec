@@ -86,15 +86,13 @@ export async function resolveSSEModule(): Promise<SSEModule | undefined> {
           },
         };
 
-        if (isTerminal) {
-          // If the variant type is a string literal, use it as const
-          if (variant.type.kind === "String") {
-            (variantSchema.properties!.data as OpenAPISchema3_2).const = variant.type.value;
-            (variantSchema.properties!.data as OpenAPISchema3_2).contentMediaType =
-              payloadContentType;
-          }
+        // Only a sentinel terminal event pins its branch with a `data` const. A
+        // terminal event carrying a payload is described like its siblings:
+        // without the event const and the payload's contentSchema its `oneOf`
+        // branch constrains nothing and matches every event.
+        if (isTerminal && variant.type.kind === "String") {
+          (variantSchema.properties!.data as OpenAPISchema3_2).const = variant.type.value;
         } else {
-          // For non-terminal events, add the event type
           if (eventType) {
             variantSchema.properties!.event = {
               const: eventType,
