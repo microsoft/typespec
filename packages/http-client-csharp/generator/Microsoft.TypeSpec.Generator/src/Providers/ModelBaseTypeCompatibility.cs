@@ -26,7 +26,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         public bool CanRestore(ModelProvider candidate)
         {
-            if (candidate is not SystemObjectModelProvider && candidate.LastContractView?.BaseType is not null)
+            // Custom members are supported only when the previous base is a mapped external contract.
+            // Generated-base restoration with custom code still requires broader member reconciliation.
+            if (candidate is not SystemObjectModelProvider &&
+                (_model.CustomCodeView is not null || candidate.LastContractView?.BaseType is not null))
             {
                 return false;
             }
@@ -78,13 +81,21 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 .GroupBy(GetInputPropertyClrName, StringComparer.Ordinal)
                 .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
 
+            var currentBase = InputModel.BaseModel;
+            var currentBaseByWireName = currentBase?.Properties
+                .GroupBy(property => property.SerializedName ?? property.Name, StringComparer.Ordinal)
+                .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
             if (!InputModel.Properties.Where(property => !property.IsHttpMetadata).All(property =>
-                IsMappedPropertyCompatible(property, mappedByWireName, mappedByClrName, requireMatch: false)))
+            {
+                var wireName = property.SerializedName ?? property.Name;
+                return currentBaseByWireName?.TryGetValue(wireName, out var currentBaseProperty) == true
+                    ? AreMappedPropertyShapesCompatible(property, currentBaseProperty, ignoreRequiredness: true)
+                    : IsMappedPropertyCompatible(property, mappedByWireName, mappedByClrName, requireMatch: false);
+            }))
             {
                 return false;
             }
 
-            var currentBase = InputModel.BaseModel;
             if (currentBase is null)
             {
                 return true;
@@ -196,8 +207,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 ? property.Name
                 : property.Name.ToIdentifierName().NormalizeCSharpAcronyms(property.Type.IsDateTimeInputType());
 
-        private static bool AreMappedPropertyShapesCompatible(InputModelProperty current, InputModelProperty mapped)
-            => current.IsRequired == mapped.IsRequired &&
+        private static bool AreMappedPropertyShapesCompatible(
+            InputModelProperty current,
+            InputModelProperty mapped,
+            bool ignoreRequiredness = false)
+            => (ignoreRequiredness || current.IsRequired == mapped.IsRequired) &&
+                GetInputPropertyClrName(current) == GetInputPropertyClrName(mapped) &&
                 current.IsReadOnly == mapped.IsReadOnly &&
                 current.IsHttpMetadata == mapped.IsHttpMetadata &&
                 current.IsDiscriminator == mapped.IsDiscriminator &&

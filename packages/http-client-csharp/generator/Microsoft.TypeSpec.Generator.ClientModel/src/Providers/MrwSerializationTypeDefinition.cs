@@ -168,9 +168,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private CSharpType GetRootModelType()
         {
+            // Preserve the shipped create-core return type when back compatibility restores a mapped
+            // base. The prior contract may have used a covariant model return rather than the mapped
+            // framework root type.
+            var lastContractReturnType = _model.BaseModelProvider is SystemObjectModelProvider
+                ? GetLastContractCreateCoreReturnType()
+                : null;
+
             // We need to explicitly use the BaseModelProvider when looking up the root type
             // to account for any customizations that may have changed the base model.
-            var returnType = _model.BaseModelProvider?.Type ??
+            var returnType = lastContractReturnType ??
+                _model.BaseModelProvider?.Type ??
                 GetCustomMrwBaseRootType() ??
                 Type;
             while (returnType.BaseType != null
@@ -180,6 +188,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return returnType;
+        }
+
+        private CSharpType? GetLastContractCreateCoreReturnType()
+        {
+            var returnTypes = _model.LastContractView?.Methods
+                .Where(method => s_createCoreMethodNames.Contains(method.Signature.Name) &&
+                    method.Signature.Parameters.Count == 2 &&
+                    method.Signature.ReturnType is not null)
+                .Select(method => method.Signature.ReturnType!)
+                .Distinct(CSharpType.IgnoreNullableComparer)
+                .ToArray();
+            return returnTypes is { Length: 1 } ? returnTypes[0] : null;
         }
 
         private static bool IsModelType(CSharpType type)

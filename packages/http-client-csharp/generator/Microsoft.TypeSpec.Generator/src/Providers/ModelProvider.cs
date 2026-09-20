@@ -72,6 +72,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private List<FieldProvider>? _additionalPropertyFields;
         private List<PropertyProvider>? _additionalPropertyProperties;
         private ModelProvider? _baseModelProvider;
+        private ModelProvider? _backCompatBaseModelProvider;
         private ConstructorProvider? _fullConstructor;
         internal PropertyProvider? DiscriminatorProperty { get; private set; }
 
@@ -277,9 +278,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return currentBase;
             }
 
-            // Keep this policy deliberately conservative. Custom partials, structs, polymorphic models,
-            // and models with descendants require broader hierarchy reconciliation and are left unchanged.
-            if (CustomCodeView is not null ||
+            // Keep this policy deliberately conservative. Conflicting custom bases, structs, polymorphic
+            // models, and models with descendants require broader hierarchy reconciliation and are left unchanged.
+            // Unrelated custom members do not prevent restoring a compatible mapped base.
+            if (CustomCodeView?.BaseType is not null ||
                 DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct) ||
                 _inputModel.DiscriminatorProperty is not null ||
                 _inputModel.DiscriminatorValue is not null ||
@@ -310,7 +312,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return currentBase;
             }
 
-            CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[previousBaseProvider.Type] = previousBaseProvider;
+            // Keep the restored provider local to this model. A downstream fallback may synthesize a
+            // mapped contract specifically for this hierarchy, so publishing it in the global type map
+            // could change constructor and serialization behavior for unrelated models with the same base.
+            _backCompatBaseModelProvider = previousBaseProvider;
             CodeModelGenerator.Instance.Emitter.Info(
                 $"Changed base type of model '{BuildName()}' from '{currentBase?.FullyQualifiedName ?? "object"}' to '{previousBaseProvider.Type.FullyQualifiedName}' to match the last contract.",
                 BackCompatibilityChangeCategory.ModelBaseTypePreserved);
@@ -492,6 +497,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (baseType is null)
             {
                 return null;
+            }
+
+            if (_backCompatBaseModelProvider is not null &&
+                _backCompatBaseModelProvider.Type.AreNamesEqual(baseType))
+            {
+                return _backCompatBaseModelProvider;
             }
 
             if (CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(baseType, out var provider)

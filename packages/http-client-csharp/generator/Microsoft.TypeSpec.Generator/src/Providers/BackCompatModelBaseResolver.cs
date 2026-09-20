@@ -15,10 +15,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
     /// </summary>
     internal sealed class BackCompatModelBaseResolver
     {
+        private readonly ModelProvider _model;
         private readonly ModelBaseTypeCompatibility _compatibility;
 
         public BackCompatModelBaseResolver(ModelProvider model)
         {
+            _model = model;
             _compatibility = new ModelBaseTypeCompatibility(model);
         }
 
@@ -62,8 +64,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return TrySelectCreatedModelBase(previousBase, out provider, out _);
             }
 
-            provider = null;
-            return false;
+            provider = CodeModelGenerator.Instance.TypeFactory.CreateLastContractModelBase(previousBase, _model.InputModel);
+            return provider is SystemObjectModelProvider && provider.Type.AreNamesEqual(previousBase);
         }
 
         private bool TrySelectCreatedModelBase(
