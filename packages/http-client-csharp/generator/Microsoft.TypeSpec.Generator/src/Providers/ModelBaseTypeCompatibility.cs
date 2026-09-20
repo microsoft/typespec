@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -45,7 +46,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             => candidate is SystemObjectModelProvider mappedBase
                 ? mappedBase.SystemType.IsFrameworkType &&
                     mappedBase.SystemType.FrameworkType.IsClass &&
-                    !mappedBase.SystemType.FrameworkType.IsAbstract &&
+                    !HasAbstractMembers(mappedBase.SystemType.FrameworkType) &&
                     !mappedBase.SystemType.FrameworkType.IsSealed &&
                     mappedBase.SystemType.FrameworkType != typeof(Array) &&
                     mappedBase.SystemType.FrameworkType != typeof(Delegate) &&
@@ -54,6 +55,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     mappedBase.SystemType.FrameworkType != typeof(ValueType) &&
                     IsPublicFrameworkType(mappedBase.SystemType.FrameworkType)
                 :
+                InputModel.Properties.Count == 0 &&
+                InputModel.AdditionalProperties is null &&
+                _model.CustomCodeView is null &&
                 !candidate.IsExternal &&
                 candidate.CustomCodeView is null &&
                 candidate.BaseType is null &&
@@ -324,6 +328,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             => current is null
                 ? mapped is null
                 : mapped is not null && AreInputTypesStructurallyEqual(current, mapped);
+
+        private static bool HasAbstractMembers(Type type)
+            => type.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                .Any(method => method.IsAbstract);
 
         private static bool IsPublicFrameworkType(Type type)
         {

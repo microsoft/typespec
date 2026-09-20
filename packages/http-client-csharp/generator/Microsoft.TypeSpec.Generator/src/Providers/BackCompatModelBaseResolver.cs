@@ -77,7 +77,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             provider = new SystemObjectModelProvider(mappedType, currentBase, lastContractBase);
-            return true;
+            return _compatibility.IsSupportedModelBase(provider);
         }
 
         private bool TrySelectCreatedModelBase(
