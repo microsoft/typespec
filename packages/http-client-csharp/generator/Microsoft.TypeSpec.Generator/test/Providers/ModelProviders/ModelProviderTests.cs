@@ -636,7 +636,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 createLastContractModelBase: (previousBase, currentModel) =>
                 {
                     requestedBase = previousBase;
-                    return new SystemObjectModelProvider(new CSharpType(typeof(Exception)), currentModel.BaseModel!);
+                    return new CSharpType(typeof(Exception));
                 });
 
             var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
@@ -649,6 +649,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 Assert.That(provider.BaseType?.AreNamesEqual(new CSharpType(typeof(Exception))), Is.True);
                 Assert.That(provider.BaseModelProvider, Is.InstanceOf<SystemObjectModelProvider>());
                 Assert.That(((SystemObjectModelProvider)provider.BaseModelProvider!).SystemType.FrameworkType, Is.EqualTo(typeof(Exception)));
+                Assert.That(provider.BaseModelProvider.Properties.Select(property => property.Name), Does.Contain("Message"));
+                Assert.That(provider.BaseModelProvider.FullConstructor.Signature.Parameters, Is.Not.Empty);
+                Assert.That(provider.BaseModelProvider.FullConstructor.Signature.Parameters,
+                    Is.All.Matches<ParameterProvider>(parameter => parameter.Property is not null));
                 Assert.That(CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.ContainsKey(provider.BaseType!), Is.False,
                     "A restored provider must remain local to its derived model rather than affecting unrelated models");
             });
@@ -664,8 +668,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 inputModelTypes: [currentBase, derivedModel],
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync("Current"),
                 lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync("LastContract"),
-                createLastContractModelBase: (previousBase, currentModel) =>
-                    new SystemObjectModelProvider(new CSharpType(typeof(Exception)), currentModel.BaseModel!));
+                createLastContractModelBase: (previousBase, currentModel) => new CSharpType(typeof(Exception)));
 
             var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
                 .OfType<ModelProvider>()

@@ -58,8 +58,8 @@ namespace Microsoft.TypeSpec.Generator
         /// </summary>
         /// <param name="previousBase">The base type from the last contract.</param>
         /// <param name="currentModel">The current model whose base is being restored.</param>
-        /// <returns>A mapped model provider, or <see langword="null"/> when the base is not supported.</returns>
-        protected internal virtual ModelProvider? CreateLastContractModelBase(CSharpType previousBase, InputModelType currentModel)
+        /// <returns>The mapped base type, or <see langword="null"/> when the base is not supported.</returns>
+        protected internal virtual CSharpType? CreateLastContractModelBase(CSharpType previousBase, InputModelType currentModel)
             => null;
 
         public CSharpType? CreateCSharpType(InputType inputType)

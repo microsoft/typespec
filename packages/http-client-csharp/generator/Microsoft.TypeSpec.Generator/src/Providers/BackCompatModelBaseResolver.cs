@@ -64,8 +64,20 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return TrySelectCreatedModelBase(previousBase, out provider, out _);
             }
 
-            provider = CodeModelGenerator.Instance.TypeFactory.CreateLastContractModelBase(previousBase, _model.InputModel);
-            return provider is SystemObjectModelProvider && provider.Type.AreNamesEqual(previousBase);
+            var mappedType = CodeModelGenerator.Instance.TypeFactory.CreateLastContractModelBase(previousBase, _model.InputModel);
+            var lastContractBase = _model.LastContractView?.BaseTypeProvider;
+            var currentBase = _model.InputModel.BaseModel;
+            if (mappedType is null ||
+                lastContractBase is null ||
+                currentBase is null ||
+                !mappedType.AreNamesEqual(previousBase))
+            {
+                provider = null;
+                return false;
+            }
+
+            provider = new SystemObjectModelProvider(mappedType, currentBase, lastContractBase);
+            return true;
         }
 
         private bool TrySelectCreatedModelBase(

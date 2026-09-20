@@ -1354,7 +1354,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// Builds the internal constructor for the model which contains all public properties
         /// as parameters.
         /// </summary>
-        private ConstructorProvider BuildFullConstructor()
+        private protected virtual ConstructorProvider BuildFullConstructor()
         {
             var (ctorParameters, ctorInitializer) = BuildConstructorParameters(false);
             return new ConstructorProvider(

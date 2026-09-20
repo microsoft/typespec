@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
+using Microsoft.TypeSpec.Generator.Statements;
+using Microsoft.TypeSpec.Generator.Utilities;
 
 namespace Microsoft.TypeSpec.Generator.Providers
 {
@@ -23,6 +25,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
     {
         private readonly CSharpType _systemType;
         private readonly bool _skipDerivedConstructorParameters;
+        private readonly TypeProvider? _lastContractType;
 
         /// <summary>
         /// Initializes a new instance of <see cref="SystemObjectModelProvider"/>.
@@ -30,7 +33,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// <param name="systemType">The CSharp type from the external/system assembly.</param>
         /// <param name="inputModel">The input model type that this system type replaces.</param>
         public SystemObjectModelProvider(CSharpType systemType, InputModelType inputModel)
-            : this(systemType, inputModel, skipDerivedConstructorParameters: false)
+            : this(systemType, inputModel, skipDerivedConstructorParameters: false, lastContractType: null)
         {
         }
 
@@ -38,10 +41,28 @@ namespace Microsoft.TypeSpec.Generator.Providers
             CSharpType systemType,
             InputModelType inputModel,
             bool skipDerivedConstructorParameters)
+            : this(systemType, inputModel, skipDerivedConstructorParameters, lastContractType: null)
+        {
+        }
+
+        internal SystemObjectModelProvider(
+            CSharpType systemType,
+            InputModelType inputModel,
+            TypeProvider lastContractType)
+            : this(systemType, inputModel, skipDerivedConstructorParameters: false, lastContractType)
+        {
+        }
+
+        private SystemObjectModelProvider(
+            CSharpType systemType,
+            InputModelType inputModel,
+            bool skipDerivedConstructorParameters,
+            TypeProvider? lastContractType)
             : base(inputModel)
         {
             _systemType = systemType ?? throw new ArgumentNullException(nameof(systemType));
             _skipDerivedConstructorParameters = skipDerivedConstructorParameters;
+            _lastContractType = lastContractType;
             CrossLanguageDefinitionId = inputModel.CrossLanguageDefinitionId;
 
             // The base ModelProvider constructor can evaluate Type before _systemType is assigned.
@@ -76,6 +97,83 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         /// <inheritdoc/>
         private protected override bool ShouldUseFullConstructorInDerivedTypes => !_skipDerivedConstructorParameters;
+
+        /// <inheritdoc/>
+        private protected override ConstructorProvider BuildFullConstructor()
+        {
+            if (_lastContractType is null)
+            {
+                return base.BuildFullConstructor();
+            }
+
+            var properties = Properties;
+            foreach (var constructor in _lastContractType.Constructors
+                .Where(constructor => MethodSignatureHelper.IsPublicApi(constructor.Signature.Modifiers))
+                .OrderByDescending(constructor => constructor.Signature.Parameters.Count))
+            {
+                var parameters = new List<ParameterProvider>(constructor.Signature.Parameters.Count);
+                foreach (var parameter in constructor.Signature.Parameters)
+                {
+                    var property = properties.FirstOrDefault(property =>
+                        property.AsParameter.Name == parameter.Name &&
+                        property.Type.Equals(parameter.Type, ignoreNullable: true));
+                    if (property is null)
+                    {
+                        parameters.Clear();
+                        break;
+                    }
+
+                    parameters.Add(new ParameterProvider(
+                        parameter.Name,
+                        parameter.Description,
+                        parameter.Type,
+                        parameter.DefaultValue,
+                        parameter.IsRef,
+                        parameter.IsOut,
+                        parameter.IsIn,
+                        parameter.IsParams,
+                        parameter.Attributes,
+                        property,
+                        initializationValue: parameter.InitializationValue,
+                        location: parameter.Location,
+                        wireInfo: parameter.WireInfo,
+                        validation: parameter.Validation,
+                        inputParameter: parameter.InputParameter));
+                }
+
+                if (parameters.Count == constructor.Signature.Parameters.Count)
+                {
+                    return new ConstructorProvider(
+                        new ConstructorSignature(
+                            Type,
+                            constructor.Signature.Description,
+                            MethodSignatureModifiers.Internal,
+                            parameters),
+                        Array.Empty<MethodBodyStatement>(),
+                        this);
+                }
+            }
+
+            return base.BuildFullConstructor();
+        }
+
+        /// <inheritdoc/>
+        protected internal override PropertyProvider[] BuildProperties()
+        {
+            if (_lastContractType is null)
+            {
+                return base.BuildProperties();
+            }
+
+            var properties = new List<PropertyProvider>();
+            for (var provider = _lastContractType; provider is not null; provider = provider.BaseTypeProvider)
+            {
+                properties.AddRange(provider.Properties.Where(property =>
+                    MethodSignatureHelper.IsPublicApi(property.Modifiers) &&
+                    !properties.Any(existing => existing.Name == property.Name)));
+            }
+            return [.. properties];
+        }
 
         /// <inheritdoc/>
         protected override bool ShouldSkipDerivedModelProperties => true;

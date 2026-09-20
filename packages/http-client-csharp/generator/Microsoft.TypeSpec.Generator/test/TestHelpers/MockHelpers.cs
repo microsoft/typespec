@@ -43,7 +43,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
             string? inputNamespaceName = null,
             string? outputPath = null,
             ApiCompatBaseline? apiCompatBaseline = null,
-            Func<CSharpType, InputModelType, ModelProvider?>? createLastContractModelBase = null)
+            Func<CSharpType, InputModelType, CSharpType?>? createLastContractModelBase = null)
         {
             var mockGenerator = LoadMockGenerator(
                 createCSharpTypeCore,
@@ -88,7 +88,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
             bool includeXmlDocs = false,
             string? inputNamespaceName = null,
             string? outputPath = null,
-            Func<CSharpType, InputModelType, ModelProvider?>? createLastContractModelBase = null)
+            Func<CSharpType, InputModelType, CSharpType?>? createLastContractModelBase = null)
         {
             ResetCache();
 
@@ -116,11 +116,12 @@ namespace Microsoft.TypeSpec.Generator.Tests
 
             if (createLastContractModelBase != null)
             {
-                mockTypeFactory.Protected().Setup<ModelProvider?>(
+                mockTypeFactory.Protected().Setup<CSharpType?>(
                     "CreateLastContractModelBase",
                     ItExpr.IsAny<CSharpType>(),
                     ItExpr.IsAny<InputModelType>()).Returns(
-                        (CSharpType previousBase, InputModelType currentModel) => createLastContractModelBase.Invoke(previousBase, currentModel));
+                        (CSharpType previousBase, InputModelType currentModel) =>
+                            createLastContractModelBase.Invoke(previousBase, currentModel));
             }
 
             if (createEnumCore != null)
