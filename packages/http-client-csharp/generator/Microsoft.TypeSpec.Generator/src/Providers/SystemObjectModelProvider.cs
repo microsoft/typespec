@@ -75,6 +75,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// </summary>
         public CSharpType SystemType => _systemType;
 
+        internal bool UsesLastContractType => _lastContractType is not null;
+
         /// <summary>
         /// Gets the cross-language definition ID from the input model.
         /// </summary>

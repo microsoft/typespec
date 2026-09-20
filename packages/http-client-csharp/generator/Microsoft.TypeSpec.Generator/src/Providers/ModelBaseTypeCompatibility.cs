@@ -84,6 +84,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var mappedByClrName = mappedBase.InputModel.Properties
                 .GroupBy(GetInputPropertyClrName, StringComparer.Ordinal)
                 .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
+            var effectiveMappedClrNames = mappedBase.UsesLastContractType
+                ? mappedBase.Properties.Select(property => property.Name).ToHashSet(StringComparer.Ordinal)
+                : new HashSet<string>(StringComparer.Ordinal);
 
             var currentBase = InputModel.BaseModel;
             var currentBaseByWireName = currentBase?.Properties
@@ -92,9 +95,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (!InputModel.Properties.Where(property => !property.IsHttpMetadata).All(property =>
             {
                 var wireName = property.SerializedName ?? property.Name;
-                return currentBaseByWireName?.TryGetValue(wireName, out var currentBaseProperty) == true
-                    ? AreMappedPropertyShapesCompatible(property, currentBaseProperty, ignoreRequiredness: true)
-                    : IsMappedPropertyCompatible(property, mappedByWireName, mappedByClrName, requireMatch: false);
+                if (currentBaseByWireName?.TryGetValue(wireName, out var currentBaseProperty) == true)
+                {
+                    return AreMappedPropertyShapesCompatible(property, currentBaseProperty, ignoreRequiredness: true);
+                }
+
+                var clrName = GetInputPropertyClrName(property);
+                var hasMappedInputProperty = mappedByWireName.ContainsKey(wireName) || mappedByClrName.ContainsKey(clrName);
+                return IsMappedPropertyCompatible(property, mappedByWireName, mappedByClrName, requireMatch: false) &&
+                    (hasMappedInputProperty || !effectiveMappedClrNames.Contains(clrName));
             }))
             {
                 return false;
