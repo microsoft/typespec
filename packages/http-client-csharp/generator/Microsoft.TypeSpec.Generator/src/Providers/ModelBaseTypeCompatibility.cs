@@ -98,6 +98,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             var customMemberNames = customCode.Properties.Select(property => property.Name)
                 .Concat(customCode.Fields.Select(field => field.Name))
+                .Concat(customCode.Methods.Select(method => method.Signature.Name))
                 .ToHashSet(StringComparer.Ordinal);
             return !mappedBase.Properties.Any(property =>
                 MethodSignatureHelper.IsPublicApi(property.Modifiers) &&
