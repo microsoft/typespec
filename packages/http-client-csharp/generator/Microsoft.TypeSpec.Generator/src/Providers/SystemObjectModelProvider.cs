@@ -111,14 +111,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private protected override bool ShouldUseFullConstructorInDerivedTypes => !_skipDerivedConstructorParameters;
 
         /// <inheritdoc/>
-        private protected override bool IsInputPropertyRepresentedInBase(InputModelProperty property)
-            => _lastContractType is null || Properties.Any(lastContractProperty =>
-                CodeModelGenerator.Instance.TypeFactory.IsLastContractModelBasePropertyCompatible(
-                    SystemType,
-                    property,
-                    lastContractProperty));
-
-        /// <inheritdoc/>
         private protected override ConstructorProvider BuildFullConstructor()
         {
             if (_lastContractType is null)

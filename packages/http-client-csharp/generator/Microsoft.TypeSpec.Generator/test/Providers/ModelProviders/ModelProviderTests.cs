@@ -733,15 +733,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
-        public async Task BackCompat_DownstreamMappedBaseRestoresRemovedBase()
+        public async Task BackCompat_DownstreamMappedBaseDoesNotRestoreRemovedBase()
         {
             var model = InputFactory.Model(
                 "DerivedModel",
-                properties:
-                [
-                    InputFactory.Property("message", InputPrimitiveType.String, isRequired: true),
-                    InputFactory.Property("child", InputPrimitiveType.String)
-                ]);
+                properties: [InputFactory.Property("message", InputPrimitiveType.String)]);
 
             await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: [model],
@@ -754,32 +750,29 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
                 .OfType<ModelProvider>()
                 .Single(model => model.Name == "DerivedModel");
-            var initializationConstructor = provider.Constructors[0];
 
             Assert.Multiple(() =>
             {
-                Assert.That(provider.BaseType?.Name, Is.EqualTo(nameof(Exception)));
-                Assert.That(provider.Properties.Select(property => property.Name), Does.Contain("Child"));
-                Assert.That(provider.Properties.Select(property => property.Name), Does.Not.Contain("Message"));
-                Assert.That(initializationConstructor.Signature.Parameters.Select(parameter => parameter.Name),
-                    Is.EqualTo(new[] { "message" }));
-                Assert.That(initializationConstructor.Signature.Initializer?.Arguments.Count, Is.EqualTo(1));
+                Assert.That(provider.BaseType, Is.Null,
+                    "Mapped restoration requires a current input base as the wire reconciliation contract");
+                Assert.That(provider.Properties.Select(property => property.Name), Does.Contain("Message"));
             });
         }
 
         [Test]
         public async Task BackCompat_DownstreamMappedBaseRejectsManyToOnePropertyMapping()
         {
-            var model = InputFactory.Model(
-                "DerivedModel",
+            var currentBase = InputFactory.Model(
+                "CurrentBase",
                 properties:
                 [
                     InputFactory.Property("first", InputPrimitiveType.String),
                     InputFactory.Property("second", InputPrimitiveType.String)
                 ]);
+            var model = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
 
             await MockHelpers.LoadMockGeneratorAsync(
-                inputModelTypes: [model],
+                inputModelTypes: [currentBase, model],
                 lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
                     method: nameof(BackCompat_LastContractMappedBaseCanBeProvidedByDownstreamGenerator)),
                 createLastContractModelBase: (previousBase, currentModel) => new CSharpType(typeof(Exception)),
@@ -792,10 +785,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             Assert.Multiple(() =>
             {
-                Assert.That(provider.BaseType, Is.Null,
+                Assert.That(provider.BaseType?.Name, Is.EqualTo("CurrentBase"),
                     "A mapped base must be rejected when multiple current properties map to one shipped property");
-                Assert.That(provider.Properties.Select(property => property.Name),
-                    Is.EquivalentTo(new[] { "First", "Second" }));
             });
         }
 

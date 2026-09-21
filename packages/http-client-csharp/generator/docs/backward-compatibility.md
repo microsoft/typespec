@@ -1093,9 +1093,9 @@ public virtual ClientResult UpdateSkillDefaultVersion(string skillId, string con
 
 ### Model Base Types
 
-The generator can preserve a previously shipped model base when the current TypeSpec hierarchy no longer contains it. Automatic restoration is intentionally limited to compatible generated root models and mapped `SystemObjectModelProvider` bases. Mapped bases reuse the existing model-provider property, constructor, and serialization reconciliation used by custom CLR bases. For ordinary generated bases, both the derived model and displaced current base must be memberless.
+The generator can preserve a previously shipped model base when the current TypeSpec hierarchy no longer contains it. Automatic restoration is intentionally limited to compatible generated root models and mapped `SystemObjectModelProvider` bases. For ordinary generated bases, both the derived model and displaced current base must be memberless. Mapped restoration requires a current input base, which remains the authoritative wire contract while the shipped CLR property and constructor surface is restored.
 
-When no current provider represents the shipped CLR base, a downstream generator can override `TypeFactory.CreateLastContractModelBaseCore` to supply a mapping for its known inheritable framework types. The returned type is still subject to the standard mapped-base compatibility checks and remains local to the model being restored.
+When no current provider represents the shipped CLR base, a downstream generator can override `TypeFactory.CreateLastContractModelBaseCore` to supply a mapping for its known inheritable framework types. The returned type is still subject to the standard mapped-base compatibility checks and remains local to the model being restored. A mapped base is not reconstructed when the current model has become a root because there is no separate current-base contract to reconcile safely.
 
 The current base is retained when broader reconciliation would be required, including a conflicting custom base declaration, structs, polymorphic or derived hierarchies, arbitrary referenced types, and constructed generic bases. Unrelated custom members are permitted only for mapped-base restoration; generated-base restoration with custom code remains unsupported.
 
