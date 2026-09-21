@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { beforeEach, describe, expect, it } from "vitest";
 import { serializeCodeModel } from "../../src/code-model-writer.js";
 import { withRawJson } from "../../src/lib/raw-json.js";
@@ -137,9 +138,7 @@ describe("Code-model reference format", () => {
 
     const document = JSON.parse(serializeCodeModel(context, model));
 
-    expect(document.root.extension).toEqual([
-      { $id: "1", kind: "node", items: [{ $ref: "1" }] },
-    ]);
+    expect(document.root.extension).toEqual([{ $id: "1", kind: "node", items: [{ $ref: "1" }] }]);
   });
 
   it("rejects array-only cycles and cycles in explicitly raw JSON", () => {
@@ -154,4 +153,3 @@ describe("Code-model reference format", () => {
     expect(() => serializeCodeModel(context, model)).toThrow("cyclic raw JSON");
   });
 });
-import { readFileSync } from "node:fs";

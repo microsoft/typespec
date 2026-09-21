@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Microsoft.TypeSpec.Generator.Tests.Common;
@@ -112,6 +113,47 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
                 """, versioned: true);
 
             Assert.AreEqual("literal-id", ((InputExampleRawValue)value.Values["$id"]).RawValue);
+        }
+
+        [Test]
+        public void VersionedDictionaryReferenceDepthIsBounded()
+        {
+            var definitions = string.Join(",", Enumerable.Range(0, 130).Select(i => $$"""
+                {
+                  "$id": "dictionary{{i}}",
+                  "item": { "kind": "dict", "type": { "kind": "unknown" }, "value": { "$ref": "dictionary{{i + 1}}" } }
+                }
+                """));
+            var example = $$"""
+                {
+                  "kind": "dict", "type": { "kind": "unknown" },
+                  "extension": [{{definitions}}, { "$id": "dictionary130" }],
+                  "value": { "$ref": "dictionary0" }
+                }
+                """;
+
+            var exception = Assert.Throws<JsonException>(() => DeserializeExampleValue(example, versioned: true));
+
+            Assert.That(exception!.Message, Does.Contain("maximum reference depth"));
+        }
+
+        [Test]
+        public void VersionedDictionaryReferenceCycleThrows()
+        {
+            const string example = """
+                {
+                  "kind": "dict", "type": { "kind": "unknown" },
+                  "extension": {
+                    "$id": "dictionary",
+                    "item": { "kind": "dict", "type": { "kind": "unknown" }, "value": { "$ref": "dictionary" } }
+                  },
+                  "value": { "$ref": "dictionary" }
+                }
+                """;
+
+            var exception = Assert.Throws<JsonException>(() => DeserializeExampleValue(example, versioned: true));
+
+            Assert.That(exception!.Message, Does.Contain("circular reference"));
         }
 
         [TestCase("unknown")]

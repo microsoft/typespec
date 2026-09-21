@@ -14,6 +14,7 @@ namespace Microsoft.TypeSpec.Generator.Input
         private const int MaxExpandedBytes = 64 * 1024 * 1024;
         private readonly TypeSpecReferenceHandler.TypeSpecReferenceResolver _resolver;
         private readonly int _maxDepth;
+        private readonly HashSet<string> _activeDictionaryReferences = new();
 
         public TypeSpecJsonConverter(TypeSpecReferenceHandler.TypeSpecReferenceResolver resolver, int maxDepth)
         {
@@ -44,6 +45,20 @@ namespace Microsoft.TypeSpec.Generator.Input
             }
             return _resolver.GetReferenceDefinition(ReadId(reference));
         }
+
+        public JsonElement EnterDictionaryReference(JsonElement reference)
+        {
+            var definition = ResolveReference(reference);
+            var id = ReadId(reference.GetProperty("$ref"));
+            if (_activeDictionaryReferences.Count >= _maxDepth || !_activeDictionaryReferences.Add(id))
+            {
+                throw new JsonException($"Cannot resolve dictionary reference {id}: circular reference or maximum reference depth exceeded");
+            }
+            return definition;
+        }
+
+        public void ExitDictionaryReference(JsonElement reference)
+            => _activeDictionaryReferences.Remove(ReadId(reference.GetProperty("$ref")));
 
         public JsonElement Decode(JsonElement element, bool preserveCycles, out bool referenceEncoded)
         {

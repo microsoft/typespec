@@ -176,13 +176,20 @@ namespace Microsoft.TypeSpec.Generator.Input
                 && options.GetConverter(typeof(JsonElement)) is TypeSpecJsonConverter rawConverter)
             {
                 using var document = JsonDocument.ParseValue(ref reader);
-                var definition = rawConverter.ResolveReference(document.RootElement);
-                var definitionReader = new Utf8JsonReader(Encoding.UTF8.GetBytes(definition.GetRawText()),
-                    new JsonReaderOptions { AllowTrailingCommas = options.AllowTrailingCommas, MaxDepth = options.MaxDepth });
-                definitionReader.Read();
-                var dictionary = ReadDictionary<T>(ref definitionReader, options);
-                reader.Read();
-                return dictionary;
+                var definition = rawConverter.EnterDictionaryReference(document.RootElement);
+                try
+                {
+                    var definitionReader = new Utf8JsonReader(Encoding.UTF8.GetBytes(definition.GetRawText()),
+                        new JsonReaderOptions { AllowTrailingCommas = options.AllowTrailingCommas, MaxDepth = options.MaxDepth });
+                    definitionReader.Read();
+                    var dictionary = ReadDictionary<T>(ref definitionReader, options);
+                    reader.Read();
+                    return dictionary;
+                }
+                finally
+                {
+                    rawConverter.ExitDictionaryReference(document.RootElement);
+                }
             }
             reader.Read();
             string? id = null;
