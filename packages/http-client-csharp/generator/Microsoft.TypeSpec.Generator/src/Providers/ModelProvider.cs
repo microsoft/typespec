@@ -385,17 +385,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 yield return model;
 
                 var unknownVariant = model.DiscriminatedSubtypes.Values.FirstOrDefault(model => model.IsUnknownDiscriminatorModel);
-                if (unknownVariant is null)
+                if (unknownVariant is not null && IsEmitted(unknownVariant))
                 {
-                    continue;
+                    yield return unknownVariant;
                 }
-
-                if (!IsEmitted(unknownVariant))
-                {
-                    continue;
-                }
-
-                yield return unknownVariant;
             }
 
             // Mirrors OutputLibrary.BuildModels: a model resolved to a framework/referenced type
