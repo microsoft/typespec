@@ -261,6 +261,27 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
             Assert.AreEqual("SharedModel", inputNamespace.Models.Single().Name);
         }
 
+        [TestCase("unknown")]
+        [TestCase("union")]
+        public void LoadsReferenceDefinedInOpaqueExampleType(string kind)
+        {
+            var content = $$"""
+                {
+                  "name": "Test",
+                  "models": [{ "$ref": "model" }],
+                  "extension": {
+                    "kind": "{{kind}}",
+                    "type": { "$id": "model", "kind": "model", "name": "SharedModel" },
+                    "value": { "$id": "model", "name": "Payload" }
+                  }
+                }
+                """;
+
+            var inputNamespace = TypeSpecSerialization.Deserialize(content)!;
+
+            Assert.AreEqual("SharedModel", inputNamespace.Models.Single().Name);
+        }
+
         [Test]
         public void UnresolvedReferenceStillThrows()
         {
