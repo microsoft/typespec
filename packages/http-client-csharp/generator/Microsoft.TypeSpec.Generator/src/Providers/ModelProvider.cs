@@ -490,7 +490,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             var inputNamespace = CodeModelGenerator.Instance.InputLibrary.InputNamespace;
             return inputNamespace.Models.Any(model => HasCustomizedSiblingInputName(model, model.Namespace, typeName)) ||
-                inputNamespace.Enums.Any(@enum => HasCustomizedSiblingInputName(@enum, @enum.Namespace, typeName));
+                inputNamespace.Enums.Any(@enum => HasCustomizedSiblingInputName(@enum, @enum.Namespace, typeName)) ||
+                inputNamespace.Clients.Any(client => HasCustomizedSiblingInputName(client, typeName));
         }
 
         private bool HasCustomizedSiblingInputName(InputType inputType, string inputTypeNamespace, string typeName)
@@ -508,6 +509,20 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             var otherNamespace = GetTypeNamespace(inputTypeNamespace);
             var customType = FindCustomizationType(otherNamespace, GetCustomizationLookupNames(inputType, otherName));
+            return customType is not null &&
+                !string.Equals(customType.Name, typeName, StringComparison.OrdinalIgnoreCase);
+        }
+
+        private bool HasCustomizedSiblingInputName(InputClient client, string typeName)
+        {
+            var clientName = client.IsExactName ? client.Name : client.Name.ToIdentifierName();
+            if (!string.Equals(clientName, typeName, StringComparison.OrdinalIgnoreCase))
+            {
+                return false;
+            }
+
+            var clientNamespace = GetTypeNamespace(client.Namespace);
+            var customType = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(clientNamespace, clientName);
             return customType is not null &&
                 !string.Equals(customType.Name, typeName, StringComparison.OrdinalIgnoreCase);
         }

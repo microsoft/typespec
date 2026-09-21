@@ -18,6 +18,25 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
     public class ClientProviderCustomizationTests
     {
         [Test]
+        public async Task ModelDoesNotUseClientCustomization()
+        {
+            var inputModel = InputFactory.Model("WidgetResponse");
+            var inputClient = InputFactory.Client("WidgetResult");
+            inputClient.Update(@namespace: "Sample.Models");
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [inputModel],
+                clients: () => [inputClient],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
+            var clientProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+
+            Assert.AreEqual("WidgetResult", modelProvider.Name);
+            Assert.IsNull(modelProvider.CustomCodeView);
+            Assert.AreEqual("CustomWidgetClient", clientProvider.CustomCodeView?.Name);
+        }
+
+        [Test]
         public async Task CanAddMethod()
         {
             var inputOperation = InputFactory.Operation("HelloAgain", parameters:
