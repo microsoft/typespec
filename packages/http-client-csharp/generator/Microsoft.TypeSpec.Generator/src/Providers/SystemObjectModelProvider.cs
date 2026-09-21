@@ -80,8 +80,36 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         internal bool HasReconstructibleLastContractConstructor
             => _lastContractType is null ||
-                TryGetLastContractConstructor(out _, out var constructorProperties) &&
-                Properties.Where(IsRequiredInitializationProperty).All(constructorProperties.Contains);
+                TryGetLastContractConstructor(out _, out _) &&
+                HasCallableInitializationConstructor();
+
+        private bool HasCallableInitializationConstructor()
+        {
+            var requiredProperties = Properties.Where(IsRequiredInitializationProperty).ToArray();
+            var constructors = _lastContractType!.Constructors;
+            if (constructors.Count == 0)
+            {
+                // A class with no declared instance constructors has an implicit parameterless constructor.
+                return requiredProperties.Length == 0;
+            }
+
+            foreach (var constructor in constructors.Where(constructor =>
+                MethodSignatureHelper.IsPublicApi(constructor.Signature.Modifiers)))
+            {
+                var matches = constructor.Signature.Parameters
+                    .Select(parameter => Properties.FirstOrDefault(property =>
+                        property.AsParameter.Name == parameter.Name &&
+                        property.Type.Equals(parameter.Type, ignoreNullable: true)))
+                    .ToArray();
+                if (matches.Take(requiredProperties.Length).SequenceEqual(requiredProperties) &&
+                    constructor.Signature.Parameters.Skip(requiredProperties.Length)
+                        .All(parameter => parameter.DefaultValue is not null))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
 
         private static bool IsRequiredInitializationProperty(PropertyProvider property)
             => property.WireInfo is { IsRequired: true, IsReadOnly: false } &&

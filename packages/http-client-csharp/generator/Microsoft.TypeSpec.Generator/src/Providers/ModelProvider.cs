@@ -265,6 +265,27 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// <param name="currentBase">The base type selected from custom code or the current input model.</param>
         private CSharpType? BuildBaseTypeForBackCompatibility(CSharpType? currentBase)
         {
+            // Property validation can resolve a type that points back to this model before its Type
+            // has been cached. Keep that nested resolution on the current hierarchy rather than
+            // re-entering restoration and recursively materializing the same property graph.
+            if (_isResolvingBackCompatBaseType)
+            {
+                return currentBase;
+            }
+
+            _isResolvingBackCompatBaseType = true;
+            try
+            {
+                return BuildBaseTypeForBackCompatibilityCore(currentBase);
+            }
+            finally
+            {
+                _isResolvingBackCompatBaseType = false;
+            }
+        }
+
+        private CSharpType? BuildBaseTypeForBackCompatibilityCore(CSharpType? currentBase)
+        {
             // A mapped external model's CLR hierarchy is owned by its wrapped system type.
             if (this is SystemObjectModelProvider)
             {
@@ -322,6 +343,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         private bool _hasReportedIncompatibleBackcompatBaseType;
+        private bool _isResolvingBackCompatBaseType;
 
         private CSharpType? BuildCurrentBaseType()
         {

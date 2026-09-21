@@ -178,6 +178,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return false;
             }
 
+            if (!mappedBase.UsesLastContractType &&
+                currentBase.Properties.Count != mappedBase.InputModel.Properties.Count)
+            {
+                return false;
+            }
+
             var currentBaseProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(currentBase);
             if (currentBaseProvider is SystemObjectModelProvider ||
                 currentBaseProvider?.CustomCodeView is not null ||
