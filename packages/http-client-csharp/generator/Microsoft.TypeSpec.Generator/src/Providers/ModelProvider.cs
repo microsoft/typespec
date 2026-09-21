@@ -2006,7 +2006,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     var customType = FindCustomizationType(typeNamespace, GetCustomizationLookupNames(inputType, inputName));
                     var entry = new TypeEntry(
                         inputType,
-                        typeNamespace,
                         inputName,
                         customType?.Type,
                         customType?.IsResultAlias == true,
@@ -2108,14 +2107,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             internal sealed class TypeEntry(
                 InputType inputType,
-                string @namespace,
                 string inputName,
                 TypeProvider? customType,
                 bool isResultAlias,
                 bool hasLastContractName)
             {
                 internal InputType InputType { get; } = inputType;
-                internal string Namespace { get; } = @namespace;
                 internal string InputName { get; } = inputName;
                 internal TypeProvider? CustomType { get; } = customType;
                 internal bool IsResultAlias { get; } = isResultAlias;

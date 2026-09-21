@@ -30,8 +30,8 @@ namespace Microsoft.TypeSpec.Generator
 
         private Dictionary<InputModelType, ModelProvider?> InputTypeToModelProvider { get; } = [];
 
-        private ModelProvider.NameCache? _modelProviderNameCache;
-        internal ModelProvider.NameCache ModelProviderNameCache => _modelProviderNameCache ??= new(CodeModelGenerator.Instance);
+        private readonly Lazy<ModelProvider.NameCache> _modelProviderNameCache = new(() => new(CodeModelGenerator.Instance));
+        internal ModelProvider.NameCache ModelProviderNameCache => _modelProviderNameCache.Value;
 
         public IDictionary<CSharpType, TypeProvider?> CSharpTypeMap { get; } = new Dictionary<CSharpType, TypeProvider?>(CSharpType.IgnoreNullableComparer);
 
