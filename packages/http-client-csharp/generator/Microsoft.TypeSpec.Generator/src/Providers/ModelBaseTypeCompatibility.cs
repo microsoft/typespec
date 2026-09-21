@@ -123,6 +123,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return true;
             }
 
+            if (customCode.Constructors.Count > 0)
+            {
+                return false;
+            }
+
             var customMemberNames = customCode.Properties.Select(property => property.Name)
                 .Concat(customCode.Fields.Select(field => field.Name))
                 .Concat(customCode.Methods.Select(method => method.Signature.Name))

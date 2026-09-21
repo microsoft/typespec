@@ -678,6 +678,28 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task BackCompat_DownstreamMappedBaseRejectsRequiredPropertyMissingFromConstructor()
+        {
+            var currentBase = InputFactory.Model(
+                "CurrentBase",
+                properties: [InputFactory.Property("source", InputPrimitiveType.String, isRequired: true)]);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [currentBase, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_LastContractMappedBaseCanBeProvidedByDownstreamGenerator)),
+                createLastContractModelBase: (previousBase, currentModel) => new CSharpType(typeof(Exception)));
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.That(provider.BaseType?.Name, Is.EqualTo("CurrentBase"),
+                "A required mapped property must be supplied by the reconstructed shipped constructor");
+        }
+
+        [Test]
         public async Task BackCompat_DownstreamMappedBasePreservesRequiredInitializationParameters()
         {
             var currentBase = InputFactory.Model(
@@ -887,6 +909,27 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             Assert.That(provider.BaseType?.Name, Is.EqualTo("CurrentBase"),
                 "A custom method must not unexpectedly hide a property introduced by the restored base");
+        }
+
+        [Test]
+        public async Task BackCompat_MappedBaseRestorationRejectsCustomConstructor()
+        {
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [currentBase, derivedModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_LastContractMappedBaseCanBeProvidedByDownstreamGenerator)),
+                createLastContractModelBase: (previousBase, currentModel) => new CSharpType(typeof(Exception)));
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.That(provider.BaseType?.Name, Is.EqualTo("CurrentBase"),
+                "A custom constructor may contain a base initializer that is incompatible with the restored base");
         }
 
         [Test]

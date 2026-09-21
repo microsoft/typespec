@@ -79,7 +79,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
         internal bool UsesLastContractType => _lastContractType is not null;
 
         internal bool HasReconstructibleLastContractConstructor
-            => _lastContractType is null || TryGetLastContractConstructor(out _, out _);
+            => _lastContractType is null ||
+                TryGetLastContractConstructor(out _, out var constructorProperties) &&
+                Properties.Where(IsRequiredInitializationProperty).All(constructorProperties.Contains);
+
+        private static bool IsRequiredInitializationProperty(PropertyProvider property)
+            => property.WireInfo is { IsRequired: true, IsReadOnly: false } &&
+                !property.Type.IsLiteral;
 
         /// <summary>
         /// Gets the cross-language definition ID from the input model.

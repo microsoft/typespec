@@ -193,14 +193,38 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private CSharpType? GetLastContractCreateCoreReturnType()
         {
             var returnTypes = _model.LastContractView?.Methods
-                .Where(method => s_createCoreMethodNames.Contains(method.Signature.Name) &&
-                    method.Signature.Parameters.Count == 2 &&
+                .Where(method => IsCreateCoreMethod(method.Signature) &&
                     method.Signature.ReturnType is not null)
                 .Select(method => method.Signature.ReturnType!)
                 .Distinct(CSharpType.IgnoreNullableComparer)
                 .ToArray();
             return returnTypes is { Length: 1 } ? returnTypes[0] : null;
         }
+
+        private static bool IsCreateCoreMethod(MethodSignature signature)
+        {
+            if (signature.Parameters.Count != 2 ||
+                !IsParameter(signature.Parameters[1], typeof(ModelReaderWriterOptions)))
+            {
+                return false;
+            }
+
+            return signature.Name switch
+            {
+                JsonModelCreateCoreMethodName =>
+                    IsParameter(signature.Parameters[0], typeof(Utf8JsonReader), isRef: true),
+                PersistableModelCreateCoreMethodName =>
+                    IsParameter(signature.Parameters[0], typeof(BinaryData)),
+                _ => false
+            };
+        }
+
+        private static bool IsParameter(ParameterProvider parameter, Type type, bool isRef = false)
+            => CSharpType.IgnoreNullableComparer.Equals(parameter.Type, new CSharpType(type)) &&
+                parameter.IsRef == isRef &&
+                !parameter.IsOut &&
+                !parameter.IsIn &&
+                !parameter.IsParams;
 
         private static bool IsModelType(CSharpType type)
             => ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(type, out var baseProvider) &&

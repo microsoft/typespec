@@ -11,5 +11,8 @@ namespace Sample.Models
 
         protected virtual TrackedResource JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
             => throw new NotImplementedException();
+
+        protected virtual string JsonModelCreateCore(string value, object options)
+            => throw new NotImplementedException();
     }
 }
