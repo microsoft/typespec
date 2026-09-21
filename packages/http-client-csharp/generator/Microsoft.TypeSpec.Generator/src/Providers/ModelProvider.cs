@@ -7,7 +7,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Threading;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
@@ -79,7 +78,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private readonly bool _isDiscriminatedBaseType;
         // The input library is fixed before providers are named. Cache the emitted collision inventory
         // once per library instead of rebuilding it for every ModelProvider that checks a Response->Result name.
-        private static readonly ConditionalWeakTable<CodeModelGenerator, Lazy<EmittedTypes>> _emittedTypesCache = new();
+        private static readonly ConditionalWeakTable<CodeModelGenerator, EmittedTypes> _emittedTypesCache = new();
 
         private ValueExpression DiscriminatorLiteral => Literal(_inputModel.DiscriminatorValue ?? "");
 
@@ -364,14 +363,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
             => _emittedTypesCache.GetValue(
                 CodeModelGenerator.Instance,
                 static generator => new(
-                    () => new EmittedTypes(
-                        BuildEmittedModels(generator.InputLibrary, generator.TypeFactory).ToList(),
-                        generator.InputLibrary.InputNamespace.Enums
-                            // Mirrors OutputLibrary.BuildEnums: API-version enums are never emitted, and external
-                            // enums always map to existing types instead of generated files.
-                            .Where(@enum => @enum.External is null && !@enum.Usage.HasFlag(InputModelTypeUsage.ApiVersionEnum))
-                            .ToList()),
-                    LazyThreadSafetyMode.ExecutionAndPublication)).Value;
+                    BuildEmittedModels(generator.InputLibrary, generator.TypeFactory).ToList(),
+                    generator.InputLibrary.InputNamespace.Enums
+                        // Mirrors OutputLibrary.BuildEnums: API-version enums are never emitted, and external
+                        // enums always map to existing types instead of generated files.
+                        .Where(@enum => @enum.External is null && !@enum.Usage.HasFlag(InputModelTypeUsage.ApiVersionEnum))
+                        .ToList()));
 
         private static IEnumerable<InputModelType> BuildEmittedModels(InputLibrary inputLibrary, TypeFactory typeFactory)
         {
