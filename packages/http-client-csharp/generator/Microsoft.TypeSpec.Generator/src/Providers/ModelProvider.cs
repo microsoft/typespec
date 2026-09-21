@@ -1966,13 +1966,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         /// <summary>
         /// Indexes input and customized type names once per generator for collision lookups.
+        /// The input namespace and customization compilations must be finalized before the first lookup.
         /// </summary>
         internal sealed class NameCache
         {
             private readonly CodeModelGenerator _generator;
-            private readonly Lazy<Dictionary<string, List<TypeEntry>>> _models;
-            private readonly Lazy<Dictionary<string, List<TypeEntry>>> _enums;
-            private readonly Lazy<Dictionary<string, List<ClientEntry>>> _clients;
+            private readonly Lazy<IReadOnlyDictionary<string, IReadOnlyList<TypeEntry>>> _models;
+            private readonly Lazy<IReadOnlyDictionary<string, IReadOnlyList<TypeEntry>>> _enums;
+            private readonly Lazy<IReadOnlyDictionary<string, IReadOnlyList<ClientEntry>>> _clients;
 
             internal NameCache(CodeModelGenerator generator)
             {
@@ -1990,10 +1991,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             internal IReadOnlyList<TypeEntry> FindEnums(string name) => Find(_enums.Value, name);
             internal IReadOnlyList<ClientEntry> FindClients(string name) => Find(_clients.Value, name);
 
-            private static IReadOnlyList<T> Find<T>(Dictionary<string, List<T>> cache, string name)
+            private static IReadOnlyList<T> Find<T>(IReadOnlyDictionary<string, IReadOnlyList<T>> cache, string name)
                 => cache.TryGetValue(name, out var entries) ? entries : [];
 
-            private Dictionary<string, List<TypeEntry>> BuildTypeMap<T>(
+            private IReadOnlyDictionary<string, IReadOnlyList<TypeEntry>> BuildTypeMap<T>(
                 IEnumerable<T> inputTypes,
                 Func<T, string> getNamespace)
                 where T : InputType
@@ -2019,10 +2020,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     }
                 }
 
-                return cache;
+                return Freeze(cache);
             }
 
-            private Dictionary<string, List<ClientEntry>> BuildClientMap()
+            private IReadOnlyDictionary<string, IReadOnlyList<ClientEntry>> BuildClientMap()
             {
                 var cache = new Dictionary<string, List<ClientEntry>>(StringComparer.OrdinalIgnoreCase);
                 foreach (var client in _generator.InputLibrary.InputNamespace.Clients)
@@ -2039,7 +2040,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     }
                 }
 
-                return cache;
+                return Freeze(cache);
             }
 
             private string GetNamespace(string inputNamespace)
@@ -2105,6 +2106,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
                 entries.Add(entry);
             }
+
+            private static IReadOnlyDictionary<string, IReadOnlyList<T>> Freeze<T>(Dictionary<string, List<T>> cache)
+                => cache.ToDictionary(
+                    pair => pair.Key,
+                    pair => (IReadOnlyList<T>)pair.Value.ToArray(),
+                    StringComparer.OrdinalIgnoreCase);
 
             internal sealed class TypeEntry(
                 InputType inputType,
