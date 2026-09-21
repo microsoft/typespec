@@ -1843,7 +1843,7 @@ class _LROOperationSerializer(_OperationSerializer[LROOperationType]):
             if builder.lro_response.headers:
                 retval.append("    response_headers = {}")
             if (
-                (not self.code_model.options["models-mode"] and not self.code_model.generate_typeddict_only)
+                not self.code_model.options["models-mode"]
                 or self.code_model.options["models-mode"] == "dpg"
                 or builder.lro_response.headers
             ):
