@@ -1750,12 +1750,20 @@ function createOAPIEmitter(
   function getQueryParameterAttributes(httpProperty: HttpProperty & { kind: "query" }) {
     const attributes: { style?: string; explode?: boolean } = {};
 
+    const encodedStyle = getParameterStyle(program, httpProperty.property);
+    const style =
+      httpProperty.options.style === "deepObject"
+        ? httpProperty.options.style
+        : (encodedStyle ?? httpProperty.options.style);
+
     if (httpProperty.options.explode !== true) {
       // For query parameters(style: form) the default is explode: true https://spec.openapis.org/oas/v3.0.2#fixed-fields-9
       attributes.explode = false;
+    } else if (style !== "form") {
+      // All non-form query styles default explode to false.
+      attributes.explode = true;
     }
-    const style = getParameterStyle(program, httpProperty.property);
-    if (style) {
+    if (style !== "form") {
       attributes.style = style;
     }
 

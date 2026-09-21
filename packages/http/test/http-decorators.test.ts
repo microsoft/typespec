@@ -277,9 +277,13 @@ describe("@query", () => {
         op test(@query(123) MyQuery: string): string;
         op test2(@query(#{name: 123}) MyQuery: string): string;
         op test3(@query(#{format: "invalid"}) MyQuery: string): string;
+        op test4(@query(#{style: "invalid"}) MyQuery: string): string;
       `);
 
     expectDiagnostics(diagnostics, [
+      {
+        code: "invalid-argument",
+      },
       {
         code: "invalid-argument",
       },
@@ -317,6 +321,21 @@ describe("@query", () => {
       type: "query",
       name: "selects",
       explode: true,
+      style: "form",
+    });
+  });
+
+  it("specify deepObject style", async () => {
+    const { filter, program } = await Tester.compile(t.code`
+      op test(
+        @query(#{ style: "deepObject" }) ${t.modelProperty("filter")}: Record<string>
+      ): string;
+    `);
+    expect(getQueryParamOptions(program, filter)).toEqual({
+      type: "query",
+      name: "filter",
+      explode: true,
+      style: "deepObject",
     });
   });
 });
