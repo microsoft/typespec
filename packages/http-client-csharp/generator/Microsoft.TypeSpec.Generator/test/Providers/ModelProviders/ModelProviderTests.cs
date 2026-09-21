@@ -746,6 +746,38 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task BackCompat_DownstreamMappedBaseRejectsManyToOnePropertyMapping()
+        {
+            var model = InputFactory.Model(
+                "DerivedModel",
+                properties:
+                [
+                    InputFactory.Property("first", InputPrimitiveType.String),
+                    InputFactory.Property("second", InputPrimitiveType.String)
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [model],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_LastContractMappedBaseCanBeProvidedByDownstreamGenerator)),
+                createLastContractModelBase: (previousBase, currentModel) => new CSharpType(typeof(Exception)),
+                isLastContractModelBasePropertyCompatible: (mappedBase, currentProperty, lastContractProperty) =>
+                    lastContractProperty.Name == "Message");
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(provider.BaseType, Is.Null,
+                    "A mapped base must be rejected when multiple current properties map to one shipped property");
+                Assert.That(provider.Properties.Select(property => property.Name),
+                    Is.EquivalentTo(new[] { "First", "Second" }));
+            });
+        }
+
+        [Test]
         public async Task BackCompat_DownstreamMappedBaseRejectsEffectivePropertyCollision()
         {
             var currentBase = InputFactory.Model("CurrentBase", properties: []);

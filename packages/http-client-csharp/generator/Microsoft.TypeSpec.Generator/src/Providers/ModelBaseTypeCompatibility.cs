@@ -80,7 +80,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             var lookup = new MappedPropertyLookup(mappedBase);
-            return HasNoCustomMemberCollisions(mappedBase) &&
+            return HasOneToOneMappedPropertyMatches(mappedBase) &&
+                HasNoCustomMemberCollisions(mappedBase) &&
                 HasCompatibleCurrentModelProperties(mappedBase, lookup) &&
                 HasCompatibleDisplacedBase(mappedBase, lookup);
         }
@@ -88,6 +89,32 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private bool HasDuplicateAdditionalProperties(SystemObjectModelProvider mappedBase)
             => InputModel.AdditionalProperties is not null &&
                 mappedBase.InputModel.AdditionalProperties is not null;
+
+        private static bool HasOneToOneMappedPropertyMatches(SystemObjectModelProvider mappedBase)
+        {
+            var matchedProperties = new HashSet<PropertyProvider>(ReferenceEqualityComparer.Instance);
+            foreach (var inputProperty in mappedBase.InputModel.Properties)
+            {
+                PropertyProvider? matchedProperty = null;
+                foreach (var effectiveProperty in mappedBase.Properties)
+                {
+                    if (!CodeModelGenerator.Instance.TypeFactory.IsLastContractModelBasePropertyCompatible(
+                        mappedBase.SystemType,
+                        inputProperty,
+                        effectiveProperty))
+                    {
+                        continue;
+                    }
+
+                    if (matchedProperty is not null || !matchedProperties.Add(effectiveProperty))
+                    {
+                        return false;
+                    }
+                    matchedProperty = effectiveProperty;
+                }
+            }
+            return true;
+        }
 
         private bool HasNoCustomMemberCollisions(SystemObjectModelProvider mappedBase)
         {
