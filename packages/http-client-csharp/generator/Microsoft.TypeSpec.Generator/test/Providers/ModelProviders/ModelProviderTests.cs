@@ -352,7 +352,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             MockHelpers.LoadMockGenerator(inputModelTypes: [response], inputEnumTypes: [apiVersionEnum]);
 
             // The API-version enum is never emitted, so it cannot reserve the "WidgetResult" name.
-            Assert.AreEqual("WidgetResult", CodeModelGenerator.Instance.TypeFactory.CreateModel(response)!.Name);
+            var provider = CodeModelGenerator.Instance.TypeFactory.CreateModel(response)!;
+            Assert.AreEqual("WidgetResult", provider.Name);
+            provider.Reset();
+            Assert.AreEqual("WidgetResult", provider.Name);
         }
 
         [Test]
@@ -367,7 +370,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             // An external enum always maps to an existing type instead of being generated, so it
             // cannot reserve the "WidgetResult" name.
-            Assert.AreEqual("WidgetResult", CodeModelGenerator.Instance.TypeFactory.CreateModel(response)!.Name);
+            var provider = CodeModelGenerator.Instance.TypeFactory.CreateModel(response)!;
+            Assert.AreEqual("WidgetResult", provider.Name);
+            provider.Reset();
+            Assert.AreEqual("WidgetResult", provider.Name);
         }
 
         [Test]
