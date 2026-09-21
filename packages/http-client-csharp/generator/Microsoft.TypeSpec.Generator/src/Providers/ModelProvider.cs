@@ -349,22 +349,43 @@ namespace Microsoft.TypeSpec.Generator.Providers
             string resultName,
             TypeProvider? excludedCustomization = null)
             => GetEmittedModels(inputLibrary).Any(model => HasConflictingName(model, model.Namespace, resultName, excludedCustomization)) ||
-                inputLibrary.InputNamespace.Enums.Any(@enum => HasConflictingName(@enum, @enum.Namespace, resultName, excludedCustomization)) ||
+                GetEmittedEnums(inputLibrary).Any(@enum => HasConflictingName(@enum, @enum.Namespace, resultName, excludedCustomization)) ||
                 inputLibrary.InputNamespace.Clients.Any(client => HasConflictingName(client, typeNamespace, resultName, excludedCustomization));
 
         private static IEnumerable<InputModelType> GetEmittedModels(InputLibrary inputLibrary)
         {
             foreach (var model in inputLibrary.InputNamespace.Models)
             {
+                if (!IsEmittedModel(model))
+                {
+                    continue;
+                }
+
                 yield return model;
 
                 var unknownVariant = model.DiscriminatedSubtypes.Values.FirstOrDefault(model => model.IsUnknownDiscriminatorModel);
-                if (unknownVariant is not null)
+                if (unknownVariant is not null && IsEmittedModel(unknownVariant))
                 {
                     yield return unknownVariant;
                 }
             }
         }
+
+        // Mirrors OutputLibrary.BuildModels: a model resolved to a framework/referenced type
+        // (via `external`) is represented by a SystemObjectModelProvider and never emitted as a
+        // generated file, so it cannot participate in a filename collision. This intentionally
+        // avoids TypeFactory.CreateModel/TypeProvider.Type here: those force construction of the
+        // sibling's provider (and, transitively, its own name/collision checks) while this
+        // provider's own name is still being built, which can re-enter the same lazy state.
+        private static bool IsEmittedModel(InputModelType model)
+            => model.External is null || !CodeModelGenerator.Instance.TypeFactory.IsResolvedExternalModel(model);
+
+        // Mirrors OutputLibrary.BuildEnums: API-version enums are never emitted, and an enum
+        // marked external always maps to an existing framework/referenced type instead of being
+        // generated (unconditionally, unlike models), so neither can collide with an emitted name.
+        private static IEnumerable<InputEnumType> GetEmittedEnums(InputLibrary inputLibrary)
+            => inputLibrary.InputNamespace.Enums.Where(
+                @enum => @enum.External is null && !@enum.Usage.HasFlag(InputModelTypeUsage.ApiVersionEnum));
 
         private bool HasConflictingName(
             InputType inputType,

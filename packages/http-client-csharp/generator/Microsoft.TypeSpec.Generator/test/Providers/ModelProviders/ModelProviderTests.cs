@@ -341,6 +341,64 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual("IPResult", CodeModelGenerator.Instance.TypeFactory.CreateEnum(result)!.Name);
         }
 
+        [Test]
+        public void TestBuildName_ResponseSuffixIgnoresApiVersionEnumCollision()
+        {
+            var response = InputFactory.Model("WidgetResponse");
+            var apiVersionEnum = InputFactory.StringEnum(
+                "WidgetResult",
+                [("Value", "value")],
+                usage: InputModelTypeUsage.ApiVersionEnum);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [response], inputEnumTypes: [apiVersionEnum]);
+
+            // The API-version enum is never emitted, so it cannot reserve the "WidgetResult" name.
+            Assert.AreEqual("WidgetResult", CodeModelGenerator.Instance.TypeFactory.CreateModel(response)!.Name);
+        }
+
+        [Test]
+        public void TestBuildName_ResponseSuffixIgnoresExternalEnumCollision()
+        {
+            var response = InputFactory.Model("WidgetResponse");
+            var externalEnum = InputFactory.StringEnum(
+                "WidgetResult",
+                [("Value", "value")],
+                external: new InputExternalTypeMetadata("System.Net.HttpStatusCode", null, null));
+            MockHelpers.LoadMockGenerator(inputModelTypes: [response], inputEnumTypes: [externalEnum]);
+
+            // An external enum always maps to an existing type instead of being generated, so it
+            // cannot reserve the "WidgetResult" name.
+            Assert.AreEqual("WidgetResult", CodeModelGenerator.Instance.TypeFactory.CreateModel(response)!.Name);
+        }
+
+        [Test]
+        public void TestBuildName_ResponseSuffixIgnoresResolvedExternalModelCollision()
+        {
+            var response = InputFactory.Model("WidgetResponse");
+            var externalModel = InputFactory.Model(
+                "WidgetResult",
+                external: new InputExternalTypeMetadata("System.Exception", null, null));
+            MockHelpers.LoadMockGenerator(inputModelTypes: [response, externalModel]);
+
+            // The external model resolves to an existing framework type, so it is represented by a
+            // SystemObjectModelProvider and never emitted as a generated file; it cannot reserve
+            // the "WidgetResult" name.
+            Assert.AreEqual("WidgetResult", CodeModelGenerator.Instance.TypeFactory.CreateModel(response)!.Name);
+        }
+
+        [Test]
+        public void TestBuildName_ResponseSuffixHonorsUnresolvedExternalModelCollision()
+        {
+            var response = InputFactory.Model("WidgetResponse");
+            var externalModel = InputFactory.Model(
+                "WidgetResult",
+                external: new InputExternalTypeMetadata("Some.Unresolvable.ExternalType", null, null));
+            MockHelpers.LoadMockGenerator(inputModelTypes: [response, externalModel]);
+
+            // The external type cannot be resolved, so the model falls back to normal generation
+            // and still reserves the "WidgetResult" name.
+            Assert.AreEqual("WidgetResponse", CodeModelGenerator.Instance.TypeFactory.CreateModel(response)!.Name);
+        }
+
         [TestCase("OtherModel")]
         [TestCase("WidgetResult")]
         public async Task TestBuildName_ResponseSuffixAvoidsCustomizationCollision(string otherName)
