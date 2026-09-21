@@ -356,6 +356,20 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task TestBuildName_ResponseSuffixAvoidsStandaloneCustomizationCollision()
+        {
+            var response = InputFactory.Model("WidgetResponse");
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [response],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var provider = CodeModelGenerator.Instance.TypeFactory.CreateModel(response)!;
+
+            Assert.AreEqual("WidgetResponse", provider.Name);
+            Assert.IsNull(provider.CustomCodeView);
+        }
+
+        [Test]
         public async Task TestBuildName_ResponseSuffixAllowsCustomizedModelResultName()
         {
             var response = InputFactory.Model("WidgetResponse");

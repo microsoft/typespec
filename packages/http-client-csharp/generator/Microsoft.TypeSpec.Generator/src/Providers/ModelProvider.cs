@@ -333,9 +333,18 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             var resultName = $"{normalizedName[..^ResponseSuffix.Length]}Result";
             var inputNamespace = CodeModelGenerator.Instance.InputLibrary.InputNamespace;
-            return HasConflictingNameInLibrary(inputNamespace, typeNamespace, resultName)
+            return HasPhysicalCustomizationName(typeNamespace, resultName) ||
+                HasConflictingNameInLibrary(inputNamespace, typeNamespace, resultName)
                 ? normalizedName
                 : resultName;
+        }
+
+        private bool HasPhysicalCustomizationName(string typeNamespace, string name)
+        {
+            var customType = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(
+                typeNamespace, name, DeclaringTypeName);
+            return customType is not null &&
+                string.Equals(customType.Name, name, StringComparison.OrdinalIgnoreCase);
         }
 
         // Model and enum files share a flat output directory, even across namespaces.
