@@ -4,6 +4,7 @@
 import { UsageFlags } from "@azure-tools/typespec-client-generator-core";
 import { resolvePath } from "@typespec/compiler";
 import { configurationFileName, tspOutputFileName } from "./constants.js";
+import { isRawJsonProperty } from "./lib/raw-json.js";
 import type { CSharpEmitterContext } from "./sdk-context.js";
 import type { CodeModel } from "./type/code-model.js";
 import type { Configuration } from "./type/configuration.js";
@@ -15,7 +16,13 @@ import type { Configuration } from "./type/configuration.js";
  * @beta
  */
 export function serializeCodeModel(context: CSharpEmitterContext, codeModel: CodeModel): string {
-  return prettierOutput(JSON.stringify(buildJson(context, codeModel), transformJSONProperties, 2));
+  return prettierOutput(
+    JSON.stringify(
+      { format: "typespec-csharp-code-model", version: 2, root: buildJson(context, codeModel) },
+      null,
+      2,
+    ),
+  );
 }
 
 /**
@@ -44,10 +51,11 @@ export async function writeCodeModel(
 function buildJson(context: CSharpEmitterContext, codeModel: CodeModel): any {
   const objectsIds = new Map<any, string>();
   const stack: any[] = [];
+  const activeArrays = new Map<any[], number>();
 
   return doBuildJson(codeModel, stack);
 
-  function doBuildJson(obj: any, stack: any[]): any {
+  function doBuildJson(obj: any, stack: any[], raw = false): any {
     // check if this is a primitive type or null or undefined
     if (!obj || typeof obj !== "object") {
       return obj;
@@ -55,10 +63,24 @@ function buildJson(context: CSharpEmitterContext, codeModel: CodeModel): any {
     // we switch here for object, arrays and primitives
     if (Array.isArray(obj)) {
       // array types
-      return obj.map((item) => doBuildJson(item, stack));
+      const previousReferenceCount = activeArrays.get(obj);
+      if (
+        previousReferenceCount !== undefined &&
+        (raw || previousReferenceCount === objectsIds.size)
+      ) {
+        throw new TypeError("Cannot serialize a cyclic JSON array");
+      }
+      activeArrays.set(obj, objectsIds.size);
+      const result = obj.map((item) => doBuildJson(item, stack, raw));
+      if (previousReferenceCount === undefined) {
+        activeArrays.delete(obj);
+      } else {
+        activeArrays.set(obj, previousReferenceCount);
+      }
+      return result;
     } else {
       // this is an object
-      if (shouldHaveRef(obj)) {
+      if (!raw && shouldHaveRef(obj)) {
         // we will add the $id property to the object if this is the first time we see it
         // or returns a $ref if we have seen it before
         let id = objectsIds.get(obj);
@@ -75,27 +97,36 @@ function buildJson(context: CSharpEmitterContext, codeModel: CodeModel): any {
         }
       } else {
         // this is not an object to ref
-        return handleObject(obj, undefined, stack);
+        return handleObject(obj, undefined, stack, raw);
       }
     }
   }
 
-  function handleObject(obj: any, id: string | undefined, stack: any[]): any {
+  function handleObject(obj: any, id: string | undefined, stack: any[], raw = false): any {
     if (stack.includes(obj)) {
+      if (raw) {
+        throw new TypeError("Cannot serialize cyclic raw JSON");
+      }
       // we have a cyclical reference, we should not continue
       context.logger.warn(`Cyclical reference detected in the code model (id: ${id}).`);
       return undefined;
     }
 
-    const result: any = id === undefined ? {} : { $id: id };
+    const result: any = Object.create(null);
+    if (id !== undefined) {
+      result.$id = id;
+    }
     stack.push(obj);
 
-    for (const property in obj) {
-      if (property === "__raw") {
+    for (const property of Object.keys(obj)) {
+      const rawValue = raw || isRawJsonProperty(obj, property);
+      if (!rawValue && property === "__raw") {
         continue; // skip __raw property
       }
-      const v = obj[property];
-      result[property] = doBuildJson(v, stack);
+      const v = rawValue ? obj[property] : transformJSONProperties(property, obj[property]);
+      // Only serializer metadata uses a single leading $. Escape data keys, including the escape prefix.
+      const key = property.startsWith("$") ? `$${property}` : property;
+      result[key] = doBuildJson(v, stack, rawValue);
     }
 
     stack.pop();
@@ -120,7 +151,7 @@ export async function writeConfiguration(
   );
 }
 
-function transformJSONProperties(this: any, key: string, value: any): any {
+function transformJSONProperties(key: string, value: any): any {
   // convertUsageNumbersToStrings
   if (key === "usage" && typeof value === "number") {
     if (value === 0) {

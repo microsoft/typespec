@@ -84,10 +84,28 @@ namespace Microsoft.TypeSpec.Generator.Input
                 AllowTrailingCommas = options.AllowTrailingCommas,
                 MaxDepth = options.MaxDepth
             });
+            var root = document.RootElement;
+            if (root.ValueKind == JsonValueKind.Object
+                && root.TryGetProperty("format", out var format)
+                && format.ValueKind == JsonValueKind.String
+                && format.GetString() == "typespec-csharp-code-model")
+            {
+                if (!root.TryGetProperty("version", out var version)
+                    || version.ValueKind != JsonValueKind.Number || !version.TryGetInt32(out var number) || number != 2)
+                {
+                    throw new JsonException("Unsupported code-model format version");
+                }
+                if (!root.TryGetProperty("root", out root) || root.ValueKind != JsonValueKind.Object)
+                {
+                    throw new JsonException("The versioned code model must contain an object root");
+                }
+                referenceHandler.CurrentResolver.UsesEscapedPropertyNames = true;
+                options.Converters.Add(new TypeSpecJsonConverter(referenceHandler.CurrentResolver, options.MaxDepth));
+            }
             // Opaque decorator arguments and unknown properties can contain the first
             // definition of an object referenced by the typed code-model graph.
-            referenceHandler.CurrentResolver.RegisterReferenceDefinitions(document.RootElement, options);
-            var inputNamespace = document.RootElement.Deserialize<InputNamespace>(options);
+            referenceHandler.CurrentResolver.RegisterReferenceDefinitions(root, options);
+            var inputNamespace = root.Deserialize<InputNamespace>(options);
 
             if (inputNamespace != null)
             {

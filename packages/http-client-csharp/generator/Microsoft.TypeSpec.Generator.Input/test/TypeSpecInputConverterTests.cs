@@ -2,6 +2,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
@@ -10,6 +11,280 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
 {
     public class TypeSpecInputConverterTests
     {
+        [Test]
+        public void LoadsVersionedEmitterFixture()
+        {
+            var directory = Helpers.GetAssetFileOrDirectoryPath(false);
+            var input = TypeSpecSerialization.Deserialize(File.ReadAllText(Path.Combine(directory, "tspCodeModel.json")))!;
+
+            Assert.AreSame(input.Models[0], input.Models[1]);
+            Assert.AreEqual("Shared", input.Models[0].Name);
+            var decorator = input.Clients.Single().Decorators.Single();
+            Assert.IsEmpty(decorator.ReferenceEncodedArguments);
+            Assert.IsTrue(JsonNode.DeepEquals(JsonNode.Parse("""
+                { "$id": "1", "$ref": "missing", "$values": [{ "$id": "1" }], "kind": "future-kind", "usage": 42, "__raw": "keep" }
+                """), JsonNode.Parse(decorator.Arguments!["payload"].ToString())));
+            Assert.IsTrue(JsonNode.DeepEquals(JsonNode.Parse("""
+                { "kind": "model", "name": "Shared", "properties": [] }
+                """), JsonNode.Parse(decorator.Arguments["model"].ToString())));
+        }
+
+        [Test]
+        public void VersionedCodeModelSeparatesMetadataFromData()
+        {
+            const string payload = """
+                {
+                  "$$id": "shared",
+                  "$$ref": "missing",
+                  "$$values": [{ "$$id": "shared" }],
+                  "$$$id": "escaped",
+                  "kind": "future-kind",
+                  "type": { "$$id": "shared" }
+                }
+                """;
+            var content = $$"""
+                {
+                  "format": "typespec-csharp-code-model",
+                  "version": 2,
+                  "root": {
+                    "name": "Test",
+                    "models": [{ "$ref": "shared" }],
+                    "extension": [{{payload}}, {{payload}}],
+                    "clients": [{
+                      "$id": "client", "name": "Test",
+                      "decorators": [{
+                        "name": "example",
+                        "arguments": {
+                          "$$id": {{payload}},
+                          "value": {
+                            "$id": "shared", "kind": "model", "name": "SharedModel", "properties": []
+                          }
+                        }
+                      }]
+                    }]
+                  }
+                }
+                """;
+
+            var input = TypeSpecSerialization.Deserialize(content)!;
+
+            Assert.AreEqual("SharedModel", input.Models.Single().Name);
+            var arguments = input.Clients.Single().Decorators.Single().Arguments!;
+            Assert.IsTrue(JsonNode.DeepEquals(JsonNode.Parse("""
+                {
+                  "$id": "shared",
+                  "$ref": "missing",
+                  "$values": [{ "$id": "shared" }],
+                  "$$id": "escaped",
+                  "kind": "future-kind",
+                  "type": { "$id": "shared" }
+                }
+                """), JsonNode.Parse(arguments["$id"].ToString())));
+            Assert.IsTrue(JsonNode.DeepEquals(JsonNode.Parse("""
+                { "kind": "model", "name": "SharedModel", "properties": [] }
+                """), JsonNode.Parse(arguments["value"].ToString())));
+        }
+
+        [Test]
+        public void VersionedRawJsonExpandsReferencesWithoutInterpretingRestoredKeys()
+        {
+            const string content = """
+                {
+                  "format": "typespec-csharp-code-model",
+                  "version": 2,
+                  "root": {
+                    "name": "Test",
+                    "clients": [{
+                      "$id": "client", "name": "Test",
+                      "decorators": [{
+                        "name": "example",
+                        "arguments": {
+                          "value": [
+                            { "$ref": "raw" },
+                            { "$id": "raw", "$$ref": "missing", "$$id": "client", "kind": "user-data" }
+                          ]
+                        }
+                      }]
+                    }]
+                  }
+                }
+                """;
+
+            var input = TypeSpecSerialization.Deserialize(content)!;
+
+            Assert.IsTrue(JsonNode.DeepEquals(JsonNode.Parse("""
+                [
+                  { "$ref": "missing", "$id": "client", "kind": "user-data" },
+                  { "$ref": "missing", "$id": "client", "kind": "user-data" }
+                ]
+                """), JsonNode.Parse(input.Clients.Single().Decorators.Single().Arguments!["value"].ToString())));
+        }
+
+        [TestCase(1)]
+        [TestCase(3)]
+        public void UnsupportedCodeModelVersionThrows(int version)
+        {
+            var content = $$"""
+                { "format": "typespec-csharp-code-model", "version": {{version}}, "root": { "name": "Test" } }
+                """;
+
+            var exception = Assert.Throws<JsonException>(() => TypeSpecSerialization.Deserialize(content));
+
+            Assert.That(exception!.Message, Does.Contain("Unsupported code-model format version"));
+        }
+
+        [Test]
+        public void VersionedReferenceDefinitionsStillRejectDuplicates()
+        {
+            const string content = """
+                {
+                  "format": "typespec-csharp-code-model", "version": 2,
+                  "root": { "name": "Test", "extension": [{ "$id": "duplicate" }, { "$id": "duplicate" }] }
+                }
+                """;
+
+            var exception = Assert.Throws<JsonException>(() => TypeSpecSerialization.Deserialize(content));
+
+            Assert.That(exception!.Message, Does.Contain("Duplicate reference ID"));
+        }
+
+        [Test]
+        public void VersionedIndexDoesNotDependOnExampleKinds()
+        {
+            const string content = """
+                {
+                  "format": "typespec-csharp-code-model", "version": 2,
+                  "root": {
+                    "name": "Test", "models": [{ "$ref": "model" }],
+                    "extension": {
+                      "kind": "unknown", "type": {},
+                      "value": { "$id": "model", "name": "SharedModel" }
+                    }
+                  }
+                }
+                """;
+
+            Assert.AreEqual("SharedModel", TypeSpecSerialization.Deserialize(content)!.Models.Single().Name);
+        }
+
+        [Test]
+        public void VersionedDecoratorCyclesRemainSelfContainedGraphs()
+        {
+            const string content = """
+                {
+                  "format": "typespec-csharp-code-model", "version": 2,
+                  "root": {
+                    "name": "Test",
+                    "models": [{ "$ref": "model" }],
+                    "extension": {
+                      "$id": "model", "kind": "model", "name": "Node",
+                      "properties": [{ "$id": "property", "name": "next", "type": { "$ref": "model" } }]
+                    },
+                    "clients": [{
+                      "$id": "client", "name": "Test",
+                      "decorators": [{
+                        "name": "example",
+                        "arguments": {
+                          "graph": { "$ref": "model" },
+                          "plain": { "format": "typespec-csharp-code-model", "version": 2, "root": {} }
+                        }
+                      }]
+                    }]
+                  }
+                }
+                """;
+
+            var input = TypeSpecSerialization.Deserialize(content)!;
+            var model = input.Models.Single();
+            Assert.AreSame(model, model.Properties.Single().Type);
+            var decorator = input.Clients.Single().Decorators.Single();
+            Assert.AreEqual(new[] { "graph" }, decorator.ReferenceEncodedArguments);
+            var graph = JsonNode.Parse(decorator.Arguments!["graph"].ToString())!;
+            Assert.AreEqual("typespec-csharp-code-model", graph["format"]!.GetValue<string>());
+            Assert.AreEqual("model", graph["root"]!["$ref"]!.GetValue<string>());
+            var definitions = graph["definitions"]!.AsArray();
+            Assert.AreEqual(2, definitions.Count);
+            Assert.AreEqual("model", definitions[0]!["$id"]!.GetValue<string>());
+            Assert.AreEqual("property", definitions[0]!["properties"]![0]!["$ref"]!.GetValue<string>());
+            Assert.AreEqual("property", definitions[1]!["$id"]!.GetValue<string>());
+            Assert.AreEqual("model", definitions[1]!["type"]!["$ref"]!.GetValue<string>());
+            Assert.IsTrue(JsonNode.DeepEquals(JsonNode.Parse("""
+                { "format": "typespec-csharp-code-model", "version": 2, "root": {} }
+                """), JsonNode.Parse(decorator.Arguments["plain"].ToString())));
+        }
+
+        [Test]
+        public void VersionedRawJsonRejectsMissingReferences()
+        {
+            const string content = """
+                {
+                  "format": "typespec-csharp-code-model", "version": 2,
+                  "root": {
+                    "name": "Test",
+                    "clients": [{
+                      "$id": "client", "name": "Test",
+                      "decorators": [{ "name": "example", "arguments": { "value": { "$ref": "missing" } } }]
+                    }]
+                  }
+                }
+                """;
+
+            var exception = Assert.Throws<JsonException>(() => TypeSpecSerialization.Deserialize(content));
+
+            Assert.That(exception!.Message, Does.Contain("cannot resolve reference missing"));
+        }
+
+        [Test]
+        public void VersionedDecoratorArgumentsCanReferenceADictionary()
+        {
+            const string content = """
+                {
+                  "format": "typespec-csharp-code-model", "version": 2,
+                  "root": {
+                    "name": "Test",
+                    "extension": { "$id": "arguments", "kind": "user-kind", "$$id": "literal-id" },
+                    "clients": [{
+                      "$id": "client", "name": "Test",
+                      "decorators": [{ "name": "example", "arguments": { "$ref": "arguments" } }]
+                    }]
+                  }
+                }
+                """;
+
+            var arguments = TypeSpecSerialization.Deserialize(content)!.Clients.Single().Decorators.Single().Arguments!;
+
+            Assert.AreEqual(2, arguments.Count);
+            Assert.AreEqual("\"user-kind\"", arguments["kind"].ToString());
+            Assert.AreEqual("\"literal-id\"", arguments["$id"].ToString());
+        }
+
+        [TestCase(21, 0)]
+        [TestCase(11, 65536)]
+        [TestCase(130, 0)]
+        public void VersionedRawJsonExpansionIsBounded(int length, int stringLength)
+        {
+            var definitions = string.Join(",", Enumerable.Range(0, length).Select(i => $$"""
+                { "$id": "{{i}}", "left": { "$ref": "{{i + 1}}" }, "right": { "$ref": "{{i + 1}}" } }
+                """));
+            var content = $$"""
+                {
+                  "format": "typespec-csharp-code-model", "version": 2,
+                  "root": {
+                    "name": "Test",
+                    "extension": [{{definitions}}, { "$id": "{{length}}", "value": "{{new string('x', stringLength)}}" }],
+                    "clients": [{
+                      "$id": "client", "name": "Test",
+                      "decorators": [{ "name": "example", "arguments": { "value": { "$ref": "0" } } }]
+                    }]
+                  }
+                }
+                """;
+
+            var exception = Assert.Throws<JsonException>(() => TypeSpecSerialization.Deserialize(content));
+
+            Assert.That(exception!.Message, Does.Contain("maximum depth or size"));
+        }
+
         [TestCase(true)]
         [TestCase(false)]
         public void LoadsReferencesDefinedInDecoratorArguments(bool definitionsFirst)

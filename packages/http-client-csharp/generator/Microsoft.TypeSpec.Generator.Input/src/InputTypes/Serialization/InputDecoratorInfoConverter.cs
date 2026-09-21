@@ -30,10 +30,11 @@ namespace Microsoft.TypeSpec.Generator.Input
 
             string? name = null;
             IReadOnlyDictionary<string, BinaryData>? arguments = null;
+            IReadOnlySet<string>? referenceEncodedArguments = null;
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadString("name", ref name)
-                    || reader.TryReadStringBinaryDataDictionary("arguments", ref arguments);
+                    || reader.TryReadStringBinaryDataDictionary("arguments", options, ref arguments, ref referenceEncodedArguments);
 
                 if (!isKnownProperty)
                 {
@@ -41,7 +42,10 @@ namespace Microsoft.TypeSpec.Generator.Input
                 }
             }
             reader.Read();
-            var decoratorInfo = new InputDecoratorInfo(name ?? throw new JsonException("InputDecoratorInfo must have name"), arguments);
+            var decoratorInfo = new InputDecoratorInfo(name ?? throw new JsonException("InputDecoratorInfo must have name"), arguments)
+            {
+                ReferenceEncodedArguments = referenceEncodedArguments ?? new HashSet<string>()
+            };
 
             return decoratorInfo;
         }

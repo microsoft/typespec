@@ -94,6 +94,26 @@ Set to `true` to overwrite the csproj if it already exists. The default value is
 
 Set to `true` to save the `tspCodeModel.json` and `Configuration.json` files that are emitted and used as inputs to the generator. The default value is `false`.
 
+#### Saved code-model format
+
+New code models use a versioned envelope:
+
+```json
+{
+  "format": "typespec-csharp-code-model",
+  "version": 2,
+  "root": { "name": "Example" }
+}
+```
+
+Inside `root`, serializer-owned `$id` and `$ref` preserve object identity. Every data property whose name starts with `$` is escaped by adding one `$`: `$id` becomes `$$id`, and `$$id` becomes `$$$id`. String values are not escaped. The deserializer restores data keys at dictionary and raw-JSON boundaries, without interpreting restored keys as reference metadata. Reference definitions remain discoverable inside decorator arguments and extension fields.
+
+Emitter code that introduces an opaque JSON field should mark it with `withRawJson(owner, property)`. This keeps its in-memory value unchanged and prevents code-model transformations (such as `usage` conversion or `__raw` removal) from touching its contents. The escaping rule applies to all data properties, not just marked fields or known example kinds.
+
+Ordinary decorator arguments are exposed as decoded `BinaryData`. Cyclic code-model graphs cannot be represented as plain JSON: those arguments are listed in `InputDecoratorInfo.ReferenceEncodedArguments` and contain an envelope with an encoded `root` and a `definitions` array of reachable reference definitions. This explicit list distinguishes graph envelopes from identical-looking user JSON. Raw reference expansion is bounded by the reader's depth limit, one million visited values, and a 64 MiB output budget per argument.
+
+The reader continues to accept unversioned code models using the legacy interpretation of inline metadata. Previously overwritten or inherently ambiguous legacy properties cannot be recovered. Version 2 requires an updated generator; older readers do not support the new envelope. Unsupported explicit versions are rejected.
+
 ### `package-name`
 
 **Type:** `string`

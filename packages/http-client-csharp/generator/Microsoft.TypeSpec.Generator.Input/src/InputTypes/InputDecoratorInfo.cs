@@ -15,5 +15,11 @@ namespace Microsoft.TypeSpec.Generator.Input
         }
         public string Name { get; }
         public IReadOnlyDictionary<string, BinaryData>? Arguments { get; }
+
+        /// <summary>
+        /// Arguments containing cyclic code-model graphs, represented as versioned reference envelopes
+        /// rather than plain JSON. Ordinary JSON arguments, including envelope-shaped user data, are not marked.
+        /// </summary>
+        public IReadOnlySet<string> ReferenceEncodedArguments { get; internal init; } = new HashSet<string>();
     }
 }
