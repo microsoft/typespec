@@ -125,6 +125,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             });
         }
 
+        [Test]
+        public void CreateCoreMatcherRejectsGenericMethod()
+        {
+            var signature = new MethodSignature(
+                "JsonModelCreateCore",
+                null,
+                MethodSignatureModifiers.Protected | MethodSignatureModifiers.Virtual,
+                typeof(string),
+                null,
+                [
+                    new ParameterProvider("reader", $"", typeof(Utf8JsonReader), isRef: true),
+                    new ParameterProvider("options", $"", typeof(ModelReaderWriterOptions))
+                ],
+                GenericArguments: [new CSharpType(typeof(string))]);
+
+            Assert.That(MrwSerializationTypeDefinition.IsCreateCoreMethod(signature), Is.False);
+        }
+
         // -------------------------------------------------------------------
         // JsonModelWriteCore: always 'override' for both system and regular base
         // (the framework base type defines JsonModelWriteCore, so we override it)

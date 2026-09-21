@@ -201,9 +201,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return returnTypes is { Length: 1 } ? returnTypes[0] : null;
         }
 
-        private static bool IsCreateCoreMethod(MethodSignature signature)
+        internal static bool IsCreateCoreMethod(MethodSignature signature)
         {
             if (signature.Parameters.Count != 2 ||
+                signature.GenericArguments is { Count: > 0 } ||
+                signature.ExplicitInterface is not null ||
+                signature.Modifiers.HasFlag(MethodSignatureModifiers.Static) ||
+                !signature.Modifiers.HasFlag(MethodSignatureModifiers.Protected) ||
                 !IsParameter(signature.Parameters[1], typeof(ModelReaderWriterOptions)))
             {
                 return false;
