@@ -81,7 +81,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             var lookup = new MappedPropertyLookup(mappedBase);
             return HasNoCustomMemberCollisions(mappedBase) &&
-                HasCompatibleCurrentModelProperties(lookup) &&
+                HasCompatibleCurrentModelProperties(mappedBase, lookup) &&
                 HasCompatibleDisplacedBase(mappedBase, lookup);
         }
 
@@ -104,7 +104,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 customMemberNames.Contains(property.Name));
         }
 
-        private bool HasCompatibleCurrentModelProperties(MappedPropertyLookup lookup)
+        private bool HasCompatibleCurrentModelProperties(
+            SystemObjectModelProvider mappedBase,
+            MappedPropertyLookup lookup)
         {
             var currentBaseByWireName = InputModel.BaseModel?.Properties
                 .GroupBy(property => property.SerializedName ?? property.Name, StringComparer.Ordinal)
@@ -118,6 +120,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
 
                 var clrName = GetInputPropertyClrName(property);
+                if (ReferenceEquals(mappedBase.InputModel, InputModel))
+                {
+                    return mappedBase.Properties.Any(lastContractProperty =>
+                            CodeModelGenerator.Instance.TypeFactory.IsLastContractModelBasePropertyCompatible(
+                                mappedBase.SystemType,
+                                property,
+                                lastContractProperty)) ||
+                        !lookup.EffectiveClrNames.Contains(clrName);
+                }
+
                 var hasMappedInputProperty = lookup.ByWireName.ContainsKey(wireName) ||
                     lookup.ByClrName.ContainsKey(clrName);
                 return IsMappedPropertyCompatible(property, lookup.ByWireName, lookup.ByClrName) &&

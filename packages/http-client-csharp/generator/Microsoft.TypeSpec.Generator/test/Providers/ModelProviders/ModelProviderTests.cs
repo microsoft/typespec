@@ -697,10 +697,48 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 .OfType<ModelProvider>()
                 .Single(model => model.Name == "DerivedModel");
             var initializationConstructor = provider.Constructors[0];
+            var currentBaseProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(currentBase)!;
 
             Assert.Multiple(() =>
             {
                 Assert.That(provider.BaseType?.Name, Is.EqualTo(nameof(Exception)));
+                Assert.That(initializationConstructor.Signature.Parameters.Select(parameter => parameter.Name),
+                    Is.EqualTo(new[] { "message" }));
+                Assert.That(initializationConstructor.Signature.Initializer?.Arguments.Count, Is.EqualTo(1));
+                Assert.That(currentBaseProvider.Properties.Single().Body.HasSetter, Is.True,
+                    "Mapped reconciliation must not mutate the cached property owned by the displaced current base");
+            });
+        }
+
+        [Test]
+        public async Task BackCompat_DownstreamMappedBaseRestoresRemovedBase()
+        {
+            var model = InputFactory.Model(
+                "DerivedModel",
+                properties:
+                [
+                    InputFactory.Property("message", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.Property("child", InputPrimitiveType.String)
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [model],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_LastContractMappedBaseCanBeProvidedByDownstreamGenerator)),
+                createLastContractModelBase: (previousBase, currentModel) => new CSharpType(typeof(Exception)),
+                isLastContractModelBasePropertyCompatible: (mappedBase, currentProperty, lastContractProperty) =>
+                    currentProperty.Name == "message" && lastContractProperty.Name == "Message");
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+            var initializationConstructor = provider.Constructors[0];
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(provider.BaseType?.Name, Is.EqualTo(nameof(Exception)));
+                Assert.That(provider.Properties.Select(property => property.Name), Does.Contain("Child"));
+                Assert.That(provider.Properties.Select(property => property.Name), Does.Not.Contain("Message"));
                 Assert.That(initializationConstructor.Signature.Parameters.Select(parameter => parameter.Name),
                     Is.EqualTo(new[] { "message" }));
                 Assert.That(initializationConstructor.Signature.Initializer?.Arguments.Count, Is.EqualTo(1));

@@ -232,6 +232,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
         }
         protected virtual bool ShouldSkipDerivedModelProperties => false;
+        private protected virtual bool IsInputPropertyRepresentedInBase(InputModelProperty property) => true;
         private protected virtual bool ShouldUseFullConstructorInDerivedTypes => true;
         /// <summary>
         /// Gets whether derived models should skip overriding serialization methods from this base model.
@@ -696,7 +697,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 foreach (var baseProperty in baseModelProvider._inputModel.Properties)
                 {
-                    if (baseProperties.ContainsKey(baseProperty.Name) || skippedBasePropertyNames.Contains(baseProperty.Name))
+                    if (baseProperties.ContainsKey(baseProperty.Name) ||
+                        skippedBasePropertyNames.Contains(baseProperty.Name) ||
+                        !baseModelProvider.IsInputPropertyRepresentedInBase(baseProperty))
                     {
                         continue;
                     }

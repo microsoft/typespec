@@ -66,17 +66,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             var mappedType = CodeModelGenerator.Instance.TypeFactory.CreateLastContractModelBase(previousBase, _model.InputModel);
             var lastContractBase = _model.LastContractView?.BaseTypeProvider;
-            var currentBase = _model.InputModel.BaseModel;
+            var mappedInput = _model.InputModel.BaseModel ?? _model.InputModel;
             if (mappedType is null ||
                 lastContractBase is null ||
-                currentBase is null ||
                 !mappedType.AreNamesEqual(previousBase))
             {
                 provider = null;
                 return false;
             }
 
-            provider = new SystemObjectModelProvider(mappedType, currentBase, lastContractBase);
+            provider = new SystemObjectModelProvider(mappedType, mappedInput, lastContractBase);
             return _compatibility.IsSupportedModelBase(provider);
         }
 
