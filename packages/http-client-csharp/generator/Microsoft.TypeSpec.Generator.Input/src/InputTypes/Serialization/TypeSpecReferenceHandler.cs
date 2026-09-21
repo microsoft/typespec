@@ -46,8 +46,18 @@ namespace Microsoft.TypeSpec.Generator.Input
                         }
                     }
 
+                    // Unknown and union examples store user JSON in value, but their type
+                    // still belongs to the code-model graph and can define shared references.
+                    var hasOpaqueValue = element.TryGetProperty("kind", out var kind)
+                        && kind.ValueKind == JsonValueKind.String
+                        && kind.GetString() is "unknown" or "union"
+                        && element.TryGetProperty("type", out _);
                     foreach (var property in element.EnumerateObject())
                     {
+                        if (hasOpaqueValue && property.NameEquals("value"))
+                        {
+                            continue;
+                        }
                         IndexReferenceDefinitions(property.Value);
                     }
                 }

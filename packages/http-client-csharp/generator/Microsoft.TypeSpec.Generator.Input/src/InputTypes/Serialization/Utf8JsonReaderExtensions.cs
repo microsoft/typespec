@@ -168,8 +168,10 @@ namespace Microsoft.TypeSpec.Generator.Input
             var result = new Dictionary<string, T>();
             while (reader.TokenType != JsonTokenType.EndObject)
             {
-                // Skip $id metadata (reference tracking), just like TryReadReferenceId does
-                if (reader.TryReadReferenceId(ref id))
+                // String-valued $id is metadata; an object-valued $id can be an example's wire property.
+                var valueReader = reader;
+                valueReader.Read();
+                if (valueReader.TokenType == JsonTokenType.String && reader.TryReadReferenceId(ref id))
                 {
                     continue;
                 }

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
+using System.Text.Json;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
 
@@ -7,6 +8,187 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
 {
     public class TypeSpecInputExampleConverterTests
     {
+        [TestCase("unknown", false)]
+        [TestCase("unknown", true)]
+        [TestCase("union", false)]
+        [TestCase("union", true)]
+        public void OpaqueExampleValuesPreserveReferenceProperties(string kind, bool arrayValue)
+        {
+            const string payload = """
+                {
+                  "$id": "https://example.com/person.schema.json",
+                  "$ref": "not-a-code-model-reference",
+                  "$values": [
+                    { "$id": "client", "$ref": "parameter", "$values": [] },
+                    { "$id": "client" },
+                    { "$id": 42, "$ref": null, "$values": true },
+                    { "$ref": "missing" }
+                  ],
+                  "kind": "model",
+                  "type": { "$id": "example-type" }
+                }
+                """;
+            var value = arrayValue ? $"[{payload}, {payload}]" : payload;
+            var type = kind == "union"
+                ? """{ "$id": "example-type", "kind": "union", "name": "Union", "variantTypes": [{ "kind": "unknown" }] }"""
+                : """{ "$id": "example-type", "kind": "unknown" }""";
+            var examples = $$"""
+                { "kind": "{{kind}}", "type": {{type}}, "value": {{value}} },
+                { "kind": "{{kind}}", "type": { "$ref": "example-type" }, "value": {{value}} }
+                """;
+
+            var operation = DeserializeExamples(examples).Clients[0].Methods[0].Operation;
+            using var expected = JsonDocument.Parse(value);
+
+            foreach (var example in operation.Examples)
+            {
+                var parameterExample = example.Parameters[0];
+                Assert.AreSame(operation.Parameters[0], parameterExample.Parameter);
+                Assert.AreSame(operation.Parameters[0].Type, parameterExample.ExampleValue.Type);
+                AssertExampleValue(expected.RootElement, parameterExample.ExampleValue);
+            }
+        }
+
+        [TestCase("unknown")]
+        [TestCase("union")]
+        public void ReferencesCannotResolveDefinitionsInsideOpaqueExamples(string kind)
+        {
+            var examples = $$"""
+                {
+                  "kind": "{{kind}}",
+                  "type": { "$id": "example-type", "kind": "unknown" },
+                  "value": { "$id": "payload-model", "kind": "model", "name": "PayloadModel" }
+                }
+                """;
+
+            var exception = Assert.Throws<JsonException>(() => DeserializeExamples(examples, """[{ "$ref": "payload-model" }]"""));
+
+            Assert.That(exception!.Message, Does.Contain("cannot resolve reference payload-model"));
+        }
+
+        [TestCase("model")]
+        [TestCase("dict")]
+        public void ObjectExampleValuesPreserveReferencePropertyNames(string kind)
+        {
+            var type = kind == "model"
+                ? """{ "$id": "example-type", "kind": "model", "name": "Model" }"""
+                : """{ "$id": "example-type", "kind": "dict", "keyType": { "kind": "string" }, "valueType": { "kind": "unknown" } }""";
+            var examples = $$"""
+                {
+                  "kind": "{{kind}}",
+                  "type": {{type}},
+                  "value": {
+                    "$id": { "kind": "string", "type": { "kind": "string" }, "value": "user-id" },
+                    "$ref": { "kind": "string", "type": { "kind": "string" }, "value": "user-ref" },
+                    "$values": {
+                      "kind": "unknown",
+                      "type": { "kind": "unknown" },
+                      "value": [{ "$id": "client", "$ref": "missing", "$values": [] }]
+                    }
+                  }
+                }
+                """;
+
+            var operation = DeserializeExamples(examples).Clients[0].Methods[0].Operation;
+            using var expected = JsonDocument.Parse("""
+                {
+                  "$id": "user-id",
+                  "$ref": "user-ref",
+                  "$values": [{ "$id": "client", "$ref": "missing", "$values": [] }]
+                }
+                """);
+
+            Assert.AreSame(operation.Parameters[0].Type, operation.Examples[0].Parameters[0].ExampleValue.Type);
+            AssertExampleValue(expected.RootElement, operation.Examples[0].Parameters[0].ExampleValue);
+        }
+
+        private static InputNamespace DeserializeExamples(string exampleValues, string models = "[]")
+        {
+            using var values = JsonDocument.Parse($"[{exampleValues}]");
+            var examples = new List<string>();
+            foreach (var value in values.RootElement.EnumerateArray())
+            {
+                examples.Add($$"""
+                    {
+                      "name": "Example",
+                      "filePath": "example.json",
+                      "parameters": [{
+                        "parameter": { "$ref": "parameter" },
+                        "value": {{value.GetRawText()}}
+                      }]
+                    }
+                    """);
+            }
+            var content = $$"""
+                {
+                  "name": "Test",
+                  "clients": [{
+                    "$id": "client",
+                    "name": "Client",
+                    "methods": [{
+                      "$id": "method",
+                      "kind": "basic",
+                      "name": "Method",
+                      "crossLanguageDefinitionId": "Test.Method",
+                      "response": {},
+                      "operation": {
+                        "$id": "operation",
+                        "name": "Operation",
+                        "httpMethod": "POST",
+                        "uri": "https://example.com",
+                        "path": "/",
+                        "crossLanguageDefinitionId": "Test.Operation",
+                        "parameters": [{
+                          "$id": "parameter",
+                          "kind": "method",
+                          "name": "document",
+                          "serializedName": "document",
+                          "location": "body",
+                          "scope": "method",
+                          "type": { "$ref": "example-type" }
+                        }],
+                        "examples": [{{string.Join(",", examples)}}]
+                      }
+                    }]
+                  }],
+                  "models": {{models}}
+                }
+                """;
+            return TypeSpecSerialization.Deserialize(content)!;
+        }
+
+        private static void AssertExampleValue(JsonElement expected, InputExampleValue actual)
+        {
+            switch (expected.ValueKind)
+            {
+                case JsonValueKind.Object:
+                    Assert.IsInstanceOf<InputExampleObjectValue>(actual);
+                    var objectValue = (InputExampleObjectValue)actual;
+                    var propertyCount = 0;
+                    foreach (var property in expected.EnumerateObject())
+                    {
+                        Assert.That(objectValue.Values.ContainsKey(property.Name), Is.True, property.Name);
+                        AssertExampleValue(property.Value, objectValue.Values[property.Name]);
+                        propertyCount++;
+                    }
+                    Assert.AreEqual(propertyCount, objectValue.Values.Count);
+                    break;
+                case JsonValueKind.Array:
+                    Assert.IsInstanceOf<InputExampleListValue>(actual);
+                    var listValue = (InputExampleListValue)actual;
+                    Assert.AreEqual(expected.GetArrayLength(), listValue.Values.Count);
+                    for (var i = 0; i < expected.GetArrayLength(); i++)
+                    {
+                        AssertExampleValue(expected[i], listValue.Values[i]);
+                    }
+                    break;
+                default:
+                    Assert.IsInstanceOf<InputExampleRawValue>(actual);
+                    Assert.AreEqual(expected.GetRawText(), JsonSerializer.Serialize(((InputExampleRawValue)actual).RawValue));
+                    break;
+            }
+        }
+
         [Test]
         public void LoadOperationExamples()
         {
