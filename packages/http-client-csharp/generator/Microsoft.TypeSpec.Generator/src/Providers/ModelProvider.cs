@@ -363,7 +363,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             return string.Equals(entry.CustomType.Name, resultName, StringComparison.OrdinalIgnoreCase) &&
-                (!entry.IsResultAlias || !entry.HasLastContractName);
+                (!entry.IsResultAlias || !entry.HasLastContractAliasName);
         }
 
         private static bool HasConflictingName(NameCache.ClientEntry entry, string typeNamespace, string resultName)
@@ -2004,17 +2004,18 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     var inputName = inputType.IsExactName ? inputType.Name : inputType.Name.ToIdentifierName();
                     var typeNamespace = GetNamespace(getNamespace(inputType));
                     var customType = FindCustomizationType(typeNamespace, GetCustomizationLookupNames(inputType, inputName));
+                    var customTypeProvider = customType?.Type;
                     var entry = new TypeEntry(
                         inputType,
                         inputName,
-                        customType?.Type,
+                        customTypeProvider,
                         customType?.IsResultAlias == true,
                         customType?.IsResultAlias == true && HasLastContractName(typeNamespace, inputName));
                     Add(cache, inputName, entry);
-                    if (customType is not null &&
-                        !string.Equals(customType.Value.Type.Name, inputName, StringComparison.OrdinalIgnoreCase))
+                    if (customTypeProvider is not null &&
+                        !string.Equals(customTypeProvider.Name, inputName, StringComparison.OrdinalIgnoreCase))
                     {
-                        Add(cache, customType.Value.Type.Name, entry);
+                        Add(cache, customTypeProvider.Name, entry);
                     }
                 }
 
@@ -2110,13 +2111,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 string inputName,
                 TypeProvider? customType,
                 bool isResultAlias,
-                bool hasLastContractName)
+                bool hasLastContractAliasName)
             {
                 internal InputType InputType { get; } = inputType;
                 internal string InputName { get; } = inputName;
                 internal TypeProvider? CustomType { get; } = customType;
                 internal bool IsResultAlias { get; } = isResultAlias;
-                internal bool HasLastContractName { get; } = hasLastContractName;
+                internal bool HasLastContractAliasName { get; } = hasLastContractAliasName;
             }
 
             internal sealed class ClientEntry(
