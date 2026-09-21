@@ -52,14 +52,17 @@ namespace Microsoft.TypeSpec.Generator
         {
         }
 
+        internal CSharpType? CreateLastContractModelBase(CSharpType previousBase, InputModelType currentModel)
+            => CreateLastContractModelBaseCore(previousBase, currentModel);
+
         /// <summary>
-        /// Creates a mapped provider for a last-contract model base that cannot be resolved from the current input.
+        /// Resolves a last-contract model base that cannot be represented by the current input.
         /// Downstream generators can override this for their known inheritable framework types.
         /// </summary>
         /// <param name="previousBase">The base type from the last contract.</param>
         /// <param name="currentModel">The current model whose base is being restored.</param>
         /// <returns>The mapped base type, or <see langword="null"/> when the base is not supported.</returns>
-        protected internal virtual CSharpType? CreateLastContractModelBase(CSharpType previousBase, InputModelType currentModel)
+        protected virtual CSharpType? CreateLastContractModelBaseCore(CSharpType previousBase, InputModelType currentModel)
             => null;
 
         public CSharpType? CreateCSharpType(InputType inputType)

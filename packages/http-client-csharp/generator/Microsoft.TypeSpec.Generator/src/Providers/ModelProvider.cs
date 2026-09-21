@@ -260,11 +260,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         /// <summary>
         /// Returns the model base type after applying backward compatibility against <see cref="LastContractView"/>.
-        /// The default implementation restores only a simple generated root-model base. More complex reconciliation
-        /// can be implemented by downstream generators when required by a concrete SDK scenario.
+        /// Restoration is limited to compatible generated roots and mapped bases recognized by the type factory.
         /// </summary>
         /// <param name="currentBase">The base type selected from custom code or the current input model.</param>
-        protected virtual CSharpType? BuildBaseTypeForBackCompatibility(CSharpType? currentBase)
+        private CSharpType? BuildBaseTypeForBackCompatibility(CSharpType? currentBase)
         {
             // A mapped external model's CLR hierarchy is owned by its wrapped system type.
             if (this is SystemObjectModelProvider)
@@ -367,7 +366,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 : CodeModelGenerator.Instance.TypeFactory.CreateModel(_inputModel.BaseModel)?.Type;
         }
 
-        protected static bool IsInBaseTypeHierarchy(CSharpType? currentBase, CSharpType previousBase)
+        private static bool IsInBaseTypeHierarchy(CSharpType? currentBase, CSharpType previousBase)
         {
             var visited = new HashSet<string>(StringComparer.Ordinal);
             for (var type = currentBase; type is not null && visited.Add(type.FullyQualifiedName); type = type.BaseType)

@@ -920,29 +920,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
-        public async Task BackCompat_BaseTypeHookCanOverrideConservativeDefault()
-        {
-            var previousBase = InputFactory.Model("PreviousBase", properties: []);
-            var currentBase = InputFactory.Model("CurrentBase", properties: []);
-            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
-
-            await MockHelpers.LoadMockGeneratorAsync(
-                createModelCore: input => input == derivedModel
-                    ? new BaseTypeBackCompatHookModelProvider(input)
-                    : new ModelProvider(input),
-                inputModelTypes: [previousBase, currentBase, derivedModel],
-                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
-                    method: nameof(BackCompat_BaseTypeChangePreservesGeneratedRootBase)));
-
-            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
-                .OfType<BaseTypeBackCompatHookModelProvider>()
-                .Single();
-
-            Assert.AreEqual("CurrentBase", provider.BaseType?.Name);
-            Assert.AreEqual("CurrentBase", provider.CapturedCurrentBase?.Name);
-        }
-
-        [Test]
         public async Task BackCompat_BaseTypeRestorationRejectsAmbiguousMappedBase()
         {
             var firstMappedInput = InputFactory.Model(
@@ -1583,17 +1560,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             protected override string BuildRelativeFilePath() => ".";
             protected override string BuildName() => "NonModelBase";
             protected override string BuildNamespace() => "Custom.Namespace";
-        }
-
-        private sealed class BaseTypeBackCompatHookModelProvider(InputModelType inputModel) : ModelProvider(inputModel)
-        {
-            public CSharpType? CapturedCurrentBase { get; private set; }
-
-            protected override CSharpType? BuildBaseTypeForBackCompatibility(CSharpType? currentBase)
-            {
-                CapturedCurrentBase = currentBase;
-                return currentBase;
-            }
         }
 
         private class BuildBaseTypeOverridingModelProvider : ModelProvider

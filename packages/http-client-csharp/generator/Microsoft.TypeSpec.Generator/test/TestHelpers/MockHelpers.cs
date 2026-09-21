@@ -117,7 +117,7 @@ namespace Microsoft.TypeSpec.Generator.Tests
             if (createLastContractModelBase != null)
             {
                 mockTypeFactory.Protected().Setup<CSharpType?>(
-                    "CreateLastContractModelBase",
+                    "CreateLastContractModelBaseCore",
                     ItExpr.IsAny<CSharpType>(),
                     ItExpr.IsAny<InputModelType>()).Returns(
                         (CSharpType previousBase, InputModelType currentModel) =>
