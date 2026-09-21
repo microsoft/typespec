@@ -355,11 +355,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             var otherName = inputType.IsExactName ? inputType.Name : inputType.Name.ToIdentifierName();
-            var sourceInputModel = CodeModelGenerator.Instance.SourceInputModel;
             var otherNamespace = GetTypeNamespace(inputTypeNamespace);
-            var customType = sourceInputModel.Customization is null
-                ? null
-                : FindCustomizationType(otherNamespace, GetCustomizationLookupNames(inputType, otherName));
+            var customType = FindCustomizationType(otherNamespace, GetCustomizationLookupNames(inputType, otherName));
             if (customType is not null)
             {
                 return string.Equals(customType.Name, resultName, StringComparison.OrdinalIgnoreCase);
@@ -401,6 +398,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private static int CompareModelIdentity(InputModelType left, InputModelType right)
         {
+            // The lower stable identity claims the Result name.
             var namespaceComparison = string.Compare(left.Namespace, right.Namespace, StringComparison.Ordinal);
             return namespaceComparison != 0
                 ? namespaceComparison
@@ -421,6 +419,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
             IEnumerable<string> lookupNames)
         {
             var sourceInputModel = CodeModelGenerator.Instance.SourceInputModel;
+            if (sourceInputModel.Customization is null)
+            {
+                return null;
+            }
+
             foreach (var lookupName in lookupNames)
             {
                 var customType = sourceInputModel.FindForTypeInCurrentCompilation(typeNamespace, lookupName);
