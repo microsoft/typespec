@@ -387,6 +387,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return false;
             }
 
+            if (HasLastContractName(otherNamespace, resultName))
+            {
+                return true;
+            }
+
+            if (HasLastContractName(BuildNamespace(), resultName))
+            {
+                return false;
+            }
+
             return CompareModelIdentity(otherModel, _inputModel) < 0;
         }
 

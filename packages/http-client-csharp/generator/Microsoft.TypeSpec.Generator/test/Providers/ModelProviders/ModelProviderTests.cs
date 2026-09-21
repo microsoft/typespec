@@ -299,6 +299,24 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual("FooResponse", secondProvider.Name);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task TestBuildName_ResponseSuffixPreservesResultOwnerFromLastContract(bool reverseOrder)
+        {
+            var first = InputFactory.Model("FooResponse", @namespace: "Alpha");
+            var shipped = InputFactory.Model("FooResponse", @namespace: "Beta");
+            InputModelType[] models = reverseOrder ? [shipped, first] : [first, shipped];
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: models,
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var firstProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(first)!;
+            var shippedProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(shipped)!;
+
+            Assert.AreEqual("FooResponse", firstProvider.Name);
+            Assert.AreEqual("FooResult", shippedProvider.Name);
+        }
+
         [TestCase("Sample.Models", "WidgetResponse")]
         [TestCase("Other", "WidgetResult")]
         public void TestBuildName_ResponseSuffixAvoidsClientCollision(string clientNamespace, string expectedName)
