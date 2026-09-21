@@ -83,6 +83,10 @@ namespace Microsoft.TypeSpec.Generator
 
         // Extensibility points to be implemented by a generator
         public virtual TypeFactory TypeFactory { get; }
+
+        /// <summary>
+        /// Gets the name cache after the input namespace and customization compilations are finalized.
+        /// </summary>
         internal ModelProvider.NameCache ModelProviderNameCache => _modelProviderNameCache.Value;
 
         private SourceInputModel? _sourceInputModel;

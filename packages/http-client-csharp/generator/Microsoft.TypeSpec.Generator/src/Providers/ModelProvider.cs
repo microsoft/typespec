@@ -2110,7 +2110,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             private static IReadOnlyDictionary<string, IReadOnlyList<T>> Freeze<T>(Dictionary<string, List<T>> cache)
                 => cache.ToDictionary(
                     pair => pair.Key,
-                    pair => (IReadOnlyList<T>)pair.Value.ToArray(),
+                    pair => (IReadOnlyList<T>)pair.Value.AsReadOnly(),
                     StringComparer.OrdinalIgnoreCase);
 
             internal sealed class TypeEntry(
