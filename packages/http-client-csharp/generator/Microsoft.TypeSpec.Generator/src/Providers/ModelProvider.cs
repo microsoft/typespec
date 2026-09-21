@@ -380,9 +380,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             foreach (var model in inputLibrary.InputNamespace.Models)
             {
-                var external = model.External;
-                if (external is not null &&
-                    CodeModelGenerator.Instance.TypeFactory.CreateExternalType(external) is not null)
+                if (!IsEmitted(model))
                 {
                     continue;
                 }
@@ -395,15 +393,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     continue;
                 }
 
-                external = unknownVariant.External;
-                if (external is not null &&
-                    CodeModelGenerator.Instance.TypeFactory.CreateExternalType(external) is not null)
+                if (!IsEmitted(unknownVariant))
                 {
                     continue;
                 }
 
                 yield return unknownVariant;
             }
+
+            static bool IsEmitted(InputModelType model)
+                => model.External is null ||
+                    CodeModelGenerator.Instance.TypeFactory.CreateExternalType(model.External) is null;
         }
 
         private sealed record EmittedTypes(IReadOnlyList<InputModelType> Models, IReadOnlyList<InputEnumType> Enums);
@@ -573,6 +573,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var emittedTypes = GetEmittedTypes(CodeModelGenerator.Instance.InputLibrary);
             foreach (var (inputType, inputTypeNamespace) in emittedTypes.Models
                 .Select(model => ((InputType)model, model.Namespace))
+                // Keep the customization guard on the full enum set. Custom code can still exist for
+                // non-emitted enums and should continue to reserve its physical CLR name.
                 .Concat(inputNamespace.Enums.Select(@enum => ((InputType)@enum, @enum.Namespace))))
             {
                 if (inputType == _inputModel)
