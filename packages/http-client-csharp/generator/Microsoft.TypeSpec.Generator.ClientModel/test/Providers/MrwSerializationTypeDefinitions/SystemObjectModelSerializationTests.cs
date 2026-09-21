@@ -156,6 +156,36 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         }
 
         [Test]
+        public async Task CreateCoreMethodsIgnoreRemovedLastContractReturnTypeWithSystemBase()
+        {
+            var baseInputModel = InputFactory.Model("Resource", properties: []);
+            var derivedInputModel = InputFactory.Model("DerivedModel", properties: [], baseModel: baseInputModel);
+            var systemBase = new SystemObjectModelProvider(new CSharpType(typeof(object)), baseInputModel);
+            var generator = MockHelpers.LoadMockGenerator(
+                inputModels: () => [baseInputModel, derivedInputModel],
+                createModelCore: model => model == baseInputModel ? systemBase : new ModelProvider(model),
+                createSerializationsCore: (inputType, typeProvider) =>
+                    inputType is InputModelType modelType && typeProvider is ModelProvider modelProvider
+                        ? [new MrwSerializationTypeDefinition(modelType, modelProvider)]
+                        : []);
+            var lastContractCompilation = await Helpers.GetCompilationFromDirectoryAsync();
+            generator.SetupProperty(
+                plugin => plugin.SourceInputModel,
+                new SourceInputModel(null, lastContractCompilation));
+
+            var derived = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(derivedInputModel)!;
+            var serialization = (MrwSerializationTypeDefinition)derived.SerializationProviders.Single();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(serialization.BuildPersistableModelCreateCoreMethod().Signature.ReturnType?.Name,
+                    Is.EqualTo("Object"));
+                Assert.That(serialization.BuildJsonModelCreateCoreMethod().Signature.ReturnType?.Name,
+                    Is.EqualTo("Object"));
+            });
+        }
+
+        [Test]
         public void CreateCoreMatcherRejectsGenericMethod()
         {
             var signature = new MethodSignature(

@@ -211,11 +211,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 if (type.AreNamesEqual(candidate))
                 {
-                    return true;
+                    return IsAvailableInCurrentContract(candidate);
                 }
             }
             return false;
         }
+
+        private bool IsAvailableInCurrentContract(CSharpType candidate)
+            => candidate.IsFrameworkType ||
+                _model.Type.AreNamesEqual(candidate) ||
+                _model.BaseModelProvider?.Type.AreNamesEqual(candidate) == true ||
+                ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.Any(pair =>
+                    pair.Value is not null && pair.Key.AreNamesEqual(candidate));
 
         internal static bool IsCreateCoreMethod(MethodSignature signature)
         {
