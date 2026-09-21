@@ -100,9 +100,10 @@ namespace SampleTypeSpec
             {
                 writer.WritePropertyName("children"u8);
                 writer.WriteStartArray();
+                bool hasPatch = Patch.Contains("$"u8, "children"u8);
                 for (int i = 0; i < Children.Count; i++)
                 {
-                    if (Patch.IsRemoved(Encoding.UTF8.GetBytes($"$.children[{i}]")) || Children[i] != null && Children[i].Patch.IsRemoved("$"u8))
+                    if (hasPatch && Patch.IsRemoved(Encoding.UTF8.GetBytes($"$.children[{i}]")) || Children[i] != null && Children[i].Patch.IsRemoved("$"u8))
                     {
                         continue;
                     }
@@ -115,25 +116,37 @@ namespace SampleTypeSpec
             {
                 writer.WritePropertyName("childDictionary"u8);
                 writer.WriteStartObject();
-#if NET8_0_OR_GREATER
-                global::System.Span<byte> buffer = stackalloc byte[256];
-#endif
-                foreach (var item in ChildDictionary)
+                bool hasPatch = Patch.Contains("$"u8, "childDictionary"u8);
+                if (hasPatch)
                 {
 #if NET8_0_OR_GREATER
-                    int bytesWritten = global::System.Text.Encoding.UTF8.GetBytes(item.Key.AsSpan(), buffer);
-                    bool patchContains = (bytesWritten == 256) ? Patch.Contains("$.childDictionary"u8, global::System.Text.Encoding.UTF8.GetBytes(item.Key)) : Patch.Contains("$.childDictionary"u8, buffer.Slice(0, bytesWritten));
-#else
-                    bool patchContains = Patch.Contains("$.childDictionary"u8, Encoding.UTF8.GetBytes(item.Key));
+                    global::System.Span<byte> buffer = stackalloc byte[256];
 #endif
-                    if (!patchContains)
+                    foreach (var item in ChildDictionary)
+                    {
+#if NET8_0_OR_GREATER
+                        int bytesWritten = global::System.Text.Encoding.UTF8.GetBytes(item.Key.AsSpan(), buffer);
+                        bool patchContains = (bytesWritten == 256) ? Patch.Contains("$.childDictionary"u8, global::System.Text.Encoding.UTF8.GetBytes(item.Key)) : Patch.Contains("$.childDictionary"u8, buffer.Slice(0, bytesWritten));
+#else
+                        bool patchContains = Patch.Contains("$.childDictionary"u8, Encoding.UTF8.GetBytes(item.Key));
+#endif
+                        if (!patchContains)
+                        {
+                            writer.WritePropertyName(item.Key);
+                            writer.WriteObjectValue(item.Value, options);
+                        }
+                    }
+
+                    Patch.WriteTo(writer, "$.childDictionary"u8);
+                }
+                else
+                {
+                    foreach (var item in ChildDictionary)
                     {
                         writer.WritePropertyName(item.Key);
                         writer.WriteObjectValue(item.Value, options);
                     }
                 }
-
-                Patch.WriteTo(writer, "$.childDictionary"u8);
                 writer.WriteEndObject();
             }
             if (Patch.Contains("$.nestedChildren"u8))
@@ -148,9 +161,10 @@ namespace SampleTypeSpec
             {
                 writer.WritePropertyName("nestedChildren"u8);
                 writer.WriteStartArray();
+                bool hasPatch = Patch.Contains("$"u8, "nestedChildren"u8);
                 for (int i = 0; i < NestedChildren.Count; i++)
                 {
-                    if (Patch.IsRemoved(Encoding.UTF8.GetBytes($"$.nestedChildren[{i}]")))
+                    if (hasPatch && Patch.IsRemoved(Encoding.UTF8.GetBytes($"$.nestedChildren[{i}]")))
                     {
                         continue;
                     }
@@ -162,13 +176,16 @@ namespace SampleTypeSpec
                     writer.WriteStartArray();
                     for (int i0 = 0; i0 < NestedChildren[i].Count; i0++)
                     {
-                        if (Patch.IsRemoved(Encoding.UTF8.GetBytes($"$.nestedChildren[{i}][{i0}]")) || NestedChildren[i][i0] != null && NestedChildren[i][i0].Patch.IsRemoved("$"u8))
+                        if (hasPatch && Patch.IsRemoved(Encoding.UTF8.GetBytes($"$.nestedChildren[{i}][{i0}]")) || NestedChildren[i][i0] != null && NestedChildren[i][i0].Patch.IsRemoved("$"u8))
                         {
                             continue;
                         }
                         writer.WriteObjectValue(NestedChildren[i][i0], options);
                     }
-                    Patch.WriteTo(writer, Encoding.UTF8.GetBytes($"$.nestedChildren[{i}]"));
+                    if (hasPatch)
+                    {
+                        Patch.WriteTo(writer, Encoding.UTF8.GetBytes($"$.nestedChildren[{i}]"));
+                    }
                     writer.WriteEndArray();
                 }
                 Patch.WriteTo(writer, "$.nestedChildren"u8);
@@ -178,18 +195,68 @@ namespace SampleTypeSpec
             {
                 writer.WritePropertyName("nestedChildDictionary"u8);
                 writer.WriteStartObject();
-#if NET8_0_OR_GREATER
-                global::System.Span<byte> buffer = stackalloc byte[256];
-#endif
-                foreach (var item in NestedChildDictionary)
+                bool hasPatch = Patch.Contains("$"u8, "nestedChildDictionary"u8);
+                if (hasPatch)
                 {
 #if NET8_0_OR_GREATER
-                    int bytesWritten = global::System.Text.Encoding.UTF8.GetBytes(item.Key.AsSpan(), buffer);
-                    bool patchContains = (bytesWritten == 256) ? Patch.Contains("$.nestedChildDictionary"u8, global::System.Text.Encoding.UTF8.GetBytes(item.Key)) : Patch.Contains("$.nestedChildDictionary"u8, buffer.Slice(0, bytesWritten));
-#else
-                    bool patchContains = Patch.Contains("$.nestedChildDictionary"u8, Encoding.UTF8.GetBytes(item.Key));
+                    global::System.Span<byte> buffer = stackalloc byte[256];
 #endif
-                    if (!patchContains)
+                    foreach (var item in NestedChildDictionary)
+                    {
+#if NET8_0_OR_GREATER
+                        int bytesWritten = global::System.Text.Encoding.UTF8.GetBytes(item.Key.AsSpan(), buffer);
+                        bool patchContains = (bytesWritten == 256) ? Patch.Contains("$.nestedChildDictionary"u8, global::System.Text.Encoding.UTF8.GetBytes(item.Key)) : Patch.Contains("$.nestedChildDictionary"u8, buffer.Slice(0, bytesWritten));
+#else
+                        bool patchContains = Patch.Contains("$.nestedChildDictionary"u8, Encoding.UTF8.GetBytes(item.Key));
+#endif
+                        if (!patchContains)
+                        {
+                            writer.WritePropertyName(item.Key);
+                            if (item.Value == null)
+                            {
+                                writer.WriteNullValue();
+                                continue;
+                            }
+                            writer.WriteStartObject();
+                            if (hasPatch)
+                            {
+#if NET8_0_OR_GREATER
+                                global::System.Span<byte> buffer0 = stackalloc byte[256];
+#endif
+                                foreach (var item0 in item.Value)
+                                {
+#if NET8_0_OR_GREATER
+                                    int bytesWritten0 = global::System.Text.Encoding.UTF8.GetBytes(item0.Key.AsSpan(), buffer0);
+                                    bool patchContains0 = (bytesWritten0 == 256) ? Patch.Contains(global::System.Text.Encoding.UTF8.GetBytes($"$.nestedChildDictionary[\"{item.Key}\"]"), global::System.Text.Encoding.UTF8.GetBytes(item0.Key)) : Patch.Contains(global::System.Text.Encoding.UTF8.GetBytes($"$.nestedChildDictionary[\"{item.Key}\"]"), buffer0.Slice(0, bytesWritten0));
+#else
+                                    bool patchContains0 = Patch.Contains(Encoding.UTF8.GetBytes($"$.nestedChildDictionary[\"{item.Key}\"]"), Encoding.UTF8.GetBytes(item0.Key));
+#endif
+                                    if (!patchContains0)
+                                    {
+                                        writer.WritePropertyName(item0.Key);
+                                        writer.WriteObjectValue(item0.Value, options);
+                                    }
+                                }
+
+                                Patch.WriteTo(writer, Encoding.UTF8.GetBytes($"$.nestedChildDictionary[\"{item.Key}\"]"));
+                            }
+                            else
+                            {
+                                foreach (var item0 in item.Value)
+                                {
+                                    writer.WritePropertyName(item0.Key);
+                                    writer.WriteObjectValue(item0.Value, options);
+                                }
+                            }
+                            writer.WriteEndObject();
+                        }
+                    }
+
+                    Patch.WriteTo(writer, "$.nestedChildDictionary"u8);
+                }
+                else
+                {
+                    foreach (var item in NestedChildDictionary)
                     {
                         writer.WritePropertyName(item.Key);
                         if (item.Value == null)
@@ -198,48 +265,64 @@ namespace SampleTypeSpec
                             continue;
                         }
                         writer.WriteStartObject();
-#if NET8_0_OR_GREATER
-                        global::System.Span<byte> buffer0 = stackalloc byte[256];
-#endif
                         foreach (var item0 in item.Value)
                         {
-#if NET8_0_OR_GREATER
-                            int bytesWritten0 = global::System.Text.Encoding.UTF8.GetBytes(item0.Key.AsSpan(), buffer0);
-                            bool patchContains0 = (bytesWritten0 == 256) ? Patch.Contains(global::System.Text.Encoding.UTF8.GetBytes($"$.nestedChildDictionary[\"{item.Key}\"]"), global::System.Text.Encoding.UTF8.GetBytes(item0.Key)) : Patch.Contains(global::System.Text.Encoding.UTF8.GetBytes($"$.nestedChildDictionary[\"{item.Key}\"]"), buffer0.Slice(0, bytesWritten0));
-#else
-                            bool patchContains0 = Patch.Contains(Encoding.UTF8.GetBytes($"$.nestedChildDictionary[\"{item.Key}\"]"), Encoding.UTF8.GetBytes(item0.Key));
-#endif
-                            if (!patchContains0)
-                            {
-                                writer.WritePropertyName(item0.Key);
-                                writer.WriteObjectValue(item0.Value, options);
-                            }
+                            writer.WritePropertyName(item0.Key);
+                            writer.WriteObjectValue(item0.Value, options);
                         }
-
-                        Patch.WriteTo(writer, Encoding.UTF8.GetBytes($"$.nestedChildDictionary[\"{item.Key}\"]"));
                         writer.WriteEndObject();
                     }
                 }
-
-                Patch.WriteTo(writer, "$.nestedChildDictionary"u8);
                 writer.WriteEndObject();
             }
             if (Optional.IsCollectionDefined(DictionaryChildren) && !Patch.Contains("$.dictionaryChildren"u8))
             {
                 writer.WritePropertyName("dictionaryChildren"u8);
                 writer.WriteStartObject();
-#if NET8_0_OR_GREATER
-                global::System.Span<byte> buffer = stackalloc byte[256];
-#endif
-                foreach (var item in DictionaryChildren)
+                bool hasPatch = Patch.Contains("$"u8, "dictionaryChildren"u8);
+                if (hasPatch)
                 {
 #if NET8_0_OR_GREATER
-                    int bytesWritten = global::System.Text.Encoding.UTF8.GetBytes(item.Key.AsSpan(), buffer);
-                    bool patchContains = (bytesWritten == 256) ? Patch.Contains("$.dictionaryChildren"u8, global::System.Text.Encoding.UTF8.GetBytes(item.Key)) : Patch.Contains("$.dictionaryChildren"u8, buffer.Slice(0, bytesWritten));
-#else
-                    bool patchContains = Patch.Contains("$.dictionaryChildren"u8, Encoding.UTF8.GetBytes(item.Key));
+                    global::System.Span<byte> buffer = stackalloc byte[256];
 #endif
-                    if (!patchContains)
+                    foreach (var item in DictionaryChildren)
+                    {
+#if NET8_0_OR_GREATER
+                        int bytesWritten = global::System.Text.Encoding.UTF8.GetBytes(item.Key.AsSpan(), buffer);
+                        bool patchContains = (bytesWritten == 256) ? Patch.Contains("$.dictionaryChildren"u8, global::System.Text.Encoding.UTF8.GetBytes(item.Key)) : Patch.Contains("$.dictionaryChildren"u8, buffer.Slice(0, bytesWritten));
+#else
+                        bool patchContains = Patch.Contains("$.dictionaryChildren"u8, Encoding.UTF8.GetBytes(item.Key));
+#endif
+                        if (!patchContains)
+                        {
+                            writer.WritePropertyName(item.Key);
+                            if (item.Value == null)
+                            {
+                                writer.WriteNullValue();
+                                continue;
+                            }
+                            writer.WriteStartArray();
+                            for (int i = 0; i < item.Value.Count; i++)
+                            {
+                                if (hasPatch && Patch.IsRemoved(Encoding.UTF8.GetBytes($"$.dictionaryChildren[\"{item.Key}\"][{i}]")) || item.Value[i] != null && item.Value[i].Patch.IsRemoved("$"u8))
+                                {
+                                    continue;
+                                }
+                                writer.WriteObjectValue(item.Value[i], options);
+                            }
+                            if (hasPatch)
+                            {
+                                Patch.WriteTo(writer, Encoding.UTF8.GetBytes($"$.dictionaryChildren[\"{item.Key}\"]"));
+                            }
+                            writer.WriteEndArray();
+                        }
+                    }
+
+                    Patch.WriteTo(writer, "$.dictionaryChildren"u8);
+                }
+                else
+                {
+                    foreach (var item in DictionaryChildren)
                     {
                         writer.WritePropertyName(item.Key);
                         if (item.Value == null)
@@ -250,18 +333,15 @@ namespace SampleTypeSpec
                         writer.WriteStartArray();
                         for (int i = 0; i < item.Value.Count; i++)
                         {
-                            if (Patch.IsRemoved(Encoding.UTF8.GetBytes($"$.dictionaryChildren[\"{item.Key}\"][{i}]")) || item.Value[i] != null && item.Value[i].Patch.IsRemoved("$"u8))
+                            if (item.Value[i] != null && item.Value[i].Patch.IsRemoved("$"u8))
                             {
                                 continue;
                             }
                             writer.WriteObjectValue(item.Value[i], options);
                         }
-                        Patch.WriteTo(writer, Encoding.UTF8.GetBytes($"$.dictionaryChildren[\"{item.Key}\"]"));
                         writer.WriteEndArray();
                     }
                 }
-
-                Patch.WriteTo(writer, "$.dictionaryChildren"u8);
                 writer.WriteEndObject();
             }
             if (Patch.Contains("$.listOfDictionaries"u8))
@@ -276,9 +356,10 @@ namespace SampleTypeSpec
             {
                 writer.WritePropertyName("listOfDictionaries"u8);
                 writer.WriteStartArray();
+                bool hasPatch = Patch.Contains("$"u8, "listOfDictionaries"u8);
                 for (int i = 0; i < ListOfDictionaries.Count; i++)
                 {
-                    if (Patch.IsRemoved(Encoding.UTF8.GetBytes($"$.listOfDictionaries[{i}]")))
+                    if (hasPatch && Patch.IsRemoved(Encoding.UTF8.GetBytes($"$.listOfDictionaries[{i}]")))
                     {
                         continue;
                     }
@@ -288,25 +369,36 @@ namespace SampleTypeSpec
                         continue;
                     }
                     writer.WriteStartObject();
-#if NET8_0_OR_GREATER
-                    global::System.Span<byte> buffer = stackalloc byte[256];
-#endif
-                    foreach (var item in ListOfDictionaries[i])
+                    if (hasPatch)
                     {
 #if NET8_0_OR_GREATER
-                        int bytesWritten = global::System.Text.Encoding.UTF8.GetBytes(item.Key.AsSpan(), buffer);
-                        bool patchContains = (bytesWritten == 256) ? Patch.Contains(global::System.Text.Encoding.UTF8.GetBytes($"$.listOfDictionaries[{i}]"), global::System.Text.Encoding.UTF8.GetBytes(item.Key)) : Patch.Contains(global::System.Text.Encoding.UTF8.GetBytes($"$.listOfDictionaries[{i}]"), buffer.Slice(0, bytesWritten));
-#else
-                        bool patchContains = Patch.Contains(Encoding.UTF8.GetBytes($"$.listOfDictionaries[{i}]"), Encoding.UTF8.GetBytes(item.Key));
+                        global::System.Span<byte> buffer = stackalloc byte[256];
 #endif
-                        if (!patchContains)
+                        foreach (var item in ListOfDictionaries[i])
+                        {
+#if NET8_0_OR_GREATER
+                            int bytesWritten = global::System.Text.Encoding.UTF8.GetBytes(item.Key.AsSpan(), buffer);
+                            bool patchContains = (bytesWritten == 256) ? Patch.Contains(global::System.Text.Encoding.UTF8.GetBytes($"$.listOfDictionaries[{i}]"), global::System.Text.Encoding.UTF8.GetBytes(item.Key)) : Patch.Contains(global::System.Text.Encoding.UTF8.GetBytes($"$.listOfDictionaries[{i}]"), buffer.Slice(0, bytesWritten));
+#else
+                            bool patchContains = Patch.Contains(Encoding.UTF8.GetBytes($"$.listOfDictionaries[{i}]"), Encoding.UTF8.GetBytes(item.Key));
+#endif
+                            if (!patchContains)
+                            {
+                                writer.WritePropertyName(item.Key);
+                                writer.WriteObjectValue(item.Value, options);
+                            }
+                        }
+
+                        Patch.WriteTo(writer, Encoding.UTF8.GetBytes($"$.listOfDictionaries[{i}]"));
+                    }
+                    else
+                    {
+                        foreach (var item in ListOfDictionaries[i])
                         {
                             writer.WritePropertyName(item.Key);
                             writer.WriteObjectValue(item.Value, options);
                         }
                     }
-
-                    Patch.WriteTo(writer, Encoding.UTF8.GetBytes($"$.listOfDictionaries[{i}]"));
                     writer.WriteEndObject();
                 }
                 Patch.WriteTo(writer, "$.listOfDictionaries"u8);
@@ -885,9 +977,10 @@ namespace SampleTypeSpec
             {
                 yield break;
             }
+            bool hasPatch = Patch.Contains("$"u8, "children"u8);
             for (int i = 0; i < Children.Count; i++)
             {
-                if (!Patch.IsRemoved(Encoding.UTF8.GetBytes($"$.children[{i}]")) && (Children[i] == null || !Children[i].Patch.IsRemoved("$"u8)))
+                if ((!hasPatch || !Patch.IsRemoved(Encoding.UTF8.GetBytes($"$.children[{i}]"))) && (Children[i] == null || !Children[i].Patch.IsRemoved("$"u8)))
                 {
                     yield return Children[i];
                 }

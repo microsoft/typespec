@@ -139,3 +139,39 @@ worksFor(["3.1.0"], ({ oapiForModel, openApiFor }) => {
     });
   });
 });
+
+worksFor(["3.1.0", "3.2.0"], ({ oapiForModel, openApiFor }) => {
+  describe("with @encode", () => {
+    it.each([
+      [
+        "DateTimeKnownEncoding.unixTimestamp, int32",
+        "utcDateTime",
+        { type: "integer", format: "unixtime" },
+      ],
+      ["DateTimeKnownEncoding.rfc7231", "utcDateTime", { type: "string", format: "http-date" }],
+      ["DurationKnownEncoding.seconds, int32", "duration", { type: "integer", format: "int32" }],
+      ["string", "int64", { type: "string", format: "int64" }],
+      ["BytesKnownEncoding.base64url", "bytes", { type: "string", contentEncoding: "base64url" }],
+    ])(
+      "@encode(%s) applies to the non-null member of %s | null",
+      async (encode, type, expected) => {
+        const res = await oapiForModel(
+          "Test",
+          `model Test { @encode(${encode}) prop: ${type} | null }`,
+        );
+        deepStrictEqual(res.schemas.Test.properties.prop, {
+          anyOf: [expected, { type: "null" }],
+        });
+      },
+    );
+
+    it("applies to the non-null member of a nullable query parameter", async () => {
+      const res = await openApiFor(
+        `op test(@query @encode(DateTimeKnownEncoding.unixTimestamp, int32) since: utcDateTime | null): void;`,
+      );
+      deepStrictEqual(res.paths["/"].get.parameters[0].schema, {
+        anyOf: [{ type: "integer", format: "unixtime" }, { type: "null" }],
+      });
+    });
+  });
+});
