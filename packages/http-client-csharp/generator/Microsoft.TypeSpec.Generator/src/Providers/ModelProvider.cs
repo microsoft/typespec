@@ -76,6 +76,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
         internal PropertyProvider? DiscriminatorProperty { get; private set; }
 
         private readonly bool _isDiscriminatedBaseType;
+        // The input library is fixed before providers are named. Cache the emitted collision inventory
+        // once per library instead of rebuilding it for every ModelProvider that checks a Response->Result name.
         private static readonly ConditionalWeakTable<InputLibrary, EmittedTypes> _emittedTypesCache = new();
 
         private ValueExpression DiscriminatorLiteral => Literal(_inputModel.DiscriminatorValue ?? "");
@@ -363,9 +365,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 static inputLibrary => new(
                     BuildEmittedModels(inputLibrary).ToList(),
                     inputLibrary.InputNamespace.Enums
+                        // Mirrors OutputLibrary.BuildEnums: API-version enums are never emitted, and external
+                        // enums always map to existing types instead of generated files.
                         .Where(@enum => @enum.External is null && !@enum.Usage.HasFlag(InputModelTypeUsage.ApiVersionEnum))
                         .ToList()));
 
+        // Mirrors OutputLibrary.BuildModels: a model resolved to a framework/referenced type
+        // (via `external`) is represented by a SystemObjectModelProvider and never emitted as a
+        // generated file, so it cannot participate in a filename collision. This intentionally
+        // uses TypeFactory.CreateExternalType instead of TypeFactory.CreateModel/TypeProvider.Type:
+        // constructing a sibling provider here can re-enter name/collision checks while this
+        // provider's own name is still being built.
         private static IEnumerable<InputModelType> BuildEmittedModels(InputLibrary inputLibrary)
         {
             foreach (var model in inputLibrary.InputNamespace.Models)
@@ -379,12 +389,18 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 yield return model;
 
                 var unknownVariant = model.DiscriminatedSubtypes.Values.FirstOrDefault(model => model.IsUnknownDiscriminatorModel);
-                if (unknownVariant is not null &&
-                    (unknownVariant.External is null ||
-                     CodeModelGenerator.Instance.TypeFactory.CreateExternalType(unknownVariant.External) is null))
+                if (unknownVariant is null)
                 {
-                    yield return unknownVariant;
+                    continue;
                 }
+
+                if (unknownVariant.External is not null &&
+                    CodeModelGenerator.Instance.TypeFactory.CreateExternalType(unknownVariant.External) is not null)
+                {
+                    continue;
+                }
+
+                yield return unknownVariant;
             }
         }
 
