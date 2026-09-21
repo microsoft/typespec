@@ -363,7 +363,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             return string.Equals(entry.CustomType.Name, resultName, StringComparison.OrdinalIgnoreCase) &&
-                (!entry.IsResultAlias || !entry.HasLastContractAliasName);
+                !entry.HasLastContractAliasName;
         }
 
         private static bool HasConflictingName(NameCache.ClientEntry entry, string typeNamespace, string resultName)
@@ -2010,7 +2010,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         inputType,
                         inputName,
                         customTypeProvider,
-                        customType?.IsResultAlias == true,
                         customType?.IsResultAlias == true && HasLastContractName(typeNamespace, inputName));
                     Add(cache, inputName, entry);
                     if (customTypeProvider is not null &&
@@ -2117,13 +2116,26 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 InputType inputType,
                 string inputName,
                 TypeProvider? customType,
-                bool isResultAlias,
                 bool hasLastContractAliasName)
             {
+                /// <summary>
+                /// Gets the input type represented by this entry.
+                /// </summary>
                 internal InputType InputType { get; } = inputType;
+
+                /// <summary>
+                /// Gets the input name after identifier normalization, unless the name is exact.
+                /// </summary>
                 internal string InputName { get; } = inputName;
+
+                /// <summary>
+                /// Gets the customization resolved from input, acronym, or result-alias lookup names.
+                /// </summary>
                 internal TypeProvider? CustomType { get; } = customType;
-                internal bool IsResultAlias { get; } = isResultAlias;
+
+                /// <summary>
+                /// Gets whether a result-alias customization maps to an input name in the last contract.
+                /// </summary>
                 internal bool HasLastContractAliasName { get; } = hasLastContractAliasName;
             }
 
@@ -2132,8 +2144,19 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 string inputName,
                 TypeProvider? customType)
             {
+                /// <summary>
+                /// Gets the cleaned client namespace.
+                /// </summary>
                 internal string Namespace { get; } = @namespace;
+
+                /// <summary>
+                /// Gets the client name after identifier normalization, unless the name is exact.
+                /// </summary>
                 internal string InputName { get; } = inputName;
+
+                /// <summary>
+                /// Gets the customization resolved from the client input name.
+                /// </summary>
                 internal TypeProvider? CustomType { get; } = customType;
             }
         }
