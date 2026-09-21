@@ -11,7 +11,9 @@ That left a lone ``@overload`` on the generated method, which mypy rejects with
 ``Single overload definition, multiple required``.  The preprocess plugin must
 instead keep the body as a plain single type so no ``@overload`` is emitted.
 """
-from pygen.preprocess import PreProcessPlugin, add_overloads_for_body_param
+import pytest
+
+from pygen.preprocess import PreProcessPlugin, add_overload, add_overloads_for_body_param
 
 
 def _plugin(models_mode: str, generate_typeddict: bool = True) -> PreProcessPlugin:
@@ -97,25 +99,167 @@ def _named_union_operation(member_count: int) -> dict:
     }
 
 
-def test_named_single_member_union_emits_no_overload():
+def _etag_parameters(*, optional: bool) -> tuple[list[dict], dict, dict]:
+    etag_type = {"type": "string"}
+    match_condition_type = {"type": "sdkcore", "name": "MatchConditions"}
+    return (
+        [
+            {
+                "wireName": "If-Match",
+                "clientName": "etag",
+                "location": "header",
+                "optional": optional,
+                "implementation": "Method",
+                "type": etag_type,
+            },
+            {
+                "wireName": "If-None-Match",
+                "clientName": "match_condition",
+                "location": "header",
+                "etagRole": "ifNoneMatch",
+                "optional": optional,
+                "implementation": "Method",
+                "type": match_condition_type,
+            },
+        ],
+        etag_type,
+        match_condition_type,
+    )
+
+
+@pytest.mark.parametrize("optional", [False, True])
+def test_named_single_member_union_emits_no_overload(optional: bool):
     """The implementation annotation carries the alias without an invalid lone overload."""
     yaml_data = _named_union_operation(member_count=1)
     named_union = yaml_data["bodyParameter"]["type"]
+    etag_parameters, etag_type, match_condition_type = _etag_parameters(optional=optional)
+    yaml_data["parameters"].extend(etag_parameters)
 
     add_overloads_for_body_param(yaml_data)
 
     assert yaml_data["overloads"] == []
     assert yaml_data["bodyParameter"]["type"] is named_union
     assert yaml_data["bodyParameter"]["type"]["name"] == "GenerateAgentRequest"
+    assert yaml_data["parameters"][-2]["type"] is etag_type
+    assert yaml_data["parameters"][-1]["type"] is match_condition_type
+    assert all(parameter["optional"] is optional for parameter in yaml_data["parameters"][-2:])
 
 
-def test_named_multiple_member_union_emits_variant_overloads():
+@pytest.mark.parametrize("optional", [False, True])
+def test_named_multiple_member_union_emits_variant_overloads(optional: bool):
     """Multi-member named unions keep one overload per variant."""
     yaml_data = _named_union_operation(member_count=2)
+    named_union = yaml_data["bodyParameter"]["type"]
+    etag_parameters, etag_type, match_condition_type = _etag_parameters(optional=optional)
+    yaml_data["parameters"].extend(etag_parameters)
 
     add_overloads_for_body_param(yaml_data)
 
     assert len(yaml_data["overloads"]) == 2
+    assert yaml_data["bodyParameter"]["type"] is named_union
+    assert all(
+        overload["bodyParameter"]["type"] is member_type
+        for overload, member_type in zip(yaml_data["overloads"], named_union["types"])
+    )
+    for overload in yaml_data["overloads"]:
+        assert overload["parameters"][-2]["type"] is etag_type
+        assert overload["parameters"][-1]["type"] is match_condition_type
+        assert all(parameter["optional"] is optional for parameter in overload["parameters"][-2:])
+
+
+def test_add_overload_preserves_types_after_filtering_flattened_parameters():
+    """Filtering a flattened parameter must not shift later parameter types."""
+    yaml_data = _named_union_operation(member_count=2)
+    flattened_type = {"type": "string", "name": "FlattenedType"}
+    etag_type = {"type": "string", "name": "EtagType"}
+    match_condition_type = {"type": "sdkcore", "name": "MatchConditions"}
+    yaml_data["parameters"].extend(
+        [
+            {
+                "wireName": "flattened",
+                "clientName": "flattened",
+                "location": "body",
+                "optional": True,
+                "implementation": "Method",
+                "inFlattenedBody": True,
+                "type": flattened_type,
+            },
+            {
+                "wireName": "If-Match",
+                "clientName": "etag",
+                "location": "header",
+                "optional": True,
+                "implementation": "Method",
+                "type": etag_type,
+            },
+            {
+                "wireName": "If-None-Match",
+                "clientName": "match_condition",
+                "location": "header",
+                "etagRole": "ifNoneMatch",
+                "optional": True,
+                "implementation": "Method",
+                "type": match_condition_type,
+            },
+        ]
+    )
+
+    overload = add_overload(yaml_data, yaml_data["bodyParameter"]["type"]["types"][0])
+
+    assert [parameter["clientName"] for parameter in overload["parameters"]] == [
+        "content_type",
+        "etag",
+        "match_condition",
+    ]
+    assert overload["parameters"][1]["type"] is etag_type
+    assert overload["parameters"][2]["type"] is match_condition_type
+
+
+@pytest.mark.parametrize("optional", [False, True])
+def test_spread_body_overloads_preserve_etag_parameter_types(optional: bool):
+    """Flattened, JSON, and binary overloads keep the shared ETag pair."""
+    plugin = _plugin("dpg")
+    cross_language_id = "Contoso.TelephonyTransferTargets"
+    original = _dpg_body_parameter("TelephonyTransferTargets", cross_language_id)["type"]
+    spread_body = _json_spread_body_parameter("ReplaceTransferTargetsRequest", cross_language_id)
+    flattened_type = {"type": "list", "elementType": {"type": "string"}}
+    flattened_parameter = {
+        "wireName": "transfer_targets",
+        "clientName": "transfer_targets",
+        "location": "body",
+        "optional": False,
+        "implementation": "Method",
+        "inFlattenedBody": True,
+        "type": flattened_type,
+    }
+    etag_parameters, etag_type, match_condition_type = _etag_parameters(optional=optional)
+    yaml_data = {
+        "name": "replace",
+        "bodyParameter": spread_body,
+        "parameters": [_content_type_param(), flattened_parameter, *etag_parameters],
+        "overloads": [],
+        "responses": [],
+        "exceptions": [],
+    }
+    code_model = {"types": [original, spread_body["type"]]}
+
+    skip_single_body_json = plugin.add_body_param_type(code_model, spread_body)
+    add_overloads_for_body_param(yaml_data, skip_single_body_json=skip_single_body_json)
+
+    assert len(yaml_data["overloads"]) == 3
+    flattened_overloads = [
+        overload for overload in yaml_data["overloads"] if overload["bodyParameter"].get("flattened")
+    ]
+    assert len(flattened_overloads) == 1
+    assert flattened_overloads[0]["parameters"][1]["type"] is flattened_type
+    for overload in yaml_data["overloads"]:
+        parameters_by_name = {parameter["clientName"]: parameter for parameter in overload["parameters"]}
+        assert parameters_by_name["etag"]["type"] is etag_type
+        assert parameters_by_name["match_condition"]["type"] is match_condition_type
+        assert parameters_by_name["etag"]["optional"] is optional
+        assert parameters_by_name["match_condition"]["optional"] is optional
+        if not overload["bodyParameter"].get("flattened"):
+            assert "transfer_targets" not in parameters_by_name
 
 
 def test_typeddict_only_single_body_emits_no_overload():
