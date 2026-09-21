@@ -32,9 +32,8 @@ describe("Code-model reference format", () => {
 
     const document = JSON.parse(serializeCodeModel(context, model));
 
-    expect(document.format).toBe("typespec-csharp-code-model");
-    expect(document.version).toBe(2);
-    expect(document.root.extension[0]).toEqual({
+    expect(document.$version).toBe(2);
+    expect(document.extension[0]).toEqual({
       $id: "1",
       $$id: "1",
       $$ref: "missing",
@@ -45,7 +44,7 @@ describe("Code-model reference format", () => {
       kind: "future-kind",
       crossLanguageDefinitionId: "user-data",
     });
-    expect(document.root.extension[1]).toEqual({ $ref: "1" });
+    expect(document.extension[1]).toEqual({ $ref: "1" });
   });
 
   it("preserves graph definitions first encountered in decorator arguments", () => {
@@ -62,8 +61,8 @@ describe("Code-model reference format", () => {
 
     const document = JSON.parse(serializeCodeModel(context, reordered));
 
-    expect(document.root.extension.decorators[0].arguments.value.$id).toBe("1");
-    expect(document.root.models).toEqual([{ $ref: "1" }, { $ref: "1" }]);
+    expect(document.extension.decorators[0].arguments.value.$id).toBe("1");
+    expect(document.models).toEqual([{ $ref: "1" }, { $ref: "1" }]);
   });
 
   it.each(["futureField", "__raw", "usage"])("preserves an opaque %s field", (property) => {
@@ -91,7 +90,7 @@ describe("Code-model reference format", () => {
       usage: 42,
       __raw: { $$id: "1" },
     };
-    expect(document.root.extension[property]).toEqual([expected, expected]);
+    expect(document.extension[property]).toEqual([expected, expected]);
     expect(extension[property][0]).toBe(payload);
   });
 
@@ -138,15 +137,10 @@ describe("Code-model reference format", () => {
 
     const document = JSON.parse(serializeCodeModel(context, model));
 
-    expect(document.root.extension).toEqual([{ $id: "1", kind: "node", items: [{ $ref: "1" }] }]);
+    expect(document.extension).toEqual([{ $id: "1", kind: "node", items: [{ $ref: "1" }] }]);
   });
 
-  it("rejects array-only cycles and cycles in explicitly raw JSON", () => {
-    const array: unknown[] = [];
-    array.push(array);
-    Object.assign(model, { extension: array });
-    expect(() => serializeCodeModel(context, model)).toThrow("cyclic JSON array");
-
+  it("rejects cycles in explicitly raw JSON", () => {
     const value: { kind: string; self?: unknown } = { kind: "data" };
     value.self = value;
     Object.assign(model, { extension: withRawJson({ value }, "value") });

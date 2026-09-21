@@ -1,4 +1,5 @@
 {
+  "$version": 2,
   "name": "Client.Structure.Service.Renamed.Operation",
   "apiVersions": [],
   "enums": [

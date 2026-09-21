@@ -10,19 +10,19 @@ import type { CodeModel } from "./type/code-model.js";
 import type { Configuration } from "./type/configuration.js";
 
 /**
+ * Version of the saved code model format. Data property names starting with `$` are escaped
+ * with an extra `$`, so that `$id` and `$ref` are unambiguously serializer metadata.
+ */
+const codeModelVersion = 2;
+
+/**
  * Serializes the code model to a JSON string with reference tracking.
  * @param context - The CSharp emitter context
  * @param codeModel - The code model to serialize
  * @beta
  */
 export function serializeCodeModel(context: CSharpEmitterContext, codeModel: CodeModel): string {
-  return prettierOutput(
-    JSON.stringify(
-      { format: "typespec-csharp-code-model", version: 2, root: buildJson(context, codeModel) },
-      null,
-      2,
-    ),
-  );
+  return prettierOutput(JSON.stringify(buildJson(context, codeModel), null, 2));
 }
 
 /**
@@ -51,9 +51,12 @@ export async function writeCodeModel(
 function buildJson(context: CSharpEmitterContext, codeModel: CodeModel): any {
   const objectsIds = new Map<any, string>();
   const stack: any[] = [];
-  const activeArrays = new Map<any[], number>();
+  const rawArrays = new Set<any[]>();
 
-  return doBuildJson(codeModel, stack);
+  const root = doBuildJson(codeModel, stack);
+  // Marks the document as using escaped data property names, so that a reader can tell
+  // serializer metadata ($id/$ref) apart from user data with the same name.
+  return { $version: codeModelVersion, ...root };
 
   function doBuildJson(obj: any, stack: any[], raw = false): any {
     // check if this is a primitive type or null or undefined
@@ -63,21 +66,17 @@ function buildJson(context: CSharpEmitterContext, codeModel: CodeModel): any {
     // we switch here for object, arrays and primitives
     if (Array.isArray(obj)) {
       // array types
-      const previousReferenceCount = activeArrays.get(obj);
-      if (
-        previousReferenceCount !== undefined &&
-        (raw || previousReferenceCount === objectsIds.size)
-      ) {
-        throw new TypeError("Cannot serialize a cyclic JSON array");
+      if (raw) {
+        // raw JSON has no reference metadata, so a cycle through it cannot be represented
+        if (rawArrays.has(obj)) {
+          throw new TypeError("Cannot serialize cyclic raw JSON");
+        }
+        rawArrays.add(obj);
+        const result = obj.map((item) => doBuildJson(item, stack, raw));
+        rawArrays.delete(obj);
+        return result;
       }
-      activeArrays.set(obj, objectsIds.size);
-      const result = obj.map((item) => doBuildJson(item, stack, raw));
-      if (previousReferenceCount === undefined) {
-        activeArrays.delete(obj);
-      } else {
-        activeArrays.set(obj, previousReferenceCount);
-      }
-      return result;
+      return obj.map((item) => doBuildJson(item, stack));
     } else {
       // this is an object
       if (!raw && shouldHaveRef(obj)) {

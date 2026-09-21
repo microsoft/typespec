@@ -1,4 +1,5 @@
 {
+  "$version": 2,
   "name": "Type.Property.AdditionalProperties",
   "apiVersions": [],
   "enums": [],

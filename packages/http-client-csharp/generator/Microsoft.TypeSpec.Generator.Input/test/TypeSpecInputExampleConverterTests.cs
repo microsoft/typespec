@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Microsoft.TypeSpec.Generator.Tests.Common;
@@ -97,65 +96,6 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
             Assert.AreSame(value.Values["$id"].Type, value.Values["$ref"].Type);
         }
 
-        [Test]
-        public void VersionedObjectExampleCanReferenceADictionary()
-        {
-            var value = (InputExampleObjectValue)DeserializeExampleValue("""
-                {
-                  "kind": "dict",
-                  "type": { "kind": "dict", "keyType": { "kind": "string" }, "valueType": { "kind": "string" } },
-                  "extension": {
-                    "$id": "values",
-                    "$$id": { "kind": "string", "type": { "kind": "string" }, "value": "literal-id" }
-                  },
-                  "value": { "$ref": "values" }
-                }
-                """, versioned: true);
-
-            Assert.AreEqual("literal-id", ((InputExampleRawValue)value.Values["$id"]).RawValue);
-        }
-
-        [Test]
-        public void VersionedDictionaryReferenceDepthIsBounded()
-        {
-            var definitions = string.Join(",", Enumerable.Range(0, 130).Select(i => $$"""
-                {
-                  "$id": "dictionary{{i}}",
-                  "item": { "kind": "dict", "type": { "kind": "unknown" }, "value": { "$ref": "dictionary{{i + 1}}" } }
-                }
-                """));
-            var example = $$"""
-                {
-                  "kind": "dict", "type": { "kind": "unknown" },
-                  "extension": [{{definitions}}, { "$id": "dictionary130" }],
-                  "value": { "$ref": "dictionary0" }
-                }
-                """;
-
-            var exception = Assert.Throws<JsonException>(() => DeserializeExampleValue(example, versioned: true));
-
-            Assert.That(exception!.Message, Does.Contain("maximum reference depth"));
-        }
-
-        [Test]
-        public void VersionedDictionaryReferenceCycleThrows()
-        {
-            const string example = """
-                {
-                  "kind": "dict", "type": { "kind": "unknown" },
-                  "extension": {
-                    "$id": "dictionary",
-                    "item": { "kind": "dict", "type": { "kind": "unknown" }, "value": { "$ref": "dictionary" } }
-                  },
-                  "value": { "$ref": "dictionary" }
-                }
-                """;
-
-            var exception = Assert.Throws<JsonException>(() => DeserializeExampleValue(example, versioned: true));
-
-            Assert.That(exception!.Message, Does.Contain("circular reference"));
-        }
-
         [TestCase("unknown")]
         [TestCase("union")]
         public void OpaqueExampleCannotDefineModelReference(string kind)
@@ -184,12 +124,11 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
             var example = root["clients"]![0]!["children"]![0]!["methods"]![0]!["operation"]!["examples"]![0]!["parameters"]![0]!;
             example["value"] = JsonNode.Parse(exampleValue);
 
-            var json = root.ToJsonString();
             if (versioned)
             {
-                json = $$"""{ "format": "typespec-csharp-code-model", "version": 2, "root": {{json}} }""";
+                root["$version"] = 2;
             }
-            var input = TypeSpecSerialization.Deserialize(json)!;
+            var input = TypeSpecSerialization.Deserialize(root.ToJsonString())!;
             return input.Clients[0].Children[0].Methods[0].Operation.Examples[0].Parameters[0].ExampleValue;
         }
 

@@ -1,4 +1,5 @@
 {
+  "$version": 2,
   "name": "Type.Model.Inheritance.EnumDiscriminator",
   "apiVersions": [],
   "enums": [

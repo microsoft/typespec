@@ -85,22 +85,16 @@ namespace Microsoft.TypeSpec.Generator.Input
                 MaxDepth = options.MaxDepth
             });
             var root = document.RootElement;
-            if (root.ValueKind == JsonValueKind.Object
-                && root.TryGetProperty("format", out var format)
-                && format.ValueKind == JsonValueKind.String
-                && format.GetString() == "typespec-csharp-code-model")
+            // A single leading $ marks serializer metadata; the emitter escapes data property names
+            // starting with $ so that $id and $ref cannot collide with user data.
+            if (root.ValueKind == JsonValueKind.Object && root.TryGetProperty("$version", out var version))
             {
-                if (!root.TryGetProperty("version", out var version)
-                    || version.ValueKind != JsonValueKind.Number || !version.TryGetInt32(out var number) || number != 2)
+                if (version.ValueKind != JsonValueKind.Number || !version.TryGetInt32(out var number) || number != 2)
                 {
                     throw new JsonException("Unsupported code-model format version");
                 }
-                if (!root.TryGetProperty("root", out root) || root.ValueKind != JsonValueKind.Object)
-                {
-                    throw new JsonException("The versioned code model must contain an object root");
-                }
                 referenceHandler.CurrentResolver.UsesEscapedPropertyNames = true;
-                options.Converters.Add(new TypeSpecJsonConverter(referenceHandler.CurrentResolver, options.MaxDepth));
+                options.Converters.Add(new RawJsonConverter(referenceHandler.CurrentResolver));
             }
             // Opaque decorator arguments and unknown properties can contain the first
             // definition of an object referenced by the typed code-model graph.

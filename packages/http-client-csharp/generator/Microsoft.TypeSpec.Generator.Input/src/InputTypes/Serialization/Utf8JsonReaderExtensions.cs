@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -170,27 +169,6 @@ namespace Microsoft.TypeSpec.Generator.Input
             {
                 throw new JsonException();
             }
-            var lookahead = reader;
-            lookahead.Read();
-            if (lookahead.TokenType == JsonTokenType.PropertyName && lookahead.ValueTextEquals("$ref")
-                && options.GetConverter(typeof(JsonElement)) is TypeSpecJsonConverter rawConverter)
-            {
-                using var document = JsonDocument.ParseValue(ref reader);
-                var definition = rawConverter.EnterDictionaryReference(document.RootElement);
-                try
-                {
-                    var definitionReader = new Utf8JsonReader(Encoding.UTF8.GetBytes(definition.GetRawText()),
-                        new JsonReaderOptions { AllowTrailingCommas = options.AllowTrailingCommas, MaxDepth = options.MaxDepth });
-                    definitionReader.Read();
-                    var dictionary = ReadDictionary<T>(ref definitionReader, options);
-                    reader.Read();
-                    return dictionary;
-                }
-                finally
-                {
-                    rawConverter.ExitDictionaryReference(document.RootElement);
-                }
-            }
             reader.Read();
             string? id = null;
             var result = new Dictionary<string, T>();
@@ -318,7 +296,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             return result;
         }
 
-        public static bool TryReadStringBinaryDataDictionary(this ref Utf8JsonReader reader, string propertyName, JsonSerializerOptions options, ref IReadOnlyDictionary<string, BinaryData>? value, ref IReadOnlySet<string>? referenceEncodedArguments)
+        public static bool TryReadStringBinaryDataDictionary(this ref Utf8JsonReader reader, string propertyName, JsonSerializerOptions options, ref IReadOnlyDictionary<string, BinaryData>? value)
         {
             if (reader.TokenType != JsonTokenType.PropertyName)
             {
@@ -333,30 +311,18 @@ namespace Microsoft.TypeSpec.Generator.Input
             reader.Read();
             using var document = JsonDocument.ParseValue(ref reader);
             var result = new Dictionary<string, BinaryData>();
-            var encodedArguments = new HashSet<string>();
-            var rawConverter = options.GetConverter(typeof(JsonElement)) as TypeSpecJsonConverter;
             var resolver = (options.ReferenceHandler as TypeSpecReferenceHandler)?.CurrentResolver;
-            var dictionary = rawConverter?.ResolveReference(document.RootElement) ?? document.RootElement;
-            foreach (JsonProperty property in dictionary.EnumerateObject())
+            foreach (JsonProperty property in document.RootElement.EnumerateObject())
             {
+                // Metadata is only recognizable when data property names are escaped.
                 if (resolver?.UsesEscapedPropertyNames == true && property.NameEquals("$id"))
                 {
                     continue;
                 }
-                var name = resolver?.DecodePropertyName(property.Name) ?? property.Name;
-                var rawValue = property.Value;
-                if (rawConverter != null)
-                {
-                    rawValue = rawConverter.Decode(rawValue, preserveCycles: true, out var encoded);
-                    if (encoded)
-                    {
-                        encodedArguments.Add(name);
-                    }
-                }
-                result.Add(name, BinaryData.FromString(rawValue.GetRawText()));
+                result.Add(resolver?.DecodePropertyName(property.Name) ?? property.Name,
+                    BinaryData.FromString(RawJsonConverter.DecodePropertyNames(property.Value, resolver)));
             }
             value = result;
-            referenceEncodedArguments = encodedArguments;
             return true;
         }
 

@@ -1,4 +1,5 @@
 {
+  "$version": 2,
   "name": "Payload.Head",
   "apiVersions": [],
   "enums": [],

@@ -1,4 +1,5 @@
 {
+  "$version": 2,
   "name": "Server.Path.Single",
   "apiVersions": [],
   "enums": [],
