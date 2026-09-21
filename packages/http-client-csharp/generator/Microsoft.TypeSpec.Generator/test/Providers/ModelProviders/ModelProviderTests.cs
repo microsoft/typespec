@@ -283,6 +283,22 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             CollectionAssert.AreEquivalent(new[] { "WidgetResponse", resultName }, providers.Select(p => p.Name));
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
+        public void TestBuildName_ResponseSuffixSelectsSingleResultForDuplicateEffectiveNames(bool reverseOrder)
+        {
+            var first = InputFactory.Model("FooResponse", @namespace: "Alpha");
+            var second = InputFactory.Model("FooResponse", @namespace: "Beta");
+            InputModelType[] models = reverseOrder ? [second, first] : [first, second];
+            MockHelpers.LoadMockGenerator(inputModelTypes: models);
+
+            var firstProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(first)!;
+            var secondProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(second)!;
+
+            Assert.AreEqual("FooResult", firstProvider.Name);
+            Assert.AreEqual("FooResponse", secondProvider.Name);
+        }
+
         [TestCase("Sample.Models", "WidgetResponse")]
         [TestCase("Other", "WidgetResult")]
         public void TestBuildName_ResponseSuffixAvoidsClientCollision(string clientNamespace, string expectedName)
@@ -368,7 +384,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             var providers = models.Select(m => CodeModelGenerator.Instance.TypeFactory.CreateModel(m)!).ToArray();
 
-            CollectionAssert.AreEquivalent(new[] { "WidgetResult", "IPResponse" }, providers.Select(p => p.Name));
+            CollectionAssert.AreEquivalent(new[] { "WidgetResponse", "IPResponse" }, providers.Select(p => p.Name));
         }
 
         [Test]

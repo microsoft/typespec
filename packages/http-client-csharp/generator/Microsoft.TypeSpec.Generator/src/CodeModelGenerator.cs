@@ -27,7 +27,6 @@ namespace Microsoft.TypeSpec.Generator
         private List<LibraryVisitor> _visitors = [];
         private List<MetadataReference> _additionalMetadataReferences = [];
         private readonly Dictionary<string, List<TypeProvider>> _customCodeMethodDependencies = new(StringComparer.Ordinal);
-        private readonly Lazy<ModelProvider.NameCache> _modelProviderNameCache;
         private static CodeModelGenerator? _instance;
         private List<string> _sharedSourceDirectories = [];
         public const string GeneratorMetadataName = "GeneratorName";
@@ -64,7 +63,6 @@ namespace Microsoft.TypeSpec.Generator
             _inputLibrary = new InputLibrary(Configuration.OutputDirectory);
             TypeFactory = new TypeFactory();
             Emitter = new Emitter(Console.OpenStandardOutput());
-            _modelProviderNameCache = new(() => new(this));
         }
 
         // for mocking
@@ -72,7 +70,6 @@ namespace Microsoft.TypeSpec.Generator
         protected CodeModelGenerator()
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         {
-            _modelProviderNameCache = new(() => new(this));
         }
 
         internal bool IsNewProject { get; set; }
@@ -83,11 +80,6 @@ namespace Microsoft.TypeSpec.Generator
 
         // Extensibility points to be implemented by a generator
         public virtual TypeFactory TypeFactory { get; }
-
-        /// <summary>
-        /// Gets the name cache after the input namespace and customization compilations are finalized.
-        /// </summary>
-        internal ModelProvider.NameCache ModelProviderNameCache => _modelProviderNameCache.Value;
 
         private SourceInputModel? _sourceInputModel;
         private List<LibraryRewriter> _rewriters = [];
