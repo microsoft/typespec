@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -77,6 +78,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         internal bool UsesLastContractType => _lastContractType is not null;
 
+        internal bool HasReconstructibleLastContractConstructor
+            => _lastContractType is null || TryGetLastContractConstructor(out _, out _);
+
         /// <summary>
         /// Gets the cross-language definition ID from the input model.
         /// </summary>
@@ -108,55 +112,66 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return base.BuildFullConstructor();
             }
 
+            if (!TryGetLastContractConstructor(out var constructor, out var matchedProperties))
+            {
+                return base.BuildFullConstructor();
+            }
+
+            var parameters = constructor.Signature.Parameters
+                .Zip(matchedProperties)
+                .Select(pair => new ParameterProvider(
+                    pair.First.Name,
+                    pair.First.Description,
+                    pair.First.Type,
+                    pair.First.DefaultValue,
+                    pair.First.IsRef,
+                    pair.First.IsOut,
+                    pair.First.IsIn,
+                    pair.First.IsParams,
+                    pair.First.Attributes,
+                    pair.Second,
+                    initializationValue: pair.First.InitializationValue,
+                    location: pair.First.Location,
+                    wireInfo: pair.First.WireInfo,
+                    validation: pair.First.Validation,
+                    inputParameter: pair.First.InputParameter))
+                .ToArray();
+
+            return new ConstructorProvider(
+                new ConstructorSignature(
+                    Type,
+                    constructor.Signature.Description,
+                    MethodSignatureModifiers.Internal,
+                    parameters),
+                Array.Empty<MethodBodyStatement>(),
+                this);
+        }
+
+        private bool TryGetLastContractConstructor(
+            [NotNullWhen(true)] out ConstructorProvider? constructor,
+            [NotNullWhen(true)] out IReadOnlyList<PropertyProvider>? matchedProperties)
+        {
             var properties = Properties;
-            foreach (var constructor in _lastContractType.Constructors
+            foreach (var candidate in _lastContractType!.Constructors
                 .Where(constructor => MethodSignatureHelper.IsPublicApi(constructor.Signature.Modifiers))
                 .OrderByDescending(constructor => constructor.Signature.Parameters.Count))
             {
-                var parameters = new List<ParameterProvider>(constructor.Signature.Parameters.Count);
-                foreach (var parameter in constructor.Signature.Parameters)
-                {
-                    var property = properties.FirstOrDefault(property =>
+                var matches = candidate.Signature.Parameters
+                    .Select(parameter => properties.FirstOrDefault(property =>
                         property.AsParameter.Name == parameter.Name &&
-                        property.Type.Equals(parameter.Type, ignoreNullable: true));
-                    if (property is null)
-                    {
-                        parameters.Clear();
-                        break;
-                    }
-
-                    parameters.Add(new ParameterProvider(
-                        parameter.Name,
-                        parameter.Description,
-                        parameter.Type,
-                        parameter.DefaultValue,
-                        parameter.IsRef,
-                        parameter.IsOut,
-                        parameter.IsIn,
-                        parameter.IsParams,
-                        parameter.Attributes,
-                        property,
-                        initializationValue: parameter.InitializationValue,
-                        location: parameter.Location,
-                        wireInfo: parameter.WireInfo,
-                        validation: parameter.Validation,
-                        inputParameter: parameter.InputParameter));
-                }
-
-                if (parameters.Count == constructor.Signature.Parameters.Count)
+                        property.Type.Equals(parameter.Type, ignoreNullable: true)))
+                    .ToArray();
+                if (matches.All(property => property is not null))
                 {
-                    return new ConstructorProvider(
-                        new ConstructorSignature(
-                            Type,
-                            constructor.Signature.Description,
-                            MethodSignatureModifiers.Internal,
-                            parameters),
-                        Array.Empty<MethodBodyStatement>(),
-                        this);
+                    constructor = candidate;
+                    matchedProperties = matches.Select(property => property!).ToArray();
+                    return true;
                 }
             }
 
-            return base.BuildFullConstructor();
+            constructor = null;
+            matchedProperties = null;
+            return false;
         }
 
         /// <inheritdoc/>
@@ -170,11 +185,35 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var properties = new List<PropertyProvider>();
             for (var provider = _lastContractType; provider is not null; provider = provider.BaseTypeProvider)
             {
-                properties.AddRange(provider.Properties.Where(property =>
+                foreach (var property in provider.Properties.Where(property =>
                     MethodSignatureHelper.IsPublicApi(property.Modifiers) &&
-                    !properties.Any(existing => existing.Name == property.Name)));
+                    !properties.Any(existing => existing.Name == property.Name)))
+                {
+                    properties.Add(ApplyCurrentInputMetadata(property));
+                }
             }
             return [.. properties];
+        }
+
+        private PropertyProvider ApplyCurrentInputMetadata(PropertyProvider lastContractProperty)
+        {
+            var matchingInputProperties = InputModel.Properties.Where(property =>
+                CodeModelGenerator.Instance.TypeFactory.IsLastContractModelBasePropertyCompatible(
+                    SystemType,
+                    property,
+                    lastContractProperty)).ToArray();
+            if (matchingInputProperties.Length != 1 ||
+                CodeModelGenerator.Instance.TypeFactory.CreateProperty(matchingInputProperties[0], this) is not { } property)
+            {
+                return lastContractProperty;
+            }
+
+            // Keep the shipped CLR surface while using the current input as the authority for wire metadata.
+            property.Name = lastContractProperty.Name;
+            property.Type = lastContractProperty.Type;
+            property.Modifiers = lastContractProperty.Modifiers;
+            property.Body = lastContractProperty.Body;
+            return property;
         }
 
         /// <inheritdoc/>

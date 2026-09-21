@@ -659,6 +659,55 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task BackCompat_DownstreamMappedBaseRejectsNonPropertyConstructor()
+        {
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [currentBase, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                createLastContractModelBase: (previousBase, currentModel) => previousBase);
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.That(provider.BaseType?.Name, Is.EqualTo("CurrentBase"),
+                "A mapped base must be rejected when none of its shipped constructors can be reconstructed from its properties");
+        }
+
+        [Test]
+        public async Task BackCompat_DownstreamMappedBasePreservesRequiredInitializationParameters()
+        {
+            var currentBase = InputFactory.Model(
+                "CurrentBase",
+                properties: [InputFactory.Property("message", InputPrimitiveType.String, isRequired: true)]);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [currentBase, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_LastContractMappedBaseCanBeProvidedByDownstreamGenerator)),
+                createLastContractModelBase: (previousBase, currentModel) => new CSharpType(typeof(Exception)),
+                isLastContractModelBasePropertyCompatible: (mappedBase, currentProperty, lastContractProperty) =>
+                    currentProperty.Name == "message" && lastContractProperty.Name == "Message");
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+            var initializationConstructor = provider.Constructors[0];
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(provider.BaseType?.Name, Is.EqualTo(nameof(Exception)));
+                Assert.That(initializationConstructor.Signature.Parameters.Select(parameter => parameter.Name),
+                    Is.EqualTo(new[] { "message" }));
+                Assert.That(initializationConstructor.Signature.Initializer?.Arguments.Count, Is.EqualTo(1));
+            });
+        }
+
+        [Test]
         public async Task BackCompat_DownstreamMappedBaseRejectsEffectivePropertyCollision()
         {
             var currentBase = InputFactory.Model("CurrentBase", properties: []);
@@ -726,6 +775,27 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 Assert.That(provider.CustomCodeView.Properties.Select(property => property.Name), Does.Contain("CustomValue"));
                 Assert.That(provider.BaseType?.AreNamesEqual(new CSharpType(typeof(Exception))), Is.True);
             });
+        }
+
+        [Test]
+        public async Task BackCompat_MappedBaseRestorationRejectsCustomMemberCollision()
+        {
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [currentBase, derivedModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_LastContractMappedBaseCanBeProvidedByDownstreamGenerator)),
+                createLastContractModelBase: (previousBase, currentModel) => new CSharpType(typeof(Exception)));
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.That(provider.BaseType?.Name, Is.EqualTo("CurrentBase"),
+                "A custom member must not unexpectedly hide a property introduced by the restored base");
         }
 
         [Test]

@@ -73,19 +73,36 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         public bool CanUseMappedBase(SystemObjectModelProvider mappedBase)
         {
-            if (HasDuplicateAdditionalProperties(mappedBase))
+            if (HasDuplicateAdditionalProperties(mappedBase) ||
+                !mappedBase.HasReconstructibleLastContractConstructor)
             {
                 return false;
             }
 
             var lookup = new MappedPropertyLookup(mappedBase);
-            return HasCompatibleCurrentModelProperties(lookup) &&
+            return HasNoCustomMemberCollisions(mappedBase) &&
+                HasCompatibleCurrentModelProperties(lookup) &&
                 HasCompatibleDisplacedBase(mappedBase, lookup);
         }
 
         private bool HasDuplicateAdditionalProperties(SystemObjectModelProvider mappedBase)
             => InputModel.AdditionalProperties is not null &&
                 mappedBase.InputModel.AdditionalProperties is not null;
+
+        private bool HasNoCustomMemberCollisions(SystemObjectModelProvider mappedBase)
+        {
+            if (_model.CustomCodeView is not { } customCode)
+            {
+                return true;
+            }
+
+            var customMemberNames = customCode.Properties.Select(property => property.Name)
+                .Concat(customCode.Fields.Select(field => field.Name))
+                .ToHashSet(StringComparer.Ordinal);
+            return !mappedBase.Properties.Any(property =>
+                MethodSignatureHelper.IsPublicApi(property.Modifiers) &&
+                customMemberNames.Contains(property.Name));
+        }
 
         private bool HasCompatibleCurrentModelProperties(MappedPropertyLookup lookup)
         {
