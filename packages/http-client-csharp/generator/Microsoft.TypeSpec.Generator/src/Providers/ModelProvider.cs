@@ -349,7 +349,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 nameCache.FindClients(resultName).Any(entry => HasConflictingName(entry, typeNamespace, resultName));
         }
 
-        private bool HasConflictingName(ModelProviderNameCache.Entry entry, string resultName)
+        private bool HasConflictingName(NameCache.TypeEntry entry, string resultName)
         {
             if (entry.InputType == _inputModel)
             {
@@ -366,7 +366,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 (!entry.IsResultAlias || !entry.HasLastContractName);
         }
 
-        private static bool HasConflictingName(ModelProviderNameCache.Entry entry, string typeNamespace, string resultName)
+        private static bool HasConflictingName(NameCache.ClientEntry entry, string typeNamespace, string resultName)
             => (entry.CustomType?.Type.Namespace ?? entry.Namespace) == typeNamespace &&
                 (entry.CustomType?.Name ?? entry.InputName) == resultName;
 
@@ -1964,14 +1964,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return $"_additional{name.ToIdentifierName()}Properties";
         }
 
-        internal sealed class ModelProviderNameCache
+        /// <summary>
+        /// Indexes input and customized type names once per generator for collision lookups.
+        /// </summary>
+        internal sealed class NameCache
         {
             private readonly CodeModelGenerator _generator;
-            private readonly Lazy<Dictionary<string, List<Entry>>> _models;
-            private readonly Lazy<Dictionary<string, List<Entry>>> _enums;
-            private readonly Lazy<Dictionary<string, List<Entry>>> _clients;
+            private readonly Lazy<Dictionary<string, List<TypeEntry>>> _models;
+            private readonly Lazy<Dictionary<string, List<TypeEntry>>> _enums;
+            private readonly Lazy<Dictionary<string, List<ClientEntry>>> _clients;
 
-            internal ModelProviderNameCache(CodeModelGenerator generator)
+            internal NameCache(CodeModelGenerator generator)
             {
                 _generator = generator;
                 _models = new(() => BuildTypeMap(
@@ -1983,25 +1986,25 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 _clients = new(BuildClientMap);
             }
 
-            internal IReadOnlyList<Entry> FindModels(string name) => Find(_models.Value, name);
-            internal IReadOnlyList<Entry> FindEnums(string name) => Find(_enums.Value, name);
-            internal IReadOnlyList<Entry> FindClients(string name) => Find(_clients.Value, name);
+            internal IReadOnlyList<TypeEntry> FindModels(string name) => Find(_models.Value, name);
+            internal IReadOnlyList<TypeEntry> FindEnums(string name) => Find(_enums.Value, name);
+            internal IReadOnlyList<ClientEntry> FindClients(string name) => Find(_clients.Value, name);
 
-            private static IReadOnlyList<Entry> Find(Dictionary<string, List<Entry>> cache, string name)
+            private static IReadOnlyList<T> Find<T>(Dictionary<string, List<T>> cache, string name)
                 => cache.TryGetValue(name, out var entries) ? entries : [];
 
-            private Dictionary<string, List<Entry>> BuildTypeMap<T>(
+            private Dictionary<string, List<TypeEntry>> BuildTypeMap<T>(
                 IEnumerable<T> inputTypes,
                 Func<T, string> getNamespace)
                 where T : InputType
             {
-                var cache = new Dictionary<string, List<Entry>>(StringComparer.OrdinalIgnoreCase);
+                var cache = new Dictionary<string, List<TypeEntry>>(StringComparer.OrdinalIgnoreCase);
                 foreach (var inputType in inputTypes)
                 {
                     var inputName = inputType.IsExactName ? inputType.Name : inputType.Name.ToIdentifierName();
                     var typeNamespace = GetNamespace(getNamespace(inputType));
                     var customType = FindCustomizationType(typeNamespace, GetCustomizationLookupNames(inputType, inputName));
-                    var entry = new Entry(
+                    var entry = new TypeEntry(
                         inputType,
                         typeNamespace,
                         inputName,
@@ -2019,15 +2022,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return cache;
             }
 
-            private Dictionary<string, List<Entry>> BuildClientMap()
+            private Dictionary<string, List<ClientEntry>> BuildClientMap()
             {
-                var cache = new Dictionary<string, List<Entry>>(StringComparer.OrdinalIgnoreCase);
+                var cache = new Dictionary<string, List<ClientEntry>>(StringComparer.OrdinalIgnoreCase);
                 foreach (var client in _generator.InputLibrary.InputNamespace.Clients)
                 {
                     var inputName = client.IsExactName ? client.Name : client.Name.ToIdentifierName();
                     var typeNamespace = GetNamespace(client.Namespace);
                     var customType = _generator.SourceInputModel.FindForTypeInCurrentCompilation(typeNamespace, inputName);
-                    var entry = new Entry(client, typeNamespace, inputName, customType, false, false);
+                    var entry = new ClientEntry(typeNamespace, inputName, customType);
                     Add(cache, inputName, entry);
                     if (customType is not null &&
                         !string.Equals(customType.Name, inputName, StringComparison.OrdinalIgnoreCase))
@@ -2092,7 +2095,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     _generator.SourceInputModel.FindForTypeInLastContract(typeNamespace, normalizedName) is not null;
             }
 
-            private static void Add(Dictionary<string, List<Entry>> cache, string name, Entry entry)
+            private static void Add<T>(Dictionary<string, List<T>> cache, string name, T entry)
             {
                 if (!cache.TryGetValue(name, out var entries))
                 {
@@ -2103,20 +2106,30 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 entries.Add(entry);
             }
 
-            internal sealed class Entry(
-                object inputType,
+            internal sealed class TypeEntry(
+                InputType inputType,
                 string @namespace,
                 string inputName,
                 TypeProvider? customType,
                 bool isResultAlias,
                 bool hasLastContractName)
             {
-                internal object InputType { get; } = inputType;
+                internal InputType InputType { get; } = inputType;
                 internal string Namespace { get; } = @namespace;
                 internal string InputName { get; } = inputName;
                 internal TypeProvider? CustomType { get; } = customType;
                 internal bool IsResultAlias { get; } = isResultAlias;
                 internal bool HasLastContractName { get; } = hasLastContractName;
+            }
+
+            internal sealed class ClientEntry(
+                string @namespace,
+                string inputName,
+                TypeProvider? customType)
+            {
+                internal string Namespace { get; } = @namespace;
+                internal string InputName { get; } = inputName;
+                internal TypeProvider? CustomType { get; } = customType;
             }
         }
     }
