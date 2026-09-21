@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
@@ -75,8 +76,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         internal PropertyProvider? DiscriminatorProperty { get; private set; }
 
         private readonly bool _isDiscriminatedBaseType;
-        private IReadOnlyList<InputModelType>? _emittedModels;
-        private IReadOnlyList<InputEnumType>? _emittedEnums;
+        private static readonly ConditionalWeakTable<InputLibrary, EmittedTypes> _emittedTypesCache = new();
 
         private ValueExpression DiscriminatorLiteral => Literal(_inputModel.DiscriminatorValue ?? "");
 
@@ -350,24 +350,28 @@ namespace Microsoft.TypeSpec.Generator.Providers
             string typeNamespace,
             string resultName,
             TypeProvider? excludedCustomization = null)
-            => GetEmittedModels(inputLibrary).Any(model => HasConflictingName(model, model.Namespace, resultName, excludedCustomization)) ||
-                EmittedEnums.Any(@enum => HasConflictingName(@enum, @enum.Namespace, resultName, excludedCustomization)) ||
+        {
+            var emittedTypes = GetEmittedTypes(inputLibrary);
+            return emittedTypes.Models.Any(model => HasConflictingName(model, model.Namespace, resultName, excludedCustomization)) ||
+                emittedTypes.Enums.Any(@enum => HasConflictingName(@enum, @enum.Namespace, resultName, excludedCustomization)) ||
                 inputLibrary.InputNamespace.Clients.Any(client => HasConflictingName(client, typeNamespace, resultName, excludedCustomization));
+        }
 
-        private IReadOnlyList<InputEnumType> EmittedEnums
-            => _emittedEnums ??= CodeModelGenerator.Instance.InputLibrary.InputNamespace.Enums
-                .Where(@enum => @enum.External is null && !@enum.Usage.HasFlag(InputModelTypeUsage.ApiVersionEnum))
-                .ToList();
-
-        private IReadOnlyList<InputModelType> GetEmittedModels(InputLibrary inputLibrary)
-            => _emittedModels ??= BuildEmittedModels(inputLibrary).ToList();
+        private static EmittedTypes GetEmittedTypes(InputLibrary inputLibrary)
+            => _emittedTypesCache.GetValue(
+                inputLibrary,
+                static inputLibrary => new(
+                    BuildEmittedModels(inputLibrary).ToList(),
+                    inputLibrary.InputNamespace.Enums
+                        .Where(@enum => @enum.External is null && !@enum.Usage.HasFlag(InputModelTypeUsage.ApiVersionEnum))
+                        .ToList()));
 
         private static IEnumerable<InputModelType> BuildEmittedModels(InputLibrary inputLibrary)
         {
             foreach (var model in inputLibrary.InputNamespace.Models)
             {
                 if (model.External is not null &&
-                    CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(model) is not null)
+                    CodeModelGenerator.Instance.TypeFactory.CreateExternalType(model.External) is not null)
                 {
                     continue;
                 }
@@ -377,12 +381,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 var unknownVariant = model.DiscriminatedSubtypes.Values.FirstOrDefault(model => model.IsUnknownDiscriminatorModel);
                 if (unknownVariant is not null &&
                     (unknownVariant.External is null ||
-                     CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(unknownVariant) is null))
+                     CodeModelGenerator.Instance.TypeFactory.CreateExternalType(unknownVariant.External) is null))
                 {
                     yield return unknownVariant;
                 }
             }
         }
+
+        private sealed record EmittedTypes(IReadOnlyList<InputModelType> Models, IReadOnlyList<InputEnumType> Enums);
 
         private bool HasConflictingName(
             InputType inputType,
@@ -546,9 +552,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             var inputNamespace = CodeModelGenerator.Instance.InputLibrary.InputNamespace;
-            foreach (var (inputType, inputTypeNamespace) in GetEmittedModels(CodeModelGenerator.Instance.InputLibrary)
+            var emittedTypes = GetEmittedTypes(CodeModelGenerator.Instance.InputLibrary);
+            foreach (var (inputType, inputTypeNamespace) in emittedTypes.Models
                 .Select(model => ((InputType)model, model.Namespace))
-                .Concat(inputNamespace.Enums.Select(@enum => ((InputType)@enum, @enum.Namespace))))
+                .Concat(emittedTypes.Enums.Select(@enum => ((InputType)@enum, @enum.Namespace))))
             {
                 if (inputType == _inputModel)
                 {
