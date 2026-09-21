@@ -332,19 +332,18 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             var resultName = $"{normalizedName[..^ResponseSuffix.Length]}Result";
-            var inputNamespace = CodeModelGenerator.Instance.InputLibrary.InputNamespace;
             var customType = sourceInputModel.FindForTypeInCurrentCompilation(typeNamespace, resultName, DeclaringTypeName);
             return (customType is not null && string.Equals(customType.Name, resultName, StringComparison.OrdinalIgnoreCase)) ||
-                HasConflictingNameInLibrary(inputNamespace, typeNamespace, resultName)
+                HasConflictingName(CodeModelGenerator.Instance.InputLibrary, typeNamespace, resultName)
                 ? normalizedName
                 : resultName;
         }
 
         // Model and enum files share a flat output directory, even across namespaces.
-        private bool HasConflictingNameInLibrary(InputNamespace inputNamespace, string typeNamespace, string resultName)
-            => inputNamespace.Models.Any(model => HasConflictingName(model, model.Namespace, resultName)) ||
-                inputNamespace.Enums.Any(@enum => HasConflictingName(@enum, @enum.Namespace, resultName)) ||
-                inputNamespace.Clients.Any(client => HasConflictingName(client, typeNamespace, resultName));
+        private bool HasConflictingName(InputLibrary inputLibrary, string typeNamespace, string resultName)
+            => inputLibrary.InputNamespace.Models.Any(model => HasConflictingName(model, model.Namespace, resultName)) ||
+                inputLibrary.InputNamespace.Enums.Any(@enum => HasConflictingName(@enum, @enum.Namespace, resultName)) ||
+                inputLibrary.InputNamespace.Clients.Any(client => HasConflictingName(client, typeNamespace, resultName));
 
         private bool HasConflictingName(InputType inputType, string inputTypeNamespace, string resultName)
         {
@@ -489,38 +488,38 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             var inputNamespace = CodeModelGenerator.Instance.InputLibrary.InputNamespace;
-            return inputNamespace.Models.Any(model => HasCustomizedSiblingInputName(model, model.Namespace, typeName)) ||
-                inputNamespace.Enums.Any(@enum => HasCustomizedSiblingInputName(@enum, @enum.Namespace, typeName)) ||
-                inputNamespace.Clients.Any(client => HasCustomizedSiblingInputName(client, typeName));
-        }
-
-        private bool HasCustomizedSiblingInputName(InputType inputType, string inputTypeNamespace, string typeName)
-        {
-            if (inputType == _inputModel)
+            foreach (var (inputType, inputTypeNamespace) in inputNamespace.Models
+                .Select(model => ((InputType)model, model.Namespace))
+                .Concat(inputNamespace.Enums.Select(@enum => ((InputType)@enum, @enum.Namespace))))
             {
-                return false;
+                if (inputType == _inputModel)
+                {
+                    continue;
+                }
+
+                var inputTypeName = inputType.IsExactName ? inputType.Name : inputType.Name.ToIdentifierName();
+                if (HasMismatchedCustomization(
+                    inputTypeName,
+                    GetTypeNamespace(inputTypeNamespace),
+                    typeName,
+                    GetCustomizationLookupNames(inputType, inputTypeName)))
+                {
+                    return true;
+                }
             }
 
-            var otherName = inputType.IsExactName ? inputType.Name : inputType.Name.ToIdentifierName();
-            var otherNamespace = GetTypeNamespace(inputTypeNamespace);
-            return HasCustomizedSiblingInputName(
-                otherName,
-                otherNamespace,
-                typeName,
-                GetCustomizationLookupNames(inputType, otherName));
+            return inputNamespace.Clients.Any(client =>
+            {
+                var clientName = client.IsExactName ? client.Name : client.Name.ToIdentifierName();
+                return HasMismatchedCustomization(
+                    clientName,
+                    GetTypeNamespace(client.Namespace),
+                    typeName,
+                    [clientName]);
+            });
         }
 
-        private bool HasCustomizedSiblingInputName(InputClient client, string typeName)
-        {
-            var clientName = client.IsExactName ? client.Name : client.Name.ToIdentifierName();
-            return HasCustomizedSiblingInputName(
-                clientName,
-                GetTypeNamespace(client.Namespace),
-                typeName,
-                [clientName]);
-        }
-
-        private bool HasCustomizedSiblingInputName(
+        private bool HasMismatchedCustomization(
             string siblingName,
             string siblingNamespace,
             string typeName,
