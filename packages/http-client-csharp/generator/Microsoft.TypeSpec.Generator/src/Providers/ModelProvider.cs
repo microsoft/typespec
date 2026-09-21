@@ -79,6 +79,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         // The input library is fixed before providers are named. Cache the emitted collision inventory
         // once per library instead of rebuilding it for every ModelProvider that checks a Response->Result name.
         private static readonly ConditionalWeakTable<InputLibrary, EmittedTypes> _emittedTypesCache = new();
+        private static readonly object _emittedTypesCacheLock = new();
 
         private ValueExpression DiscriminatorLiteral => Literal(_inputModel.DiscriminatorValue ?? "");
 
@@ -360,15 +361,30 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         private static EmittedTypes GetEmittedTypes(InputLibrary inputLibrary)
-            => _emittedTypesCache.GetValue(
-                inputLibrary,
-                static inputLibrary => new(
+        {
+            if (_emittedTypesCache.TryGetValue(inputLibrary, out var emittedTypes))
+            {
+                return emittedTypes;
+            }
+
+            lock (_emittedTypesCacheLock)
+            {
+                if (_emittedTypesCache.TryGetValue(inputLibrary, out emittedTypes))
+                {
+                    return emittedTypes;
+                }
+
+                emittedTypes = new(
                     BuildEmittedModels(inputLibrary).ToList(),
                     inputLibrary.InputNamespace.Enums
                         // Mirrors OutputLibrary.BuildEnums: API-version enums are never emitted, and external
                         // enums always map to existing types instead of generated files.
                         .Where(@enum => @enum.External is null && !@enum.Usage.HasFlag(InputModelTypeUsage.ApiVersionEnum))
-                        .ToList()));
+                        .ToList());
+                _emittedTypesCache.Add(inputLibrary, emittedTypes);
+                return emittedTypes;
+            }
+        }
 
         // Mirrors OutputLibrary.BuildModels: a model resolved to a framework/referenced type
         // (via `external`) is represented by a SystemObjectModelProvider and never emitted as a
@@ -401,9 +417,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 yield return unknownVariant;
             }
 
-            static bool IsEmitted(InputModelType model)
-                => model.External is null ||
-                    CodeModelGenerator.Instance.TypeFactory.CreateExternalType(model.External) is null;
+            static bool IsEmitted(InputModelType candidate)
+                => candidate.External is null ||
+                    CodeModelGenerator.Instance.TypeFactory.CreateExternalType(candidate.External) is null;
         }
 
         private sealed record EmittedTypes(IReadOnlyList<InputModelType> Models, IReadOnlyList<InputEnumType> Enums);
