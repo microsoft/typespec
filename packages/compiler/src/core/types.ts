@@ -1252,6 +1252,7 @@ export enum SyntaxKind {
   InternalKeyword,
   AutoKeyword,
   FunctionTypeExpression,
+  PartialKeyword,
   ModelDeclarationExpression,
   ScalarDeclarationExpression,
   UnionDeclarationExpression,
@@ -1937,6 +1938,18 @@ export interface AutoKeywordNode extends BaseNode {
   readonly kind: SyntaxKind.AutoKeyword;
 }
 
+/**
+ * The `partial` modifier keyword.
+ *
+ * Marks a declaration (currently only interfaces) as being one of possibly
+ * several declarations that will be combined into a single declaration once
+ * the program is fully bound. Every declaration sharing the same name must
+ * be marked `partial`.
+ */
+export interface PartialKeywordNode extends BaseNode {
+  readonly kind: SyntaxKind.PartialKeyword;
+}
+
 export interface VoidKeywordNode extends BaseNode {
   readonly kind: SyntaxKind.VoidKeyword;
 }
@@ -1994,11 +2007,13 @@ export const enum ModifierFlags {
   Extern = 1 << 1,
   Internal = 1 << 2,
   Auto = 1 << 3,
+  Partial = 1 << 4,
 
-  All = Extern | Internal | Auto,
+  All = Extern | Internal | Auto | Partial,
 }
 
-export type Modifier = ExternKeywordNode | InternalKeywordNode | AutoKeywordNode;
+export type Modifier =
+  ExternKeywordNode | InternalKeywordNode | AutoKeywordNode | PartialKeywordNode;
 
 /**
  * Represent a decorator declaration
