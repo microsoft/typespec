@@ -333,13 +333,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             var resultName = $"{normalizedName[..^ResponseSuffix.Length]}Result";
             var inputNamespace = CodeModelGenerator.Instance.InputLibrary.InputNamespace;
-            return HasConflictingName(inputNamespace, typeNamespace, resultName)
+            return HasConflictingNameInLibrary(inputNamespace, typeNamespace, resultName)
                 ? normalizedName
                 : resultName;
         }
 
         // Model and enum files share a flat output directory, even across namespaces.
-        private bool HasConflictingName(InputNamespace inputNamespace, string typeNamespace, string resultName)
+        private bool HasConflictingNameInLibrary(InputNamespace inputNamespace, string typeNamespace, string resultName)
             => inputNamespace.Models.Any(model => HasConflictingName(model, model.Namespace, resultName)) ||
                 inputNamespace.Enums.Any(@enum => HasConflictingName(@enum, @enum.Namespace, resultName)) ||
                 inputNamespace.Clients.Any(client => HasConflictingName(client, typeNamespace, resultName));
