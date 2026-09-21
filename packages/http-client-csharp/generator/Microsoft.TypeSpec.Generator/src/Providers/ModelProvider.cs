@@ -245,10 +245,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// </summary>
         public ConstructorProvider FullConstructor => _fullConstructor ??= BuildFullConstructor();
 
-        protected override string BuildNamespace() => string.IsNullOrEmpty(_inputModel.Namespace) ?
-            // TODO remove null check once https://github.com/Azure/typespec-azure/issues/2209 is fixed.
-            CodeModelGenerator.Instance.TypeFactory.PrimaryNamespace :
-            CodeModelGenerator.Instance.TypeFactory.GetCleanNameSpace(_inputModel.Namespace);
+        protected override string BuildNamespace() => GetTypeNamespace(_inputModel.Namespace);
 
         protected override CSharpType? BuildBaseType()
         {
@@ -336,13 +333,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             var resultName = $"{normalizedName[..^ResponseSuffix.Length]}Result";
             var inputNamespace = CodeModelGenerator.Instance.InputLibrary.InputNamespace;
-            return HasConflictingResultName(inputNamespace, typeNamespace, resultName)
+            return HasConflictingName(inputNamespace, typeNamespace, resultName)
                 ? normalizedName
                 : resultName;
         }
 
         // Model and enum files share a flat output directory, even across namespaces.
-        private bool HasConflictingResultName(InputNamespace inputNamespace, string typeNamespace, string resultName)
+        private bool HasConflictingName(InputNamespace inputNamespace, string typeNamespace, string resultName)
             => inputNamespace.Models.Any(model => HasConflictingName(model, model.Namespace, resultName)) ||
                 inputNamespace.Enums.Any(@enum => HasConflictingName(@enum, @enum.Namespace, resultName)) ||
                 inputNamespace.Clients.Any(client => HasConflictingName(client, typeNamespace, resultName));
@@ -515,6 +512,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private static string GetTypeNamespace(string inputNamespace)
             => string.IsNullOrEmpty(inputNamespace)
+                // TODO remove null check once https://github.com/Azure/typespec-azure/issues/2209 is fixed.
                 ? CodeModelGenerator.Instance.TypeFactory.PrimaryNamespace
                 : CodeModelGenerator.Instance.TypeFactory.GetCleanNameSpace(inputNamespace);
 
