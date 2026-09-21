@@ -380,8 +380,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             foreach (var model in inputLibrary.InputNamespace.Models)
             {
-                if (model.External is not null &&
-                    CodeModelGenerator.Instance.TypeFactory.CreateExternalType(model.External) is not null)
+                var external = model.External;
+                if (external is not null &&
+                    CodeModelGenerator.Instance.TypeFactory.CreateExternalType(external) is not null)
                 {
                     continue;
                 }
@@ -394,8 +395,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     continue;
                 }
 
-                if (unknownVariant.External is not null &&
-                    CodeModelGenerator.Instance.TypeFactory.CreateExternalType(unknownVariant.External) is not null)
+                external = unknownVariant.External;
+                if (external is not null &&
+                    CodeModelGenerator.Instance.TypeFactory.CreateExternalType(external) is not null)
                 {
                     continue;
                 }
@@ -571,7 +573,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var emittedTypes = GetEmittedTypes(CodeModelGenerator.Instance.InputLibrary);
             foreach (var (inputType, inputTypeNamespace) in emittedTypes.Models
                 .Select(model => ((InputType)model, model.Namespace))
-                .Concat(emittedTypes.Enums.Select(@enum => ((InputType)@enum, @enum.Namespace))))
+                .Concat(inputNamespace.Enums.Select(@enum => ((InputType)@enum, @enum.Namespace))))
             {
                 if (inputType == _inputModel)
                 {
