@@ -15,8 +15,8 @@ from pygen.codegen.models import (
     LROOperation,
     ParameterList,
     RequestBuilder,
-    Response,
 )
+from pygen.codegen.models.response import LROResponse
 from pygen.codegen.models.parameter_list import RequestBuilderParameterList
 from pygen.codegen.models.primitive_types import StringType
 from pygen.codegen.serializers.builder_serializer import LROOperationSerializer
@@ -67,9 +67,17 @@ def _make_lro_operation(options):
         responses=[],
         exceptions=[],
     )
+    # The serializer reaches these through ``builder.lro_response``, which is
+    # an LROResponse in a real code model rather than a plain Response.
     operation.responses = [
-        Response(
-            yaml_data={"statusCodes": [200]},
+        LROResponse(
+            yaml_data={
+                "statusCodes": [200],
+                "pollerSync": "azure.core.polling.LROPoller",
+                "pollerAsync": "azure.core.polling.AsyncLROPoller",
+                "pollingMethodSync": "azure.core.polling.base_polling.LROBasePolling",
+                "pollingMethodAsync": "azure.core.polling.async_base_polling.AsyncLROBasePolling",
+            },
             code_model=code_model,
             headers=[],
             type=StringType({"type": "string"}, code_model),
