@@ -238,16 +238,6 @@ namespace Microsoft.TypeSpec.Generator
         }
 
         /// <summary>
-        /// Determines whether <paramref name="model"/> is marked external (via <c>@alternateType</c>) and its
-        /// target type resolves, meaning it is represented by a <see cref="SystemObjectModelProvider"/> rather
-        /// than emitted as a generated file (mirroring <see cref="CreateExternalModel"/>). Unlike
-        /// <see cref="CreateModel"/>, this performs no provider construction or <see cref="TypeProvider.Type"/>
-        /// access, so it is safe to call while another provider's name is still being built.
-        /// </summary>
-        internal bool IsResolvedExternalModel(InputModelType model)
-            => model.External != null && CreateExternalType(model.External) != null;
-
-        /// <summary>
         /// Factory method for creating the <see cref="ModelFactoryProvider"/> that emits the
         /// generated <c>ModelFactory</c> for the current output library.
         /// </summary>
