@@ -73,36 +73,26 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         public bool CanUseMappedBase(SystemObjectModelProvider mappedBase)
         {
-            if (InputModel.AdditionalProperties is not null && mappedBase.InputModel.AdditionalProperties is not null)
+            if (HasDuplicateAdditionalProperties(mappedBase))
             {
                 return false;
             }
 
-            var mappedByWireName = mappedBase.InputModel.Properties
+            var lookup = new MappedPropertyLookup(mappedBase);
+            return HasCompatibleCurrentModelProperties(lookup) &&
+                HasCompatibleDisplacedBase(mappedBase, lookup);
+        }
+
+        private bool HasDuplicateAdditionalProperties(SystemObjectModelProvider mappedBase)
+            => InputModel.AdditionalProperties is not null &&
+                mappedBase.InputModel.AdditionalProperties is not null;
+
+        private bool HasCompatibleCurrentModelProperties(MappedPropertyLookup lookup)
+        {
+            var currentBaseByWireName = InputModel.BaseModel?.Properties
                 .GroupBy(property => property.SerializedName ?? property.Name, StringComparer.Ordinal)
                 .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
-            var mappedByClrName = mappedBase.InputModel.Properties
-                .GroupBy(GetInputPropertyClrName, StringComparer.Ordinal)
-                .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
-            var effectiveMappedClrNames = mappedBase.UsesLastContractType
-                ? mappedBase.Properties.Select(property => property.Name).ToHashSet(StringComparer.Ordinal)
-                : new HashSet<string>(StringComparer.Ordinal);
-
-            var currentBase = InputModel.BaseModel;
-            if (currentBase is not null &&
-                mappedBase.UsesLastContractType &&
-                !currentBase.Properties.All(property => IsRepresentedByEffectiveMappedProperty(
-                    mappedBase.SystemType,
-                    property,
-                    mappedBase.Properties)))
-            {
-                return false;
-            }
-
-            var currentBaseByWireName = currentBase?.Properties
-                .GroupBy(property => property.SerializedName ?? property.Name, StringComparer.Ordinal)
-                .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
-            if (!InputModel.Properties.Where(property => !property.IsHttpMetadata).All(property =>
+            return InputModel.Properties.Where(property => !property.IsHttpMetadata).All(property =>
             {
                 var wireName = property.SerializedName ?? property.Name;
                 if (currentBaseByWireName?.TryGetValue(wireName, out var currentBaseProperty) == true)
@@ -111,17 +101,30 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
 
                 var clrName = GetInputPropertyClrName(property);
-                var hasMappedInputProperty = mappedByWireName.ContainsKey(wireName) || mappedByClrName.ContainsKey(clrName);
-                return IsMappedPropertyCompatible(property, mappedByWireName, mappedByClrName, requireMatch: false) &&
-                    (hasMappedInputProperty || !effectiveMappedClrNames.Contains(clrName));
-            }))
-            {
-                return false;
-            }
+                var hasMappedInputProperty = lookup.ByWireName.ContainsKey(wireName) ||
+                    lookup.ByClrName.ContainsKey(clrName);
+                return IsMappedPropertyCompatible(property, lookup.ByWireName, lookup.ByClrName) &&
+                    (hasMappedInputProperty || !lookup.EffectiveClrNames.Contains(clrName));
+            });
+        }
 
+        private bool HasCompatibleDisplacedBase(
+            SystemObjectModelProvider mappedBase,
+            MappedPropertyLookup lookup)
+        {
+            var currentBase = InputModel.BaseModel;
             if (currentBase is null)
             {
                 return true;
+            }
+
+            if (mappedBase.UsesLastContractType &&
+                !currentBase.Properties.All(property => IsRepresentedByEffectiveMappedProperty(
+                    mappedBase.SystemType,
+                    property,
+                    mappedBase.Properties)))
+            {
+                return false;
             }
 
             var currentBaseProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(currentBase);
@@ -133,19 +136,19 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 currentBase.DiscriminatorProperty is not null ||
                 currentBase.DiscriminatorValue is not null ||
                 !currentBase.Properties.All(property =>
-                    mappedByWireName.ContainsKey(property.SerializedName ?? property.Name)))
+                    lookup.ByWireName.ContainsKey(property.SerializedName ?? property.Name)))
             {
                 return false;
             }
 
-            if (currentBase.AdditionalProperties is null)
-            {
-                return mappedBase.InputModel.AdditionalProperties is null;
-            }
-
-            return mappedBase.InputModel.AdditionalProperties is { } mappedAdditionalProperties &&
-                AreInputTypesStructurallyEqual(currentBase.AdditionalProperties, mappedAdditionalProperties);
+            return HasCompatibleAdditionalProperties(currentBase, mappedBase.InputModel);
         }
+
+        private static bool HasCompatibleAdditionalProperties(InputModelType currentBase, InputModelType mappedBase)
+            => currentBase.AdditionalProperties is null
+                ? mappedBase.AdditionalProperties is null
+                : mappedBase.AdditionalProperties is { } mappedAdditionalProperties &&
+                    InputTypeStructuralComparer.Equals(currentBase.AdditionalProperties, mappedAdditionalProperties);
 
         public static bool AreMappedContractsEquivalent(
             SystemObjectModelProvider left,
@@ -167,7 +170,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return left.InputModel.AdditionalProperties is null
                 ? right.InputModel.AdditionalProperties is null
                 : right.InputModel.AdditionalProperties is { } rightAdditionalProperties &&
-                    AreInputTypesStructurallyEqual(left.InputModel.AdditionalProperties, rightAdditionalProperties);
+                    InputTypeStructuralComparer.Equals(left.InputModel.AdditionalProperties, rightAdditionalProperties);
         }
 
         private bool HasCompatibleLastContractProperties(ModelProvider candidate)
@@ -190,14 +193,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 !currentProperties.Values.Any(property =>
                     IsRequiredInitializationProperty(property) &&
                     (!previousProperties.ContainsKey(property.Name) ||
-                        !LastContractConstructorHasParameter(property)));
+                        !LastContractDerivedConstructorHasRequiredParameter(property)));
         }
 
         private static bool IsRequiredInitializationProperty(PropertyProvider property)
             => property.WireInfo is { IsRequired: true, IsReadOnly: false } &&
                 !property.Type.IsLiteral;
 
-        private bool LastContractConstructorHasParameter(PropertyProvider property)
+        private bool LastContractDerivedConstructorHasRequiredParameter(PropertyProvider property)
             => _model.LastContractView?.Constructors.Any(constructor =>
                 MethodSignatureHelper.IsPublicApi(constructor.Signature.Modifiers) &&
                 constructor.Signature.Parameters.Any(parameter =>
@@ -208,8 +211,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private static bool IsMappedPropertyCompatible(
             InputModelProperty property,
             IReadOnlyDictionary<string, InputModelProperty> mappedByWireName,
-            IReadOnlyDictionary<string, InputModelProperty> mappedByClrName,
-            bool requireMatch)
+            IReadOnlyDictionary<string, InputModelProperty> mappedByClrName)
         {
             var wireName = property.SerializedName ?? property.Name;
             var clrName = GetInputPropertyClrName(property);
@@ -217,7 +219,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var hasClrMatch = mappedByClrName.TryGetValue(clrName, out var clrMatch);
             if (!hasWireMatch && !hasClrMatch)
             {
-                return !requireMatch;
+                return true;
             }
 
             return hasWireMatch && hasClrMatch &&
@@ -251,112 +253,27 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 current.IsDiscriminator == mapped.IsDiscriminator &&
                 current.Encode == mapped.Encode &&
                 (current.Type is InputNullableType) == (mapped.Type is InputNullableType) &&
-                AreInputTypesStructurallyEqual(current.Type, mapped.Type);
+                InputTypeStructuralComparer.Equals(current.Type, mapped.Type);
 
-        private static bool AreInputTypesStructurallyEqual(InputType current, InputType mapped)
+        private sealed class MappedPropertyLookup
         {
-            if (current.External is not null || mapped.External is not null)
+            public MappedPropertyLookup(SystemObjectModelProvider mappedBase)
             {
-                return current.External is not null && mapped.External is not null &&
-                    current.External.Identity == mapped.External.Identity &&
-                    current.External.Package == mapped.External.Package &&
-                    current.External.MinVersion == mapped.External.MinVersion;
+                ByWireName = mappedBase.InputModel.Properties
+                    .GroupBy(property => property.SerializedName ?? property.Name, StringComparer.Ordinal)
+                    .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
+                ByClrName = mappedBase.InputModel.Properties
+                    .GroupBy(GetInputPropertyClrName, StringComparer.Ordinal)
+                    .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
+                EffectiveClrNames = mappedBase.UsesLastContractType
+                    ? mappedBase.Properties.Select(property => property.Name).ToHashSet(StringComparer.Ordinal)
+                    : new HashSet<string>(StringComparer.Ordinal);
             }
-            if (current is InputNullableType || mapped is InputNullableType)
-            {
-                return current is InputNullableType currentNullable && mapped is InputNullableType mappedNullable &&
-                    AreInputTypesStructurallyEqual(currentNullable.Type, mappedNullable.Type);
-            }
-            if (current is InputArrayType || mapped is InputArrayType)
-            {
-                return current is InputArrayType currentArray && mapped is InputArrayType mappedArray &&
-                    AreInputTypesStructurallyEqual(currentArray.ValueType, mappedArray.ValueType);
-            }
-            if (current is InputDictionaryType || mapped is InputDictionaryType)
-            {
-                return current is InputDictionaryType currentDictionary && mapped is InputDictionaryType mappedDictionary &&
-                    AreInputTypesStructurallyEqual(currentDictionary.KeyType, mappedDictionary.KeyType) &&
-                    AreInputTypesStructurallyEqual(currentDictionary.ValueType, mappedDictionary.ValueType);
-            }
-            if (current is InputUnionType || mapped is InputUnionType)
-            {
-                return current is InputUnionType currentUnion && mapped is InputUnionType mappedUnion &&
-                    currentUnion.VariantTypes.Count == mappedUnion.VariantTypes.Count &&
-                    currentUnion.VariantTypes.Zip(mappedUnion.VariantTypes).All(pair =>
-                        AreInputTypesStructurallyEqual(pair.First, pair.Second));
-            }
-            if (current is InputPrimitiveType || mapped is InputPrimitiveType)
-            {
-                return current is InputPrimitiveType currentPrimitive && mapped is InputPrimitiveType mappedPrimitive &&
-                    currentPrimitive.Kind == mappedPrimitive.Kind &&
-                    currentPrimitive.Encode == mappedPrimitive.Encode;
-            }
-            if (current is InputDateTimeType || mapped is InputDateTimeType)
-            {
-                return current is InputDateTimeType currentDateTime && mapped is InputDateTimeType mappedDateTime &&
-                    currentDateTime.CrossLanguageDefinitionId == mappedDateTime.CrossLanguageDefinitionId &&
-                    currentDateTime.Encode == mappedDateTime.Encode &&
-                    AreInputTypesStructurallyEqual(currentDateTime.WireType, mappedDateTime.WireType) &&
-                    AreOptionalInputTypesStructurallyEqual(currentDateTime.BaseType, mappedDateTime.BaseType);
-            }
-            if (current is InputDurationType || mapped is InputDurationType)
-            {
-                return current is InputDurationType currentDuration && mapped is InputDurationType mappedDuration &&
-                    currentDuration.CrossLanguageDefinitionId == mappedDuration.CrossLanguageDefinitionId &&
-                    currentDuration.Encode == mappedDuration.Encode &&
-                    AreInputTypesStructurallyEqual(currentDuration.WireType, mappedDuration.WireType) &&
-                    AreOptionalInputTypesStructurallyEqual(currentDuration.BaseType, mappedDuration.BaseType);
-            }
-            if (current is InputLiteralType || mapped is InputLiteralType)
-            {
-                return current is InputLiteralType currentLiteral && mapped is InputLiteralType mappedLiteral &&
-                    Equals(currentLiteral.Value, mappedLiteral.Value) &&
-                    AreInputTypesStructurallyEqual(currentLiteral.ValueType, mappedLiteral.ValueType);
-            }
-            if (current is InputEnumTypeValue || mapped is InputEnumTypeValue)
-            {
-                return current is InputEnumTypeValue currentEnumValue && mapped is InputEnumTypeValue mappedEnumValue &&
-                    Equals(currentEnumValue.Value, mappedEnumValue.Value) &&
-                    AreInputTypesStructurallyEqual(currentEnumValue.ValueType, mappedEnumValue.ValueType) &&
-                    AreInputTypesStructurallyEqual(currentEnumValue.EnumType, mappedEnumValue.EnumType);
-            }
-            if (current is InputStreamingType || mapped is InputStreamingType)
-            {
-                return current is InputStreamingType currentStreaming && mapped is InputStreamingType mappedStreaming &&
-                    currentStreaming.CrossLanguageDefinitionId == mappedStreaming.CrossLanguageDefinitionId &&
-                    currentStreaming.StreamKind == mappedStreaming.StreamKind &&
-                    currentStreaming.ContentTypes.SequenceEqual(mappedStreaming.ContentTypes) &&
-                    currentStreaming.TerminalEventType == mappedStreaming.TerminalEventType &&
-                    currentStreaming.TerminalEventValue == mappedStreaming.TerminalEventValue &&
-                    AreInputTypesStructurallyEqual(currentStreaming.ValueType, mappedStreaming.ValueType);
-            }
-            if (current is InputModelType || mapped is InputModelType)
-            {
-                return current is InputModelType currentModel && mapped is InputModelType mappedModel &&
-                    (!string.IsNullOrEmpty(currentModel.CrossLanguageDefinitionId) &&
-                        currentModel.CrossLanguageDefinitionId == mappedModel.CrossLanguageDefinitionId ||
-                    string.IsNullOrEmpty(currentModel.CrossLanguageDefinitionId) &&
-                        string.IsNullOrEmpty(mappedModel.CrossLanguageDefinitionId) &&
-                        currentModel.Namespace == mappedModel.Namespace && currentModel.Name == mappedModel.Name);
-            }
-            if (current is InputEnumType || mapped is InputEnumType)
-            {
-                return current is InputEnumType currentEnum && mapped is InputEnumType mappedEnum &&
-                    currentEnum.IsExtensible == mappedEnum.IsExtensible &&
-                    AreInputTypesStructurallyEqual(currentEnum.ValueType, mappedEnum.ValueType) &&
-                    (!string.IsNullOrEmpty(currentEnum.CrossLanguageDefinitionId) &&
-                        currentEnum.CrossLanguageDefinitionId == mappedEnum.CrossLanguageDefinitionId ||
-                    string.IsNullOrEmpty(currentEnum.CrossLanguageDefinitionId) &&
-                        string.IsNullOrEmpty(mappedEnum.CrossLanguageDefinitionId) &&
-                        currentEnum.Namespace == mappedEnum.Namespace && currentEnum.Name == mappedEnum.Name);
-            }
-            return false;
-        }
 
-        private static bool AreOptionalInputTypesStructurallyEqual(InputType? current, InputType? mapped)
-            => current is null
-                ? mapped is null
-                : mapped is not null && AreInputTypesStructurallyEqual(current, mapped);
+            public IReadOnlyDictionary<string, InputModelProperty> ByWireName { get; }
+            public IReadOnlyDictionary<string, InputModelProperty> ByClrName { get; }
+            public IReadOnlySet<string> EffectiveClrNames { get; }
+        }
 
         private static bool HasAbstractMembers(Type type)
             => type.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
