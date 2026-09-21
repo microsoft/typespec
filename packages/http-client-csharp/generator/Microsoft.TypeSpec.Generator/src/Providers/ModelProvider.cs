@@ -335,107 +335,40 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             var resultName = $"{normalizedName[..^ResponseSuffix.Length]}Result";
-            var inputNamespace = CodeModelGenerator.Instance.InputLibrary.InputNamespace;
-            return HasConflictingResultName(inputNamespace, typeNamespace, resultName)
+            return HasConflictingResultName(typeNamespace, resultName)
                 ? normalizedName
                 : resultName;
         }
 
-        private bool HasConflictingResultName(InputNamespace inputNamespace, string typeNamespace, string resultName)
-            // Model and enum files share a flat output directory, even across namespaces.
-            => inputNamespace.Models.Any(model => HasConflictingName(model, model.Namespace, resultName)) ||
-                inputNamespace.Enums.Any(@enum => HasConflictingName(@enum, @enum.Namespace, resultName)) ||
-                inputNamespace.Clients.Any(client => HasConflictingName(client, typeNamespace, resultName));
-
-        private bool HasConflictingName(InputType inputType, string inputTypeNamespace, string resultName)
+        private bool HasConflictingResultName(string typeNamespace, string resultName)
         {
-            if (inputType == _inputModel)
+            var nameCache = CodeModelGenerator.Instance.TypeFactory.ModelProviderNameCache;
+            // Model and enum files share a flat output directory, even across namespaces.
+            return nameCache.FindModels(resultName).Any(entry => HasConflictingName(entry, resultName)) ||
+                nameCache.FindEnums(resultName).Any(entry => HasConflictingName(entry, resultName)) ||
+                nameCache.FindClients(resultName).Any(entry => HasConflictingName(entry, typeNamespace, resultName));
+        }
+
+        private bool HasConflictingName(ModelProviderNameCache.Entry entry, string resultName)
+        {
+            if (entry.InputType == _inputModel)
             {
                 return false;
             }
 
-            var otherName = inputType.IsExactName ? inputType.Name : inputType.Name.ToIdentifierName();
-            var sourceInputModel = CodeModelGenerator.Instance.SourceInputModel;
-            // Acronym normalization only changes casing, so this also covers the normalized filename.
-            var hasMatchingInputName = string.Equals(otherName, resultName, StringComparison.OrdinalIgnoreCase);
-            if (sourceInputModel.Customization is null)
+            if (entry.CustomType is null)
             {
-                return hasMatchingInputName;
+                // Acronym normalization only changes casing, so this also covers the normalized filename.
+                return string.Equals(entry.InputName, resultName, StringComparison.OrdinalIgnoreCase);
             }
 
-            var otherNamespace = string.IsNullOrEmpty(inputTypeNamespace)
-                ? CodeModelGenerator.Instance.TypeFactory.PrimaryNamespace
-                : CodeModelGenerator.Instance.TypeFactory.GetCleanNameSpace(inputTypeNamespace);
-            var customType = FindCustomizationType(otherNamespace, GetCustomizationLookupNames(inputType, otherName));
-            if (customType is null)
-            {
-                return hasMatchingInputName;
-            }
-
-            return string.Equals(customType.Value.Type.Name, resultName, StringComparison.OrdinalIgnoreCase) &&
-                (!customType.Value.IsResultAlias || !HasLastContractName(otherNamespace, otherName));
+            return string.Equals(entry.CustomType.Name, resultName, StringComparison.OrdinalIgnoreCase) &&
+                (!entry.IsResultAlias || !entry.HasLastContractName);
         }
 
-        private bool HasConflictingName(InputClient client, string typeNamespace, string resultName)
-        {
-            var clientNamespace = string.IsNullOrEmpty(client.Namespace)
-                ? CodeModelGenerator.Instance.TypeFactory.PrimaryNamespace
-                : CodeModelGenerator.Instance.TypeFactory.GetCleanNameSpace(client.Namespace);
-            var clientName = client.IsExactName ? client.Name : client.Name.ToIdentifierName();
-            var customType = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(clientNamespace, clientName);
-            return (customType?.Type.Namespace ?? clientNamespace) == typeNamespace &&
-                (customType?.Name ?? clientName) == resultName;
-        }
-
-        private (TypeProvider Type, bool IsResultAlias)? FindCustomizationType(
-            string typeNamespace,
-            IEnumerable<(string Name, bool IsResultAlias)> lookupNames)
-        {
-            var sourceInputModel = CodeModelGenerator.Instance.SourceInputModel;
-            foreach (var lookupName in lookupNames)
-            {
-                var customType = sourceInputModel.FindForTypeInCurrentCompilation(typeNamespace, lookupName.Name);
-                if (customType is not null)
-                {
-                    return (customType, lookupName.IsResultAlias);
-                }
-            }
-
-            return null;
-        }
-
-        private static IEnumerable<(string Name, bool IsResultAlias)> GetCustomizationLookupNames(InputType inputType, string name)
-        {
-            yield return (name, false);
-            if (inputType.IsExactName)
-            {
-                yield break;
-            }
-
-            var normalizedName = name.NormalizeCSharpAcronyms();
-            if (normalizedName != name)
-            {
-                yield return (normalizedName, false);
-            }
-
-            if (inputType is InputModelType && normalizedName.EndsWith(ResponseSuffix, StringComparison.Ordinal))
-            {
-                yield return ($"{normalizedName[..^ResponseSuffix.Length]}Result", true);
-            }
-        }
-
-        private bool HasLastContractName(string typeNamespace, string name)
-        {
-            var sourceInputModel = CodeModelGenerator.Instance.SourceInputModel;
-            if (sourceInputModel.FindForTypeInLastContract(typeNamespace, name) is not null)
-            {
-                return true;
-            }
-
-            var normalizedName = name.NormalizeCSharpAcronyms();
-            return normalizedName != name &&
-                sourceInputModel.FindForTypeInLastContract(typeNamespace, normalizedName) is not null;
-        }
+        private static bool HasConflictingName(ModelProviderNameCache.Entry entry, string typeNamespace, string resultName)
+            => (entry.CustomType?.Type.Namespace ?? entry.Namespace) == typeNamespace &&
+                (entry.CustomType?.Name ?? entry.InputName) == resultName;
 
         private protected override TypeProvider? BuildCustomCodeView(string? generatedTypeName = null, string? generatedTypeNamespace = null)
         {
@@ -457,30 +390,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return false;
             }
 
-            var inputNamespace = CodeModelGenerator.Instance.InputLibrary.InputNamespace;
-            return inputNamespace.Models.Any(model => HasCustomizedSiblingInputName(model, model.Namespace, typeName)) ||
-                inputNamespace.Enums.Any(@enum => HasCustomizedSiblingInputName(@enum, @enum.Namespace, typeName));
-        }
-
-        private bool HasCustomizedSiblingInputName(InputType inputType, string inputTypeNamespace, string typeName)
-        {
-            if (inputType == _inputModel)
-            {
-                return false;
-            }
-
-            var otherName = inputType.IsExactName ? inputType.Name : inputType.Name.ToIdentifierName();
-            if (!string.Equals(otherName, typeName, StringComparison.OrdinalIgnoreCase))
-            {
-                return false;
-            }
-
-            var otherNamespace = string.IsNullOrEmpty(inputTypeNamespace)
-                ? CodeModelGenerator.Instance.TypeFactory.PrimaryNamespace
-                : CodeModelGenerator.Instance.TypeFactory.GetCleanNameSpace(inputTypeNamespace);
-            var customType = FindCustomizationType(otherNamespace, GetCustomizationLookupNames(inputType, otherName));
-            return customType is not null &&
-                !string.Equals(customType.Value.Type.Name, typeName, StringComparison.OrdinalIgnoreCase);
+            var nameCache = CodeModelGenerator.Instance.TypeFactory.ModelProviderNameCache;
+            return nameCache.FindModels(typeName).Concat(nameCache.FindEnums(typeName)).Any(entry =>
+                entry.InputType != _inputModel &&
+                string.Equals(entry.InputName, typeName, StringComparison.OrdinalIgnoreCase) &&
+                entry.CustomType is not null &&
+                !string.Equals(entry.CustomType.Name, typeName, StringComparison.OrdinalIgnoreCase));
         }
 
         private protected override TypeProvider? BuildLastContractView(string? generatedTypeName = null, string? generatedTypeNamespace = null)
@@ -2047,6 +1962,162 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             return $"_additional{name.ToIdentifierName()}Properties";
+        }
+
+        internal sealed class ModelProviderNameCache
+        {
+            private readonly CodeModelGenerator _generator;
+            private readonly Lazy<Dictionary<string, List<Entry>>> _models;
+            private readonly Lazy<Dictionary<string, List<Entry>>> _enums;
+            private readonly Lazy<Dictionary<string, List<Entry>>> _clients;
+
+            internal ModelProviderNameCache(CodeModelGenerator generator)
+            {
+                _generator = generator;
+                _models = new(() => BuildTypeMap(
+                    generator.InputLibrary.InputNamespace.Models,
+                    model => model.Namespace));
+                _enums = new(() => BuildTypeMap(
+                    generator.InputLibrary.InputNamespace.Enums,
+                    @enum => @enum.Namespace));
+                _clients = new(BuildClientMap);
+            }
+
+            internal IReadOnlyList<Entry> FindModels(string name) => Find(_models.Value, name);
+            internal IReadOnlyList<Entry> FindEnums(string name) => Find(_enums.Value, name);
+            internal IReadOnlyList<Entry> FindClients(string name) => Find(_clients.Value, name);
+
+            private static IReadOnlyList<Entry> Find(Dictionary<string, List<Entry>> cache, string name)
+                => cache.TryGetValue(name, out var entries) ? entries : [];
+
+            private Dictionary<string, List<Entry>> BuildTypeMap<T>(
+                IEnumerable<T> inputTypes,
+                Func<T, string> getNamespace)
+                where T : InputType
+            {
+                var cache = new Dictionary<string, List<Entry>>(StringComparer.OrdinalIgnoreCase);
+                foreach (var inputType in inputTypes)
+                {
+                    var inputName = inputType.IsExactName ? inputType.Name : inputType.Name.ToIdentifierName();
+                    var typeNamespace = GetNamespace(getNamespace(inputType));
+                    var customType = FindCustomizationType(typeNamespace, GetCustomizationLookupNames(inputType, inputName));
+                    var entry = new Entry(
+                        inputType,
+                        typeNamespace,
+                        inputName,
+                        customType?.Type,
+                        customType?.IsResultAlias == true,
+                        customType?.IsResultAlias == true && HasLastContractName(typeNamespace, inputName));
+                    Add(cache, inputName, entry);
+                    if (customType is not null &&
+                        !string.Equals(customType.Value.Type.Name, inputName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        Add(cache, customType.Value.Type.Name, entry);
+                    }
+                }
+
+                return cache;
+            }
+
+            private Dictionary<string, List<Entry>> BuildClientMap()
+            {
+                var cache = new Dictionary<string, List<Entry>>(StringComparer.OrdinalIgnoreCase);
+                foreach (var client in _generator.InputLibrary.InputNamespace.Clients)
+                {
+                    var inputName = client.IsExactName ? client.Name : client.Name.ToIdentifierName();
+                    var typeNamespace = GetNamespace(client.Namespace);
+                    var customType = _generator.SourceInputModel.FindForTypeInCurrentCompilation(typeNamespace, inputName);
+                    var entry = new Entry(client, typeNamespace, inputName, customType, false, false);
+                    Add(cache, inputName, entry);
+                    if (customType is not null &&
+                        !string.Equals(customType.Name, inputName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        Add(cache, customType.Name, entry);
+                    }
+                }
+
+                return cache;
+            }
+
+            private string GetNamespace(string inputNamespace)
+                => string.IsNullOrEmpty(inputNamespace)
+                    ? _generator.TypeFactory.PrimaryNamespace
+                    : _generator.TypeFactory.GetCleanNameSpace(inputNamespace);
+
+            private (TypeProvider Type, bool IsResultAlias)? FindCustomizationType(
+                string typeNamespace,
+                IEnumerable<(string Name, bool IsResultAlias)> lookupNames)
+            {
+                foreach (var lookupName in lookupNames)
+                {
+                    var customType = _generator.SourceInputModel.FindForTypeInCurrentCompilation(typeNamespace, lookupName.Name);
+                    if (customType is not null)
+                    {
+                        return (customType, lookupName.IsResultAlias);
+                    }
+                }
+
+                return null;
+            }
+
+            private static IEnumerable<(string Name, bool IsResultAlias)> GetCustomizationLookupNames(InputType inputType, string name)
+            {
+                yield return (name, false);
+                if (inputType.IsExactName)
+                {
+                    yield break;
+                }
+
+                var normalizedName = name.NormalizeCSharpAcronyms();
+                if (normalizedName != name)
+                {
+                    yield return (normalizedName, false);
+                }
+
+                if (inputType is InputModelType && normalizedName.EndsWith(ResponseSuffix, StringComparison.Ordinal))
+                {
+                    yield return ($"{normalizedName[..^ResponseSuffix.Length]}Result", true);
+                }
+            }
+
+            private bool HasLastContractName(string typeNamespace, string name)
+            {
+                if (_generator.SourceInputModel.FindForTypeInLastContract(typeNamespace, name) is not null)
+                {
+                    return true;
+                }
+
+                var normalizedName = name.NormalizeCSharpAcronyms();
+                return normalizedName != name &&
+                    _generator.SourceInputModel.FindForTypeInLastContract(typeNamespace, normalizedName) is not null;
+            }
+
+            private static void Add(Dictionary<string, List<Entry>> cache, string name, Entry entry)
+            {
+                if (!cache.TryGetValue(name, out var entries))
+                {
+                    entries = [];
+                    cache.Add(name, entries);
+                }
+
+                entries.Add(entry);
+            }
+
+            internal sealed class Entry(
+                object inputType,
+                string @namespace,
+                string inputName,
+                TypeProvider? customType,
+                bool isResultAlias,
+                bool hasLastContractName)
+            {
+                internal object InputType { get; } = inputType;
+                internal string Namespace { get; } = @namespace;
+                internal string InputName { get; } = inputName;
+                internal TypeProvider? CustomType { get; } = customType;
+                internal bool IsResultAlias { get; } = isResultAlias;
+                internal bool HasLastContractName { get; } = hasLastContractName;
+            }
         }
     }
 }

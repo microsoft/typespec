@@ -30,6 +30,9 @@ namespace Microsoft.TypeSpec.Generator
 
         private Dictionary<InputModelType, ModelProvider?> InputTypeToModelProvider { get; } = [];
 
+        private ModelProvider.ModelProviderNameCache? _modelProviderNameCache;
+        internal ModelProvider.ModelProviderNameCache ModelProviderNameCache => _modelProviderNameCache ??= new(CodeModelGenerator.Instance);
+
         public IDictionary<CSharpType, TypeProvider?> CSharpTypeMap { get; } = new Dictionary<CSharpType, TypeProvider?>(CSharpType.IgnoreNullableComparer);
 
         // Maps C# type names to TypeProviders for efficient lookup when resolving types by name
