@@ -1,10 +1,23 @@
 # Union extends: language review scenarios
 
-Use the template below to describe your language's API for these cases. Group IDs
-when the answer is the same. These are discussion examples, not executable tests.
+Language owners: suggest an SDK representation for these compiler-valid cases
+(one small sketch can cover several IDs), and identify the **minimum additional
+Azure authoring restrictions** required by your chosen representation. For example,
+does it require direct/transitive model inheritance, prohibit overlapping unions,
+or restrict direct reuse of a variant? Explain why.
+
+This informs [Azure/typespec-azure#5390](https://github.com/Azure/typespec-azure/issues/5390);
+it does not ask you to implement generator or serialization changes here.
 
 `union extends` is a structural constraint. It does not require inheritance, add
 the base as a variant, make the union open, or determine serialization.
+Adding/removing it alone changes neither declared alternatives nor payloads, and
+does not mandate a different generated API.
+
+A separate Azure linter enforcing nominal model inheritance is proposed. Structural
+cases such as UE02 are deliberate negative/control examples for that proposal,
+not recommended Azure authoring. The restriction's precise scope is still being
+discussed; compiler-valid examples help evaluate it.
 
 <!-- prettier-ignore -->
 ```tsp
@@ -65,7 +78,9 @@ model UnknownPet extends Named { kind: string; extra: Record<unknown>; }
 union OpenPets extends Named { cat: Cat, dog: Dog, UnknownPet }
 
 // UE11: Nested variant versus named/anonymous union constraint.
+// The compiler retains pets: Pets as a union-valued variant, not flattened members.
 union NestedPets extends Named { pets: Pets, bird: Bird }
+// Pets constrains the listed variants; it does not contribute inherited alternatives.
 union ConstrainedPets extends Pets { cat: Cat, dog: Dog }
 union MixedValues extends string | int32 { text: string, number: int32 }
 
@@ -74,15 +89,23 @@ union ClosedStatus extends string { start: "start", stop: "stop" }
 union OpenStatus extends string { known: "known", custom: string }
 enum Direction { left, right }
 union Directions extends Direction { left: Direction.left, right: Direction.right }
+// Each variant is an array whose items structurally satisfy Named.
+// Cat[] and Dog[] qualify; no Named[] alternative is implicitly added.
 union PetArrays extends Named[] { cats: Cat[], dogs: Dog[] }
 union Combined extends Named & Identified { shared: SharedPet }
 model Wrapper<T> { item: T; }
 union Wrapped extends Wrapper<string> { value: Wrapper<string> }
 ```
 
-## Serialization variations
+UE11's values may be Cat, Dog, or Bird; whether an SDK flattens its representation
+is a language decision, not something `extends` performs or requires.
+UE12's `Cat[] | Dog[]` is not `(Cat | Dog)[]`: the latter also allows mixed arrays.
 
-For applicable cases, consider these formats without repeating identical answers:
+## Optional, separate consideration: discriminated unions
+
+These wire formats come from `@discriminated`, **not** `extends`. Discuss them only
+when independently discriminated unions affect your representation or restrictions;
+the core constraint review does not require new serialization behavior.
 
 | Format   | Decorator on the union                  | Example Cat payload                                      |
 | -------- | --------------------------------------- | -------------------------------------------------------- |
@@ -90,20 +113,25 @@ For applicable cases, consider these formats without repeating identical answers
 | Inline   | `@discriminated(#{ envelope: "none" })` | `{"kind":"cat","name":"Whiskers","meow":true}`           |
 | Envelope | `@discriminated`                        | `{"kind":"cat","value":{"name":"Whiskers","meow":true}}` |
 
-For UE05/UE07, also vary tags and discriminator/envelope property names while
-reusing the same model. Compare removing the union's `extends` clause. Mention
-nullable use, recursion, or property conversions only if they change your answer.
+For UE05/UE07, different tags or discriminator/envelope names on a reused model
+may matter when the unions are independently discriminated. SDK flattening must
+not change that separately defined envelope JSON. Mention nullable use, recursion,
+or property conversions only if they change your answer.
 
 UE10's default is distinct from UE09's named base alternative. It can preserve
 `{"kind":"dragon","name":"Future","extra":{"color":"gold"}}`.
-**Open question:** Does an object-envelope default describe the payload or the
-entire envelope, and how does its constraint apply? This is [not yet specified][default-semantics].
+**Separate, deferred question (not required for this review):** Does an object-envelope
+default describe the payload or the entire envelope, and how does its constraint
+apply? This is [not yet specified][default-semantics].
 
 Inline named non-model variants and anonymous model-expression bases are
 compiler-invalid. Inline arrays need a separate wire design, not a claimed
 compiler prohibition. Do not infer unknown-tag fallback for closed unions.
 
 ## Language response template
+
+Group case IDs with the same answer. Serialization can be N/A unless independently
+discriminated unions or conversions affect your answer.
 
 ```text
 Language:
