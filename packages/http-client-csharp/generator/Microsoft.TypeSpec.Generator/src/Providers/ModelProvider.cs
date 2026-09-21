@@ -341,8 +341,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 : resultName;
         }
 
+        // Model and enum files share a flat output directory, even across namespaces.
         private bool HasConflictingResultName(InputNamespace inputNamespace, string typeNamespace, string resultName)
-            // Model and enum files share a flat output directory, even across namespaces.
             => inputNamespace.Models.Any(model => HasConflictingName(model, model.Namespace, resultName)) ||
                 inputNamespace.Enums.Any(@enum => HasConflictingName(@enum, @enum.Namespace, resultName)) ||
                 inputNamespace.Clients.Any(client => HasConflictingName(client, typeNamespace, resultName));
@@ -356,11 +356,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             var otherName = inputType.IsExactName ? inputType.Name : inputType.Name.ToIdentifierName();
             var sourceInputModel = CodeModelGenerator.Instance.SourceInputModel;
-            // Acronym normalization only changes casing, so this also covers the normalized filename.
-            var hasMatchingInputName = string.Equals(otherName, resultName, StringComparison.OrdinalIgnoreCase);
-            var otherNamespace = string.IsNullOrEmpty(inputTypeNamespace)
-                ? CodeModelGenerator.Instance.TypeFactory.PrimaryNamespace
-                : CodeModelGenerator.Instance.TypeFactory.GetCleanNameSpace(inputTypeNamespace);
+            var otherNamespace = GetTypeNamespace(inputTypeNamespace);
             var customType = sourceInputModel.Customization is null
                 ? null
                 : FindCustomizationType(otherNamespace, GetCustomizationLookupNames(inputType, otherName));
@@ -369,7 +365,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return string.Equals(customType.Name, resultName, StringComparison.OrdinalIgnoreCase);
             }
 
-            if (hasMatchingInputName)
+            // Acronym normalization only changes casing, so this also covers the normalized filename.
+            if (string.Equals(otherName, resultName, StringComparison.OrdinalIgnoreCase))
             {
                 return true;
             }
@@ -387,6 +384,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return false;
             }
 
+            // Preserve existing names first, then give historical Result ownership precedence,
+            // and finally choose a stable owner for new competing Response models.
             if (HasLastContractName(otherNamespace, resultName))
             {
                 return true;
@@ -410,9 +409,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private bool HasConflictingName(InputClient client, string typeNamespace, string resultName)
         {
-            var clientNamespace = string.IsNullOrEmpty(client.Namespace)
-                ? CodeModelGenerator.Instance.TypeFactory.PrimaryNamespace
-                : CodeModelGenerator.Instance.TypeFactory.GetCleanNameSpace(client.Namespace);
+            var clientNamespace = GetTypeNamespace(client.Namespace);
             var clientName = client.IsExactName ? client.Name : client.Name.ToIdentifierName();
             var customType = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(clientNamespace, clientName);
             return (customType?.Type.Namespace ?? clientNamespace) == typeNamespace &&
@@ -507,13 +504,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return false;
             }
 
-            var otherNamespace = string.IsNullOrEmpty(inputTypeNamespace)
-                ? CodeModelGenerator.Instance.TypeFactory.PrimaryNamespace
-                : CodeModelGenerator.Instance.TypeFactory.GetCleanNameSpace(inputTypeNamespace);
+            var otherNamespace = GetTypeNamespace(inputTypeNamespace);
             var customType = FindCustomizationType(otherNamespace, GetCustomizationLookupNames(inputType, otherName));
             return customType is not null &&
                 !string.Equals(customType.Name, typeName, StringComparison.OrdinalIgnoreCase);
         }
+
+        private static string GetTypeNamespace(string inputNamespace)
+            => string.IsNullOrEmpty(inputNamespace)
+                ? CodeModelGenerator.Instance.TypeFactory.PrimaryNamespace
+                : CodeModelGenerator.Instance.TypeFactory.GetCleanNameSpace(inputNamespace);
 
         private protected override TypeProvider? BuildLastContractView(string? generatedTypeName = null, string? generatedTypeNamespace = null)
         {
