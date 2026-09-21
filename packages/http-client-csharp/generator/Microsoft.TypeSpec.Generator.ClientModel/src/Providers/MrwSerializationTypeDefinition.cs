@@ -194,20 +194,38 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             var returnTypes = _model.LastContractView?.Methods
                 .Where(method => IsCreateCoreMethod(method.Signature) &&
-                    method.Signature.ReturnType is not null)
+                    method.Signature.ReturnType is { } returnType &&
+                    IsLastContractModelType(returnType))
                 .Select(method => method.Signature.ReturnType!)
                 .Distinct(CSharpType.IgnoreNullableComparer)
                 .ToArray();
             return returnTypes is { Length: 1 } ? returnTypes[0] : null;
         }
 
+        private bool IsLastContractModelType(CSharpType candidate)
+        {
+            var visited = new HashSet<string>(StringComparer.Ordinal);
+            for (var type = _model.LastContractView?.Type;
+                type is not null && visited.Add(type.FullyQualifiedName);
+                type = type.BaseType)
+            {
+                if (type.AreNamesEqual(candidate))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         internal static bool IsCreateCoreMethod(MethodSignature signature)
         {
+            var expectedModifiers = signature.Modifiers.HasFlag(MethodSignatureModifiers.Override)
+                ? MethodSignatureModifiers.Protected | MethodSignatureModifiers.Override
+                : MethodSignatureModifiers.Protected | MethodSignatureModifiers.Virtual;
             if (signature.Parameters.Count != 2 ||
                 signature.GenericArguments is { Count: > 0 } ||
                 signature.ExplicitInterface is not null ||
-                signature.Modifiers.HasFlag(MethodSignatureModifiers.Static) ||
-                !signature.Modifiers.HasFlag(MethodSignatureModifiers.Protected) ||
+                signature.Modifiers != expectedModifiers ||
                 !IsParameter(signature.Parameters[1], typeof(ModelReaderWriterOptions)))
             {
                 return false;

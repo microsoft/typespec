@@ -187,18 +187,25 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 currentBase.DiscriminatorProperty is not null ||
                 currentBase.DiscriminatorValue is not null ||
                 !currentBase.Properties.All(property =>
-                    lookup.ByWireName.ContainsKey(property.SerializedName ?? property.Name)))
+                {
+                    var wireName = property.SerializedName ?? property.Name;
+                    return lookup.ByWireName.ContainsKey(wireName) &&
+                        IsMappedPropertyCompatible(property, lookup.ByWireName, lookup.ByClrName);
+                }))
             {
                 return false;
             }
 
-            return HasCompatibleAdditionalProperties(currentBase, mappedBase.InputModel);
+            return HasCompatibleAdditionalProperties(currentBase, mappedBase);
         }
 
-        private static bool HasCompatibleAdditionalProperties(InputModelType currentBase, InputModelType mappedBase)
+        private static bool HasCompatibleAdditionalProperties(
+            InputModelType currentBase,
+            SystemObjectModelProvider mappedBase)
             => currentBase.AdditionalProperties is null
-                ? mappedBase.AdditionalProperties is null
-                : mappedBase.AdditionalProperties is { } mappedAdditionalProperties &&
+                ? mappedBase.InputModel.AdditionalProperties is null
+                : !mappedBase.UsesLastContractType &&
+                    mappedBase.InputModel.AdditionalProperties is { } mappedAdditionalProperties &&
                     InputTypeStructuralComparer.Equals(currentBase.AdditionalProperties, mappedAdditionalProperties);
 
         public static bool AreMappedContractsEquivalent(
