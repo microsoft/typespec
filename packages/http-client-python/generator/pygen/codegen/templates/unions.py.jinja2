@@ -4,6 +4,6 @@
 {% endif %}
 
 {{ imports }}
-{% for nu in code_model.named_unions %}
+{% for nu in named_unions %}
 {{nu.name}}: TypeAlias = {{nu.type_definition()}}
 {% endfor %}
