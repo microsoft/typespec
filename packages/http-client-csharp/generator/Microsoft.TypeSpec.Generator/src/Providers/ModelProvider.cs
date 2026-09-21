@@ -502,27 +502,36 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             var otherName = inputType.IsExactName ? inputType.Name : inputType.Name.ToIdentifierName();
-            if (!string.Equals(otherName, typeName, StringComparison.OrdinalIgnoreCase))
-            {
-                return false;
-            }
-
             var otherNamespace = GetTypeNamespace(inputTypeNamespace);
-            var customType = FindCustomizationType(otherNamespace, GetCustomizationLookupNames(inputType, otherName));
-            return customType is not null &&
-                !string.Equals(customType.Name, typeName, StringComparison.OrdinalIgnoreCase);
+            return HasCustomizedSiblingInputName(
+                otherName,
+                otherNamespace,
+                typeName,
+                GetCustomizationLookupNames(inputType, otherName));
         }
 
         private bool HasCustomizedSiblingInputName(InputClient client, string typeName)
         {
             var clientName = client.IsExactName ? client.Name : client.Name.ToIdentifierName();
-            if (!string.Equals(clientName, typeName, StringComparison.OrdinalIgnoreCase))
+            return HasCustomizedSiblingInputName(
+                clientName,
+                GetTypeNamespace(client.Namespace),
+                typeName,
+                [clientName]);
+        }
+
+        private bool HasCustomizedSiblingInputName(
+            string siblingName,
+            string siblingNamespace,
+            string typeName,
+            IEnumerable<string> customizationLookupNames)
+        {
+            if (!string.Equals(siblingName, typeName, StringComparison.OrdinalIgnoreCase))
             {
                 return false;
             }
 
-            var clientNamespace = GetTypeNamespace(client.Namespace);
-            var customType = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(clientNamespace, clientName);
+            var customType = FindCustomizationType(siblingNamespace, customizationLookupNames);
             return customType is not null &&
                 !string.Equals(customType.Name, typeName, StringComparison.OrdinalIgnoreCase);
         }
