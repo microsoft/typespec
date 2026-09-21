@@ -342,7 +342,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private bool HasConflictingResultName(string typeNamespace, string resultName)
         {
-            var nameCache = CodeModelGenerator.Instance.TypeFactory.ModelProviderNameCache;
+            var nameCache = CodeModelGenerator.Instance.ModelProviderNameCache;
             // Model and enum files share a flat output directory, even across namespaces.
             return nameCache.FindModels(resultName).Any(entry => HasConflictingName(entry, resultName)) ||
                 nameCache.FindEnums(resultName).Any(entry => HasConflictingName(entry, resultName)) ||
@@ -356,13 +356,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return false;
             }
 
-            if (entry.CustomType is null)
+            if (entry.CustomTypeName is null)
             {
                 // Acronym normalization only changes casing, so this also covers the normalized filename.
                 return string.Equals(entry.InputName, resultName, StringComparison.OrdinalIgnoreCase);
             }
 
-            return string.Equals(entry.CustomType.Name, resultName, StringComparison.OrdinalIgnoreCase) &&
+            return string.Equals(entry.CustomTypeName, resultName, StringComparison.OrdinalIgnoreCase) &&
                 !entry.HasLastContractAliasName;
         }
 
@@ -390,12 +390,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return false;
             }
 
-            var nameCache = CodeModelGenerator.Instance.TypeFactory.ModelProviderNameCache;
+            var nameCache = CodeModelGenerator.Instance.ModelProviderNameCache;
             return nameCache.FindModels(typeName).Concat(nameCache.FindEnums(typeName)).Any(entry =>
                 entry.InputType != _inputModel &&
                 string.Equals(entry.InputName, typeName, StringComparison.OrdinalIgnoreCase) &&
-                entry.CustomType is not null &&
-                !string.Equals(entry.CustomType.Name, typeName, StringComparison.OrdinalIgnoreCase));
+                entry.CustomTypeName is not null &&
+                !string.Equals(entry.CustomTypeName, typeName, StringComparison.OrdinalIgnoreCase));
         }
 
         private protected override TypeProvider? BuildLastContractView(string? generatedTypeName = null, string? generatedTypeNamespace = null)
@@ -1966,7 +1966,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         /// <summary>
         /// Indexes input and customized type names once per generator for collision lookups.
-        /// The input namespace and customization compilations must be finalized before the first lookup.
+        /// The input namespace and customization compilations must be finalized before the first lookup;
+        /// the frozen maps are not refreshed during the generator lifetime.
         /// </summary>
         internal sealed class NameCache
         {
@@ -2005,17 +2006,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     var inputName = inputType.IsExactName ? inputType.Name : inputType.Name.ToIdentifierName();
                     var typeNamespace = GetNamespace(getNamespace(inputType));
                     var customType = FindCustomizationType(typeNamespace, GetCustomizationLookupNames(inputType, inputName));
-                    var customTypeProvider = customType?.Type;
+                    var customTypeName = customType?.Type.Name;
                     var entry = new TypeEntry(
                         inputType,
                         inputName,
-                        customTypeProvider,
+                        customTypeName,
                         customType?.IsResultAlias == true && HasLastContractName(typeNamespace, inputName));
                     Add(cache, inputName, entry);
-                    if (customTypeProvider is not null &&
-                        !string.Equals(customTypeProvider.Name, inputName, StringComparison.OrdinalIgnoreCase))
+                    if (customTypeName is not null &&
+                        !string.Equals(customTypeName, inputName, StringComparison.OrdinalIgnoreCase))
                     {
-                        Add(cache, customTypeProvider.Name, entry);
+                        Add(cache, customTypeName, entry);
                     }
                 }
 
@@ -2115,7 +2116,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             internal sealed class TypeEntry(
                 InputType inputType,
                 string inputName,
-                TypeProvider? customType,
+                string? customTypeName,
                 bool hasLastContractAliasName)
             {
                 /// <summary>
@@ -2129,9 +2130,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 internal string InputName { get; } = inputName;
 
                 /// <summary>
-                /// Gets the customization resolved from input, acronym, or result-alias lookup names.
+                /// Gets the customization type name resolved from input, acronym, or result-alias lookup names.
                 /// </summary>
-                internal TypeProvider? CustomType { get; } = customType;
+                internal string? CustomTypeName { get; } = customTypeName;
 
                 /// <summary>
                 /// Gets whether a result-alias customization maps to an input name in the last contract.
