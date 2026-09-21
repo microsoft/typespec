@@ -332,18 +332,25 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             var resultName = $"{normalizedName[..^ResponseSuffix.Length]}Result";
+            var inputLibrary = CodeModelGenerator.Instance.InputLibrary;
             var customType = sourceInputModel.FindForTypeInCurrentCompilation(typeNamespace, resultName, DeclaringTypeName);
-            return (customType is not null && string.Equals(customType.Name, resultName, StringComparison.OrdinalIgnoreCase)) ||
-                HasConflictingName(CodeModelGenerator.Instance.InputLibrary, typeNamespace, resultName)
+            return (customType is not null &&
+                    (string.Equals(customType.Name, resultName, StringComparison.OrdinalIgnoreCase) ||
+                     HasConflictingName(inputLibrary, customType.Type.Namespace, customType.Name, customType))) ||
+                HasConflictingName(inputLibrary, typeNamespace, resultName)
                 ? normalizedName
                 : resultName;
         }
 
         // Model and enum files share a flat output directory, even across namespaces.
-        private bool HasConflictingName(InputLibrary inputLibrary, string typeNamespace, string resultName)
-            => GetEmittedModels(inputLibrary).Any(model => HasConflictingName(model, model.Namespace, resultName)) ||
-                inputLibrary.InputNamespace.Enums.Any(@enum => HasConflictingName(@enum, @enum.Namespace, resultName)) ||
-                inputLibrary.InputNamespace.Clients.Any(client => HasConflictingName(client, typeNamespace, resultName));
+        private bool HasConflictingName(
+            InputLibrary inputLibrary,
+            string typeNamespace,
+            string resultName,
+            TypeProvider? excludedCustomization = null)
+            => GetEmittedModels(inputLibrary).Any(model => HasConflictingName(model, model.Namespace, resultName, excludedCustomization)) ||
+                inputLibrary.InputNamespace.Enums.Any(@enum => HasConflictingName(@enum, @enum.Namespace, resultName, excludedCustomization)) ||
+                inputLibrary.InputNamespace.Clients.Any(client => HasConflictingName(client, typeNamespace, resultName, excludedCustomization));
 
         private static IEnumerable<InputModelType> GetEmittedModels(InputLibrary inputLibrary)
         {
@@ -359,7 +366,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
         }
 
-        private bool HasConflictingName(InputType inputType, string inputTypeNamespace, string resultName)
+        private bool HasConflictingName(
+            InputType inputType,
+            string inputTypeNamespace,
+            string resultName,
+            TypeProvider? excludedCustomization)
         {
             if (inputType == _inputModel)
             {
@@ -369,7 +380,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var otherName = inputType.IsExactName ? inputType.Name : inputType.Name.ToIdentifierName();
             var otherNamespace = GetTypeNamespace(inputTypeNamespace);
             var customType = FindCustomizationType(otherNamespace, GetCustomizationLookupNames(inputType, otherName));
-            if (customType is not null)
+            if (customType is not null && !IsSameCustomization(customType, excludedCustomization))
             {
                 return HasLastContractName(otherNamespace, resultName) ||
                     string.Equals(customType.Name, resultName, StringComparison.OrdinalIgnoreCase);
@@ -418,14 +429,28 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 : string.Compare(left.CrossLanguageDefinitionId, right.CrossLanguageDefinitionId, StringComparison.Ordinal);
         }
 
-        private bool HasConflictingName(InputClient client, string typeNamespace, string resultName)
+        private bool HasConflictingName(
+            InputClient client,
+            string typeNamespace,
+            string resultName,
+            TypeProvider? excludedCustomization)
         {
             var clientNamespace = GetTypeNamespace(client.Namespace);
             var clientName = client.IsExactName ? client.Name : client.Name.ToIdentifierName();
             var customType = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(clientNamespace, clientName);
+            if (IsSameCustomization(customType, excludedCustomization))
+            {
+                customType = null;
+            }
+
             return (customType?.Type.Namespace ?? clientNamespace) == typeNamespace &&
                 (customType?.Name ?? clientName) == resultName;
         }
+
+        private static bool IsSameCustomization(TypeProvider? left, TypeProvider? right)
+            => left is NamedTypeSymbolProvider leftSymbol &&
+                right is NamedTypeSymbolProvider rightSymbol &&
+                leftSymbol.MetadataName == rightSymbol.MetadataName;
 
         private TypeProvider? FindCustomizationType(
             string typeNamespace,

@@ -382,6 +382,24 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual("CustomWidgetResult", CodeModelGenerator.Instance.TypeFactory.CreateModel(result)!.Name);
         }
 
+        [TestCase("model")]
+        [TestCase("enum")]
+        [TestCase("client")]
+        public async Task TestBuildName_ResponseSuffixAvoidsCustomizedPhysicalNameCollision(string typeKind)
+        {
+            var response = InputFactory.Model("WidgetResponse");
+            var model = InputFactory.Model("CustomWidget");
+            var @enum = InputFactory.StringEnum("CustomWidget", [("Value", "value")]);
+            var client = InputFactory.Client("CustomWidget", clientNamespace: "Sample.Models");
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: typeKind == "model" ? [response, model] : [response],
+                inputEnumTypes: typeKind == "enum" ? [@enum] : [],
+                inputClients: typeKind == "client" ? [client] : [],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            Assert.AreEqual("WidgetResponse", CodeModelGenerator.Instance.TypeFactory.CreateModel(response)!.Name);
+        }
+
         [Test]
         public void TestBuildName_ResponseSuffixAvoidsUnknownDiscriminatorCollision()
         {
