@@ -89,6 +89,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 : new HashSet<string>(StringComparer.Ordinal);
 
             var currentBase = InputModel.BaseModel;
+            if (currentBase is not null &&
+                mappedBase.UsesLastContractType &&
+                !currentBase.Properties.All(property => IsRepresentedByEffectiveMappedProperty(property, mappedBase.Properties)))
+            {
+                return false;
+            }
+
             var currentBaseByWireName = currentBase?.Properties
                 .GroupBy(property => property.SerializedName ?? property.Name, StringComparer.Ordinal)
                 .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
@@ -219,6 +226,24 @@ namespace Microsoft.TypeSpec.Generator.Providers
             => property.IsExactName
                 ? property.Name
                 : property.Name.ToIdentifierName().NormalizeCSharpAcronyms(property.Type.IsDateTimeInputType());
+
+        private static bool IsRepresentedByEffectiveMappedProperty(
+            InputModelProperty property,
+            IReadOnlyList<PropertyProvider> effectiveProperties)
+        {
+            var clrName = GetInputPropertyClrName(property);
+            if (effectiveProperties.Any(effective => effective.Name == clrName))
+            {
+                return true;
+            }
+
+            // Roslyn-backed last-contract properties do not retain wire metadata. Accept a unique
+            // effective CLR property whose name ends in the current wire identity, which covers
+            // established mappings such as "type" to "ResourceType" without encoding ARM names here.
+            var wireName = property.SerializedName ?? property.Name;
+            return effectiveProperties.Count(effective =>
+                effective.Name.EndsWith(wireName, StringComparison.OrdinalIgnoreCase)) == 1;
+        }
 
         private static bool AreMappedPropertyShapesCompatible(
             InputModelProperty current,
