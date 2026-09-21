@@ -341,9 +341,23 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         // Model and enum files share a flat output directory, even across namespaces.
         private bool HasConflictingName(InputLibrary inputLibrary, string typeNamespace, string resultName)
-            => inputLibrary.InputNamespace.Models.Any(model => HasConflictingName(model, model.Namespace, resultName)) ||
+            => GetEmittedModels(inputLibrary).Any(model => HasConflictingName(model, model.Namespace, resultName)) ||
                 inputLibrary.InputNamespace.Enums.Any(@enum => HasConflictingName(@enum, @enum.Namespace, resultName)) ||
                 inputLibrary.InputNamespace.Clients.Any(client => HasConflictingName(client, typeNamespace, resultName));
+
+        private static IEnumerable<InputModelType> GetEmittedModels(InputLibrary inputLibrary)
+        {
+            foreach (var model in inputLibrary.InputNamespace.Models)
+            {
+                yield return model;
+
+                var unknownVariant = model.DiscriminatedSubtypes.Values.FirstOrDefault(model => model.IsUnknownDiscriminatorModel);
+                if (unknownVariant is not null)
+                {
+                    yield return unknownVariant;
+                }
+            }
+        }
 
         private bool HasConflictingName(InputType inputType, string inputTypeNamespace, string resultName)
         {
@@ -357,7 +371,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var customType = FindCustomizationType(otherNamespace, GetCustomizationLookupNames(inputType, otherName));
             if (customType is not null)
             {
-                return string.Equals(customType.Name, resultName, StringComparison.OrdinalIgnoreCase);
+                return HasLastContractName(otherNamespace, resultName) ||
+                    string.Equals(customType.Name, resultName, StringComparison.OrdinalIgnoreCase);
             }
 
             // Acronym normalization only changes casing, so this also covers the normalized filename.
@@ -488,7 +503,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             var inputNamespace = CodeModelGenerator.Instance.InputLibrary.InputNamespace;
-            foreach (var (inputType, inputTypeNamespace) in inputNamespace.Models
+            foreach (var (inputType, inputTypeNamespace) in GetEmittedModels(CodeModelGenerator.Instance.InputLibrary)
                 .Select(model => ((InputType)model, model.Namespace))
                 .Concat(inputNamespace.Enums.Select(@enum => ((InputType)@enum, @enum.Namespace))))
             {

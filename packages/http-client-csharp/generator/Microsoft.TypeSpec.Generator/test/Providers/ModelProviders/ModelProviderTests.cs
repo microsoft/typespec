@@ -382,6 +382,38 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual("CustomWidgetResult", CodeModelGenerator.Instance.TypeFactory.CreateModel(result)!.Name);
         }
 
+        [Test]
+        public void TestBuildName_ResponseSuffixAvoidsUnknownDiscriminatorCollision()
+        {
+            var discriminator = InputFactory.Property("kind", InputPrimitiveType.String, isDiscriminator: true);
+            var result = InputFactory.Model(
+                "FooResult",
+                properties: [discriminator],
+                discriminatedModels: new Dictionary<string, InputModelType>());
+            var response = InputFactory.Model("UnknownFooResponse");
+            MockHelpers.LoadMockGenerator(inputModelTypes: [result, response]);
+
+            var providers = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.OfType<ModelProvider>();
+
+            Assert.AreEqual("UnknownFooResponse", CodeModelGenerator.Instance.TypeFactory.CreateModel(response)!.Name);
+            Assert.AreEqual(1, providers.Count(provider => provider.Name == "UnknownFooResult"));
+        }
+
+        [Test]
+        public async Task TestBuildName_ResponseSuffixPreservesShippedResultCustomizedName()
+        {
+            var response = InputFactory.Model("FooResponse");
+            var result = InputFactory.Model("FooResult");
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [response, result],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    parameters: "LastContract"));
+
+            Assert.AreEqual("FooResponse", CodeModelGenerator.Instance.TypeFactory.CreateModel(response)!.Name);
+            Assert.AreEqual("CustomFooResult", CodeModelGenerator.Instance.TypeFactory.CreateModel(result)!.Name);
+        }
+
         [TestCase(false)]
         [TestCase(true)]
         public async Task TestBuildName_ResponseSuffixAvoidsResultCustomizationAliasCollision(bool reverseOrder)
