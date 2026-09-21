@@ -79,7 +79,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private readonly bool _isDiscriminatedBaseType;
         // The input library is fixed before providers are named. Cache the emitted collision inventory
         // once per library instead of rebuilding it for every ModelProvider that checks a Response->Result name.
-        private static readonly ConditionalWeakTable<InputLibrary, Lazy<EmittedTypes>> _emittedTypesCache = new();
+        private static readonly ConditionalWeakTable<CodeModelGenerator, Lazy<EmittedTypes>> _emittedTypesCache = new();
 
         private ValueExpression DiscriminatorLiteral => Literal(_inputModel.DiscriminatorValue ?? "");
 
@@ -354,26 +354,26 @@ namespace Microsoft.TypeSpec.Generator.Providers
             string resultName,
             TypeProvider? excludedCustomization = null)
         {
-            var emittedTypes = GetEmittedTypes(inputLibrary);
+            var emittedTypes = GetEmittedTypes();
             return emittedTypes.Models.Any(model => HasConflictingName(model, model.Namespace, resultName, excludedCustomization)) ||
                 emittedTypes.Enums.Any(@enum => HasConflictingName(@enum, @enum.Namespace, resultName, excludedCustomization)) ||
                 inputLibrary.InputNamespace.Clients.Any(client => HasConflictingName(client, typeNamespace, resultName, excludedCustomization));
         }
 
-        private static EmittedTypes GetEmittedTypes(InputLibrary inputLibrary)
+        private static EmittedTypes GetEmittedTypes()
             => _emittedTypesCache.GetValue(
-                inputLibrary,
-                static inputLibrary => new(
+                CodeModelGenerator.Instance,
+                static generator => new(
                     () => new EmittedTypes(
-                        BuildEmittedModels(inputLibrary).ToList(),
-                        inputLibrary.InputNamespace.Enums
+                        BuildEmittedModels(generator.InputLibrary, generator.TypeFactory).ToList(),
+                        generator.InputLibrary.InputNamespace.Enums
                             // Mirrors OutputLibrary.BuildEnums: API-version enums are never emitted, and external
                             // enums always map to existing types instead of generated files.
                             .Where(@enum => @enum.External is null && !@enum.Usage.HasFlag(InputModelTypeUsage.ApiVersionEnum))
                             .ToList()),
                     LazyThreadSafetyMode.ExecutionAndPublication)).Value;
 
-        private static IEnumerable<InputModelType> BuildEmittedModels(InputLibrary inputLibrary)
+        private static IEnumerable<InputModelType> BuildEmittedModels(InputLibrary inputLibrary, TypeFactory typeFactory)
         {
             foreach (var model in inputLibrary.InputNamespace.Models)
             {
@@ -397,9 +397,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // uses TypeFactory.CreateExternalType instead of TypeFactory.CreateModel/TypeProvider.Type:
             // constructing a sibling provider here can re-enter name/collision checks while this
             // provider's own name is still being built.
-            static bool IsEmitted(InputModelType candidate)
+            bool IsEmitted(InputModelType candidate)
                 => candidate.External is null ||
-                    CodeModelGenerator.Instance.TypeFactory.CreateExternalType(candidate.External) is null;
+                    typeFactory.CreateExternalType(candidate.External) is null;
         }
 
         private sealed record EmittedTypes(IReadOnlyList<InputModelType> Models, IReadOnlyList<InputEnumType> Enums);
@@ -566,11 +566,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             var inputNamespace = CodeModelGenerator.Instance.InputLibrary.InputNamespace;
-            var emittedTypes = GetEmittedTypes(CodeModelGenerator.Instance.InputLibrary);
+            var emittedTypes = GetEmittedTypes();
             foreach (var (inputType, inputTypeNamespace) in emittedTypes.Models
                 .Select(model => ((InputType)model, model.Namespace))
-                // Keep the customization guard on the full enum set. Custom code can still exist for
-                // non-emitted enums and should continue to reserve its physical CLR name.
+                // Models use the emitted inventory because resolved external models do not produce
+                // generated model providers/files. Keep enums on the full set because custom code can
+                // still exist for non-emitted enums and should continue to reserve its physical CLR name.
                 .Concat(inputNamespace.Enums.Select(@enum => ((InputType)@enum, @enum.Namespace))))
             {
                 if (inputType == _inputModel)
