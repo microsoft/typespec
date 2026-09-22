@@ -417,17 +417,24 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return true;
             }
 
+            if (inputType is not InputModelType otherModel || inputType.IsExactName)
+            {
+                return false;
+            }
+
             var normalizedName = otherName.NormalizeCSharpAcronyms();
+            if (!normalizedName.EndsWith(ResponseSuffix, StringComparison.Ordinal) ||
+                !string.Equals($"{normalizedName[..^ResponseSuffix.Length]}Result", resultName, StringComparison.OrdinalIgnoreCase) ||
+                HasLastContractName(otherNamespace, otherName))
+            {
+                return false;
+            }
+
             // Preserve existing names first, then give historical Result ownership precedence,
             // and finally choose a stable owner for new competing Response models.
-            return inputType is InputModelType otherModel &&
-                !inputType.IsExactName &&
-                normalizedName.EndsWith(ResponseSuffix, StringComparison.Ordinal) &&
-                string.Equals($"{normalizedName[..^ResponseSuffix.Length]}Result", resultName, StringComparison.OrdinalIgnoreCase) &&
-                !HasLastContractName(otherNamespace, otherName) &&
-                (HasLastContractName(otherNamespace, resultName) ||
-                    (!HasLastContractName(BuildNamespace(), resultName) &&
-                        CompareModelIdentity(otherModel, _inputModel) < 0));
+            return HasLastContractName(otherNamespace, resultName) ||
+                (!HasLastContractName(BuildNamespace(), resultName) &&
+                    CompareModelIdentity(otherModel, _inputModel) < 0);
         }
 
         private static int CompareModelIdentity(InputModelType left, InputModelType right)
