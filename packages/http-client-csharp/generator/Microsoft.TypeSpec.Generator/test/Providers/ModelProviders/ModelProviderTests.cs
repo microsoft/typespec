@@ -249,6 +249,27 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.IsNotNull(model.CustomCodeView);
         }
 
+        [TestCase("apiVersion")]
+        [TestCase("external")]
+        public async Task TestBuildName_ResponseSuffixIgnoresNonEmittedEnumCustomizationSibling(string enumKind)
+        {
+            var response = InputFactory.Model("WidgetResponse");
+            var nonEmittedEnum = InputFactory.StringEnum(
+                "WidgetResult",
+                [("Value", "value")],
+                usage: enumKind == "apiVersion" ? InputModelTypeUsage.ApiVersionEnum : InputModelTypeUsage.None,
+                external: enumKind == "external" ? new InputExternalTypeMetadata("System.Net.HttpStatusCode", null, null) : null);
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [response],
+                inputEnumTypes: [nonEmittedEnum],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var model = CodeModelGenerator.Instance.TypeFactory.CreateModel(response)!;
+
+            Assert.AreEqual("CustomWidgetResult", model.Name);
+            Assert.AreEqual("CustomWidgetResult", model.CustomCodeView?.Name);
+        }
+
         [Test]
         public async Task TestBuildName_ResponseSuffixPreservesCustomResponseRenameWithoutLastContract()
         {

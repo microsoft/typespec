@@ -604,10 +604,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var emittedTypes = GetEmittedTypes();
             foreach (var (inputType, inputTypeNamespace) in emittedTypes.Models
                 .Select(model => ((InputType)model, model.Namespace))
-                // Models use the emitted inventory because resolved external models do not produce
-                // generated model providers/files. Keep enums on the full set because custom code can
-                // still exist for non-emitted enums and should continue to reserve its physical CLR name.
-                .Concat(inputNamespace.Enums.Select(@enum => ((InputType)@enum, @enum.Namespace))))
+                .Concat(emittedTypes.Enums.Select(@enum => ((InputType)@enum, @enum.Namespace))))
             {
                 if (inputType == _inputModel)
                 {
