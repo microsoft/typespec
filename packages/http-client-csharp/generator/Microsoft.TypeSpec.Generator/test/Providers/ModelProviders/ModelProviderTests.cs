@@ -438,7 +438,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
-        public void TestBuildName_ResponseSuffixIgnoresExternalModelCollision_UnresolvableType()
+        public void TestBuildName_ResponseSuffixIgnoresUnresolvableExternalModelCollision()
         {
             var response = InputFactory.Model("WidgetResponse");
             var externalModel = InputFactory.Model(
