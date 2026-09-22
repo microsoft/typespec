@@ -439,7 +439,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
-        public void TestBuildName_ResponseSuffixIgnoresUnresolvableExternalModel()
+        public void TestBuildName_ResponseSuffixIgnoresExternalModelWithUnresolvableClrType()
         {
             var response = InputFactory.Model("WidgetResponse");
             var externalModel = InputFactory.Model(
