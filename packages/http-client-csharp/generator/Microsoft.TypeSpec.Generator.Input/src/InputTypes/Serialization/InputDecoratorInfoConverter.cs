@@ -33,7 +33,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadString("name", ref name)
-                    || reader.TryReadStringBinaryDataDictionary("arguments", options, ref arguments);
+                    || reader.TryReadStringBinaryDataDictionary("arguments", ref arguments);
 
                 if (!isKnownProperty)
                 {

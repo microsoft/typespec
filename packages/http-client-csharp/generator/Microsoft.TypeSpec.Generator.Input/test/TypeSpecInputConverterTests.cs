@@ -20,16 +20,16 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
             Assert.AreEqual("Shared", input.Models[0].Name);
             var decorator = input.Clients.Single().Decorators.Single();
             using var payload = JsonDocument.Parse(decorator.Arguments!["payload"].ToStream());
-            Assert.AreEqual("1", payload.RootElement.GetProperty("$id").GetString());
+            Assert.AreEqual("payload-id", payload.RootElement.GetProperty("$id").GetString());
             Assert.AreEqual("missing", payload.RootElement.GetProperty("$ref").GetString());
-            Assert.AreEqual("1", payload.RootElement.GetProperty("$values")[0].GetProperty("$id").GetString());
-            Assert.AreEqual("future-kind", payload.RootElement.GetProperty("kind").GetString());
-            Assert.AreEqual(42, payload.RootElement.GetProperty("usage").GetInt32());
-            Assert.AreEqual("keep", payload.RootElement.GetProperty("__raw").GetString());
+            Assert.AreEqual("nested-id", payload.RootElement.GetProperty("$values")[0].GetProperty("$id").GetString());
+            Assert.AreEqual("literal", payload.RootElement.GetProperty("$$id").GetString());
+            Assert.AreEqual("None", payload.RootElement.GetProperty("usage").GetString());
+            Assert.IsFalse(payload.RootElement.TryGetProperty("__raw", out _));
         }
 
         [Test]
-        public void SeparatesMetadataFromData()
+        public void PreservesLiteralDecoratorArgumentNamesAndValues()
         {
             const string payload = """
                 {
@@ -51,6 +51,7 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
                     "decorators": [{
                       "name": "example",
                       "arguments": {
+                        "$id": { "value": "literal-id" },
                         "$$id": {{payload}},
                         "value": {
                           "$id": "shared", "kind": "model", "name": "SharedModel", "properties": []
@@ -65,13 +66,16 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
 
             Assert.AreEqual("SharedModel", input.Models.Single().Name);
             var arguments = input.Clients.Single().Decorators.Single().Arguments!;
-            using var deserializedPayload = JsonDocument.Parse(arguments["$id"].ToStream());
-            Assert.AreEqual("shared", deserializedPayload.RootElement.GetProperty("$id").GetString());
-            Assert.AreEqual("missing", deserializedPayload.RootElement.GetProperty("$ref").GetString());
-            Assert.AreEqual("shared", deserializedPayload.RootElement.GetProperty("$values")[0].GetProperty("$id").GetString());
-            Assert.AreEqual("escaped", deserializedPayload.RootElement.GetProperty("$$id").GetString());
+            using var idArgument = JsonDocument.Parse(arguments["$id"].ToStream());
+            Assert.AreEqual("literal-id", idArgument.RootElement.GetProperty("value").GetString());
+            Assert.AreEqual(payload, arguments["$$id"].ToString());
+            using var deserializedPayload = JsonDocument.Parse(arguments["$$id"].ToStream());
+            Assert.AreEqual("shared", deserializedPayload.RootElement.GetProperty("$$id").GetString());
+            Assert.AreEqual("missing", deserializedPayload.RootElement.GetProperty("$$ref").GetString());
+            Assert.AreEqual("shared", deserializedPayload.RootElement.GetProperty("$$values")[0].GetProperty("$$id").GetString());
+            Assert.AreEqual("escaped", deserializedPayload.RootElement.GetProperty("$$$id").GetString());
             Assert.AreEqual("future-kind", deserializedPayload.RootElement.GetProperty("kind").GetString());
-            Assert.AreEqual("shared", deserializedPayload.RootElement.GetProperty("type").GetProperty("$id").GetString());
+            Assert.AreEqual("shared", deserializedPayload.RootElement.GetProperty("type").GetProperty("$$id").GetString());
         }
 
         [Test]

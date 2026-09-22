@@ -1,7 +1,6 @@
 import { readFileSync } from "node:fs";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { serializeCodeModel, writeCodeModel } from "../../src/code-model-writer.js";
-import { withRawJson } from "../../src/lib/raw-json.js";
 import type { CSharpEmitterContext } from "../../src/sdk-context.js";
 import type { CodeModel } from "../../src/type/code-model.js";
 import {
@@ -22,11 +21,10 @@ describe("Code-model reference format", () => {
     model = { name: "Test", apiVersions: [], enums: [], constants: [], models: [], clients: [] };
   });
 
-  it("separates serializer metadata from all dollar-prefixed data keys", () => {
+  it("preserves the original dollar-prefixed property names", () => {
     const payload = JSON.parse(`{
       "$id": "1", "$ref": "missing", "$values": [],
-      "$$id": "escaped", "$future": true, "__proto__": { "$id": "1" },
-      "kind": "future-kind", "crossLanguageDefinitionId": "user-data"
+      "$$id": "literal", "$$$id": "also-literal", "$future": true
     }`);
     Object.assign(model, { extension: [payload, payload] });
 
@@ -35,16 +33,13 @@ describe("Code-model reference format", () => {
     expect(document.$version).toBeUndefined();
     expect(document.extension[0]).toEqual({
       $id: "1",
-      $$id: "1",
-      $$ref: "missing",
-      $$values: [],
-      $$$id: "escaped",
-      $$future: true,
-      ["__proto__"]: { $$id: "1" },
-      kind: "future-kind",
-      crossLanguageDefinitionId: "user-data",
+      $ref: "missing",
+      $values: [],
+      $$id: "literal",
+      $$$id: "also-literal",
+      $future: true,
     });
-    expect(document.extension[1]).toEqual({ $ref: "1" });
+    expect(document.extension[1]).toEqual(document.extension[0]);
   });
 
   it("preserves graph definitions first encountered in decorator arguments", () => {
@@ -65,51 +60,37 @@ describe("Code-model reference format", () => {
     expect(document.models).toEqual([{ $ref: "1" }, { $ref: "1" }]);
   });
 
-  it.each(["futureField", "__raw", "usage"])("preserves an opaque %s field", (property) => {
-    const payload = {
-      $id: "1",
-      $ref: "2",
-      $$id: "3",
-      $values: [],
-      kind: "model",
-      crossLanguageDefinitionId: "user-data",
-      usage: 42,
-      __raw: { $id: "1" },
-    };
-    const extension = withRawJson({ [property]: [payload, payload] }, property);
-    Object.assign(model, { extension });
+  it.each(["unknown", "union"])("keeps the original %s example serialization", (kind) => {
+    Object.assign(model, {
+      extension: {
+        kind,
+        type: { kind: "unknown" },
+        value: { $id: "schema-id", $$id: "literal", usage: 0, __raw: "omitted" },
+      },
+    });
 
     const document = JSON.parse(serializeCodeModel(context, model));
-    const expected = {
-      $$id: "1",
-      $$ref: "2",
-      $$$id: "3",
-      $$values: [],
-      kind: "model",
-      crossLanguageDefinitionId: "user-data",
-      usage: 42,
-      __raw: { $$id: "1" },
-    };
-    expect(document.extension[property]).toEqual([expected, expected]);
-    expect(extension[property][0]).toBe(payload);
+    expect(document.extension).toEqual({
+      $id: "1",
+      kind,
+      type: { $id: "2", kind: "unknown" },
+      value: { $id: "schema-id", $$id: "literal", usage: "None" },
+    });
   });
 
   it("matches the fixture consumed by the C# deserializer", () => {
     const shared = { kind: "model", name: "Shared", properties: [] };
-    const argumentsValue = withRawJson(
-      {
-        model: shared,
-        payload: {
-          $id: "1",
-          $ref: "missing",
-          $values: [{ $id: "1" }],
-          kind: "future-kind",
-          usage: 42,
-          __raw: "keep",
-        },
+    const argumentsValue = {
+      model: shared,
+      payload: {
+        $id: "payload-id",
+        $ref: "missing",
+        $values: [{ $id: "nested-id" }],
+        $$id: "literal",
+        usage: 0,
+        __raw: "omitted",
       },
-      "payload",
-    );
+    };
     Object.assign(model, {
       models: [shared, shared],
       clients: [
@@ -127,7 +108,9 @@ describe("Code-model reference format", () => {
       import.meta.url,
     );
 
-    expect(JSON.parse(document)).toEqual(JSON.parse(readFileSync(fixture, "utf8")));
+    expect(document).toBe(
+      JSON.stringify(JSON.parse(readFileSync(fixture, "utf8")), null, 2) + "\n",
+    );
   });
 
   it("preserves cycles reached through an array and a referenceable object", () => {
@@ -140,16 +123,21 @@ describe("Code-model reference format", () => {
     expect(document.extension).toEqual([{ $id: "1", kind: "node", items: [{ $ref: "1" }] }]);
   });
 
-  it("rejects cycles in explicitly raw JSON", () => {
+  it("keeps the original reference encoding inside example values", () => {
     const value: { kind: string; self?: unknown } = { kind: "data" };
     value.self = value;
-    Object.assign(model, { extension: withRawJson({ value }, "value") });
-    expect(() => serializeCodeModel(context, model)).toThrow("cyclic raw JSON");
+    Object.assign(model, { extension: { kind: "unknown", value } });
+    const document = JSON.parse(serializeCodeModel(context, model));
+    expect(document.extension.value).toEqual({
+      $id: "2",
+      kind: "data",
+      self: { $ref: "2" },
+    });
   });
 
-  it("writes no format marker through the exported writeCodeModel path", async () => {
+  it("preserves the original format through the exported writeCodeModel path", async () => {
     const payload = JSON.parse(`{ "$id": "schema-id", "kind": "unknown" }`);
-    Object.assign(model, { extension: withRawJson({ value: payload }, "value") });
+    Object.assign(model, { extension: { value: payload } });
     const writeFile = vi.fn();
     context.program.host = { ...context.program.host, writeFile };
 
@@ -160,6 +148,6 @@ describe("Code-model reference format", () => {
     expect(content).toBe(serializeCodeModel(context, model));
     const document = JSON.parse(content);
     expect(document.$version).toBeUndefined();
-    expect(document.extension).toEqual({ value: { $$id: "schema-id", kind: "unknown" } });
+    expect(document.extension).toEqual({ value: { $id: "schema-id", kind: "unknown" } });
   });
 });

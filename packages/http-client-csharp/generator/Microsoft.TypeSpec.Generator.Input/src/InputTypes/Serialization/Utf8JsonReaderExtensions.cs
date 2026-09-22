@@ -159,12 +159,6 @@ namespace Microsoft.TypeSpec.Generator.Input
             }
 
             reader.Read();
-            value = ReadDictionary<T>(ref reader, options);
-            return true;
-        }
-
-        private static IReadOnlyDictionary<string, T> ReadDictionary<T>(ref Utf8JsonReader reader, JsonSerializerOptions options)
-        {
             if (reader.TokenType != JsonTokenType.StartObject)
             {
                 throw new JsonException();
@@ -182,13 +176,13 @@ namespace Microsoft.TypeSpec.Generator.Input
                     continue;
                 }
                 var key = reader.GetString() ?? throw new JsonException("Dictionary key cannot be null");
-                key = RawJsonConverter.DecodePropertyName(key);
                 reader.Read();
                 var item = reader.ReadWithConverter<T>(options);
                 result[key] = item ?? throw new JsonException();
             }
             reader.Read();
-            return result;
+            value = result;
+            return true;
         }
 
         public static T? ReadWithConverter<T>(this ref Utf8JsonReader reader, JsonSerializerOptions options)
@@ -293,7 +287,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             return result;
         }
 
-        public static bool TryReadStringBinaryDataDictionary(this ref Utf8JsonReader reader, string propertyName, JsonSerializerOptions options, ref IReadOnlyDictionary<string, BinaryData>? value)
+        public static bool TryReadStringBinaryDataDictionary(this ref Utf8JsonReader reader, string propertyName, ref IReadOnlyDictionary<string, BinaryData>? value)
         {
             if (reader.TokenType != JsonTokenType.PropertyName)
             {
@@ -310,13 +304,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             var result = new Dictionary<string, BinaryData>();
             foreach (JsonProperty property in document.RootElement.EnumerateObject())
             {
-                // Data property names are escaped, so an unescaped $id is serializer metadata.
-                if (property.NameEquals("$id"))
-                {
-                    continue;
-                }
-                result.Add(RawJsonConverter.DecodePropertyName(property.Name),
-                    BinaryData.FromString(RawJsonConverter.DecodePropertyNames(property.Value)));
+                result.Add(property.Name, BinaryData.FromString(property.Value.GetRawText()));
             }
             value = result;
             return true;

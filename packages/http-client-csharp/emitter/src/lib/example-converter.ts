@@ -44,7 +44,6 @@ import type {
   InputUnionType,
 } from "../type/input-type.js";
 import { fromSdkHttpOperationResponse } from "./operation-converter.js";
-import { withRawJson } from "./raw-json.js";
 import { fromSdkType } from "./type-converter.js";
 
 export function fromSdkHttpExamples(
@@ -138,14 +137,11 @@ export function fromSdkHttpExamples(
   }
 
   function fromSdkUnionExample(example: SdkUnionExampleValue): InputUnionExampleValue {
-    return withRawJson<InputUnionExampleValue>(
-      {
-        kind: example.kind,
-        type: diagnostics.pipe(fromSdkType(sdkContext, example.type)) as InputUnionType,
-        value: example.value,
-      },
-      "value",
-    );
+    return {
+      kind: example.kind,
+      type: diagnostics.pipe(fromSdkType(sdkContext, example.type)) as InputUnionType,
+      value: example.value,
+    };
   }
 
   function fromSdkArrayExample(example: SdkArrayExampleValue): InputArrayExampleValue {
@@ -178,14 +174,11 @@ export function fromSdkHttpExamples(
   }
 
   function fromSdkAnyExample(example: SdkUnknownExampleValue): InputUnknownExampleValue {
-    return withRawJson<InputUnknownExampleValue>(
-      {
-        kind: example.kind,
-        type: diagnostics.pipe(fromSdkType(sdkContext, example.type)) as InputPrimitiveType,
-        value: example.value,
-      },
-      "value",
-    );
+    return {
+      kind: example.kind,
+      type: diagnostics.pipe(fromSdkType(sdkContext, example.type)) as InputPrimitiveType,
+      value: example.value,
+    };
   }
 
   function fromSdkNullExample(example: SdkNullExampleValue): InputNullExampleValue {

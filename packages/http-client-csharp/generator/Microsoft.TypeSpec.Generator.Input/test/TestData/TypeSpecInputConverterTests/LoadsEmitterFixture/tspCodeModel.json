@@ -18,12 +18,11 @@
           "arguments": {
             "model": { "$ref": "1" },
             "payload": {
-              "$$id": "1",
-              "$$ref": "missing",
-              "$$values": [{ "$$id": "1" }],
-              "kind": "future-kind",
-              "usage": 42,
-              "__raw": "keep"
+              "$id": "payload-id",
+              "$ref": "missing",
+              "$values": [{ "$id": "nested-id" }],
+              "$$id": "literal",
+              "usage": "None"
             }
           }
         }

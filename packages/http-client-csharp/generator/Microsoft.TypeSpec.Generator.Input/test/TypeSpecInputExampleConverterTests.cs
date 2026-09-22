@@ -15,13 +15,15 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
             [Values("https://example.com/person.schema.json", "1")] string id,
             [Values] bool isArray)
         {
-            const string prefix = "$$";
+            const string prefix = "$";
             var payload = $$"""
                 {
                   "type": "object",
                   "{{prefix}}id": "{{id}}",
                   "{{prefix}}schema": "https://json-schema.org/draft/2020-12/schema",
                   "{{prefix}}ref": "missing",
+                  "$$id": "literal-double-dollar",
+                  "$$$id": "literal-triple-dollar",
                   "{{prefix}}values": [
                     { "{{prefix}}id": "{{id}}", "kind": "model", "name": "NotAReference" },
                     { "{{prefix}}ref": "1" },
@@ -55,6 +57,8 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
                     { "$id", id },
                     { "$schema", "https://json-schema.org/draft/2020-12/schema" },
                     { "$ref", "missing" },
+                    { "$$id", "literal-double-dollar" },
+                    { "$$$id", "literal-triple-dollar" },
                     { "$values[0].$id", id },
                     { "$values[0].kind", "model" },
                     { "$values[0].name", "NotAReference" },
@@ -68,9 +72,9 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
         }
 
         [Test]
-        public void ObjectExamplesPreserveReferencePropertyNames([Values("model", "dict")] string kind, [Values] bool escaped)
+        public void ObjectExamplesPreserveReferencePropertyNames([Values("model", "dict")] string kind)
         {
-            var prefix = escaped ? "$$" : "$";
+            const string prefix = "$";
             var type = kind == "model"
                 ? """{ "$id": "payload-type", "kind": "model", "name": "Payload", "properties": [] }"""
                 : """{ "kind": "dict", "keyType": { "kind": "string" }, "valueType": { "kind": "string" } }""";
@@ -81,7 +85,9 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
                   "value": {
                     "{{prefix}}id": { "kind": "string", "type": { "$id": "string", "kind": "string" }, "value": "payload-id" },
                     "{{prefix}}ref": { "kind": "string", "type": { "$ref": "string" }, "value": "payload-ref" },
-                    "{{prefix}}values": { "kind": "string", "type": { "$ref": "string" }, "value": "payload-values" }
+                    "{{prefix}}values": { "kind": "string", "type": { "$ref": "string" }, "value": "payload-values" },
+                    "$$id": { "kind": "string", "type": { "$ref": "string" }, "value": "literal-double-dollar" },
+                    "$$$id": { "kind": "string", "type": { "$ref": "string" }, "value": "literal-triple-dollar" }
                   }
                 }
                 """);
@@ -90,7 +96,9 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
             {
                 { "$id", "payload-id" },
                 { "$ref", "payload-ref" },
-                { "$values", "payload-values" }
+                { "$values", "payload-values" },
+                { "$$id", "literal-double-dollar" },
+                { "$$$id", "literal-triple-dollar" }
             }, ExtractObjectValues(value));
             Assert.AreSame(value.Values["$id"].Type, value.Values["$ref"].Type);
         }
@@ -105,7 +113,7 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
                   "extension": {
                     "kind": "{{kind}}",
                     "type": { "kind": "unknown" },
-                    "value": { "$$id": "payload", "kind": "model", "name": "NotAReference" }
+                    "value": { "$id": "payload", "kind": "model", "name": "NotAReference" }
                   },
                   "models": [{ "$ref": "payload" }]
                 }
@@ -116,14 +124,34 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
             Assert.That(exception!.Message, Does.Contain("cannot resolve reference payload"));
         }
 
+        [TestCase("unknown")]
+        [TestCase("union")]
+        public void OpaqueExamplesPreserveDeepPayloads(string kind)
+        {
+            var payload = new string('[', 70) + """{ "$$id": "literal" }""" + new string(']', 70);
+            var value = DeserializeExampleValue($$"""
+                {
+                  "kind": "{{kind}}",
+                  "type": { "kind": "unknown" },
+                  "value": {{payload}}
+                }
+                """);
+
+            for (var i = 0; i < 70; i++)
+            {
+                value = ((InputExampleListValue)value).Values[0];
+            }
+            Assert.AreEqual("literal", ((InputExampleRawValue)((InputExampleObjectValue)value).Values["$$id"]).RawValue);
+        }
+
         private static InputExampleValue DeserializeExampleValue(string exampleValue)
         {
             var directory = Helpers.GetAssetFileOrDirectoryPath(false, method: nameof(LoadOperationExamples));
             var root = JsonNode.Parse(File.ReadAllText(Path.Combine(directory, "tspCodeModel.json")))!;
             var example = root["clients"]![0]!["children"]![0]!["methods"]![0]!["operation"]!["examples"]![0]!["parameters"]![0]!;
-            example["value"] = JsonNode.Parse(exampleValue);
+            example["value"] = JsonNode.Parse(exampleValue, documentOptions: new JsonDocumentOptions { MaxDepth = 128 });
 
-            var input = TypeSpecSerialization.Deserialize(root.ToJsonString())!;
+            var input = TypeSpecSerialization.Deserialize(root.ToJsonString(new JsonSerializerOptions { MaxDepth = 128 }))!;
             return input.Clients[0].Children[0].Methods[0].Operation.Examples[0].Parameters[0].ExampleValue;
         }
 

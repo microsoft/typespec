@@ -27,10 +27,6 @@ namespace Microsoft.TypeSpec.Generator.Input
             private int _referenceDepth;
             private JsonSerializerOptions? _options;
 
-            public JsonElement GetReferenceDefinition(string referenceId)
-                => _referenceDefinitions.TryGetValue(referenceId, out var definition)
-                    ? definition : throw new JsonException($"cannot resolve reference {referenceId}");
-
             public void RegisterReferenceDefinitions(JsonElement root, JsonSerializerOptions options)
             {
                 _options = options;
@@ -50,6 +46,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                         }
                     }
 
+                    // Only the example value is opaque; its type and decorator-held definitions still need indexing.
                     var isOpaqueExample = element.TryGetProperty("kind", out var kind)
                         && kind.ValueKind == JsonValueKind.String
                         && (kind.ValueEquals("unknown") || kind.ValueEquals("union"));

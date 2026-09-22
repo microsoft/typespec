@@ -76,7 +76,6 @@ namespace Microsoft.TypeSpec.Generator.Input
                     new TypeSpecInputParameterExampleConverter(),
                     new TypeSpecInputOperationExampleConverter(),
                     new InputExternalTypeMetadataConverter(),
-                    new RawJsonConverter(),
                 }
             };
 
@@ -85,13 +84,10 @@ namespace Microsoft.TypeSpec.Generator.Input
                 AllowTrailingCommas = options.AllowTrailingCommas,
                 MaxDepth = options.MaxDepth
             });
-            var root = document.RootElement;
-            // A single leading $ marks serializer metadata; the emitter escapes data property names
-            // starting with $ so that $id and $ref cannot collide with user data.
             // Opaque decorator arguments and unknown properties can contain the first
             // definition of an object referenced by the typed code-model graph.
-            referenceHandler.CurrentResolver.RegisterReferenceDefinitions(root, options);
-            var inputNamespace = root.Deserialize<InputNamespace>(options);
+            referenceHandler.CurrentResolver.RegisterReferenceDefinitions(document.RootElement, options);
+            var inputNamespace = document.RootElement.Deserialize<InputNamespace>(options);
 
             if (inputNamespace != null)
             {
