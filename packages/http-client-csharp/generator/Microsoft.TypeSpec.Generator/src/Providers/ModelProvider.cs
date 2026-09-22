@@ -76,10 +76,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
         internal PropertyProvider? DiscriminatorProperty { get; private set; }
 
         private readonly bool _isDiscriminatedBaseType;
-        // The input library is fixed before providers are named. Cache the emitted collision inventory
-        // once per library instead of rebuilding it for every ModelProvider that checks a Response->Result name.
-        private static readonly ConditionalWeakTable<CodeModelGenerator, IReadOnlyList<InputModelType>> _emittedModelsCache = new();
-        private static readonly ConditionalWeakTable<CodeModelGenerator, IReadOnlyList<InputEnumType>> _emittedEnumsCache = new();
+        // The input library is fixed before providers are named. Cache the emitted collision inventory,
+        // including each type's C# name and namespace, once per library instead of recomputing it for
+        // every ModelProvider that checks a Response->Result name.
+        private static readonly ConditionalWeakTable<CodeModelGenerator, IReadOnlyList<(InputType Type, string Namespace, string Name)>> _emittedTypesCache = new();
+
+        private static IReadOnlyList<(InputType Type, string Namespace, string Name)> EmittedTypes
+            => _emittedTypesCache.GetValue(
+                CodeModelGenerator.Instance,
+                static generator => GetEmittedTypes(generator.InputLibrary.InputNamespace).ToList());
 
         private ValueExpression DiscriminatorLiteral => Literal(_inputModel.DiscriminatorValue ?? "");
 
@@ -339,12 +344,19 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var resultName = $"{normalizedName[..^ResponseSuffix.Length]}Result";
             var inputLibrary = CodeModelGenerator.Instance.InputLibrary;
             var customType = sourceInputModel.FindForTypeInCurrentCompilation(typeNamespace, resultName, DeclaringTypeName);
-            return (customType is not null &&
-                    (string.Equals(customType.Name, resultName, StringComparison.OrdinalIgnoreCase) ||
-                     HasConflictingName(inputLibrary, customType.Type.Namespace, customType.Name, customType))) ||
-                HasConflictingName(inputLibrary, typeNamespace, resultName)
-                ? normalizedName
-                : resultName;
+            if (customType is not null)
+            {
+                // A customization occupying the Result name blocks the rename unless it physically renames
+                // itself elsewhere and no other type claims the name it moved to.
+                var isCustomTypeRenamed = !string.Equals(customType.Name, resultName, StringComparison.OrdinalIgnoreCase);
+                if (!isCustomTypeRenamed ||
+                    HasConflictingName(inputLibrary, customType.Type.Namespace, customType.Name, customType))
+                {
+                    return normalizedName;
+                }
+            }
+
+            return HasConflictingName(inputLibrary, typeNamespace, resultName) ? normalizedName : resultName;
         }
 
         // Model and enum files share a flat output directory, even across namespaces.
@@ -354,43 +366,57 @@ namespace Microsoft.TypeSpec.Generator.Providers
             string resultName,
             TypeProvider? excludedCustomization = null)
         {
-            return _emittedModelsCache.GetValue(
-                    CodeModelGenerator.Instance,
-                    static generator => GetEmittedModels(generator.InputLibrary).ToList())
-                    .Any(model => HasConflictingName(model, model.Namespace, resultName, excludedCustomization)) ||
-                _emittedEnumsCache.GetValue(
-                    CodeModelGenerator.Instance,
-                    static generator => generator.InputLibrary.InputNamespace.Enums
-                        // Mirrors OutputLibrary.BuildEnums: API-version enums are never emitted, and external
-                        // enums always map to existing types instead of generated files.
-                        .Where(@enum => @enum.External is null && !@enum.Usage.HasFlag(InputModelTypeUsage.ApiVersionEnum))
-                        .ToList())
-                    .Any(@enum => HasConflictingName(@enum, @enum.Namespace, resultName, excludedCustomization)) ||
-                inputLibrary.InputNamespace.Clients.Any(client => HasConflictingName(client, typeNamespace, resultName, excludedCustomization));
+            foreach (var (inputType, inputTypeNamespace, inputTypeName) in EmittedTypes)
+            {
+                if (HasConflictingName(inputType, inputTypeNamespace, inputTypeName, resultName, excludedCustomization))
+                {
+                    return true;
+                }
+            }
+
+            return inputLibrary.InputNamespace.Clients.Any(client => HasConflictingName(client, typeNamespace, resultName, excludedCustomization));
         }
 
-        private static IEnumerable<InputModelType> GetEmittedModels(InputLibrary inputLibrary)
+        private static IEnumerable<(InputType Type, string Namespace, string Name)> GetEmittedTypes(InputNamespace inputNamespace)
         {
-            foreach (var model in inputLibrary.InputNamespace.Models)
+            foreach (var model in inputNamespace.Models)
             {
+                // Mirrors OutputLibrary.BuildModels: external models always map to existing types
+                // instead of generated files.
                 if (model.External is not null)
                 {
                     continue;
                 }
 
-                yield return model;
+                yield return GetEmittedType(model, model.Namespace);
 
-                var unknownVariant = model.DiscriminatedSubtypes.Values.FirstOrDefault(model => model.IsUnknownDiscriminatorModel);
+                var unknownVariant = model.DiscriminatedSubtypes.Values.FirstOrDefault(subtype => subtype.IsUnknownDiscriminatorModel);
                 if (unknownVariant is { External: null })
                 {
-                    yield return unknownVariant;
+                    yield return GetEmittedType(unknownVariant, unknownVariant.Namespace);
                 }
             }
+
+            foreach (var @enum in inputNamespace.Enums)
+            {
+                // Mirrors OutputLibrary.BuildEnums: API-version enums are never emitted, and external
+                // enums always map to existing types instead of generated files.
+                if (@enum.External is null && !@enum.Usage.HasFlag(InputModelTypeUsage.ApiVersionEnum))
+                {
+                    yield return GetEmittedType(@enum, @enum.Namespace);
+                }
+            }
+
+            static (InputType Type, string Namespace, string Name) GetEmittedType(InputType inputType, string inputTypeNamespace)
+                => (inputType,
+                    GetTypeNamespace(inputTypeNamespace),
+                    inputType.IsExactName ? inputType.Name : inputType.Name.ToIdentifierName());
         }
 
         private bool HasConflictingName(
             InputType inputType,
-            string inputTypeNamespace,
+            string otherNamespace,
+            string otherName,
             string resultName,
             TypeProvider? excludedCustomization)
         {
@@ -399,8 +425,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return false;
             }
 
-            var otherName = inputType.IsExactName ? inputType.Name : inputType.Name.ToIdentifierName();
-            var otherNamespace = GetTypeNamespace(inputTypeNamespace);
             var customType = FindCustomizationType(otherNamespace, GetCustomizationLookupNames(inputType, otherName));
             if (customType is not null && !IsSameCustomization(customType, excludedCustomization))
             {
@@ -549,29 +573,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return false;
             }
 
-            var inputNamespace = CodeModelGenerator.Instance.InputLibrary.InputNamespace;
-            foreach (var (inputType, inputTypeNamespace) in _emittedModelsCache.GetValue(
-                CodeModelGenerator.Instance,
-                static generator => GetEmittedModels(generator.InputLibrary).ToList())
-                .Select(model => ((InputType)model, model.Namespace))
-                .Concat(_emittedEnumsCache.GetValue(
-                    CodeModelGenerator.Instance,
-                    static generator => generator.InputLibrary.InputNamespace.Enums
-                        // Mirrors OutputLibrary.BuildEnums: API-version enums are never emitted, and external
-                        // enums always map to existing types instead of generated files.
-                        .Where(@enum => @enum.External is null && !@enum.Usage.HasFlag(InputModelTypeUsage.ApiVersionEnum))
-                        .ToList())
-                    .Select(@enum => ((InputType)@enum, @enum.Namespace))))
+            foreach (var (inputType, inputTypeNamespace, inputTypeName) in EmittedTypes)
             {
-                if (inputType == _inputModel)
+                if (inputType == _inputModel ||
+                    !string.Equals(inputTypeName, typeName, StringComparison.OrdinalIgnoreCase))
                 {
                     continue;
                 }
 
-                var inputTypeName = inputType.IsExactName ? inputType.Name : inputType.Name.ToIdentifierName();
                 if (HasMismatchedCustomization(
-                    inputTypeName,
-                    GetTypeNamespace(inputTypeNamespace),
+                    inputTypeNamespace,
                     typeName,
                     GetCustomizationLookupNames(inputType, inputTypeName)))
                 {
@@ -579,28 +590,22 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
             }
 
-            return inputNamespace.Clients.Any(client =>
+            return CodeModelGenerator.Instance.InputLibrary.InputNamespace.Clients.Any(client =>
             {
                 var clientName = client.IsExactName ? client.Name : client.Name.ToIdentifierName();
-                return HasMismatchedCustomization(
-                    clientName,
-                    GetTypeNamespace(client.Namespace),
-                    typeName,
-                    [clientName]);
+                return string.Equals(clientName, typeName, StringComparison.OrdinalIgnoreCase) &&
+                    HasMismatchedCustomization(
+                        GetTypeNamespace(client.Namespace),
+                        typeName,
+                        [clientName]);
             });
         }
 
         private bool HasMismatchedCustomization(
-            string siblingName,
             string siblingNamespace,
             string typeName,
             IEnumerable<string> customizationLookupNames)
         {
-            if (!string.Equals(siblingName, typeName, StringComparison.OrdinalIgnoreCase))
-            {
-                return false;
-            }
-
             var customType = FindCustomizationType(siblingNamespace, customizationLookupNames);
             return customType is not null &&
                 !string.Equals(customType.Name, typeName, StringComparison.OrdinalIgnoreCase);
