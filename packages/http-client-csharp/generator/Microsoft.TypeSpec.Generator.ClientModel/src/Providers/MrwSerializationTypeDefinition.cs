@@ -218,11 +218,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         }
 
         private bool IsAvailableInCurrentContract(CSharpType candidate)
-            => candidate.IsFrameworkType ||
-                _model.Type.AreNamesEqual(candidate) ||
-                _model.BaseModelProvider?.Type.AreNamesEqual(candidate) == true ||
-                ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.Any(pair =>
-                    pair.Value is ModelProvider && pair.Key.AreNamesEqual(candidate));
+        {
+            var visited = new HashSet<string>(StringComparer.Ordinal);
+            for (CSharpType? type = _model.Type;
+                type is not null && visited.Add(type.FullyQualifiedName);
+                type = type.BaseType)
+            {
+                if (type.AreNamesEqual(candidate))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
 
         internal static bool IsCreateCoreMethod(MethodSignature signature)
         {

@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
+using Microsoft.TypeSpec.Generator.Snippets;
+using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
 
@@ -600,6 +602,41 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.IsFalse(
                 CodeModelGenerator.Instance.OutputLibrary.TypeProviders.Any(t => t is SystemObjectModelProvider),
                 "External base models should not be emitted as generated types.");
+        }
+
+        [Test]
+        public void LastContractOptionalParameterIsRequiredOnSyntheticFullConstructor()
+        {
+            var inputModel = InputFactory.Model(
+                "MappedBase",
+                properties: [InputFactory.Property("optionalBase", InputPrimitiveType.String)]);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [inputModel]);
+
+            var property = new ModelProvider(inputModel).Properties.Single();
+            var constructorOwner = new TestTypeProvider();
+            var optionalParameter = new ParameterProvider(
+                property.AsParameter.Name,
+                $"",
+                property.Type,
+                defaultValue: Snippet.Default);
+            var lastContractConstructor = new ConstructorProvider(
+                new ConstructorSignature(
+                    new CSharpType(typeof(Exception)),
+                    $"",
+                    MethodSignatureModifiers.Public,
+                    [optionalParameter]),
+                Array.Empty<MethodBodyStatement>(),
+                constructorOwner);
+            var lastContractType = new TestTypeProvider(
+                properties: [property],
+                constructors: [lastContractConstructor]);
+            var mappedBase = new SystemObjectModelProvider(
+                new CSharpType(typeof(Exception)),
+                inputModel,
+                lastContractType);
+
+            Assert.That(mappedBase.FullConstructor.Signature.Parameters.Single().DefaultValue, Is.Null,
+                "Synthetic full-constructor parameters must be required before they are prepended to derived parameters");
         }
 
         // -------------------------------------------------------------------

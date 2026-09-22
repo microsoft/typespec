@@ -152,13 +152,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return base.BuildFullConstructor();
             }
 
+            // The synthetic full constructor is prepended to derived parameters. Keep its parameters
+            // required so a shipped optional parameter cannot precede a required derived parameter.
             var parameters = constructor.Signature.Parameters
                 .Zip(matchedProperties)
                 .Select(pair => new ParameterProvider(
                     pair.First.Name,
                     pair.First.Description,
                     pair.First.Type,
-                    pair.First.DefaultValue,
+                    null,
                     pair.First.IsRef,
                     pair.First.IsOut,
                     pair.First.IsIn,
