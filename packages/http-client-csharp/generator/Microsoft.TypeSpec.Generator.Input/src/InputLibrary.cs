@@ -50,22 +50,22 @@ namespace Microsoft.TypeSpec.Generator.Input
         private bool? _hasXmlModelSerialization;
         public bool HasXmlModelSerialization => _hasXmlModelSerialization ??= GetHasXmlModelSerialization();
 
-        private IReadOnlyList<InputModelType>? _emittedModels;
+        private IReadOnlyList<InputModelType>? _nonExternalModels;
         /// <summary>
-        /// The models that are emitted as generated types. External models are excluded because they
+        /// The non-external models. External models are excluded because they
         /// always map to types owned by another library instead of a generated file.
         /// </summary>
-        public IReadOnlyList<InputModelType> EmittedModels => _emittedModels ??= [.. GetEmittedModels()];
+        internal IReadOnlyList<InputModelType> NonExternalModels => _nonExternalModels ??= [.. GetNonExternalModels()];
 
-        private IReadOnlyList<InputEnumType>? _emittedEnums;
+        private IReadOnlyList<InputEnumType>? _nonExternalEnums;
         /// <summary>
-        /// The enums that are emitted as generated types. API version enums are never emitted, and external
+        /// The non-external API-version-excluding enums. API version enums are never emitted, and external
         /// enums always map to types owned by another library instead of a generated file.
         /// </summary>
-        public IReadOnlyList<InputEnumType> EmittedEnums => _emittedEnums ??= [.. InputNamespace.Enums
+        internal IReadOnlyList<InputEnumType> NonExternalEnums => _nonExternalEnums ??= [.. InputNamespace.Enums
             .Where(e => e.External is null && !e.Usage.HasFlag(InputModelTypeUsage.ApiVersionEnum))];
 
-        private IEnumerable<InputModelType> GetEmittedModels()
+        private IEnumerable<InputModelType> GetNonExternalModels()
         {
             foreach (var model in InputNamespace.Models)
             {

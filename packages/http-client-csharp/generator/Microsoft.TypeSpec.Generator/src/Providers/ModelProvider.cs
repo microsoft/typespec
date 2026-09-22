@@ -84,7 +84,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private static IReadOnlyList<(InputType Type, string Namespace, string Name)> EmittedTypes
             => _emittedTypesCache.GetValue(
                 CodeModelGenerator.Instance,
-                static generator => GetEmittedTypes(generator.InputLibrary).ToList());
+                static _ => CodeModelGenerator.Instance.InputLibrary.NonExternalModels
+                    .Select(model => (
+                        (InputType)model,
+                        ModelProvider.GetTypeNamespace(model.Namespace),
+                        model.IsExactName ? model.Name : model.Name.ToIdentifierName()))
+                    .Concat(CodeModelGenerator.Instance.InputLibrary.NonExternalEnums.Select(@enum => (
+                        (InputType)@enum,
+                        ModelProvider.GetTypeNamespace(@enum.Namespace),
+                        @enum.IsExactName ? @enum.Name : @enum.Name.ToIdentifierName())))
+                    .ToList());
 
         private ValueExpression DiscriminatorLiteral => Literal(_inputModel.DiscriminatorValue ?? "");
 
@@ -376,16 +385,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             return inputLibrary.InputNamespace.Clients.Any(client => HasConflictingName(client, typeNamespace, resultName, excludedCustomization));
         }
-
-        private static IEnumerable<(InputType Type, string Namespace, string Name)> GetEmittedTypes(InputLibrary inputLibrary)
-            => inputLibrary.EmittedModels
-                .Select(model => GetEmittedType(model, model.Namespace))
-                .Concat(inputLibrary.EmittedEnums.Select(@enum => GetEmittedType(@enum, @enum.Namespace)));
-
-        private static (InputType Type, string Namespace, string Name) GetEmittedType(InputType inputType, string inputTypeNamespace)
-            => (inputType,
-                GetTypeNamespace(inputTypeNamespace),
-                inputType.IsExactName ? inputType.Name : inputType.Name.ToIdentifierName());
 
         private bool HasConflictingName(
             InputType inputType,
