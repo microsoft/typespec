@@ -99,7 +99,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         [TestCase("ref")]
         [TestCase("out")]
         [TestCase("in")]
-        public void ByRefConstructorParameterIsUnsupported(string modifier)
+        [TestCase("params")]
+        public void UnsupportedConstructorParameterModifierIsRejected(string modifier)
         {
             var parameter = new ParameterProvider(
                 "value",
@@ -107,7 +108,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 typeof(string),
                 isRef: modifier == "ref",
                 isOut: modifier == "out",
-                isIn: modifier == "in");
+                isIn: modifier == "in",
+                isParams: modifier == "params");
 
             Assert.That(
                 SystemObjectModelProvider.HasSupportedConstructorParameters([parameter]),

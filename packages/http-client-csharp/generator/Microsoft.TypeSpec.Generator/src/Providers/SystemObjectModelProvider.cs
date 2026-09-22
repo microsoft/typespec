@@ -214,7 +214,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         internal static bool HasSupportedConstructorParameters(IReadOnlyList<ParameterProvider> parameters)
             => parameters.All(parameter =>
-                !parameter.IsRef && !parameter.IsOut && !parameter.IsIn);
+                !parameter.IsRef && !parameter.IsOut && !parameter.IsIn && !parameter.IsParams);
 
         /// <inheritdoc/>
         protected internal override PropertyProvider[] BuildProperties()

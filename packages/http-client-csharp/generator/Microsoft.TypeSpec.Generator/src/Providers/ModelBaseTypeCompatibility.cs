@@ -72,6 +72,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 candidate.InputModel.DerivedModels.Count == 0 &&
                 candidate.InputModel.DiscriminatedSubtypes.Count == 0 &&
                 HasCompatibleLastContractProperties(candidate) &&
+                HasNoUnsupportedLastContractMembers(candidate) &&
                 candidate.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Class) &&
                 !candidate.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Sealed) &&
                 (!_model.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public) ||
@@ -249,6 +250,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 : right.InputModel.AdditionalProperties is { } rightAdditionalProperties &&
                     InputTypeStructuralComparer.Equals(left.InputModel.AdditionalProperties, rightAdditionalProperties);
         }
+
+        private static bool HasNoUnsupportedLastContractMembers(ModelProvider candidate)
+            => candidate.LastContractView is not { } lastContract ||
+                !lastContract.Methods.Any(method => MethodSignatureHelper.IsPublicApi(method.Signature.Modifiers)) &&
+                !lastContract.Fields.Any(field =>
+                    field.Modifiers.HasFlag(FieldModifiers.Public) ||
+                    field.Modifiers.HasFlag(FieldModifiers.Protected));
 
         private bool HasCompatibleLastContractProperties(ModelProvider candidate)
         {
