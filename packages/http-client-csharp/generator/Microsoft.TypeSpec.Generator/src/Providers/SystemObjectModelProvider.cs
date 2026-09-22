@@ -80,10 +80,32 @@ namespace Microsoft.TypeSpec.Generator.Providers
         internal bool UsesLastContractType => _lastContractType is not null;
 
         internal bool HasReconstructibleLastContractConstructor
-            => _lastContractType is null ||
-                (_lastContractType.Constructors.Count == 0
+            => _lastContractType is null
+                ? HasCallableFrameworkFullConstructor()
+                : _lastContractType.Constructors.Count == 0
                     ? InputModel.Properties.Count == 0 && HasCallableInitializationConstructor()
-                    : TryGetLastContractConstructor(out _, out _) && HasCallableInitializationConstructor());
+                    : TryGetLastContractConstructor(out _, out _) && HasCallableInitializationConstructor();
+
+        private bool HasCallableFrameworkFullConstructor()
+        {
+            if (!SystemType.IsFrameworkType)
+            {
+                return false;
+            }
+
+            var generatedParameters = FullConstructor.Signature.Parameters;
+            const BindingFlags flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+            return SystemType.FrameworkType.GetConstructors(flags).Any(constructor =>
+                IsPublicOrProtected(constructor) &&
+                constructor.GetParameters() is { } frameworkParameters &&
+                frameworkParameters.Length >= generatedParameters.Count &&
+                frameworkParameters.Take(generatedParameters.Count).Zip(generatedParameters).All(pair =>
+                    new CSharpType(pair.First.ParameterType).AreNamesEqual(pair.Second.Type)) &&
+                frameworkParameters.Skip(generatedParameters.Count).All(parameter =>
+                    parameter.IsOptional ||
+                    parameter.HasDefaultValue ||
+                    parameter.GetCustomAttribute<ParamArrayAttribute>() is not null));
+        }
 
         private bool HasCallableInitializationConstructor()
         {

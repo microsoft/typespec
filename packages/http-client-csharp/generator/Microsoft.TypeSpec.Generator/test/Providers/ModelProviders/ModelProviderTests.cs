@@ -701,6 +701,17 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public void BackCompat_MappedFrameworkBaseRejectsMissingParameterlessConstructor()
+        {
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var mappedBase = new SystemObjectModelProvider(
+                new CSharpType(typeof(System.Globalization.CultureInfo)),
+                currentBase);
+
+            Assert.That(mappedBase.HasReconstructibleLastContractConstructor, Is.False);
+        }
+
+        [Test]
         public void BackCompat_DownstreamMappedBaseSupportsImplicitParameterlessConstructor()
         {
             var currentBase = InputFactory.Model("CurrentBase", properties: []);
@@ -1140,6 +1151,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var mappedType = new CSharpType(typeof(Exception));
 
             await MockHelpers.LoadMockGeneratorAsync(
+                createCSharpTypeCore: _ => new CSharpType(typeof(string)),
                 createModelCore: input => input == previousBase
                     ? new SystemObjectModelProvider(mappedType, input)
                     : new ModelProvider(input),
