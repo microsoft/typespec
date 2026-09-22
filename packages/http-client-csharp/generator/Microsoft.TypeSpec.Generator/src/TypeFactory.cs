@@ -331,7 +331,7 @@ namespace Microsoft.TypeSpec.Generator
         /// <param name="inputType">The originating <see cref="InputType"/>, when available, used to preserve
         /// semantics (such as extensible-enum backing) that reflection alone cannot recover from the resolved type.</param>
         /// <returns>A <see cref="CSharpType"/> representing the external type, or null if the type cannot be resolved.</returns>
-        internal CSharpType? CreateExternalType(InputExternalTypeMetadata externalProperties, InputType? inputType = null)
+        internal CSharpType? CreateExternalType(InputExternalTypeMetadata externalProperties, InputType? inputType = null, bool reportDiagnostic = true)
         {
             // Resolve the type: first as a framework type from the fully qualified name (free, no I/O, and the
             // source of truth for BCL types), then, on a miss, dynamically from the NuGet package named in the
@@ -361,6 +361,11 @@ namespace Microsoft.TypeSpec.Generator
                 }
 
                 return externalType;
+            }
+
+            if (!reportDiagnostic)
+            {
+                return null;
             }
 
             // Neither path resolved the type — emit a diagnostic that explains what was attempted.

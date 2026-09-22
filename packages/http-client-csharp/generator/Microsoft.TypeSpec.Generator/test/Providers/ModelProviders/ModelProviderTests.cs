@@ -377,6 +377,19 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public void TestBuildName_ResponseSuffixAvoidsResolvedExternalEnumClrCollision()
+        {
+            var response = InputFactory.Model("GadgetResponse", @namespace: typeof(GadgetResult).Namespace!);
+            var externalEnum = InputFactory.StringEnum(
+                "ExternalGadget",
+                [("Value", "value")],
+                external: new InputExternalTypeMetadata(typeof(GadgetResult).AssemblyQualifiedName!, null, null));
+            MockHelpers.LoadMockGenerator(inputModelTypes: [response], inputEnumTypes: [externalEnum]);
+
+            Assert.AreEqual("GadgetResponse", CodeModelGenerator.Instance.TypeFactory.CreateModel(response)!.Name);
+        }
+
+        [Test]
         public void TestBuildName_ResponseSuffixIgnoresResolvedExternalModelCollision()
         {
             var response = InputFactory.Model("WidgetResponse");
@@ -389,6 +402,18 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             // SystemObjectModelProvider and never emitted as a generated file; it cannot reserve
             // the "WidgetResult" name.
             Assert.AreEqual("WidgetResult", CodeModelGenerator.Instance.TypeFactory.CreateModel(response)!.Name);
+        }
+
+        [Test]
+        public void TestBuildName_ResponseSuffixAvoidsResolvedExternalModelClrCollision()
+        {
+            var response = InputFactory.Model("WidgetResponse", @namespace: typeof(WidgetResult).Namespace!);
+            var externalModel = InputFactory.Model(
+                "ExternalWidget",
+                external: new InputExternalTypeMetadata(typeof(WidgetResult).AssemblyQualifiedName!, null, null));
+            MockHelpers.LoadMockGenerator(inputModelTypes: [response, externalModel]);
+
+            Assert.AreEqual("WidgetResponse", CodeModelGenerator.Instance.TypeFactory.CreateModel(response)!.Name);
         }
 
         [Test]
@@ -1197,6 +1222,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                         "new global::System.Collections.ObjectModel.ReadOnlyDictionary<string,"));
                 }
             }
+
         }
 
         [Test]
@@ -3962,5 +3988,14 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 Directory.Delete(_projectDir, true);
             }
         }
+    }
+
+    internal class WidgetResult
+    {
+    }
+
+    internal enum GadgetResult
+    {
+        Value
     }
 }

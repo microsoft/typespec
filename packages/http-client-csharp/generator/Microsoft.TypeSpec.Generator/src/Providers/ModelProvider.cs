@@ -356,6 +356,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var emittedTypes = GetEmittedTypes();
             return emittedTypes.Models.Any(model => HasConflictingName(model, model.Namespace, resultName, excludedCustomization)) ||
                 emittedTypes.Enums.Any(@enum => HasConflictingName(@enum, @enum.Namespace, resultName, excludedCustomization)) ||
+                emittedTypes.ExternalTypes.Any(type => HasConflictingName(type, typeNamespace, resultName)) ||
                 inputLibrary.InputNamespace.Clients.Any(client => HasConflictingName(client, typeNamespace, resultName, excludedCustomization));
         }
 
@@ -368,7 +369,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         // Mirrors OutputLibrary.BuildEnums: API-version enums are never emitted, and external
                         // enums always map to existing types instead of generated files.
                         .Where(@enum => @enum.External is null && !@enum.Usage.HasFlag(InputModelTypeUsage.ApiVersionEnum))
-                        .ToList()));
+                        .ToList(),
+                    BuildResolvedExternalTypes(generator.InputLibrary, generator.TypeFactory).ToList()));
 
         private static IEnumerable<InputModelType> BuildEmittedModels(InputLibrary inputLibrary, TypeFactory typeFactory)
         {
@@ -396,10 +398,46 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // provider's own name is still being built.
             bool IsEmitted(InputModelType candidate)
                 => candidate.External is null ||
-                    typeFactory.CreateExternalType(candidate.External) is null;
+                    typeFactory.CreateExternalType(candidate.External, reportDiagnostic: false) is null;
         }
 
-        private sealed record EmittedTypes(IReadOnlyList<InputModelType> Models, IReadOnlyList<InputEnumType> Enums);
+        private static IEnumerable<CSharpType> BuildResolvedExternalTypes(InputLibrary inputLibrary, TypeFactory typeFactory)
+        {
+            foreach (var model in inputLibrary.InputNamespace.Models)
+            {
+                if (model.External is not null &&
+                    typeFactory.CreateExternalType(model.External, reportDiagnostic: false) is { } modelType)
+                {
+                    yield return modelType;
+                }
+
+                var unknownVariant = model.DiscriminatedSubtypes.Values.FirstOrDefault(model => model.IsUnknownDiscriminatorModel);
+                if (unknownVariant?.External is not null &&
+                    typeFactory.CreateExternalType(unknownVariant.External, reportDiagnostic: false) is { } unknownVariantType)
+                {
+                    yield return unknownVariantType;
+                }
+            }
+
+            foreach (var @enum in inputLibrary.InputNamespace.Enums)
+            {
+                if (@enum.External is not null &&
+                    typeFactory.CreateExternalType(@enum.External, @enum, reportDiagnostic: false) is { } enumType)
+                {
+                    yield return enumType;
+                }
+            }
+        }
+
+        private static bool HasConflictingName(CSharpType externalType, string typeNamespace, string resultName)
+            => externalType.DeclaringType is null &&
+                string.Equals(externalType.Namespace, typeNamespace, StringComparison.Ordinal) &&
+                string.Equals(externalType.Name, resultName, StringComparison.Ordinal);
+
+        private sealed record EmittedTypes(
+            IReadOnlyList<InputModelType> Models,
+            IReadOnlyList<InputEnumType> Enums,
+            IReadOnlyList<CSharpType> ExternalTypes);
 
         private bool HasConflictingName(
             InputType inputType,
