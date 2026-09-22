@@ -452,7 +452,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             // Preserve existing names first, then give historical Result ownership precedence,
-            // and finally choose a stable owner for new competing Response models.
+            // and finally choose a stable owner for new competing Response models. Indistinguishable
+            // identities yield to the other model so neither claims the shared Result name.
             if (HasLastContractName(otherNamespace, resultName))
             {
                 return true;
@@ -463,16 +464,23 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return false;
             }
 
-            return CompareModelIdentity(otherModel, _inputModel) < 0;
+            return CompareModelIdentity(otherModel, _inputModel) <= 0;
         }
 
         private static int CompareModelIdentity(InputModelType left, InputModelType right)
         {
-            // The lower stable identity claims the Result name.
+            // The lower stable identity claims the Result name. The spec name is the final tie-breaker
+            // because the cross-language definition id is optional and defaults to an empty string.
             var namespaceComparison = string.Compare(left.Namespace, right.Namespace, StringComparison.Ordinal);
-            return namespaceComparison != 0
-                ? namespaceComparison
-                : string.Compare(left.CrossLanguageDefinitionId, right.CrossLanguageDefinitionId, StringComparison.Ordinal);
+            if (namespaceComparison != 0)
+            {
+                return namespaceComparison;
+            }
+
+            var definitionIdComparison = string.Compare(left.CrossLanguageDefinitionId, right.CrossLanguageDefinitionId, StringComparison.Ordinal);
+            return definitionIdComparison != 0
+                ? definitionIdComparison
+                : string.Compare(left.Name, right.Name, StringComparison.Ordinal);
         }
 
         private bool HasConflictingName(

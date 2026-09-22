@@ -322,6 +322,38 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
         [TestCase(false)]
         [TestCase(true)]
+        public void TestBuildName_ResponseSuffixSelectsSingleResultWhenDefinitionIdsAreEmpty(bool reverseOrder)
+        {
+            var upperAcronym = InputFactory.Model("IPResponse");
+            var lowerAcronym = InputFactory.Model("IpResponse");
+            upperAcronym.Update(crossLanguageDefinitionId: string.Empty);
+            lowerAcronym.Update(crossLanguageDefinitionId: string.Empty);
+            InputModelType[] models = reverseOrder ? [lowerAcronym, upperAcronym] : [upperAcronym, lowerAcronym];
+            MockHelpers.LoadMockGenerator(inputModelTypes: models);
+
+            var providers = models.Select(m => CodeModelGenerator.Instance.TypeFactory.CreateModel(m)!).ToArray();
+
+            CollectionAssert.AreEquivalent(new[] { "IPResult", "IPResponse" }, providers.Select(p => p.Name));
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void TestBuildName_ResponseSuffixKeepsResponseForIndistinguishableModels(bool reverseOrder)
+        {
+            var first = InputFactory.Model("WidgetResponse");
+            var second = InputFactory.Model("WidgetResponse");
+            first.Update(crossLanguageDefinitionId: string.Empty);
+            second.Update(crossLanguageDefinitionId: string.Empty);
+            InputModelType[] models = reverseOrder ? [second, first] : [first, second];
+            MockHelpers.LoadMockGenerator(inputModelTypes: models);
+
+            var providers = models.Select(m => CodeModelGenerator.Instance.TypeFactory.CreateModel(m)!).ToArray();
+
+            CollectionAssert.AreEquivalent(new[] { "WidgetResponse", "WidgetResponse" }, providers.Select(p => p.Name));
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
         public async Task TestBuildName_ResponseSuffixPreservesResultOwnerFromLastContract(bool reverseOrder)
         {
             var first = InputFactory.Model("FooResponse", @namespace: "Alpha");
