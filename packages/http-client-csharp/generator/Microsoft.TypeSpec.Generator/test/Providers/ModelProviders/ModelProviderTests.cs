@@ -411,7 +411,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
-        public void TestBuildName_ResponseSuffixIgnoresExternalModelPhysicalNameCollision()
+        public void TestBuildName_ResponseSuffixIgnoresExternalModelResolvingToClrType()
         {
             var response = InputFactory.Model("WidgetResponse");
             var externalModel = InputFactory.Model(
@@ -426,7 +426,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
-        public void TestBuildName_ResponseSuffixIgnoresResolvedExternalModelCollision()
+        public void TestBuildName_ResponseSuffixIgnoresExternalModelWithPhysicalName()
         {
             var response = InputFactory.Model("WidgetResponse", @namespace: typeof(WidgetResult).Namespace!);
             var externalModel = InputFactory.Model(
@@ -434,6 +434,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 external: new InputExternalTypeMetadata(typeof(WidgetResult).AssemblyQualifiedName!, null, null));
             MockHelpers.LoadMockGenerator(inputModelTypes: [response, externalModel]);
 
+            // External metadata excludes the model from generated-name collision checks.
             Assert.AreEqual("WidgetResult", CodeModelGenerator.Instance.TypeFactory.CreateModel(response)!.Name);
         }
 
