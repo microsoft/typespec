@@ -1197,6 +1197,26 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task BackCompat_MappedContractsWithInputHierarchiesAreNotEquivalent()
+        {
+            var firstBase = InputFactory.Model(
+                "FirstBase",
+                properties: [InputFactory.Property("first", InputPrimitiveType.String)]);
+            var secondBase = InputFactory.Model(
+                "SecondBase",
+                properties: [InputFactory.Property("second", InputPrimitiveType.String)]);
+            var firstInput = InputFactory.Model("FirstInput", properties: [], baseModel: firstBase);
+            var secondInput = InputFactory.Model("SecondInput", properties: [], baseModel: secondBase);
+
+            await MockHelpers.LoadMockGeneratorAsync(inputModelTypes: [firstBase, secondBase, firstInput, secondInput]);
+
+            var mappedType = new CSharpType(typeof(Exception));
+            Assert.That(ModelBaseTypeCompatibility.AreMappedContractsEquivalent(
+                new SystemObjectModelProvider(mappedType, firstInput),
+                new SystemObjectModelProvider(mappedType, secondInput)), Is.False);
+        }
+
+        [Test]
         public async Task BackCompat_BaseTypeRestorationSelectsSoleCompatibleMappedCandidate()
         {
             var compatibleMappedInput = InputFactory.Model(

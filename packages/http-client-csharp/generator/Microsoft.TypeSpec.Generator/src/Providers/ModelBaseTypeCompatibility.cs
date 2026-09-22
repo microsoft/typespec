@@ -218,6 +218,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
             SystemObjectModelProvider left,
             SystemObjectModelProvider right)
         {
+            // Inherited input contracts affect the effective property and constructor surface.
+            // Keep hierarchical candidates ambiguous rather than attempting recursive reconciliation here.
+            if (left.InputModel.BaseModel is not null || right.InputModel.BaseModel is not null)
+            {
+                return false;
+            }
+
             if (left.InputModel.Properties.Count != right.InputModel.Properties.Count)
             {
                 return false;

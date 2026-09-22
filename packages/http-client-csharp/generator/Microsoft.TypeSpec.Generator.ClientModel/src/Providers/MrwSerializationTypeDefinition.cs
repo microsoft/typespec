@@ -222,7 +222,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 _model.Type.AreNamesEqual(candidate) ||
                 _model.BaseModelProvider?.Type.AreNamesEqual(candidate) == true ||
                 ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.Any(pair =>
-                    pair.Value is not null && pair.Key.AreNamesEqual(candidate));
+                    pair.Value is ModelProvider && pair.Key.AreNamesEqual(candidate));
 
         internal static bool IsCreateCoreMethod(MethodSignature signature)
         {

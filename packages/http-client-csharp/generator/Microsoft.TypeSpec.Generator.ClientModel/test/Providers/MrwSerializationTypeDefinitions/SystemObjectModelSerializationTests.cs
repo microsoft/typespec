@@ -174,6 +174,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 new SourceInputModel(null, lastContractCompilation));
 
             var derived = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(derivedInputModel)!;
+            var removedType = derived.LastContractView!.Methods
+                .Single(method => method.Signature.Name == "JsonModelCreateCore")
+                .Signature.ReturnType!;
+            ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[removedType] = new SystemObjectTypeProvider(removedType);
             var serialization = (MrwSerializationTypeDefinition)derived.SerializationProviders.Single();
 
             Assert.Multiple(() =>
