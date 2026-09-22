@@ -659,6 +659,21 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task BackCompat_MappedCandidateWithInputHierarchyIsUnsupported()
+        {
+            var mappedBase = InputFactory.Model("MappedBase", properties: []);
+            var mappedInput = InputFactory.Model("MappedInput", properties: [], baseModel: mappedBase);
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var model = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+
+            await MockHelpers.LoadMockGeneratorAsync(inputModelTypes: [mappedBase, mappedInput, currentBase, model]);
+
+            var compatibility = new ModelBaseTypeCompatibility(new ModelProvider(model));
+            Assert.That(compatibility.IsSupportedModelBase(
+                new SystemObjectModelProvider(new CSharpType(typeof(Exception)), mappedInput)), Is.False);
+        }
+
+        [Test]
         public async Task BackCompat_DownstreamMappedBaseRejectsNonPropertyConstructor()
         {
             var currentBase = InputFactory.Model("CurrentBase", properties: []);

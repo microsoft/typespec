@@ -94,7 +94,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             foreach (var constructor in constructors.Where(constructor =>
-                MethodSignatureHelper.IsPublicApi(constructor.Signature.Modifiers)))
+                MethodSignatureHelper.IsPublicApi(constructor.Signature.Modifiers) &&
+                HasSupportedConstructorParameters(constructor.Signature.Parameters)))
             {
                 var matches = constructor.Signature.Parameters
                     .Select(parameter => Properties.FirstOrDefault(property =>
@@ -187,7 +188,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             var properties = Properties;
             foreach (var candidate in _lastContractType!.Constructors
-                .Where(constructor => MethodSignatureHelper.IsPublicApi(constructor.Signature.Modifiers))
+                .Where(constructor => MethodSignatureHelper.IsPublicApi(constructor.Signature.Modifiers) &&
+                    HasSupportedConstructorParameters(constructor.Signature.Parameters))
                 .OrderByDescending(constructor => constructor.Signature.Parameters.Count))
             {
                 var matches = candidate.Signature.Parameters
@@ -207,6 +209,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             matchedProperties = null;
             return false;
         }
+
+        internal static bool HasSupportedConstructorParameters(IReadOnlyList<ParameterProvider> parameters)
+            => parameters.All(parameter =>
+                !parameter.IsRef && !parameter.IsOut && !parameter.IsIn);
 
         /// <inheritdoc/>
         protected internal override PropertyProvider[] BuildProperties()

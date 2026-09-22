@@ -44,7 +44,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         public bool IsSupportedModelBase(ModelProvider candidate)
             => candidate is SystemObjectModelProvider mappedBase
-                ? mappedBase.SystemType.IsFrameworkType &&
+                ? (mappedBase.UsesLastContractType ||
+                    mappedBase.InputModel.BaseModel is null &&
+                    mappedBase.InputModel.DiscriminatorProperty is null &&
+                    mappedBase.InputModel.DiscriminatorValue is null &&
+                    mappedBase.InputModel.DerivedModels.Count == 0 &&
+                    mappedBase.InputModel.DiscriminatedSubtypes.Count == 0) &&
+                    mappedBase.SystemType.IsFrameworkType &&
                     mappedBase.SystemType.FrameworkType.IsClass &&
                     !HasAbstractMembers(mappedBase.SystemType.FrameworkType) &&
                     !mappedBase.SystemType.FrameworkType.IsSealed &&

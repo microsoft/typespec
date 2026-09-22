@@ -94,6 +94,24 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 Has.Some.EqualTo(new CSharpType(typeof(IDisposable))));
         }
 
+        [TestCase("ref")]
+        [TestCase("out")]
+        [TestCase("in")]
+        public void ByRefConstructorParameterIsUnsupported(string modifier)
+        {
+            var parameter = new ParameterProvider(
+                "value",
+                $"",
+                typeof(string),
+                isRef: modifier == "ref",
+                isOut: modifier == "out",
+                isIn: modifier == "in");
+
+            Assert.That(
+                SystemObjectModelProvider.HasSupportedConstructorParameters([parameter]),
+                Is.False);
+        }
+
         [Test]
         public void SystemObjectTypeProvider_IsNotModelProvider()
         {
