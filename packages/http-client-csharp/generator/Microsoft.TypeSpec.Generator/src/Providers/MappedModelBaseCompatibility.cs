@@ -258,6 +258,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 current.IsHttpMetadata == mapped.IsHttpMetadata &&
                 current.IsDiscriminator == mapped.IsDiscriminator &&
                 current.Encode == mapped.Encode &&
+                InputSerializationOptionsStructuralComparer.Equals(
+                    current.SerializationOptions,
+                    mapped.SerializationOptions) &&
                 (current.Type is InputNullableType) == (mapped.Type is InputNullableType) &&
                 InputTypeStructuralComparer.Equals(current.Type, mapped.Type);
 

@@ -1332,6 +1332,36 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public void BackCompat_MappedContractsWithDifferentSerializationMetadataAreNotEquivalent()
+        {
+            var firstInput = InputFactory.Model(
+                "FirstInput",
+                properties:
+                [
+                    InputFactory.Property(
+                        "id",
+                        InputPrimitiveType.String,
+                        serializationOptions: InputFactory.Serialization.Options(
+                            xml: InputFactory.Serialization.Xml("firstId")))
+                ]);
+            var secondInput = InputFactory.Model(
+                "SecondInput",
+                properties:
+                [
+                    InputFactory.Property(
+                        "id",
+                        InputPrimitiveType.String,
+                        serializationOptions: InputFactory.Serialization.Options(
+                            xml: InputFactory.Serialization.Xml("secondId")))
+                ]);
+            var mappedType = new CSharpType(typeof(Exception));
+
+            Assert.That(ModelBaseTypeCompatibility.AreMappedContractsEquivalent(
+                new SystemObjectModelProvider(mappedType, firstInput),
+                new SystemObjectModelProvider(mappedType, secondInput)), Is.False);
+        }
+
+        [Test]
         public async Task BackCompat_MappedContractsWithInputHierarchiesAreNotEquivalent()
         {
             var firstBase = InputFactory.Model(
