@@ -432,9 +432,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             // Preserve existing names first, then give historical Result ownership precedence,
             // and finally choose a stable owner for new competing Response models.
-            return HasLastContractName(otherNamespace, resultName) ||
-                (!HasLastContractName(BuildNamespace(), resultName) &&
-                    CompareModelIdentity(otherModel, _inputModel) < 0);
+            if (HasLastContractName(otherNamespace, resultName))
+            {
+                return true;
+            }
+
+            if (HasLastContractName(BuildNamespace(), resultName))
+            {
+                return false;
+            }
+
+            return CompareModelIdentity(otherModel, _inputModel) < 0;
         }
 
         private static int CompareModelIdentity(InputModelType left, InputModelType right)
