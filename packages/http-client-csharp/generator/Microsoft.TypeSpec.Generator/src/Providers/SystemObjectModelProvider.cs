@@ -333,10 +333,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             const BindingFlags flags = BindingFlags.DeclaredOnly | BindingFlags.Instance |
                 BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
-            var frameworkMethods = EnumerateFrameworkHierarchy()
-                .SelectMany(type => type.GetMethods(flags))
-                .Where(IsPublicOrProtected)
-                .ToArray();
             var frameworkFields = EnumerateFrameworkHierarchy()
                 .SelectMany(type => type.GetFields(flags))
                 .Where(IsPublicOrProtected)
@@ -346,7 +342,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 if (provider.Methods
                     .Where(method => MethodSignatureHelper.IsPublicApi(method.Signature.Modifiers))
-                    .Any(method => !frameworkMethods.Any(candidate => IsCompatibleMethod(method.Signature, candidate))) ||
+                    .Any(method => !FindEffectiveFrameworkMethods(method.Signature)
+                        .Any(candidate => IsCompatibleMethod(method.Signature, candidate))) ||
                     provider.Fields
                     .Where(field => IsPublicApiField(field.Modifiers))
                     .Any(field => !frameworkFields.Any(candidate => IsCompatibleField(field, candidate))))
@@ -493,12 +490,27 @@ namespace Microsoft.TypeSpec.Generator.Providers
             => setter.ReturnParameter.GetRequiredCustomModifiers()
                 .Any(modifier => modifier.FullName == typeof(System.Runtime.CompilerServices.IsExternalInit).FullName);
 
+        private MethodInfo[] FindEffectiveFrameworkMethods(MethodSignature previous)
+        {
+            const BindingFlags flags = BindingFlags.DeclaredOnly | BindingFlags.Instance |
+                BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
+            foreach (var type in EnumerateFrameworkHierarchy())
+            {
+                var methods = type.GetMethods(flags)
+                    .Where(method => HasMatchingMethodIdentity(previous, method))
+                    .ToArray();
+                if (methods.Length > 0)
+                {
+                    return methods;
+                }
+            }
+            return [];
+        }
+
         private static bool IsCompatibleMethod(MethodSignature previous, MethodInfo current)
         {
             var currentParameters = current.GetParameters();
-            if (GetReflectionMethodName(previous.Name) != current.Name ||
-                previous.Parameters.Count != currentParameters.Length ||
-                (previous.GenericArguments?.Count ?? 0) != current.GetGenericArguments().Length ||
+            if (!HasMatchingMethodIdentity(previous, current) ||
                 previous.Modifiers.HasFlag(MethodSignatureModifiers.Static) != current.IsStatic ||
                 RequiresOverridableMethod(previous.Modifiers) && (!current.IsVirtual || current.IsFinal) ||
                 !HasCompatibleAccessibility(previous.Modifiers, current) ||
@@ -509,19 +521,31 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             return previous.Parameters.Zip(currentParameters).All(pair =>
             {
-                var currentType = pair.Second.ParameterType;
-                var isByRef = currentType.IsByRef;
-                if (isByRef)
-                {
-                    currentType = currentType.GetElementType()!;
-                }
-
+                var isByRef = pair.Second.ParameterType.IsByRef;
                 return pair.First.IsRef == (isByRef && !pair.Second.IsIn && !pair.Second.IsOut) &&
                     pair.First.IsIn == pair.Second.IsIn &&
                     pair.First.IsOut == pair.Second.IsOut &&
-                    pair.First.IsParams == (pair.Second.GetCustomAttribute<ParamArrayAttribute>() is not null) &&
-                    pair.First.Type.AreNamesEqual(new CSharpType(currentType));
+                    pair.First.IsParams == (pair.Second.GetCustomAttribute<ParamArrayAttribute>() is not null);
             });
+        }
+
+        private static bool HasMatchingMethodIdentity(MethodSignature previous, MethodInfo current)
+        {
+            var currentParameters = current.GetParameters();
+            return GetReflectionMethodName(previous.Name) == current.Name &&
+                previous.Parameters.Count == currentParameters.Length &&
+                (previous.GenericArguments?.Count ?? 0) == current.GetGenericArguments().Length &&
+                previous.Parameters.Zip(currentParameters).All(pair =>
+                {
+                    var currentType = pair.Second.ParameterType;
+                    var isByRef = currentType.IsByRef;
+                    if (isByRef)
+                    {
+                        currentType = currentType.GetElementType()!;
+                    }
+                    return (pair.First.IsRef || pair.First.IsIn || pair.First.IsOut) == isByRef &&
+                        pair.First.Type.AreNamesEqual(new CSharpType(currentType));
+                });
         }
 
         private static string GetReflectionMethodName(string name)

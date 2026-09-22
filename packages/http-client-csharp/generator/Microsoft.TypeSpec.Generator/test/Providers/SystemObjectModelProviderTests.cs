@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
+// cspell:ignore Ldarg Ldfld Stfld
 
 using System;
 using System.Collections.Generic;
@@ -51,6 +52,16 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         public class NonVirtualPropertyTarget
         {
             public string Value { get; set; } = string.Empty;
+        }
+
+        public class VirtualMethodBase
+        {
+            public virtual string GetValue() => string.Empty;
+        }
+
+        public class HiddenMethodTarget : VirtualMethodBase
+        {
+            public new string GetValue() => string.Empty;
         }
 
         public class InitOnlyPropertyTarget
@@ -881,6 +892,34 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
 
             Assert.That(compatibility.CanUseMappedBase(mappedBase), Is.False,
                 "Restoration must not remove a method inherited through the shipped base");
+        }
+
+        [Test]
+        public void LastContractMappingRejectsHiddenHistoricalVirtualMethod()
+        {
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [currentBase, derivedModel]);
+
+            var memberOwner = new TestTypeProvider();
+            var historicalMethod = new MethodProvider(
+                new MethodSignature(
+                    "GetValue",
+                    $"",
+                    MethodSignatureModifiers.Public | MethodSignatureModifiers.Virtual,
+                    typeof(string),
+                    $"",
+                    []),
+                Snippet.ThrowExpression(Snippet.Null),
+                memberOwner);
+            var mappedBase = new SystemObjectModelProvider(
+                new CSharpType(typeof(HiddenMethodTarget)),
+                currentBase,
+                new TestTypeProvider(methods: [historicalMethod]));
+            var compatibility = new ModelBaseTypeCompatibility(new ModelProvider(derivedModel));
+
+            Assert.That(compatibility.CanUseMappedBase(mappedBase), Is.False,
+                "The effective hiding declaration must not fall back to a compatible inherited method");
         }
 
         [Test]
