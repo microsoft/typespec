@@ -50,10 +50,16 @@ namespace Microsoft.TypeSpec.Generator.Input
                         }
                     }
 
-                    // Data property names are escaped, so $id here is always serializer metadata
-                    // and every subtree can be indexed uniformly.
+                    var isOpaqueExample = element.TryGetProperty("kind", out var kind)
+                        && kind.ValueKind == JsonValueKind.String
+                        && (kind.ValueEquals("unknown") || kind.ValueEquals("union"));
                     foreach (var property in element.EnumerateObject())
                     {
+                        if (isOpaqueExample && property.NameEquals("value"))
+                        {
+                            continue;
+                        }
+
                         IndexReferenceDefinitions(property.Value);
                     }
                 }

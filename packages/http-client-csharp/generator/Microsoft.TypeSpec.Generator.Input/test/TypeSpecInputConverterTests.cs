@@ -87,7 +87,7 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
         }
 
         [Test]
-        public void IndexDoesNotDependOnExampleKinds()
+        public void OpaqueExampleValueCannotDefineReference()
         {
             const string content = """
                 {
@@ -99,7 +99,9 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
                 }
                 """;
 
-            Assert.AreEqual("SharedModel", TypeSpecSerialization.Deserialize(content)!.Models.Single().Name);
+            var exception = Assert.Throws<JsonException>(() => TypeSpecSerialization.Deserialize(content));
+
+            Assert.That(exception!.Message, Does.Contain("cannot resolve reference model"));
         }
 
         [TestCase(true)]
@@ -364,7 +366,7 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
                   "extension": {
                     "kind": "{{kind}}",
                     "type": { "$id": "model", "kind": "model", "name": "SharedModel" },
-                    "value": { "$$id": "model", "name": "Payload" }
+                    "value": { "$id": "model", "name": "Payload" }
                   }
                 }
                 """;
