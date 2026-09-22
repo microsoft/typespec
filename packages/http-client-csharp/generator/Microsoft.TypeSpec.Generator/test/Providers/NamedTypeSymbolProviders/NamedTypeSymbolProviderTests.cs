@@ -165,6 +165,35 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
             }
         }
 
+        [Test]
+        public void ValidatePropertyCompatibilityMetadata()
+        {
+            var compilation = CSharpCompilation.Create(
+                "Customization",
+                [CSharpSyntaxTree.ParseText("""
+                    namespace Sample
+                    {
+                        public class PropertyMetadata
+                        {
+                            public virtual string VirtualValue { get; set; } = string.Empty;
+                            public string InitValue { get; init; } = string.Empty;
+                        }
+                    }
+                    """)],
+                [MetadataReference.CreateFromFile(typeof(object).Assembly.Location)]);
+            var symbol = compilation.GetTypeByMetadataName("Sample.PropertyMetadata");
+            Assert.IsNotNull(symbol);
+
+            var properties = new NamedTypeSymbolProvider(symbol!, compilation).Properties
+                .ToDictionary(property => property.Name);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(properties["VirtualValue"].Modifiers.HasFlag(MethodSignatureModifiers.Virtual), Is.True);
+                Assert.That(properties["InitValue"].IsInitOnly, Is.True);
+            });
+        }
+
         [TestCase(typeof(int))]
         [TestCase(typeof(string))]
         [TestCase(typeof(double?))]

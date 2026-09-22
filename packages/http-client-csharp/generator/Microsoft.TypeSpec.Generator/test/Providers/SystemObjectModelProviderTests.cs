@@ -4,6 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using System.Reflection.Emit;
 using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -35,6 +37,26 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         private static CSharpType CreateSystemCSharpType(string name, string ns, CSharpType? baseType = null)
             => new(name, ns, isValueType: false, isNullable: false, declaringType: null,
                    args: Array.Empty<CSharpType>(), isPublic: true, isStruct: false, baseType: baseType);
+
+        public class HiddenPropertyBase
+        {
+            public string Value { get; set; } = string.Empty;
+        }
+
+        public class HiddenPropertyTarget : HiddenPropertyBase
+        {
+            public new int Value { get; set; }
+        }
+
+        public class NonVirtualPropertyTarget
+        {
+            public string Value { get; set; } = string.Empty;
+        }
+
+        public class InitOnlyPropertyTarget
+        {
+            public string Value { get; init; } = string.Empty;
+        }
 
         [SetUp]
         public void Setup()
@@ -680,6 +702,157 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
 
             Assert.That(compatibility.CanUseMappedBase(mappedBase), Is.False,
                 "A generated property must not hide a member added by the mapped framework target");
+        }
+
+        [Test]
+        public void MappedInputPropertyMustMatchExactlyOneEffectiveProperty()
+        {
+            var mappedInput = InputFactory.Model(
+                "MappedInput",
+                properties: [InputFactory.Property("message", InputPrimitiveType.String, isRequired: true)]);
+            var currentBase = InputFactory.Model(
+                "CurrentBase",
+                properties: [InputFactory.Property("message", InputPrimitiveType.String, isRequired: true)]);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+            MockHelpers.LoadMockGenerator(
+                inputModelTypes: [mappedInput, currentBase, derivedModel],
+                isLastContractModelBasePropertyCompatible: (_, _, _) => false);
+
+            var mappedBase = new SystemObjectModelProvider(new CSharpType(typeof(Exception)), mappedInput);
+            var compatibility = new ModelBaseTypeCompatibility(new ModelProvider(derivedModel));
+
+            Assert.That(compatibility.CanUseMappedBase(mappedBase), Is.False,
+                "Every mapped input property must match exactly one effective property");
+        }
+
+        [Test]
+        public void LastContractMappingRejectsMissingHistoricalProperty()
+        {
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [currentBase, derivedModel]);
+
+            var memberOwner = new TestTypeProvider();
+            var historicalProperty = new PropertyProvider(
+                $"",
+                MethodSignatureModifiers.Public,
+                typeof(string),
+                "RemovedProperty",
+                new AutoPropertyBody(true, MethodSignatureModifiers.Public),
+                memberOwner);
+            var mappedBase = new SystemObjectModelProvider(
+                new CSharpType(typeof(Exception)),
+                currentBase,
+                new TestTypeProvider(properties: [historicalProperty]));
+            var compatibility = new ModelBaseTypeCompatibility(new ModelProvider(derivedModel));
+
+            Assert.That(compatibility.CanUseMappedBase(mappedBase), Is.False,
+                "Restoration must not expose a historical property absent from the mapped target");
+        }
+
+        [Test]
+        public void LastContractMappingRejectsCompatiblePropertyHiddenByIncompatibleTargetProperty()
+        {
+            Assert.That(CanUseMappedBaseWithHistoricalProperty(
+                typeof(HiddenPropertyTarget),
+                MethodSignatureModifiers.Public), Is.False,
+                "A compatible farther-base property must not bypass an incompatible effective target property");
+        }
+
+        [Test]
+        public void LastContractMappingRejectsNonVirtualTargetForVirtualHistoricalProperty()
+        {
+            Assert.That(CanUseMappedBaseWithHistoricalProperty(
+                typeof(NonVirtualPropertyTarget),
+                MethodSignatureModifiers.Public | MethodSignatureModifiers.Virtual), Is.False,
+                "A historical virtual property requires an overridable mapped target property");
+        }
+
+        [Test]
+        public void LastContractMappingRejectsInitOnlyTargetForOrdinaryHistoricalSetter()
+        {
+            Assert.That(CanUseMappedBaseWithHistoricalProperty(
+                typeof(InitOnlyPropertyTarget),
+                MethodSignatureModifiers.Public), Is.False,
+                "An ordinary historical setter must not map to an init-only target setter");
+        }
+
+        [Test]
+        public void LastContractMappingRejectsShimmedInitOnlyTargetForOrdinaryHistoricalSetter()
+        {
+            Assert.That(CanUseMappedBaseWithHistoricalProperty(
+                CreateShimmedInitOnlyPropertyTarget(),
+                MethodSignatureModifiers.Public), Is.False,
+                "Init-only detection must use the marker metadata name rather than its assembly identity");
+        }
+
+        private static Type CreateShimmedInitOnlyPropertyTarget()
+        {
+            var assembly = AssemblyBuilder.DefineDynamicAssembly(
+                new AssemblyName("ShimmedInitOnlyPropertyTargetAssembly"),
+                AssemblyBuilderAccess.Run);
+            var module = assembly.DefineDynamicModule("Main");
+            var marker = module.DefineType(
+                "System.Runtime.CompilerServices.IsExternalInit",
+                TypeAttributes.Public | TypeAttributes.Sealed).CreateType()!;
+            var target = module.DefineType("Test.ShimmedInitOnlyPropertyTarget", TypeAttributes.Public);
+            target.DefineDefaultConstructor(MethodAttributes.Public);
+
+            var field = target.DefineField("_value", typeof(string), FieldAttributes.Private);
+            var getter = target.DefineMethod(
+                "get_Value",
+                MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.HideBySig,
+                typeof(string),
+                Type.EmptyTypes);
+            var getterBody = getter.GetILGenerator();
+            getterBody.Emit(OpCodes.Ldarg_0);
+            getterBody.Emit(OpCodes.Ldfld, field);
+            getterBody.Emit(OpCodes.Ret);
+
+            var setter = target.DefineMethod(
+                "set_Value",
+                MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.HideBySig,
+                CallingConventions.HasThis,
+                typeof(void),
+                [marker],
+                null,
+                [typeof(string)],
+                null,
+                null);
+            var setterBody = setter.GetILGenerator();
+            setterBody.Emit(OpCodes.Ldarg_0);
+            setterBody.Emit(OpCodes.Ldarg_1);
+            setterBody.Emit(OpCodes.Stfld, field);
+            setterBody.Emit(OpCodes.Ret);
+
+            var property = target.DefineProperty("Value", PropertyAttributes.None, typeof(string), null);
+            property.SetGetMethod(getter);
+            property.SetSetMethod(setter);
+            return target.CreateType()!;
+        }
+
+        private static bool CanUseMappedBaseWithHistoricalProperty(
+            Type frameworkType,
+            MethodSignatureModifiers modifiers)
+        {
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [currentBase, derivedModel]);
+
+            var memberOwner = new TestTypeProvider();
+            var historicalProperty = new PropertyProvider(
+                $"",
+                modifiers,
+                typeof(string),
+                "Value",
+                new AutoPropertyBody(true, MethodSignatureModifiers.Public),
+                memberOwner);
+            var mappedBase = new SystemObjectModelProvider(
+                new CSharpType(frameworkType),
+                currentBase,
+                new TestTypeProvider(properties: [historicalProperty]));
+            var compatibility = new ModelBaseTypeCompatibility(new ModelProvider(derivedModel));
+            return compatibility.CanUseMappedBase(mappedBase);
         }
 
         [Test]

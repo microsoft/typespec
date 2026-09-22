@@ -293,6 +293,32 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return [.. properties];
         }
 
+        internal bool HasCompatibleLastContractProperties()
+        {
+            if (_lastContractType is null)
+            {
+                return true;
+            }
+
+            if (!SystemType.IsFrameworkType)
+            {
+                return false;
+            }
+
+            for (var provider = _lastContractType; provider is not null; provider = provider.BaseTypeProvider)
+            {
+                if (provider.Properties
+                    .Where(property => MethodSignatureHelper.IsPublicApi(property.Modifiers))
+                    .Any(property => FindEffectiveFrameworkProperty(property.Name) is not { } candidate ||
+                        !IsCompatibleProperty(property, candidate)))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         internal bool HasCompatibleLastContractNonPropertyMembers()
         {
             if (_lastContractType is null)
@@ -401,6 +427,72 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
         }
 
+        private PropertyInfo? FindEffectiveFrameworkProperty(string name)
+        {
+            const BindingFlags flags = BindingFlags.DeclaredOnly | BindingFlags.Instance |
+                BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
+            foreach (var type in EnumerateFrameworkHierarchy())
+            {
+                var declaredMembers = type.GetMember(name, flags);
+                if (declaredMembers.Length > 0)
+                {
+                    return declaredMembers.Length == 1 ? declaredMembers[0] as PropertyInfo : null;
+                }
+            }
+            return null;
+        }
+
+        private static bool IsCompatibleProperty(PropertyProvider previous, PropertyInfo current)
+        {
+            if (previous.Name != current.Name ||
+                current.GetIndexParameters().Length != 0 ||
+                !previous.Type.AreNamesEqual(new CSharpType(current.PropertyType)) ||
+                current.GetMethod is not { } getter ||
+                !HasCompatibleAccessibility(previous.Modifiers, getter))
+            {
+                return false;
+            }
+
+            var isStatic = previous.Modifiers.HasFlag(MethodSignatureModifiers.Static);
+            if (isStatic != getter.IsStatic ||
+                RequiresOverridableProperty(previous.Modifiers) && (!getter.IsVirtual || getter.IsFinal))
+            {
+                return false;
+            }
+
+            if (!previous.Body.HasSetter)
+            {
+                return true;
+            }
+
+            var setterModifiers = previous.Body switch
+            {
+                AutoPropertyBody autoProperty => autoProperty.SetterModifiers,
+                MethodPropertyBody methodProperty => methodProperty.SetterModifiers,
+                _ => MethodSignatureModifiers.None
+            };
+            if (setterModifiers == MethodSignatureModifiers.None)
+            {
+                setterModifiers = previous.Modifiers;
+            }
+
+            return current.SetMethod is { } setter &&
+                setter.IsStatic == isStatic &&
+                (!RequiresOverridableProperty(previous.Modifiers) || setter.IsVirtual && !setter.IsFinal) &&
+                (previous.IsInitOnly || !IsInitOnly(setter)) &&
+                HasCompatibleAccessibility(setterModifiers, setter);
+        }
+
+        private static bool RequiresOverridableProperty(MethodSignatureModifiers modifiers)
+            => !modifiers.HasFlag(MethodSignatureModifiers.Sealed) &&
+                (modifiers.HasFlag(MethodSignatureModifiers.Virtual) ||
+                    modifiers.HasFlag(MethodSignatureModifiers.Abstract) ||
+                    modifiers.HasFlag(MethodSignatureModifiers.Override));
+
+        private static bool IsInitOnly(MethodInfo setter)
+            => setter.ReturnParameter.GetRequiredCustomModifiers()
+                .Any(modifier => modifier.FullName == typeof(System.Runtime.CompilerServices.IsExternalInit).FullName);
+
         private static bool IsCompatibleMethod(MethodSignature previous, MethodInfo current)
         {
             var currentParameters = current.GetParameters();
@@ -506,6 +598,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             property.Type = lastContractProperty.Type;
             property.Modifiers = lastContractProperty.Modifiers;
             property.Body = lastContractProperty.Body;
+            property.IsInitOnly = lastContractProperty.IsInitOnly;
             return property;
         }
 

@@ -48,6 +48,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (InputModel.BaseModel is null ||
                 HasDuplicateAdditionalProperties(mappedBase) ||
                 !mappedBase.HasReconstructibleLastContractConstructor ||
+                !mappedBase.HasCompatibleLastContractProperties() ||
                 !mappedBase.HasCompatibleLastContractNonPropertyMembers())
             {
                 return false;
@@ -116,6 +117,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         return false;
                     }
                     matchedProperty = effectiveProperty;
+                }
+
+                if (matchedProperty is null)
+                {
+                    return false;
                 }
             }
             return true;

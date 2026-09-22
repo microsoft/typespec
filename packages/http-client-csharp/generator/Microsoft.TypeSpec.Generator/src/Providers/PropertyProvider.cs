@@ -40,6 +40,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public FieldProvider? BackingField { get; set; }
         public PropertyProvider? BaseProperty { get; set; }
         public bool IsRef { get; private set; }
+        internal bool IsInitOnly { get; set; }
         public SerializationFormat SerializationFormat => _serializationFormat;
 
         /// <summary>
