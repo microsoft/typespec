@@ -406,54 +406,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             // Acronym normalization only changes casing, so this also covers the normalized filename.
-            if (string.Equals(otherName, resultName, StringComparison.OrdinalIgnoreCase))
-            {
-                return true;
-            }
-
-            if (inputType is not InputModelType otherModel || inputType.IsExactName)
-            {
-                return false;
-            }
-
-            var normalizedName = otherName.NormalizeCSharpAcronyms();
-            if (!normalizedName.EndsWith(ResponseSuffix, StringComparison.Ordinal) ||
-                !string.Equals($"{normalizedName[..^ResponseSuffix.Length]}Result", resultName, StringComparison.OrdinalIgnoreCase) ||
-                HasLastContractName(otherNamespace, otherName))
-            {
-                return false;
-            }
-
-            // Preserve existing names first, then give historical Result ownership precedence,
-            // and finally choose a stable owner for new competing Response models. Indistinguishable
-            // identities yield to the other model so neither claims the shared Result name.
-            if (HasLastContractName(otherNamespace, resultName))
-            {
-                return true;
-            }
-
-            if (HasLastContractName(BuildNamespace(), resultName))
-            {
-                return false;
-            }
-
-            return CompareModelIdentity(otherModel, _inputModel) <= 0;
-        }
-
-        private static int CompareModelIdentity(InputModelType left, InputModelType right)
-        {
-            // The lower stable identity claims the Result name. The spec name is the final tie-breaker
-            // because the cross-language definition id is optional and defaults to an empty string.
-            var namespaceComparison = string.Compare(left.Namespace, right.Namespace, StringComparison.Ordinal);
-            if (namespaceComparison != 0)
-            {
-                return namespaceComparison;
-            }
-
-            var definitionIdComparison = string.Compare(left.CrossLanguageDefinitionId, right.CrossLanguageDefinitionId, StringComparison.Ordinal);
-            return definitionIdComparison != 0
-                ? definitionIdComparison
-                : string.Compare(left.Name, right.Name, StringComparison.Ordinal);
+            return string.Equals(otherName, resultName, StringComparison.OrdinalIgnoreCase);
         }
 
         private bool HasConflictingName(
