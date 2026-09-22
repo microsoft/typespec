@@ -48,7 +48,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 return current is InputPrimitiveType currentPrimitive && mapped is InputPrimitiveType mappedPrimitive &&
                     currentPrimitive.Kind == mappedPrimitive.Kind &&
-                    currentPrimitive.Encode == mappedPrimitive.Encode;
+                    currentPrimitive.Encode == mappedPrimitive.Encode &&
+                    currentPrimitive.IsFileType == mappedPrimitive.IsFileType;
             }
             if (current is InputDateTimeType || mapped is InputDateTimeType)
             {
@@ -92,6 +93,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (current is InputModelType || mapped is InputModelType)
             {
                 return current is InputModelType currentModel && mapped is InputModelType mappedModel &&
+                    currentModel.IsFileType == mappedModel.IsFileType &&
                     (!string.IsNullOrEmpty(currentModel.CrossLanguageDefinitionId) &&
                         currentModel.CrossLanguageDefinitionId == mappedModel.CrossLanguageDefinitionId ||
                     string.IsNullOrEmpty(currentModel.CrossLanguageDefinitionId) &&

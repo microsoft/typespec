@@ -701,6 +701,22 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public void BackCompat_DownstreamMappedBaseSupportsImplicitParameterlessConstructor()
+        {
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var mappedBase = new SystemObjectModelProvider(
+                new CSharpType(typeof(Exception)),
+                currentBase,
+                new NonModelTypeProvider());
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(mappedBase.HasReconstructibleLastContractConstructor, Is.True);
+                Assert.That(mappedBase.FullConstructor.Signature.Parameters, Is.Empty);
+            });
+        }
+
+        [Test]
         public async Task BackCompat_DownstreamMappedBaseRejectsNonPropertyConstructor()
         {
             var currentBase = InputFactory.Model("CurrentBase", properties: []);
@@ -1072,6 +1088,16 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 .Single(model => model.Name == "DerivedModel");
 
             Assert.That(provider.BaseType?.Name, Is.EqualTo("CurrentBase"));
+        }
+
+        [Test]
+        public void BackCompat_InputTypeStructuralComparerDistinguishesFilePrimitive()
+        {
+            Assert.That(
+                InputTypeStructuralComparer.Equals(
+                    InputFactory.FileType(),
+                    new InputPrimitiveType(InputPrimitiveTypeKind.Bytes, "bytes", "TypeSpec.bytes")),
+                Is.False);
         }
 
         [TestCase("dateTime")]

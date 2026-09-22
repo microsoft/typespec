@@ -81,8 +81,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         internal bool HasReconstructibleLastContractConstructor
             => _lastContractType is null ||
-                TryGetLastContractConstructor(out _, out _) &&
-                HasCallableInitializationConstructor();
+                (_lastContractType.Constructors.Count == 0
+                    ? InputModel.Properties.Count == 0 && HasCallableInitializationConstructor()
+                    : TryGetLastContractConstructor(out _, out _) && HasCallableInitializationConstructor());
 
         private bool HasCallableInitializationConstructor()
         {
@@ -146,6 +147,18 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (_lastContractType is null)
             {
                 return base.BuildFullConstructor();
+            }
+
+            if (_lastContractType.Constructors.Count == 0)
+            {
+                return new ConstructorProvider(
+                    new ConstructorSignature(
+                        Type,
+                        null,
+                        MethodSignatureModifiers.Internal,
+                        []),
+                    Array.Empty<MethodBodyStatement>(),
+                    this);
             }
 
             if (!TryGetLastContractConstructor(out var constructor, out var matchedProperties))
