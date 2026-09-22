@@ -78,7 +78,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private readonly bool _isDiscriminatedBaseType;
         // The input library is fixed before providers are named. Cache the emitted collision inventory
         // once per library instead of rebuilding it for every ModelProvider that checks a Response->Result name.
-        private static readonly ConditionalWeakTable<CodeModelGenerator, EmittedTypes> _emittedTypesCache = new();
+        private static readonly ConditionalWeakTable<CodeModelGenerator, IReadOnlyList<InputModelType>> _emittedModelsCache = new();
+        private static readonly ConditionalWeakTable<CodeModelGenerator, IReadOnlyList<InputEnumType>> _emittedEnumsCache = new();
 
         private ValueExpression DiscriminatorLiteral => Literal(_inputModel.DiscriminatorValue ?? "");
 
@@ -353,24 +354,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
             string resultName,
             TypeProvider? excludedCustomization = null)
         {
-            var emittedTypes = GetEmittedTypes();
-            return emittedTypes.Models.Any(model => HasConflictingName(model, model.Namespace, resultName, excludedCustomization)) ||
-                emittedTypes.Enums.Any(@enum => HasConflictingName(@enum, @enum.Namespace, resultName, excludedCustomization)) ||
+            return GetEmittedModels().Any(model => HasConflictingName(model, model.Namespace, resultName, excludedCustomization)) ||
+                GetEmittedEnums().Any(@enum => HasConflictingName(@enum, @enum.Namespace, resultName, excludedCustomization)) ||
                 inputLibrary.InputNamespace.Clients.Any(client => HasConflictingName(client, typeNamespace, resultName, excludedCustomization));
         }
 
-        private static EmittedTypes GetEmittedTypes()
-            => _emittedTypesCache.GetValue(
+        private static IReadOnlyList<InputModelType> GetEmittedModels()
+            => _emittedModelsCache.GetValue(
                 CodeModelGenerator.Instance,
-                static generator => new(
-                    BuildEmittedModels(generator.InputLibrary).ToList(),
-                    generator.InputLibrary.InputNamespace.Enums
-                        // Mirrors OutputLibrary.BuildEnums: API-version enums are never emitted, and external
-                        // enums always map to existing types instead of generated files.
-                        .Where(@enum => @enum.External is null && !@enum.Usage.HasFlag(InputModelTypeUsage.ApiVersionEnum))
-                        .ToList()));
+                static generator => GetEmittedModels(generator.InputLibrary).ToList());
 
-        private static IEnumerable<InputModelType> BuildEmittedModels(InputLibrary inputLibrary)
+        private static IEnumerable<InputModelType> GetEmittedModels(InputLibrary inputLibrary)
         {
             foreach (var model in inputLibrary.InputNamespace.Models)
             {
@@ -389,7 +383,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
         }
 
-        private sealed record EmittedTypes(IReadOnlyList<InputModelType> Models, IReadOnlyList<InputEnumType> Enums);
+        private static IReadOnlyList<InputEnumType> GetEmittedEnums()
+            => _emittedEnumsCache.GetValue(
+                CodeModelGenerator.Instance,
+                static generator => generator.InputLibrary.InputNamespace.Enums
+                    // Mirrors OutputLibrary.BuildEnums: API-version enums are never emitted, and external
+                    // enums always map to existing types instead of generated files.
+                    .Where(@enum => @enum.External is null && !@enum.Usage.HasFlag(InputModelTypeUsage.ApiVersionEnum))
+                    .ToList());
 
         private bool HasConflictingName(
             InputType inputType,
@@ -553,10 +554,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             var inputNamespace = CodeModelGenerator.Instance.InputLibrary.InputNamespace;
-            var emittedTypes = GetEmittedTypes();
-            foreach (var (inputType, inputTypeNamespace) in emittedTypes.Models
+            foreach (var (inputType, inputTypeNamespace) in GetEmittedModels()
                 .Select(model => ((InputType)model, model.Namespace))
-                .Concat(emittedTypes.Enums.Select(@enum => ((InputType)@enum, @enum.Namespace))))
+                .Concat(GetEmittedEnums().Select(@enum => ((InputType)@enum, @enum.Namespace))))
             {
                 if (inputType == _inputModel)
                 {
