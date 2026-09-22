@@ -69,6 +69,16 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             public string Value { get; init; } = string.Empty;
         }
 
+        public class StaticPropertyTarget
+        {
+            public StaticPropertyTarget(string value = "")
+            {
+                Value = value;
+            }
+
+            public static string Value { get; set; } = string.Empty;
+        }
+
         [SetUp]
         public void Setup()
         {
@@ -864,6 +874,43 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 new TestTypeProvider(properties: [historicalProperty]));
             var compatibility = new ModelBaseTypeCompatibility(new ModelProvider(derivedModel));
             return compatibility.CanUseMappedBase(mappedBase);
+        }
+
+        [Test]
+        public void LastContractMappingRejectsStaticHistoricalPropertyForInstanceInput()
+        {
+            var currentBase = InputFactory.Model(
+                "CurrentBase",
+                properties: [InputFactory.Property("value", InputPrimitiveType.String)]);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [currentBase, derivedModel]);
+
+            var memberOwner = new TestTypeProvider();
+            var historicalProperty = new PropertyProvider(
+                $"",
+                MethodSignatureModifiers.Public | MethodSignatureModifiers.Static,
+                typeof(string),
+                "Value",
+                new AutoPropertyBody(true, MethodSignatureModifiers.Public),
+                memberOwner);
+            var historicalConstructor = new ConstructorProvider(
+                new ConstructorSignature(
+                    new CSharpType(typeof(StaticPropertyTarget)),
+                    $"",
+                    MethodSignatureModifiers.Public,
+                    [new ParameterProvider("value", $"", typeof(string), defaultValue: Snippet.Default)]),
+                Array.Empty<MethodBodyStatement>(),
+                memberOwner);
+            var mappedBase = new SystemObjectModelProvider(
+                new CSharpType(typeof(StaticPropertyTarget)),
+                currentBase,
+                new TestTypeProvider(
+                    properties: [historicalProperty],
+                    constructors: [historicalConstructor]));
+            var compatibility = new ModelBaseTypeCompatibility(new ModelProvider(derivedModel));
+
+            Assert.That(compatibility.CanUseMappedBase(mappedBase), Is.False,
+                "A static historical property cannot represent current instance wire metadata");
         }
 
         [Test]

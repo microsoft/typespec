@@ -69,7 +69,8 @@ namespace Microsoft.TypeSpec.Generator
             CSharpType mappedBase,
             InputModelProperty currentProperty,
             PropertyProvider lastContractProperty)
-            => IsLastContractModelBasePropertyCompatibleCore(mappedBase, currentProperty, lastContractProperty);
+            => !lastContractProperty.Modifiers.HasFlag(MethodSignatureModifiers.Static) &&
+                IsLastContractModelBasePropertyCompatibleCore(mappedBase, currentProperty, lastContractProperty);
 
         /// <summary>
         /// Determines whether a current input property is represented by a property on a mapped last-contract base.
