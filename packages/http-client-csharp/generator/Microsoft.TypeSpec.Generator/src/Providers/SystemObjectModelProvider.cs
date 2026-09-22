@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Reflection;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Statements;
@@ -242,6 +243,61 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
             return [.. properties];
         }
+
+        internal IEnumerable<string> GetPublicApiMemberNames()
+        {
+            if (_lastContractType is not null)
+            {
+                for (var provider = _lastContractType; provider is not null; provider = provider.BaseTypeProvider)
+                {
+                    foreach (var property in provider.Properties.Where(property =>
+                        MethodSignatureHelper.IsPublicApi(property.Modifiers)))
+                    {
+                        yield return property.Name;
+                    }
+                    foreach (var method in provider.Methods.Where(method =>
+                        MethodSignatureHelper.IsPublicApi(method.Signature.Modifiers)))
+                    {
+                        yield return method.Signature.Name;
+                    }
+                    foreach (var field in provider.Fields.Where(field =>
+                        field.Modifiers.HasFlag(FieldModifiers.Public) ||
+                        field.Modifiers.HasFlag(FieldModifiers.Protected)))
+                    {
+                        yield return field.Name;
+                    }
+                }
+                yield break;
+            }
+
+            if (!SystemType.IsFrameworkType)
+            {
+                yield break;
+            }
+
+            const BindingFlags flags = BindingFlags.DeclaredOnly | BindingFlags.Instance |
+                BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
+            for (var type = SystemType.FrameworkType; type is not null; type = type.BaseType)
+            {
+                foreach (var property in type.GetProperties(flags).Where(property =>
+                    property.GetAccessors(nonPublic: true).Any(IsPublicOrProtected)))
+                {
+                    yield return property.Name;
+                }
+                foreach (var method in type.GetMethods(flags).Where(IsPublicOrProtected))
+                {
+                    yield return method.Name;
+                }
+                foreach (var field in type.GetFields(flags).Where(field =>
+                    field.IsPublic || field.IsFamily || field.IsFamilyOrAssembly))
+                {
+                    yield return field.Name;
+                }
+            }
+        }
+
+        private static bool IsPublicOrProtected(MethodBase method)
+            => method.IsPublic || method.IsFamily || method.IsFamilyOrAssembly;
 
         private PropertyProvider ApplyCurrentInputMetadata(PropertyProvider lastContractProperty)
         {

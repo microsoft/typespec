@@ -990,6 +990,51 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task BackCompat_MappedBaseRestorationRejectsInheritedFrameworkMemberCollision()
+        {
+            var mappedInput = InputFactory.Model("MappedInput", properties: []);
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                createModelCore: input => input == mappedInput
+                    ? new SystemObjectModelProvider(new CSharpType(typeof(Exception)), input)
+                    : new ModelProvider(input),
+                inputModelTypes: [derivedModel, currentBase, mappedInput],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_LastContractMappedBaseCanBeProvidedByDownstreamGenerator)));
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.That(provider.BaseType?.Name, Is.EqualTo("CurrentBase"),
+                "A custom member must not hide a method inherited from the restored framework base");
+        }
+
+        [Test]
+        public async Task BackCompat_MappedBaseRestorationRejectsInheritedLastContractMemberCollision()
+        {
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [currentBase, derivedModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_LastContractMappedBaseCanBeProvidedByDownstreamGenerator)),
+                createLastContractModelBase: (previousBase, currentModel) => new CSharpType(typeof(Exception)));
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.That(provider.BaseType?.Name, Is.EqualTo("CurrentBase"),
+                "A custom member must not hide a method inherited from the restored last-contract base");
+        }
+
+        [Test]
         public async Task BackCompat_MappedBaseRestorationRejectsCustomConstructor()
         {
             var currentBase = InputFactory.Model("CurrentBase", properties: []);

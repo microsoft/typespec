@@ -140,9 +140,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 .Concat(customCode.Fields.Select(field => field.Name))
                 .Concat(customCode.Methods.Select(method => method.Signature.Name))
                 .ToHashSet(StringComparer.Ordinal);
-            return !mappedBase.Properties.Any(property =>
-                MethodSignatureHelper.IsPublicApi(property.Modifiers) &&
-                customMemberNames.Contains(property.Name));
+            return !customMemberNames.Overlaps(mappedBase.GetPublicApiMemberNames());
         }
 
         private bool HasCompatibleCurrentModelProperties(MappedPropertyLookup lookup)
