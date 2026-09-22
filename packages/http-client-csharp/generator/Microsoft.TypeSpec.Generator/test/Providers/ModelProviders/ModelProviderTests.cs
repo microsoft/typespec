@@ -439,7 +439,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
-        public void TestBuildName_ResponseSuffixIgnoresExternalModelRegardlessOfResolution()
+        public void TestBuildName_ResponseSuffixIgnoresUnresolvableExternalModel()
         {
             var response = InputFactory.Model("WidgetResponse");
             var externalModel = InputFactory.Model(
