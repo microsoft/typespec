@@ -10,6 +10,46 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
 {
     public class TypeSpecInputConverterTests
     {
+        [TestCase("""{"diagnosticId":"C","dependsOn":["A","B"]}""", "C", new[] { "A", "B" })]
+        [TestCase("""{"diagnosticId":"C"}""", "C", new string[0])]
+        [TestCase("""{"dependsOn":["A"]}""", null, new[] { "A" })]
+        [TestCase("""{}""", null, new string[0])]
+        [TestCase("""null""", null, null)]
+        [TestCase(null, null, null)]
+        public void LoadsExperimentalOperationDetails(string? experimental, string? diagnosticId, string[]? dependencies)
+        {
+            var content = $$"""
+                {
+                  "$id": "operation",
+                  "name": "bar",
+                  "httpMethod": "GET",
+                  "uri": "",
+                  "path": "",
+                  {{(experimental is null ? "" : $@"""experimental"": {experimental},")}}
+                  "crossLanguageDefinitionId": "Test.bar"
+                }
+                """;
+            var referenceHandler = new TypeSpecReferenceHandler();
+            var options = new JsonSerializerOptions
+            {
+                ReferenceHandler = referenceHandler,
+                Converters = { new InputOperationConverter(referenceHandler) }
+            };
+
+            var operation = JsonSerializer.Deserialize<InputOperation>(content, options)!;
+
+            if (dependencies is null)
+            {
+                Assert.IsNull(operation.Experimental);
+            }
+            else
+            {
+                Assert.IsNotNull(operation.Experimental);
+                Assert.AreEqual(diagnosticId, operation.Experimental!.DiagnosticId);
+                CollectionAssert.AreEqual(dependencies, operation.Experimental.DependsOn);
+            }
+        }
+
         [TestCase(true)]
         [TestCase(false)]
         public void LoadsReferencesDefinedInDecoratorArguments(bool definitionsFirst)

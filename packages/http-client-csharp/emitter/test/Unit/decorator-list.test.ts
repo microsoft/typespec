@@ -5,6 +5,7 @@ import {
   expectDiagnostics,
   type TestHost,
 } from "@typespec/compiler/testing";
+import { HttpClientTestLibrary } from "@typespec/http-client/testing";
 import { deepStrictEqual, strictEqual } from "assert";
 import { ok } from "assert/strict";
 import { beforeEach, describe, it, vi } from "vitest";
@@ -21,6 +22,75 @@ describe("Test emitting decorator list", () => {
 
   beforeEach(async () => {
     runner = await createEmitterTestHost();
+  });
+
+  describe("experimental operations", () => {
+    beforeEach(async () => {
+      await runner.addTypeSpecLibrary(HttpClientTestLibrary);
+    });
+
+    it.each([
+      { scope: undefined, applies: true },
+      { scope: "@typespec/http-client-csharp", applies: true },
+      { scope: "other-emitter, @typespec/http-client-csharp", applies: true },
+      { scope: "other-emitter", applies: false },
+      { scope: "!other-emitter", applies: true },
+      { scope: "!@typespec/http-client-csharp", applies: false },
+      { scope: "!other-emitter, !@typespec/http-client-csharp", applies: false },
+    ])("respects emitter scope $scope", async ({ scope, applies }) => {
+      const program = await typeSpecCompile(
+        `
+        @TypeSpec.HttpClient.experimental(#{
+          ${scope === undefined ? "" : `emitterScope: "${scope}",`}
+          diagnosticId: "C",
+          dependsOn: #["A", "B"]
+        })
+        op bar(): void;
+        `,
+        runner,
+        { IsHttpClientNeeded: true },
+      );
+      expectDiagnosticEmpty(program.diagnostics);
+      const sdkContext = await createCSharpSdkContext(createEmitterContext(program), {
+        additionalDecorators: [],
+      });
+      expectDiagnosticEmpty(sdkContext.diagnostics);
+      const [root, diagnostics] = createModel(sdkContext);
+      expectDiagnosticEmpty(diagnostics);
+      deepStrictEqual(
+        root.clients[0].methods[0].operation.experimental,
+        applies ? { diagnosticId: "C", dependsOn: ["A", "B"] } : undefined,
+      );
+    });
+
+    it.each([
+      { decorator: "", expected: undefined },
+      {
+        decorator: "@TypeSpec.HttpClient.experimental",
+        expected: { diagnosticId: undefined, dependsOn: [] },
+      },
+      {
+        decorator: '@TypeSpec.HttpClient.experimental(#{ diagnosticId: "C" })',
+        expected: { diagnosticId: "C", dependsOn: [] },
+      },
+      {
+        decorator: '@TypeSpec.HttpClient.experimental(#{ dependsOn: #["A"] })',
+        expected: { diagnosticId: undefined, dependsOn: ["A"] },
+      },
+      {
+        decorator: '@TypeSpec.HttpClient.experimental(#{ diagnosticId: "C", dependsOn: #[] })',
+        expected: { diagnosticId: "C", dependsOn: [] },
+      },
+    ])("preserves optional metadata for $decorator", async ({ decorator, expected }) => {
+      const program = await typeSpecCompile(`${decorator} op bar(): void;`, runner, {
+        IsHttpClientNeeded: true,
+      });
+      expectDiagnosticEmpty(program.diagnostics);
+      const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+      const [root, diagnostics] = createModel(sdkContext);
+      expectDiagnosticEmpty(diagnostics);
+      deepStrictEqual(root.clients[0].methods[0].operation.experimental, expected);
+    });
   });
 
   it("emit decorator list on a client", async () => {

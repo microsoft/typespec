@@ -39,8 +39,10 @@ import {
   isErrorModel,
   NoTarget,
 } from "@typespec/compiler";
+import { $ } from "@typespec/compiler/typekit";
 import { unsafe_getEventDefinitions } from "@typespec/events/experimental";
 import type { HttpStatusCodeRange } from "@typespec/http";
+import "@typespec/http-client/typekit";
 import { getResourceOperation } from "@typespec/rest";
 import { isTerminalEvent } from "@typespec/sse";
 import type { CSharpEmitterContext } from "../sdk-context.js";
@@ -217,6 +219,13 @@ export function fromSdkServiceMethodOperation(
     generateConvenience = false;
   }
 
+  const lifecycle = diagnostics.pipe(
+    $(sdkContext.program).client.getFeatureLifecycleDetails.withDiagnostics(
+      method.operation.__raw.operation,
+      { emitterName: "@typespec/http-client-csharp" },
+    ),
+  );
+
   operation = {
     name: method.name,
     isExactName: method.isExactName,
@@ -251,6 +260,9 @@ export function fromSdkServiceMethodOperation(
       : undefined,
     namespace: method.__raw?.namespace
       ? getClientNamespace(sdkContext, method.__raw.namespace)
+      : undefined,
+    experimental: lifecycle
+      ? { diagnosticId: lifecycle.diagnosticId, dependsOn: [...lifecycle.dependsOn] }
       : undefined,
   };
 
