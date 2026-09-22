@@ -79,7 +79,18 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var currentGeneratedMethods = candidate.Methods
                 .Concat(candidate.SerializationProviders.SelectMany(provider => provider.Methods))
                 .ToArray();
-            return lastContract.Methods
+            var currentInterfaces = candidate.Implements
+                .Concat(candidate.SerializationProviders.SelectMany(provider => provider.Implements)).ToArray();
+            return lastContract.Implements.All(previous => currentInterfaces.Any(current =>
+                    ModelBaseMemberCompatibility.AreTypesCompatible(previous, current))) &&
+                lastContract.Constructors
+                    .Where(constructor => MethodSignatureHelper.IsPublicApi(constructor.Signature.Modifiers))
+                    .All(constructor => SystemObjectModelProvider.HasSupportedConstructorParameters(constructor.Signature.Parameters) &&
+                        constructor.Signature.Parameters.All(parameter => candidate.Properties.Any(property =>
+                            property.AsParameter.Name == parameter.Name &&
+                            (ModelBaseMemberCompatibility.AreTypesCompatible(parameter.Type, property.Type) ||
+                                ModelBaseMemberCompatibility.AreTypesCompatible(parameter.Type, property.Type.InputType))))) &&
+                lastContract.Methods
                     .Where(method => MethodSignatureHelper.IsPublicApi(method.Signature.Modifiers))
                     .All(previous => currentGeneratedMethods.Any(current =>
                         AreGeneratedMethodSignaturesEquivalent(previous.Signature, current.Signature))) &&
@@ -91,11 +102,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private static bool AreGeneratedMethodSignaturesEquivalent(
             MethodSignature previous,
             MethodSignature current)
-            => MethodSignature.MethodSignatureComparer.Equals(previous, current) &&
+            => !previous.HasUnsupportedBaseContract && !current.HasUnsupportedBaseContract &&
+                previous.GenericArguments is not { Count: > 0 } &&
+                current.GenericArguments is not { Count: > 0 } &&
+                MethodSignature.MethodSignatureComparer.Equals(previous, current) &&
+                previous.Parameters.Zip(current.Parameters).All(pair =>
+                    ModelBaseMemberCompatibility.AreParametersCompatible(pair.First, pair.Second)) &&
                 previous.Modifiers == current.Modifiers &&
                 (previous.ReturnType is null
                     ? current.ReturnType is null
-                    : current.ReturnType is not null && previous.ReturnType.AreNamesEqual(current.ReturnType));
+                    : current.ReturnType is not null &&
+                        ModelBaseMemberCompatibility.AreTypesCompatible(previous.ReturnType, current.ReturnType));
 
         private bool HasCompatibleLastContractProperties(ModelProvider candidate)
         {
@@ -112,8 +129,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 .ToDictionary(property => property.Name, StringComparer.Ordinal);
             return previousProperties.Values.All(previousProperty =>
                     currentProperties.TryGetValue(previousProperty.Name, out var currentProperty) &&
-                    currentProperty.Type.Equals(previousProperty.Type, ignoreNullable: true) &&
-                    currentProperty.Body.HasSetter == previousProperty.Body.HasSetter) &&
+                    ModelBaseMemberCompatibility.ArePropertiesCompatible(previousProperty, currentProperty)) &&
                 !currentProperties.Values.Any(property =>
                     IsRequiredInitializationProperty(property) &&
                     (!previousProperties.ContainsKey(property.Name) ||

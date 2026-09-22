@@ -1099,6 +1099,8 @@ When no current provider represents the shipped CLR base, a downstream generator
 
 The current base is retained when broader reconciliation would be required, including a conflicting custom base declaration, structs, polymorphic or derived hierarchies, arbitrary referenced types, and constructed generic bases. Unrelated custom members are permitted only for mapped-base restoration; generated-base restoration with custom code remains unsupported.
 
+Restoration checks the shipped property/accessor and method contracts, including nullable value types, parameter names, ref modifiers, `params`, optional defaults, and interface assignability. Both full and initialization constructor calls must be provably callable on the mapped target; ambiguous overloads and changed omitted defaults are rejected. Generated-base constructors must remain property-backed. Historical generic methods, constants, by-ref returns, indexers, required-member properties, and defaults that cannot be represented losslessly are rejected rather than reconciled. These checks do not rediscover the complete CLR surface of an ordinary downstream mapping whose input omits members.
+
 ### Client Methods
 
 #### Scenario: New Optional Non-Body Parameter Added to a Service Method

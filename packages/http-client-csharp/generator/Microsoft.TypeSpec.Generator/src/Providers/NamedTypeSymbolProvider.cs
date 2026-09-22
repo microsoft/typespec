@@ -237,6 +237,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 {
                     OriginalName = GetOriginalName(propertySymbol),
                     IsInitOnly = propertySymbol.SetMethod?.IsInitOnly == true,
+                    HasUnsupportedBaseContract = propertySymbol.IsIndexer || propertySymbol.ReturnsByRef ||
+                        propertySymbol.ReturnsByRefReadonly || propertySymbol.IsRequired ||
+                        propertySymbol.GetMethod is null ||
+                        propertySymbol.GetMethod.DeclaredAccessibility != propertySymbol.DeclaredAccessibility,
                     CustomProvider = new(() => propertySymbol.Type is INamedTypeSymbol propertyNamedTypeSymbol
                         ? new NamedTypeSymbolProvider(propertyNamedTypeSymbol, _compilation)
                         : null)
@@ -382,7 +386,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     GenericArguments: methodSymbol.TypeParameters.IsEmpty
                         ? null
                         : [.. methodSymbol.TypeParameters.Select(parameter => parameter.GetCSharpType())],
-                    ExplicitInterface: explicitInterface?.ContainingType?.GetCSharpType());
+                    ExplicitInterface: explicitInterface?.ContainingType?.GetCSharpType())
+                {
+                    HasUnsupportedBaseContract = methodSymbol.ReturnsByRef || methodSymbol.ReturnsByRefReadonly ||
+                        methodSymbol.IsVararg
+                };
 
                 methods.Add(new MethodProvider(signature, MethodBodyStatement.Empty, this));
             }
@@ -834,7 +842,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 defaultValue: CreateDefaultValue(parameterSymbol),
                 isIn: parameterSymbol.RefKind == RefKind.In,
                 isOut: parameterSymbol.RefKind == RefKind.Out,
-                isRef: parameterSymbol.RefKind == RefKind.Ref);
+                isRef: parameterSymbol.RefKind == RefKind.Ref,
+                isParams: parameterSymbol.IsParams)
+            {
+                HasUnsupportedParameterModifiers = parameterSymbol.RefKind is not
+                    (RefKind.None or RefKind.Ref or RefKind.In or RefKind.Out),
+                HasUnsupportedDefaultValue = parameterSymbol.IsOptional &&
+                    (!parameterSymbol.HasExplicitDefaultValue ||
+                        parameterSymbol.ExplicitDefaultValue is not (null or string or bool or int or double or float or long))
+            };
         }
 
         private void AddAdditionalModifiers(IMethodSymbol methodSymbol, ref MethodSignatureModifiers modifiers)

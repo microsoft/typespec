@@ -85,7 +85,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 if (_lastContractType is null)
                 {
-                    return HasCallableFrameworkConstructor(FullConstructor.Signature.Parameters);
+                    return HasCallableFrameworkConstructor(FullConstructor.Signature.Parameters) &&
+                        HasCallableFrameworkConstructor(Properties.Where(IsRequiredInitializationProperty)
+                            .Select(property => property.AsParameter.ToPublicInputParameter()).ToArray());
                 }
 
                 if (_lastContractType.Constructors.Count == 0)
@@ -101,7 +103,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
         }
 
-        private bool HasCallableFrameworkConstructor(IReadOnlyList<ParameterProvider> generatedParameters)
+        private bool HasCallableFrameworkConstructor(
+            IReadOnlyList<ParameterProvider> generatedParameters,
+            IReadOnlyList<ParameterProvider>? historicalParameters = null)
         {
             if (!SystemType.IsFrameworkType)
             {
@@ -109,16 +113,32 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             const BindingFlags flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
-            return SystemType.FrameworkType.GetConstructors(flags).Any(constructor =>
+            var candidates = SystemType.FrameworkType.GetConstructors(flags).Where(constructor =>
                 IsPublicOrProtected(constructor) &&
                 constructor.GetParameters() is { } frameworkParameters &&
                 frameworkParameters.Length >= generatedParameters.Count &&
                 frameworkParameters.Take(generatedParameters.Count).Zip(generatedParameters).All(pair =>
-                    new CSharpType(pair.First.ParameterType).AreNamesEqual(pair.Second.Type)) &&
+                    ModelBaseMemberCompatibility.AreTypesCompatible(pair.Second.Type, new CSharpType(pair.First.ParameterType))) &&
                 frameworkParameters.Skip(generatedParameters.Count).All(parameter =>
                     parameter.IsOptional ||
                     parameter.HasDefaultValue ||
-                    parameter.GetCustomAttribute<ParamArrayAttribute>() is not null));
+                    parameter.GetCustomAttribute<ParamArrayAttribute>() is not null)).ToArray();
+
+            // Exact parameter types without omitted arguments are preferred. Otherwise require a
+            // single callable overload; generalized overload resolution is outside this policy.
+            var exactCandidates = candidates.Where(constructor => constructor.GetParameters().Length == generatedParameters.Count).ToArray();
+            var selected = exactCandidates.Length == 1 ? exactCandidates[0] : candidates.Length == 1 ? candidates[0] : null;
+            if (selected is null)
+            {
+                return false;
+            }
+            var parameters = selected.GetParameters();
+            return historicalParameters is null ||
+                historicalParameters.Skip(generatedParameters.Count).Select((parameter, index) =>
+                    (Parameter: parameter, Index: index + generatedParameters.Count)).All(pair =>
+                        pair.Index < parameters.Length &&
+                        ModelBaseMemberCompatibility.AreTypesCompatible(pair.Parameter.Type, new CSharpType(parameters[pair.Index].ParameterType)) &&
+                        ModelBaseMemberCompatibility.HasCompatibleDefaultValue(pair.Parameter, parameters[pair.Index]));
         }
 
         private bool HasCallableInitializationConstructor()
@@ -142,7 +162,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     .ToArray();
                 if (matches.Take(requiredProperties.Length).SequenceEqual(requiredProperties) &&
                     constructor.Signature.Parameters.Skip(requiredProperties.Length)
-                        .All(parameter => parameter.DefaultValue is not null))
+                        .All(parameter => parameter.DefaultValue is not null) &&
+                    HasCallableFrameworkConstructor(requiredProperties
+                        .Select(property => property.AsParameter.ToPublicInputParameter()).ToArray(), constructor.Signature.Parameters))
                 {
                     return true;
                 }
@@ -270,7 +292,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         internal static bool HasSupportedConstructorParameters(IReadOnlyList<ParameterProvider> parameters)
             => parameters.All(parameter =>
-                !parameter.IsRef && !parameter.IsOut && !parameter.IsIn && !parameter.IsParams);
+                !parameter.IsRef && !parameter.IsOut && !parameter.IsIn && !parameter.IsParams &&
+                !parameter.HasUnsupportedDefaultValue && !parameter.HasUnsupportedParameterModifiers);
 
         /// <inheritdoc/>
         protected internal override PropertyProvider[] BuildProperties()
@@ -319,6 +342,18 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return true;
         }
 
+        internal bool HasCompatibleLastContractInterfaces(TypeProvider? historicalBase)
+        {
+            var historical = _lastContractType ?? historicalBase;
+            if (historical is null)
+            {
+                return true;
+            }
+            return SystemType.IsFrameworkType && historical.Implements.All(previous =>
+                SystemType.FrameworkType.GetInterfaces().Any(current =>
+                    ModelBaseMemberCompatibility.AreTypesCompatible(previous, new CSharpType(current))));
+        }
+
         internal bool HasCompatibleLastContractNonPropertyMembers()
         {
             if (_lastContractType is null)
@@ -331,13 +366,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return false;
             }
 
-            const BindingFlags flags = BindingFlags.DeclaredOnly | BindingFlags.Instance |
-                BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
-            var frameworkFields = EnumerateFrameworkHierarchy()
-                .SelectMany(type => type.GetFields(flags))
-                .Where(IsPublicOrProtected)
-                .ToArray();
-
             for (var provider = _lastContractType; provider is not null; provider = provider.BaseTypeProvider)
             {
                 if (provider.Methods
@@ -346,7 +374,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         .Any(candidate => IsCompatibleMethod(method.Signature, candidate))) ||
                     provider.Fields
                     .Where(field => IsPublicApiField(field.Modifiers))
-                    .Any(field => !frameworkFields.Any(candidate => IsCompatibleField(field, candidate))))
+                    .Any(field => FindEffectiveFrameworkMember(field.Name) is not FieldInfo candidate ||
+                        !IsCompatibleField(field, candidate)))
                 {
                     return false;
                 }
@@ -425,6 +454,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         private PropertyInfo? FindEffectiveFrameworkProperty(string name)
+            => FindEffectiveFrameworkMember(name) as PropertyInfo;
+
+        private MemberInfo? FindEffectiveFrameworkMember(string name)
         {
             const BindingFlags flags = BindingFlags.DeclaredOnly | BindingFlags.Instance |
                 BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
@@ -433,7 +465,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 var declaredMembers = type.GetMember(name, flags);
                 if (declaredMembers.Length > 0)
                 {
-                    return declaredMembers.Length == 1 ? declaredMembers[0] as PropertyInfo : null;
+                    return declaredMembers.Length == 1 ? declaredMembers[0] : null;
                 }
             }
             return null;
@@ -441,9 +473,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private static bool IsCompatibleProperty(PropertyProvider previous, PropertyInfo current)
         {
-            if (previous.Name != current.Name ||
+            if (previous.HasUnsupportedBaseContract || previous.IsRef || previous.Name != current.Name ||
                 current.GetIndexParameters().Length != 0 ||
-                !previous.Type.AreNamesEqual(new CSharpType(current.PropertyType)) ||
+                current.GetCustomAttributesData().Any(attribute =>
+                    attribute.AttributeType.FullName == typeof(System.Runtime.CompilerServices.RequiredMemberAttribute).FullName) ||
+                !ModelBaseMemberCompatibility.AreTypesCompatible(previous.Type, new CSharpType(current.PropertyType)) ||
                 current.GetMethod is not { } getter ||
                 !HasCompatibleAccessibility(previous.Modifiers, getter))
             {
@@ -476,7 +510,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return current.SetMethod is { } setter &&
                 setter.IsStatic == isStatic &&
                 (!RequiresOverridableProperty(previous.Modifiers) || setter.IsVirtual && !setter.IsFinal) &&
-                (previous.IsInitOnly || !IsInitOnly(setter)) &&
+                previous.IsInitOnly == IsInitOnly(setter) &&
                 HasCompatibleAccessibility(setterModifiers, setter);
         }
 
@@ -510,7 +544,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private static bool IsCompatibleMethod(MethodSignature previous, MethodInfo current)
         {
             var currentParameters = current.GetParameters();
-            if (!HasMatchingMethodIdentity(previous, current) ||
+            // Generic constraints are not represented by the historical method provider. Fail closed
+            // instead of treating equal arity as proof that the old calls still compile.
+            if (previous.HasUnsupportedBaseContract || previous.GenericArguments is { Count: > 0 } || current.IsGenericMethod ||
+                !HasMatchingMethodIdentity(previous, current) ||
                 previous.Modifiers.HasFlag(MethodSignatureModifiers.Static) != current.IsStatic ||
                 RequiresOverridableMethod(previous.Modifiers) && (!current.IsVirtual || current.IsFinal) ||
                 !HasCompatibleAccessibility(previous.Modifiers, current) ||
@@ -522,7 +559,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return previous.Parameters.Zip(currentParameters).All(pair =>
             {
                 var isByRef = pair.Second.ParameterType.IsByRef;
-                return pair.First.IsRef == (isByRef && !pair.Second.IsIn && !pair.Second.IsOut) &&
+                return pair.First.Name == pair.Second.Name &&
+                    ModelBaseMemberCompatibility.HasCompatibleDefaultValue(pair.First, pair.Second) &&
+                    pair.First.IsRef == (isByRef && !pair.Second.IsIn && !pair.Second.IsOut) &&
                     pair.First.IsIn == pair.Second.IsIn &&
                     pair.First.IsOut == pair.Second.IsOut &&
                     pair.First.IsParams == (pair.Second.GetCustomAttribute<ParamArrayAttribute>() is not null);
@@ -544,7 +583,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         currentType = currentType.GetElementType()!;
                     }
                     return (pair.First.IsRef || pair.First.IsIn || pair.First.IsOut) == isByRef &&
-                        pair.First.Type.AreNamesEqual(new CSharpType(currentType));
+                        ModelBaseMemberCompatibility.AreTypesCompatible(pair.First.Type, new CSharpType(currentType));
                 });
         }
 
@@ -576,8 +615,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 modifiers.HasFlag(FieldModifiers.Protected) && !modifiers.HasFlag(FieldModifiers.Private);
 
         private static bool IsCompatibleField(FieldProvider previous, FieldInfo current)
-            => previous.Name == current.Name &&
-                previous.Type.AreNamesEqual(new CSharpType(current.FieldType)) &&
+            // Historical constant expressions are not necessarily available (e.g. metadata symbols).
+            // Constant-value reconciliation is outside this narrow restoration path.
+            => !previous.Modifiers.HasFlag(FieldModifiers.Const) && !current.IsLiteral &&
+                previous.Name == current.Name &&
+                ModelBaseMemberCompatibility.AreTypesCompatible(previous.Type, new CSharpType(current.FieldType)) &&
                 previous.Modifiers.HasFlag(FieldModifiers.Static) == current.IsStatic &&
                 previous.Modifiers.HasFlag(FieldModifiers.ReadOnly) == current.IsInitOnly &&
                 previous.Modifiers.HasFlag(FieldModifiers.Const) == current.IsLiteral &&
@@ -586,7 +628,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private static bool IsCompatibleReturnType(CSharpType? previous, Type current)
             => previous is null
                 ? current == typeof(void)
-                : previous.AreNamesEqual(new CSharpType(current));
+                : ModelBaseMemberCompatibility.AreTypesCompatible(previous, new CSharpType(current));
 
         private static bool HasCompatibleAccessibility(MethodSignatureModifiers previous, MethodBase current)
             => previous.HasFlag(MethodSignatureModifiers.Public)

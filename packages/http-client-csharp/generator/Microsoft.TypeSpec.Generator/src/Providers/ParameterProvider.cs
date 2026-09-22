@@ -35,6 +35,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public bool IsOut { get; private set; }
         public bool IsParams { get; private set; }
 
+        // Some Roslyn defaults cannot be represented losslessly by CreateDefaultValue. Do not use
+        // the fallback expression as evidence that a historical base member is compatible.
+        internal bool HasUnsupportedDefaultValue { get; init; }
+        internal bool HasUnsupportedParameterModifiers { get; init; }
+
         public bool IsContentParameter => Name == "content" && Location == ParameterLocation.Body;
 
         public IReadOnlyList<AttributeStatement> Attributes { get; private set; }

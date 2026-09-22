@@ -49,7 +49,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 HasDuplicateAdditionalProperties(mappedBase) ||
                 !mappedBase.HasReconstructibleLastContractConstructor ||
                 !mappedBase.HasCompatibleLastContractProperties() ||
-                !mappedBase.HasCompatibleLastContractNonPropertyMembers())
+                !mappedBase.HasCompatibleLastContractNonPropertyMembers() ||
+                !mappedBase.HasCompatibleLastContractInterfaces(_model.LastContractView?.BaseTypeProvider))
             {
                 return false;
             }
