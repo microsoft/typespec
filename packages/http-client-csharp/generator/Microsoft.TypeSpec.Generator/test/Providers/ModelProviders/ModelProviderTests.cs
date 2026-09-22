@@ -398,7 +398,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
-        public void TestBuildName_ResponseSuffixAvoidsResolvedExternalEnumClrCollision()
+        public void TestBuildName_ResponseSuffixIgnoresResolvedExternalEnumCollision()
         {
             var response = InputFactory.Model("GadgetResponse", @namespace: typeof(GadgetResult).Namespace!);
             var externalEnum = InputFactory.StringEnum(
@@ -407,11 +407,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 external: new InputExternalTypeMetadata(typeof(GadgetResult).AssemblyQualifiedName!, null, null));
             MockHelpers.LoadMockGenerator(inputModelTypes: [response], inputEnumTypes: [externalEnum]);
 
-            Assert.AreEqual("GadgetResponse", CodeModelGenerator.Instance.TypeFactory.CreateModel(response)!.Name);
+            Assert.AreEqual("GadgetResult", CodeModelGenerator.Instance.TypeFactory.CreateModel(response)!.Name);
         }
 
         [Test]
-        public void TestBuildName_ResponseSuffixIgnoresResolvedExternalModelCollision()
+        public void TestBuildName_ResponseSuffixIgnoresExternalModelPhysicalNameCollision()
         {
             var response = InputFactory.Model("WidgetResponse");
             var externalModel = InputFactory.Model(
@@ -426,7 +426,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
-        public void TestBuildName_ResponseSuffixAvoidsResolvedExternalModelClrCollision()
+        public void TestBuildName_ResponseSuffixIgnoresResolvedExternalModelCollision()
         {
             var response = InputFactory.Model("WidgetResponse", @namespace: typeof(WidgetResult).Namespace!);
             var externalModel = InputFactory.Model(
@@ -434,11 +434,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 external: new InputExternalTypeMetadata(typeof(WidgetResult).AssemblyQualifiedName!, null, null));
             MockHelpers.LoadMockGenerator(inputModelTypes: [response, externalModel]);
 
-            Assert.AreEqual("WidgetResponse", CodeModelGenerator.Instance.TypeFactory.CreateModel(response)!.Name);
+            Assert.AreEqual("WidgetResult", CodeModelGenerator.Instance.TypeFactory.CreateModel(response)!.Name);
         }
 
         [Test]
-        public void TestBuildName_ResponseSuffixHonorsUnresolvedExternalModelCollision()
+        public void TestBuildName_ResponseSuffixIgnoresUnresolvedExternalModelCollision()
         {
             var response = InputFactory.Model("WidgetResponse");
             var externalModel = InputFactory.Model(
@@ -446,9 +446,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 external: new InputExternalTypeMetadata("Some.Unresolvable.ExternalType", null, null));
             MockHelpers.LoadMockGenerator(inputModelTypes: [response, externalModel]);
 
-            // The external type cannot be resolved, so the model falls back to normal generation
-            // and still reserves the "WidgetResult" name.
-            Assert.AreEqual("WidgetResponse", CodeModelGenerator.Instance.TypeFactory.CreateModel(response)!.Name);
+            Assert.AreEqual("WidgetResult", CodeModelGenerator.Instance.TypeFactory.CreateModel(response)!.Name);
         }
 
         [TestCase("OtherModel")]

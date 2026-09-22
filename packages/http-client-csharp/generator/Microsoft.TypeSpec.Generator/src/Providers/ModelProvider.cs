@@ -356,7 +356,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var emittedTypes = GetEmittedTypes();
             return emittedTypes.Models.Any(model => HasConflictingName(model, model.Namespace, resultName, excludedCustomization)) ||
                 emittedTypes.Enums.Any(@enum => HasConflictingName(@enum, @enum.Namespace, resultName, excludedCustomization)) ||
-                emittedTypes.ExternalTypes.Any(type => HasConflictingName(type, typeNamespace, resultName)) ||
                 inputLibrary.InputNamespace.Clients.Any(client => HasConflictingName(client, typeNamespace, resultName, excludedCustomization));
         }
 
@@ -364,19 +363,18 @@ namespace Microsoft.TypeSpec.Generator.Providers
             => _emittedTypesCache.GetValue(
                 CodeModelGenerator.Instance,
                 static generator => new(
-                    BuildEmittedModels(generator.InputLibrary, generator.TypeFactory).ToList(),
+                    BuildEmittedModels(generator.InputLibrary).ToList(),
                     generator.InputLibrary.InputNamespace.Enums
                         // Mirrors OutputLibrary.BuildEnums: API-version enums are never emitted, and external
                         // enums always map to existing types instead of generated files.
                         .Where(@enum => @enum.External is null && !@enum.Usage.HasFlag(InputModelTypeUsage.ApiVersionEnum))
-                        .ToList(),
-                    BuildResolvedExternalTypes(generator.InputLibrary, generator.TypeFactory).ToList()));
+                        .ToList()));
 
-        private static IEnumerable<InputModelType> BuildEmittedModels(InputLibrary inputLibrary, TypeFactory typeFactory)
+        private static IEnumerable<InputModelType> BuildEmittedModels(InputLibrary inputLibrary)
         {
             foreach (var model in inputLibrary.InputNamespace.Models)
             {
-                if (!IsEmitted(model))
+                if (model.External is not null)
                 {
                     continue;
                 }
@@ -384,60 +382,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 yield return model;
 
                 var unknownVariant = model.DiscriminatedSubtypes.Values.FirstOrDefault(model => model.IsUnknownDiscriminatorModel);
-                if (unknownVariant is not null && IsEmitted(unknownVariant))
+                if (unknownVariant is { External: null })
                 {
                     yield return unknownVariant;
                 }
             }
-
-            // Mirrors OutputLibrary.BuildModels: a model resolved to a framework/referenced type
-            // (via `external`) is represented by a SystemObjectModelProvider and never emitted as a
-            // generated file, so it cannot participate in a filename collision. This intentionally
-            // uses TypeFactory.CreateExternalType instead of TypeFactory.CreateModel/TypeProvider.Type:
-            // constructing a sibling provider here can re-enter name/collision checks while this
-            // provider's own name is still being built.
-            bool IsEmitted(InputModelType candidate)
-                => candidate.External is null ||
-                    typeFactory.CreateExternalType(candidate.External, reportDiagnostic: false) is null;
         }
 
-        private static IEnumerable<CSharpType> BuildResolvedExternalTypes(InputLibrary inputLibrary, TypeFactory typeFactory)
-        {
-            foreach (var model in inputLibrary.InputNamespace.Models)
-            {
-                if (model.External is not null &&
-                    typeFactory.CreateExternalType(model.External, reportDiagnostic: false) is { } modelType)
-                {
-                    yield return modelType;
-                }
-
-                var unknownVariant = model.DiscriminatedSubtypes.Values.FirstOrDefault(model => model.IsUnknownDiscriminatorModel);
-                if (unknownVariant?.External is not null &&
-                    typeFactory.CreateExternalType(unknownVariant.External, reportDiagnostic: false) is { } unknownVariantType)
-                {
-                    yield return unknownVariantType;
-                }
-            }
-
-            foreach (var @enum in inputLibrary.InputNamespace.Enums)
-            {
-                if (@enum.External is not null &&
-                    typeFactory.CreateExternalType(@enum.External, @enum, reportDiagnostic: false) is { } enumType)
-                {
-                    yield return enumType;
-                }
-            }
-        }
-
-        private static bool HasConflictingName(CSharpType externalType, string typeNamespace, string resultName)
-            => externalType.DeclaringType is null &&
-                string.Equals(externalType.Namespace, typeNamespace, StringComparison.Ordinal) &&
-                string.Equals(externalType.Name, resultName, StringComparison.Ordinal);
-
-        private sealed record EmittedTypes(
-            IReadOnlyList<InputModelType> Models,
-            IReadOnlyList<InputEnumType> Enums,
-            IReadOnlyList<CSharpType> ExternalTypes);
+        private sealed record EmittedTypes(IReadOnlyList<InputModelType> Models, IReadOnlyList<InputEnumType> Enums);
 
         private bool HasConflictingName(
             InputType inputType,
@@ -465,32 +417,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return true;
             }
 
-            if (inputType is not InputModelType otherModel || inputType.IsExactName)
-            {
-                return false;
-            }
-
             var normalizedName = otherName.NormalizeCSharpAcronyms();
-            if (!normalizedName.EndsWith(ResponseSuffix, StringComparison.Ordinal) ||
-                !string.Equals($"{normalizedName[..^ResponseSuffix.Length]}Result", resultName, StringComparison.OrdinalIgnoreCase) ||
-                HasLastContractName(otherNamespace, otherName))
-            {
-                return false;
-            }
-
             // Preserve existing names first, then give historical Result ownership precedence,
             // and finally choose a stable owner for new competing Response models.
-            if (HasLastContractName(otherNamespace, resultName))
-            {
-                return true;
-            }
-
-            if (HasLastContractName(BuildNamespace(), resultName))
-            {
-                return false;
-            }
-
-            return CompareModelIdentity(otherModel, _inputModel) < 0;
+            return inputType is InputModelType otherModel &&
+                !inputType.IsExactName &&
+                normalizedName.EndsWith(ResponseSuffix, StringComparison.Ordinal) &&
+                string.Equals($"{normalizedName[..^ResponseSuffix.Length]}Result", resultName, StringComparison.OrdinalIgnoreCase) &&
+                !HasLastContractName(otherNamespace, otherName) &&
+                (HasLastContractName(otherNamespace, resultName) ||
+                    (!HasLastContractName(BuildNamespace(), resultName) &&
+                        CompareModelIdentity(otherModel, _inputModel) < 0));
         }
 
         private static int CompareModelIdentity(InputModelType left, InputModelType right)
