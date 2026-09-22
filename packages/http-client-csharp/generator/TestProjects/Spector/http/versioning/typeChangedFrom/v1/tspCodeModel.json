@@ -1,5 +1,4 @@
 {
-  "$version": 2,
   "name": "Versioning.TypeChangedFrom.V1",
   "apiVersions": [
     "v1"

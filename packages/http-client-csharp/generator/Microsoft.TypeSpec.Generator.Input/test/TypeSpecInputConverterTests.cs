@@ -12,7 +12,7 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
     public class TypeSpecInputConverterTests
     {
         [Test]
-        public void LoadsVersionedEmitterFixture()
+        public void LoadsEmitterFixture()
         {
             var directory = Helpers.GetAssetFileOrDirectoryPath(false);
             var input = TypeSpecSerialization.Deserialize(File.ReadAllText(Path.Combine(directory, "tspCodeModel.json")))!;
@@ -26,7 +26,7 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
         }
 
         [Test]
-        public void VersionedCodeModelSeparatesMetadataFromData()
+        public void SeparatesMetadataFromData()
         {
             const string payload = """
                 {
@@ -40,7 +40,6 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
                 """;
             var content = $$"""
                 {
-                  "$version": 2,
                   "name": "Test",
                   "models": [{ "$ref": "shared" }],
                   "extension": [{{payload}}, {{payload}}],
@@ -75,25 +74,11 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
                 """), JsonNode.Parse(arguments["$id"].ToString())));
         }
 
-        [TestCase(1)]
-        [TestCase(3)]
-        [TestCase("\"2\"")]
-        public void UnsupportedCodeModelVersionThrows(object version)
-        {
-            var content = $$"""
-                { "$version": {{version}}, "name": "Test" }
-                """;
-
-            var exception = Assert.Throws<JsonException>(() => TypeSpecSerialization.Deserialize(content));
-
-            Assert.That(exception!.Message, Does.Contain("Unsupported code-model format version"));
-        }
-
         [Test]
-        public void VersionedReferenceDefinitionsStillRejectDuplicates()
+        public void ReferenceDefinitionsStillRejectDuplicates()
         {
             const string content = """
-                { "$version": 2, "name": "Test", "extension": [{ "$id": "duplicate" }, { "$id": "duplicate" }] }
+                { "name": "Test", "extension": [{ "$id": "duplicate" }, { "$id": "duplicate" }] }
                 """;
 
             var exception = Assert.Throws<JsonException>(() => TypeSpecSerialization.Deserialize(content));
@@ -102,11 +87,10 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
         }
 
         [Test]
-        public void VersionedIndexDoesNotDependOnExampleKinds()
+        public void IndexDoesNotDependOnExampleKinds()
         {
             const string content = """
                 {
-                  "$version": 2,
                   "name": "Test", "models": [{ "$ref": "model" }],
                   "extension": {
                     "kind": "unknown", "type": {},
@@ -380,7 +364,7 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
                   "extension": {
                     "kind": "{{kind}}",
                     "type": { "$id": "model", "kind": "model", "name": "SharedModel" },
-                    "value": { "$id": "model", "name": "Payload" }
+                    "value": { "$$id": "model", "name": "Payload" }
                   }
                 }
                 """;

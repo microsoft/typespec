@@ -1,5 +1,4 @@
 {
-  "$version": 2,
   "name": "Type.Enum.Fixed",
   "apiVersions": [],
   "enums": [

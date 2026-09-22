@@ -76,6 +76,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                     new TypeSpecInputParameterExampleConverter(),
                     new TypeSpecInputOperationExampleConverter(),
                     new InputExternalTypeMetadataConverter(),
+                    new RawJsonConverter(),
                 }
             };
 
@@ -87,15 +88,6 @@ namespace Microsoft.TypeSpec.Generator.Input
             var root = document.RootElement;
             // A single leading $ marks serializer metadata; the emitter escapes data property names
             // starting with $ so that $id and $ref cannot collide with user data.
-            if (root.ValueKind == JsonValueKind.Object && root.TryGetProperty("$version", out var version))
-            {
-                if (version.ValueKind != JsonValueKind.Number || !version.TryGetInt32(out var number) || number != 2)
-                {
-                    throw new JsonException("Unsupported code-model format version");
-                }
-                referenceHandler.CurrentResolver.UsesEscapedPropertyNames = true;
-                options.Converters.Add(new RawJsonConverter(referenceHandler.CurrentResolver));
-            }
             // Opaque decorator arguments and unknown properties can contain the first
             // definition of an object referenced by the typed code-model graph.
             referenceHandler.CurrentResolver.RegisterReferenceDefinitions(root, options);

@@ -1,5 +1,4 @@
 {
-  "$version": 2,
   "name": "Server.Versions.Versioned",
   "apiVersions": [
     "2021-01-01-preview",

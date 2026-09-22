@@ -182,10 +182,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                     continue;
                 }
                 var key = reader.GetString() ?? throw new JsonException("Dictionary key cannot be null");
-                if (options.ReferenceHandler is TypeSpecReferenceHandler referenceHandler)
-                {
-                    key = referenceHandler.CurrentResolver.DecodePropertyName(key);
-                }
+                key = RawJsonConverter.DecodePropertyName(key);
                 reader.Read();
                 var item = reader.ReadWithConverter<T>(options);
                 result[key] = item ?? throw new JsonException();
@@ -311,16 +308,15 @@ namespace Microsoft.TypeSpec.Generator.Input
             reader.Read();
             using var document = JsonDocument.ParseValue(ref reader);
             var result = new Dictionary<string, BinaryData>();
-            var resolver = (options.ReferenceHandler as TypeSpecReferenceHandler)?.CurrentResolver;
             foreach (JsonProperty property in document.RootElement.EnumerateObject())
             {
-                // Metadata is only recognizable when data property names are escaped.
-                if (resolver?.UsesEscapedPropertyNames == true && property.NameEquals("$id"))
+                // Data property names are escaped, so an unescaped $id is serializer metadata.
+                if (property.NameEquals("$id"))
                 {
                     continue;
                 }
-                result.Add(resolver?.DecodePropertyName(property.Name) ?? property.Name,
-                    BinaryData.FromString(RawJsonConverter.DecodePropertyNames(property.Value, resolver)));
+                result.Add(RawJsonConverter.DecodePropertyName(property.Name),
+                    BinaryData.FromString(RawJsonConverter.DecodePropertyNames(property.Value)));
             }
             value = result;
             return true;

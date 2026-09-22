@@ -1,5 +1,4 @@
 {
-  "$version": 2,
   "name": "Client.Structure.Service.TwoOperationGroup",
   "apiVersions": [],
   "enums": [

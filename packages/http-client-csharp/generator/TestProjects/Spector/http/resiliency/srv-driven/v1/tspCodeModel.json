@@ -1,5 +1,4 @@
 {
-  "$version": 2,
   "name": "Resiliency.SrvDriven.V1",
   "apiVersions": [
     "v1"

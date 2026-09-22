@@ -32,7 +32,7 @@ describe("Code-model reference format", () => {
 
     const document = JSON.parse(serializeCodeModel(context, model));
 
-    expect(document.$version).toBe(2);
+    expect(document.$version).toBeUndefined();
     expect(document.extension[0]).toEqual({
       $id: "1",
       $$id: "1",
@@ -123,7 +123,7 @@ describe("Code-model reference format", () => {
     const codeModel = { extension: { definition: shared }, ...model };
     const document = serializeCodeModel(context, codeModel);
     const fixture = new URL(
-      "../../../generator/Microsoft.TypeSpec.Generator.Input/test/TestData/TypeSpecInputConverterTests/LoadsVersionedEmitterFixture/tspCodeModel.json",
+      "../../../generator/Microsoft.TypeSpec.Generator.Input/test/TestData/TypeSpecInputConverterTests/LoadsEmitterFixture/tspCodeModel.json",
       import.meta.url,
     );
 
@@ -147,7 +147,7 @@ describe("Code-model reference format", () => {
     expect(() => serializeCodeModel(context, model)).toThrow("cyclic raw JSON");
   });
 
-  it("keeps the exported writeCodeModel output in the original unversioned shape", async () => {
+  it("writes no format marker through the exported writeCodeModel path", async () => {
     const payload = JSON.parse(`{ "$id": "schema-id", "kind": "unknown" }`);
     Object.assign(model, { extension: withRawJson({ value: payload }, "value") });
     const writeFile = vi.fn();
@@ -157,8 +157,9 @@ describe("Code-model reference format", () => {
 
     const [path, content] = writeFile.mock.calls[0];
     expect(path).toBe("/out/tspCodeModel.json");
+    expect(content).toBe(serializeCodeModel(context, model));
     const document = JSON.parse(content);
     expect(document.$version).toBeUndefined();
-    expect(document.extension).toEqual({ value: { $id: "schema-id", kind: "unknown" } });
+    expect(document.extension).toEqual({ value: { $$id: "schema-id", kind: "unknown" } });
   });
 });

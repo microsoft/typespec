@@ -1,5 +1,4 @@
 {
-  "$version": 2,
   "name": "Authentication.Http.Custom",
   "apiVersions": [],
   "enums": [],

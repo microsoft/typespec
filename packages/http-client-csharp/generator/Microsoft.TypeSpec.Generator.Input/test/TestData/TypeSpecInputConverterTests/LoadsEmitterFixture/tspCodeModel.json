@@ -1,5 +1,4 @@
 {
-  "$version": 2,
   "extension": {
     "definition": { "$id": "1", "kind": "model", "name": "Shared", "properties": [] }
   },

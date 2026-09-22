@@ -1,5 +1,4 @@
 {
-  "$version": 2,
   "name": "Response.StatusCodeRange",
   "apiVersions": [],
   "enums": [],

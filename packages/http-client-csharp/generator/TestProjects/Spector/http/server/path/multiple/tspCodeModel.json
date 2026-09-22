@@ -1,5 +1,4 @@
 {
-  "$version": 2,
   "name": "Server.Path.Multiple",
   "apiVersions": [
     "v1.0"

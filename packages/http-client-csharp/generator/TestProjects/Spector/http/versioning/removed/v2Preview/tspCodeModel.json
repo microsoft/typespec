@@ -1,5 +1,4 @@
 {
-  "$version": 2,
   "name": "Versioning.Removed.V2Preview",
   "apiVersions": [
     "v1",

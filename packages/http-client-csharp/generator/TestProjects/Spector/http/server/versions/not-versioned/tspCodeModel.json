@@ -1,5 +1,4 @@
 {
-  "$version": 2,
   "name": "Server.Versions.NotVersioned",
   "apiVersions": [],
   "enums": [],

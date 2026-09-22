@@ -13,10 +13,9 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
         public void OpaqueExamplesPreserveReferenceProperties(
             [Values("unknown", "union")] string kind,
             [Values("https://example.com/person.schema.json", "1")] string id,
-            [Values] bool isArray,
-            [Values] bool versioned)
+            [Values] bool isArray)
         {
-            var prefix = versioned ? "$$" : "$";
+            const string prefix = "$$";
             var payload = $$"""
                 {
                   "type": "object",
@@ -44,7 +43,7 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
                   "type": { "kind": "array", "name": "Array", "valueType": { "kind": "unknown" } },
                   "value": [{{exampleValue}}, {{exampleValue}}, {{exampleValue}}, {{exampleValue}}, {{exampleValue}}, {{exampleValue}}]
                 }
-                """, versioned);
+                """);
 
             Assert.AreEqual(6, value.Values.Count);
             foreach (var item in value.Values)
@@ -69,9 +68,9 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
         }
 
         [Test]
-        public void ObjectExamplesPreserveReferencePropertyNames([Values("model", "dict")] string kind, [Values] bool versioned)
+        public void ObjectExamplesPreserveReferencePropertyNames([Values("model", "dict")] string kind, [Values] bool escaped)
         {
-            var prefix = versioned ? "$$" : "$";
+            var prefix = escaped ? "$$" : "$";
             var type = kind == "model"
                 ? """{ "$id": "payload-type", "kind": "model", "name": "Payload", "properties": [] }"""
                 : """{ "kind": "dict", "keyType": { "kind": "string" }, "valueType": { "kind": "string" } }""";
@@ -85,7 +84,7 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
                     "{{prefix}}values": { "kind": "string", "type": { "$ref": "string" }, "value": "payload-values" }
                   }
                 }
-                """, versioned);
+                """);
 
             Assert.AreEqual(new Dictionary<string, object>
             {
@@ -106,7 +105,7 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
                   "extension": {
                     "kind": "{{kind}}",
                     "type": { "kind": "unknown" },
-                    "value": { "$id": "payload", "kind": "model", "name": "NotAReference" }
+                    "value": { "$$id": "payload", "kind": "model", "name": "NotAReference" }
                   },
                   "models": [{ "$ref": "payload" }]
                 }
@@ -117,17 +116,13 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
             Assert.That(exception!.Message, Does.Contain("cannot resolve reference payload"));
         }
 
-        private static InputExampleValue DeserializeExampleValue(string exampleValue, bool versioned = false)
+        private static InputExampleValue DeserializeExampleValue(string exampleValue)
         {
             var directory = Helpers.GetAssetFileOrDirectoryPath(false, method: nameof(LoadOperationExamples));
             var root = JsonNode.Parse(File.ReadAllText(Path.Combine(directory, "tspCodeModel.json")))!;
             var example = root["clients"]![0]!["children"]![0]!["methods"]![0]!["operation"]!["examples"]![0]!["parameters"]![0]!;
             example["value"] = JsonNode.Parse(exampleValue);
 
-            if (versioned)
-            {
-                root["$version"] = 2;
-            }
             var input = TypeSpecSerialization.Deserialize(root.ToJsonString())!;
             return input.Clients[0].Children[0].Methods[0].Operation.Examples[0].Parameters[0].ExampleValue;
         }

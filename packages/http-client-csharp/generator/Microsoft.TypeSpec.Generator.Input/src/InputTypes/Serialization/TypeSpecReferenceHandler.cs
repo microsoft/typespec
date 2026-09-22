@@ -27,11 +27,6 @@ namespace Microsoft.TypeSpec.Generator.Input
             private int _referenceDepth;
             private JsonSerializerOptions? _options;
 
-            public bool UsesEscapedPropertyNames { get; set; }
-
-            public string DecodePropertyName(string name)
-                => UsesEscapedPropertyNames && name.StartsWith("$$", StringComparison.Ordinal) ? name.Substring(1) : name;
-
             public JsonElement GetReferenceDefinition(string referenceId)
                 => _referenceDefinitions.TryGetValue(referenceId, out var definition)
                     ? definition : throw new JsonException($"cannot resolve reference {referenceId}");
@@ -55,19 +50,10 @@ namespace Microsoft.TypeSpec.Generator.Input
                         }
                     }
 
-                    // Legacy documents have no explicit separation between metadata and data.
-                    // Version 2 escapes every data key, so all subtrees can be indexed uniformly.
-                    var hasOpaqueValue = !UsesEscapedPropertyNames && element.TryGetProperty("kind", out var kind)
-                        && kind.ValueKind == JsonValueKind.String
-                        && kind.GetString() is "unknown" or "union"
-                        && element.TryGetProperty("type", out _);
+                    // Data property names are escaped, so $id here is always serializer metadata
+                    // and every subtree can be indexed uniformly.
                     foreach (var property in element.EnumerateObject())
                     {
-                        if (hasOpaqueValue && property.NameEquals("value"))
-                        {
-                            continue;
-                        }
-
                         IndexReferenceDefinitions(property.Value);
                     }
                 }

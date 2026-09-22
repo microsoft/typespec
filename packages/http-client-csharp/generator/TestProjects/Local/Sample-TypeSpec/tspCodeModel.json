@@ -1,5 +1,4 @@
 {
-  "$version": 2,
   "name": "SampleTypeSpec",
   "apiVersions": [
     "2024-07-16-preview",
