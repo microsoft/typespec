@@ -252,11 +252,32 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         private static bool HasNoUnsupportedLastContractMembers(ModelProvider candidate)
-            => candidate.LastContractView is not { } lastContract ||
-                !lastContract.Methods.Any(method => MethodSignatureHelper.IsPublicApi(method.Signature.Modifiers)) &&
+        {
+            if (candidate.LastContractView is not { } lastContract)
+            {
+                return true;
+            }
+
+            var currentGeneratedMethods = candidate.Methods
+                .Concat(candidate.SerializationProviders.SelectMany(provider => provider.Methods))
+                .ToArray();
+            return lastContract.Methods
+                    .Where(method => MethodSignatureHelper.IsPublicApi(method.Signature.Modifiers))
+                    .All(previous => currentGeneratedMethods.Any(current =>
+                        AreGeneratedMethodSignaturesEquivalent(previous.Signature, current.Signature))) &&
                 !lastContract.Fields.Any(field =>
                     field.Modifiers.HasFlag(FieldModifiers.Public) ||
                     field.Modifiers.HasFlag(FieldModifiers.Protected));
+        }
+
+        private static bool AreGeneratedMethodSignaturesEquivalent(
+            MethodSignature previous,
+            MethodSignature current)
+            => MethodSignature.MethodSignatureComparer.Equals(previous, current) &&
+                previous.Modifiers == current.Modifiers &&
+                (previous.ReturnType is null
+                    ? current.ReturnType is null
+                    : current.ReturnType is not null && previous.ReturnType.AreNamesEqual(current.ReturnType));
 
         private bool HasCompatibleLastContractProperties(ModelProvider candidate)
         {

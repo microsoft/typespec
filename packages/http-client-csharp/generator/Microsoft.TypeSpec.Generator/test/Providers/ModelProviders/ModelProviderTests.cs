@@ -624,6 +624,33 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
+        public async Task BackCompat_MappedRootBaseDiscoveryIsIndependentOfInputOrder()
+        {
+            var previousBase = InputFactory.Model(
+                "PreviousBase",
+                properties: [InputFactory.Property("id", InputPrimitiveType.String)]);
+            var currentBase = InputFactory.Model(
+                "CurrentBase",
+                properties: [InputFactory.Property("id", InputPrimitiveType.String)]);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+            var mappedType = new CSharpType(typeof(Exception));
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                createModelCore: input => input == previousBase
+                    ? new SystemObjectModelProvider(mappedType, input)
+                    : new ModelProvider(input),
+                inputModelTypes: [derivedModel, currentBase, previousBase],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_BaseTypeChangePreservesMappedRootBase)));
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.That(provider.BaseType?.Name, Is.EqualTo(nameof(Exception)));
+        }
+
+        [Test]
         public async Task BackCompat_LastContractMappedBaseCanBeProvidedByDownstreamGenerator()
         {
             var currentBase = InputFactory.Model("CurrentBase", properties: []);
@@ -735,6 +762,28 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             Assert.That(provider.BaseType?.Name, Is.EqualTo("CurrentBase"),
                 "A required mapped property must be supplied by the reconstructed shipped constructor");
+        }
+
+        [Test]
+        public async Task BackCompat_DownstreamMappedBaseRejectsOptionalPropertyMissingFromConstructor()
+        {
+            var currentBase = InputFactory.Model(
+                "CurrentBase",
+                properties: [InputFactory.Property("source", InputPrimitiveType.String)]);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [currentBase, derivedModel],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompat_LastContractMappedBaseCanBeProvidedByDownstreamGenerator)),
+                createLastContractModelBase: (previousBase, currentModel) => new CSharpType(typeof(Exception)));
+
+            var provider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.That(provider.BaseType?.Name, Is.EqualTo("CurrentBase"),
+                "A mapped property must not be dropped when the reconstructed shipped constructor omits it");
         }
 
         [Test]

@@ -199,7 +199,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         property.AsParameter.Name == parameter.Name &&
                         property.Type.Equals(parameter.Type, ignoreNullable: true)))
                     .ToArray();
-                if (matches.All(property => property is not null))
+                if (matches.All(property => property is not null) &&
+                    InputModel.Properties.All(inputProperty => matches.Any(property =>
+                        property is not null &&
+                        CodeModelGenerator.Instance.TypeFactory.IsLastContractModelBasePropertyCompatible(
+                            SystemType,
+                            inputProperty,
+                            property))))
                 {
                     constructor = candidate;
                     matchedProperties = matches.Select(property => property!).ToArray();

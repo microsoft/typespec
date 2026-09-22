@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
@@ -46,22 +45,21 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return false;
             }
 
+            // A current input model can map to a differently named CLR type. Materialize all current
+            // model providers before concluding that no mapped candidate exists so restoration does
+            // not depend on the order in which OutputLibrary happens to build the input models.
             foreach (var inputModel in CodeModelGenerator.Instance.InputLibrary.InputNamespace.Models)
             {
-                var expectedName = inputModel.IsExactName
-                    ? inputModel.Name
-                    : inputModel.Name.ToIdentifierName().NormalizeCSharpAcronyms();
-                var expectedNamespace = string.IsNullOrEmpty(inputModel.Namespace)
-                    ? CodeModelGenerator.Instance.TypeFactory.PrimaryNamespace
-                    : CodeModelGenerator.Instance.TypeFactory.GetCleanNameSpace(inputModel.Namespace);
-                if (!string.Equals(expectedName, previousBase.Name, StringComparison.Ordinal) ||
-                    !string.Equals(expectedNamespace, previousBase.Namespace, StringComparison.Ordinal))
-                {
-                    continue;
-                }
-
                 CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel);
-                return TrySelectCreatedModelBase(previousBase, out provider, out _);
+            }
+
+            if (TrySelectCreatedModelBase(previousBase, out provider, out foundAmbiguousMapping))
+            {
+                return true;
+            }
+            if (foundAmbiguousMapping)
+            {
+                return false;
             }
 
             var mappedType = CodeModelGenerator.Instance.TypeFactory.CreateLastContractModelBase(previousBase, _model.InputModel);

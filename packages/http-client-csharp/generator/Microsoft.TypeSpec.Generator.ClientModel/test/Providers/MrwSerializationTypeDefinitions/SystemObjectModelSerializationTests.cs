@@ -226,6 +226,28 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         }
 
         [Test]
+        public async Task GeneratedSerializationMethodDoesNotBlockRootBaseRestoration()
+        {
+            var previousBase = InputFactory.Model("PreviousBase", usage: InputModelTypeUsage.Json, properties: []);
+            var currentBase = InputFactory.Model("CurrentBase", usage: InputModelTypeUsage.Json, properties: []);
+            var derivedModel = InputFactory.Model(
+                "DerivedModel",
+                usage: InputModelTypeUsage.Json,
+                properties: [],
+                baseModel: currentBase);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [derivedModel, currentBase, previousBase],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var provider = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.That(provider.BaseType?.Name, Is.EqualTo("PreviousBase"));
+        }
+
+        [Test]
         public void CreateCoreMatcherRejectsGenericMethod()
         {
             var signature = new MethodSignature(
