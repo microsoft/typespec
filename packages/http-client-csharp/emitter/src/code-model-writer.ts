@@ -22,11 +22,14 @@ const codeModelVersion = 2;
  * @beta
  */
 export function serializeCodeModel(context: CSharpEmitterContext, codeModel: CodeModel): string {
-  return prettierOutput(JSON.stringify(buildJson(context, codeModel), null, 2));
+  return prettierOutput(JSON.stringify(buildJson(context, codeModel, true), null, 2));
 }
 
 /**
  * Writes the code model to the output folder. Should only be used by autorest.csharp.
+ *
+ * This writes the original unversioned format, because the readers of this output are external
+ * to this package and do not understand the escaping used by {@link serializeCodeModel}.
  * @param context - The CSharp emitter context
  * @param codeModel - The code model to write
  * @param outputFolder - The output folder to write the code model to
@@ -39,7 +42,7 @@ export async function writeCodeModel(
 ) {
   await context.program.host.writeFile(
     resolvePath(outputFolder, tspOutputFileName),
-    serializeCodeModel(context, codeModel),
+    prettierOutput(JSON.stringify(buildJson(context, codeModel, false), null, 2)),
   );
 }
 
@@ -47,13 +50,22 @@ export async function writeCodeModel(
  * This function builds a json from code model with refs and ids in it.
  * @param context - The CSharp emitter context
  * @param codeModel - The code model to build
+ * @param escapeDataProperties - Whether to mark the document with `$version` and escape data
+ * property names that start with `$`. When false, the original unversioned format is produced.
  */
-function buildJson(context: CSharpEmitterContext, codeModel: CodeModel): any {
+function buildJson(
+  context: CSharpEmitterContext,
+  codeModel: CodeModel,
+  escapeDataProperties: boolean,
+): any {
   const objectsIds = new Map<any, string>();
   const stack: any[] = [];
   const rawArrays = new Set<any[]>();
 
   const root = doBuildJson(codeModel, stack);
+  if (!escapeDataProperties) {
+    return root;
+  }
   // Marks the document as using escaped data property names, so that a reader can tell
   // serializer metadata ($id/$ref) apart from user data with the same name.
   return { $version: codeModelVersion, ...root };
@@ -118,13 +130,13 @@ function buildJson(context: CSharpEmitterContext, codeModel: CodeModel): any {
     stack.push(obj);
 
     for (const property of Object.keys(obj)) {
-      const rawValue = raw || isRawJsonProperty(obj, property);
+      const rawValue = raw || (escapeDataProperties && isRawJsonProperty(obj, property));
       if (!rawValue && property === "__raw") {
         continue; // skip __raw property
       }
       const v = rawValue ? obj[property] : transformJSONProperties(property, obj[property]);
       // Only serializer metadata uses a single leading $. Escape data keys, including the escape prefix.
-      const key = property.startsWith("$") ? `$${property}` : property;
+      const key = escapeDataProperties && property.startsWith("$") ? `$${property}` : property;
       result[key] = doBuildJson(v, stack, rawValue);
     }
 

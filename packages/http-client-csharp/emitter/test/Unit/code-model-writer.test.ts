@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
-import { beforeEach, describe, expect, it } from "vitest";
-import { serializeCodeModel } from "../../src/code-model-writer.js";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { serializeCodeModel, writeCodeModel } from "../../src/code-model-writer.js";
 import { withRawJson } from "../../src/lib/raw-json.js";
 import type { CSharpEmitterContext } from "../../src/sdk-context.js";
 import type { CodeModel } from "../../src/type/code-model.js";
@@ -145,5 +145,20 @@ describe("Code-model reference format", () => {
     value.self = value;
     Object.assign(model, { extension: withRawJson({ value }, "value") });
     expect(() => serializeCodeModel(context, model)).toThrow("cyclic raw JSON");
+  });
+
+  it("keeps the exported writeCodeModel output in the original unversioned shape", async () => {
+    const payload = JSON.parse(`{ "$id": "schema-id", "kind": "unknown" }`);
+    Object.assign(model, { extension: withRawJson({ value: payload }, "value") });
+    const writeFile = vi.fn();
+    context.program.host = { ...context.program.host, writeFile };
+
+    await writeCodeModel(context, model, "/out");
+
+    const [path, content] = writeFile.mock.calls[0];
+    expect(path).toBe("/out/tspCodeModel.json");
+    const document = JSON.parse(content);
+    expect(document.$version).toBeUndefined();
+    expect(document.extension).toEqual({ value: { $id: "schema-id", kind: "unknown" } });
   });
 });
