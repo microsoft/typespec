@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
@@ -76,24 +75,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
         internal PropertyProvider? DiscriminatorProperty { get; private set; }
 
         private readonly bool _isDiscriminatedBaseType;
-        // InputLibrary decides which types are emitted; this cache only adds the C# name and namespace
-        // projection, which depends on the generator's TypeFactory. Both are fixed before providers are
-        // named, so compute it once per generator instead of for every Response->Result name check.
-        private static readonly ConditionalWeakTable<CodeModelGenerator, IReadOnlyList<(InputType Type, string Namespace, string Name)>> _emittedTypesCache = new();
-
-        private static IReadOnlyList<(InputType Type, string Namespace, string Name)> EmittedTypes
-            => _emittedTypesCache.GetValue(
-                CodeModelGenerator.Instance,
-                static _ => CodeModelGenerator.Instance.InputLibrary.NonExternalModels
-                    .Select(model => (
-                        (InputType)model,
-                        ModelProvider.GetTypeNamespace(model.Namespace),
-                        model.IsExactName ? model.Name : model.Name.ToIdentifierName()))
-                    .Concat(CodeModelGenerator.Instance.InputLibrary.NonExternalEnums.Select(@enum => (
-                        (InputType)@enum,
-                        ModelProvider.GetTypeNamespace(@enum.Namespace),
-                        @enum.IsExactName ? @enum.Name : @enum.Name.ToIdentifierName())))
-                    .ToList());
 
         private ValueExpression DiscriminatorLiteral => Literal(_inputModel.DiscriminatorValue ?? "");
 
@@ -350,199 +331,18 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return normalizedName;
             }
 
-            var resultName = $"{normalizedName[..^ResponseSuffix.Length]}Result";
-            var inputLibrary = CodeModelGenerator.Instance.InputLibrary;
-            var customType = sourceInputModel.FindForTypeInCurrentCompilation(typeNamespace, resultName, DeclaringTypeName);
-            if (customType is not null)
-            {
-                // A customization occupying the Result name blocks the rename unless it physically renames
-                // itself elsewhere and no other type claims the name it moved to.
-                var isCustomTypeRenamed = !string.Equals(customType.Name, resultName, StringComparison.OrdinalIgnoreCase);
-                if (!isCustomTypeRenamed ||
-                    HasConflictingName(inputLibrary, customType.Type.Namespace, customType.Name, customType))
-                {
-                    return normalizedName;
-                }
-            }
-
-            return HasConflictingName(inputLibrary, typeNamespace, resultName) ? normalizedName : resultName;
-        }
-
-        // Model and enum files share a flat output directory, even across namespaces.
-        private bool HasConflictingName(
-            InputLibrary inputLibrary,
-            string typeNamespace,
-            string resultName,
-            TypeProvider? excludedCustomization = null)
-        {
-            foreach (var (inputType, inputTypeNamespace, inputTypeName) in EmittedTypes)
-            {
-                if (HasConflictingName(inputType, inputTypeNamespace, inputTypeName, resultName, excludedCustomization))
-                {
-                    return true;
-                }
-            }
-
-            return inputLibrary.InputNamespace.Clients.Any(client => HasConflictingName(client, typeNamespace, resultName, excludedCustomization));
-        }
-
-        private bool HasConflictingName(
-            InputType inputType,
-            string otherNamespace,
-            string otherName,
-            string resultName,
-            TypeProvider? excludedCustomization)
-        {
-            if (inputType == _inputModel)
-            {
-                return false;
-            }
-
-            var customType = FindCustomizationType(otherNamespace, GetCustomizationLookupNames(inputType, otherName));
-            if (customType is not null && !IsSameCustomization(customType, excludedCustomization))
-            {
-                return HasLastContractName(otherNamespace, resultName) ||
-                    string.Equals(customType.Name, resultName, StringComparison.OrdinalIgnoreCase);
-            }
-
-            // Acronym normalization only changes casing, so this also covers the normalized filename.
-            return string.Equals(otherName, resultName, StringComparison.OrdinalIgnoreCase);
-        }
-
-        private bool HasConflictingName(
-            InputClient client,
-            string typeNamespace,
-            string resultName,
-            TypeProvider? excludedCustomization)
-        {
-            var clientNamespace = GetTypeNamespace(client.Namespace);
-            var clientName = client.IsExactName ? client.Name : client.Name.ToIdentifierName();
-            var customType = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(clientNamespace, clientName);
-            if (IsSameCustomization(customType, excludedCustomization))
-            {
-                customType = null;
-            }
-
-            return (customType?.Type.Namespace ?? clientNamespace) == typeNamespace &&
-                (customType?.Name ?? clientName) == resultName;
-        }
-
-        private static bool IsSameCustomization(TypeProvider? left, TypeProvider? right)
-            => left is NamedTypeSymbolProvider leftSymbol &&
-                right is NamedTypeSymbolProvider rightSymbol &&
-                leftSymbol.MetadataName == rightSymbol.MetadataName;
-
-        private TypeProvider? FindCustomizationType(
-            string typeNamespace,
-            IEnumerable<string> lookupNames)
-        {
-            var sourceInputModel = CodeModelGenerator.Instance.SourceInputModel;
-            if (sourceInputModel.Customization is null)
-            {
-                return null;
-            }
-
-            foreach (var lookupName in lookupNames)
-            {
-                var customType = sourceInputModel.FindForTypeInCurrentCompilation(typeNamespace, lookupName);
-                if (customType is not null)
-                {
-                    return customType;
-                }
-            }
-
-            return null;
-        }
-
-        private static IEnumerable<string> GetCustomizationLookupNames(InputType inputType, string name)
-        {
-            yield return name;
-            if (inputType.IsExactName)
-            {
-                yield break;
-            }
-
-            var normalizedName = name.NormalizeCSharpAcronyms();
-            if (normalizedName != name)
-            {
-                yield return normalizedName;
-            }
-
-            if (inputType is InputModelType && normalizedName.EndsWith(ResponseSuffix, StringComparison.Ordinal))
-            {
-                yield return $"{normalizedName[..^ResponseSuffix.Length]}Result";
-            }
-        }
-
-        private bool HasLastContractName(string typeNamespace, string name)
-        {
-            var sourceInputModel = CodeModelGenerator.Instance.SourceInputModel;
-            if (sourceInputModel.FindForTypeInLastContract(typeNamespace, name) is not null)
-            {
-                return true;
-            }
-
-            var normalizedName = name.NormalizeCSharpAcronyms();
-            return normalizedName != name &&
-                sourceInputModel.FindForTypeInLastContract(typeNamespace, normalizedName) is not null;
+            return $"{normalizedName[..^ResponseSuffix.Length]}Result";
         }
 
         private protected override TypeProvider? BuildCustomCodeView(string? generatedTypeName = null, string? generatedTypeNamespace = null)
         {
             var typeNamespace = generatedTypeNamespace ?? BuildNamespace();
             var typeName = generatedTypeName ?? BuildName();
-            var customCodeView = HasCustomizedSiblingInputName(typeName)
-                ? null
-                : base.BuildCustomCodeView(typeName, typeNamespace);
+            var customCodeView = base.BuildCustomCodeView(typeName, typeNamespace);
             return customCodeView ?? BuildResponseSuffixFallbackView(
                 typeName,
                 typeNamespace,
                 (name, ns) => base.BuildCustomCodeView(name, ns));
-        }
-
-        private bool HasCustomizedSiblingInputName(string typeName)
-        {
-            if (CodeModelGenerator.Instance.SourceInputModel.Customization is null)
-            {
-                return false;
-            }
-
-            foreach (var (inputType, inputTypeNamespace, inputTypeName) in EmittedTypes)
-            {
-                if (inputType == _inputModel ||
-                    !string.Equals(inputTypeName, typeName, StringComparison.OrdinalIgnoreCase))
-                {
-                    continue;
-                }
-
-                if (HasMismatchedCustomization(
-                    inputTypeNamespace,
-                    typeName,
-                    GetCustomizationLookupNames(inputType, inputTypeName)))
-                {
-                    return true;
-                }
-            }
-
-            return CodeModelGenerator.Instance.InputLibrary.InputNamespace.Clients.Any(client =>
-            {
-                var clientName = client.IsExactName ? client.Name : client.Name.ToIdentifierName();
-                return string.Equals(clientName, typeName, StringComparison.OrdinalIgnoreCase) &&
-                    HasMismatchedCustomization(
-                        GetTypeNamespace(client.Namespace),
-                        typeName,
-                        [clientName]);
-            });
-        }
-
-        private bool HasMismatchedCustomization(
-            string siblingNamespace,
-            string typeName,
-            IEnumerable<string> customizationLookupNames)
-        {
-            var customType = FindCustomizationType(siblingNamespace, customizationLookupNames);
-            return customType is not null &&
-                !string.Equals(customType.Name, typeName, StringComparison.OrdinalIgnoreCase);
         }
 
         private static string GetTypeNamespace(string inputNamespace)

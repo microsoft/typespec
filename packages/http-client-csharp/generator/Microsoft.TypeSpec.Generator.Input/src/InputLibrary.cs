@@ -2,9 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 
 namespace Microsoft.TypeSpec.Generator.Input
 {
@@ -49,42 +47,6 @@ namespace Microsoft.TypeSpec.Generator.Input
 
         private bool? _hasXmlModelSerialization;
         public bool HasXmlModelSerialization => _hasXmlModelSerialization ??= GetHasXmlModelSerialization();
-
-        private IReadOnlyList<InputModelType>? _nonExternalModels;
-        /// <summary>
-        /// The non-external models. External models are excluded because they
-        /// always map to types owned by another library instead of a generated file.
-        /// </summary>
-        internal IReadOnlyList<InputModelType> NonExternalModels => _nonExternalModels ??= [.. GetNonExternalModels()];
-
-        private IReadOnlyList<InputEnumType>? _nonExternalEnums;
-        /// <summary>
-        /// The non-external API-version-excluding enums. API version enums are never emitted, and external
-        /// enums always map to types owned by another library instead of a generated file.
-        /// </summary>
-        internal IReadOnlyList<InputEnumType> NonExternalEnums => _nonExternalEnums ??= [.. InputNamespace.Enums
-            .Where(e => e.External is null && !e.Usage.HasFlag(InputModelTypeUsage.ApiVersionEnum))];
-
-        private IEnumerable<InputModelType> GetNonExternalModels()
-        {
-            foreach (var model in InputNamespace.Models)
-            {
-                if (model.External is not null)
-                {
-                    continue;
-                }
-
-                yield return model;
-
-                // Unknown discriminator variants are synthesized alongside their base model rather than
-                // being listed in the input namespace.
-                var unknownVariant = model.DiscriminatedSubtypes.Values.FirstOrDefault(s => s.IsUnknownDiscriminatorModel);
-                if (unknownVariant is { External: null })
-                {
-                    yield return unknownVariant;
-                }
-            }
-        }
 
         private bool GetHasMultipartFormDataOperation()
         {
