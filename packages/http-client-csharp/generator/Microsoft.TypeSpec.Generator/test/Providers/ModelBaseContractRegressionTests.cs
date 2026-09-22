@@ -62,6 +62,14 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.That(CanUseGenerated(members, members), Is.True);
         }
 
+        [TestCase(true)]
+        [TestCase(false)]
+        public void GeneratedBaseRejectsOverloadedIndexersWithoutThrowing(bool historical)
+        {
+            const string indexers = "public string this[int index] => null; public string this[string index] => null;";
+            Assert.That(CanUseGenerated(historical ? indexers : "", historical ? "" : indexers), Is.False);
+        }
+
         [Test]
         public void SymbolBackedParamsConstructorIsRejected()
         {
@@ -133,6 +141,16 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 additionalProperties: hasAdditionalProperties ? InputPrimitiveType.String : null);
             var derived = new AdditionalPropertyModel(input, mapped);
             Assert.That(new ModelBaseTypeCompatibility(derived).CanUseMappedBase(mapped), Is.True);
+        }
+
+        [Test]
+        public void MappedBaseRejectsConstructorRequiringSetsRequiredMembers()
+        {
+            // The current target adds a required member absent from the historical CLR property list.
+            // Calling its attributed constructor requires the derived constructor to carry the attribute.
+            var mapped = Map(typeof(SetsRequiredMembersTarget), Parse(""));
+            Assert.That(mapped.HasCompatibleLastContractProperties(), Is.True);
+            Assert.That(mapped.HasReconstructibleLastContractConstructor, Is.False);
         }
 
         [Test]
@@ -299,6 +317,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
         public class NullablePropertyTarget { public int? Value { get; set; } }
         public class RequiredPropertyTarget { public required string Value { get; set; } }
+        public class SetsRequiredMembersTarget
+        {
+            [System.Diagnostics.CodeAnalysis.SetsRequiredMembers]
+            public SetsRequiredMembersTarget() { Value = string.Empty; }
+            public required string Value { get; set; }
+        }
         public class DisposableTarget : IDisposable { public void Dispose() { } }
         public class OptionalConstructorTarget
         {

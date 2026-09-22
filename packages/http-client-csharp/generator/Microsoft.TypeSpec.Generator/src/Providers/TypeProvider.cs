@@ -701,6 +701,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected internal virtual CSharpType[] BuildImplements() => [];
 
+        /// <summary>
+        /// Determines whether a symbol-backed method contains signature metadata that the provider
+        /// model cannot represent, such as a by-reference return. Emitters should not use such a
+        /// signature as evidence that a generated method preserves a last-contract API.
+        /// </summary>
+        /// <param name="signature">The method signature to inspect.</param>
+        protected static bool HasUnsupportedSignature(MethodSignature signature)
+            => signature.HasUnsupportedBaseContract ||
+                signature.Parameters.Any(parameter => parameter.HasUnsupportedParameterModifiers);
+
         protected internal virtual MethodProvider[] BuildMethods() => [];
 
         protected internal virtual ConstructorProvider[] BuildConstructors() => [];

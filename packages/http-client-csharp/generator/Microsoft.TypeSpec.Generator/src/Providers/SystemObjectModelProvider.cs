@@ -128,7 +128,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // single callable overload; generalized overload resolution is outside this policy.
             var exactCandidates = candidates.Where(constructor => constructor.GetParameters().Length == generatedParameters.Count).ToArray();
             var selected = exactCandidates.Length == 1 ? exactCandidates[0] : candidates.Length == 1 ? candidates[0] : null;
-            if (selected is null)
+            // A derived constructor chaining to SetsRequiredMembers must also carry that attribute.
+            // Generated constructors do not propagate it; reject the selected overload rather than
+            // pretending C# overload resolution would choose another, unannotated constructor.
+            if (selected is null || selected.GetCustomAttributesData().Any(attribute =>
+                attribute.AttributeType.FullName == typeof(System.Diagnostics.CodeAnalysis.SetsRequiredMembersAttribute).FullName))
             {
                 return false;
             }

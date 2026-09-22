@@ -237,7 +237,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var expectedModifiers = signature.Modifiers.HasFlag(MethodSignatureModifiers.Override)
                 ? MethodSignatureModifiers.Protected | MethodSignatureModifiers.Override
                 : MethodSignatureModifiers.Protected | MethodSignatureModifiers.Virtual;
-            if (signature.Parameters.Count != 2 ||
+            if (HasUnsupportedSignature(signature) ||
+                signature.Parameters.Count != 2 ||
                 signature.GenericArguments is { Count: > 0 } ||
                 signature.ExplicitInterface is not null ||
                 signature.Modifiers != expectedModifiers ||

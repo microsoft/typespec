@@ -265,6 +265,45 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.That(MrwSerializationTypeDefinition.IsCreateCoreMethod(signature), Is.False);
         }
 
+        [TestCase(true, true)]
+        [TestCase(false, true)]
+        [TestCase(true, false)]
+        [TestCase(false, false)]
+        public void CreateCoreMatcherRequiresSupportedSignature(bool json, bool unsupported)
+        {
+            var signature = new MethodSignature(
+                json ? "JsonModelCreateCore" : "PersistableModelCreateCore",
+                null,
+                MethodSignatureModifiers.Protected | MethodSignatureModifiers.Virtual,
+                typeof(string),
+                null,
+                [
+                    new ParameterProvider("data", $"", json ? typeof(Utf8JsonReader) : typeof(BinaryData), isRef: json),
+                    new ParameterProvider("options", $"", typeof(ModelReaderWriterOptions))
+                ])
+            {
+                HasUnsupportedBaseContract = unsupported
+            };
+
+            Assert.That(MrwSerializationTypeDefinition.IsCreateCoreMethod(signature), Is.EqualTo(!unsupported));
+        }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        public void CreateCoreMatcherRejectsUnsupportedParameterModifiers(bool firstParameter)
+        {
+            var signature = new MethodSignature(
+                "PersistableModelCreateCore", null,
+                MethodSignatureModifiers.Protected | MethodSignatureModifiers.Virtual,
+                typeof(string), null,
+                [
+                    new ParameterProvider("data", $"", typeof(BinaryData)) { HasUnsupportedParameterModifiers = firstParameter },
+                    new ParameterProvider("options", $"", typeof(ModelReaderWriterOptions)) { HasUnsupportedParameterModifiers = !firstParameter }
+                ]);
+
+            Assert.That(MrwSerializationTypeDefinition.IsCreateCoreMethod(signature), Is.False);
+        }
+
         [TestCase(MethodSignatureModifiers.Protected)]
         [TestCase(MethodSignatureModifiers.Protected | MethodSignatureModifiers.Internal | MethodSignatureModifiers.Virtual)]
         [TestCase(MethodSignatureModifiers.Protected | MethodSignatureModifiers.Abstract)]

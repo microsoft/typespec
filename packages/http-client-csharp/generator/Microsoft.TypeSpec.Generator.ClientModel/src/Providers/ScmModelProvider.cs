@@ -70,7 +70,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             _inputModel = inputModel;
             IsDynamicModel = inputModel.IsDynamicModel;
-            BaseJsonPatchProperty = new(GetBaseJsonPatchProperty());
+            // Resolve the hierarchy only after TypeFactory has registered this provider. Eager
+            // resolution here lets compatibility probes cache null types for recursive properties.
+            BaseJsonPatchProperty = new(GetBaseJsonPatchProperty);
         }
 
         protected override FieldProvider[] BuildFields()

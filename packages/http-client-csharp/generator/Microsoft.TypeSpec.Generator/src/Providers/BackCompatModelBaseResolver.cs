@@ -36,24 +36,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private bool TryResolveCandidate(CSharpType previousBase, [NotNullWhen(true)] out ModelProvider? provider)
         {
-            if (TrySelectCreatedModelBase(previousBase, out provider, out var foundAmbiguousMapping))
-            {
-                return true;
-            }
-            if (foundAmbiguousMapping)
-            {
-                return false;
-            }
-
-            // A current input model can map to a differently named CLR type. Materialize all current
-            // model providers before concluding that no mapped candidate exists so restoration does
-            // not depend on the order in which OutputLibrary happens to build the input models.
+            // A current input model can map to a differently named CLR type. Complete discovery
+            // before selecting any candidate: a previously created mapping can be incompatible while
+            // a later input supplies a compatible mapping for the same CLR identity.
             foreach (var inputModel in CodeModelGenerator.Instance.InputLibrary.InputNamespace.Models)
             {
                 CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel);
             }
 
-            if (TrySelectCreatedModelBase(previousBase, out provider, out foundAmbiguousMapping))
+            if (TrySelectCreatedModelBase(previousBase, out provider, out var foundAmbiguousMapping))
             {
                 return true;
             }

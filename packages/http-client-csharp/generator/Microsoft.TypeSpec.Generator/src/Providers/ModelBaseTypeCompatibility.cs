@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -121,12 +122,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return true;
             }
 
-            var currentProperties = candidate.Properties
-                .Where(property => MethodSignatureHelper.IsPublicApi(property.Modifiers))
-                .ToDictionary(property => property.Name, StringComparer.Ordinal);
-            var previousProperties = lastContract.Properties
-                .Where(property => MethodSignatureHelper.IsPublicApi(property.Modifiers))
-                .ToDictionary(property => property.Name, StringComparer.Ordinal);
+            var currentProperties = GetUniquePublicProperties(candidate.Properties);
+            var previousProperties = GetUniquePublicProperties(lastContract.Properties);
+            if (currentProperties is null || previousProperties is null)
+            {
+                return false;
+            }
             return previousProperties.Values.All(previousProperty =>
                     currentProperties.TryGetValue(previousProperty.Name, out var currentProperty) &&
                     ModelBaseMemberCompatibility.ArePropertiesCompatible(previousProperty, currentProperty)) &&
@@ -134,6 +135,21 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     IsRequiredInitializationProperty(property) &&
                     (!previousProperties.ContainsKey(property.Name) ||
                         !LastContractDerivedConstructorHasRequiredParameter(property)));
+        }
+
+        private static Dictionary<string, PropertyProvider>? GetUniquePublicProperties(IReadOnlyList<PropertyProvider> properties)
+        {
+            var result = new Dictionary<string, PropertyProvider>(StringComparer.Ordinal);
+            foreach (var property in properties.Where(property => MethodSignatureHelper.IsPublicApi(property.Modifiers)))
+            {
+                // Overloaded indexers can share a symbol name. They are unsupported contracts, not
+                // malformed input that should abort generation with a duplicate-key exception.
+                if (!result.TryAdd(property.Name, property))
+                {
+                    return null;
+                }
+            }
+            return result;
         }
 
         private static bool IsRequiredInitializationProperty(PropertyProvider property)
