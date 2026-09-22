@@ -411,7 +411,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
-        public void TestBuildName_ResponseSuffixIgnoresExternalModelResolvingToClrType()
+        public void TestBuildName_ResponseSuffixIgnoresExternalModelWithMatchingClrType()
         {
             var response = InputFactory.Model("WidgetResponse");
             var externalModel = InputFactory.Model(
@@ -426,7 +426,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
-        public void TestBuildName_ResponseSuffixIgnoresExternalModelWithPhysicalName()
+        public void TestBuildName_ResponseSuffixIgnoresExternalModelWithResultInputName()
         {
             var response = InputFactory.Model("WidgetResponse", @namespace: typeof(WidgetResult).Namespace!);
             var externalModel = InputFactory.Model(
