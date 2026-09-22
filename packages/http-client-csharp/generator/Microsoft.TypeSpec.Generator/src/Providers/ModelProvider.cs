@@ -354,15 +354,20 @@ namespace Microsoft.TypeSpec.Generator.Providers
             string resultName,
             TypeProvider? excludedCustomization = null)
         {
-            return GetEmittedModels().Any(model => HasConflictingName(model, model.Namespace, resultName, excludedCustomization)) ||
-                GetEmittedEnums().Any(@enum => HasConflictingName(@enum, @enum.Namespace, resultName, excludedCustomization)) ||
+            return _emittedModelsCache.GetValue(
+                    CodeModelGenerator.Instance,
+                    static generator => GetEmittedModels(generator.InputLibrary).ToList())
+                    .Any(model => HasConflictingName(model, model.Namespace, resultName, excludedCustomization)) ||
+                _emittedEnumsCache.GetValue(
+                    CodeModelGenerator.Instance,
+                    static generator => generator.InputLibrary.InputNamespace.Enums
+                        // Mirrors OutputLibrary.BuildEnums: API-version enums are never emitted, and external
+                        // enums always map to existing types instead of generated files.
+                        .Where(@enum => @enum.External is null && !@enum.Usage.HasFlag(InputModelTypeUsage.ApiVersionEnum))
+                        .ToList())
+                    .Any(@enum => HasConflictingName(@enum, @enum.Namespace, resultName, excludedCustomization)) ||
                 inputLibrary.InputNamespace.Clients.Any(client => HasConflictingName(client, typeNamespace, resultName, excludedCustomization));
         }
-
-        private static IReadOnlyList<InputModelType> GetEmittedModels()
-            => _emittedModelsCache.GetValue(
-                CodeModelGenerator.Instance,
-                static generator => GetEmittedModels(generator.InputLibrary).ToList());
 
         private static IEnumerable<InputModelType> GetEmittedModels(InputLibrary inputLibrary)
         {
@@ -382,15 +387,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
             }
         }
-
-        private static IReadOnlyList<InputEnumType> GetEmittedEnums()
-            => _emittedEnumsCache.GetValue(
-                CodeModelGenerator.Instance,
-                static generator => generator.InputLibrary.InputNamespace.Enums
-                    // Mirrors OutputLibrary.BuildEnums: API-version enums are never emitted, and external
-                    // enums always map to existing types instead of generated files.
-                    .Where(@enum => @enum.External is null && !@enum.Usage.HasFlag(InputModelTypeUsage.ApiVersionEnum))
-                    .ToList());
 
         private bool HasConflictingName(
             InputType inputType,
@@ -554,9 +550,18 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             var inputNamespace = CodeModelGenerator.Instance.InputLibrary.InputNamespace;
-            foreach (var (inputType, inputTypeNamespace) in GetEmittedModels()
+            foreach (var (inputType, inputTypeNamespace) in _emittedModelsCache.GetValue(
+                CodeModelGenerator.Instance,
+                static generator => GetEmittedModels(generator.InputLibrary).ToList())
                 .Select(model => ((InputType)model, model.Namespace))
-                .Concat(GetEmittedEnums().Select(@enum => ((InputType)@enum, @enum.Namespace))))
+                .Concat(_emittedEnumsCache.GetValue(
+                    CodeModelGenerator.Instance,
+                    static generator => generator.InputLibrary.InputNamespace.Enums
+                        // Mirrors OutputLibrary.BuildEnums: API-version enums are never emitted, and external
+                        // enums always map to existing types instead of generated files.
+                        .Where(@enum => @enum.External is null && !@enum.Usage.HasFlag(InputModelTypeUsage.ApiVersionEnum))
+                        .ToList())
+                    .Select(@enum => ((InputType)@enum, @enum.Namespace))))
             {
                 if (inputType == _inputModel)
                 {
