@@ -47,7 +47,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             if (InputModel.BaseModel is null ||
                 HasDuplicateAdditionalProperties(mappedBase) ||
-                !mappedBase.HasReconstructibleLastContractConstructor)
+                !mappedBase.HasReconstructibleLastContractConstructor ||
+                !mappedBase.HasCompatibleLastContractNonPropertyMembers())
             {
                 return false;
             }
@@ -55,6 +56,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var lookup = new MappedPropertyLookup(mappedBase);
             return HasOneToOneMappedPropertyMatches(mappedBase) &&
                 HasNoCustomMemberCollisions(mappedBase) &&
+                HasCompatibleGeneratedMemberNames(mappedBase) &&
                 HasCompatibleCurrentModelProperties(lookup) &&
                 HasCompatibleDisplacedBase(mappedBase, lookup);
         }
@@ -136,6 +138,18 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 .Concat(customCode.Methods.Select(method => method.Signature.Name))
                 .ToHashSet(StringComparer.Ordinal);
             return !customMemberNames.Overlaps(mappedBase.GetPublicApiMemberNames());
+        }
+
+        private bool HasCompatibleGeneratedMemberNames(SystemObjectModelProvider mappedBase)
+        {
+            var displacedPropertyNames = mappedBase.InputModel.Properties
+                .Select(property => property.Name)
+                .ToHashSet(StringComparer.Ordinal);
+            var generatedPropertyNames = InputModel.Properties
+                .Where(property => !displacedPropertyNames.Contains(property.Name))
+                .Select(GetInputPropertyClrName)
+                .ToHashSet(StringComparer.Ordinal);
+            return !generatedPropertyNames.Overlaps(mappedBase.GetFrameworkPublicApiMemberNames());
         }
 
         private bool HasCompatibleCurrentModelProperties(MappedPropertyLookup lookup)

@@ -293,6 +293,45 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return [.. properties];
         }
 
+        internal bool HasCompatibleLastContractNonPropertyMembers()
+        {
+            if (_lastContractType is null)
+            {
+                return true;
+            }
+
+            if (!SystemType.IsFrameworkType)
+            {
+                return false;
+            }
+
+            const BindingFlags flags = BindingFlags.DeclaredOnly | BindingFlags.Instance |
+                BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
+            var frameworkMethods = EnumerateFrameworkHierarchy()
+                .SelectMany(type => type.GetMethods(flags))
+                .Where(IsPublicOrProtected)
+                .ToArray();
+            var frameworkFields = EnumerateFrameworkHierarchy()
+                .SelectMany(type => type.GetFields(flags))
+                .Where(IsPublicOrProtected)
+                .ToArray();
+
+            for (var provider = _lastContractType; provider is not null; provider = provider.BaseTypeProvider)
+            {
+                if (provider.Methods
+                    .Where(method => MethodSignatureHelper.IsPublicApi(method.Signature.Modifiers))
+                    .Any(method => !frameworkMethods.Any(candidate => IsCompatibleMethod(method.Signature, candidate))) ||
+                    provider.Fields
+                    .Where(field => IsPublicApiField(field.Modifiers))
+                    .Any(field => !frameworkFields.Any(candidate => IsCompatibleField(field, candidate))))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         internal IEnumerable<string> GetPublicApiMemberNames()
         {
             if (_lastContractType is not null)
@@ -307,18 +346,23 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     foreach (var method in provider.Methods.Where(method =>
                         MethodSignatureHelper.IsPublicApi(method.Signature.Modifiers)))
                     {
-                        yield return method.Signature.Name;
+                        yield return GetPublicApiMemberName(method.Signature.Name);
                     }
-                    foreach (var field in provider.Fields.Where(field =>
-                        field.Modifiers.HasFlag(FieldModifiers.Public) ||
-                        field.Modifiers.HasFlag(FieldModifiers.Protected)))
+                    foreach (var field in provider.Fields.Where(field => IsPublicApiField(field.Modifiers)))
                     {
                         yield return field.Name;
                     }
                 }
-                yield break;
             }
 
+            foreach (var name in GetFrameworkPublicApiMemberNames())
+            {
+                yield return name;
+            }
+        }
+
+        internal IEnumerable<string> GetFrameworkPublicApiMemberNames()
+        {
             if (!SystemType.IsFrameworkType)
             {
                 yield break;
@@ -326,7 +370,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             const BindingFlags flags = BindingFlags.DeclaredOnly | BindingFlags.Instance |
                 BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
-            for (var type = SystemType.FrameworkType; type is not null; type = type.BaseType)
+            foreach (var type in EnumerateFrameworkHierarchy())
             {
                 foreach (var property in type.GetProperties(flags).Where(property =>
                     property.GetAccessors(nonPublic: true).Any(IsPublicOrProtected)))
@@ -337,16 +381,112 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 {
                     yield return method.Name;
                 }
-                foreach (var field in type.GetFields(flags).Where(field =>
-                    field.IsPublic || field.IsFamily || field.IsFamilyOrAssembly))
+                foreach (var @event in type.GetEvents(flags).Where(@event =>
+                    @event.GetAddMethod(nonPublic: true) is { } addMethod && IsPublicOrProtected(addMethod)))
+                {
+                    yield return @event.Name;
+                }
+                foreach (var field in type.GetFields(flags).Where(IsPublicOrProtected))
                 {
                     yield return field.Name;
                 }
             }
         }
 
+        private IEnumerable<Type> EnumerateFrameworkHierarchy()
+        {
+            for (var type = SystemType.FrameworkType; type is not null; type = type.BaseType)
+            {
+                yield return type;
+            }
+        }
+
+        private static bool IsCompatibleMethod(MethodSignature previous, MethodInfo current)
+        {
+            var currentParameters = current.GetParameters();
+            if (GetReflectionMethodName(previous.Name) != current.Name ||
+                previous.Parameters.Count != currentParameters.Length ||
+                (previous.GenericArguments?.Count ?? 0) != current.GetGenericArguments().Length ||
+                previous.Modifiers.HasFlag(MethodSignatureModifiers.Static) != current.IsStatic ||
+                RequiresOverridableMethod(previous.Modifiers) && (!current.IsVirtual || current.IsFinal) ||
+                !HasCompatibleAccessibility(previous.Modifiers, current) ||
+                !IsCompatibleReturnType(previous.ReturnType, current.ReturnType))
+            {
+                return false;
+            }
+
+            return previous.Parameters.Zip(currentParameters).All(pair =>
+            {
+                var currentType = pair.Second.ParameterType;
+                var isByRef = currentType.IsByRef;
+                if (isByRef)
+                {
+                    currentType = currentType.GetElementType()!;
+                }
+
+                return pair.First.IsRef == (isByRef && !pair.Second.IsIn && !pair.Second.IsOut) &&
+                    pair.First.IsIn == pair.Second.IsIn &&
+                    pair.First.IsOut == pair.Second.IsOut &&
+                    pair.First.IsParams == (pair.Second.GetCustomAttribute<ParamArrayAttribute>() is not null) &&
+                    pair.First.Type.AreNamesEqual(new CSharpType(currentType));
+            });
+        }
+
+        private static string GetReflectionMethodName(string name)
+        {
+            var accessorSeparator = name.LastIndexOf('.');
+            if (accessorSeparator > 0 && name[(accessorSeparator + 1)..] is "add" or "remove")
+            {
+                return $"{name[(accessorSeparator + 1)..]}_{name[..accessorSeparator]}";
+            }
+            return name;
+        }
+
+        private static string GetPublicApiMemberName(string methodName)
+        {
+            var accessorSeparator = methodName.LastIndexOf('.');
+            return accessorSeparator > 0 && methodName[(accessorSeparator + 1)..] is "add" or "remove"
+                ? methodName[..accessorSeparator]
+                : methodName;
+        }
+
+        private static bool RequiresOverridableMethod(MethodSignatureModifiers modifiers)
+            => modifiers.HasFlag(MethodSignatureModifiers.Virtual) ||
+                modifiers.HasFlag(MethodSignatureModifiers.Abstract) ||
+                modifiers.HasFlag(MethodSignatureModifiers.Override);
+
+        private static bool IsPublicApiField(FieldModifiers modifiers)
+            => modifiers.HasFlag(FieldModifiers.Public) ||
+                modifiers.HasFlag(FieldModifiers.Protected) && !modifiers.HasFlag(FieldModifiers.Private);
+
+        private static bool IsCompatibleField(FieldProvider previous, FieldInfo current)
+            => previous.Name == current.Name &&
+                previous.Type.AreNamesEqual(new CSharpType(current.FieldType)) &&
+                previous.Modifiers.HasFlag(FieldModifiers.Static) == current.IsStatic &&
+                previous.Modifiers.HasFlag(FieldModifiers.ReadOnly) == current.IsInitOnly &&
+                previous.Modifiers.HasFlag(FieldModifiers.Const) == current.IsLiteral &&
+                HasCompatibleAccessibility(previous.Modifiers, current);
+
+        private static bool IsCompatibleReturnType(CSharpType? previous, Type current)
+            => previous is null
+                ? current == typeof(void)
+                : previous.AreNamesEqual(new CSharpType(current));
+
+        private static bool HasCompatibleAccessibility(MethodSignatureModifiers previous, MethodBase current)
+            => previous.HasFlag(MethodSignatureModifiers.Public)
+                ? current.IsPublic
+                : previous.HasFlag(MethodSignatureModifiers.Protected) && IsPublicOrProtected(current);
+
+        private static bool HasCompatibleAccessibility(FieldModifiers previous, FieldInfo current)
+            => previous.HasFlag(FieldModifiers.Public)
+                ? current.IsPublic
+                : previous.HasFlag(FieldModifiers.Protected) && IsPublicOrProtected(current);
+
         private static bool IsPublicOrProtected(MethodBase method)
             => method.IsPublic || method.IsFamily || method.IsFamilyOrAssembly;
+
+        private static bool IsPublicOrProtected(FieldInfo field)
+            => field.IsPublic || field.IsFamily || field.IsFamilyOrAssembly;
 
         private PropertyProvider ApplyCurrentInputMetadata(PropertyProvider lastContractProperty)
         {

@@ -650,6 +650,90 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
 
         [Test]
+        public void LastContractMemberNamesIncludeMappedFrameworkSurface()
+        {
+            var inputModel = InputFactory.Model("MappedBase", properties: []);
+            var mappedBase = new SystemObjectModelProvider(
+                new CSharpType(typeof(Exception)),
+                inputModel,
+                new TestTypeProvider());
+
+            Assert.That(mappedBase.GetPublicApiMemberNames(), Does.Contain(nameof(Exception.Message)),
+                "Collision checks must include members added by the actual mapped framework target");
+        }
+
+        [Test]
+        public void LastContractMappingRejectsGeneratedFrameworkMemberCollision()
+        {
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var derivedModel = InputFactory.Model(
+                "DerivedModel",
+                properties: [InputFactory.Property("message", InputPrimitiveType.String)],
+                baseModel: currentBase);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [currentBase, derivedModel]);
+
+            var mappedBase = new SystemObjectModelProvider(
+                new CSharpType(typeof(Exception)),
+                currentBase,
+                new TestTypeProvider());
+            var compatibility = new ModelBaseTypeCompatibility(new ModelProvider(derivedModel));
+
+            Assert.That(compatibility.CanUseMappedBase(mappedBase), Is.False,
+                "A generated property must not hide a member added by the mapped framework target");
+        }
+
+        [Test]
+        public void LastContractMappingRejectsMissingHistoricalMethod()
+        {
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [currentBase, derivedModel]);
+
+            var memberOwner = new TestTypeProvider();
+            var historicalMethod = new MethodProvider(
+                new MethodSignature(
+                    "RemovedMethod",
+                    $"",
+                    MethodSignatureModifiers.Public,
+                    null,
+                    $"",
+                    []),
+                Snippet.ThrowExpression(Snippet.Null),
+                memberOwner);
+            var mappedBase = new SystemObjectModelProvider(
+                new CSharpType(typeof(Exception)),
+                currentBase,
+                new TestTypeProvider(methods: [historicalMethod]));
+            var compatibility = new ModelBaseTypeCompatibility(new ModelProvider(derivedModel));
+
+            Assert.That(compatibility.CanUseMappedBase(mappedBase), Is.False,
+                "Restoration must not remove a method inherited through the shipped base");
+        }
+
+        [Test]
+        public void LastContractMappingRejectsMissingHistoricalField()
+        {
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var derivedModel = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [currentBase, derivedModel]);
+
+            var memberOwner = new TestTypeProvider();
+            var historicalField = new FieldProvider(
+                FieldModifiers.Public,
+                typeof(string),
+                "RemovedField",
+                memberOwner);
+            var mappedBase = new SystemObjectModelProvider(
+                new CSharpType(typeof(Exception)),
+                currentBase,
+                new TestTypeProvider(fields: [historicalField]));
+            var compatibility = new ModelBaseTypeCompatibility(new ModelProvider(derivedModel));
+
+            Assert.That(compatibility.CanUseMappedBase(mappedBase), Is.False,
+                "Restoration must not remove a field inherited through the shipped base");
+        }
+
+        [Test]
         public void LastContractOptionalParameterIsRequiredOnSyntheticFullConstructor()
         {
             var inputModel = InputFactory.Model(

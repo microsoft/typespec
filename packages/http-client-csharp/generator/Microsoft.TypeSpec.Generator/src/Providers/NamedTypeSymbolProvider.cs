@@ -167,6 +167,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     {
                         modifiers |= FieldModifiers.Static;
                     }
+                    if (fieldSymbol.IsReadOnly)
+                    {
+                        modifiers |= FieldModifiers.ReadOnly;
+                    }
+                    if (fieldSymbol.IsConst)
+                    {
+                        modifiers |= FieldModifiers.Const;
+                    }
 
                     var fieldProvider = new FieldProvider(
                         modifiers,
@@ -981,7 +989,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
             Accessibility.Protected => FieldModifiers.Protected,
             Accessibility.Internal => FieldModifiers.Internal,
             Accessibility.Public => FieldModifiers.Public,
-            _ => FieldModifiers.Public
+            Accessibility.ProtectedOrInternal => FieldModifiers.Protected | FieldModifiers.Internal,
+            Accessibility.ProtectedAndInternal => FieldModifiers.Protected | FieldModifiers.Private,
+            _ => FieldModifiers.Private
         };
 
         private CSharpType? GetNullableCSharpType(ITypeSymbol typeSymbol)
