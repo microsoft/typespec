@@ -91,21 +91,49 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
         }
 
         [Test]
-        public void OpaqueExampleValueCannotDefineReference()
+        public void LoadsReferencesInExampleShapedData(
+            [Values("unknown", "union")] string kind,
+            [Values] bool inDecorator,
+            [Values] bool definitionsFirst)
         {
-            const string content = """
+            var definition = $$"""
                 {
-                  "name": "Test", "models": [{ "$ref": "model" }],
-                  "extension": {
-                    "kind": "unknown", "type": {},
+                  "kind": "{{kind}}", "type": {},
+                  "value": {
+                    "kind": "{{kind}}",
                     "value": { "$id": "model", "name": "SharedModel" }
                   }
                 }
                 """;
+            var definitions = inDecorator
+                ? $$"""
+                    "clients": [{
+                      "$id": "client", "name": "Test",
+                      "decorators": [{ "name": "example", "arguments": { "payload": {{definition}} } }]
+                    }]
+                    """
+                : $$"""
+                    "extension": {{definition}}
+                    """;
+            const string models = """
+                "models": [{ "$ref": "model" }, { "$ref": "model" }]
+                """;
+            var content = $$"""
+                {
+                  "name": "Test",
+                  {{(definitionsFirst ? definitions : models)}},
+                  {{(definitionsFirst ? models : definitions)}}
+                }
+                """;
 
-            var exception = Assert.Throws<JsonException>(() => TypeSpecSerialization.Deserialize(content));
+            var input = TypeSpecSerialization.Deserialize(content)!;
 
-            Assert.That(exception!.Message, Does.Contain("cannot resolve reference model"));
+            Assert.AreEqual("SharedModel", input.Models[0].Name);
+            Assert.AreSame(input.Models[0], input.Models[1]);
+            if (inDecorator)
+            {
+                Assert.AreEqual(definition, input.Clients.Single().Decorators.Single().Arguments!["payload"].ToString());
+            }
         }
 
         [TestCase(true)]
@@ -361,7 +389,7 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
 
         [TestCase("unknown")]
         [TestCase("union")]
-        public void LoadsReferenceDefinedInOpaqueExampleType(string kind)
+        public void ExampleShapedDataStillRejectsDuplicateReferences(string kind)
         {
             var content = $$"""
                 {
@@ -375,9 +403,9 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
                 }
                 """;
 
-            var inputNamespace = TypeSpecSerialization.Deserialize(content)!;
+            var exception = Assert.Throws<JsonException>(() => TypeSpecSerialization.Deserialize(content));
 
-            Assert.AreEqual("SharedModel", inputNamespace.Models.Single().Name);
+            Assert.That(exception!.Message, Does.Contain("Duplicate reference ID 'model'"));
         }
 
         [Test]
