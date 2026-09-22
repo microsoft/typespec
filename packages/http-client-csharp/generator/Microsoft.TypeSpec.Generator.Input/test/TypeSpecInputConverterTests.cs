@@ -2,7 +2,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
@@ -20,9 +19,13 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
             Assert.AreSame(input.Models[0], input.Models[1]);
             Assert.AreEqual("Shared", input.Models[0].Name);
             var decorator = input.Clients.Single().Decorators.Single();
-            Assert.IsTrue(JsonNode.DeepEquals(JsonNode.Parse("""
-                { "$id": "1", "$ref": "missing", "$values": [{ "$id": "1" }], "kind": "future-kind", "usage": 42, "__raw": "keep" }
-                """), JsonNode.Parse(decorator.Arguments!["payload"].ToString())));
+            using var payload = JsonDocument.Parse(decorator.Arguments!["payload"].ToStream());
+            Assert.AreEqual("1", payload.RootElement.GetProperty("$id").GetString());
+            Assert.AreEqual("missing", payload.RootElement.GetProperty("$ref").GetString());
+            Assert.AreEqual("1", payload.RootElement.GetProperty("$values")[0].GetProperty("$id").GetString());
+            Assert.AreEqual("future-kind", payload.RootElement.GetProperty("kind").GetString());
+            Assert.AreEqual(42, payload.RootElement.GetProperty("usage").GetInt32());
+            Assert.AreEqual("keep", payload.RootElement.GetProperty("__raw").GetString());
         }
 
         [Test]
@@ -62,16 +65,13 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
 
             Assert.AreEqual("SharedModel", input.Models.Single().Name);
             var arguments = input.Clients.Single().Decorators.Single().Arguments!;
-            Assert.IsTrue(JsonNode.DeepEquals(JsonNode.Parse("""
-                {
-                  "$id": "shared",
-                  "$ref": "missing",
-                  "$values": [{ "$id": "shared" }],
-                  "$$id": "escaped",
-                  "kind": "future-kind",
-                  "type": { "$id": "shared" }
-                }
-                """), JsonNode.Parse(arguments["$id"].ToString())));
+            using var deserializedPayload = JsonDocument.Parse(arguments["$id"].ToStream());
+            Assert.AreEqual("shared", deserializedPayload.RootElement.GetProperty("$id").GetString());
+            Assert.AreEqual("missing", deserializedPayload.RootElement.GetProperty("$ref").GetString());
+            Assert.AreEqual("shared", deserializedPayload.RootElement.GetProperty("$values")[0].GetProperty("$id").GetString());
+            Assert.AreEqual("escaped", deserializedPayload.RootElement.GetProperty("$$id").GetString());
+            Assert.AreEqual("future-kind", deserializedPayload.RootElement.GetProperty("kind").GetString());
+            Assert.AreEqual("shared", deserializedPayload.RootElement.GetProperty("type").GetProperty("$id").GetString());
         }
 
         [Test]
