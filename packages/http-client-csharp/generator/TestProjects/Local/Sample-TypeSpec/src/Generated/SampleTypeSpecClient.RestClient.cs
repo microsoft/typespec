@@ -413,6 +413,7 @@ namespace SampleTypeSpec
 
         internal PipelineMessage CreateDynamicModelOperationRequest(BinaryContent content, RequestOptions options)
         {
+#pragma warning disable SCME0001 // This method depends on experimental functionality.
             ClientUriBuilder uri = new ClientUriBuilder();
             uri.Reset(_endpoint);
             uri.AppendPath("/dynamicModel", false);
@@ -422,6 +423,7 @@ namespace SampleTypeSpec
             request.Content = content;
             message.Apply(options);
             return message;
+#pragma warning restore SCME0001 // This method depends on experimental functionality.
         }
 
         internal PipelineMessage CreateGetXmlAdvancedModelRequest(RequestOptions options)

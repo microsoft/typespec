@@ -10072,7 +10072,11 @@
             "generateConvenienceMethod": true,
             "crossLanguageDefinitionId": "SampleTypeSpec.helloDemo2",
             "decorators": [],
-            "namespace": "SampleTypeSpec"
+            "namespace": "SampleTypeSpec",
+            "experimental": {
+              "diagnosticId": "SAMPLE0001",
+              "dependsOn": []
+            }
           },
           "parameters": [
             {
@@ -14033,7 +14037,13 @@
             "generateConvenienceMethod": true,
             "crossLanguageDefinitionId": "SampleTypeSpec.DynamicModelOperation",
             "decorators": [],
-            "namespace": "SampleTypeSpec"
+            "namespace": "SampleTypeSpec",
+            "experimental": {
+              "diagnosticId": "SAMPLE0002",
+              "dependsOn": [
+                "SCME0001"
+              ]
+            }
           },
           "parameters": [
             {

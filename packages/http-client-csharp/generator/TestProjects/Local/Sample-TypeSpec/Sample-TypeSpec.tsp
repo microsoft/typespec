@@ -4,6 +4,7 @@ import "@typespec/http/streams";
 import "@typespec/sse";
 import "@typespec/events";
 import "@typespec/xml";
+import "@typespec/http-client";
 import "@typespec/http-client-csharp";
 import "@azure-tools/typespec-client-generator-core";
 import "@azure-tools/typespec-azure-core";
@@ -553,6 +554,10 @@ op noContentTypeOverride(info: Wrapper): RoundTripModel;
 @doc("Return hi in demo2")
 @get
 @convenientAPI(true, "csharp")
+@TypeSpec.HttpClient.experimental(#{
+  emitterScope: "@typespec/http-client-csharp",
+  diagnosticId: "SAMPLE0001",
+})
 op helloDemo2(): Thing;
 
 @route("/literal")
@@ -710,6 +715,11 @@ op EmbeddedParameters(@bodyRoot body: ModelWithEmbeddedNonBodyParameters): void;
 @route("dynamicModel")
 @doc("An operation with a dynamic model")
 @post
+@TypeSpec.HttpClient.experimental(#{
+  emitterScope: "@typespec/http-client-csharp",
+  diagnosticId: "SAMPLE0002",
+  dependsOn: #["SCME0001"],
+})
 op DynamicModelOperation(@body body: DynamicModel): void;
 
 @route("xmlAdvanced")

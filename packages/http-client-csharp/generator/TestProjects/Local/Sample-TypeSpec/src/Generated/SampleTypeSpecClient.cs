@@ -363,6 +363,7 @@ namespace SampleTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
+        [Experimental("SAMPLE0001")]
         public virtual ClientResult HelloDemo2(RequestOptions options)
         {
             using PipelineMessage message = CreateHelloDemo2Request(options);
@@ -380,6 +381,7 @@ namespace SampleTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
+        [Experimental("SAMPLE0001")]
         public virtual async Task<ClientResult> HelloDemo2Async(RequestOptions options)
         {
             using PipelineMessage message = CreateHelloDemo2Request(options);
@@ -389,6 +391,7 @@ namespace SampleTypeSpec
         /// <summary> Return hi in demo2. </summary>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        [Experimental("SAMPLE0001")]
         public virtual ClientResult<Thing> HelloDemo2(CancellationToken cancellationToken = default)
         {
             ClientResult result = HelloDemo2(cancellationToken.ToRequestOptions());
@@ -398,6 +401,7 @@ namespace SampleTypeSpec
         /// <summary> Return hi in demo2. </summary>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        [Experimental("SAMPLE0001")]
         public virtual async Task<ClientResult<Thing>> HelloDemo2Async(CancellationToken cancellationToken = default)
         {
             ClientResult result = await HelloDemo2Async(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
@@ -1693,12 +1697,15 @@ namespace SampleTypeSpec
         /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
+        [Experimental("SAMPLE0002")]
         public virtual ClientResult DynamicModelOperation(BinaryContent content, RequestOptions options = null)
         {
+#pragma warning disable SCME0001 // This method depends on experimental functionality.
             Argument.AssertNotNull(content, nameof(content));
 
             using PipelineMessage message = CreateDynamicModelOperationRequest(content, options);
             return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+#pragma warning restore SCME0001 // This method depends on experimental functionality.
         }
 
         /// <summary>
@@ -1714,12 +1721,15 @@ namespace SampleTypeSpec
         /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
+        [Experimental("SAMPLE0002")]
         public virtual async Task<ClientResult> DynamicModelOperationAsync(BinaryContent content, RequestOptions options = null)
         {
+#pragma warning disable SCME0001 // This method depends on experimental functionality.
             Argument.AssertNotNull(content, nameof(content));
 
             using PipelineMessage message = CreateDynamicModelOperationRequest(content, options);
             return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+#pragma warning restore SCME0001 // This method depends on experimental functionality.
         }
 
         /// <summary> An operation with a dynamic model. </summary>
@@ -1727,11 +1737,14 @@ namespace SampleTypeSpec
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        [Experimental("SAMPLE0002")]
         public virtual ClientResult DynamicModelOperation(DynamicModel body, CancellationToken cancellationToken = default)
         {
+#pragma warning disable SCME0001 // This method depends on experimental functionality.
             Argument.AssertNotNull(body, nameof(body));
 
             return DynamicModelOperation(body, cancellationToken.ToRequestOptions());
+#pragma warning restore SCME0001 // This method depends on experimental functionality.
         }
 
         /// <summary> An operation with a dynamic model. </summary>
@@ -1739,11 +1752,14 @@ namespace SampleTypeSpec
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        [Experimental("SAMPLE0002")]
         public virtual async Task<ClientResult> DynamicModelOperationAsync(DynamicModel body, CancellationToken cancellationToken = default)
         {
+#pragma warning disable SCME0001 // This method depends on experimental functionality.
             Argument.AssertNotNull(body, nameof(body));
 
             return await DynamicModelOperationAsync(body, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+#pragma warning restore SCME0001 // This method depends on experimental functionality.
         }
 
         /// <summary>
