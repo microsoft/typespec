@@ -37,6 +37,7 @@ def _discriminated_payload(value, annotation="Payload"):
         discriminator_property=SimpleNamespace(wire_name="kind"),
         discriminator_value=value,
         type_annotation=lambda **kwargs: annotation,
+        serialization_type=lambda **kwargs: annotation,
     )
 
 
@@ -100,14 +101,27 @@ def test_generated_unnamed_discriminator_dispatch_and_terminal_predicate(async_m
     )
     code_model = SimpleNamespace(
         is_azure_flavor=False,
-        options={"models-mode": "dpg"},
+        options={"models-mode": "dpg", "azure-arm": False},
+        generate_typeddict_only=False,
         get_serialize_namespace=lambda *args, **kwargs: "test",
     )
     serializer = OperationSerializer(code_model, async_mode=async_mode, client_namespace="test")
-
-    generated = "\n".join(
-        serializer.handle_structured_stream_response(SimpleNamespace(responses=[response], success_status_codes=[200]))
+    builder = SimpleNamespace(
+        responses=[response],
+        success_status_codes=[200],
+        stream_value=True,
+        non_default_errors=[],
+        exceptions=[
+            SimpleNamespace(
+                status_codes=["default"],
+                type=object(),
+                default_content_type="application/json",
+            )
+        ],
+        default_error_deserialization=lambda _namespace: "_models.Error,",
     )
+
+    generated = "\n".join(serializer.handle_structured_stream_response(builder))
 
     assert ("if isinstance(_event_json, dict) and " "_event_json.get('kind') == 'connected':") in generated
     assert "_deserialize(_models.Connected, _event_json)" in generated
@@ -130,7 +144,10 @@ def test_generated_unnamed_discriminator_dispatch_and_terminal_predicate(async_m
     ) in generated
     assert "_update_sse_request_headers(_request, _last_event_id)" in generated
     assert "if _reconnect_response.status_code not in [200, 204]:" in generated
-    assert "raise HttpResponseError(response=_reconnect_response)" in generated
+    assert "error = _failsafe_deserialize(" in generated
+    assert "_models.Error," in generated
+    assert "_reconnect_response," in generated
+    assert "raise HttpResponseError(response=_reconnect_response, model=error)" in generated
     assert "last_event_id=_last_event_id" in generated
     assert "reconnect_callback=_reconnect" in generated
     assert generated.count("return cls(pipeline_response, deserialized, {})") == 1
@@ -145,6 +162,41 @@ def test_named_terminal_event_uses_explicit_event_name():
     ]
 
     assert _get_terminal_event_names(events) == ["complete"]
+
+
+def test_reconnect_error_uses_reconnect_pipeline_response_for_legacy_models():
+    response = SimpleNamespace(
+        is_structured_stream=True,
+        streaming_kind="sse",
+        streaming_events=[_streaming_event(payload_type=_discriminated_payload("event"))],
+        terminal_event=None,
+        terminal_event_names=[],
+        stream_item_annotation=lambda **kwargs: "Payload",
+        stream_class_name=lambda is_async: "AsyncStream" if is_async else "Stream",
+    )
+    code_model = SimpleNamespace(
+        is_azure_flavor=False,
+        options={"models-mode": "msrest", "azure-arm": False},
+        generate_typeddict_only=False,
+        get_serialize_namespace=lambda *args, **kwargs: "test",
+    )
+    serializer = OperationSerializer(code_model, async_mode=False, client_namespace="test")
+    builder = SimpleNamespace(
+        responses=[response],
+        success_status_codes=[200],
+        stream_value=True,
+        non_default_errors=[],
+        exceptions=[],
+        default_error_deserialization=lambda _namespace: "'object',",
+    )
+
+    generated = "\n".join(serializer.handle_structured_stream_response(builder))
+
+    assert "if _reconnect_response.status_code not in [200, 204]:" in generated
+    assert (
+        "PipelineResponse(_request, _reconnect_response, pipeline_response.context)," in generated
+    )
+    assert "raise HttpResponseError(response=_reconnect_response, model=error)" in generated
 
 
 @pytest.mark.parametrize(

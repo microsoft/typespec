@@ -1150,22 +1150,32 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
         return retval
 
     def handle_error_response(  # pylint: disable=too-many-statements, too-many-branches
-        self, builder: OperationType
+        self,
+        builder: OperationType,
+        *,
+        response_name: str = "response",
+        pipeline_response_name: str = "pipeline_response",
+        success_status_codes: Optional[list[int]] = None,
+        stream_value: Optional[Union[str, bool]] = None,
     ) -> list[str]:
         async_await = "await " if self.async_mode else ""
-        retval = [f"if response.status_code not in {str(builder.success_status_codes)}:"]
+        success_status_codes = builder.success_status_codes if success_status_codes is None else success_status_codes
+        stream_value = builder.stream_value if stream_value is None else stream_value
+        retval = [f"if {response_name}.status_code not in {str(success_status_codes)}:"]
         response_read = [
             "    try:",
-            f"        {async_await}response.read()  # Load the body in memory and close the socket",
+            f"        {async_await}{response_name}.read()  # Load the body in memory and close the socket",
             "    except (StreamConsumedError, StreamClosedError):",
             "        pass",
         ]
-        if builder.stream_value is True:  # _stream is True so no need to judge it
+        if stream_value is True:  # _stream is True so no need to judge it
             retval.extend(response_read)
-        elif isinstance(builder.stream_value, str):  # _stream is not sure, so we need to judge it
+        elif isinstance(stream_value, str):  # _stream is not sure, so we need to judge it
             retval.append("    if _stream:")
             retval.extend([f"    {l}" for l in response_read])
-        retval.append("    map_error(status_code=response.status_code, response=response, error_map=error_map)")
+        retval.append(
+            f"    map_error(status_code={response_name}.status_code, " f"response={response_name}, error_map=error_map)"
+        )
         error_model = ""
         if builder.non_default_errors and (  # pylint: disable=too-many-nested-blocks
             self.code_model.options["models-mode"] or self.code_model.generate_typeddict_only
@@ -1181,7 +1191,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                     pylint_disable = ""
                 if isinstance(e.status_codes[0], int):
                     for status_code in e.status_codes:
-                        retval.append(f"    {condition} response.status_code == {status_code}:")
+                        retval.append(f"    {condition} {response_name}.status_code == {status_code}:")
                         type_annotation = e.type.type_annotation(  # type: ignore
                             is_operation_file=True, skip_quote=True, serialize_namespace=self.serialize_namespace
                         )
@@ -1190,13 +1200,15 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                                 fn = "_failsafe_deserialize_xml"
                             else:
                                 fn = "_failsafe_deserialize"
-                            retval.append(f"        error = {fn}({type_annotation},{pylint_disable}\n  response)")
+                            retval.append(
+                                f"        error = {fn}({type_annotation},{pylint_disable}\n  {response_name})"
+                            )
                         else:
                             retval.extend(
                                 [
                                     "        error = self._deserialize.failsafe_deserialize(",
                                     f"            {type_annotation},{pylint_disable}",
-                                    "            pipeline_response,",
+                                    f"            {pipeline_response_name},",
                                     "        )",
                                 ]
                             )
@@ -1209,7 +1221,8 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                 # ranged status code only exist in typespec and will not have multiple status codes
                 else:
                     retval.append(
-                        f"    {condition} {e.status_codes[0][0]} <= response.status_code <= {e.status_codes[0][1]}:"
+                        f"    {condition} {e.status_codes[0][0]} <= "
+                        f"{response_name}.status_code <= {e.status_codes[0][1]}:"
                     )
                     type_annotation = e.type.type_annotation(  # type: ignore
                         is_operation_file=True, skip_quote=True, serialize_namespace=self.serialize_namespace
@@ -1218,19 +1231,19 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                         if xml_serializable(str(e.default_content_type)):
                             retval.append(
                                 "        error = _failsafe_deserialize_xml("
-                                f"{type_annotation},{pylint_disable}\n  response)"
+                                f"{type_annotation},{pylint_disable}\n  {response_name})"
                             )
                         else:
                             retval.append(
-                                "        error = _failsafe_deserialize("
-                                f"{type_annotation},{pylint_disable}\n  response)"
+                                f"        error = _failsafe_deserialize("
+                                f"{type_annotation},{pylint_disable}\n  {response_name})"
                             )
                     else:
                         retval.extend(
                             [
                                 "        error = self._deserialize.failsafe_deserialize(",
                                 f"            {type_annotation},{pylint_disable}",
-                                "            pipeline_response,",
+                                f"            {pipeline_response_name},",
                                 "        )",
                             ]
                         )
@@ -1254,7 +1267,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                     [
                         f"{indent}error = {fn}(",
                         f"{indent}    {default_error_deserialization}",
-                        f"{indent}    response,",
+                        f"{indent}    {response_name},",
                         f"{indent})",
                     ]
                 )
@@ -1263,12 +1276,13 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                     [
                         f"{indent}error = self._deserialize.failsafe_deserialize(",
                         f"{indent}    {default_error_deserialization}",
-                        f"{indent}    pipeline_response,",
+                        f"{indent}    {pipeline_response_name},",
                         f"{indent})",
                     ]
                 )
         retval.append(
-            "    raise HttpResponseError(response=response{}{})".format(
+            "    raise HttpResponseError(response={}{}{})".format(
+                response_name,
                 error_model,
                 (", error_format=ARMErrorFormat" if self.code_model.options["azure-arm"] else ""),
             )
@@ -1395,13 +1409,20 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
             reconnect_status_codes = list(builder.success_status_codes)
             if 204 not in reconnect_status_codes:
                 reconnect_status_codes.append(204)
-            retval.append(f"    if _reconnect_response.status_code not in {reconnect_status_codes!r}:")
-            retval.append(f"        {self._call_method}_reconnect_response.read()")
-            retval.append(
-                "        map_error(status_code=_reconnect_response.status_code, "
-                "response=_reconnect_response, error_map=error_map)"
+            retval.extend(
+                [
+                    f"    {line}"
+                    for line in self.handle_error_response(
+                        builder,
+                        response_name="_reconnect_response",
+                        pipeline_response_name=(
+                            "PipelineResponse(_request, _reconnect_response, pipeline_response.context)"
+                        ),
+                        success_status_codes=reconnect_status_codes,
+                        stream_value=True,
+                    )
+                ]
             )
-            retval.append("        raise HttpResponseError(response=_reconnect_response)")
             retval.append("    return _reconnect_response")
             stream_kwargs.append("last_event_id=_last_event_id")
             stream_kwargs.append("reconnect_callback=_reconnect")
