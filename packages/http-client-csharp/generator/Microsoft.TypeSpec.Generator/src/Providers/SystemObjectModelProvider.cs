@@ -80,20 +80,34 @@ namespace Microsoft.TypeSpec.Generator.Providers
         internal bool UsesLastContractType => _lastContractType is not null;
 
         internal bool HasReconstructibleLastContractConstructor
-            => _lastContractType is null
-                ? HasCallableFrameworkFullConstructor()
-                : _lastContractType.Constructors.Count == 0
-                    ? InputModel.Properties.Count == 0 && HasCallableInitializationConstructor()
-                    : TryGetLastContractConstructor(out _, out _) && HasCallableInitializationConstructor();
+        {
+            get
+            {
+                if (_lastContractType is null)
+                {
+                    return HasCallableFrameworkConstructor(FullConstructor.Signature.Parameters);
+                }
 
-        private bool HasCallableFrameworkFullConstructor()
+                if (_lastContractType.Constructors.Count == 0)
+                {
+                    return InputModel.Properties.Count == 0 &&
+                        HasCallableInitializationConstructor() &&
+                        HasCallableFrameworkConstructor([]);
+                }
+
+                return TryGetLastContractConstructor(out var constructor, out _) &&
+                    HasCallableInitializationConstructor() &&
+                    HasCallableFrameworkConstructor(constructor.Signature.Parameters);
+            }
+        }
+
+        private bool HasCallableFrameworkConstructor(IReadOnlyList<ParameterProvider> generatedParameters)
         {
             if (!SystemType.IsFrameworkType)
             {
                 return false;
             }
 
-            var generatedParameters = FullConstructor.Signature.Parameters;
             const BindingFlags flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
             return SystemType.FrameworkType.GetConstructors(flags).Any(constructor =>
                 IsPublicOrProtected(constructor) &&

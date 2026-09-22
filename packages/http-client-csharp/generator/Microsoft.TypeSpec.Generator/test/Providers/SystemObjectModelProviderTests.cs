@@ -607,6 +607,49 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
 
         [Test]
+        public void ImplicitLastContractConstructorMustBeCallableOnMappedTarget()
+        {
+            var inputModel = InputFactory.Model("MappedBase", properties: []);
+            var mappedBase = new SystemObjectModelProvider(
+                new CSharpType(typeof(System.Globalization.CultureInfo)),
+                inputModel,
+                new TestTypeProvider());
+
+            Assert.That(mappedBase.HasReconstructibleLastContractConstructor, Is.False,
+                "An implicit parameterless last-contract constructor cannot call a mapped target without a parameterless constructor");
+        }
+
+        [Test]
+        public void ExplicitLastContractConstructorMustBeCallableOnMappedTarget()
+        {
+            var inputModel = InputFactory.Model(
+                "MappedBase",
+                properties: [InputFactory.Property("code", InputPrimitiveType.Int32, isRequired: true)]);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [inputModel]);
+
+            var property = new ModelProvider(inputModel).Properties.Single();
+            var constructorOwner = new TestTypeProvider();
+            var lastContractConstructor = new ConstructorProvider(
+                new ConstructorSignature(
+                    new CSharpType(typeof(Exception)),
+                    $"",
+                    MethodSignatureModifiers.Public,
+                    [property.AsParameter]),
+                Array.Empty<MethodBodyStatement>(),
+                constructorOwner);
+            var lastContractType = new TestTypeProvider(
+                properties: [property],
+                constructors: [lastContractConstructor]);
+            var mappedBase = new SystemObjectModelProvider(
+                new CSharpType(typeof(Exception)),
+                inputModel,
+                lastContractType);
+
+            Assert.That(mappedBase.HasReconstructibleLastContractConstructor, Is.False,
+                "A reconstructed last-contract constructor must match an accessible constructor on the mapped target");
+        }
+
+        [Test]
         public void LastContractOptionalParameterIsRequiredOnSyntheticFullConstructor()
         {
             var inputModel = InputFactory.Model(
