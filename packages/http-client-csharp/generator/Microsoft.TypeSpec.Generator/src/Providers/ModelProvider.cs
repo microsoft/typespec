@@ -76,15 +76,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
         internal PropertyProvider? DiscriminatorProperty { get; private set; }
 
         private readonly bool _isDiscriminatedBaseType;
-        // The input library is fixed before providers are named. Cache the emitted collision inventory,
-        // including each type's C# name and namespace, once per library instead of recomputing it for
-        // every ModelProvider that checks a Response->Result name.
+        // InputLibrary decides which types are emitted; this cache only adds the C# name and namespace
+        // projection, which depends on the generator's TypeFactory. Both are fixed before providers are
+        // named, so compute it once per generator instead of for every Response->Result name check.
         private static readonly ConditionalWeakTable<CodeModelGenerator, IReadOnlyList<(InputType Type, string Namespace, string Name)>> _emittedTypesCache = new();
 
         private static IReadOnlyList<(InputType Type, string Namespace, string Name)> EmittedTypes
             => _emittedTypesCache.GetValue(
                 CodeModelGenerator.Instance,
-                static generator => GetEmittedTypes(generator.InputLibrary.InputNamespace).ToList());
+                static generator => GetEmittedTypes(generator.InputLibrary).ToList());
 
         private ValueExpression DiscriminatorLiteral => Literal(_inputModel.DiscriminatorValue ?? "");
 
@@ -377,41 +377,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return inputLibrary.InputNamespace.Clients.Any(client => HasConflictingName(client, typeNamespace, resultName, excludedCustomization));
         }
 
-        private static IEnumerable<(InputType Type, string Namespace, string Name)> GetEmittedTypes(InputNamespace inputNamespace)
-        {
-            foreach (var model in inputNamespace.Models)
-            {
-                // Mirrors OutputLibrary.BuildModels: external models always map to existing types
-                // instead of generated files.
-                if (model.External is not null)
-                {
-                    continue;
-                }
+        private static IEnumerable<(InputType Type, string Namespace, string Name)> GetEmittedTypes(InputLibrary inputLibrary)
+            => inputLibrary.EmittedModels
+                .Select(model => GetEmittedType(model, model.Namespace))
+                .Concat(inputLibrary.EmittedEnums.Select(@enum => GetEmittedType(@enum, @enum.Namespace)));
 
-                yield return GetEmittedType(model, model.Namespace);
-
-                var unknownVariant = model.DiscriminatedSubtypes.Values.FirstOrDefault(subtype => subtype.IsUnknownDiscriminatorModel);
-                if (unknownVariant is { External: null })
-                {
-                    yield return GetEmittedType(unknownVariant, unknownVariant.Namespace);
-                }
-            }
-
-            foreach (var @enum in inputNamespace.Enums)
-            {
-                // Mirrors OutputLibrary.BuildEnums: API-version enums are never emitted, and external
-                // enums always map to existing types instead of generated files.
-                if (@enum.External is null && !@enum.Usage.HasFlag(InputModelTypeUsage.ApiVersionEnum))
-                {
-                    yield return GetEmittedType(@enum, @enum.Namespace);
-                }
-            }
-
-            static (InputType Type, string Namespace, string Name) GetEmittedType(InputType inputType, string inputTypeNamespace)
-                => (inputType,
-                    GetTypeNamespace(inputTypeNamespace),
-                    inputType.IsExactName ? inputType.Name : inputType.Name.ToIdentifierName());
-        }
+        private static (InputType Type, string Namespace, string Name) GetEmittedType(InputType inputType, string inputTypeNamespace)
+            => (inputType,
+                GetTypeNamespace(inputTypeNamespace),
+                inputType.IsExactName ? inputType.Name : inputType.Name.ToIdentifierName());
 
         private bool HasConflictingName(
             InputType inputType,
