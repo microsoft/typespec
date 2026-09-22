@@ -31,15 +31,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Utilities
                 throw new ArgumentException("Experimental dependency diagnostic identifiers cannot be empty or whitespace.", nameof(operation));
             }
 
-            var suppressions = dependencies.Distinct(StringComparer.Ordinal)
-                .Select(id => new SuppressionStatement(null, Literal(id), "This method depends on experimental functionality."))
-                .ToArray();
-            method.Update(bodyStatements: new MethodBodyStatements(
+            method.Update(suppressions:
             [
-                .. suppressions.Select(s => s.DisableStatement),
-                method.BodyStatements!,
-                .. suppressions.Select(s => s.RestoreStatement)
-            ]));
+                .. method.Suppressions,
+                .. dependencies.Distinct(StringComparer.Ordinal)
+                    .Select(id => new SuppressionStatement(null, Literal(id), "This method depends on experimental functionality."))
+            ]);
         }
     }
 }

@@ -24,9 +24,14 @@ op bar(): void;
 ```
 
 The C# emitter adds `[Experimental("C")]` to the generated synchronous and asynchronous
-protocol and convenience methods. It disables dependency diagnostics `A` and `B` inside
-the generated method and request-helper bodies and restores them at the end of each body.
-These suppressions do not affect callers.
+protocol and convenience methods. It disables dependency diagnostics `A` and `B` before
+each generated method or request-helper declaration and restores them after that method.
+This covers experimental types in parameter and return types, including generic arguments,
+as well as references in the implementation. These suppressions do not affect neighboring
+members or callers.
+
+Dependencies identify diagnostics rather than individual types: one diagnostic can apply
+to multiple types or members, including those defined in external libraries.
 
 Both metadata fields are optional. Without `diagnosticId`, no public experimental attribute
 is added; without `dependsOn`, no dependency suppressions are added. Emitter scopes apply to

@@ -1697,16 +1697,16 @@ namespace SampleTypeSpec
         /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
+#pragma warning disable SCME0001 // This method depends on experimental functionality.
         [Experimental("SAMPLE0002")]
         public virtual ClientResult DynamicModelOperation(BinaryContent content, RequestOptions options = null)
         {
-#pragma warning disable SCME0001 // This method depends on experimental functionality.
             Argument.AssertNotNull(content, nameof(content));
 
             using PipelineMessage message = CreateDynamicModelOperationRequest(content, options);
             return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
-#pragma warning restore SCME0001 // This method depends on experimental functionality.
         }
+#pragma warning restore SCME0001 // This method depends on experimental functionality.
 
         /// <summary>
         /// [Protocol Method] An operation with a dynamic model
@@ -1721,46 +1721,46 @@ namespace SampleTypeSpec
         /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
+#pragma warning disable SCME0001 // This method depends on experimental functionality.
         [Experimental("SAMPLE0002")]
         public virtual async Task<ClientResult> DynamicModelOperationAsync(BinaryContent content, RequestOptions options = null)
         {
-#pragma warning disable SCME0001 // This method depends on experimental functionality.
             Argument.AssertNotNull(content, nameof(content));
 
             using PipelineMessage message = CreateDynamicModelOperationRequest(content, options);
             return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
-#pragma warning restore SCME0001 // This method depends on experimental functionality.
         }
+#pragma warning restore SCME0001 // This method depends on experimental functionality.
 
         /// <summary> An operation with a dynamic model. </summary>
         /// <param name="body"></param>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+#pragma warning disable SCME0001 // This method depends on experimental functionality.
         [Experimental("SAMPLE0002")]
         public virtual ClientResult DynamicModelOperation(DynamicModel body, CancellationToken cancellationToken = default)
         {
-#pragma warning disable SCME0001 // This method depends on experimental functionality.
             Argument.AssertNotNull(body, nameof(body));
 
             return DynamicModelOperation(body, cancellationToken.ToRequestOptions());
-#pragma warning restore SCME0001 // This method depends on experimental functionality.
         }
+#pragma warning restore SCME0001 // This method depends on experimental functionality.
 
         /// <summary> An operation with a dynamic model. </summary>
         /// <param name="body"></param>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+#pragma warning disable SCME0001 // This method depends on experimental functionality.
         [Experimental("SAMPLE0002")]
         public virtual async Task<ClientResult> DynamicModelOperationAsync(DynamicModel body, CancellationToken cancellationToken = default)
         {
-#pragma warning disable SCME0001 // This method depends on experimental functionality.
             Argument.AssertNotNull(body, nameof(body));
 
             return await DynamicModelOperationAsync(body, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-#pragma warning restore SCME0001 // This method depends on experimental functionality.
         }
+#pragma warning restore SCME0001 // This method depends on experimental functionality.
 
         /// <summary>
         /// [Protocol Method] Get an advanced XML model with various property types
