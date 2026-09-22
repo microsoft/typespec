@@ -100,6 +100,41 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.That(Map(typeof(NullablePropertyTarget), Parse(previous)).HasCompatibleLastContractProperties(), Is.False);
         }
 
+        [TestCase(typeof(AdditionalPropertyTarget), "single", "AdditionalProperties")]
+        [TestCase(typeof(AdditionalUnionPropertyTarget), "union", "AdditionalInt32Properties")]
+        [TestCase(typeof(AdditionalRawPropertyTarget), "raw", "AdditionalBinaryDataProperties")]
+        public void MappedBaseRejectsSynthesizedAdditionalPropertyCollision(Type target, string shape, string propertyName)
+        {
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var additionalType = shape switch
+            {
+                "union" => InputFactory.Union([InputPrimitiveType.String, InputPrimitiveType.Int32]),
+                "raw" => InputFactory.Union([InputPrimitiveType.String, InputFactory.Model("ValueModel", properties: [])]),
+                _ => InputPrimitiveType.String
+            };
+            var mapped = new SystemObjectModelProvider(new CSharpType(target), currentBase);
+            var input = InputFactory.Model("Derived", properties: [], baseModel: currentBase, additionalProperties: additionalType);
+            var derived = new AdditionalPropertyModel(input, mapped);
+
+            var canRestore = new ModelBaseTypeCompatibility(derived).CanUseMappedBase(mapped);
+            Assert.That(derived.PropertyBuildCount, Is.Zero, "Candidate validation must not populate the derived property cache");
+            Assert.That(derived.Properties.Where(property => property.IsAdditionalProperties).Select(property => property.Name),
+                Does.Contain(propertyName), "The colliding member must actually be synthesized by model emission");
+            Assert.That(canRestore, Is.False);
+        }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        public void MappedBaseAllowsAdditionalPropertiesWithoutNameCollision(bool hasAdditionalProperties)
+        {
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var mapped = new SystemObjectModelProvider(new CSharpType(typeof(EmptyTarget)), currentBase);
+            var input = InputFactory.Model("Derived", properties: [], baseModel: currentBase,
+                additionalProperties: hasAdditionalProperties ? InputPrimitiveType.String : null);
+            var derived = new AdditionalPropertyModel(input, mapped);
+            Assert.That(new ModelBaseTypeCompatibility(derived).CanUseMappedBase(mapped), Is.True);
+        }
+
         [Test]
         public void MappedBaseRejectsNewRequiredProperty()
         {
@@ -233,6 +268,21 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             protected override TypeProvider[] BuildSerializationProviders() => [];
         }
 
+        private sealed class AdditionalPropertyModel(InputModelType input, ModelProvider mappedBase) : ModelProvider(input)
+        {
+            public int PropertyBuildCount { get; private set; }
+            protected override CSharpType? BuildBaseType() => mappedBase.Type;
+            protected override ModelProvider? BuildBaseModelProvider() => mappedBase;
+            protected internal override PropertyProvider[] BuildProperties()
+            {
+                PropertyBuildCount++;
+                return base.BuildProperties();
+            }
+        }
+
+        public class AdditionalPropertyTarget { public string AdditionalProperties => string.Empty; }
+        public class AdditionalUnionPropertyTarget { public void AdditionalInt32Properties() { } }
+        public class AdditionalRawPropertyTarget { public string AdditionalBinaryDataProperties = string.Empty; }
         public class EmptyTarget { }
         public class ConstantTarget { public const int Value = 2; }
         public class MethodTarget

@@ -603,6 +603,37 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 this));
         }
 
+        internal IEnumerable<string> GetAdditionalPropertyNamesForBackCompatibility()
+        {
+            if (_inputModel.AdditionalProperties is null)
+            {
+                yield break;
+            }
+
+            // Use the same field/type naming as emission, without populating Properties or RawDataField:
+            // those caches walk the base hierarchy while restoration is still choosing that hierarchy.
+            var fields = BuildAdditionalPropertyFields();
+            for (var i = 0; i < fields.Count; i++)
+            {
+                yield return i == 0 ? AdditionalPropertiesHelper.DefaultAdditionalPropertiesPropertyName : fields[i].Name.ToIdentifierName();
+            }
+
+            if (CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(_inputModel.AdditionalProperties) is not { } valueType)
+            {
+                yield break;
+            }
+            var dictionaryType = ReplaceUnverifiableType(new CSharpType(typeof(IDictionary<,>), typeof(string), valueType));
+            if (dictionaryType.ElementType.IsUnion && dictionaryType.ElementType.UnionItemTypes.Any(type => !type.IsFrameworkType) ||
+                !valueType.IsUnion && dictionaryType.Equals(_additionalBinaryDataPropsFieldType))
+            {
+                // Conservatively reserve the raw-data property if its type can be exposed. Whether the
+                // final hierarchy supplies a raw-data field is deliberately not evaluated here.
+                yield return fields.Count == 0
+                    ? AdditionalPropertiesHelper.DefaultAdditionalPropertiesPropertyName
+                    : AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName.ToIdentifierName();
+            }
+        }
+
         private List<PropertyProvider> BuildAdditionalPropertyProperties()
         {
             var additionalPropertiesFieldCount = AdditionalPropertyFields.Count;

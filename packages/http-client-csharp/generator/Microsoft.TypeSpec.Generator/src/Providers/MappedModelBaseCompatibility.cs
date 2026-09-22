@@ -155,6 +155,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var generatedPropertyNames = InputModel.Properties
                 .Where(property => !displacedPropertyNames.Contains(property.Name))
                 .Select(GetInputPropertyClrName)
+                .Concat(_model.GetAdditionalPropertyNamesForBackCompatibility())
                 .ToHashSet(StringComparer.Ordinal);
             return !generatedPropertyNames.Overlaps(mappedBase.GetFrameworkPublicApiMemberNames());
         }
