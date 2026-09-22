@@ -33,6 +33,7 @@ from typing import (
 
 from typing_extensions import Self
 
+from {{ code_model.core_library }}.exceptions import StreamClosedError, StreamConsumedError
 from {{ code_model.core_library }}.rest import AsyncHttpResponse, HttpRequest, HttpResponse
 
 DecodedType = TypeVar("DecodedType")
@@ -433,6 +434,30 @@ async def _aiter_sse_lines(iter_bytes: AsyncIterator[bytes]) -> AsyncGenerator[s
 
     for line in framer.flush(decoder.decode(b"", final=True)):
         yield line
+
+
+def _read_sse_response(response: HttpResponse) -> None:
+    """Read an SSE response body, ignoring responses that are already consumed or closed.
+
+    :param response: The response to read.
+    :type response: HttpResponse
+    """
+    try:
+        response.read()
+    except (StreamConsumedError, StreamClosedError):
+        pass
+
+
+async def _read_sse_response_async(response: AsyncHttpResponse) -> None:
+    """Read an SSE response body, ignoring responses that are already consumed or closed.
+
+    :param response: The response to read.
+    :type response: AsyncHttpResponse
+    """
+    try:
+        await response.read()
+    except (StreamConsumedError, StreamClosedError):
+        pass
 
 
 def _update_sse_request_headers(request: HttpRequest, last_event_id: Optional[str]) -> None:

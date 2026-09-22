@@ -1157,17 +1157,21 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
         pipeline_response_name: str = "pipeline_response",
         success_status_codes: Optional[list[int]] = None,
         stream_value: Optional[Union[str, bool]] = None,
+        response_read_name: Optional[str] = None,
     ) -> list[str]:
         async_await = "await " if self.async_mode else ""
         success_status_codes = builder.success_status_codes if success_status_codes is None else success_status_codes
         stream_value = builder.stream_value if stream_value is None else stream_value
         retval = [f"if {response_name}.status_code not in {str(success_status_codes)}:"]
-        response_read = [
-            "    try:",
-            f"        {async_await}{response_name}.read()  # Load the body in memory and close the socket",
-            "    except (StreamConsumedError, StreamClosedError):",
-            "        pass",
-        ]
+        if response_read_name:
+            response_read = [f"    {async_await}{response_read_name}({response_name})"]
+        else:
+            response_read = [
+                "    try:",
+                f"        {async_await}{response_name}.read()  # Load the body in memory and close the socket",
+                "    except (StreamConsumedError, StreamClosedError):",
+                "        pass",
+            ]
         if stream_value is True:  # _stream is True so no need to judge it
             retval.extend(response_read)
         elif isinstance(stream_value, str):  # _stream is not sure, so we need to judge it
@@ -1420,6 +1424,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                         ),
                         success_status_codes=reconnect_status_codes,
                         stream_value=True,
+                        response_read_name=("_read_sse_response_async" if self.async_mode else "_read_sse_response"),
                     )
                 ]
             )

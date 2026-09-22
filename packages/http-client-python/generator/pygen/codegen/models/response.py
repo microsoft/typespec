@@ -267,6 +267,10 @@ class Response(BaseModel):
             file_import.add_submodule_import(relative_path, stream_class, ImportType.LOCAL)
             if self.streaming_kind == "sse":
                 file_import.add_import("json", ImportType.STDLIB)
+                read_response_helper = (
+                    "_read_sse_response_async" if kwargs.get("async_mode", False) else "_read_sse_response"
+                )
+                file_import.add_submodule_import(relative_path, read_response_helper, ImportType.LOCAL)
                 file_import.add_submodule_import(relative_path, "_update_sse_request_headers", ImportType.LOCAL)
                 for event in self.streaming_events:
                     file_import.merge(event.payload_type.imports(**kwargs))
