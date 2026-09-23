@@ -52,6 +52,35 @@ describe("Next link operations", () => {
     strictEqual(paging.nextLink?.responseSegments[0], "next");
   });
 
+  it("preserves an explicit POST next-link verb", async () => {
+    const program = await typeSpecCompile(
+      `
+        @global.Azure.ClientGenerator.Core.Legacy.nextLinkVerb("POST")
+        @list
+        @post
+        op link(): {
+          @pageItems
+          items: Foo[];
+          @nextLink
+          next?: url;
+        };
+        model Foo {
+          id: string;
+        }
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    const context = createEmitterContext(program);
+    const sdkContext = await createCSharpSdkContext(context);
+    const [root] = createModel(sdkContext);
+    const method = root.clients[0].methods[0];
+    strictEqual(method.kind, "paging");
+    strictEqual(method.operation.httpMethod, "POST");
+    ok(method.pagingMetadata.nextLink);
+    strictEqual(Reflect.get(method.pagingMetadata.nextLink, "verb"), "POST");
+  });
+
   it("parameterized next link", async () => {
     const program = await typeSpecCompile(
       `

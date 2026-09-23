@@ -168,8 +168,10 @@ namespace Microsoft.TypeSpec.Generator.Input
             var result = new Dictionary<string, T>();
             while (reader.TokenType != JsonTokenType.EndObject)
             {
-                // Skip $id metadata (reference tracking), just like TryReadReferenceId does
-                if (reader.TryReadReferenceId(ref id))
+                // A string $id is metadata; an object-valued $id can be an example's wire property.
+                var valueReader = reader;
+                valueReader.Read();
+                if (valueReader.TokenType == JsonTokenType.String && reader.TryReadReferenceId(ref id))
                 {
                     continue;
                 }
@@ -258,7 +260,12 @@ namespace Microsoft.TypeSpec.Generator.Input
                 {
                     var idReader = reader;
                     idReader.Read();
-                    var existing = indexedResolver.GetPreviouslyResolvedReference(idReader.GetString() ?? throw new JsonException());
+                    if (idReader.TokenType != JsonTokenType.String)
+                    {
+                        throw new JsonException($"$id must be a string but was {idReader.TokenType}");
+                    }
+
+                    var existing = indexedResolver.GetPreviouslyResolvedReference(idReader.GetString()!);
                     if (existing != null)
                     {
                         // A forward reference may have already materialized this definition.
@@ -271,7 +278,11 @@ namespace Microsoft.TypeSpec.Generator.Input
             }
 
             reader.Read();
-            var idRef = reader.GetString() ?? throw new JsonException("$ref can't be null");
+            if (reader.TokenType != JsonTokenType.String)
+            {
+                throw new JsonException($"$ref must be a string but was {reader.TokenType}");
+            }
+            var idRef = reader.GetString()!;
             var result = resolver is TypeSpecReferenceHandler.TypeSpecReferenceResolver typeSpecResolver
                 ? typeSpecResolver.ResolveReference<T>(idRef)
                 : (T)resolver.ResolveReference(idRef);

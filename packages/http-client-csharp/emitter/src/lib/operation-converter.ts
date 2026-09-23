@@ -934,6 +934,7 @@ function loadPagingServiceMetadata(
   let nextLink: InputNextLink | undefined;
   if (method.pagingMetadata.nextLinkSegments) {
     nextLink = {
+      verb: method.pagingMetadata.nextLinkVerb,
       responseSegments: method.pagingMetadata.nextLinkSegments.map((segment) =>
         getResponseSegmentName(segment),
       ),

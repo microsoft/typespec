@@ -1458,6 +1458,86 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
+        [Test]
+        public void UrlNextLinkRequestDefaultsToGetForPostPagingOperation()
+        {
+            var operation = InputFactory.Operation("PostActionPaging", httpMethod: "POST");
+            var pagingMetadata = InputFactory.NextLinkPagingMetadata(
+                ["items"],
+                ["nextLink"],
+                InputResponseLocation.Body);
+            var serviceMethod = InputFactory.PagingServiceMethod(
+                "PostActionPaging",
+                operation,
+                pagingMetadata: pagingMetadata);
+            var client = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            var restClient = new ClientProvider(client).RestClient;
+
+            var createRequest = restClient.Methods.Single(m =>
+                m.Signature.Name == "CreatePostActionPagingRequest");
+            var createNextRequest = restClient.Methods.Single(m =>
+                m.Signature.Name == "CreateNextPostActionPagingRequest");
+
+            StringAssert.Contains(
+                "Pipeline.CreateMessage(uri.ToUri(), \"POST\"",
+                createRequest.BodyStatements!.ToDisplayString());
+            StringAssert.Contains(
+                "Pipeline.CreateMessage(uri.ToUri(), \"GET\"",
+                createNextRequest.BodyStatements!.ToDisplayString());
+        }
+
+        [Test]
+        public void UrlNextLinkRequestUsesDecoratedPostVerb()
+        {
+            var operation = InputFactory.Operation("PostActionPaging", httpMethod: "POST");
+            var pagingMetadata = InputFactory.PagingMetadata(
+                ["items"],
+                new InputNextLink(null, ["nextLink"], InputResponseLocation.Body, null, verb: "POST"),
+                null);
+            var serviceMethod = InputFactory.PagingServiceMethod(
+                "PostActionPaging",
+                operation,
+                pagingMetadata: pagingMetadata);
+            var client = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            var restClient = new ClientProvider(client).RestClient;
+
+            var createNextRequest = restClient.Methods.Single(m =>
+                m.Signature.Name == "CreateNextPostActionPagingRequest");
+
+            StringAssert.Contains(
+                "Pipeline.CreateMessage(uri.ToUri(), \"POST\"",
+                createNextRequest.BodyStatements!.ToDisplayString());
+        }
+
+        [Test]
+        public void NextLinkRequestUsesExplicitOperationMethod()
+        {
+            var operation = InputFactory.Operation("GetItems");
+            var nextLinkOperation = InputFactory.Operation("UpdateNextPage", httpMethod: "PATCH");
+            var pagingMetadata = InputFactory.PagingMetadata(
+                ["items"],
+                new InputNextLink(
+                    nextLinkOperation,
+                    ["nextLink"],
+                    InputResponseLocation.Body,
+                    [],
+                    verb: "POST"),
+                null);
+            var serviceMethod = InputFactory.PagingServiceMethod(
+                "GetItems",
+                operation,
+                pagingMetadata: pagingMetadata);
+            var client = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            var restClient = new ClientProvider(client).RestClient;
+
+            var createNextRequest = restClient.Methods.Single(m =>
+                m.Signature.Name == "CreateNextGetItemsRequest");
+
+            StringAssert.Contains(
+                "Pipeline.CreateMessage(uri.ToUri(), \"PATCH\"",
+                createNextRequest.BodyStatements!.ToDisplayString());
+        }
+
         [TestCase(true)]
         [TestCase(false)]
         public void TestBuildCreateRequestMethodWithPaging(bool acceptIsConstant)
