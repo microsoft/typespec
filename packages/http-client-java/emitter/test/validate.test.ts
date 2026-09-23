@@ -1,11 +1,20 @@
-import { describe, expect, it } from "vitest";
-import { findJavaRuntimeVersion, findJavaVersion, getJavaMajorVersion } from "../src/validate.js";
+import { describe, expect, it, vi } from "vitest";
+import { findJavaRuntimeVersion, getJavaMajorVersion, validateDependencies } from "../src/validate.js";
+import { spawnAsync } from "../src/utils.js";
+
+vi.mock("../src/utils.js", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../src/utils.js")>();
+  return {
+    ...actual,
+    spawnAsync: vi.fn().mockResolvedValue({ stdout: "", stderr: 'openjdk version "17.0.11"' }),
+  };
+});
 
 describe("validate", () => {
-  it("findJavaVersion", () => {
-    expect(findJavaVersion("javac 1.8.0_422")).toBe("1.8.0");
-    expect(findJavaVersion("javac 21.0.3")).toBe("21.0.3");
-    expect(findJavaVersion("javac 24")).toBe("24");
+  it("checks Java without spawning javac", async () => {
+    await validateDependencies(undefined);
+    expect(spawnAsync).toHaveBeenCalledOnce();
+    expect(spawnAsync).toHaveBeenCalledWith("java", ["-version"], { stdio: "pipe" });
   });
 
   it("getJavaMajorVersion", () => {

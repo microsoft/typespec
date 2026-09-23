@@ -46,7 +46,6 @@ export const $lib = createTypeSpecLibrary({
       messages: {
         default:
           "Java Development Kit (JDK) is not found in PATH. Please install JDK 17 or above. Microsoft Build of OpenJDK can be downloaded from https://learn.microsoft.com/java/openjdk/download",
-        jdkVersion: paramMessage`Java Development Kit (JDK) in PATH is version '${"javaVersion"}'. Please install JDK 17 or above. Microsoft Build of OpenJDK can be downloaded from https://learn.microsoft.com/java/openjdk/download`,
         java: "Java Runtime is not found in PATH. Please install JDK 17 or above. Microsoft Build of OpenJDK can be downloaded from https://learn.microsoft.com/java/openjdk/download",
         javaVersion: paramMessage`Java Runtime in PATH is version '${"javaVersion"}'. Please install JDK 17 or above. Microsoft Build of OpenJDK can be downloaded from https://learn.microsoft.com/java/openjdk/download`,
       },
