@@ -161,9 +161,9 @@ namespace Microsoft.TypeSpec.Generator.Input
                         continue;
                     }
                     if (context is ExampleContext.Client or ExampleContext.Method or ExampleContext.Operation
-                        && element.TryGetProperty("$ref", out var reference) && reference.ValueKind == JsonValueKind.String)
+                        && element.TryGetProperty("$ref", out var reference))
                     {
-                        var id = reference.GetString();
+                        var id = reference.ValueKind == JsonValueKind.String ? reference.GetString() : null;
                         if (id is null)
                         {
                             continue;

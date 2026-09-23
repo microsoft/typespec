@@ -260,8 +260,8 @@ namespace Microsoft.TypeSpec.Generator.Input
                 {
                     var idReader = reader;
                     idReader.Read();
-                    if (idReader.TokenType == JsonTokenType.String
-                        && indexedResolver.GetPreviouslyResolvedReference(idReader.GetString() ?? throw new JsonException("$id can't be null")) is { } existing)
+                    var id = idReader.TokenType == JsonTokenType.String ? idReader.GetString() : null;
+                    if (id is not null && indexedResolver.GetPreviouslyResolvedReference(id) is { } existing)
                     {
                         // A forward reference may have already materialized this definition.
                         objectReader.Skip();
