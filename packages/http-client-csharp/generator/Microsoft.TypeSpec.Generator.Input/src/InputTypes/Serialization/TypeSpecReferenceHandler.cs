@@ -35,12 +35,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                 var candidates = new Dictionary<string, List<JsonElement>>();
                 foreach (var definition in EnumerateReferenceDefinitions(root, root, []))
                 {
-                    var id = definition.GetProperty("$id").GetString();
-                    if (id is null)
-                    {
-                        throw new JsonException("Reference property '$id' cannot be null");
-                    }
-
+                    var id = GetRequiredReferenceId(definition);
                     if (!candidates.TryGetValue(id, out var definitions))
                     {
                         candidates.Add(id, definitions = []);
@@ -66,12 +61,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             {
                 foreach (var definition in EnumerateReferenceDefinitions(root, root, opaqueValues))
                 {
-                    var id = definition.GetProperty("$id").GetString();
-                    if (id is null)
-                    {
-                        throw new JsonException("Reference property '$id' cannot be null");
-                    }
-
+                    var id = GetRequiredReferenceId(definition);
                     if (!_referenceDefinitions.TryAdd(id, definition))
                     {
                         throw new JsonException($"Duplicate reference ID '{id}'");
@@ -161,14 +151,8 @@ namespace Microsoft.TypeSpec.Generator.Input
                         continue;
                     }
                     if (context is ExampleContext.Client or ExampleContext.Method or ExampleContext.Operation
-                        && element.TryGetProperty("$ref", out var reference))
+                        && TryGetReferenceId(element, out var id))
                     {
-                        var id = reference.ValueKind == JsonValueKind.String ? reference.GetString() : null;
-                        if (id is null)
-                        {
-                            continue;
-                        }
-
                         if (!visitedReferences.Add((id, context)))
                         {
                             continue;
@@ -212,6 +196,25 @@ namespace Microsoft.TypeSpec.Generator.Input
                     }
                 }
                 return opaqueValues;
+            }
+
+            private static string GetRequiredReferenceId(JsonElement definition)
+                => definition.GetProperty("$id").GetString() ?? throw new JsonException("Reference property '$id' cannot be null");
+
+            private static bool TryGetReferenceId(JsonElement element, out string id)
+            {
+                if (element.TryGetProperty("$ref", out var reference) && reference.ValueKind == JsonValueKind.String)
+                {
+                    var referenceId = reference.GetString();
+                    if (referenceId is not null)
+                    {
+                        id = referenceId;
+                        return true;
+                    }
+                }
+
+                id = string.Empty;
+                return false;
             }
 
             public object? GetPreviouslyResolvedReference(string referenceId)
