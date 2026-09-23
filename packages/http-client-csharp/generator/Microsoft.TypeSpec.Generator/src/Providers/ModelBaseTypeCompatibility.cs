@@ -50,6 +50,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     _model.CustomCodeView is null &&
                     !candidate.IsExternal &&
                     candidate.CustomCodeView is null &&
+                    candidate.LastContractView is not null &&
                     candidate.BaseType is null &&
                     candidate.InputModel.DiscriminatorProperty is null &&
                     candidate.InputModel.DiscriminatorValue is null &&

@@ -160,6 +160,16 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.That(mapped.HasCompatibleLastContractProperties(), Is.False);
         }
 
+        [TestCase(typeof(RequiredPropertyTarget))]
+        [TestCase(typeof(RequiredFieldTarget))]
+        [TestCase(typeof(InheritedRequiredPropertyTarget))]
+        [TestCase(typeof(InheritedRequiredFieldTarget))]
+        public void MappedBaseRejectsRequiredTargetHierarchy(Type target)
+        {
+            var mapped = Map(target, Parse(""));
+            Assert.That(MappedModelBaseCompatibility.IsSupportedModelBase(mapped), Is.False);
+        }
+
         [Test]
         public void MappedBaseRejectsHiddenField()
         {
@@ -210,6 +220,14 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         public void GeneratedBaseRejectsNonPropertyConstructorState()
         {
             Assert.That(CanUseGenerated("public Previous(int state) { }", ""), Is.False);
+        }
+
+        [Test]
+        public void GeneratedBaseRejectsMissingLastContractView()
+        {
+            var candidate = new ContractModel(null, Parse(""));
+            var derived = new ModelProvider(InputFactory.Model("Derived", properties: []));
+            Assert.That(new ModelBaseTypeCompatibility(derived).IsSupportedModelBase(candidate), Is.False);
         }
 
         [Test]
@@ -275,7 +293,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             return new NamedTypeSymbolProvider(compilation.GetTypeByMetadataName("Sample.Previous")!, compilation);
         }
 
-        private sealed class ContractModel(TypeProvider previous, TypeProvider current)
+        private sealed class ContractModel(TypeProvider? previous, TypeProvider current)
             : ModelProvider(InputFactory.Model("Previous", properties: [], @namespace: "Sample"))
         {
             private protected override TypeProvider? BuildLastContractView(string? generatedTypeName = null, string? generatedTypeNamespace = null)
@@ -317,6 +335,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
         public class NullablePropertyTarget { public int? Value { get; set; } }
         public class RequiredPropertyTarget { public required string Value { get; set; } }
+        public class RequiredFieldTarget { public required string Value; }
+        public class RequiredPropertyBase { public required string Value { get; set; } }
+        public class InheritedRequiredPropertyTarget : RequiredPropertyBase { }
+        public class RequiredFieldBase { public required string Value; }
+        public class InheritedRequiredFieldTarget : RequiredFieldBase { }
         public class SetsRequiredMembersTarget
         {
             [System.Diagnostics.CodeAnalysis.SetsRequiredMembers]

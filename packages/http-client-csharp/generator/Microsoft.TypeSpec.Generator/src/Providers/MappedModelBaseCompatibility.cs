@@ -35,6 +35,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 mappedBase.SystemType.IsFrameworkType &&
                 mappedBase.SystemType.FrameworkType.IsClass &&
                 !HasAbstractMembers(mappedBase.SystemType.FrameworkType) &&
+                !HasRequiredMembers(mappedBase.SystemType.FrameworkType) &&
                 !mappedBase.SystemType.FrameworkType.IsSealed &&
                 mappedBase.SystemType.FrameworkType != typeof(Array) &&
                 mappedBase.SystemType.FrameworkType != typeof(Delegate) &&
@@ -289,6 +290,19 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private static bool HasAbstractMembers(Type type)
             => type.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
                 .Any(method => method.IsAbstract);
+
+        private static bool HasRequiredMembers(Type type)
+        {
+            for (var current = type; current is not null; current = current.BaseType)
+            {
+                if (current.GetCustomAttributesData().Any(attribute =>
+                    attribute.AttributeType.FullName == typeof(System.Runtime.CompilerServices.RequiredMemberAttribute).FullName))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
 
         private static bool IsPublicFrameworkType(Type type)
         {
