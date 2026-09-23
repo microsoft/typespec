@@ -27,6 +27,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             private readonly Dictionary<string, JsonElement> _referenceDefinitions = new();
             private readonly Dictionary<string, int> _resolvingReferences = new();
             private readonly Dictionary<string, int> _readingReferenceDefinitions = new();
+            private const int MaxReferenceDepth = 64;
             private int _referenceDepth;
             private JsonSerializerOptions? _options;
 
@@ -247,7 +248,7 @@ namespace Microsoft.TypeSpec.Generator.Input
 
                 // Allow re-entry after a child registers an instance that can close a cycle,
                 // but reject unresolved cycles and bound reference chains independently of the JSON document's depth.
-                if (_referenceDepth >= _options.MaxDepth)
+                if (_referenceDepth >= Math.Min(_options.MaxDepth, MaxReferenceDepth))
                 {
                     throw new JsonException($"Cannot resolve reference {referenceId}: circular reference or maximum reference depth exceeded");
                 }
