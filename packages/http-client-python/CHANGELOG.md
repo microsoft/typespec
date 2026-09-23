@@ -1,5 +1,27 @@
 # Change Log - @typespec/http-client-python
 
+## 0.38.0
+
+### Features
+
+- [#11904](https://github.com/microsoft/typespec/pull/11904) Automatically reconnect SSE streams after an unexpected disconnect, honoring server-provided retry delays and resuming with the latest event ID.
+
+  ```python
+  with client.events.stream() as stream:
+      for event in stream:
+          print(event)
+  ```
+
+### Bug Fixes
+
+- [#12024](https://github.com/microsoft/typespec/pull/12024) Return long-running operation response bodies when generating TypedDict-only models.
+- [#12017](https://github.com/microsoft/typespec/pull/12017) Prevent duplicate named union aliases, and preserve parameter types in generated body overloads when a flattened parameter is filtered out.
+
+### Bump dependencies
+
+- [#12023](https://github.com/microsoft/typespec/pull/12023) Update transitive development dependencies `morgan` to 1.12.1 and `multer` to 2.3.0 to address log forging, denial of service, and file size limit bypass vulnerabilities.
+
+
 ## 0.37.3
 
 ### Bug Fixes
