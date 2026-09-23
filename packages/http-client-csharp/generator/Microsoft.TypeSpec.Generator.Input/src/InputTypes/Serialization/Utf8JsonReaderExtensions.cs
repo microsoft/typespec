@@ -277,7 +277,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             {
                 throw new JsonException($"$ref must be a string but was {reader.TokenType}");
             }
-            var idRef = reader.GetString() ?? throw new JsonException("$ref can't be null");
+            var idRef = reader.GetString()!;
             var result = resolver is TypeSpecReferenceHandler.TypeSpecReferenceResolver typeSpecResolver
                 ? typeSpecResolver.ResolveReference<T>(idRef)
                 : (T)resolver.ResolveReference(idRef);
