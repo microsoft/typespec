@@ -62,9 +62,20 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
             return nameMap;
         }
 
-        public TypeProvider? FindForTypeInCurrentCompilation(string ns, string name, string? declaringTypeName = null, bool includeReferencedAssemblies = false)
+        /// <param name="includeCodeGenTypeAliases">
+        /// Whether a customization that declares <c>CodeGenType</c> with <paramref name="name"/> as its original
+        /// name may be returned. Pass <c>false</c> when <paramref name="name"/> is a name the generator translated
+        /// rather than the original name of the type, since <c>CodeGenType</c> aliases are keyed on original names
+        /// and would otherwise attach another type's customization to the caller.
+        /// </param>
+        public TypeProvider? FindForTypeInCurrentCompilation(
+            string ns,
+            string name,
+            string? declaringTypeName = null,
+            bool includeReferencedAssemblies = false,
+            bool includeCodeGenTypeAliases = true)
         {
-            return FindTypeInCompilation(Customization, ns, name, includeReferencedAssemblies, declaringTypeName);
+            return FindTypeInCompilation(Customization, ns, name, includeReferencedAssemblies, declaringTypeName, includeCodeGenTypeAliases: includeCodeGenTypeAliases);
         }
 
         public TypeProvider? FindForTypeInLastContract(string ns, string name, string? declaringTypeName = null)
@@ -112,7 +123,8 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
             string name,
             bool includeReferencedAssemblies,
             string? declaringTypeName = null,
-            bool includeInternal = true)
+            bool includeInternal = true,
+            bool includeCodeGenTypeAliases = true)
         {
             if (compilation == null)
             {
@@ -123,7 +135,8 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
 
             // Either find by the CodeGenType attribute in customization or by the actual type name.
             INamedTypeSymbol? type = null;
-            if (ReferenceEquals(compilation, Customization) &&
+            if (includeCodeGenTypeAliases &&
+                ReferenceEquals(compilation, Customization) &&
                 _nameMap.Value.TryGetValue(name, out var mappedType) &&
                 IsContainingTypeMatch(mappedType, ns, declaringTypeName))
             {

@@ -340,7 +340,19 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             var typeNamespace = generatedTypeNamespace ?? BuildNamespace();
             var typeName = generatedTypeName ?? BuildName();
-            var customCodeView = base.BuildCustomCodeView(typeName, typeNamespace);
+            if (!IsTranslatedResultName(typeName))
+            {
+                return base.BuildCustomCodeView(typeName, typeNamespace);
+            }
+
+            // A CodeGenType alias names its target by the original name of that type, so the translated name
+            // may only consume an alias that no other input type already owns. Otherwise a customization
+            // written for a client that is genuinely named after the translated name would be attached here.
+            var customCodeView = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(
+                typeNamespace,
+                typeName,
+                DeclaringTypeName,
+                includeCodeGenTypeAliases: !IsNameOfInputClient(typeName));
             return customCodeView ?? BuildResponseSuffixFallbackView(
                 typeName,
                 typeNamespace,
@@ -363,27 +375,50 @@ namespace Microsoft.TypeSpec.Generator.Providers
             string typeNamespace,
             Func<string, string, TypeProvider?> buildView)
         {
-            if (_inputModel.IsExactName)
+            if (!IsTranslatedResultName(typeName))
             {
                 return null;
             }
 
             var originalName = _inputModel.Name.ToIdentifierName();
-            var normalizedOriginalName = originalName.NormalizeCSharpAcronyms();
-            if (!normalizedOriginalName.EndsWith(ResponseSuffix, StringComparison.Ordinal) ||
-                originalName == typeName ||
-                typeName != $"{normalizedOriginalName[..^ResponseSuffix.Length]}Result")
-            {
-                return null;
-            }
-
             var customView = buildView(originalName, typeNamespace);
+            var normalizedOriginalName = originalName.NormalizeCSharpAcronyms();
             if (customView is not null || normalizedOriginalName == originalName)
             {
                 return customView;
             }
 
             return buildView(normalizedOriginalName, typeNamespace);
+        }
+
+        private static bool IsNameOfInputClient(string typeName)
+        {
+            foreach (var client in CodeModelGenerator.Instance.InputLibrary.InputNamespace.Clients)
+            {
+                var clientName = client.IsExactName ? client.Name : client.Name.ToIdentifierName();
+                if (string.Equals(clientName, typeName, StringComparison.Ordinal))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Determines whether <paramref name="typeName"/> is the name this model receives from the
+        /// <c>Response</c> to <c>Result</c> suffix translation rather than its original spec name.
+        /// </summary>
+        private bool IsTranslatedResultName(string typeName)
+        {
+            if (_inputModel.IsExactName)
+            {
+                return false;
+            }
+
+            var normalizedOriginalName = _inputModel.Name.ToIdentifierName().NormalizeCSharpAcronyms();
+            return normalizedOriginalName.EndsWith(ResponseSuffix, StringComparison.Ordinal) &&
+                typeName == $"{normalizedOriginalName[..^ResponseSuffix.Length]}Result";
         }
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers()
