@@ -343,7 +343,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             // Create the message
             var httpMethod = isNextLinkRequest
-                ? nextLink?.Operation?.HttpMethod ?? "GET"
+                ? nextLink?.Operation?.HttpMethod ?? nextLink?.Verb ?? "GET"
                 : operation.HttpMethod;
             statements.AddRange([.. pipelineField.CreateMessage(options.ToApi<HttpRequestOptionsApi>(), uri, Literal(httpMethod), classifier, out HttpMessageApi message, out HttpRequestApi request)]);
 
