@@ -346,14 +346,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return base.BuildCustomCodeView(typeName, typeNamespace);
             }
 
-            // A CodeGenType alias names its target by the original name of that type, so the translated name
-            // may only consume an alias that no other input type already owns. Otherwise a customization
-            // written for a client that is genuinely named after the translated name would be attached here.
-            var customCodeView = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(
-                typeNamespace,
-                typeName,
-                DeclaringTypeName,
-                includeCodeGenTypeAliases: !IsNameOfInputClient(typeName));
+            TypeProvider? customCodeView = null;
+            if (!IsNameOfInputClient(typeNamespace, typeName))
+            {
+                customCodeView = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(
+                    typeNamespace,
+                    typeName,
+                    DeclaringTypeName);
+            }
+
             return customCodeView ?? BuildResponseSuffixFallbackView(
                 typeName,
                 typeNamespace,
@@ -398,12 +399,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// what puts this model in contention for the client's customization. A model or enum of the same
         /// name is instead a duplicate the spec already produces, which the generator does not arbitrate.
         /// </summary>
-        private static bool IsNameOfInputClient(string typeName)
+        private static bool IsNameOfInputClient(string typeNamespace, string typeName)
         {
             foreach (var client in CodeModelGenerator.Instance.InputLibrary.InputNamespace.Clients)
             {
                 var clientName = client.IsExactName ? client.Name : client.Name.ToIdentifierName();
-                if (string.Equals(clientName, typeName, StringComparison.Ordinal))
+                if (string.Equals(client.Namespace, typeNamespace, StringComparison.Ordinal) &&
+                    string.Equals(clientName, typeName, StringComparison.Ordinal))
                 {
                     return true;
                 }
