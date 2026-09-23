@@ -8,6 +8,7 @@ namespace Microsoft.TypeSpec.Generator.Input
     public class InputNextLink
     {
         public InputOperation? Operation { get; }
+        public string? Verb { get; }
         public IReadOnlyList<string> ResponseSegments { get; }
         public InputResponseLocation ResponseLocation { get; }
         public IReadOnlyList<InputParameter>? ReInjectedParameters { get; }
@@ -16,9 +17,11 @@ namespace Microsoft.TypeSpec.Generator.Input
             InputOperation? operation,
             IReadOnlyList<string> responseSegments,
             InputResponseLocation responseLocation,
-            IReadOnlyList<InputParameter>? reInjectedParameters)
+            IReadOnlyList<InputParameter>? reInjectedParameters,
+            string? verb = null)
         {
             Operation = operation;
+            Verb = verb;
             ResponseSegments = responseSegments;
             ResponseLocation = responseLocation;
             ReInjectedParameters = reInjectedParameters;

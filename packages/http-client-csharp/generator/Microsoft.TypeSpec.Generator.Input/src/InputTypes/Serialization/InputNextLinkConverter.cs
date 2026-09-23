@@ -28,6 +28,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             }
 
             InputOperation? operation = null;
+            string? verb = null;
             IReadOnlyList<string>? responseSegments = null;
             InputResponseLocation? responseLocation = null;
             IReadOnlyList<InputParameter>? reInjectedParameters = null;
@@ -36,6 +37,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadComplexType("operation", options, ref operation)
+                    || reader.TryReadComplexType("verb", options, ref verb)
                     || reader.TryReadComplexType("responseSegments", options, ref responseSegments)
                     || reader.TryReadComplexType("responseLocation", options, ref responseLocation)
                     || reader.TryReadComplexType("reInjectedParameters", options, ref reInjectedParameters);
@@ -50,7 +52,8 @@ namespace Microsoft.TypeSpec.Generator.Input
                 operation,
                 responseSegments ?? throw new JsonException("NextLink response segments must be defined."),
                 responseLocation ?? throw new JsonException("NextLink response location must be defined."),
-                reInjectedParameters);
+                reInjectedParameters,
+                verb);
 
             return nextLink;
         }

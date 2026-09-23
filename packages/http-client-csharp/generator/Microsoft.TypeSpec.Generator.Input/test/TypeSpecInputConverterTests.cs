@@ -416,6 +416,34 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
         }
 
         [Test]
+        public void LoadsPagingWithExplicitNextLinkVerb()
+        {
+            const string content = """
+                {
+                  "itemPropertySegments": ["items"],
+                  "nextLink": {
+                    "verb": "POST",
+                    "responseSegments": ["next"],
+                    "responseLocation": "body"
+                  }
+                }
+                """;
+            var options = new JsonSerializerOptions
+            {
+                Converters =
+                {
+                    new JsonStringEnumConverter(JsonNamingPolicy.CamelCase),
+                    new InputPagingServiceMetadataConverter(),
+                    new InputNextLinkConverter(),
+                }
+            };
+
+            var pagingMetadata = JsonSerializer.Deserialize<InputPagingServiceMetadata>(content, options);
+
+            Assert.AreEqual("POST", pagingMetadata?.NextLink?.Verb);
+        }
+
+        [Test]
         public void LoadsPagingWithContinuationToken()
         {
             var directory = Helpers.GetAssetFileOrDirectoryPath(false);

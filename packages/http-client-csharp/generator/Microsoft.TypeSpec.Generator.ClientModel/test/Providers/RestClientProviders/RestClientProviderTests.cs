@@ -1487,6 +1487,29 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
         }
 
         [Test]
+        public void UrlNextLinkRequestUsesDecoratedPostVerb()
+        {
+            var operation = InputFactory.Operation("PostActionPaging", httpMethod: "POST");
+            var pagingMetadata = InputFactory.PagingMetadata(
+                ["items"],
+                new InputNextLink(null, ["nextLink"], InputResponseLocation.Body, null, verb: "POST"),
+                null);
+            var serviceMethod = InputFactory.PagingServiceMethod(
+                "PostActionPaging",
+                operation,
+                pagingMetadata: pagingMetadata);
+            var client = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            var restClient = new ClientProvider(client).RestClient;
+
+            var createNextRequest = restClient.Methods.Single(m =>
+                m.Signature.Name == "CreateNextPostActionPagingRequest");
+
+            StringAssert.Contains(
+                "Pipeline.CreateMessage(uri.ToUri(), \"POST\"",
+                createNextRequest.BodyStatements!.ToDisplayString());
+        }
+
+        [Test]
         public void NextLinkRequestUsesExplicitOperationMethod()
         {
             var operation = InputFactory.Operation("GetItems");
@@ -1497,7 +1520,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                     nextLinkOperation,
                     ["nextLink"],
                     InputResponseLocation.Body,
-                    []),
+                    [],
+                    verb: "POST"),
                 null);
             var serviceMethod = InputFactory.PagingServiceMethod(
                 "GetItems",
