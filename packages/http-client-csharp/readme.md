@@ -75,6 +75,12 @@ Both metadata fields are optional. Without `diagnosticId`, no public experimenta
 is added. Without `dependsOn`, no additional dependency diagnostics are requested; generated
 references to source-annotated experiments are still handled. Emitter scopes apply to both fields.
 
+Diagnostic IDs must be single C# warning identifiers (ASCII letters, digits, and underscores,
+not starting with a digit) or decimal warning numbers. Whitespace, punctuation, comments, and
+line breaks are rejected with `invalid-experimental-diagnostic-id` before generating C#.
+An `ExperimentalAttribute` on a customized partial client or method takes precedence over
+the generated attribute.
+
 Some TypeSpec declarations have no corresponding C# declaration, such as scalars or unions
 mapped to built-in C# types. C# also does not allow `ExperimentalAttribute` on parameters.
 The emitter reports `experimental-target-not-supported` for these annotations instead of

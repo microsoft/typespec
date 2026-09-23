@@ -29,6 +29,55 @@ describe("Test emitting decorator list", () => {
       await runner.addTypeSpecLibrary(HttpClientTestLibrary);
     });
 
+    describe.each(["diagnosticId", "dependsOn"])("validating %s", (field) => {
+      it.each([
+        "",
+        " ",
+        "A B",
+        "A,B",
+        "A-B",
+        "A.B",
+        "1A",
+        "@A",
+        "A\n",
+        "A\r",
+        "A\tB",
+        "A//B",
+        "A/*B*/",
+        "A\n#pragma warning disable",
+      ])("rejects invalid ID %j", async (id) => {
+        const value = field === "dependsOn" ? `#[${JSON.stringify(id)}]` : JSON.stringify(id);
+        const program = await typeSpecCompile(
+          `@TypeSpec.HttpClient.experimental(#{ ${field}: ${value} }) op read(): void;`,
+          runner,
+          { IsHttpClientNeeded: true },
+        );
+        const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+        const [, diagnostics] = createModel(sdkContext);
+        expectDiagnostics(diagnostics, {
+          code: "@typespec/http-client-csharp/invalid-experimental-diagnostic-id",
+        });
+      });
+    });
+
+    it.each(["A", "DEP001", "_DEP001", "CS0618", "0618", "class"])(
+      "accepts pragma identifier %s",
+      async (id) => {
+        const program = await typeSpecCompile(
+          `@TypeSpec.HttpClient.experimental(#{ diagnosticId: "${id}", dependsOn: #["${id}"] }) op read(): void;`,
+          runner,
+          { IsHttpClientNeeded: true },
+        );
+        const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+        const [root, diagnostics] = createModel(sdkContext);
+        expectDiagnosticEmpty(diagnostics);
+        deepStrictEqual(root.clients[0].methods[0].operation.experimental, {
+          diagnosticId: id,
+          dependsOn: [id],
+        });
+      },
+    );
+
     const declarations = [
       {
         name: "model",

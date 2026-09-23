@@ -29,6 +29,27 @@ export function getExperimentalDetails(
     return diagnostics.wrap(undefined);
   }
 
+  if (lifecycle) {
+    const ids = [
+      ...(lifecycle.diagnosticId === undefined ? [] : [lifecycle.diagnosticId]),
+      ...lifecycle.dependsOn,
+    ];
+    for (const id of new Set(ids)) {
+      if (id.match(/^(?:[A-Za-z_][A-Za-z0-9_]*|[0-9]+)/u)?.[0] !== id) {
+        diagnostics.add(
+          createDiagnostic({
+            code: "invalid-experimental-diagnostic-id",
+            target,
+            format: { diagnosticId: JSON.stringify(id) },
+          }),
+        );
+      }
+    }
+    if (diagnostics.diagnostics.length > 0) {
+      return diagnostics.wrap(undefined);
+    }
+  }
+
   return diagnostics.wrap(
     lifecycle
       ? { diagnosticId: lifecycle.diagnosticId, dependsOn: [...lifecycle.dependsOn] }

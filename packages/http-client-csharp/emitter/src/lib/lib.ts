@@ -10,6 +10,12 @@ export type DiagnosticMessagesMap = {
 };
 
 const diags: { [code: string]: DiagnosticDefinition<DiagnosticMessages> } = {
+  "invalid-experimental-diagnostic-id": {
+    severity: "error",
+    messages: {
+      default: paramMessage`Experimental diagnostic ID ${"diagnosticId"} must be a single C# warning identifier (ASCII letters, digits, or underscores, not starting with a digit) or a decimal warning number.`,
+    },
+  },
   "experimental-target-not-supported": {
     severity: "error",
     messages: {

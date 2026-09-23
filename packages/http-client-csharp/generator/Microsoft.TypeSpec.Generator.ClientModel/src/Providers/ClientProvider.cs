@@ -47,7 +47,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private readonly InputClient _inputClient;
         internal InputClient InputClient => _inputClient;
         protected override IReadOnlyList<MethodBodyStatement> BuildAttributes()
-            => ExperimentalApiHelpers.BuildAttributes(_inputClient.Experimental);
+            => CustomCodeView?.Attributes.Any(a => a.Type.Equals(typeof(ExperimentalAttribute))) == true
+                ? []
+                : ExperimentalApiHelpers.BuildAttributes(_inputClient.Experimental);
 
         protected override SuppressionStatement[] BuildDisabledFileWarnings()
             => ExperimentalApiHelpers.GetSuppressions(_inputClient);

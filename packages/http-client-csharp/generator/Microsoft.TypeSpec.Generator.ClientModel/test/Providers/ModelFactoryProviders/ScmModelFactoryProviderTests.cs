@@ -3,12 +3,16 @@
 
 #pragma warning disable SCME0004 // FileBinaryContent is evaluation-only.
 
+using System;
 using System.ClientModel;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
+using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
@@ -17,6 +21,43 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ModelFactoryP
 {
     public class ScmModelFactoryProviderTests
     {
+        [TestCase(true, false)]
+        [TestCase(false, true)]
+        [TestCase(true, true)]
+        public void SourceExperimentalMultipartDeclarationsCompile(bool experimentalModel, bool experimentalProperty)
+        {
+            var property = FilePartProperty("file");
+            if (experimentalProperty)
+            {
+                InputFactory.Experimental(property, "PROPERTY001");
+            }
+            var input = MultipartModel("Payload", [property]);
+            if (experimentalModel)
+            {
+                InputFactory.Experimental(input, "MODEL001");
+            }
+            MockHelpers.LoadMockGenerator(inputModels: () => [input]);
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(input)!;
+            var factory = ScmCodeModelGenerator.Instance.TypeFactory.CreateModelFactory([input]);
+            var references = AppDomain.CurrentDomain.GetAssemblies()
+                .Where(a => !a.IsDynamic && !string.IsNullOrEmpty(a.Location))
+                .Select(a => MetadataReference.CreateFromFile(a.Location));
+            var compilation = CSharpCompilation.Create(
+                "ExperimentalMultipart",
+                [CSharpSyntaxTree.ParseText(new TypeProviderWriter(model).Write().Content),
+                 CSharpSyntaxTree.ParseText(new TypeProviderWriter(factory).Write().Content),
+                 CSharpSyntaxTree.ParseText(new TypeProviderWriter(new ArgumentDefinition()).Write().Content)],
+                references,
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, generalDiagnosticOption: ReportDiagnostic.Error));
+
+            var errors = compilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error).ToArray();
+            Assert.IsEmpty(errors.Select(d => d.ToString()));
+            Assert.AreEqual(Snippet.Literal(experimentalModel ? "MODEL001" : "SCME0004").ToDisplayString(),
+                factory.Methods.Single().Signature.Attributes.Single(a => a.Type.Equals(typeof(ExperimentalAttribute))).Arguments[0].ToDisplayString());
+            Assert.AreEqual(Snippet.Literal(experimentalProperty ? "PROPERTY001" : "SCME0004").ToDisplayString(),
+                model.Properties.Single(p => p.Name == "File").Attributes.Single(a => a.Type.Equals(typeof(ExperimentalAttribute))).Arguments[0].ToDisplayString());
+        }
+
         [Test]
         public void ExperimentalModelFactoryUsesThePublicModelDiagnostic()
         {

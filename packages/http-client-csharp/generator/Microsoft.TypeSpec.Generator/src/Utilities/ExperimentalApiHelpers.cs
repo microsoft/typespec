@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Statements;
@@ -85,6 +86,16 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             return CreateSuppressions(collector.Ids.Order(StringComparer.Ordinal));
         }
 
+        public static SuppressionStatement[] GetParameterSuppressions(IEnumerable<InputProperty> parameters)
+        {
+            var collector = new DiagnosticCollector();
+            foreach (var parameter in parameters)
+            {
+                collector.AddProperty(parameter);
+            }
+            return CreateSuppressions(collector.Ids.Order(StringComparer.Ordinal));
+        }
+
         public static SuppressionStatement[] GetSuppressions(InputOperation operation, InputClient? client = null)
         {
             var collector = new DiagnosticCollector();
@@ -113,10 +124,9 @@ namespace Microsoft.TypeSpec.Generator.Utilities
 
         private static void ValidateDiagnosticId(string diagnosticId)
         {
-            // An empty #pragma warning disable would suppress every diagnostic.
-            if (string.IsNullOrWhiteSpace(diagnosticId))
+            if (!Regex.IsMatch(diagnosticId, @"\A(?:[A-Za-z_][A-Za-z0-9_]*|[0-9]+)\z", RegexOptions.CultureInvariant))
             {
-                throw new ArgumentException("Experimental diagnostic identifiers cannot be empty or whitespace.", nameof(diagnosticId));
+                throw new ArgumentException("Experimental diagnostic IDs must be single C# warning identifiers or decimal warning numbers.", nameof(diagnosticId));
             }
         }
 

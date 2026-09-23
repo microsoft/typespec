@@ -218,11 +218,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     signatureParameters);
             }
 
-            var convenienceAttributes = BuildConvenienceMethodAttributes();
-            if (convenienceAttributes is not null)
-            {
-                methodSignature.Update(attributes: [.. methodSignature.Attributes, .. convenienceAttributes]);
-            }
+            ApplyExperimentalAttributes(methodSignature, customSignature, BuildConvenienceMethodAttributes() ?? []);
 
             // Recompute the response body type so we can branch the body accordingly.
             GetResponseType(ServiceMethod.Operation.Responses, true, isAsync, out var responseBodyType);
@@ -1142,6 +1138,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return null;
         }
 
+        private static void ApplyExperimentalAttributes(
+            MethodSignature signature,
+            MethodSignature? customSignature,
+            IReadOnlyList<AttributeStatement> generatedAttributes)
+        {
+            if (customSignature?.Attributes.Any(a => a.Type.Equals(typeof(ExperimentalAttribute))) == true)
+            {
+                // The defining partial declaration already carries the custom experiment.
+                signature.Update(attributes: [.. signature.Attributes.Where(a => !a.Type.Equals(typeof(ExperimentalAttribute)))]);
+            }
+            else if (generatedAttributes.Count > 0)
+            {
+                signature.Update(attributes: [.. signature.Attributes, .. generatedAttributes]);
+            }
+        }
+
         private IReadOnlyList<ValueExpression> GetProtocolMethodArguments(Dictionary<string, ValueExpression> declarations)
         {
             List<ValueExpression> conversions = new List<ValueExpression>();
@@ -1452,10 +1464,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 bodyParameters = parameters;
             }
 
-            if (ExperimentalApiHelpers.BuildAttribute(ServiceMethod.Operation) is { } experimentalAttribute)
-            {
-                methodSignature.Update(attributes: [.. methodSignature.Attributes, experimentalAttribute]);
-            }
+            ApplyExperimentalAttributes(methodSignature, customSignature, ExperimentalApiHelpers.BuildAttributes(ServiceMethod.Operation.Experimental));
 
             TypeProvider? collection = null;
             MethodBodyStatement[] methodBody;
