@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text.Json;
@@ -210,7 +211,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                 throw new JsonException("Reference property '$id' must be a string");
             }
 
-            private static bool TryGetReferenceId(JsonElement element, out string id)
+            private static bool TryGetReferenceId(JsonElement element, [NotNullWhen(true)] out string? id)
             {
                 if (element.TryGetProperty("$ref", out var reference) && reference.ValueKind == JsonValueKind.String)
                 {
@@ -222,7 +223,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                     }
                 }
 
-                id = string.Empty;
+                id = null;
                 return false;
             }
 
