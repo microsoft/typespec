@@ -201,14 +201,17 @@ namespace Microsoft.TypeSpec.Generator.Input
 
             private static string GetRequiredReferenceId(JsonElement definition)
             {
-                if (definition.TryGetProperty("$id", out var id)
-                    && id.ValueKind == JsonValueKind.String
-                    && id.GetString() is string referenceId)
+                if (!definition.TryGetProperty("$id", out var id))
+                {
+                    throw new JsonException("$id must be a string but was missing");
+                }
+
+                if (id.ValueKind == JsonValueKind.String && id.GetString() is string referenceId)
                 {
                     return referenceId;
                 }
 
-                throw new JsonException("Reference property '$id' must be a string");
+                throw new JsonException($"$id must be a string but was {id.ValueKind}");
             }
 
             private static bool TryGetReferenceId(JsonElement element, [NotNullWhen(true)] out string? id)
