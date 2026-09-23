@@ -48,6 +48,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             InputClient? parent = null;
             IReadOnlyList<InputClient>? children = null;
             IReadOnlyList<string>? apiVersions = null;
+            InputExperimentalDetails? experimental = null;
 
             while (reader.TokenType != JsonTokenType.EndObject)
             {
@@ -61,6 +62,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadComplexType("parameters", options, ref parameters)
                     || reader.TryReadInt32("initializedBy", ref initializedByValue)
                     || reader.TryReadComplexType("decorators", options, ref decorators)
+                    || reader.TryReadComplexType("experimental", options, ref experimental)
                     || reader.TryReadString("crossLanguageDefinitionId", ref crossLanguageDefinitionId)
                     || reader.TryReadComplexType("parent", options, ref parent)
                     || reader.TryReadComplexType("children", options, ref children)
@@ -86,6 +88,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             client.Parent = parent;
             client.Children = children ?? [];
             client.ApiVersions = apiVersions ?? [];
+            client.Experimental = experimental;
 
             return client;
         }

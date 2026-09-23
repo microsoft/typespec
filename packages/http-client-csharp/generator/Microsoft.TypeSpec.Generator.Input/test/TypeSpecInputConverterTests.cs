@@ -10,6 +10,59 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
 {
     public class TypeSpecInputConverterTests
     {
+        [TestCase(true)]
+        [TestCase(false)]
+        public void LoadsExperimentalTypesAndMembers(bool annotated)
+        {
+            string Metadata(string id) => annotated
+                ? $"\"experimental\": {{\"diagnosticId\":\"{id}\",\"dependsOn\":[\"DEP001\"]}},"
+                : "";
+            var content = $$"""
+                {
+                  "name": "Test",
+                  "models": [{
+                    "$id": "model", "name": "Payload", {{Metadata("MODEL001")}}
+                    "properties": [{
+                      "$id": "property", "name": "value", {{Metadata("PROPERTY001")}}
+                      "type": {"kind":"string"}
+                    }]
+                  }],
+                  "enums": [{
+                    "$id": "enum", "name": "Choice", {{Metadata("ENUM001")}}
+                    "valueType": {"kind":"string"},
+                    "values": [{
+                      "$id": "value", "name": "One", "value": "one", {{Metadata("VALUE001")}}
+                      "valueType": {"kind":"string"}, "enumType": {"$ref":"enum"}
+                    }]
+                  }],
+                  "clients": [{
+                    "$id": "client", "name": "TestClient", {{Metadata("CLIENT001")}}
+                    "methods": []
+                  }]
+                }
+                """;
+            var input = TypeSpecSerialization.Deserialize(content)!;
+            var details = new[]
+            {
+                input.Models[0].Experimental,
+                input.Models[0].Properties[0].Experimental,
+                input.Enums[0].Experimental,
+                input.Enums[0].Values[0].Experimental,
+                input.Clients[0].Experimental
+            };
+            if (annotated)
+            {
+                CollectionAssert.AreEqual(
+                    new[] { "MODEL001", "PROPERTY001", "ENUM001", "VALUE001", "CLIENT001" },
+                    details.Select(d => d?.DiagnosticId));
+                Assert.IsTrue(details.All(d => d!.DependsOn.SequenceEqual(["DEP001"])));
+            }
+            else
+            {
+                Assert.IsTrue(details.All(d => d is null));
+            }
+        }
+
         [TestCase("""{"diagnosticId":"C","dependsOn":["A","B"]}""", "C", new[] { "A", "B" })]
         [TestCase("""{"diagnosticId":"C"}""", "C", new string[0])]
         [TestCase("""{"dependsOn":["A"]}""", null, new[] { "A" })]

@@ -24,9 +24,95 @@ describe("Test emitting decorator list", () => {
     runner = await createEmitterTestHost();
   });
 
-  describe("experimental operations", () => {
+  describe("experimental declarations", () => {
     beforeEach(async () => {
       await runner.addTypeSpecLibrary(HttpClientTestLibrary);
+    });
+
+    const declarations = [
+      {
+        name: "model",
+        code: `DECORATOR model Payload { value: string; } op read(): Payload;`,
+        select: (root: ReturnType<typeof createModel>[0]) => root.models[0],
+      },
+      {
+        name: "model property",
+        code: `model Payload { DECORATOR value: string; } op read(): Payload;`,
+        select: (root: ReturnType<typeof createModel>[0]) => root.models[0].properties[0],
+      },
+      {
+        name: "enum",
+        code: `DECORATOR enum Choice { One, Two } op read(): Choice;`,
+        select: (root: ReturnType<typeof createModel>[0]) => root.enums[0],
+      },
+      {
+        name: "enum member",
+        code: `enum Choice { DECORATOR One, Two } op read(): Choice;`,
+        select: (root: ReturnType<typeof createModel>[0]) => root.enums[0].values[0],
+      },
+      {
+        name: "extensible enum",
+        code: `DECORATOR union Choice { string, One: "one", Two: "two" } op read(): Choice;`,
+        select: (root: ReturnType<typeof createModel>[0]) => root.enums[0],
+      },
+      {
+        name: "union variant",
+        code: `union Choice { string, DECORATOR One: "one", Two: "two" } op read(): Choice;`,
+        select: (root: ReturnType<typeof createModel>[0]) => root.enums[0].values[0],
+      },
+      {
+        name: "interface client",
+        code: `DECORATOR interface Group { @route("/read") read(): void; }`,
+        select: (root: ReturnType<typeof createModel>[0]) => root.clients[0].children![0],
+      },
+      {
+        name: "namespace client",
+        code: `DECORATOR namespace Group { @route("/read") op read(): void; }`,
+        select: (root: ReturnType<typeof createModel>[0]) => root.clients[0].children![0],
+      },
+    ];
+
+    describe.each(declarations)("$name", ({ code, select }) => {
+      it.each([
+        { scope: "@typespec/http-client-csharp", applies: true },
+        { scope: "other-emitter", applies: false },
+        { scope: "!other-emitter", applies: true },
+      ])("preserves scoped metadata for $scope", async ({ scope, applies }) => {
+        const decorator = `@TypeSpec.HttpClient.experimental(#{
+          emitterScope: "${scope}", diagnosticId: "TEST001", dependsOn: #["DEP001", "DEP002"]
+        })`;
+        const program = await typeSpecCompile(code.replace("DECORATOR", decorator), runner, {
+          IsHttpClientNeeded: true,
+        });
+        const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+        expectDiagnosticEmpty(sdkContext.diagnostics);
+        const [root, diagnostics] = createModel(sdkContext);
+        expectDiagnosticEmpty(diagnostics);
+        deepStrictEqual(
+          select(root).experimental,
+          applies ? { diagnosticId: "TEST001", dependsOn: ["DEP001", "DEP002"] } : undefined,
+        );
+      });
+    });
+
+    it.each([
+      `@TypeSpec.HttpClient.experimental(#{ diagnosticId: "SCALAR001" })
+       scalar CustomString extends string; op read(): CustomString;`,
+      `op read(@TypeSpec.HttpClient.experimental(#{ diagnosticId: "PARAM001" })
+       @query value: string): void;`,
+      `@TypeSpec.HttpClient.experimental(#{ diagnosticId: "UNION001" })
+       union Choice { text: string, count: int32 } op read(): Choice;`,
+      `union Choice {
+         @TypeSpec.HttpClient.experimental(#{ diagnosticId: "VARIANT001" })
+         text: string, count: int32
+       } op read(): Choice;`,
+    ])("reports annotations with no supported C# declaration", async (code) => {
+      const program = await typeSpecCompile(code, runner, { IsHttpClientNeeded: true });
+      const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+      const [, diagnostics] = createModel(sdkContext);
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/http-client-csharp/experimental-target-not-supported",
+      });
     });
 
     it.each([

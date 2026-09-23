@@ -3,7 +3,7 @@
 
 import type { DecoratorInfo } from "@azure-tools/typespec-client-generator-core";
 import type { InputHttpOperationExample } from "./input-examples.js";
-import type { InputHttpParameter } from "./input-type.js";
+import type { InputExperimentalDetails, InputHttpParameter } from "./input-type.js";
 import type { OperationResponse } from "./operation-response.js";
 import type { RequestMethod } from "./request-method.js";
 
@@ -30,9 +30,4 @@ export interface InputOperation {
   decorators?: DecoratorInfo[];
   namespace?: string;
   experimental?: InputExperimentalDetails;
-}
-
-export interface InputExperimentalDetails {
-  diagnosticId?: string;
-  dependsOn: string[];
 }

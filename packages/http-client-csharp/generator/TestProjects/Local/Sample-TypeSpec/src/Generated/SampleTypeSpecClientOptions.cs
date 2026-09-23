@@ -10,6 +10,7 @@ using System.ClientModel.Primitives;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Configuration;
 
+#pragma warning disable SAMPLE0010 // This generated code depends on experimental functionality.
 namespace SampleTypeSpec
 {
     /// <summary> Client options for <see cref="SampleTypeSpecClient"/>. </summary>
@@ -54,7 +55,9 @@ namespace SampleTypeSpec
             /// <summary> V2024_07_16_Preview. </summary>
             V2024_07_16_Preview = 1,
             /// <summary> V2024_08_16_Preview. </summary>
+            [Experimental("SAMPLE0010")]
             V2024_08_16_Preview = 2
         }
     }
 }
+#pragma warning restore SAMPLE0010 // This generated code depends on experimental functionality.

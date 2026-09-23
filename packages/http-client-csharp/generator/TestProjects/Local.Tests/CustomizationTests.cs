@@ -11,6 +11,33 @@ namespace TestProjects.Local.Tests
 {
     public class CustomizationTests
     {
+        [TestCase("SampleTypeSpec.PreviewDetails", "SAMPLE0003")]
+        [TestCase("SampleTypeSpec.PreviewChoice", "SAMPLE0004")]
+        [TestCase("SampleTypeSpec.PreviewExtensibleChoice", "SAMPLE0005")]
+        [TestCase("SampleTypeSpec.ExperimentalSamples", "SAMPLE0009")]
+        [TestCase("SampleTypeSpec.LifecycleModel", null)]
+        public void ExperimentalTypeDiagnostics(string typeName, string? diagnosticId)
+        {
+            var type = typeof(SampleTypeSpecClient).Assembly.GetType(typeName);
+            Assert.IsNotNull(type);
+            Assert.AreEqual(diagnosticId, type!.GetCustomAttribute<ExperimentalAttribute>()?.DiagnosticId);
+        }
+
+        [TestCase("SampleTypeSpec.PreviewChoice", "Two", "SAMPLE0007")]
+        [TestCase("SampleTypeSpec.PreviewExtensibleChoice", "Two", "SAMPLE0006")]
+        [TestCase("SampleTypeSpec.LifecycleModel", "Preview", "SAMPLE0008")]
+        [TestCase("SampleTypeSpec.SampleTypeSpecModelFactory", "PreviewDetails", "SAMPLE0003")]
+        [TestCase("SampleTypeSpec.PreviewChoice", "One", null)]
+        [TestCase("SampleTypeSpec.PreviewExtensibleChoice", "One", null)]
+        [TestCase("SampleTypeSpec.SampleTypeSpecClientOptions+ServiceVersion", "V2024_08_16_Preview", "SAMPLE0010")]
+        public void ExperimentalMemberDiagnostics(string typeName, string memberName, string? diagnosticId)
+        {
+            var type = typeof(SampleTypeSpecClient).Assembly.GetType(typeName);
+            Assert.IsNotNull(type);
+            var member = type!.GetMember(memberName).Single();
+            Assert.AreEqual(diagnosticId, member.GetCustomAttribute<ExperimentalAttribute>()?.DiagnosticId);
+        }
+
         [TestCase("HelloDemo2", "SAMPLE0001", 2)]
         [TestCase("HelloDemo2Async", "SAMPLE0001", 2)]
         [TestCase("DynamicModelOperation", "SAMPLE0002", 2)]

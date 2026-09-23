@@ -10,6 +10,13 @@ export type DiagnosticMessagesMap = {
 };
 
 const diags: { [code: string]: DiagnosticDefinition<DiagnosticMessages> } = {
+  "experimental-target-not-supported": {
+    severity: "error",
+    messages: {
+      default:
+        "This experimental declaration does not produce a C# type or member that supports ExperimentalAttribute. Apply @experimental to an emitted model, enum, property, enum member, operation, or client instead.",
+    },
+  },
   "no-apiVersion": {
     severity: "error",
     messages: {

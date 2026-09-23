@@ -19,6 +19,90 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
 {
     public class TypeProviderTests
     {
+        [TestCase(false)]
+        [TestCase(true)]
+        public void ExperimentalModelsAndProperties(bool modelAsStruct)
+        {
+            MockHelpers.LoadMockGenerator();
+            var property = InputFactory.Experimental(InputFactory.Property("value", InputPrimitiveType.String), "PROPERTY001", "PROPERTYDEP");
+            var model = InputFactory.Experimental(
+                InputFactory.Model("Payload", modelAsStruct: modelAsStruct, properties: [property]),
+                "MODEL001", "MODELDEP");
+            var provider = CodeModelGenerator.Instance.TypeFactory.CreateModel(model)!;
+
+            Assert.AreEqual(Snippet.Literal("MODEL001").ToDisplayString(),
+                provider.Attributes.Single(a => a.Type.Equals(typeof(ExperimentalAttribute))).Arguments[0].ToDisplayString());
+            Assert.AreEqual(Snippet.Literal("PROPERTY001").ToDisplayString(),
+                provider.Properties.Single(p => p.Name == "Value").Attributes.Single(a => a.Type.Equals(typeof(ExperimentalAttribute))).Arguments[0].ToDisplayString());
+            CollectionAssert.AreEquivalent(
+                new[] { "MODEL001", "MODELDEP", "PROPERTY001", "PROPERTYDEP" }.Select(id => Snippet.Literal(id).ToDisplayString()),
+                provider.DisabledFileWarnings.Select(s => s.Code.ToDisplayString()));
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void ExperimentalEnumsAndMembers(bool isExtensible)
+        {
+            MockHelpers.LoadMockGenerator();
+            var input = InputFactory.Experimental(
+                InputFactory.StringEnum("Choice", [("One", "one"), ("Two", "two")], isExtensible: isExtensible),
+                "ENUM001", "ENUMDEP");
+            InputFactory.Experimental(input.Values[0], "MEMBER001", "MEMBERDEP");
+            var provider = CodeModelGenerator.Instance.TypeFactory.CreateEnum(input)!;
+            var attributes = isExtensible
+                ? provider.Properties.Single(p => p.Name == "One").Attributes
+                : provider.EnumValues.Single(v => v.Name == "One").Field.Attributes;
+
+            Assert.AreEqual(Snippet.Literal("ENUM001").ToDisplayString(),
+                provider.Attributes.Single(a => a.Type.Equals(typeof(ExperimentalAttribute))).Arguments[0].ToDisplayString());
+            Assert.AreEqual(Snippet.Literal("MEMBER001").ToDisplayString(),
+                attributes.Single(a => a.Type.Equals(typeof(ExperimentalAttribute))).Arguments[0].ToDisplayString());
+            CollectionAssert.AreEquivalent(
+                new[] { "ENUM001", "ENUMDEP", "MEMBER001", "MEMBERDEP" }.Select(id => Snippet.Literal(id).ToDisplayString()),
+                provider.DisabledFileWarnings.Select(s => s.Code.ToDisplayString()));
+            var controlAttributes = isExtensible
+                ? provider.Properties.Single(p => p.Name == "Two").Attributes
+                : provider.EnumValues.Single(v => v.Name == "Two").Field.Attributes;
+            Assert.IsFalse(controlAttributes.Any(a => a.Type.Equals(typeof(ExperimentalAttribute))));
+        }
+
+        [Test]
+        public void ExperimentalReferencesAreSuppressedWithoutGraduatingOrPromotingTypes()
+        {
+            MockHelpers.LoadMockGenerator();
+            var dependency = InputFactory.Experimental(InputFactory.Model("Dependency"), "DEP001");
+            var model = InputFactory.Model("Payload", properties: [InputFactory.Property("dependency", InputFactory.Array(dependency))]);
+            var provider = CodeModelGenerator.Instance.TypeFactory.CreateModel(model)!;
+
+            Assert.IsFalse(provider.Attributes.Any(a => a.Type.Equals(typeof(ExperimentalAttribute))));
+            Assert.AreEqual(Snippet.Literal("DEP001").ToDisplayString(), provider.DisabledFileWarnings.Single().Code.ToDisplayString());
+            Assert.IsTrue(CodeModelGenerator.Instance.TypeFactory.CreateModel(dependency)!.Attributes.Any(a => a.Type.Equals(typeof(ExperimentalAttribute))));
+        }
+
+        [Test]
+        public void ExperimentalApiVersionMembers()
+        {
+            MockHelpers.LoadMockGenerator();
+            var input = InputFactory.StringEnum("Versions", [("2024-01-01", "2024-01-01")], usage: InputModelTypeUsage.ApiVersionEnum);
+            InputFactory.Experimental(input.Values[0], "VERSION001");
+            var provider = CodeModelGenerator.Instance.TypeFactory.CreateEnum(input)!;
+
+            Assert.AreEqual(Snippet.Literal("VERSION001").ToDisplayString(),
+                provider.EnumValues.Single().Field.Attributes.Single(a => a.Type.Equals(typeof(ExperimentalAttribute))).Arguments[0].ToDisplayString());
+        }
+
+        [TestCase("MODEL001")]
+        [TestCase(null)]
+        public void ExperimentalModelDependenciesDoNotControlPublicStatus(string? diagnosticId)
+        {
+            MockHelpers.LoadMockGenerator();
+            var input = InputFactory.Experimental(InputFactory.Model("Payload"), diagnosticId, "DEP001", "DEP001");
+            var provider = CodeModelGenerator.Instance.TypeFactory.CreateModel(input)!;
+
+            Assert.AreEqual(diagnosticId is null ? 0 : 1, provider.Attributes.Count(a => a.Type.Equals(typeof(ExperimentalAttribute))));
+            Assert.AreEqual(1, provider.DisabledFileWarnings.Count(s => s.Code.ToDisplayString() == Snippet.Literal("DEP001").ToDisplayString()));
+        }
+
         [SetUp]
         public void Setup()
         {

@@ -112,9 +112,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     name,
                     this,
                     DocHelpers.GetFormattableDescription(inputValue.Summary, inputValue.Doc) ?? $"{name}",
-                    initializationValue);
+                    initializationValue,
+                    attributes: ExperimentalApiHelpers.BuildAttributes(inputValue.Experimental));
 
-                values[i] = new EnumTypeMember(name, field, inputValue.Value);
+                values[i] = new EnumTypeMember(name, field, inputValue.Value) { Experimental = inputValue.Experimental };
             }
             return values;
         }
@@ -155,8 +156,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         existingMember.Name,
                         existingMember.Field.EnclosingType,
                         existingMember.Field.Description,
-                        initializationValue);
-                    allMembers.Add(new EnumTypeMember(existingMember.Name, updatedField, memberValue));
+                        initializationValue,
+                        attributes: existingMember.Field.Attributes);
+                    allMembers.Add(new EnumTypeMember(existingMember.Name, updatedField, memberValue) { Experimental = existingMember.Experimental });
                 }
                 else if (customMemberLastContractNames.Contains(field.Name))
                 {

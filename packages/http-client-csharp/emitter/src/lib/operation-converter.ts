@@ -39,10 +39,8 @@ import {
   isErrorModel,
   NoTarget,
 } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/typekit";
 import { unsafe_getEventDefinitions } from "@typespec/events/experimental";
 import type { HttpStatusCodeRange } from "@typespec/http";
-import "@typespec/http-client/typekit";
 import { getResourceOperation } from "@typespec/rest";
 import { isTerminalEvent } from "@typespec/sse";
 import type { CSharpEmitterContext } from "../sdk-context.js";
@@ -80,6 +78,7 @@ import { parseHttpRequestMethod } from "../type/request-method.js";
 import { ResponseLocation } from "../type/response-location.js";
 import { getExternalDocs, getOperationId } from "./decorators.js";
 import { fromSdkHttpExamples } from "./example-converter.js";
+import { getExperimentalDetails } from "./experimental.js";
 import { createDiagnostic } from "./lib.js";
 import { fromSdkType } from "./type-converter.js";
 import { getClientNamespaceString, isReadOnly } from "./utils.js";
@@ -219,13 +218,6 @@ export function fromSdkServiceMethodOperation(
     generateConvenience = false;
   }
 
-  const lifecycle = diagnostics.pipe(
-    $(sdkContext.program).client.getFeatureLifecycleDetails.withDiagnostics(
-      method.operation.__raw.operation,
-      { emitterName: "@typespec/http-client-csharp" },
-    ),
-  );
-
   operation = {
     name: method.name,
     isExactName: method.isExactName,
@@ -261,9 +253,9 @@ export function fromSdkServiceMethodOperation(
     namespace: method.__raw?.namespace
       ? getClientNamespace(sdkContext, method.__raw.namespace)
       : undefined,
-    experimental: lifecycle
-      ? { diagnosticId: lifecycle.diagnosticId, dependsOn: [...lifecycle.dependsOn] }
-      : undefined,
+    experimental: diagnostics.pipe(
+      getExperimentalDetails(sdkContext, method.operation.__raw.operation),
+    ),
   };
 
   sdkContext.__typeCache.updateSdkOperationReferences(method.operation, operation);
@@ -722,6 +714,7 @@ export function fromMethodParameter(
     decorators: p.decorators,
     paramAlias,
     isExactName: p.isExactName,
+    experimental: diagnostics.pipe(getExperimentalDetails(sdkContext, p.__raw, false)),
   };
 
   sdkContext.__typeCache.updateSdkMethodParameterReferences(p, retVar);

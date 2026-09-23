@@ -42,7 +42,76 @@ alias SampleOAuth2 = OAuth2Auth<[
 
 enum Versions {
   `2024-07-16-preview`,
+
+  @TypeSpec.HttpClient.experimental(#{
+    emitterScope: "@typespec/http-client-csharp",
+    diagnosticId: "SAMPLE0010",
+  })
   `2024-08-16-preview`,
+}
+
+@TypeSpec.HttpClient.experimental(#{
+  emitterScope: "@typespec/http-client-csharp",
+  diagnosticId: "SAMPLE0003",
+  dependsOn: #["SAMPLE0004"],
+})
+model PreviewDetails {
+  choice: PreviewChoice;
+}
+
+@TypeSpec.HttpClient.experimental(#{
+  emitterScope: "@typespec/http-client-csharp",
+  diagnosticId: "SAMPLE0004",
+})
+enum PreviewChoice {
+  One: "one",
+
+  @TypeSpec.HttpClient.experimental(#{
+    emitterScope: "@typespec/http-client-csharp",
+    diagnosticId: "SAMPLE0007",
+  })
+  Two: "two",
+}
+
+@TypeSpec.HttpClient.experimental(#{
+  emitterScope: "@typespec/http-client-csharp",
+  diagnosticId: "SAMPLE0005",
+})
+union PreviewExtensibleChoice {
+  string,
+  One: "one",
+
+  @TypeSpec.HttpClient.experimental(#{
+    emitterScope: "@typespec/http-client-csharp",
+    diagnosticId: "SAMPLE0006",
+  })
+  Two: "two",
+}
+
+model LifecycleModel {
+  @TypeSpec.HttpClient.experimental(#{
+    emitterScope: "@typespec/http-client-csharp",
+    diagnosticId: "SAMPLE0008",
+    dependsOn: #["SAMPLE0003"],
+  })
+  preview?: PreviewDetails;
+
+  choice: PreviewExtensibleChoice;
+}
+
+@TypeSpec.HttpClient.experimental(#{
+  emitterScope: "@typespec/http-client-csharp",
+  diagnosticId: "SAMPLE0009",
+})
+interface ExperimentalSamples {
+  @route("/experimental")
+  @get
+  read(): LifecycleModel;
+
+  @route("/experimental/pages")
+  @get
+  @list
+  list(): Page<PreviewDetails>;
 }
 
 @doc("float fixed enum")
@@ -957,3 +1026,7 @@ op receiveJsonLines(): JsonlStream<StreamingItem>;
 @get
 @route("/streaming/sse/receive")
 op receiveSse(): SSEStream<SampleEvents>;
+
+@route("/experimental/jsonl")
+@get
+op receiveExperimentalJsonLines(): JsonlStream<PreviewDetails>;

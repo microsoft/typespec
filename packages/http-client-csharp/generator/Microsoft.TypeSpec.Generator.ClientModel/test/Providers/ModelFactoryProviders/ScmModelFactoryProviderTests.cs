@@ -9,6 +9,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
+using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
 
@@ -16,6 +17,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ModelFactoryP
 {
     public class ScmModelFactoryProviderTests
     {
+        [Test]
+        public void ExperimentalModelFactoryUsesThePublicModelDiagnostic()
+        {
+            var input = InputFactory.Experimental(InputFactory.Model("Payload"), "MODEL001", "DEP001");
+            MockHelpers.LoadMockGenerator(inputModels: () => [input]);
+            var factory = ScmCodeModelGenerator.Instance.TypeFactory.CreateModelFactory([input]);
+            var method = factory.Methods.Single(m => m.Signature.Name == "Payload");
+
+            Assert.AreEqual(Snippet.Literal("MODEL001").ToDisplayString(),
+                method.Signature.Attributes.Single(a => a.Type.Equals(typeof(ExperimentalAttribute))).Arguments[0].ToDisplayString());
+        }
+
         [SetUp]
         public void SetUp()
         {

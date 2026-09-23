@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.TypeSpec.Generator.Providers;
+using Microsoft.TypeSpec.Generator.Input;
 
 namespace Microsoft.TypeSpec.Generator.Primitives
 {
@@ -19,5 +20,6 @@ namespace Microsoft.TypeSpec.Generator.Primitives
         public FieldProvider Field { get; }
 
         public object Value { get; }
+        internal InputExperimentalDetails? Experimental { get; init; }
     }
 }

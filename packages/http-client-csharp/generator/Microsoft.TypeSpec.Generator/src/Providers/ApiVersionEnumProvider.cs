@@ -99,9 +99,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         name,
                         this,
                         DocHelpers.GetFormattableDescription(inputValue.Summary, inputValue.Doc) ?? $"{name}",
-                        initializationValue);
+                        initializationValue,
+                        attributes: ExperimentalApiHelpers.BuildAttributes(inputValue.Experimental));
 
-                    values.Add(new EnumTypeMember(name, field, inputValue.Value));
+                    values.Add(new EnumTypeMember(name, field, inputValue.Value) { Experimental = inputValue.Experimental });
                 }
             }
 
@@ -116,17 +117,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 var member = customMembers[i];
                 var modifiers = FieldModifiers.Public | FieldModifiers.Static;
+                allowedValues.TryGetValue(member.OriginalName ?? member.Name, out var enumValue);
                 var field = new FieldProvider(
                     modifiers,
                     EnumUnderlyingType,
                     member.Name,
                     this,
                     $"",
-                    member.InitializationValue);
-                object? inputValue = allowedValues.TryGetValue(member.OriginalName ?? member.Name, out var enumValue)
-                    ? enumValue.Value
-                    : member.Name;
-                values.Add(new EnumTypeMember(member.Name, field, inputValue));
+                    member.InitializationValue,
+                    attributes: ExperimentalApiHelpers.BuildAttributes(enumValue?.Experimental));
+                object inputValue = enumValue?.Value ?? member.Name;
+                values.Add(new EnumTypeMember(member.Name, field, inputValue) { Experimental = enumValue?.Experimental });
             }
 
             return values;
@@ -180,8 +181,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     member.Name,
                     member.Field.EnclosingType,
                     member.Field.Description,
-                    Literal(i + 1));
-                allMembers[i] = new EnumTypeMember(member.Name, updatedField, member.Value);
+                    Literal(i + 1),
+                    attributes: member.Field.Attributes);
+                allMembers[i] = new EnumTypeMember(member.Name, updatedField, member.Value) { Experimental = member.Experimental };
             }
 
             return allMembers;

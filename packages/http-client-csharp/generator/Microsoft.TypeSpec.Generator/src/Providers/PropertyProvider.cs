@@ -143,7 +143,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             Body = new AutoPropertyBody(propHasSetter, setterModifier, GetPropertyInitializationValue(propertyType, inputProperty));
 
             WireInfo = new PropertyWireInformation(inputProperty);
-            Attributes = [];
+            Attributes = ExperimentalApiHelpers.BuildAttributes(inputProperty.Experimental);
 
             InitializeParameter(DocHelpers.GetFormattableDescription(inputProperty.Summary, inputProperty.Doc) ?? FormattableStringHelpers.Empty);
             BuildDocs();

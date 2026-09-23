@@ -36,6 +36,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.cs");
 
+        protected internal override SuppressionStatement[] BuildDisabledFileWarnings()
+            => ExperimentalApiHelpers.GetSuppressions(_models);
+
         protected override TypeSignatureModifiers BuildDeclarationModifiers()
             => TypeSignatureModifiers.Static | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Class;
 
@@ -74,7 +77,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     MethodSignatureModifiers.Static | MethodSignatureModifiers.Public,
                     modelProvider.Type,
                     $"A new {modelProvider.Type:C} instance for mocking.",
-                    GetParameters(modelProvider, fullConstructor));
+                    GetParameters(modelProvider, fullConstructor),
+                    Attributes: ExperimentalApiHelpers.BuildAttributes(model.Experimental));
 
                 var parameters = new List<XmlDocParamStatement>(signature.Parameters.Count);
                 foreach (var param in signature.Parameters)

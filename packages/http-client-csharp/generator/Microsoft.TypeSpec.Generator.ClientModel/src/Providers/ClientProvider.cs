@@ -46,6 +46,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private readonly FormattableString _publicCtorDescription;
         private readonly InputClient _inputClient;
         internal InputClient InputClient => _inputClient;
+        protected override IReadOnlyList<MethodBodyStatement> BuildAttributes()
+            => ExperimentalApiHelpers.BuildAttributes(_inputClient.Experimental);
+
+        protected override SuppressionStatement[] BuildDisabledFileWarnings()
+            => ExperimentalApiHelpers.GetSuppressions(_inputClient);
+
         private readonly InputAuth? _inputAuth;
         private readonly ParameterProvider _endpointParameter;
         private readonly ParameterProvider _subClientEndpointParameter;

@@ -6,6 +6,7 @@ using System.Linq;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
+using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
 
@@ -13,6 +14,27 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
 {
     public class CollectionResultDefinitionTests
     {
+        [Test]
+        public void ExperimentalPagingDependenciesAreSuppressedInAllHelpers()
+        {
+            var item = InputFactory.Experimental(InputFactory.Model("Item"), "ITEM001");
+            var envelope = InputFactory.Model("Page", properties: [InputFactory.Property("items", InputFactory.Array(item))]);
+            var operation = InputFactory.Operation("List", responses: [InputFactory.OperationResponse(bodytype: envelope)]);
+            operation.Update(experimental: new InputExperimentalDetails("API001", ["DEPENDENCY001"]));
+            var serviceMethod = InputFactory.PagingServiceMethod("List", operation, pagingMetadata: InputFactory.PagingMetadata(["items"], null, null));
+            var client = InputFactory.Experimental(InputFactory.Client("TestClient", methods: [serviceMethod]), "CLIENT001");
+            MockHelpers.LoadMockGenerator(inputModels: () => [item, envelope], clients: () => [client]);
+            var helpers = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.OfType<CollectionResultDefinition>().ToArray();
+
+            Assert.AreEqual(4, helpers.Length);
+            foreach (var helper in helpers)
+            {
+                CollectionAssert.IsSubsetOf(
+                    new[] { "ITEM001", "CLIENT001", "API001", "DEPENDENCY001" }.Select(id => Snippet.Literal(id).ToDisplayString()),
+                    helper.DisabledFileWarnings.Select(s => s.Code.ToDisplayString()));
+            }
+        }
+
         [SetUp]
         public void Setup()
         {

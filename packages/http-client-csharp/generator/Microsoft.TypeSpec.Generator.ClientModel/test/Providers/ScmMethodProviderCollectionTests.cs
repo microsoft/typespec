@@ -16,7 +16,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
-using Microsoft.TypeSpec.Generator.ClientModel.Utilities;
+using Microsoft.TypeSpec.Generator.Utilities;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
@@ -103,6 +103,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
 
             Assert.Throws<ArgumentException>(() => new ScmMethodProviderCollection(serviceMethod, client));
+        }
+
+        [Test]
+        public void ExperimentalDependenciesAlreadySuppressedForClientAreNotRestoredByMethods()
+        {
+            var model = InputFactory.Experimental(InputFactory.Model("Payload"), "MODEL001");
+            var operation = InputFactory.Operation("Read", responses: [InputFactory.OperationResponse(bodytype: model)]);
+            operation.Update(experimental: new InputExperimentalDetails("API001", ["MODEL001"]));
+            var method = InputFactory.BasicServiceMethod("Read", operation);
+            var inputClient = InputFactory.Client("TestClient", methods: [method]);
+            MockHelpers.LoadMockGenerator(inputModels: () => [model], clients: () => [inputClient]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+
+            foreach (var provider in new ScmMethodProviderCollection(method, client).Append(client.RestClient.GetCreateRequestMethod(operation)))
+            {
+                Assert.IsTrue(provider.EnclosingType.DisabledFileWarnings.Any(s => s.Code.ToDisplayString() == Snippet.Literal("MODEL001").ToDisplayString()));
+                Assert.AreEqual(0, provider.Suppressions.Count, "A method-local restore would undo the generated file's suppression.");
+            }
         }
 
         [TestCase(null)]
