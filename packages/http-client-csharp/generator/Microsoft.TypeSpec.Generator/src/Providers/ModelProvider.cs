@@ -245,7 +245,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// </summary>
         public ConstructorProvider FullConstructor => _fullConstructor ??= BuildFullConstructor();
 
-        protected override string BuildNamespace() => GetTypeNamespace(_inputModel.Namespace);
+        protected override string BuildNamespace() => string.IsNullOrEmpty(_inputModel.Namespace) ?
+            // TODO remove null check once https://github.com/Azure/typespec-azure/issues/2209 is fixed.
+            CodeModelGenerator.Instance.TypeFactory.PrimaryNamespace :
+            CodeModelGenerator.Instance.TypeFactory.GetCleanNameSpace(_inputModel.Namespace);
 
         protected override CSharpType? BuildBaseType()
         {
@@ -315,15 +318,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return NormalizeTypeNameForNewContract(_inputModel.Name.ToIdentifierName());
         }
 
-        private protected override string NormalizeTypeName(string name)
+        private protected override string NormalizeTypeName(string name, string typeNamespace)
         {
-            var normalizedName = base.NormalizeTypeName(name);
+            var normalizedName = base.NormalizeTypeName(name, typeNamespace);
             if (!normalizedName.EndsWith(ResponseSuffix, StringComparison.Ordinal))
             {
                 return normalizedName;
             }
 
-            var typeNamespace = BuildNamespace();
             var sourceInputModel = CodeModelGenerator.Instance.SourceInputModel;
             if (sourceInputModel.FindForTypeInCurrentCompilation(typeNamespace, normalizedName, DeclaringTypeName) is not null ||
                 sourceInputModel.FindForTypeInLastContract(typeNamespace, normalizedName, DeclaringTypeName) is not null)
@@ -344,12 +346,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 typeNamespace,
                 (name, ns) => base.BuildCustomCodeView(name, ns));
         }
-
-        private static string GetTypeNamespace(string inputNamespace)
-            => string.IsNullOrEmpty(inputNamespace)
-                // TODO remove null check once https://github.com/Azure/typespec-azure/issues/2209 is fixed.
-                ? CodeModelGenerator.Instance.TypeFactory.PrimaryNamespace
-                : CodeModelGenerator.Instance.TypeFactory.GetCleanNameSpace(inputNamespace);
 
         private protected override TypeProvider? BuildLastContractView(string? generatedTypeName = null, string? generatedTypeNamespace = null)
         {
@@ -381,8 +377,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return null;
             }
 
-            return buildView(originalName, typeNamespace) ??
-                (normalizedOriginalName == originalName ? null : buildView(normalizedOriginalName, typeNamespace));
+            var customView = buildView(originalName, typeNamespace);
+            if (customView is not null || normalizedOriginalName == originalName)
+            {
+                return customView;
+            }
+
+            return buildView(normalizedOriginalName, typeNamespace);
         }
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers()
