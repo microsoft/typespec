@@ -528,6 +528,29 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
             Assert.That(exception!.Message, Does.Contain("maximum reference depth"));
         }
 
+        [Test]
+        public void ReferenceResolutionStopsBeforePlatformStackOverflow()
+        {
+            var definitions = string.Join(",", Enumerable.Range(0, 65).Select(i => $$"""
+                {
+                  "$id": "{{i}}",
+                  "name": "Model{{i}}",
+                  "baseModel": { "$ref": "{{i + 1}}" }
+                }
+                """));
+            var content = $$"""
+                {
+                  "name": "Test",
+                  "extension": [{{definitions}}, { "$id": "65", "name": "End" }],
+                  "models": [{ "$ref": "0" }]
+                }
+                """;
+
+            var exception = Assert.Throws<JsonException>(() => TypeSpecSerialization.Deserialize(content));
+
+            Assert.That(exception!.Message, Does.Contain("maximum reference depth"));
+        }
+
         [TestCase(100)]
         [TestCase(130)]
         public void ReferenceIndexRespectsDocumentDepth(int depth)
