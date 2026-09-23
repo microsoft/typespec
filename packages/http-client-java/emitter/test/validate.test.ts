@@ -1,5 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
-import { findJavaRuntimeVersion, getJavaMajorVersion, validateDependencies } from "../src/validate.js";
+import {
+  findJavaRuntimeVersion,
+  getJavaMajorVersion,
+  validateDependencies,
+} from "../src/validate.js";
 import { spawnAsync } from "../src/utils.js";
 
 vi.mock("../src/utils.js", async (importOriginal) => {
