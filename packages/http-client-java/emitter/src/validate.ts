@@ -92,37 +92,6 @@ export async function validateDependencies(
       }
     }
   }
-
-  // Check Maven
-  // nodejs does not allow spawn of .cmd on win32
-  const shell = process.platform === "win32";
-  try {
-    const result = await spawnAsync("mvn", ["-v"], { stdio: "pipe", shell: shell });
-    const mavenVersion = findMavenVersion(result.stdout) ?? findMavenVersion(result.stderr);
-    if (mavenVersion) {
-      if (program && logDiagnostic) {
-        trace(program, `Apache Maven in PATH is version ${mavenVersion}.`);
-      }
-    }
-  } catch (error: any) {
-    if (shell || (error && "code" in error && error["code"] === "ENOENT")) {
-      if (program && logDiagnostic) {
-        reportDiagnostic(program, {
-          code: "invalid-java-sdk-dependency",
-          messageId: "maven",
-          target: NoTarget,
-        });
-      }
-    } else {
-      if (program && logDiagnostic) {
-        reportDiagnostic(program, {
-          code: "unknown-error",
-          format: { errorMessage: error.message },
-          target: NoTarget,
-        });
-      }
-    }
-  }
 }
 
 export function findJavaVersion(output: string): string | undefined {
@@ -158,15 +127,6 @@ export function getJavaMajorVersion(version: string): number {
 export function findJavaRuntimeVersion(output: string): string | undefined {
   // "java version "21.0.3"" or "openjdk version "17.0.11""
   const matches = output.match(/version "?([\d.]+)"?.*/);
-  if (matches && matches.length > 1) {
-    return matches[1];
-  }
-  return undefined;
-}
-
-function findMavenVersion(output: string): string | undefined {
-  // there is control characters in the output
-  const matches = output.match(/.*Apache Maven ([\d.]+).*/);
   if (matches && matches.length > 1) {
     return matches[1];
   }
