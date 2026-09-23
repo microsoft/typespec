@@ -222,6 +222,15 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.That(CanUseGenerated("public Previous(int state) { }", ""), Is.False);
         }
 
+        [TestCase("public enum Kind { Value }", "public struct Kind { }")]
+        [TestCase("public struct Kind { }", "public enum Kind { Value }")]
+        public void MemberCompatibilityRejectsEnumStructChanges(string previousDeclaration, string currentDeclaration)
+        {
+            var previous = ParseNamedType(previousDeclaration, "Kind");
+            var current = ParseNamedType(currentDeclaration, "Kind");
+            Assert.That(ModelBaseMemberCompatibility.AreTypesCompatible(previous.Type, current.Type), Is.False);
+        }
+
         [Test]
         public void GeneratedBaseRejectsMissingLastContractView()
         {
@@ -283,14 +292,17 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             => new(new CSharpType(target), InputFactory.Model("CurrentBase", properties: []), previous);
 
         private static NamedTypeSymbolProvider Parse(string members, string implements = "")
+            => ParseNamedType($"public interface IMarker {{ }} public class Previous{implements} {{ {members} }}", "Previous");
+
+        private static NamedTypeSymbolProvider ParseNamedType(string declaration, string name)
         {
             var compilation = CSharpCompilation.Create("PreviousContract",
-                [CSharpSyntaxTree.ParseText($"namespace Sample {{ public interface IMarker {{ }} public class Previous{implements} {{ {members} }} }}")],
+                [CSharpSyntaxTree.ParseText($"namespace Sample {{ {declaration} }}")],
                 [MetadataReference.CreateFromFile(typeof(object).Assembly.Location)],
                 new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
             Assert.That(compilation.GetDiagnostics().Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error),
                 Is.Empty, "Regression fixtures must be valid C# contracts");
-            return new NamedTypeSymbolProvider(compilation.GetTypeByMetadataName("Sample.Previous")!, compilation);
+            return new NamedTypeSymbolProvider(compilation.GetTypeByMetadataName($"Sample.{name}")!, compilation);
         }
 
         private sealed class ContractModel(TypeProvider? previous, TypeProvider current)

@@ -18,6 +18,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
     {
         public static bool AreTypesCompatible(CSharpType previous, CSharpType current)
             => previous.AreNamesEqual(current) && previous.IsValueType == current.IsValueType &&
+                previous.IsEnum == current.IsEnum &&
                 (!previous.IsValueType || previous.IsNullable == current.IsNullable) &&
                 previous.Arguments.Zip(current.Arguments).All(pair => AreTypesCompatible(pair.First, pair.Second));
 
