@@ -434,6 +434,18 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
         }
 
         [Test]
+        public void NonStringReferenceIdThrowsJsonException()
+        {
+            const string content = """
+                { "name": "Test", "models": [{ "$id": 0, "name": "Model" }] }
+                """;
+
+            var exception = Assert.Throws<JsonException>(() => TypeSpecSerialization.Deserialize(content));
+
+            Assert.That(exception!.Message, Does.Contain("$id must be a string"));
+        }
+
+        [Test]
         public void DuplicateReferenceDefinitionsStillThrow()
         {
             const string content = """
