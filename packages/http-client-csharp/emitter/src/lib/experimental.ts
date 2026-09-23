@@ -12,7 +12,7 @@ import { createDiagnostic } from "./lib.js";
 export function getExperimentalDetails(
   context: SdkContext,
   target: Type | undefined,
-  hasGeneratedDeclaration = true,
+  supportsExperimentalMetadata = true,
 ): [InputExperimentalDetails | undefined, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
   if (!target) {
@@ -24,7 +24,7 @@ export function getExperimentalDetails(
       emitterName: "@typespec/http-client-csharp",
     }),
   );
-  if (lifecycle && !hasGeneratedDeclaration) {
+  if (lifecycle && !supportsExperimentalMetadata) {
     diagnostics.add(createDiagnostic({ code: "experimental-target-not-supported", target }));
     return diagnostics.wrap(undefined);
   }

@@ -8,6 +8,7 @@ using System.ClientModel;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.TypeSpec.Generator.Input;
@@ -21,6 +22,87 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ModelFactoryP
 {
     public class ScmModelFactoryProviderTests
     {
+        [Test]
+        public void ExperimentalExternalTypesOnlyContributeReferenceSuppressions()
+        {
+            var externalModel = InputFactory.Experimental(
+                InputFactory.Model("ForeignPatch", properties: [],
+                    external: new InputExternalTypeMetadata("System.ClientModel.Primitives.JsonPatch", null, null)),
+                "SCME0001");
+            var externalEnum = InputFactory.Experimental(
+                InputFactory.StringEnum("ForeignStatus", [("OK", "OK")],
+                    external: new InputExternalTypeMetadata("System.Net.HttpStatusCode", null, null)),
+                "EXTERNAL_ENUM");
+            var input = InputFactory.Model("Payload", properties: [InputFactory.Property("patch", externalModel)]);
+            MockHelpers.LoadMockGenerator(inputModels: () => [externalModel, input], inputEnums: () => [externalEnum]);
+            var generator = ScmCodeModelGenerator.Instance;
+            var model = generator.TypeFactory.CreateModel(input)!;
+            var factory = generator.TypeFactory.CreateModelFactory([externalModel, input]);
+
+            Assert.IsInstanceOf<SystemObjectModelProvider>(generator.TypeFactory.CreateModel(externalModel));
+            Assert.IsNull(generator.TypeFactory.CreateEnum(externalEnum));
+            Assert.IsFalse(generator.OutputLibrary.TypeProviders.Any(p => p is SystemObjectModelProvider || p.Name == "ForeignStatus"));
+            Assert.AreEqual("Payload", factory.Methods.Single().Signature.Name);
+            Assert.IsFalse(model.Attributes.Any(a => a.Type.Equals(typeof(ExperimentalAttribute))));
+            Assert.IsFalse(factory.Methods.Single().Signature.Attributes.Any(a => a.Type.Equals(typeof(ExperimentalAttribute))));
+            Assert.IsTrue(model.DisabledFileWarnings.Any(s => s.Code.ToDisplayString() == Snippet.Literal("SCME0001").ToDisplayString()));
+
+            var references = AppDomain.CurrentDomain.GetAssemblies()
+                .Where(a => !a.IsDynamic && !string.IsNullOrEmpty(a.Location))
+                .Select(a => MetadataReference.CreateFromFile(a.Location));
+            var compilation = CSharpCompilation.Create(
+                "ExperimentalExternalReferences",
+                new TypeProvider[] { model, factory, new ArgumentDefinition() }
+                    .Select(p => CSharpSyntaxTree.ParseText(new TypeProviderWriter(p).Write().Content)),
+                references,
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, generalDiagnosticOption: ReportDiagnostic.Error));
+            Assert.IsEmpty(compilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error).Select(d => d.ToString()));
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task ExperimentalLiteralEnumMembersCompileInModelsAndFactories(bool extensible)
+        {
+            var choice = InputFactory.StringEnum("Choice", [("One", "one"), ("Two", "two")], isExtensible: extensible);
+            InputFactory.Experimental(choice.Values[0], "SAMPLE_MEMBER");
+            InputFactory.Experimental(choice.Values[1], "OTHER_MEMBER");
+            var input = InputFactory.Model("Payload", properties:
+                [InputFactory.Property("kind", choice.Values[0], isRequired: true)]);
+            Compilation? customCompilation = null;
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputEnums: () => [choice], inputModels: () => [input],
+                compilation: extensible ? null : async () => customCompilation = await Helpers.GetCompilationFromDirectoryAsync());
+            var generator = ScmCodeModelGenerator.Instance;
+            var model = generator.TypeFactory.CreateModel(input)!;
+            var factory = generator.TypeFactory.CreateModelFactory([input]);
+            var enumProvider = generator.TypeFactory.CreateEnum(choice)!;
+
+            Assert.IsFalse(enumProvider.Attributes.Any(a => a.Type.Equals(typeof(ExperimentalAttribute))));
+            foreach (var provider in new TypeProvider[] { model, factory })
+            {
+                CollectionAssert.AreEqual(
+                    new[] { Snippet.Literal("SAMPLE_MEMBER").ToDisplayString() },
+                    provider.DisabledFileWarnings.Select(s => s.Code.ToDisplayString()));
+            }
+            var references = AppDomain.CurrentDomain.GetAssemblies()
+                .Where(a => !a.IsDynamic && !string.IsNullOrEmpty(a.Location))
+                .Select(a => MetadataReference.CreateFromFile(a.Location));
+            var compilation = CSharpCompilation.Create(
+                "ExperimentalLiteralEnum",
+                new TypeProvider[] { model, factory, new ArgumentDefinition() }
+                    .Select(p => CSharpSyntaxTree.ParseText(new TypeProviderWriter(p).Write().Content))
+                    .Concat(extensible
+                        ? new[] { CSharpSyntaxTree.ParseText(new TypeProviderWriter(enumProvider).Write().Content) }
+                        : customCompilation!.SyntaxTrees.Where(t => t.FilePath.EndsWith("CustomTypes.cs", StringComparison.Ordinal))),
+                references,
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, generalDiagnosticOption: ReportDiagnostic.Error));
+            Assert.IsEmpty(compilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error).Select(d => d.ToString()));
+            if (!extensible)
+            {
+                StringAssert.Contains("Choice.One", factory.Methods.Single().BodyStatements!.ToDisplayString());
+            }
+        }
+
         [TestCase(true, false)]
         [TestCase(false, true)]
         [TestCase(true, true)]

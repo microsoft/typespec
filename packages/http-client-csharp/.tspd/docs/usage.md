@@ -56,8 +56,10 @@ generic arguments, and implementation references; neither suppresses diagnostics
 consumer code.
 
 Dependencies identify diagnostics rather than individual types: one diagnostic can apply
-to multiple types or members, including those defined in external libraries. External
-experiments still require explicit `dependsOn` entries; they are not discovered by reflection.
+to multiple types or members, including those defined in external libraries. For externally
+mapped types, source `@experimental` metadata is retained for generated-reference suppressions;
+the emitter does not generate the external declaration or add attributes to its library.
+Other external experiments require explicit `dependsOn` entries. They are not discovered by reflection.
 
 Both metadata fields are optional. Without `diagnosticId`, no public experimental attribute
 is added. Without `dependsOn`, no additional dependency diagnostics are requested; generated
@@ -70,7 +72,7 @@ An `ExperimentalAttribute` on a customized partial client or method takes preced
 the generated attribute.
 
 Some TypeSpec declarations have no corresponding C# declaration, such as scalars or unions
-mapped to built-in C# types. C# also does not allow `ExperimentalAttribute` on parameters.
+erased to built-in C# types without an explicit external mapping. C# also does not allow `ExperimentalAttribute` on parameters.
 The emitter reports `experimental-target-not-supported` for these annotations instead of
 silently dropping them or assigning their diagnostic to an unrelated API.
 

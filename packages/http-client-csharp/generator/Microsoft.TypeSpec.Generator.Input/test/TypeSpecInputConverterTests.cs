@@ -10,6 +10,41 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
 {
     public class TypeSpecInputConverterTests
     {
+        [TestCase("model", "\"properties\": []")]
+        [TestCase("enum", "\"values\": [], \"valueType\": {\"kind\":\"string\"}")]
+        [TestCase("string", "\"crossLanguageDefinitionId\": \"External.Value\"")]
+        [TestCase("union", "\"variantTypes\": [{\"kind\":\"string\"}, {\"kind\":\"int32\"}]")]
+        [TestCase("array", "\"valueType\": {\"kind\":\"string\"}")]
+        [TestCase("dict", "\"keyType\": {\"kind\":\"string\"}, \"valueType\": {\"kind\":\"string\"}")]
+        [TestCase("nullable", "\"type\": {\"kind\":\"string\"}")]
+        [TestCase("utcDateTime", "\"crossLanguageDefinitionId\":\"External.Value\", \"encode\":\"rfc3339\", \"wireType\":{\"kind\":\"string\"}")]
+        [TestCase("duration", "\"crossLanguageDefinitionId\":\"External.Value\", \"encode\":\"ISO8601\", \"wireType\":{\"kind\":\"string\"}")]
+        public void LoadsExperimentalExternalTypes(string kind, string typeProperties)
+        {
+            var content = $$"""
+                {
+                  "name": "Test",
+                  "models": [{
+                    "$id": "wrapper", "name": "Wrapper",
+                    "properties": [{
+                      "$id": "property", "name": "value",
+                      "type": {
+                        "$id": "external", "kind": "{{kind}}", "name": "External",
+                        {{typeProperties}},
+                        "external": {"identity":"External.Value"},
+                        "experimental": {"diagnosticId":"EXTERNAL001","dependsOn":["DEP001"]}
+                      }
+                    }]
+                  }]
+                }
+                """;
+            var type = TypeSpecSerialization.Deserialize(content)!.Models.Single().Properties.Single().Type;
+            Assert.AreEqual("External.Value", type.External?.Identity);
+            Assert.AreEqual("EXTERNAL001", type.Experimental?.DiagnosticId);
+            CollectionAssert.AreEqual(new[] { "DEP001" }, type.Experimental!.DependsOn);
+            Assert.IsNull(InputPrimitiveType.String.Experimental);
+        }
+
         [TestCase(true)]
         [TestCase(false)]
         public void LoadsExperimentalTypesAndMembers(bool annotated)

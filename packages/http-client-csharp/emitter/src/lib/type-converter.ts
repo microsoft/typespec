@@ -190,14 +190,15 @@ export function fromSdkType<T extends SdkType>(
       break;
   }
 
+  // External declarations are not emitted, but their known diagnostics apply at generated reference sites.
   retVar.experimental = diagnostics.pipe(
     getExperimentalDetails(
       sdkContext,
       sdkType.__raw,
-      !retVar.external &&
-        ((retVar.kind === "model" && !retVar.isFileType) ||
-          retVar.kind === "enum" ||
-          retVar.kind === "enumvalue"),
+      retVar.external !== undefined ||
+        (retVar.kind === "model" && !retVar.isFileType) ||
+        retVar.kind === "enum" ||
+        retVar.kind === "enumvalue",
     ),
   );
   if (sdkType.__raw?.kind === "Union" && retVar.kind !== "enum") {
