@@ -3,9 +3,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
@@ -19,6 +23,68 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
 {
     public class TypeProviderTests
     {
+        [TestCase("CURRENT001", false)]
+        [TestCase("CURRENT001", true)]
+        [TestCase(null, true)]
+        public async Task ExperimentalBackCompatOverloadsFollowCurrentMetadata(string? diagnosticId, bool previouslyExperimental)
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () =>
+            {
+                var compilation = await Helpers.GetCompilationFromDirectoryAsync();
+                if (previouslyExperimental)
+                {
+                    return compilation;
+                }
+                var tree = compilation.SyntaxTrees.Single(t => t.FilePath.EndsWith("ExperimentalCompatibility.cs", StringComparison.Ordinal));
+                var root = tree.GetRoot();
+                var updatedRoot = root.ReplaceNodes(root.DescendantNodes().OfType<MethodDeclarationSyntax>(),
+                    (_, method) => method.WithAttributeLists(default));
+                return compilation.ReplaceSyntaxTree(tree, tree.WithRootAndOptions(updatedRoot, tree.Options));
+            });
+            var owner = new TestTypeProvider(name: "ExperimentalCompatibility", ns: "Test");
+            var attributes = ExperimentalApiHelpers.BuildAttributes(new InputExperimentalDetails(diagnosticId));
+            var suppressions = new[]
+            {
+                new SuppressionStatement(null, Snippet.Literal("DEP001"), "Dependency one."),
+                new SuppressionStatement(null, Snippet.Literal("DEP002"), "Dependency two.")
+            };
+            MethodProvider CreateMethod(string name, params ParameterProvider[] parameters) => new(
+                new MethodSignature(name, null, MethodSignatureModifiers.Public, null, null, parameters, Attributes: attributes),
+                Snippet.Throw(Snippet.Null), owner, suppressions: suppressions);
+            owner.Update(methods:
+            [
+                CreateMethod("AddOptional",
+                    new ParameterProvider("value", $"", typeof(int)),
+                    new ParameterProvider("added", $"", typeof(bool), defaultValue: Snippet.Default, location: ParameterLocation.Query)),
+                CreateMethod("RemoveNullability", new ParameterProvider("value", $"", typeof(int))),
+                CreateMethod("RequireOptional", new ParameterProvider("value", $"", typeof(int?)))
+            ]);
+
+            owner.ProcessTypeForBackCompatibility();
+            var shims = owner.Methods.Where(m => m.Signature.Attributes.Any(a => a.Type.Equals(typeof(EditorBrowsableAttribute)))).ToArray();
+            Assert.AreEqual(3, shims.Length);
+            foreach (var shim in shims)
+            {
+                var experiment = shim.Signature.Attributes.SingleOrDefault(a => a.Type.Equals(typeof(ExperimentalAttribute)));
+                Assert.AreEqual(diagnosticId is null ? null : Snippet.Literal(diagnosticId).ToDisplayString(),
+                    experiment?.Arguments[0].ToDisplayString());
+                CollectionAssert.AreEqual(
+                    suppressions.Select(s => s.Code.ToDisplayString()),
+                    shim.Suppressions.Select(s => s.Code.ToDisplayString()));
+            }
+
+            var references = AppDomain.CurrentDomain.GetAssemblies()
+                .Where(a => !a.IsDynamic && !string.IsNullOrEmpty(a.Location))
+                .Select(a => MetadataReference.CreateFromFile(a.Location));
+            var compilation = CSharpCompilation.Create(
+                "ExperimentalCompatibility",
+                [CSharpSyntaxTree.ParseText(new TypeProviderWriter(owner).Write().Content),
+                 CSharpSyntaxTree.ParseText(new TypeProviderWriter(new ArgumentDefinition()).Write().Content)],
+                references,
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, generalDiagnosticOption: ReportDiagnostic.Error));
+            Assert.IsEmpty(compilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error).Select(d => d.ToString()));
+        }
+
         [TestCase(false)]
         [TestCase(true)]
         public void ExperimentalModelsAndProperties(bool modelAsStruct)

@@ -66,6 +66,10 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             foreach (var child in client.Children)
             {
                 collector.AddId(child.Experimental?.DiagnosticId);
+                foreach (var parameter in child.Parameters)
+                {
+                    collector.AddProperty(parameter);
+                }
             }
             foreach (var parameter in client.Parameters)
             {

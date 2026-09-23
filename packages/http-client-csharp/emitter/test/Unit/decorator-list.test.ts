@@ -29,6 +29,21 @@ describe("Test emitting decorator list", () => {
       await runner.addTypeSpecLibrary(HttpClientTestLibrary);
     });
 
+    it.each([
+      `@TypeSpec.HttpClient.experimental(#{ diagnosticId: "TYPE001" })
+       model Payload { value: string; } op read(@body value: Payload): void;`,
+      `@TypeSpec.HttpClient.experimental(#{ diagnosticId: "TYPE001" })
+       enum Choice { One, Two } op read(@query value: Choice): void;`,
+    ])("keeps parameter-type metadata without annotating the parameter", async (code) => {
+      const program = await typeSpecCompile(code, runner, { IsHttpClientNeeded: true });
+      const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+      const [root, diagnostics] = createModel(sdkContext);
+      expectDiagnosticEmpty(diagnostics);
+      const parameter = root.clients[0].methods[0].parameters.find((p) => p.name === "value")!;
+      strictEqual(parameter.experimental, undefined);
+      deepStrictEqual(parameter.type.experimental, { diagnosticId: "TYPE001", dependsOn: [] });
+    });
+
     describe.each(["diagnosticId", "dependsOn"])("validating %s", (field) => {
       it.each([
         "",

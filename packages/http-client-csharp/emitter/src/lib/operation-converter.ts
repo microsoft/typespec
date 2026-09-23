@@ -690,6 +690,8 @@ export function fromMethodParameter(
     return diagnostics.wrap(retVar as InputMethodParameter);
   }
 
+  // C# cannot apply ExperimentalAttribute directly to a parameter.
+  diagnostics.pipe(getExperimentalDetails(sdkContext, p.__raw, false));
   const parameterType = diagnostics.pipe(fromSdkType(sdkContext, p.type, p, namespace));
 
   const paramAlias = p.__raw ? getParamAlias(sdkContext, p.__raw) : undefined;
@@ -714,7 +716,6 @@ export function fromMethodParameter(
     decorators: p.decorators,
     paramAlias,
     isExactName: p.isExactName,
-    experimental: diagnostics.pipe(getExperimentalDetails(sdkContext, p.__raw, false)),
   };
 
   sdkContext.__typeCache.updateSdkMethodParameterReferences(p, retVar);
