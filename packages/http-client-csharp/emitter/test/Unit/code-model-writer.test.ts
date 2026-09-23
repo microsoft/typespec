@@ -1,5 +1,5 @@
-import { readFileSync } from "node:fs";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import emitterFixture from "../../../generator/Microsoft.TypeSpec.Generator.Input/test/TestData/TypeSpecInputConverterTests/LoadsEmitterFixture/tspCodeModel.json" with { type: "json" };
 import { serializeCodeModel, writeCodeModel } from "../../src/code-model-writer.js";
 import type { CSharpEmitterContext } from "../../src/sdk-context.js";
 import type { CodeModel } from "../../src/type/code-model.js";
@@ -103,14 +103,8 @@ describe("Code-model reference format", () => {
     });
     const codeModel = { extension: { definition: shared }, ...model };
     const document = serializeCodeModel(context, codeModel);
-    const fixture = new URL(
-      "../../../generator/Microsoft.TypeSpec.Generator.Input/test/TestData/TypeSpecInputConverterTests/LoadsEmitterFixture/tspCodeModel.json",
-      import.meta.url,
-    );
 
-    expect(document).toBe(
-      JSON.stringify(JSON.parse(readFileSync(fixture, "utf8")), null, 2) + "\n",
-    );
+    expect(document).toBe(JSON.stringify(emitterFixture, null, 2) + "\n");
   });
 
   it("preserves cycles reached through an array and a referenceable object", () => {
