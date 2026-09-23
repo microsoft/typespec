@@ -1,0 +1,32 @@
+{
+  "extension": {
+    "definition": { "$id": "1", "kind": "model", "name": "Shared", "properties": [] }
+  },
+  "name": "Test",
+  "apiVersions": [],
+  "enums": [],
+  "constants": [],
+  "models": [{ "$ref": "1" }, { "$ref": "1" }],
+  "clients": [
+    {
+      "$id": "2",
+      "name": "TestClient",
+      "crossLanguageDefinitionId": "Test.Client",
+      "decorators": [
+        {
+          "name": "example",
+          "arguments": {
+            "model": { "$ref": "1" },
+            "payload": {
+              "$id": "payload-id",
+              "$ref": "missing",
+              "$values": [{ "$id": "nested-id" }],
+              "$$id": "literal",
+              "usage": "None"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

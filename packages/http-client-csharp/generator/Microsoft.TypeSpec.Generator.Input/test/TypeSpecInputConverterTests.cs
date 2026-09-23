@@ -10,6 +10,132 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
 {
     public class TypeSpecInputConverterTests
     {
+        [Test]
+        public void LoadsEmitterFixture()
+        {
+            var directory = Helpers.GetAssetFileOrDirectoryPath(false);
+            var input = TypeSpecSerialization.Deserialize(File.ReadAllText(Path.Combine(directory, "tspCodeModel.json")))!;
+
+            Assert.AreSame(input.Models[0], input.Models[1]);
+            Assert.AreEqual("Shared", input.Models[0].Name);
+            var decorator = input.Clients.Single().Decorators.Single();
+            using var payload = JsonDocument.Parse(decorator.Arguments!["payload"].ToStream());
+            Assert.AreEqual("payload-id", payload.RootElement.GetProperty("$id").GetString());
+            Assert.AreEqual("missing", payload.RootElement.GetProperty("$ref").GetString());
+            Assert.AreEqual("nested-id", payload.RootElement.GetProperty("$values")[0].GetProperty("$id").GetString());
+            Assert.AreEqual("literal", payload.RootElement.GetProperty("$$id").GetString());
+            Assert.AreEqual("None", payload.RootElement.GetProperty("usage").GetString());
+            Assert.IsFalse(payload.RootElement.TryGetProperty("__raw", out _));
+        }
+
+        [Test]
+        public void PreservesLiteralDecoratorArgumentNamesAndValues()
+        {
+            const string payload = """
+                {
+                  "$$id": "shared",
+                  "$$ref": "missing",
+                  "$$values": [{ "$$id": "shared" }],
+                  "$$$id": "escaped",
+                  "kind": "future-kind",
+                  "type": { "$$id": "shared" }
+                }
+                """;
+            var content = $$"""
+                {
+                  "name": "Test",
+                  "models": [{ "$ref": "shared" }],
+                  "extension": [{{payload}}, {{payload}}],
+                  "clients": [{
+                    "$id": "client", "name": "Test",
+                    "decorators": [{
+                      "name": "example",
+                      "arguments": {
+                        "$id": { "value": "literal-id" },
+                        "$$id": {{payload}},
+                        "value": {
+                          "$id": "shared", "kind": "model", "name": "SharedModel", "properties": []
+                        }
+                      }
+                    }]
+                  }]
+                }
+                """;
+
+            var input = TypeSpecSerialization.Deserialize(content)!;
+
+            Assert.AreEqual("SharedModel", input.Models.Single().Name);
+            var arguments = input.Clients.Single().Decorators.Single().Arguments!;
+            using var idArgument = JsonDocument.Parse(arguments["$id"].ToStream());
+            Assert.AreEqual("literal-id", idArgument.RootElement.GetProperty("value").GetString());
+            Assert.AreEqual(payload, arguments["$$id"].ToString());
+            using var deserializedPayload = JsonDocument.Parse(arguments["$$id"].ToStream());
+            Assert.AreEqual("shared", deserializedPayload.RootElement.GetProperty("$$id").GetString());
+            Assert.AreEqual("missing", deserializedPayload.RootElement.GetProperty("$$ref").GetString());
+            Assert.AreEqual("shared", deserializedPayload.RootElement.GetProperty("$$values")[0].GetProperty("$$id").GetString());
+            Assert.AreEqual("escaped", deserializedPayload.RootElement.GetProperty("$$$id").GetString());
+            Assert.AreEqual("future-kind", deserializedPayload.RootElement.GetProperty("kind").GetString());
+            Assert.AreEqual("shared", deserializedPayload.RootElement.GetProperty("type").GetProperty("$$id").GetString());
+        }
+
+        [Test]
+        public void ReferenceDefinitionsStillRejectDuplicates()
+        {
+            const string content = """
+                { "name": "Test", "extension": [{ "$id": "duplicate" }, { "$id": "duplicate" }] }
+                """;
+
+            var exception = Assert.Throws<JsonException>(() => TypeSpecSerialization.Deserialize(content));
+
+            Assert.That(exception!.Message, Does.Contain("Duplicate reference ID"));
+        }
+
+        [Test]
+        public void LoadsReferencesInExampleShapedData(
+            [Values("unknown", "union")] string kind,
+            [Values] bool inDecorator,
+            [Values] bool definitionsFirst)
+        {
+            var definition = $$"""
+                {
+                  "kind": "{{kind}}", "type": {},
+                  "value": {
+                    "kind": "{{kind}}",
+                    "value": { "$id": "model", "name": "SharedModel" }
+                  }
+                }
+                """;
+            var definitions = inDecorator
+                ? $$"""
+                    "clients": [{
+                      "$id": "client", "name": "Test",
+                      "decorators": [{ "name": "example", "arguments": { "payload": {{definition}} } }]
+                    }]
+                    """
+                : $$"""
+                    "extension": {{definition}}
+                    """;
+            const string models = """
+                "models": [{ "$ref": "model" }, { "$ref": "model" }]
+                """;
+            var content = $$"""
+                {
+                  "name": "Test",
+                  {{(definitionsFirst ? definitions : models)}},
+                  {{(definitionsFirst ? models : definitions)}}
+                }
+                """;
+
+            var input = TypeSpecSerialization.Deserialize(content)!;
+
+            Assert.AreEqual("SharedModel", input.Models[0].Name);
+            Assert.AreSame(input.Models[0], input.Models[1]);
+            if (inDecorator)
+            {
+                Assert.AreEqual(definition, input.Clients.Single().Decorators.Single().Arguments!["payload"].ToString());
+            }
+        }
+
         [TestCase(true)]
         [TestCase(false)]
         public void LoadsReferencesDefinedInDecoratorArguments(bool definitionsFirst)
@@ -261,6 +387,27 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
             Assert.AreEqual("SharedModel", inputNamespace.Models.Single().Name);
         }
 
+        [TestCase("unknown")]
+        [TestCase("union")]
+        public void ExampleShapedDataStillRejectsDuplicateReferences(string kind)
+        {
+            var content = $$"""
+                {
+                  "name": "Test",
+                  "models": [{ "$ref": "model" }],
+                  "extension": {
+                    "kind": "{{kind}}",
+                    "type": { "$id": "model", "kind": "model", "name": "SharedModel" },
+                    "value": { "$id": "model", "name": "Payload" }
+                  }
+                }
+                """;
+
+            var exception = Assert.Throws<JsonException>(() => TypeSpecSerialization.Deserialize(content));
+
+            Assert.That(exception!.Message, Does.Contain("Duplicate reference ID 'model'"));
+        }
+
         [Test]
         public void UnresolvedReferenceStillThrows()
         {
@@ -271,6 +418,31 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
             var exception = Assert.Throws<JsonException>(() => TypeSpecSerialization.Deserialize(content));
 
             Assert.That(exception!.Message, Does.Contain("cannot resolve reference missing"));
+        }
+
+        [TestCase("null")]
+        [TestCase("0")]
+        public void NonStringReferenceValueThrowsJsonException(string refValue)
+        {
+            var content = $$"""
+                { "name": "Test", "models": [{ "$ref": {{refValue}} }] }
+                """;
+
+            var exception = Assert.Throws<JsonException>(() => TypeSpecSerialization.Deserialize(content));
+
+            Assert.That(exception!.Message, Does.Contain("$ref must be a string"));
+        }
+
+        [Test]
+        public void NonStringReferenceIdThrowsJsonException()
+        {
+            const string content = """
+                { "name": "Test", "models": [{ "$id": 0, "name": "Model" }] }
+                """;
+
+            var exception = Assert.Throws<JsonException>(() => TypeSpecSerialization.Deserialize(content));
+
+            Assert.That(exception!.Message, Does.Contain("$id must be a string"));
         }
 
         [Test]
@@ -347,6 +519,29 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
                 {
                   "name": "Test",
                   "extension": [{{definitions}}, { "$id": "130", "name": "End" }],
+                  "models": [{ "$ref": "0" }]
+                }
+                """;
+
+            var exception = Assert.Throws<JsonException>(() => TypeSpecSerialization.Deserialize(content));
+
+            Assert.That(exception!.Message, Does.Contain("maximum reference depth"));
+        }
+
+        [Test]
+        public void ReferenceResolutionStopsBeforePlatformStackOverflow()
+        {
+            var definitions = string.Join(",", Enumerable.Range(0, 65).Select(i => $$"""
+                {
+                  "$id": "{{i}}",
+                  "name": "Model{{i}}",
+                  "baseModel": { "$ref": "{{i + 1}}" }
+                }
+                """));
+            var content = $$"""
+                {
+                  "name": "Test",
+                  "extension": [{{definitions}}, { "$id": "65", "name": "End" }],
                   "models": [{ "$ref": "0" }]
                 }
                 """;
