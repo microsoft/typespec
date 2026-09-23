@@ -318,14 +318,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return NormalizeTypeNameForNewContract(_inputModel.Name.ToIdentifierName());
         }
 
-        private protected override string NormalizeTypeName(string name, string typeNamespace)
+        private protected override string NormalizeTypeName(string name)
         {
-            var normalizedName = base.NormalizeTypeName(name, typeNamespace);
+            var normalizedName = base.NormalizeTypeName(name);
             if (!normalizedName.EndsWith(ResponseSuffix, StringComparison.Ordinal))
             {
                 return normalizedName;
             }
 
+            var typeNamespace = BuildNamespace();
             var sourceInputModel = CodeModelGenerator.Instance.SourceInputModel;
             if (sourceInputModel.FindForTypeInCurrentCompilation(typeNamespace, normalizedName, DeclaringTypeName) is not null ||
                 sourceInputModel.FindForTypeInLastContract(typeNamespace, normalizedName, DeclaringTypeName) is not null)

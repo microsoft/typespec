@@ -749,7 +749,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return name;
             }
 
-            var normalizedName = NormalizeTypeName(name, typeNamespace);
+            var normalizedName = NormalizeTypeName(name);
             if (normalizedName == name)
             {
                 return name;
@@ -762,7 +762,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return lastContractType is null ? normalizedName : name;
         }
 
-        private protected virtual string NormalizeTypeName(string name, string typeNamespace) => name.NormalizeCSharpAcronyms();
+        private protected virtual string NormalizeTypeName(string name) => name.NormalizeCSharpAcronyms();
 
         /// <summary>
         /// Resets only the cached methods so they are rebuilt on next access.
