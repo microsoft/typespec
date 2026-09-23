@@ -391,6 +391,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return buildView(normalizedOriginalName, typeNamespace);
         }
 
+        /// <summary>
+        /// Determines whether an input client is named <paramref name="typeName"/>. Only clients are
+        /// considered: a client and a model of the same name coexist today, so the suffix translation is
+        /// what puts this model in contention for the client's customization. A model or enum of the same
+        /// name is instead a duplicate the spec already produces, which the generator does not arbitrate.
+        /// </summary>
         private static bool IsNameOfInputClient(string typeName)
         {
             foreach (var client in CodeModelGenerator.Instance.InputLibrary.InputNamespace.Clients)
