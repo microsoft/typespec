@@ -341,20 +341,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             var typeNamespace = generatedTypeNamespace ?? BuildNamespace();
             var typeName = generatedTypeName ?? BuildName();
-            if (!IsTranslatedResultName(typeName))
-            {
-                return base.BuildCustomCodeView(typeName, typeNamespace);
-            }
-
-            TypeProvider? customCodeView = null;
-            if (!IsNameOfInputClient(typeNamespace, typeName))
-            {
-                customCodeView = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(
-                    typeNamespace,
-                    typeName,
-                    DeclaringTypeName);
-            }
-
+            var customCodeView = base.BuildCustomCodeView(typeName, typeNamespace);
             return customCodeView ?? BuildResponseSuffixFallbackView(
                 typeName,
                 typeNamespace,
@@ -377,57 +364,22 @@ namespace Microsoft.TypeSpec.Generator.Providers
             string typeNamespace,
             Func<string, string, TypeProvider?> buildView)
         {
-            if (!IsTranslatedResultName(typeName))
+            if (_inputModel.IsExactName)
             {
                 return null;
             }
 
             var originalName = _inputModel.Name.ToIdentifierName();
-            var customView = buildView(originalName, typeNamespace);
             var normalizedOriginalName = originalName.NormalizeCSharpAcronyms();
-            if (customView is not null || normalizedOriginalName == originalName)
+            if (!normalizedOriginalName.EndsWith(ResponseSuffix, StringComparison.Ordinal) ||
+                originalName == typeName ||
+                typeName != $"{normalizedOriginalName[..^ResponseSuffix.Length]}Result")
             {
-                return customView;
+                return null;
             }
 
-            return buildView(normalizedOriginalName, typeNamespace);
-        }
-
-        /// <summary>
-        /// Determines whether an input client is named <paramref name="typeName"/>. Only clients are
-        /// considered: a client and a model of the same name coexist today, so the suffix translation is
-        /// what puts this model in contention for the client's customization. A model or enum of the same
-        /// name is instead a duplicate the spec already produces, which the generator does not arbitrate.
-        /// </summary>
-        private static bool IsNameOfInputClient(string typeNamespace, string typeName)
-        {
-            foreach (var client in CodeModelGenerator.Instance.InputLibrary.InputNamespace.Clients)
-            {
-                var clientName = client.IsExactName ? client.Name : client.Name.ToIdentifierName();
-                if (string.Equals(client.Namespace, typeNamespace, StringComparison.Ordinal) &&
-                    string.Equals(clientName, typeName, StringComparison.Ordinal))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        /// <summary>
-        /// Determines whether <paramref name="typeName"/> is the name this model receives from the
-        /// <c>Response</c> to <c>Result</c> suffix translation rather than its original spec name.
-        /// </summary>
-        private bool IsTranslatedResultName(string typeName)
-        {
-            if (_inputModel.IsExactName)
-            {
-                return false;
-            }
-
-            var normalizedOriginalName = _inputModel.Name.ToIdentifierName().NormalizeCSharpAcronyms();
-            return normalizedOriginalName.EndsWith(ResponseSuffix, StringComparison.Ordinal) &&
-                typeName == $"{normalizedOriginalName[..^ResponseSuffix.Length]}Result";
+            return buildView(originalName, typeNamespace) ??
+                (normalizedOriginalName == originalName ? null : buildView(normalizedOriginalName, typeNamespace));
         }
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers()
