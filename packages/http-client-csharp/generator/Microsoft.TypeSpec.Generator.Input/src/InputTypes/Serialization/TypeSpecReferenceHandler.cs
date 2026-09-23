@@ -200,7 +200,14 @@ namespace Microsoft.TypeSpec.Generator.Input
             }
 
             private static string GetRequiredReferenceString(JsonElement element, string propertyName)
-                => element.GetString() ?? throw new JsonException($"Reference property '{propertyName}' cannot be null");
+            {
+                if (element.ValueKind != JsonValueKind.String)
+                {
+                    throw new JsonException($"Reference property '{propertyName}' must be a string");
+                }
+
+                return element.GetString() ?? throw new JsonException($"Reference property '{propertyName}' cannot be null");
+            }
 
             public object? GetPreviouslyResolvedReference(string referenceId)
                 => _referenceDefinitions.ContainsKey(referenceId) && _referenceIdToObjectMap.TryGetValue(referenceId, out var value) ? value : null;
