@@ -203,7 +203,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             {
                 if (!definition.TryGetProperty("$id", out var id))
                 {
-                    throw new JsonException("$id must be a string but was missing");
+                    throw new JsonException("Reference definition is missing a '$id' property");
                 }
 
                 if (id.ValueKind == JsonValueKind.String && id.GetString() is string referenceId)
