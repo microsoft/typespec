@@ -260,8 +260,8 @@ namespace Microsoft.TypeSpec.Generator.Input
                 {
                     var idReader = reader;
                     idReader.Read();
-                    var existing = indexedResolver.GetPreviouslyResolvedReference(idReader.GetString() ?? throw new JsonException());
-                    if (existing != null)
+                    if (idReader.TokenType == JsonTokenType.String
+                        && indexedResolver.GetPreviouslyResolvedReference(idReader.GetString() ?? throw new JsonException("$id can't be null")) is T existing)
                     {
                         // A forward reference may have already materialized this definition.
                         objectReader.Skip();
@@ -273,6 +273,10 @@ namespace Microsoft.TypeSpec.Generator.Input
             }
 
             reader.Read();
+            if (reader.TokenType != JsonTokenType.String)
+            {
+                throw new JsonException("$ref must be a string");
+            }
             var idRef = reader.GetString() ?? throw new JsonException("$ref can't be null");
             var result = resolver is TypeSpecReferenceHandler.TypeSpecReferenceResolver typeSpecResolver
                 ? typeSpecResolver.ResolveReference<T>(idRef)

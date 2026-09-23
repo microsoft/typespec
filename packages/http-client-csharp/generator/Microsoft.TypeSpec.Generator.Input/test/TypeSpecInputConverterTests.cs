@@ -420,6 +420,19 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
             Assert.That(exception!.Message, Does.Contain("cannot resolve reference missing"));
         }
 
+        [TestCase("null")]
+        [TestCase("0")]
+        public void NonStringReferenceValueThrowsJsonException(string refValue)
+        {
+            var content = $$"""
+                { "name": "Test", "models": [{ "$ref": {{refValue}} }] }
+                """;
+
+            var exception = Assert.Throws<JsonException>(() => TypeSpecSerialization.Deserialize(content));
+
+            Assert.That(exception!.Message, Does.Contain("$ref must be a string"));
+        }
+
         [Test]
         public void DuplicateReferenceDefinitionsStillThrow()
         {
