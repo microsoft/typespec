@@ -62,6 +62,7 @@ describe("Operation Converter", () => {
         // validate operation
         const operation = root.clients[0].methods[0].operation;
         ok(operation);
+        strictEqual("resourceName" in operation, false);
         strictEqual(operation.parameters.length, 4);
 
         // content type parameter

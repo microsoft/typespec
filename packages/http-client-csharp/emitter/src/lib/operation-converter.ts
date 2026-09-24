@@ -4,7 +4,6 @@
 import type {
   SdkBodyParameter,
   SdkBuiltInKinds,
-  SdkContext,
   SdkHeaderParameter,
   SdkHttpOperation,
   SdkHttpParameter,
@@ -41,7 +40,6 @@ import {
 } from "@typespec/compiler";
 import { unsafe_getEventDefinitions } from "@typespec/events/experimental";
 import type { HttpStatusCodeRange } from "@typespec/http";
-import { getResourceOperation } from "@typespec/rest";
 import { isTerminalEvent } from "@typespec/sse";
 import type { CSharpEmitterContext } from "../sdk-context.js";
 import { collectionFormatToDelimMap } from "../type/collection-format.js";
@@ -76,7 +74,7 @@ import type { OperationResponse } from "../type/operation-response.js";
 import { RequestLocation } from "../type/request-location.js";
 import { parseHttpRequestMethod } from "../type/request-method.js";
 import { ResponseLocation } from "../type/response-location.js";
-import { getExternalDocs, getOperationId } from "./decorators.js";
+import { getExternalDocs } from "./decorators.js";
 import { fromSdkHttpExamples } from "./example-converter.js";
 import { createDiagnostic } from "./lib.js";
 import { fromSdkType } from "./type-converter.js";
@@ -220,10 +218,6 @@ export function fromSdkServiceMethodOperation(
   operation = {
     name: method.name,
     isExactName: method.isExactName,
-    resourceName:
-      getResourceOperation(sdkContext.program, method.operation.__raw.operation)?.resourceType
-        .name ??
-      getOperationGroupName(sdkContext, method.operation, getClientNamespaceString(sdkContext)!),
     deprecated: getDeprecated(sdkContext.program, method.__raw!),
     summary: method.summary,
     doc: method.doc,
@@ -1101,28 +1095,6 @@ function getParameterScope(
       : p.onClient
         ? InputParameterScope.Client
         : InputParameterScope.Method;
-}
-
-function getOperationGroupName(
-  context: SdkContext,
-  operation: SdkHttpOperation,
-  namespace: string,
-): string {
-  const explicitOperationId = getOperationId(context, operation.__raw.operation);
-  if (explicitOperationId) {
-    const ids: string[] = explicitOperationId.split("_");
-    if (ids.length > 1) {
-      return ids.slice(0, -2).join("_");
-    }
-  }
-
-  if (operation.__raw.operation.interface) {
-    return operation.__raw.operation.interface.name;
-  }
-  if (operation.__raw.operation.namespace) {
-    return operation.__raw.operation.namespace.name;
-  }
-  return namespace;
 }
 
 // TODO: remove after https://github.com/Azure/typespec-azure/issues/1227 is fixed

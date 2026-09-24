@@ -10,6 +10,39 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
 {
     public class TypeSpecInputConverterTests
     {
+        [TestCase(false)]
+        [TestCase(true)]
+        public void LoadsOperationWithoutResourceName(bool includeLegacyResourceName)
+        {
+            var json = $$"""
+                {
+                  "$id": "1",
+                  "name": "getWidget",
+                  {{(includeLegacyResourceName ? "\"resourceName\": \"Widget\"," : "")}}
+                  "summary": "Gets a widget",
+                  "httpMethod": "GET",
+                  "uri": "https://example.com",
+                  "path": "/widgets",
+                  "crossLanguageDefinitionId": "Test.getWidget"
+                }
+                """;
+            var options = new JsonSerializerOptions
+            {
+                Converters = { new InputOperationConverter(new TypeSpecReferenceHandler()) }
+            };
+
+            var operation = JsonSerializer.Deserialize<InputOperation>(json, options);
+
+            Assert.IsNotNull(operation);
+            Assert.AreEqual("getWidget", operation!.Name);
+            Assert.AreEqual("Gets a widget", operation.Summary);
+            Assert.AreEqual("GET", operation.HttpMethod);
+            Assert.AreEqual("https://example.com", operation.Uri);
+            Assert.AreEqual("/widgets", operation.Path);
+            Assert.AreEqual("Test.getWidget", operation.CrossLanguageDefinitionId);
+            Assert.IsNull(typeof(InputOperation).GetProperty("ResourceName"));
+        }
+
         [Test]
         public void LoadsEmitterFixture()
         {
