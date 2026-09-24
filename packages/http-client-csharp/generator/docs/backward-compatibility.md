@@ -1109,11 +1109,7 @@ public virtual ClientResult<string> GetData(string data, int count, bool include
 Current TypeSpec moves `includeDetails` before `count`, which would normally change the order of those parameters in the generated methods:
 
 ```typespec
-op getData(
-  @body data: string,
-  @header includeDetails: boolean,
-  @query count: int32,
-): string;
+op getData(@body data: string, @header includeDetails: boolean, @query count: int32): string;
 ```
 
 **Generated Compatibility Result:**
