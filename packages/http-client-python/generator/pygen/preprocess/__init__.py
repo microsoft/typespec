@@ -54,13 +54,14 @@ def add_overload(yaml_data: dict[str, Any], body_type: dict[str, Any], for_flatt
     if yaml_data.get("initialOperation"):
         overload["initialOperation"] = yaml_data["initialOperation"]
 
+    # Reattach shared type objects before filtering parameters so positional
+    # alignment with the original operation is preserved.
+    for overload_p, original_p in zip(overload["parameters"], yaml_data["parameters"]):
+        overload_p["type"] = original_p["type"]
     if for_flatten_params:
         overload["bodyParameter"]["flattened"] = True
     else:
         overload["parameters"] = [p for p in overload["parameters"] if not p.get("inFlattenedBody")]
-    # for yaml sync, we need to make sure all of the responses, parameters, and exceptions' types have the same yaml id
-    for overload_p, original_p in zip(overload["parameters"], yaml_data["parameters"]):
-        overload_p["type"] = original_p["type"]
     update_overload_section(overload, yaml_data, "responses")
     update_overload_section(overload, yaml_data, "exceptions")
 

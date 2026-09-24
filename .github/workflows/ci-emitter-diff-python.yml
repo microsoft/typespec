@@ -1,8 +1,8 @@
 name: "python / emitter diff"
 
 # Diffs generated code between this PR's emitter and the merge-base baseline.
-# Informational only: reports a sticky PR comment + HTML artifact, and fails the
-# job only on a tool/build error (never on a diff). See eng/emitter-diff.
+# Informational only: reports a job summary + HTML artifact, and relays comment
+# data to a privileged listener. Fails only on a tool/build error. See eng/emitter-diff.
 #
 # The tool runs `npm run regenerate` verbatim in each tree. It auto-prepares the
 # baseline tree it fetches from GitHub (via the preset's --setup: install +
@@ -15,6 +15,7 @@ on:
       - "packages/http-client-python/**"
       - "eng/emitter-diff/**"
       - ".github/workflows/ci-emitter-diff-python.yml"
+      - ".github/workflows/ci-emitter-diff-python-commenter.yml"
   workflow_dispatch:
     inputs:
       baseline:
@@ -24,7 +25,6 @@ on:
 
 permissions:
   contents: read
-  pull-requests: write
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -34,12 +34,11 @@ jobs:
   emitter-diff:
     name: "Generate & Diff"
     runs-on: ubuntu-latest
-    # Fork PRs are intentionally skipped
-    if: github.event.pull_request.head.repo.fork != true
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false
       - uses: ./.github/actions/setup
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
@@ -116,29 +115,36 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
 
-      - name: Comment on PR
+      - name: Save comment artifact
         if: always() && github.event_name == 'pull_request'
-        continue-on-error: true
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         env:
-          BASELINE: ${{ steps.baseline.outputs.sha || steps.baseline.outputs.ref }}
+          BASELINE: ${{ steps.baseline.outputs.ref }}
           STATUS: ${{ steps.diff.outputs.status }}
           SUMMARY: ${{ steps.diff.outputs.summary }}
         with:
           script: |
-            const marker = "<!-- emitter-diff-python -->";
+            const fs = require('node:fs');
+            const path = require('node:path');
             const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
             const { STATUS, SUMMARY, BASELINE } = process.env;
-            let body = `${marker}\n### Python emitter diff\nBaseline \`${BASELINE}\` vs this PR.\n\n`;
+            let body = `### Python emitter diff\nBaseline \`${BASELINE || "unavailable"}\` vs this PR.\n\n`;
             body += STATUS !== "0"
-              ? `⚠️ **emitter-diff failed** (exit \`${STATUS}\`) — tool/build error, not a diff. See the [run](${runUrl}).\n`
+              ? `⚠️ **emitter-diff failed** (exit \`${STATUS || "unavailable"}\`) — tool/build error, not a diff. See the [run](${runUrl}).\n`
               : `${SUMMARY}\n\nRendered diff: inline on the [run summary](${runUrl}), or the **emitter-diff-html** artifact.\n`;
             body += `\n_Informational check (eng/emitter-diff); does not block the PR._`;
-            const { owner, repo } = context.repo, issue_number = context.issue.number;
-            const { data } = await github.rest.issues.listComments({ owner, repo, issue_number });
-            const hit = data.find((c) => c.body && c.body.includes(marker));
-            if (hit) await github.rest.issues.updateComment({ owner, repo, comment_id: hit.id, body });
-            else await github.rest.issues.createComment({ owner, repo, issue_number, body });
+            const commentDir = path.join(process.env.RUNNER_TEMP, 'emitter-diff-comment');
+            fs.mkdirSync(commentDir, { recursive: true });
+            fs.writeFileSync(path.join(commentDir, 'comment.json'), JSON.stringify({ body }));
+
+      - name: Upload comment artifact
+        if: always() && github.event_name == 'pull_request'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: emitter-diff-python-comment
+          path: ${{ runner.temp }}/emitter-diff-comment/comment.json
+          if-no-files-found: error
+          retention-days: 1
 
       - name: Fail on tool error
         if: always()
