@@ -94,7 +94,7 @@ catalogs:
       specifier: ^5.2.2
       version: 5.2.4
     '@microsoft/api-extractor':
-      specifier: ~7.58.1
+      specifier: ^7.58.1
       version: 7.58.13
     '@microsoft/api-extractor-model':
       specifier: ^7.33.11
