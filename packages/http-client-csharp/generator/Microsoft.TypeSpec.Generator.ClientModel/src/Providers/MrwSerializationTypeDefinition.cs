@@ -168,9 +168,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private CSharpType GetRootModelType()
         {
+            // Preserve the shipped create-core return type when back compatibility restores a mapped
+            // base. The prior contract may have used a covariant model return rather than the mapped
+            // framework root type.
+            var lastContractReturnType = _model.BaseModelProvider is SystemObjectModelProvider
+                ? GetLastContractCreateCoreReturnType()
+                : null;
+
             // We need to explicitly use the BaseModelProvider when looking up the root type
             // to account for any customizations that may have changed the base model.
-            var returnType = _model.BaseModelProvider?.Type ??
+            var returnType = lastContractReturnType ??
+                _model.BaseModelProvider?.Type ??
                 GetCustomMrwBaseRootType() ??
                 Type;
             while (returnType.BaseType != null
@@ -181,6 +189,80 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             return returnType;
         }
+
+        private CSharpType? GetLastContractCreateCoreReturnType()
+        {
+            var returnTypes = _model.LastContractView?.Methods
+                .Where(method => IsCreateCoreMethod(method.Signature) &&
+                    method.Signature.ReturnType is { } returnType &&
+                    IsLastContractModelType(returnType))
+                .Select(method => method.Signature.ReturnType!)
+                .Distinct(CSharpType.IgnoreNullableComparer)
+                .ToArray();
+            return returnTypes is { Length: 1 } ? returnTypes[0] : null;
+        }
+
+        private bool IsLastContractModelType(CSharpType candidate)
+        {
+            var visited = new HashSet<string>(StringComparer.Ordinal);
+            for (var type = _model.LastContractView?.Type;
+                type is not null && visited.Add(type.FullyQualifiedName);
+                type = type.BaseType)
+            {
+                if (type.AreNamesEqual(candidate))
+                {
+                    return IsAvailableInCurrentContract(candidate);
+                }
+            }
+            return false;
+        }
+
+        private bool IsAvailableInCurrentContract(CSharpType candidate)
+        {
+            var visited = new HashSet<string>(StringComparer.Ordinal);
+            for (CSharpType? type = _model.Type;
+                type is not null && visited.Add(type.FullyQualifiedName);
+                type = type.BaseType)
+            {
+                if (type.AreNamesEqual(candidate))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        internal static bool IsCreateCoreMethod(MethodSignature signature)
+        {
+            var expectedModifiers = signature.Modifiers.HasFlag(MethodSignatureModifiers.Override)
+                ? MethodSignatureModifiers.Protected | MethodSignatureModifiers.Override
+                : MethodSignatureModifiers.Protected | MethodSignatureModifiers.Virtual;
+            if (HasUnsupportedSignature(signature) ||
+                signature.Parameters.Count != 2 ||
+                signature.GenericArguments is { Count: > 0 } ||
+                signature.ExplicitInterface is not null ||
+                signature.Modifiers != expectedModifiers ||
+                !IsParameter(signature.Parameters[1], typeof(ModelReaderWriterOptions)))
+            {
+                return false;
+            }
+
+            return signature.Name switch
+            {
+                JsonModelCreateCoreMethodName =>
+                    IsParameter(signature.Parameters[0], typeof(Utf8JsonReader), isRef: true),
+                PersistableModelCreateCoreMethodName =>
+                    IsParameter(signature.Parameters[0], typeof(BinaryData)),
+                _ => false
+            };
+        }
+
+        private static bool IsParameter(ParameterProvider parameter, Type type, bool isRef = false)
+            => CSharpType.IgnoreNullableComparer.Equals(parameter.Type, new CSharpType(type)) &&
+                parameter.IsRef == isRef &&
+                !parameter.IsOut &&
+                !parameter.IsIn &&
+                !parameter.IsParams;
 
         private static bool IsModelType(CSharpType type)
             => ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(type, out var baseProvider) &&

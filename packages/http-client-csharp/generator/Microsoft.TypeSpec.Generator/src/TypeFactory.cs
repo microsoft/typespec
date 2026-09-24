@@ -30,6 +30,9 @@ namespace Microsoft.TypeSpec.Generator
 
         private Dictionary<InputModelType, ModelProvider?> InputTypeToModelProvider { get; } = [];
 
+        internal IEnumerable<ModelProvider> CreatedModelProviders
+            => InputTypeToModelProvider.Values.OfType<ModelProvider>();
+
         public IDictionary<CSharpType, TypeProvider?> CSharpTypeMap { get; } = new Dictionary<CSharpType, TypeProvider?>(CSharpType.IgnoreNullableComparer);
 
         // Maps C# type names to TypeProviders for efficient lookup when resolving types by name
@@ -47,6 +50,48 @@ namespace Microsoft.TypeSpec.Generator
 
         protected internal TypeFactory()
         {
+        }
+
+        internal CSharpType? CreateLastContractModelBase(CSharpType previousBase, InputModelType currentModel)
+            => CreateLastContractModelBaseCore(previousBase, currentModel);
+
+        /// <summary>
+        /// Resolves a last-contract model base that cannot be represented by the current input.
+        /// Downstream generators can override this for their known inheritable framework types.
+        /// </summary>
+        /// <param name="previousBase">The base type from the last contract.</param>
+        /// <param name="currentModel">The current model whose base is being restored.</param>
+        /// <returns>The mapped base type, or <see langword="null"/> when the base is not supported.</returns>
+        protected virtual CSharpType? CreateLastContractModelBaseCore(CSharpType previousBase, InputModelType currentModel)
+            => null;
+
+        internal bool IsLastContractModelBasePropertyCompatible(
+            CSharpType mappedBase,
+            InputModelProperty currentProperty,
+            PropertyProvider lastContractProperty)
+            => !lastContractProperty.Modifiers.HasFlag(MethodSignatureModifiers.Static) &&
+                IsLastContractModelBasePropertyCompatibleCore(mappedBase, currentProperty, lastContractProperty);
+
+        /// <summary>
+        /// Determines whether a current input property is represented by a property on a mapped last-contract base.
+        /// Downstream generators can override this for mappings that intentionally change the CLR property shape.
+        /// </summary>
+        /// <param name="mappedBase">The mapped CLR base type.</param>
+        /// <param name="currentProperty">The property inherited from the current input base.</param>
+        /// <param name="lastContractProperty">A property exposed by the mapped last-contract base.</param>
+        protected virtual bool IsLastContractModelBasePropertyCompatibleCore(
+            CSharpType mappedBase,
+            InputModelProperty currentProperty,
+            PropertyProvider lastContractProperty)
+        {
+            var currentType = CreateCSharpType(currentProperty.Type);
+            var currentName = currentProperty.IsExactName
+                ? currentProperty.Name
+                : currentProperty.Name.ToIdentifierName().NormalizeCSharpAcronyms(currentProperty.Type.IsDateTimeInputType());
+            return currentType is not null &&
+                lastContractProperty.Name == currentName &&
+                lastContractProperty.Type.Equals(currentType, ignoreNullable: true) &&
+                lastContractProperty.Body.HasSetter == !currentProperty.IsReadOnly;
         }
 
         public CSharpType? CreateCSharpType(InputType inputType)
@@ -407,6 +452,9 @@ namespace Microsoft.TypeSpec.Generator
             PropertyCache.Add(property, propertyProvider);
             return propertyProvider;
         }
+
+        internal PropertyProvider? CreateUncachedProperty(InputProperty property, TypeProvider enclosingType)
+            => CreatePropertyCore(property, enclosingType);
 
         /// <summary>
         /// Factory method for creating a <see cref="PropertyProvider"/> based on an input property <paramref name="property"/>.

@@ -23,6 +23,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private const string AdditionalBinaryDataPropsFieldDescription = "Keeps track of any properties unknown to the library.";
         private const string ResponseSuffix = "Response";
         private readonly InputModelType _inputModel;
+        internal InputModelType InputModel => _inputModel;
+
         // Note the description cannot be built from the constructor as it would lead to a circular dependency between the base
         // and derived models resulting in a stack overflow.
         protected override FormattableString BuildDescription()
@@ -71,6 +73,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private List<FieldProvider>? _additionalPropertyFields;
         private List<PropertyProvider>? _additionalPropertyProperties;
         private ModelProvider? _baseModelProvider;
+        private ModelProvider? _backCompatBaseModelProvider;
         private ConstructorProvider? _fullConstructor;
         internal PropertyProvider? DiscriminatorProperty { get; private set; }
 
@@ -252,13 +255,103 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override CSharpType? BuildBaseType()
         {
+            var currentBase = BuildCurrentBaseType();
+            return BuildBaseTypeForBackCompatibility(currentBase);
+        }
+
+        /// <summary>
+        /// Returns the model base type after applying backward compatibility against <see cref="LastContractView"/>.
+        /// Restoration is limited to compatible generated roots and mapped bases recognized by the type factory.
+        /// </summary>
+        /// <param name="currentBase">The base type selected from custom code or the current input model.</param>
+        private CSharpType? BuildBaseTypeForBackCompatibility(CSharpType? currentBase)
+        {
+            // Property validation can resolve a type that points back to this model before its Type
+            // has been cached. Keep that nested resolution on the current hierarchy rather than
+            // re-entering restoration and recursively materializing the same property graph.
+            if (_isResolvingBackCompatBaseType)
+            {
+                return currentBase;
+            }
+
+            _isResolvingBackCompatBaseType = true;
+            try
+            {
+                return BuildBaseTypeForBackCompatibilityCore(currentBase);
+            }
+            finally
+            {
+                _isResolvingBackCompatBaseType = false;
+            }
+        }
+
+        private CSharpType? BuildBaseTypeForBackCompatibilityCore(CSharpType? currentBase)
+        {
+            // A mapped external model's CLR hierarchy is owned by its wrapped system type.
+            if (this is SystemObjectModelProvider)
+            {
+                return currentBase;
+            }
+
+            var previousBase = LastContractView?.BaseType;
+            if (previousBase is null || previousBase.IsGenericType || IsInBaseTypeHierarchy(currentBase, previousBase))
+            {
+                return currentBase;
+            }
+
+            // Keep this policy deliberately conservative. Conflicting custom bases, structs, polymorphic
+            // models, and models with descendants require broader hierarchy reconciliation and are left unchanged.
+            // Unrelated custom members do not prevent restoring a compatible mapped base.
+            if (CustomCodeView?.BaseType is not null ||
+                DeclarationModifiers.HasFlag(TypeSignatureModifiers.Struct) ||
+                _inputModel.DiscriminatorProperty is not null ||
+                _inputModel.DiscriminatorValue is not null ||
+                _inputModel.DerivedModels.Count > 0 ||
+                _inputModel.DiscriminatedSubtypes.Count > 0)
+            {
+                return currentBase;
+            }
+
+            if (CodeModelGenerator.Instance.SourceInputModel.ApiCompatBaseline.ReferencesSuppressedType(previousBase))
+            {
+                CodeModelGenerator.Instance.Emitter.Info(
+                    $"Skipping back-compat base type restoration for model '{BuildNamespace()}.{BuildName()}'; base type '{previousBase.FullyQualifiedName}' is an accepted removal in the ApiCompat baseline.",
+                    BackCompatibilityChangeCategory.BaselineAcceptedRemovalSkipped);
+                return currentBase;
+            }
+
+            var resolver = new BackCompatModelBaseResolver(this);
+            if (!resolver.TryResolve(previousBase, out var previousBaseProvider))
+            {
+                if (!_hasReportedIncompatibleBackcompatBaseType)
+                {
+                    CodeModelGenerator.Instance.Emitter.ReportDiagnostic(
+                        DiagnosticCodes.IncompatibleBackcompatBaseType,
+                        $"Could not preserve base type '{previousBase.FullyQualifiedName}' on model '{BuildNamespace()}.{BuildName()}'; automatic restoration is limited to compatible generated or mapped root-model bases.");
+                    _hasReportedIncompatibleBackcompatBaseType = true;
+                }
+                return currentBase;
+            }
+
+            // Keep the restored provider local to this model. A downstream fallback may synthesize a
+            // mapped contract specifically for this hierarchy, so publishing it in the global type map
+            // could change constructor and serialization behavior for unrelated models with the same base.
+            _backCompatBaseModelProvider = previousBaseProvider;
+            CodeModelGenerator.Instance.Emitter.Info(
+                $"Changed base type of model '{BuildName()}' from '{currentBase?.FullyQualifiedName ?? "object"}' to '{previousBaseProvider.Type.FullyQualifiedName}' to match the last contract.",
+                BackCompatibilityChangeCategory.ModelBaseTypePreserved);
+            return previousBaseProvider.Type;
+        }
+
+        private bool _hasReportedIncompatibleBackcompatBaseType;
+        private bool _isResolvingBackCompatBaseType;
+
+        private CSharpType? BuildCurrentBaseType()
+        {
             if (CustomCodeView?.BaseType != null)
             {
                 var customBase = CustomCodeView.BaseType;
 
-                // If the custom base type doesn't have a resolved namespace, then try to resolve it from the input model map.
-                // This will happen if a model is customized to inherit from another generated model, but that generated model
-                // was not also defined in custom code so Roslyn does not recognize it.
                 if (string.IsNullOrEmpty(customBase.Namespace))
                 {
                     if (CodeModelGenerator.Instance.TypeFactory.TypeProvidersByName.TryGetValue(
@@ -268,8 +361,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         return resolvedModel.Type;
                     }
 
-                    // Force-create all input models so that visitors run (which may rename models
-                    // via TypeProvider.Update) and TypeProvidersByName is fully populated.
                     foreach (var model in CodeModelGenerator.Instance.InputLibrary.InputNamespace.Models)
                     {
                         CodeModelGenerator.Instance.TypeFactory.CreateModel(model);
@@ -293,12 +384,22 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return customBase;
             }
 
-            if (_inputModel.BaseModel == null)
-            {
-                return null;
-            }
+            return _inputModel.BaseModel is null
+                ? null
+                : CodeModelGenerator.Instance.TypeFactory.CreateModel(_inputModel.BaseModel)?.Type;
+        }
 
-            return CodeModelGenerator.Instance.TypeFactory.CreateModel(_inputModel.BaseModel)?.Type;
+        private static bool IsInBaseTypeHierarchy(CSharpType? currentBase, CSharpType previousBase)
+        {
+            var visited = new HashSet<string>(StringComparer.Ordinal);
+            for (var type = currentBase; type is not null && visited.Add(type.FullyQualifiedName); type = type.BaseType)
+            {
+                if (type.AreNamesEqual(previousBase))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         protected override TypeProvider[] BuildSerializationProviders()
@@ -484,6 +585,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return null;
             }
 
+            if (_backCompatBaseModelProvider is not null &&
+                _backCompatBaseModelProvider.Type.AreNamesEqual(baseType))
+            {
+                return _backCompatBaseModelProvider;
+            }
+
             if (CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(baseType, out var provider)
                 && provider is ModelProvider modelProvider)
             {
@@ -559,6 +666,37 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 additionalPropsType,
                 BuildAdditionalTypePropertiesFieldName(additionalPropsType.ElementType),
                 this));
+        }
+
+        internal IEnumerable<string> GetAdditionalPropertyNamesForBackCompatibility()
+        {
+            if (_inputModel.AdditionalProperties is null)
+            {
+                yield break;
+            }
+
+            // Use the same field/type naming as emission, without populating Properties or RawDataField:
+            // those caches walk the base hierarchy while restoration is still choosing that hierarchy.
+            var fields = BuildAdditionalPropertyFields();
+            for (var i = 0; i < fields.Count; i++)
+            {
+                yield return i == 0 ? AdditionalPropertiesHelper.DefaultAdditionalPropertiesPropertyName : fields[i].Name.ToIdentifierName();
+            }
+
+            if (CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(_inputModel.AdditionalProperties) is not { } valueType)
+            {
+                yield break;
+            }
+            var dictionaryType = ReplaceUnverifiableType(new CSharpType(typeof(IDictionary<,>), typeof(string), valueType));
+            if (dictionaryType.ElementType.IsUnion && dictionaryType.ElementType.UnionItemTypes.Any(type => !type.IsFrameworkType) ||
+                !valueType.IsUnion && dictionaryType.Equals(_additionalBinaryDataPropsFieldType))
+            {
+                // Conservatively reserve the raw-data property if its type can be exposed. Whether the
+                // final hierarchy supplies a raw-data field is deliberately not evaluated here.
+                yield return fields.Count == 0
+                    ? AdditionalPropertiesHelper.DefaultAdditionalPropertiesPropertyName
+                    : AdditionalPropertiesHelper.AdditionalBinaryDataPropsFieldName.ToIdentifierName();
+            }
         }
 
         private List<PropertyProvider> BuildAdditionalPropertyProperties()
@@ -676,7 +814,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 foreach (var baseProperty in baseModelProvider._inputModel.Properties)
                 {
-                    if (baseProperties.ContainsKey(baseProperty.Name) || skippedBasePropertyNames.Contains(baseProperty.Name))
+                    if (baseProperties.ContainsKey(baseProperty.Name) ||
+                        skippedBasePropertyNames.Contains(baseProperty.Name))
                     {
                         continue;
                     }
@@ -1333,7 +1472,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// Builds the internal constructor for the model which contains all public properties
         /// as parameters.
         /// </summary>
-        private ConstructorProvider BuildFullConstructor()
+        private protected virtual ConstructorProvider BuildFullConstructor()
         {
             var (ctorParameters, ctorInitializer) = BuildConstructorParameters(false);
             return new ConstructorProvider(

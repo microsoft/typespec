@@ -40,6 +40,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public FieldProvider? BackingField { get; set; }
         public PropertyProvider? BaseProperty { get; set; }
         public bool IsRef { get; private set; }
+        internal bool IsInitOnly { get; set; }
+        // Preserve the fact that a symbol has accessor/member metadata this provider cannot model.
+        internal bool HasUnsupportedBaseContract { get; init; }
         public SerializationFormat SerializationFormat => _serializationFormat;
 
         /// <summary>
