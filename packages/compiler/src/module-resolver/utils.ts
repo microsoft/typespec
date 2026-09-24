@@ -48,7 +48,9 @@ export async function isFile(host: ResolveModuleHost, path: string) {
   }
 }
 export function pathToFileURL(path: string): string {
-  return `file://${path}`;
+  // UNC path (//server/share/...): the server is the URL authority. `file:////server/...`
+  // loses a slash when the url is normalized and the package no longer contains its own files.
+  return path.startsWith("//") ? `file:${path}` : `file://${path}`;
 }
 
 export function fileURLToPath(url: string) {
@@ -66,7 +68,9 @@ export function fileURLToPath(url: string) {
     }
   }
 
-  return decodeURIComponent(pathname);
+  const path = decodeURIComponent(pathname);
+  // An authority that is not a drive letter is the server of a UNC path.
+  return /^[^/]/.test(path) && !/^[a-zA-Z]:/.test(path) ? `//${path}` : path;
 }
 
 /**
