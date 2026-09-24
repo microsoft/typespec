@@ -10,20 +10,20 @@ using System.Collections.Generic;
 
 namespace SampleTypeSpec
 {
-    /// <summary> The ReturnsAnonymousModelResponse. </summary>
-    public partial class ReturnsAnonymousModelResponse
+    /// <summary> The ReturnsAnonymousModelResult. </summary>
+    public partial class ReturnsAnonymousModelResult
     {
         /// <summary> Keeps track of any properties unknown to the library. </summary>
         private protected readonly IDictionary<string, BinaryData> _additionalBinaryDataProperties;
 
-        /// <summary> Initializes a new instance of <see cref="ReturnsAnonymousModelResponse"/>. </summary>
-        internal ReturnsAnonymousModelResponse()
+        /// <summary> Initializes a new instance of <see cref="ReturnsAnonymousModelResult"/>. </summary>
+        internal ReturnsAnonymousModelResult()
         {
         }
 
-        /// <summary> Initializes a new instance of <see cref="ReturnsAnonymousModelResponse"/>. </summary>
+        /// <summary> Initializes a new instance of <see cref="ReturnsAnonymousModelResult"/>. </summary>
         /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
-        internal ReturnsAnonymousModelResponse(IDictionary<string, BinaryData> additionalBinaryDataProperties)
+        internal ReturnsAnonymousModelResult(IDictionary<string, BinaryData> additionalBinaryDataProperties)
         {
             _additionalBinaryDataProperties = additionalBinaryDataProperties;
         }

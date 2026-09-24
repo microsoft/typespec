@@ -21,6 +21,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
     public class ModelProvider : TypeProvider
     {
         private const string AdditionalBinaryDataPropsFieldDescription = "Keeps track of any properties unknown to the library.";
+        private const string ResponseSuffix = "Response";
         private readonly InputModelType _inputModel;
         // Note the description cannot be built from the constructor as it would lead to a circular dependency between the base
         // and derived models resulting in a stack overflow.
@@ -315,6 +316,70 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             return NormalizeTypeNameForNewContract(_inputModel.Name.ToIdentifierName());
+        }
+
+        private protected override string NormalizeTypeName(string name)
+        {
+            var normalizedName = base.NormalizeTypeName(name);
+            if (!normalizedName.EndsWith(ResponseSuffix, StringComparison.Ordinal))
+            {
+                return normalizedName;
+            }
+
+            var typeNamespace = BuildNamespace();
+            var sourceInputModel = CodeModelGenerator.Instance.SourceInputModel;
+            if (sourceInputModel.FindForTypeInCurrentCompilation(typeNamespace, normalizedName, DeclaringTypeName) is not null ||
+                sourceInputModel.FindForTypeInLastContract(typeNamespace, normalizedName, DeclaringTypeName) is not null)
+            {
+                return normalizedName;
+            }
+
+            return $"{normalizedName[..^ResponseSuffix.Length]}Result";
+        }
+
+        private protected override TypeProvider? BuildCustomCodeView(string? generatedTypeName = null, string? generatedTypeNamespace = null)
+        {
+            var typeNamespace = generatedTypeNamespace ?? BuildNamespace();
+            var typeName = generatedTypeName ?? BuildName();
+            var customCodeView = base.BuildCustomCodeView(typeName, typeNamespace);
+            return customCodeView ?? BuildResponseSuffixFallbackView(
+                typeName,
+                typeNamespace,
+                (name, ns) => base.BuildCustomCodeView(name, ns));
+        }
+
+        private protected override TypeProvider? BuildLastContractView(string? generatedTypeName = null, string? generatedTypeNamespace = null)
+        {
+            var typeNamespace = generatedTypeNamespace ?? CustomCodeView?.Type.Namespace ?? BuildNamespace();
+            var typeName = generatedTypeName ?? CustomCodeView?.Name ?? BuildName();
+            var lastContractView = base.BuildLastContractView(typeName, typeNamespace);
+            return lastContractView ?? BuildResponseSuffixFallbackView(
+                typeName,
+                typeNamespace,
+                (name, ns) => base.BuildLastContractView(name, ns));
+        }
+
+        private TypeProvider? BuildResponseSuffixFallbackView(
+            string typeName,
+            string typeNamespace,
+            Func<string, string, TypeProvider?> buildView)
+        {
+            if (_inputModel.IsExactName)
+            {
+                return null;
+            }
+
+            var originalName = _inputModel.Name.ToIdentifierName();
+            var normalizedOriginalName = originalName.NormalizeCSharpAcronyms();
+            if (!normalizedOriginalName.EndsWith(ResponseSuffix, StringComparison.Ordinal) ||
+                originalName == typeName ||
+                typeName != $"{normalizedOriginalName[..^ResponseSuffix.Length]}Result")
+            {
+                return null;
+            }
+
+            return buildView(originalName, typeNamespace) ??
+                (normalizedOriginalName == originalName ? null : buildView(normalizedOriginalName, typeNamespace));
         }
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers()
