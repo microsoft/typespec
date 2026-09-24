@@ -332,7 +332,7 @@ namespace PathParameters {
   }
 }
 
-@doc("A named model used to verify explode expansion of a model-valued query parameter.")
+@doc("A named model used to verify expansion of a model-valued query parameter.")
 model ExpandParameters {
   field: string;
   value: string;
@@ -385,6 +385,15 @@ namespace QueryParameters {
         """)
       @route("record{?param}")
       op `record`(param: Record<int32>): void;
+
+      @scenario
+      @scenarioDoc("""
+        Test query expansion with explode: false when passed a named model value.
+            Param value: {field: "status", value: "active"}
+            Expected path: /routes/query/query-expansion/standard/model?param=field,status,value,active
+        """)
+      @route("model{?param}")
+      op `model`(param: ExpandParameters): void;
     }
 
     @route("explode")
@@ -460,6 +469,15 @@ namespace QueryParameters {
         """)
       @route("record?fixed=true{&param}")
       op `record`(param: Record<int32>): void;
+
+      @scenario
+      @scenarioDoc("""
+        Test query continuation expansion with explode: false when passed a named model value.
+            Param value: {field: "status", value: "active"}
+            Expected path: /routes/query/query-continuation/standard/model?fixed=true&param=field,status,value,active
+        """)
+      @route("model?fixed=true{&param}")
+      op `model`(param: ExpandParameters): void;
     }
 
     @route("explode")
@@ -490,6 +508,15 @@ namespace QueryParameters {
         """)
       @route("record?fixed=true{&param*}")
       op `record`(param: Record<int32>): void;
+
+      @scenario
+      @scenarioDoc("""
+        Test query continuation expansion with explode: true when passed a named model value.
+            Param value: {field: "status", value: "active"}
+            Expected path: /routes/query/query-continuation/explode/model?fixed=true&field=status&value=active
+        """)
+      @route("model?fixed=true{&param*}")
+      op `model`(param: ExpandParameters): void;
     }
   }
 }
