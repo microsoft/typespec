@@ -8,6 +8,7 @@ using Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions;
 namespace Sample
 {
     [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions.ModelReaderWriterContextDefinitionTests.DependencyModel))]
+    [global::System.ClientModel.Primitives.ModelReaderWriterBuildableAttribute(typeof(global::Sample.TestMrwSerialization))]
     public partial class SampleContext : global::System.ClientModel.Primitives.ModelReaderWriterContext
     {
     }

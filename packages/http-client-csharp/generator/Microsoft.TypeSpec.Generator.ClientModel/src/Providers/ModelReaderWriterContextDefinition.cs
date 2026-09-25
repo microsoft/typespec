@@ -68,7 +68,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
             foreach (var provider in buildableProviders)
             {
-                if (!provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public)
+                // protected internal is part of the public API surface, but private protected is not
+                var isPublicApi = provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public)
+                    || (provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Protected)
+                        && !provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Private));
+
+                if (!isPublicApi
                     || !ShouldWriteProvider(provider)
                     || customizedBuildableTypes.Contains(GetTypeIdentity(provider.Type)))
                 {
