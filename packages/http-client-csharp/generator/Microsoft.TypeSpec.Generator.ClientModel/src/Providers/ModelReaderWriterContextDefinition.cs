@@ -68,17 +68,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
             foreach (var provider in buildableProviders)
             {
-                var isPublicProvider = true;
-                for (var providerToCheck = provider; providerToCheck != null; providerToCheck = providerToCheck.DeclaringTypeProvider)
-                {
-                    if (!providerToCheck.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public))
-                    {
-                        isPublicProvider = false;
-                        break;
-                    }
-                }
-
-                if (!isPublicProvider
+                if (!provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public)
                     || !ShouldWriteProvider(provider)
                     || customizedBuildableTypes.Contains(GetTypeIdentity(provider.Type)))
                 {
@@ -182,34 +172,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     continue;
                 }
 
-                var hasPublicDeclaringTypes = true;
-                for (var declaringType = targetType.DeclaringType; declaringType != null; declaringType = declaringType.DeclaringType)
-                {
-                    var declaringProvider = ScmCodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(
-                        declaringType.Namespace,
-                        declaringType.ClrMetadataName,
-                        null,
-                        includeReferencedAssemblies: true);
-
-                    if (declaringProvider is null || !declaringProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public))
-                    {
-                        hasPublicDeclaringTypes = false;
-                        break;
-                    }
-                }
-
-                if (!hasPublicDeclaringTypes)
-                {
-                    continue;
-                }
-
                 var identity = GetTypeIdentity(targetType);
 
                 TypeProvider? resolvedProvider;
                 if (outputLibraryProviders.TryGetValue(identity, out var outputLibraryProvider))
                 {
-                    if (!outputLibraryProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public)
-                        || !ShouldWriteProvider(outputLibraryProvider))
+                    if (!ShouldWriteProvider(outputLibraryProvider))
                     {
                         continue;
                     }
@@ -223,8 +191,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         null,
                         includeReferencedAssemblies: true);
 
-                    if (resolvedProvider is null
-                        || !resolvedProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public))
+                    if (resolvedProvider is null)
                     {
                         continue;
                     }
