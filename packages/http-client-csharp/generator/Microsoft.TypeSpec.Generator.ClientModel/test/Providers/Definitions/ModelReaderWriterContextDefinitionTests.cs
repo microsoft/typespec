@@ -104,13 +104,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
-        [TestCase(TypeSignatureModifiers.Public, 2)]
-        [TestCase(TypeSignatureModifiers.Internal, 1)]
-        [TestCase(TypeSignatureModifiers.Private, 1)]
-        [TestCase(TypeSignatureModifiers.Protected, 1)]
-        [TestCase(TypeSignatureModifiers.Protected | TypeSignatureModifiers.Internal, 1)]
-        [TestCase(TypeSignatureModifiers.Private | TypeSignatureModifiers.Protected, 1)]
-        public void BuildableAttributesRespectUpdatedAccessibility(TypeSignatureModifiers accessibility, int expectedCount)
+        [TestCase(TypeSignatureModifiers.Public, "Public")]
+        [TestCase(TypeSignatureModifiers.Internal, "Internal")]
+        [TestCase(TypeSignatureModifiers.Private, "Private")]
+        [TestCase(TypeSignatureModifiers.Protected, "Protected")]
+        [TestCase(TypeSignatureModifiers.Protected | TypeSignatureModifiers.Internal, "ProtectedInternal")]
+        [TestCase(TypeSignatureModifiers.Private | TypeSignatureModifiers.Protected, "PrivateProtected")]
+        public void BuildableAttributesRespectUpdatedAccessibility(TypeSignatureModifiers accessibility, string expectedFile)
         {
             var provider = new TestMrwSerialization(implementsPersistableModel: true, includeDepModelProperty: true);
             MockHelpers.LoadMockGenerator(createOutputLibrary: () => new TestOutputLibrary([provider]));
@@ -119,12 +119,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             provider.Update(modifiers: accessibility | TypeSignatureModifiers.Class);
 
             var contextDefinition = new ModelReaderWriterContextDefinition();
-            var buildableAttributes = GetBuildableAttributes(contextDefinition);
+            var file = new TypeProviderWriter(contextDefinition).Write();
 
-            Assert.AreEqual(expectedCount, buildableAttributes.Count);
-            Assert.AreEqual(
-                "typeof(global::Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions.ModelReaderWriterContextDefinitionTests.DependencyModel)",
-                buildableAttributes[0].Arguments[0].ToDisplayString());
+            Assert.AreEqual(Helpers.GetExpectedFromFile(expectedFile), file.Content);
         }
 
         [Test]
@@ -136,10 +133,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
                 createCSharpTypeCoreFallback: input => input == InputPrimitiveType.String);
 
             var contextDefinition = new ModelReaderWriterContextDefinition();
-            var buildableAttributes = GetBuildableAttributes(contextDefinition);
+            var file = new TypeProviderWriter(contextDefinition).Write();
 
-            Assert.AreEqual(1, buildableAttributes.Count);
-            Assert.AreEqual("typeof(global::Sample.Models.PublicModel)", buildableAttributes[0].Arguments[0].ToDisplayString());
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
         [TestCase(true)]
