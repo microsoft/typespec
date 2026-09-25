@@ -154,6 +154,22 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual("ServiceResponse", model.Properties[0].Name);
         }
 
+        [TestCase("ErrorResponse", false, "ErrorResponse")]
+        [TestCase("ServiceErrorResponse", false, "ServiceErrorResponse")]
+        [TestCase("IpResponse", false, "IPResponse")]
+        [TestCase("IpResponse", true, "IpResponse")]
+        public void TestBuildName_ErrorResponseSuffix(string inputName, bool isExactName, string expectedName)
+        {
+            var inputModel = InputFactory.Model(
+                inputName,
+                usage: InputModelTypeUsage.Error | InputModelTypeUsage.Output | InputModelTypeUsage.Json,
+                isExactName: isExactName);
+            var model = new ModelProvider(inputModel);
+
+            Assert.AreEqual(expectedName, model.Name);
+            Assert.AreEqual($"{expectedName}.cs", Path.GetFileName(model.RelativeFilePath));
+        }
+
         [TestCase("WidgetResponse", "WidgetResponse", false, false)]
         [TestCase("WidgetResponse", "WidgetResponse", true, false)]
         [TestCase("WidgetResponse", "WidgetResponse", false, true)]
@@ -188,12 +204,17 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.IsNotNull(lastContract ? model.LastContractView : model.CustomCodeView);
         }
 
-        [TestCase("WidgetResponse", "CustomizedWidget")]
-        [TestCase("IpResponse", "CustomizedIP")]
-        [TestCase("GadgetResponse", "CustomizedGadget")]
-        public async Task TestBuildName_ResponseSuffixPreservesCustomName(string inputName, string expectedName)
+        [TestCase("WidgetResponse", "CustomizedWidget", false)]
+        [TestCase("WidgetResponse", "CustomizedWidget", true)]
+        [TestCase("IpResponse", "CustomizedIP", false)]
+        [TestCase("IpResponse", "CustomizedIP", true)]
+        [TestCase("GadgetResponse", "CustomizedGadget", false)]
+        public async Task TestBuildName_ResponseSuffixPreservesCustomName(
+            string inputName, string expectedName, bool isError)
         {
-            var inputModel = InputFactory.Model(inputName);
+            var inputModel = InputFactory.Model(inputName,
+                usage: InputModelTypeUsage.Output | InputModelTypeUsage.Json |
+                    (isError ? InputModelTypeUsage.Error : InputModelTypeUsage.None));
             await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: [inputModel],
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());

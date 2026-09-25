@@ -65,6 +65,34 @@ namespace Microsoft.TypeSpec.Generator.Tests.ReferenceMap
         }
 
         [Test]
+        public void KeptProvidersDistinguishGenericArity(
+            [Values(false, true)] bool isRoot,
+            [Values(0, 1, 2)] int keptArity)
+        {
+            var argument = CreateNamedType("T", string.Empty);
+            TypeProvider[] providers =
+            [
+                new TestTypeProvider("ErrorResult", TypeSignatureModifiers.Public, ns: "Sample"),
+                new GenericTestTypeProvider("ErrorResult", TypeSignatureModifiers.Internal, "Sample", argument),
+                new GenericTestTypeProvider("ErrorResult", TypeSignatureModifiers.Internal, "Sample", argument, CreateNamedType("U", string.Empty))
+            ];
+            MockHelpers.LoadMockGenerator(createOutputLibrary: () => new TestOutputLibrary(providers));
+            CodeModelGenerator.Instance.AddTypeToKeep(providers[keptArity], isRoot);
+
+            using var session = ProviderReferenceMapAnalyzer.PrepareForGeneration(providers);
+
+            for (var i = 0; i < providers.Length; i++)
+            {
+                Assert.AreEqual(i == keptArity, session.ShouldWriteProvider(providers[i]), $"Arity {i}");
+            }
+            if (!isRoot && keptArity > 0)
+            {
+                Assert.IsTrue(providers[keptArity].DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal));
+                Assert.IsFalse(providers[keptArity].DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+            }
+        }
+
+        [Test]
         public void ProviderNamedClientProviderIsNotTreatedAsClientWithoutCapability()
         {
             var sameNamedProvider = new ClientProvider();

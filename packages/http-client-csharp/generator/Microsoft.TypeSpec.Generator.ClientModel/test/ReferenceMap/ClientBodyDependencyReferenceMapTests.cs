@@ -7,9 +7,12 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
+using Microsoft.TypeSpec.Generator.ClientModel.Providers;
+using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
+using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
 
@@ -71,6 +74,56 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ReferenceMap
             var client = InputFactory.Client("TestClient", methods: [method]);
 
             await GenerateAndAssertPublicModels([responseModel], [client], ["ResponseBody"]);
+        }
+
+        [TestCase("ErrorResponse", true, false)]
+        [TestCase("ErrorResponse", true, true)]
+        [TestCase("ServiceErrorResponse", true, false)]
+        [TestCase("ServiceErrorResponse", true, true)]
+        [TestCase("ErrorResult", false, false)]
+        [TestCase("ErrorResult", false, true)]
+        public async Task ErrorResultHelperDoesNotKeepServiceModel(string modelName, bool isError, bool referenced)
+        {
+            var model = InputFactory.Model(modelName, @namespace: "Sample", access: null!,
+                usage: InputModelTypeUsage.Json | (isError ? InputModelTypeUsage.Error : InputModelTypeUsage.None));
+            var responseModel = InputFactory.Model("ResponseBody",
+                properties: referenced ? [InputFactory.Property("Details", model)] : []);
+            var operation = InputFactory.Operation("Get", responses: [InputFactory.OperationResponse(bodytype: responseModel)]);
+            var method = InputFactory.BasicServiceMethod("Get", operation,
+                response: InputFactory.ServiceMethodResponse(responseModel, []));
+            var client = InputFactory.Client("TestClient", methods: [method]);
+
+            await GenerateAndAssertFiles(
+                enums: [],
+                models: [responseModel, model],
+                clients: [client],
+                customFiles: [],
+                expectedFiles: [Path.Combine("src", "Generated", "Internal", "ErrorResult.cs")],
+                publicModelNames: referenced ? ["ResponseBody", modelName] : ["ResponseBody"],
+                assertProviders: (session, providers) =>
+                {
+                    var modelProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(model)!;
+                    Assert.AreEqual(modelName, modelProvider.Name);
+                    Assert.AreEqual(referenced, session.ShouldWriteProvider(modelProvider));
+                    foreach (var serialization in modelProvider.SerializationProviders)
+                    {
+                        Assert.AreEqual(referenced, session.ShouldWriteProvider(serialization));
+                    }
+
+                    var helper = providers.OfType<ErrorResultDefinition>().Single();
+                    Assert.AreEqual(modelProvider.Type.Namespace, helper.Type.Namespace);
+                    Assert.AreEqual(1, helper.Type.Arguments.Count);
+                    Assert.IsTrue(helper.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal));
+                    Assert.IsFalse(helper.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+
+                    var factory = providers.OfType<ModelFactoryProvider>().Single();
+                    Assert.AreEqual(referenced, factory.Methods.Any(m => m.Signature.ReturnType?.Equals(modelProvider.Type) == true));
+
+                    var context = providers.OfType<ModelReaderWriterContextDefinition>().Single();
+                    var buildableTypes = context.GetAttributesForWrite().OfType<AttributeStatement>()
+                        .SelectMany(a => a.Arguments).OfType<TypeOfExpression>().Select(e => e.Type);
+                    Assert.AreEqual(referenced, buildableTypes.Contains(modelProvider.Type));
+                });
         }
 
         [Test]
@@ -834,7 +887,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ReferenceMap
             string[] internalModelNames = null!,
             string[] internalClientNames = null!,
             string packageName = "Sample",
-            Action? configureGenerator = null)
+            Action? configureGenerator = null,
+            Action<ProviderReferenceMapSession, IReadOnlyList<TypeProvider>>? assertProviders = null)
         {
             publicModelNames ??= [];
             internalModelNames ??= [];
@@ -930,6 +984,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ReferenceMap
             {
                 AssertProviderWritten(session, allProviders, unexpectedFile, expected: false);
             }
+            assertProviders?.Invoke(session, providers);
         }
 
         private static IEnumerable<TypeProvider> EnumerateAllProviders(IEnumerable<TypeProvider> providers)
