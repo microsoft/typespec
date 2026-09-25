@@ -2,8 +2,13 @@ import { type Children } from "@alloy-js/core";
 import type { ParameterProps } from "@alloy-js/csharp";
 import * as cs from "@alloy-js/csharp";
 import { isErrorModel, type Model, type Program } from "@typespec/compiler";
+import { useTsp } from "@typespec/emitter-framework";
+import { getNullableUnionInnerType } from "@typespec/emitter-framework/csharp";
 import { getHeaderFieldName, isHeader, isStatusCode } from "@typespec/http";
-import { TypeExpression } from "../type-expression/type-expression.jsx";
+import {
+  getNullableValueTypeUnionInnerType,
+  TypeExpression,
+} from "../type-expression/type-expression.jsx";
 import {
   getAllProperties,
   getDefaultValueString,
@@ -14,6 +19,7 @@ import {
 
 /** Generates the constructor for an error model. */
 export function getErrorConstructor(program: Program, model: Model, className: string): Children {
+  const { $ } = useTsp();
   const statusCode = getErrorStatusCode(program, model);
   const isChild = model.baseModel && isErrorModel(program, model.baseModel);
   const namePolicy = cs.createCSharpNamePolicy();
@@ -54,10 +60,17 @@ export function getErrorConstructor(program: Program, model: Model, className: s
     }
 
     const csharpType = <TypeExpression type={prop.type} />;
+    const nullableUnionInnerType =
+      prop.type.kind === "Union" ? getNullableUnionInnerType(prop.type) : undefined;
+    const typeExpressionIncludesNullable =
+      getNullableValueTypeUnionInnerType($, prop.type) !== undefined;
+    const needsNullable =
+      !typeExpressionIncludesNullable && (prop.optional || nullableUnionInnerType !== undefined);
     const defaultStr = defaultValue ? defaultValue : prop.optional ? "default" : undefined;
     parameters.push({
       name: prop.name,
       type: csharpType,
+      optional: needsNullable,
       default: defaultStr,
     });
     bodyParts.push(`${propName} = ${prop.name};`);
