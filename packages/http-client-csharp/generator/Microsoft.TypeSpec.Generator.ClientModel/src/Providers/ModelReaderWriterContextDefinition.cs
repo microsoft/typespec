@@ -602,6 +602,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             TypeProvider typeProvider,
             string key)
         {
+            for (var provider = typeProvider; provider != null; provider = provider.DeclaringTypeProvider)
+            {
+                if (!provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public))
+                {
+                    return;
+                }
+            }
+
             AttributeStatement? experimentalOrObsoleteAttribute = typeProvider.CanonicalView.Attributes
                 .FirstOrDefault(a => a.Type.Equals(typeof(ExperimentalAttribute)) || a.Type.Equals(typeof(ObsoleteAttribute)));
 
@@ -628,6 +636,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             string experimentalTypeJustification,
             string obsoleteTypeJustification)
         {
+            if (!frameworkType.IsVisible)
+            {
+                return;
+            }
+
             var key = frameworkType.FullName ?? frameworkType.Name;
 
             // Match [Experimental] by attribute type full name rather than runtime identity. Dependencies that
