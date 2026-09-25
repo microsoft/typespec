@@ -12,7 +12,12 @@ import type {
   Type,
   Value,
 } from "../core/types.js";
-import { getEncode, resolveEncodedName, type EncodeData } from "./decorators.js";
+import {
+  getEncode,
+  resolveEncodedEnumMemberValue,
+  resolveEncodedName,
+  type EncodeData,
+} from "./decorators.js";
 
 /**
  * Error thrown when a value cannot be serialized.
@@ -87,7 +92,7 @@ export function serializeValueAsJson(
     case "NumericValue":
       return value.value.asNumber();
     case "EnumValue":
-      return value.value.value ?? value.value.name;
+      return resolveEncodedEnumMemberValue(program, value.value, "application/json");
     case "ArrayValue":
       return value.values.map((v) =>
         serializeValueAsJson(

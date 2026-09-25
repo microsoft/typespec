@@ -54,6 +54,7 @@ import {
   isArrayModelType,
   isNeverType,
   isSecret,
+  resolveEncodedEnumMemberValue,
   resolveEncodedName,
 } from "@typespec/compiler";
 import { capitalize } from "@typespec/compiler/casing";
@@ -163,7 +164,7 @@ export class OpenAPI3SchemaEmitterBase<
       // with the discriminator field present.
       schema.discriminator = { ...discriminator };
       const discriminatedUnion = ignoreDiagnostics(
-        getDiscriminatedUnionFromInheritance(type, discriminator),
+        getDiscriminatedUnionFromInheritance(program, type, discriminator),
       );
       if (discriminatedUnion.variants.size > 0) {
         schema.discriminator.mapping = this.getDiscriminatorMapping(discriminatedUnion.variants);
@@ -548,14 +549,14 @@ export class OpenAPI3SchemaEmitterBase<
 
   enumMemberReference(member: EnumMember): EmitterOutput<Record<string, any>> {
     // would like to dispatch to the same `literal` codepaths but enum members aren't literal types
-    switch (typeof member.value) {
-      case "undefined":
-        return { type: "string", enum: [member.name] };
-      case "string":
-        return { type: "string", enum: [member.value] };
-      case "number":
-        return { type: "number", enum: [member.value] };
-    }
+    const value = resolveEncodedEnumMemberValue(
+      this.emitter.getProgram(),
+      member,
+      "application/json",
+    );
+    return typeof value === "number"
+      ? { type: "number", enum: [value] }
+      : { type: "string", enum: [value] };
   }
 
   unionDeclaration(union: Union, name: string): EmitterOutput<object> {
@@ -735,7 +736,12 @@ export class OpenAPI3SchemaEmitterBase<
       return type.value;
     }
     if (type.kind === "EnumMember") {
-      return typeof type.value === "string" ? type.value : type.name;
+      const value = resolveEncodedEnumMemberValue(
+        this.emitter.getProgram(),
+        type,
+        "application/json",
+      );
+      return typeof value === "string" ? value : type.name;
     }
     return undefined;
   }

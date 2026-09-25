@@ -1,4 +1,5 @@
 import type { DiscriminatedOptions } from "../../../generated-defs/TypeSpec.js";
+import { resolveEncodedEnumMemberValue } from "../../lib/encoded-names.js";
 import { DuplicateTracker } from "../../utils/duplicate-tracker.js";
 import { isDefined } from "../../utils/misc.js";
 import type { Discriminator } from "../intrinsic-type-state.js";
@@ -6,7 +7,7 @@ import { getDiscriminatedOptions, getDiscriminatedTypes } from "../intrinsic-typ
 import { createDiagnostic } from "../messages.js";
 import type { Program } from "../program.js";
 import { isTemplateDeclarationOrInstance } from "../type-utils.js";
-import type { Diagnostic, Model, Type, Union } from "../types.js";
+import type { Diagnostic, EnumMember, Model, Type, Union } from "../types.js";
 
 export interface DiscriminatedUnion {
   readonly options: Required<DiscriminatedOptions>;
@@ -36,7 +37,7 @@ export function validateInheritanceDiscriminatedUnions(program: Program) {
   for (const [type, discriminator] of getDiscriminatedTypes(program)) {
     // Union would have already reported the issue.
     if (type.kind === "Model") {
-      const [_, diagnostics] = getDiscriminatedUnionFromInheritance(type, discriminator);
+      const [_, diagnostics] = getDiscriminatedUnionFromInheritance(program, type, discriminator);
       program.reportDiagnostics(diagnostics);
     }
   }
@@ -87,7 +88,7 @@ function getDiscriminatedUnionForUnion(
 
       const prop = variant.type.properties.get(options.discriminatorPropertyName);
       if (prop !== undefined) {
-        const key = getStringValue(prop.type);
+        const key = getStringValue(program, prop.type);
         if (key !== variant.name) {
           diagnostics.push(
             createDiagnostic({
@@ -118,7 +119,48 @@ function getDiscriminatedUnionForUnion(
   ];
 }
 
+/**
+ * Resolve the discriminated union formed by the models derived from the given model.
+ * @param type Base model with the discriminator
+ * @param discriminator Discriminator of the base model
+ * @deprecated Use `getDiscriminatedUnionFromInheritance(program, type, discriminator)` instead. Without the program, enum member discriminator values ignore `@encodedName`.
+ */
 export function getDiscriminatedUnionFromInheritance(
+  type: Model,
+  discriminator: Discriminator,
+): [DiscriminatedUnionLegacy, readonly Diagnostic[]];
+/**
+ * Resolve the discriminated union formed by the models derived from the given model.
+ * @param program Program
+ * @param type Base model with the discriminator
+ * @param discriminator Discriminator of the base model
+ */
+export function getDiscriminatedUnionFromInheritance(
+  program: Program,
+  type: Model,
+  discriminator: Discriminator,
+): [DiscriminatedUnionLegacy, readonly Diagnostic[]];
+export function getDiscriminatedUnionFromInheritance(
+  programOrType: Program | Model,
+  typeOrDiscriminator: Model | Discriminator,
+  discriminator?: Discriminator,
+): [DiscriminatedUnionLegacy, readonly Diagnostic[]] {
+  if (discriminator === undefined) {
+    return getDiscriminatedUnionFromInheritanceInternal(
+      undefined,
+      programOrType as Model,
+      typeOrDiscriminator as Discriminator,
+    );
+  }
+  return getDiscriminatedUnionFromInheritanceInternal(
+    programOrType as Program,
+    typeOrDiscriminator as Model,
+    discriminator,
+  );
+}
+
+function getDiscriminatedUnionFromInheritanceInternal(
+  program: Program | undefined,
   type: Model,
   discriminator: Discriminator,
 ): [DiscriminatedUnionLegacy, readonly Diagnostic[]] {
@@ -131,7 +173,7 @@ export function getDiscriminatedUnionFromInheritance(
       if (isTemplateDeclarationOrInstance(derivedModel)) {
         continue; // Skip template instances as they should be used with `model is`
       }
-      const keys = getDiscriminatorValues(derivedModel, discriminator, diagnostics);
+      const keys = getDiscriminatorValues(program, derivedModel, discriminator, diagnostics);
       if (keys === undefined) {
         if (derivedModel.derivedModels.length === 0) {
           diagnostics.push(
@@ -201,6 +243,7 @@ function getDiscriminatorProperty(
 }
 
 function getDiscriminatorValues(
+  program: Program | undefined,
   model: Model,
   discriminator: Discriminator,
   diagnostics: Diagnostic[],
@@ -208,7 +251,7 @@ function getDiscriminatorValues(
   const prop = getDiscriminatorProperty(model, discriminator, diagnostics);
   if (!prop) return undefined;
 
-  const keys = getStringValues(prop.type);
+  const keys = getStringValues(program, prop.type);
   if (keys.length === 0) {
     diagnostics.push(
       createDiagnostic({
@@ -221,28 +264,40 @@ function getDiscriminatorValues(
   return keys;
 }
 
-function getStringValues(type: Type): string[] {
+function getStringValues(program: Program | undefined, type: Type): string[] {
   switch (type.kind) {
     case "String":
       return [type.value];
     case "Union":
-      return [...type.variants.values()].flatMap((x) => getStringValues(x.type)).filter(isDefined);
-    case "EnumMember":
-      return typeof type.value !== "number" ? [type.value ?? type.name] : [];
+      return [...type.variants.values()]
+        .flatMap((x) => getStringValues(program, x.type))
+        .filter(isDefined);
+    case "EnumMember": {
+      const value = resolveEnumMemberValue(program, type);
+      return typeof value === "string" ? [value] : [];
+    }
     case "UnionVariant":
-      return getStringValues(type.type);
+      return getStringValues(program, type.type);
     default:
       return [];
   }
 }
 
-function getStringValue(type: Type): string | undefined {
+function getStringValue(program: Program, type: Type): string | undefined {
   switch (type.kind) {
     case "String":
       return type.value;
     case "EnumMember":
-      return typeof type.value !== "number" ? (type.value ?? type.name) : undefined;
+      const value = resolveEnumMemberValue(program, type);
+      return typeof value === "string" ? value : undefined;
     default:
       return undefined;
   }
+}
+
+/** Value an enum member is serialized as in json. */
+function resolveEnumMemberValue(program: Program | undefined, member: EnumMember): string | number {
+  return program
+    ? resolveEncodedEnumMemberValue(program, member, "application/json")
+    : (member.value ?? member.name);
 }

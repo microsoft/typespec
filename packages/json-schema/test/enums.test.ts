@@ -83,3 +83,29 @@ it("handles enum member refs", async () => {
   assert.deepStrictEqual(Bar.properties.b, { type: "number", const: 2 });
   assert.deepStrictEqual(Bar.properties.c, { type: "string", const: "c" });
 });
+
+it("uses the json encoded name as the value of a member without a value", async () => {
+  const schemas = await emitSchema(`
+    enum Foo {
+      @encodedName("application/json", "on")
+      a;
+      @encodedName("application/json", "off")
+      b: "bye";
+      @encodedName("application/xml", "xml-c")
+      c;
+    }
+
+    model Bar {
+      a: Foo.a;
+      b: Foo.b;
+      withDefault?: Foo = Foo.a;
+    }
+  `);
+  const Foo = schemas["Foo.json"];
+  assert.deepStrictEqual(Foo.enum, ["on", "off", "c"]);
+
+  const Bar = schemas["Bar.json"];
+  assert.deepStrictEqual(Bar.properties.a, { type: "string", const: "on" });
+  assert.deepStrictEqual(Bar.properties.b, { type: "string", const: "off" });
+  assert.strictEqual(Bar.properties.withDefault.default, "on");
+});
