@@ -42,14 +42,13 @@ public final class ModelAsyncClient {
     /**
      * The spreadAsRequestBody operation.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     name: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param bodyParameter The bodyParameter parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -69,14 +68,13 @@ public final class ModelAsyncClient {
     /**
      * The spreadCompositeRequestOnlyWithBody operation.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     name: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param body The body parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -115,14 +113,13 @@ public final class ModelAsyncClient {
     /**
      * The spreadCompositeRequest operation.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     name: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param name The name parameter.
      * @param testHeader The testHeader parameter.
@@ -144,14 +141,13 @@ public final class ModelAsyncClient {
     /**
      * The spreadCompositeRequestMix operation.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     prop: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param name The name parameter.
      * @param testHeader The testHeader parameter.

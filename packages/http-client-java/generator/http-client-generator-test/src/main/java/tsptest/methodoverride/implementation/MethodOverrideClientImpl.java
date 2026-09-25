@@ -321,22 +321,21 @@ public final class MethodOverrideClientImpl {
      * A remote procedure call (RPC) operation.
      * <p><strong>Query Parameters</strong></p>
      * <table border="1">
-     * <caption>Query Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>foo</td><td>String</td><td>No</td><td>The foo parameter</td></tr>
-     * <tr><td>bar</td><td>String</td><td>No</td><td>The bar parameter</td></tr>
+     *     <caption>Query Parameters</caption>
+     *     <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     *     <tr><td>foo</td><td>String</td><td>No</td><td>The foo parameter</td></tr>
+     *     <tr><td>bar</td><td>String</td><td>No</td><td>The bar parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     prop1: String (Required)
      *     prop2: String (Optional)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param groupAllRequest The groupAllRequest parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -357,22 +356,21 @@ public final class MethodOverrideClientImpl {
      * A remote procedure call (RPC) operation.
      * <p><strong>Query Parameters</strong></p>
      * <table border="1">
-     * <caption>Query Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>foo</td><td>String</td><td>No</td><td>The foo parameter</td></tr>
-     * <tr><td>bar</td><td>String</td><td>No</td><td>The bar parameter</td></tr>
+     *     <caption>Query Parameters</caption>
+     *     <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     *     <tr><td>foo</td><td>String</td><td>No</td><td>The foo parameter</td></tr>
+     *     <tr><td>bar</td><td>String</td><td>No</td><td>The bar parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     prop1: String (Required)
      *     prop2: String (Optional)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param groupAllRequest The groupAllRequest parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -393,22 +391,21 @@ public final class MethodOverrideClientImpl {
      * A remote procedure call (RPC) operation.
      * <p><strong>Query Parameters</strong></p>
      * <table border="1">
-     * <caption>Query Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>foo</td><td>String</td><td>No</td><td>The foo parameter</td></tr>
-     * <tr><td>bar</td><td>String</td><td>No</td><td>The bar parameter</td></tr>
+     *     <caption>Query Parameters</caption>
+     *     <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     *     <tr><td>foo</td><td>String</td><td>No</td><td>The foo parameter</td></tr>
+     *     <tr><td>bar</td><td>String</td><td>No</td><td>The bar parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     prop1: String (Required)
      *     prop2: String (Optional)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param groupPartRequest The groupPartRequest parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -429,22 +426,21 @@ public final class MethodOverrideClientImpl {
      * A remote procedure call (RPC) operation.
      * <p><strong>Query Parameters</strong></p>
      * <table border="1">
-     * <caption>Query Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>foo</td><td>String</td><td>No</td><td>The foo parameter</td></tr>
-     * <tr><td>bar</td><td>String</td><td>No</td><td>The bar parameter</td></tr>
+     *     <caption>Query Parameters</caption>
+     *     <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     *     <tr><td>foo</td><td>String</td><td>No</td><td>The foo parameter</td></tr>
+     *     <tr><td>bar</td><td>String</td><td>No</td><td>The bar parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     prop1: String (Required)
      *     prop2: String (Optional)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param groupPartRequest The groupPartRequest parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -465,32 +461,31 @@ public final class MethodOverrideClientImpl {
      * A remote procedure call (RPC) operation.
      * <p><strong>Query Parameters</strong></p>
      * <table border="1">
-     * <caption>Query Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>foo</td><td>String</td><td>No</td><td>The foo parameter</td></tr>
-     * <tr><td>bar</td><td>String</td><td>No</td><td>The bar parameter</td></tr>
+     *     <caption>Query Parameters</caption>
+     *     <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     *     <tr><td>foo</td><td>String</td><td>No</td><td>The foo parameter</td></tr>
+     *     <tr><td>bar</td><td>String</td><td>No</td><td>The bar parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
      * <p><strong>Header Parameters</strong></p>
      * <table border="1">
-     * <caption>Header Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>If-Modified-Since</td><td>OffsetDateTime</td><td>No</td><td>The ifModifiedSince parameter</td></tr>
-     * <tr><td>If-Unmodified-Since</td><td>OffsetDateTime</td><td>No</td><td>The ifUnmodifiedSince parameter</td></tr>
-     * <tr><td>If-Match</td><td>String</td><td>No</td><td>The ifMatch parameter</td></tr>
-     * <tr><td>If-None-Match</td><td>String</td><td>No</td><td>The ifNoneMatch parameter</td></tr>
+     *     <caption>Header Parameters</caption>
+     *     <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     *     <tr><td>If-Modified-Since</td><td>OffsetDateTime</td><td>No</td><td>The ifModifiedSince parameter</td></tr>
+     *     <tr><td>If-Unmodified-Since</td><td>OffsetDateTime</td><td>No</td><td>The ifUnmodifiedSince parameter</td></tr>
+     *     <tr><td>If-Match</td><td>String</td><td>No</td><td>The ifMatch parameter</td></tr>
+     *     <tr><td>If-None-Match</td><td>String</td><td>No</td><td>The ifNoneMatch parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addHeader}
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     prop1: String (Required)
      *     prop2: String (Optional)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param groupPartETagRequest The groupPartETagRequest parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -512,32 +507,31 @@ public final class MethodOverrideClientImpl {
      * A remote procedure call (RPC) operation.
      * <p><strong>Query Parameters</strong></p>
      * <table border="1">
-     * <caption>Query Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>foo</td><td>String</td><td>No</td><td>The foo parameter</td></tr>
-     * <tr><td>bar</td><td>String</td><td>No</td><td>The bar parameter</td></tr>
+     *     <caption>Query Parameters</caption>
+     *     <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     *     <tr><td>foo</td><td>String</td><td>No</td><td>The foo parameter</td></tr>
+     *     <tr><td>bar</td><td>String</td><td>No</td><td>The bar parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
      * <p><strong>Header Parameters</strong></p>
      * <table border="1">
-     * <caption>Header Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>If-Modified-Since</td><td>OffsetDateTime</td><td>No</td><td>The ifModifiedSince parameter</td></tr>
-     * <tr><td>If-Unmodified-Since</td><td>OffsetDateTime</td><td>No</td><td>The ifUnmodifiedSince parameter</td></tr>
-     * <tr><td>If-Match</td><td>String</td><td>No</td><td>The ifMatch parameter</td></tr>
-     * <tr><td>If-None-Match</td><td>String</td><td>No</td><td>The ifNoneMatch parameter</td></tr>
+     *     <caption>Header Parameters</caption>
+     *     <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     *     <tr><td>If-Modified-Since</td><td>OffsetDateTime</td><td>No</td><td>The ifModifiedSince parameter</td></tr>
+     *     <tr><td>If-Unmodified-Since</td><td>OffsetDateTime</td><td>No</td><td>The ifUnmodifiedSince parameter</td></tr>
+     *     <tr><td>If-Match</td><td>String</td><td>No</td><td>The ifMatch parameter</td></tr>
+     *     <tr><td>If-None-Match</td><td>String</td><td>No</td><td>The ifNoneMatch parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addHeader}
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     prop1: String (Required)
      *     prop2: String (Optional)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param groupPartETagRequest The groupPartETagRequest parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -558,22 +552,21 @@ public final class MethodOverrideClientImpl {
      * A remote procedure call (RPC) operation.
      * <p><strong>Query Parameters</strong></p>
      * <table border="1">
-     * <caption>Query Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>foo</td><td>String</td><td>No</td><td>The foo parameter</td></tr>
-     * <tr><td>bar</td><td>String</td><td>No</td><td>The bar parameter</td></tr>
+     *     <caption>Query Parameters</caption>
+     *     <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     *     <tr><td>foo</td><td>String</td><td>No</td><td>The foo parameter</td></tr>
+     *     <tr><td>bar</td><td>String</td><td>No</td><td>The bar parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     prop1: String (Required)
      *     prop2: String (Optional)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param body The body parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -594,22 +587,21 @@ public final class MethodOverrideClientImpl {
      * A remote procedure call (RPC) operation.
      * <p><strong>Query Parameters</strong></p>
      * <table border="1">
-     * <caption>Query Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>foo</td><td>String</td><td>No</td><td>The foo parameter</td></tr>
-     * <tr><td>bar</td><td>String</td><td>No</td><td>The bar parameter</td></tr>
+     *     <caption>Query Parameters</caption>
+     *     <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     *     <tr><td>foo</td><td>String</td><td>No</td><td>The foo parameter</td></tr>
+     *     <tr><td>bar</td><td>String</td><td>No</td><td>The bar parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     prop1: String (Required)
      *     prop2: String (Optional)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param body The body parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -630,22 +622,21 @@ public final class MethodOverrideClientImpl {
      * A remote procedure call (RPC) operation.
      * <p><strong>Query Parameters</strong></p>
      * <table border="1">
-     * <caption>Query Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>foo</td><td>String</td><td>No</td><td>The foo parameter</td></tr>
+     *     <caption>Query Parameters</caption>
+     *     <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     *     <tr><td>foo</td><td>String</td><td>No</td><td>The foo parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
      * <p><strong>Header Parameters</strong></p>
      * <table border="1">
-     * <caption>Header Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>bar</td><td>String</td><td>No</td><td>The bar parameter</td></tr>
+     *     <caption>Header Parameters</caption>
+     *     <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     *     <tr><td>bar</td><td>String</td><td>No</td><td>The bar parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addHeader}
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     prop1: String (Required)
      *     prop2: String (Optional)
@@ -654,8 +645,8 @@ public final class MethodOverrideClientImpl {
      *     prop5: String (Optional)
      *     prop6: String (Optional)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param groupNoneRequest The groupNoneRequest parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -676,22 +667,21 @@ public final class MethodOverrideClientImpl {
      * A remote procedure call (RPC) operation.
      * <p><strong>Query Parameters</strong></p>
      * <table border="1">
-     * <caption>Query Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>foo</td><td>String</td><td>No</td><td>The foo parameter</td></tr>
+     *     <caption>Query Parameters</caption>
+     *     <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     *     <tr><td>foo</td><td>String</td><td>No</td><td>The foo parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
      * <p><strong>Header Parameters</strong></p>
      * <table border="1">
-     * <caption>Header Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>bar</td><td>String</td><td>No</td><td>The bar parameter</td></tr>
+     *     <caption>Header Parameters</caption>
+     *     <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     *     <tr><td>bar</td><td>String</td><td>No</td><td>The bar parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addHeader}
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     prop1: String (Required)
      *     prop2: String (Optional)
@@ -700,8 +690,8 @@ public final class MethodOverrideClientImpl {
      *     prop5: String (Optional)
      *     prop6: String (Optional)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param groupNoneRequest The groupNoneRequest parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.

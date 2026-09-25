@@ -100,9 +100,8 @@ public final class MixedLiteralsImpl {
     /**
      * The get operation.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     prop (Required): {
      *         stringLiteral: BinaryData (Required)
@@ -111,8 +110,8 @@ public final class MixedLiteralsImpl {
      *         booleanLiteral: BinaryData (Required)
      *     }
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -130,9 +129,8 @@ public final class MixedLiteralsImpl {
     /**
      * The get operation.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     prop (Required): {
      *         stringLiteral: BinaryData (Required)
@@ -141,8 +139,8 @@ public final class MixedLiteralsImpl {
      *         booleanLiteral: BinaryData (Required)
      *     }
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -160,9 +158,8 @@ public final class MixedLiteralsImpl {
     /**
      * The send operation.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     prop (Required): {
      *         stringLiteral: BinaryData (Required)
@@ -171,8 +168,8 @@ public final class MixedLiteralsImpl {
      *         booleanLiteral: BinaryData (Required)
      *     }
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param sendRequest8 The sendRequest8 parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -192,9 +189,8 @@ public final class MixedLiteralsImpl {
     /**
      * The send operation.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     prop (Required): {
      *         stringLiteral: BinaryData (Required)
@@ -203,8 +199,8 @@ public final class MixedLiteralsImpl {
      *         booleanLiteral: BinaryData (Required)
      *     }
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param sendRequest8 The sendRequest8 parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.

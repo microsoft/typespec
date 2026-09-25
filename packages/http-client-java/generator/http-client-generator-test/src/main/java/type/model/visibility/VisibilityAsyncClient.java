@@ -42,9 +42,8 @@ public final class VisibilityAsyncClient {
     /**
      * The getModel operation.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     readProp: String (Required)
      *     createProp (Required): [
@@ -55,13 +54,11 @@ public final class VisibilityAsyncClient {
      *     ]
      *     deleteProp: Boolean (Required)
      * }
-     * }
-     * </pre>
-     * 
+     * }</pre>
+     * <!-- @formatter:on -->
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     readProp: String (Required)
      *     createProp (Required): [
@@ -72,8 +69,8 @@ public final class VisibilityAsyncClient {
      *     ]
      *     deleteProp: Boolean (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param queryProp Required int32, illustrating a query property.
      * @param input The input parameter.
@@ -82,8 +79,7 @@ public final class VisibilityAsyncClient {
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return output model with visibility properties along with {@link Response} on successful completion of
-     * {@link Mono}.
+     * @return output model with visibility properties along with {@link Response} on successful completion of {@link Mono}.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
@@ -95,9 +91,8 @@ public final class VisibilityAsyncClient {
     /**
      * The headModel operation.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     readProp: String (Required)
      *     createProp (Required): [
@@ -108,8 +103,8 @@ public final class VisibilityAsyncClient {
      *     ]
      *     deleteProp: Boolean (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param queryProp Required int32, illustrating a query property.
      * @param input The input parameter.
@@ -129,9 +124,8 @@ public final class VisibilityAsyncClient {
     /**
      * The putModel operation.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     readProp: String (Required)
      *     createProp (Required): [
@@ -142,8 +136,8 @@ public final class VisibilityAsyncClient {
      *     ]
      *     deleteProp: Boolean (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param input The input parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -162,9 +156,8 @@ public final class VisibilityAsyncClient {
     /**
      * The patchModel operation.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     readProp: String (Required)
      *     createProp (Required): [
@@ -175,8 +168,8 @@ public final class VisibilityAsyncClient {
      *     ]
      *     deleteProp: Boolean (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param input The input parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -195,9 +188,8 @@ public final class VisibilityAsyncClient {
     /**
      * The postModel operation.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     readProp: String (Required)
      *     createProp (Required): [
@@ -208,8 +200,8 @@ public final class VisibilityAsyncClient {
      *     ]
      *     deleteProp: Boolean (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param input The input parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -228,9 +220,8 @@ public final class VisibilityAsyncClient {
     /**
      * The deleteModel operation.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     readProp: String (Required)
      *     createProp (Required): [
@@ -241,8 +232,8 @@ public final class VisibilityAsyncClient {
      *     ]
      *     deleteProp: Boolean (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param input The input parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -261,9 +252,8 @@ public final class VisibilityAsyncClient {
     /**
      * The putReadOnlyModel operation.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     optionalNullableIntList (Optional): [
      *         int (Optional)
@@ -272,13 +262,11 @@ public final class VisibilityAsyncClient {
      *         String: String (Required)
      *     }
      * }
-     * }
-     * </pre>
-     * 
+     * }</pre>
+     * <!-- @formatter:on -->
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     optionalNullableIntList (Optional): [
      *         int (Optional)
@@ -287,8 +275,8 @@ public final class VisibilityAsyncClient {
      *         String: String (Required)
      *     }
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param input The input parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -296,8 +284,7 @@ public final class VisibilityAsyncClient {
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return roundTrip model with readonly optional properties along with {@link Response} on successful completion of
-     * {@link Mono}.
+     * @return roundTrip model with readonly optional properties along with {@link Response} on successful completion of {@link Mono}.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)

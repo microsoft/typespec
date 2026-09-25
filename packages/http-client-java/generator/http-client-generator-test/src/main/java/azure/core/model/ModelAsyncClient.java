@@ -43,14 +43,13 @@ public final class ModelAsyncClient {
     /**
      * get an embedding vector.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * [
      *     int (Required)
      * ]
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -68,14 +67,13 @@ public final class ModelAsyncClient {
     /**
      * put an embedding vector.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * [
      *     int (Required)
      * ]
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param body _.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -94,28 +92,25 @@ public final class ModelAsyncClient {
     /**
      * post a model which has an embeddingVector property.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     embedding (Required): [
      *         int (Required)
      *     ]
      * }
-     * }
-     * </pre>
-     * 
+     * }</pre>
+     * <!-- @formatter:on -->
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     embedding (Required): [
      *         int (Required)
      *     ]
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param body _.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
