@@ -124,6 +124,10 @@ export class OpenAPI3SchemaEmitterBase<
     return this.reduceContext(model);
   }
 
+  modelInstantiationReferenceContext(model: Model, name: string | undefined): Context {
+    return this.reduceContext(model);
+  }
+
   modelLiteralReferenceContext(model: Model): Context {
     return this.reduceContext(model);
   }
