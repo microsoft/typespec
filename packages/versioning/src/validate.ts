@@ -773,6 +773,24 @@ function findAvailabilityOnOrBeforeVersion(
   return undefined;
 }
 
+function isFirstUnavailableVersion(
+  version: string,
+  avail: Map<string, Availability>,
+): boolean {
+  let previous: Availability | undefined;
+  for (const [key, current] of avail) {
+    if (key === version) {
+      return (
+        [Availability.Removed, Availability.Unavailable].includes(current) &&
+        previous !== undefined &&
+        [Availability.Added, Availability.Available].includes(previous)
+      );
+    }
+    previous = current;
+  }
+  return false;
+}
+
 function validateAvailabilityForRef(
   program: Program,
   sourceAvail: Map<string, Availability> | undefined,
@@ -845,6 +863,23 @@ function validateAvailabilityForRef(
         },
         target: source,
         codefixes: getVersionAdditionCodefixes(targetVersion, target, program),
+      });
+    }
+    if (
+      sourceVal === Availability.Available &&
+      isFirstUnavailableVersion(key, targetAvail) &&
+      findAvailabilityAfterVersion(key, Availability.Removed, sourceAvail) === undefined
+    ) {
+      reportDiagnostic(program, {
+        code: "incompatible-versioned-reference",
+        messageId: "doesNotExist",
+        format: {
+          sourceName: getTypeName(source),
+          targetName: getTypeName(target),
+          version: key,
+        },
+        target: source,
+        codefixes: getVersionRemovalCodeFixes(key, source, program),
       });
     }
     if (
