@@ -2,10 +2,12 @@ import {
   getNamespaceFullName,
   type Enum,
   type EnumMember,
+  type ModelProperty,
   type Namespace,
   type Program,
   type Type,
 } from "@typespec/compiler";
+import { SyntaxKind } from "@typespec/compiler/ast";
 import {
   getAddedOnVersions,
   getRemovedOnVersions,
@@ -18,6 +20,12 @@ import {
 import type { Version, VersionResolution } from "./types.js";
 import { getCachedNamespaceDependencies } from "./validate.js";
 import { TimelineMoment, VersioningTimeline } from "./versioning-timeline.js";
+
+export function hasChangedOptionality(property: ModelProperty): boolean {
+  return (
+    property.node?.kind === SyntaxKind.ModelProperty && property.optional !== property.node.optional
+  );
+}
 
 export function getVersionDependencies(
   program: Program,
