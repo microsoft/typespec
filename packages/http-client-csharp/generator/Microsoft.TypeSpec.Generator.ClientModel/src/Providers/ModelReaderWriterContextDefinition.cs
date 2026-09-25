@@ -49,7 +49,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             (HashSet<CSharpType> buildableTypes, HashSet<TypeProvider> buildableProviders) = CollectBuildableTypes();
             foreach (var type in buildableTypes)
             {
-                if (customizedBuildableTypes.Contains(GetTypeIdentity(type)))
+                if (!type.FrameworkType.IsVisible || customizedBuildableTypes.Contains(GetTypeIdentity(type)))
                 {
                     continue;
                 }
@@ -68,7 +68,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
             foreach (var provider in buildableProviders)
             {
-                if (!ShouldWriteProvider(provider) || customizedBuildableTypes.Contains(GetTypeIdentity(provider.Type)))
+                if (!ShouldWriteProvider(provider)
+                    || !MethodSignatureHelper.IsPublicApi(provider)
+                    || customizedBuildableTypes.Contains(GetTypeIdentity(provider.Type)))
                 {
                     continue;
                 }
@@ -195,7 +197,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     }
                 }
 
-                if (resolvedProvider.CanonicalView.Attributes.Any(a => a.Type.Equals(typeof(ObsoleteAttribute))))
+                if (!MethodSignatureHelper.IsPublicApi(resolvedProvider)
+                    || resolvedProvider.CanonicalView.Attributes.Any(a => a.Type.Equals(typeof(ObsoleteAttribute))))
                 {
                     continue;
                 }
@@ -225,7 +228,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     null,
                     includeReferencedAssemblies: true);
 
-                if (provider?.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public) != true)
+                if (provider is null || !MethodSignatureHelper.IsPublicApi(provider))
                 {
                     return false;
                 }
@@ -621,14 +624,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             TypeProvider typeProvider,
             string key)
         {
-            for (var provider = typeProvider; provider != null; provider = provider.DeclaringTypeProvider)
-            {
-                if (!provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public))
-                {
-                    return;
-                }
-            }
-
             AttributeStatement? experimentalOrObsoleteAttribute = typeProvider.CanonicalView.Attributes
                 .FirstOrDefault(a => a.Type.Equals(typeof(ExperimentalAttribute)) || a.Type.Equals(typeof(ObsoleteAttribute)));
 
@@ -655,11 +650,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             string experimentalTypeJustification,
             string obsoleteTypeJustification)
         {
-            if (!frameworkType.IsVisible)
-            {
-                return;
-            }
-
             var key = frameworkType.FullName ?? frameworkType.Name;
 
             // Match [Experimental] by attribute type full name rather than runtime identity. Dependencies that
