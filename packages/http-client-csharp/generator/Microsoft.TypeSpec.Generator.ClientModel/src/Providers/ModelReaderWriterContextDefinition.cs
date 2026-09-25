@@ -68,12 +68,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
             foreach (var provider in buildableProviders)
             {
-                // protected internal is part of the public API surface, but private protected is not
-                var isPublicApi = provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public)
-                    || (provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Protected)
-                        && !provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Private));
-
-                if (!isPublicApi
+                if (!IsPublicApi(provider)
                     || !ShouldWriteProvider(provider)
                     || customizedBuildableTypes.Contains(GetTypeIdentity(provider.Type)))
                 {
@@ -93,6 +88,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // Sort by the simple type name (last part after the last dot) instead of the fully qualified name
             return attributes.OrderBy(a => GetSimpleTypeName(a.Key)).Select(kvp => kvp.Value).ToList();
         }
+
+        // protected internal is part of the public API surface, but private protected is not
+        private static bool IsPublicApi(TypeProvider provider)
+            => provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public)
+                || (provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Protected)
+                    && !provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Private));
 
         protected override IReadOnlyList<MethodBodyStatement> BuildAttributesForBackCompatibility(IReadOnlyList<MethodBodyStatement> originalAttributes)
         {
