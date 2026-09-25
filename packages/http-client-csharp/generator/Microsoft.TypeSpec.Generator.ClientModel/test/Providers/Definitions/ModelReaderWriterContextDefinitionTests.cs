@@ -142,6 +142,30 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             Assert.AreEqual("typeof(global::Sample.Models.PublicModel)", buildableAttributes[0].Arguments[0].ToDisplayString());
         }
 
+        [Test]
+        public async Task NonPublicTypesAreNotRestoredFromLastContract()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () =>
+                [
+                    InputFactory.Model("InternalModel", access: "internal"),
+                    InputFactory.Model("PublicModel")
+                ],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync("Custom"),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var buildableAttributes = GetBuildableAttributes(contextDefinition);
+
+            CollectionAssert.AreEquivalent(
+                new[]
+                {
+                    "typeof(global::Sample.Models.PublicModel)",
+                    "typeof(global::Sample.Models.PublicContainer.NestedModel)"
+                },
+                buildableAttributes.Select(a => a.Arguments[0].ToDisplayString()));
+        }
+
         [TestCase(true)]
         [TestCase(false)]
         public void ValidateModelReaderWriterBuildableAttributesAreGeneratedForNonModelsThatImplementMRW(bool implementsIPersistable)
