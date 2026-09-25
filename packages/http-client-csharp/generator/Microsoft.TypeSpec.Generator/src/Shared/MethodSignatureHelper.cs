@@ -19,19 +19,6 @@ namespace Microsoft.TypeSpec.Generator
             => (modifiers.HasFlag(MethodSignatureModifiers.Public) || modifiers.HasFlag(MethodSignatureModifiers.Protected))
                 && !modifiers.HasFlag(MethodSignatureModifiers.Private);
 
-        internal static bool IsPublicApi(TypeProvider typeProvider)
-        {
-            for (var provider = typeProvider; provider != null; provider = provider.DeclaringTypeProvider)
-            {
-                if (!provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public))
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
         internal static bool ContainsSameParameters(MethodSignature method1, MethodSignature method2)
         {
             var count = method1.Parameters.Count;

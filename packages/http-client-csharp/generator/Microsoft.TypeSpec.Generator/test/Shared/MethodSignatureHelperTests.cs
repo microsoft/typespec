@@ -9,8 +9,6 @@ using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.Tests.Common;
-using Moq;
-using Moq.Protected;
 using NUnit.Framework;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
@@ -22,40 +20,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Shared
         public void Setup()
         {
             MockHelpers.LoadMockGenerator();
-        }
-
-        [TestCase(TypeSignatureModifiers.Public, true)]
-        [TestCase(TypeSignatureModifiers.Internal, false)]
-        [TestCase(TypeSignatureModifiers.Private, false)]
-        [TestCase(TypeSignatureModifiers.Protected, false)]
-        [TestCase(TypeSignatureModifiers.Protected | TypeSignatureModifiers.Internal, false)]
-        [TestCase(TypeSignatureModifiers.Private | TypeSignatureModifiers.Protected, false)]
-        public void IsPublicApiChecksTypeAccessibility(TypeSignatureModifiers accessibility, bool expected)
-        {
-            var provider = new Mock<TypeProvider>();
-            provider.Object.Update(modifiers: accessibility | TypeSignatureModifiers.Class);
-
-            Assert.AreEqual(expected, MethodSignatureHelper.IsPublicApi(provider.Object));
-        }
-
-        [TestCase(TypeSignatureModifiers.Public, true)]
-        [TestCase(TypeSignatureModifiers.Internal, false)]
-        [TestCase(TypeSignatureModifiers.Private, false)]
-        [TestCase(TypeSignatureModifiers.Protected, false)]
-        [TestCase(TypeSignatureModifiers.Protected | TypeSignatureModifiers.Internal, false)]
-        [TestCase(TypeSignatureModifiers.Private | TypeSignatureModifiers.Protected, false)]
-        public void IsPublicApiChecksAllDeclaringTypes(TypeSignatureModifiers accessibility, bool expected)
-        {
-            var outer = new Mock<TypeProvider>();
-            outer.Object.Update(modifiers: accessibility | TypeSignatureModifiers.Class);
-            var middle = new Mock<TypeProvider>();
-            middle.Object.Update(modifiers: TypeSignatureModifiers.Public | TypeSignatureModifiers.Class);
-            middle.Protected().Setup<TypeProvider>("BuildDeclaringTypeProvider").Returns(outer.Object);
-            var inner = new Mock<TypeProvider>();
-            inner.Object.Update(modifiers: TypeSignatureModifiers.Public | TypeSignatureModifiers.Class);
-            inner.Protected().Setup<TypeProvider>("BuildDeclaringTypeProvider").Returns(middle.Object);
-
-            Assert.AreEqual(expected, MethodSignatureHelper.IsPublicApi(inner.Object));
         }
 
         [Test]

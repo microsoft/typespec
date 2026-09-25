@@ -68,8 +68,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
             foreach (var provider in buildableProviders)
             {
-                if (!ShouldWriteProvider(provider)
-                    || !MethodSignatureHelper.IsPublicApi(provider)
+                if (!provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public)
+                    || !ShouldWriteProvider(provider)
                     || customizedBuildableTypes.Contains(GetTypeIdentity(provider.Type)))
                 {
                     continue;
@@ -191,14 +191,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         null,
                         includeReferencedAssemblies: true);
 
-                    if (resolvedProvider is null || !HasPublicDeclaringTypes(targetType))
+                    if (resolvedProvider is null)
                     {
                         continue;
                     }
                 }
 
-                if (!MethodSignatureHelper.IsPublicApi(resolvedProvider)
-                    || resolvedProvider.CanonicalView.Attributes.Any(a => a.Type.Equals(typeof(ObsoleteAttribute))))
+                if (resolvedProvider.CanonicalView.Attributes.Any(a => a.Type.Equals(typeof(ObsoleteAttribute))))
                 {
                     continue;
                 }
@@ -216,25 +215,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     resolvedProvider,
                     identity);
             }
-        }
-
-        private static bool HasPublicDeclaringTypes(CSharpType type)
-        {
-            for (var declaringType = type.DeclaringType; declaringType != null; declaringType = declaringType.DeclaringType)
-            {
-                var provider = ScmCodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(
-                    declaringType.Namespace,
-                    declaringType.ClrMetadataName,
-                    null,
-                    includeReferencedAssemblies: true);
-
-                if (provider is null || !MethodSignatureHelper.IsPublicApi(provider))
-                {
-                    return false;
-                }
-            }
-
-            return true;
         }
 
         private static CSharpType? GetBuildableAttributeTargetType(AttributeStatement attribute)
