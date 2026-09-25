@@ -67,17 +67,30 @@ namespace Microsoft.TypeSpec.Generator.Tests.ReferenceMap
         [Test]
         public void KeptProvidersDistinguishGenericArity(
             [Values(false, true)] bool isRoot,
-            [Values(0, 1, 2)] int keptArity)
+            [Values(0, 1, 2)] int keptArity,
+            [Values("Sample", "Sample.Nested.Models")] string ns)
         {
             var argument = CreateNamedType("T", string.Empty);
             TypeProvider[] providers =
             [
-                new TestTypeProvider("ErrorResult", TypeSignatureModifiers.Public, ns: "Sample"),
-                new GenericTestTypeProvider("ErrorResult", TypeSignatureModifiers.Internal, "Sample", argument),
-                new GenericTestTypeProvider("ErrorResult", TypeSignatureModifiers.Internal, "Sample", argument, CreateNamedType("U", string.Empty))
+                new TestTypeProvider("ErrorResult", TypeSignatureModifiers.Public, ns: ns),
+                new GenericTestTypeProvider("ErrorResult", TypeSignatureModifiers.Internal, ns, argument),
+                new GenericTestTypeProvider("ErrorResult", TypeSignatureModifiers.Internal, ns, argument, CreateNamedType("U", string.Empty))
             ];
             MockHelpers.LoadMockGenerator(createOutputLibrary: () => new TestOutputLibrary(providers));
             CodeModelGenerator.Instance.AddTypeToKeep(providers[keptArity], isRoot);
+
+            var expectedName = keptArity == 0 ? $"{ns}.ErrorResult" : $"{ns}.ErrorResult`{keptArity}";
+            var keepSet = isRoot ? CodeModelGenerator.Instance.AdditionalRootTypes : CodeModelGenerator.Instance.NonRootTypes;
+            Assert.That(keepSet, Contains.Item(expectedName));
+            if (keptArity == 0)
+            {
+                Assert.AreEqual(providers[keptArity].Type.FullyQualifiedName, expectedName);
+            }
+            else
+            {
+                Assert.That(keepSet, Does.Not.Contain(providers[keptArity].Type.FullyQualifiedName));
+            }
 
             using var session = ProviderReferenceMapAnalyzer.PrepareForGeneration(providers);
 
