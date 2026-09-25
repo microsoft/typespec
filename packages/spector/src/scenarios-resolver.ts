@@ -69,14 +69,22 @@ export async function loadScenarios(
 
   for (const { name, specFilePath } of scenarioFiles) {
     logger.debug(`Found scenario "${specFilePath}"`);
+    const [compilerOptions, configDiagnostics] = await typespecCompiler.resolveCompilerOptions(
+      typespecCompiler.NodeHost,
+      {
+        cwd: process.cwd(),
+        entrypoint: specFilePath,
+      },
+    );
     const program = await typespecCompiler.compile(typespecCompiler.NodeHost, specFilePath, {
+      ...compilerOptions,
       additionalImports: ["@typespec/spector"],
       noEmit: true,
       warningAsError: true,
     });
 
     // Workaround https://github.com/Azure/cadl-azure/issues/2458
-    const programDiagnostics = program.diagnostics.filter(
+    const programDiagnostics = [...configDiagnostics, ...program.diagnostics].filter(
       (d) =>
         !(
           d.code === "@azure-tools/typespec-azure-core/casing-style" &&

@@ -9422,6 +9422,85 @@ Expected request to send body:
 }
 ```
 
+### Type_Union_Extends_Explicit_roundTrip
+
+- Endpoint: `put /type/union/extends/explicit`
+
+Send and receive a union whose variants explicitly extend its base type.
+
+Expected request and response body:
+
+```json
+[
+  {
+    "name": "mittens",
+    "toy": "ball"
+  },
+  {
+    "name": "rex",
+    "food": "bones"
+  }
+]
+```
+
+### Type_Union_Extends_Multiple_roundTrip
+
+- Endpoint: `put /type/union/extends/multiple`
+
+Send and receive the same variants through unions constrained to different base types.
+
+Expected request and response body:
+
+```json
+{
+  "byName": [
+    {
+      "name": "mittens",
+      "food": "fish",
+      "toy": "ball"
+    },
+    {
+      "name": "rex",
+      "food": "bones",
+      "bark": true
+    }
+  ],
+  "byFood": [
+    {
+      "name": "mittens",
+      "food": "fish",
+      "toy": "ball"
+    },
+    {
+      "name": "rex",
+      "food": "bones",
+      "bark": true
+    }
+  ]
+}
+```
+
+### Type_Union_Extends_Structural_roundTrip
+
+- Endpoint: `put /type/union/extends/structural`
+
+Send and receive a union whose variants structurally satisfy its base type.
+
+Expected request and response body:
+
+```json
+[
+  {
+    "name": "mittens",
+    "toy": "ball"
+  },
+  {
+    "name": "rex",
+    "food": "bones"
+  }
+]
+```
+
 ### Type_Union_FloatsOnly_get
 
 - Endpoint: `get /type/union/floats-only`
