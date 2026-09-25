@@ -75,6 +75,69 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             Assert.AreEqual(1, buildableAttributes.Count(), "Exactly one ModelReaderWriterBuildableAttribute should be generated for TestModel");
         }
 
+        [TestCase("public", 1)]
+        [TestCase("internal", 0)]
+        public void BuildableAttributesRespectModelAccessibility(string access, int expectedCount)
+        {
+            MockHelpers.LoadMockGenerator(
+                inputModels: () => [InputFactory.Model("TestModel", access: access)]);
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+
+            Assert.AreEqual(expectedCount, GetBuildableAttributes(contextDefinition).Count);
+        }
+
+        [Test]
+        public async Task BuildableAttributesRespectCustomizedAccessibility()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () =>
+                [
+                    InputFactory.Model("InternalModel"),
+                    InputFactory.Model("PublicModel", access: "internal")
+                ],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var file = new TypeProviderWriter(contextDefinition).Write();
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [TestCase(TypeSignatureModifiers.Public, "Public")]
+        [TestCase(TypeSignatureModifiers.Internal, "Internal")]
+        [TestCase(TypeSignatureModifiers.Private, "Private")]
+        [TestCase(TypeSignatureModifiers.Protected, "Protected")]
+        [TestCase(TypeSignatureModifiers.Protected | TypeSignatureModifiers.Internal, "ProtectedInternal")]
+        [TestCase(TypeSignatureModifiers.Private | TypeSignatureModifiers.Protected, "PrivateProtected")]
+        public void BuildableAttributesRespectUpdatedAccessibility(TypeSignatureModifiers accessibility, string expectedFile)
+        {
+            var provider = new TestMrwSerialization(implementsPersistableModel: true, includeDepModelProperty: true);
+            MockHelpers.LoadMockGenerator(createOutputLibrary: () => new TestOutputLibrary([provider]));
+
+            _ = provider.Type;
+            provider.Update(modifiers: accessibility | TypeSignatureModifiers.Class);
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var file = new TypeProviderWriter(contextDefinition).Write();
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(expectedFile), file.Content);
+        }
+
+        [Test]
+        public void NonPublicFrameworkTypesDoNotContributeBuildableAttributes()
+        {
+            MockHelpers.LoadMockGenerator(
+                inputModels: () => [InputFactory.Model("PublicModel")],
+                createCSharpTypeCore: _ => new CSharpType(typeof(TestInternalType)),
+                createCSharpTypeCoreFallback: input => input == InputPrimitiveType.String);
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var file = new TypeProviderWriter(contextDefinition).Write();
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
         [TestCase(true)]
         [TestCase(false)]
         public void ValidateModelReaderWriterBuildableAttributesAreGeneratedForNonModelsThatImplementMRW(bool implementsIPersistable)
@@ -1198,7 +1261,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
         }
 
         [Experimental("TEST001")]
-        private class ExperimentalDependencyModel : IJsonModel<ExperimentalDependencyModel>
+        public class ExperimentalDependencyModel : IJsonModel<ExperimentalDependencyModel>
         {
             ExperimentalDependencyModel? IJsonModel<ExperimentalDependencyModel>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
             {
