@@ -158,8 +158,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             var contextDefinition = new ModelReaderWriterContextDefinition();
             var buildableAttributes = GetBuildableAttributes(contextDefinition);
 
-            Assert.AreEqual(1, buildableAttributes.Count);
-            Assert.AreEqual("typeof(global::Sample.Models.PublicModel)", buildableAttributes[0].Arguments[0].ToDisplayString());
+            CollectionAssert.AreEquivalent(
+                new[]
+                {
+                    "typeof(global::Sample.Models.PublicModel)",
+                    "typeof(global::Sample.Models.PublicContainer.NestedModel)"
+                },
+                buildableAttributes.Select(a => a.Arguments[0].ToDisplayString()));
         }
 
         [TestCase(true)]

@@ -8,6 +8,8 @@ namespace Sample
     [ModelReaderWriterBuildable(typeof(Models.InternalModel))]
     [ModelReaderWriterBuildable(typeof(Models.PublicModel))]
     [ModelReaderWriterBuildable(typeof(Models.InternalCustomModel))]
+    [ModelReaderWriterBuildable(typeof(Models.InternalContainer.NestedModel))]
+    [ModelReaderWriterBuildable(typeof(Models.PublicContainer.NestedModel))]
     public partial class SampleContext : ModelReaderWriterContext
     {
     }
@@ -25,5 +27,19 @@ namespace Sample.Models
 
     public class InternalCustomModel
     {
+    }
+
+    public class InternalContainer
+    {
+        public class NestedModel
+        {
+        }
+    }
+
+    public class PublicContainer
+    {
+        public class NestedModel
+        {
+        }
     }
 }

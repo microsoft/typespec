@@ -189,7 +189,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         null,
                         includeReferencedAssemblies: true);
 
-                    if (resolvedProvider is null)
+                    if (resolvedProvider is null || !HasPublicDeclaringTypes(targetType))
                     {
                         continue;
                     }
@@ -213,6 +213,25 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     resolvedProvider,
                     identity);
             }
+        }
+
+        private static bool HasPublicDeclaringTypes(CSharpType type)
+        {
+            for (var declaringType = type.DeclaringType; declaringType != null; declaringType = declaringType.DeclaringType)
+            {
+                var provider = ScmCodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(
+                    declaringType.Namespace,
+                    declaringType.ClrMetadataName,
+                    null,
+                    includeReferencedAssemblies: true);
+
+                if (provider?.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public) != true)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         private static CSharpType? GetBuildableAttributeTargetType(AttributeStatement attribute)

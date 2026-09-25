@@ -6,4 +6,18 @@ namespace Sample.Models
     internal class InternalCustomModel
     {
     }
+
+    internal class InternalContainer
+    {
+        public class NestedModel
+        {
+        }
+    }
+
+    public class PublicContainer
+    {
+        public class NestedModel
+        {
+        }
+    }
 }
