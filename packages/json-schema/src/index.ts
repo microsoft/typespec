@@ -1,12 +1,15 @@
 export type {
+  ExtensionDecorator,
+  JsonSchemaDecorator,
+} from "../generated-defs/TypeSpec.JsonSchema.js";
+/* eslint-disable @typescript-eslint/no-deprecated */
+export type {
   BaseUriDecorator,
   ContainsDecorator,
   ContentEncodingDecorator,
   ContentMediaTypeDecorator,
   ContentSchemaDecorator,
-  ExtensionDecorator,
   IdDecorator,
-  JsonSchemaDecorator,
   MaxContainsDecorator,
   MaxPropertiesDecorator,
   MinContainsDecorator,
@@ -15,7 +18,8 @@ export type {
   OneOfDecorator,
   PrefixItemsDecorator,
   UniqueItemsDecorator,
-} from "../generated-defs/TypeSpec.JsonSchema.js";
+} from "./back-compat.js";
+/* eslint-enable @typescript-eslint/no-deprecated */
 
 /** @internal */
 export { JsonSchemaEmitter } from "./json-schema-emitter.js";
@@ -25,15 +29,14 @@ export type { JSONSchemaEmitterOptions } from "./lib.js";
 /** @internal */
 export const namespace = "TypeSpec.JsonSchema";
 
+/* eslint-disable @typescript-eslint/no-deprecated */
 export {
   $baseUri,
   $contains,
   $contentEncoding,
   $contentMediaType,
   $contentSchema,
-  $extension,
   $id,
-  $jsonSchema,
   $maxContains,
   $maxProperties,
   $minContains,
@@ -42,6 +45,11 @@ export {
   $oneOf,
   $prefixItems,
   $uniqueItems,
+} from "./back-compat.js";
+/* eslint-enable @typescript-eslint/no-deprecated */
+export {
+  $extension,
+  $jsonSchema,
   findBaseUri,
   getBaseUri,
   getContains,
