@@ -24,6 +24,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private Lazy<CanonicalTypeProvider> _canonicalView;
         private Lazy<TypeProvider> _specView;
         private Lazy<string?> _declaringTypeName;
+        private protected string? DeclaringTypeName => _declaringTypeName.Value;
         private readonly InputType? _inputType;
         private readonly Dictionary<string, PropertyProvider> _generatedPropertiesBySpecName = new(StringComparer.Ordinal);
 
@@ -758,7 +759,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return name;
             }
 
-            var normalizedName = name.NormalizeCSharpAcronyms();
+            var normalizedName = NormalizeTypeName(name);
             if (normalizedName == name)
             {
                 return name;
@@ -770,6 +771,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 _declaringTypeName.Value);
             return lastContractType is null ? normalizedName : name;
         }
+
+        private protected virtual string NormalizeTypeName(string name) => name.NormalizeCSharpAcronyms();
 
         /// <summary>
         /// Resets only the cached methods so they are rebuilt on next access.

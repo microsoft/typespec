@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
+using System.ClientModel.Primitives;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
@@ -11,6 +13,33 @@ namespace TestProjects.Local.Tests
 {
     public class CustomizationTests
     {
+        [TestCase("GetNotebookResult", "GetNotebookResponse")]
+        [TestCase("GetWidgetMetricsResult", "GetWidgetMetricsResponse")]
+        [TestCase("ListWithContinuationTokenHeaderResponseResult", "ListWithContinuationTokenHeaderResponseResponse")]
+        [TestCase("ListWithContinuationTokenResult", "ListWithContinuationTokenResponse")]
+        [TestCase("ListWithNextLinkResult", "ListWithNextLinkResponse")]
+        [TestCase("ListWithStringNextLinkResult", "ListWithStringNextLinkResponse")]
+        [TestCase("ReturnsAnonymousModelResult", "ReturnsAnonymousModelResponse")]
+        [TestCase("LifecycleModel", null)]
+        [TestCase("PagePreviewDetails", null)]
+        [TestCase("PreviewDetails", null)]
+        public void ModelReaderWriterContextRegistersGeneratedModels(string modelName, string? previousName)
+        {
+            var modelType = typeof(SampleTypeSpecClient).Assembly.GetType($"SampleTypeSpec.{modelName}");
+            Assert.IsNotNull(modelType);
+            var registeredTypes = typeof(SampleTypeSpecContext).GetCustomAttributesData()
+                .Where(attribute => attribute.AttributeType == typeof(ModelReaderWriterBuildableAttribute))
+                .Select(attribute => (Type)attribute.ConstructorArguments[0].Value!)
+                .ToArray();
+
+            Assert.AreEqual(1, registeredTypes.Count(type => type == modelType));
+            if (previousName != null)
+            {
+                Assert.IsNull(typeof(SampleTypeSpecClient).Assembly.GetType($"SampleTypeSpec.{previousName}"));
+                Assert.IsFalse(registeredTypes.Any(type => type.Name == previousName));
+            }
+        }
+
         [TestCase("SampleTypeSpec.PreviewDetails", "SAMPLE0003")]
         [TestCase("SampleTypeSpec.PreviewChoice", "SAMPLE0004")]
         [TestCase("SampleTypeSpec.PreviewExtensibleChoice", "SAMPLE0005")]
