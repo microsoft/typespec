@@ -21,7 +21,7 @@ For detailed instructions on how to customize the generated C# code, see the [Cu
 
 ### Experimental types and members
 
-Use `TypeSpec.HttpClient.@experimental` to assign a public diagnostic ID to a generated
+Use `@TypeSpec.HttpClient.experimental` to assign a public diagnostic ID to a generated
 type or member and identify experiments used by its implementation:
 
 ```typespec
@@ -87,6 +87,10 @@ Some TypeSpec declarations have no corresponding C# declaration, such as scalars
 erased to built-in C# types without an explicit external mapping. C# also does not allow `ExperimentalAttribute` on parameters.
 The emitter reports `experimental-target-not-supported` for these annotations instead of
 silently dropping them or assigning their diagnostic to an unrelated API.
+
+Models referenced by a union retain their own experimental metadata. Annotate the model
+declaration, not the union variant that references it: a model variant has no separate C#
+declaration on which to place an attribute.
 
 Graduation is an explicit source change: dependencies becoming generally available, or
 removing entries from `dependsOn`, does not remove `[Experimental("C")]`. Remove the

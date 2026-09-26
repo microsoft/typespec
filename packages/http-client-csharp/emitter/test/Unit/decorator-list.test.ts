@@ -159,6 +159,75 @@ describe("Test emitting decorator list", () => {
       });
     });
 
+    describe.each([
+      {
+        name: "named model variants",
+        declaration: "union Choice { preview: Preview, stable: Stable }",
+        type: "Choice",
+      },
+      {
+        name: "unnamed model variants",
+        declaration: "union Choice { Preview, Stable }",
+        type: "Choice",
+      },
+      {
+        name: "inline model variants",
+        declaration: "",
+        type: "Preview | Stable",
+      },
+      {
+        name: "nullable model variants",
+        declaration: "union Choice { preview: Preview, stable: Stable, null }",
+        type: "Choice",
+      },
+      {
+        name: "a nullable model",
+        declaration: "union Choice { preview: Preview, null }",
+        type: "Choice",
+      },
+      {
+        name: "mixed model and scalar variants",
+        declaration: "union Choice { preview: Preview, text: string }",
+        type: "Choice",
+      },
+    ])("experimental models in $name", ({ declaration, type }) => {
+      it.each([
+        { scope: "@typespec/http-client-csharp", applies: true },
+        { scope: "!other-emitter", applies: true },
+        { scope: "other-emitter", applies: false },
+      ])("preserves model metadata scoped to $scope", async ({ scope, applies }) => {
+        const program = await typeSpecCompile(
+          `
+          @TypeSpec.HttpClient.experimental(#{
+            emitterScope: "${scope}", diagnosticId: "MODEL001", dependsOn: #["DEP001"]
+          })
+          model Preview { value: string; }
+          model Stable { count: int32; }
+          ${declaration}
+          model Wrapper { value: ${type}; }
+          op read(): Wrapper;
+          `,
+          runner,
+          { IsHttpClientNeeded: true },
+        );
+        expectDiagnosticEmpty(program.diagnostics);
+        const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+        const [root, diagnostics] = createModel(sdkContext);
+        expectDiagnosticEmpty(diagnostics);
+        const preview = root.models.find((model) => model.name === "Preview");
+        const wrapper = root.models.find((model) => model.name === "Wrapper");
+        ok(preview);
+        ok(wrapper);
+        deepStrictEqual(
+          preview.experimental,
+          applies ? { diagnosticId: "MODEL001", dependsOn: ["DEP001"] } : undefined,
+        );
+        strictEqual(wrapper.experimental, undefined);
+        strictEqual(wrapper.properties[0].experimental, undefined);
+        strictEqual(wrapper.properties[0].type.experimental, undefined);
+      });
+    });
+
     it.each([
       `@TypeSpec.HttpClient.experimental(#{ diagnosticId: "SCALAR001" })
        scalar CustomString extends string; op read(): CustomString;`,
@@ -170,6 +239,30 @@ describe("Test emitting decorator list", () => {
          @TypeSpec.HttpClient.experimental(#{ diagnosticId: "VARIANT001" })
          text: string, count: int32
        } op read(): Choice;`,
+      `model Preview { value: string; }
+       model Stable { count: int32; }
+       union Choice {
+         @TypeSpec.HttpClient.experimental(#{ diagnosticId: "VARIANT001" })
+         preview: Preview, stable: Stable
+       }
+       model Wrapper { value: Choice; }
+       op read(): Wrapper;`,
+      `@TypeSpec.HttpClient.experimental(#{ diagnosticId: "MODEL001" })
+       model Preview { value: string; }
+       model Stable { count: int32; }
+       union Choice {
+         @TypeSpec.HttpClient.experimental(#{ diagnosticId: "VARIANT001" })
+         preview: Preview, stable: Stable
+       }
+       model Wrapper { value: Choice; }
+       op read(): Wrapper;`,
+      `model Preview { value: string; }
+       union Choice {
+         @TypeSpec.HttpClient.experimental(#{ diagnosticId: "VARIANT001" })
+         preview: Preview, null
+       }
+       model Wrapper { value: Choice; }
+       op read(): Wrapper;`,
     ])("reports annotations with no supported C# declaration", async (code) => {
       const program = await typeSpecCompile(code, runner, { IsHttpClientNeeded: true });
       const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
