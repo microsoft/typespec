@@ -7,11 +7,14 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
+using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
@@ -20,6 +23,38 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 {
     public class ClientSettingsProviderTests
     {
+        [Test]
+        public void ExperimentalClientParametersCompileInOptionsAndSettings()
+        {
+            var mode = InputFactory.Experimental(InputFactory.StringEnum("Mode", [("One", "one")], isExtensible: true), "MODE001");
+            var input = InputFactory.Client("TestClient", parameters:
+            [
+                InputFactory.MethodParameter("requiredMode", mode, isRequired: true, scope: InputParameterScope.Client),
+                InputFactory.MethodParameter("optionalMode", mode, defaultValue: new InputConstant("one", mode), scope: InputParameterScope.Client)
+            ]);
+            MockHelpers.LoadMockGenerator(inputEnums: () => [mode], clients: () => [input]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(input)!;
+            var enumProvider = ScmCodeModelGenerator.Instance.TypeFactory.CreateEnum(mode)!;
+            var options = client.ClientOptions!;
+            var settings = client.ClientSettings!;
+            var references = AppDomain.CurrentDomain.GetAssemblies()
+                .Where(a => !a.IsDynamic && !string.IsNullOrEmpty(a.Location))
+                .Select(a => MetadataReference.CreateFromFile(a.Location))
+                .Append(MetadataReference.CreateFromFile(typeof(Microsoft.Extensions.Configuration.IConfigurationSection).Assembly.Location));
+            var compilation = CSharpCompilation.Create(
+                "ExperimentalClientParameters",
+                new TypeProvider[] { enumProvider, options, settings, new ArgumentDefinition() }
+                    .Select(p => CSharpSyntaxTree.ParseText(new TypeProviderWriter(p).Write().Content)),
+                references,
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, generalDiagnosticOption: ReportDiagnostic.Error));
+            var errors = compilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error).ToArray();
+            Assert.IsEmpty(errors.Select(d => d.ToString()));
+            foreach (var provider in new TypeProvider[] { options, settings })
+            {
+                Assert.IsTrue(provider.DisabledFileWarnings.Any(s => s.Code.ToDisplayString() == Snippet.Literal("MODE001").ToDisplayString()));
+            }
+        }
+
         [SetUp]
         public void SetUp()
         {

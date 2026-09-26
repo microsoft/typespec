@@ -18,6 +18,25 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
 {
     public class ScmModelProviderTests
     {
+        [Test]
+        public void ExperimentalModelAttributeIsNotRepeatedOnSerializationPartials()
+        {
+            var property = InputFactory.Experimental(InputFactory.Property("value", InputPrimitiveType.String), "PROPERTY001");
+            var inputModel = InputFactory.Experimental(InputFactory.Model("Payload", properties: [property]), "MODEL001", "DEP001");
+            MockHelpers.LoadMockGenerator(inputModels: () => [inputModel]);
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
+
+            Assert.AreEqual(1, model.Attributes.Count(a => a.Type.Equals(typeof(ExperimentalAttribute))));
+            Assert.IsNotEmpty(model.SerializationProviders);
+            foreach (var serialization in model.SerializationProviders)
+            {
+                Assert.IsFalse(serialization.Attributes.Any(a => a.Type.Equals(typeof(ExperimentalAttribute))));
+                CollectionAssert.IsSubsetOf(
+                    new[] { "MODEL001", "DEP001", "PROPERTY001" }.Select(id => Snippet.Literal(id).ToDisplayString()),
+                    serialization.DisabledFileWarnings.Select(s => s.Code.ToDisplayString()));
+            }
+        }
+
         private sealed class DerivedScmModelProvider : ScmModel
         {
             public DerivedScmModelProvider(InputModelType inputModel) : base(inputModel)

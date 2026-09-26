@@ -5,12 +5,15 @@ using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
@@ -25,6 +28,71 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
 {
     public class ClientProviderTests
     {
+        [Test]
+        public void ExperimentalChildParametersAreSuppressedOnParentAccessors()
+        {
+            var mode = InputFactory.Experimental(InputFactory.StringEnum("Mode", [("One", "one")], isExtensible: true), "MODE001");
+            var parent = InputFactory.Client("ParentClient");
+            var child = InputFactory.Client("ChildClient", parent: parent,
+                parameters: [InputFactory.PathParameter("mode", mode, isRequired: true, scope: InputParameterScope.Client)],
+                initializedBy: InputClientInitializedBy.Parent);
+            MockHelpers.LoadMockGenerator(inputEnums: () => [mode], clients: () => [parent, child]);
+            var generator = ScmCodeModelGenerator.Instance;
+            var client = generator.TypeFactory.CreateClient(parent)!;
+            var accessor = client.Methods.Single(m => m.Signature.Name == "GetChildClient");
+            Assert.AreEqual("Mode", accessor.Signature.Parameters.Single().Type.Name);
+            Assert.IsTrue(client.DisabledFileWarnings.Any(s => s.Code.ToDisplayString() == Literal("MODE001").ToDisplayString()));
+
+            var references = AppDomain.CurrentDomain.GetAssemblies()
+                .Where(a => !a.IsDynamic && !string.IsNullOrEmpty(a.Location))
+                .Select(a => MetadataReference.CreateFromFile(a.Location))
+                .Append(MetadataReference.CreateFromFile(typeof(Microsoft.Extensions.Configuration.IConfigurationSection).Assembly.Location));
+            var providers = generator.OutputLibrary.TypeProviders
+                .Where(p => p is not Utf8JsonBinaryContentDefinition and not BinaryContentHelperDefinition);
+            var compilation = CSharpCompilation.Create(
+                "ExperimentalChildParameters",
+                providers.Select(p => CSharpSyntaxTree.ParseText(new TypeProviderWriter(p).Write().Content)),
+                references,
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, generalDiagnosticOption: ReportDiagnostic.Error));
+            Assert.IsEmpty(compilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error).Select(d => d.ToString()));
+        }
+
+        [Test]
+        public async Task ExperimentalCustomClientKeepsExistingAttribute()
+        {
+            var input = InputFactory.Experimental(InputFactory.Client("TestClient"), "GENERATED001");
+            await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [input],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(input)!;
+
+            Assert.AreEqual(0, client.Attributes.Count(a => a.Type.Equals(typeof(ExperimentalAttribute))));
+            Assert.AreEqual(Literal("CUSTOM001").ToDisplayString(),
+                client.CanonicalView.Attributes.Single(a => a.Type.Equals(typeof(ExperimentalAttribute))).Arguments[0].ToDisplayString());
+        }
+
+        [Test]
+        public void ExperimentalClientAndModelReferences()
+        {
+            var model = InputFactory.Experimental(InputFactory.Model("Payload"), "MODEL001");
+            var operation = InputFactory.Operation("Read", responses: [InputFactory.OperationResponse(bodytype: model)]);
+            var clientInput = InputFactory.Experimental(
+                InputFactory.Client("Experiment", methods: [InputFactory.BasicServiceMethod("Read", operation)]),
+                "CLIENT001", "DEP001");
+            MockHelpers.LoadMockGenerator(inputModels: () => [model], clients: () => [clientInput]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(clientInput)!;
+
+            Assert.AreEqual(Literal("CLIENT001").ToDisplayString(),
+                client.Attributes.Single(a => a.Type.Equals(typeof(ExperimentalAttribute))).Arguments[0].ToDisplayString());
+            foreach (var provider in new TypeProvider[] { client, client.RestClient })
+            {
+                CollectionAssert.IsSubsetOf(
+                    new[] { "CLIENT001", "DEP001", "MODEL001" }.Select(id => Literal(id).ToDisplayString()),
+                    provider.DisabledFileWarnings.Select(s => s.Code.ToDisplayString()));
+            }
+            Assert.IsFalse(client.RestClient.Attributes.Any(a => a.Type.Equals(typeof(ExperimentalAttribute))));
+        }
+
         [TestCase("Foo", "Foo", ExpectedResult = true)]
         [TestCase("Foo", "Bar", ExpectedResult = false)]
         [TestCase("Foo", "_Foo", ExpectedResult = false)]

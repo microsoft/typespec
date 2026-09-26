@@ -5,6 +5,7 @@ using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Net.ServerSentEvents;
@@ -12,13 +13,18 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
+using Microsoft.TypeSpec.Generator.Utilities;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
+using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
+using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
 
@@ -33,6 +39,347 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             [
                 InputFactory.Property("p2", InputPrimitiveType.String, isRequired: true),
             ]);
+
+        [TestCase("C", new[] { "A", "B" })]
+        [TestCase("C", new string[0])]
+        [TestCase(null, new[] { "A", "B" })]
+        [TestCase(null, new string[0])]
+        [TestCase(null, null)]
+        [TestCase("C", new[] { "A", "A", "B" })]
+        public void ExperimentalOperationGeneratesScopedDiagnostics(string? diagnosticId, string[]? dependencies)
+        {
+            var operation = InputFactory.Operation("Bar");
+            operation.Update(experimental: dependencies is null ? null : new InputExperimentalDetails(diagnosticId, dependencies));
+            var serviceMethod = InputFactory.BasicServiceMethod("Bar", operation);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+            var methods = new ScmMethodProviderCollection(serviceMethod, client);
+
+            Assert.AreEqual(4, methods.Count);
+            var expectedDependencies = dependencies?.Distinct().ToArray() ?? [];
+            foreach (var method in methods.Append(client.RestClient.GetCreateRequestMethod(operation)))
+            {
+                var attribute = method.Signature.Attributes.SingleOrDefault(a => a.Type.Equals(typeof(ExperimentalAttribute)));
+                if (method is ScmMethodProvider { Kind: ScmMethodKind.CreateRequest } || diagnosticId is null)
+                {
+                    Assert.IsNull(attribute);
+                }
+                else
+                {
+                    Assert.IsNotNull(attribute);
+                    Assert.AreEqual(diagnosticId, ((LiteralExpression)((ScopedApi<string>)attribute!.Arguments.Single()).Original).Literal);
+                }
+
+                using var writer = new CodeWriter();
+                writer.WriteMethod(method);
+                var code = writer.ToString(false);
+                var directives = CSharpSyntaxTree.ParseText(code).GetRoot()
+                    .DescendantTrivia(descendIntoTrivia: true)
+                    .Select(t => t.GetStructure())
+                    .OfType<PragmaWarningDirectiveTriviaSyntax>()
+                    .ToArray();
+                var disables = directives.Where(d => d.DisableOrRestoreKeyword.IsKind(SyntaxKind.DisableKeyword)).ToArray();
+                var restores = directives.Where(d => d.DisableOrRestoreKeyword.IsKind(SyntaxKind.RestoreKeyword)).ToArray();
+                CollectionAssert.AreEqual(expectedDependencies, disables.Select(d => d.ErrorCodes.Single().ToString()));
+                CollectionAssert.AreEqual(expectedDependencies, restores.Select(d => d.ErrorCodes.Single().ToString()));
+                var declarationStart = code.IndexOf(
+                    method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) ? "public " : "internal ",
+                    StringComparison.Ordinal);
+                Assert.IsTrue(disables.All(d => d.SpanStart < declarationStart));
+                Assert.IsTrue(restores.All(d => d.SpanStart > code.LastIndexOf('}')));
+            }
+        }
+
+        [TestCase("")]
+        [TestCase(" \t")]
+        [TestCase("A B")]
+        [TestCase("A,B")]
+        [TestCase("A-B")]
+        [TestCase("A.B")]
+        [TestCase("1A")]
+        [TestCase("@A")]
+        [TestCase("A\n")]
+        [TestCase("A\r")]
+        [TestCase("A//B")]
+        [TestCase("A/*B*/")]
+        [TestCase("A\n#pragma warning disable")]
+        public void ExperimentalOperationRejectsInvalidDependencyDiagnostic(string diagnosticId)
+        {
+            var operation = InputFactory.Operation("Bar");
+            operation.Update(experimental: new InputExperimentalDetails("C", [diagnosticId]));
+            var serviceMethod = InputFactory.BasicServiceMethod("Bar", operation);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+
+            Assert.Throws<ArgumentException>(() => new ScmMethodProviderCollection(serviceMethod, client));
+        }
+
+        [TestCase("A")]
+        [TestCase("DEP001")]
+        [TestCase("_DEP001")]
+        [TestCase("CS0618")]
+        [TestCase("0618")]
+        [TestCase("class")]
+        public void ExperimentalDiagnosticIdProducesOnePragmaToken(string diagnosticId)
+        {
+            var operation = InputFactory.Operation("Read");
+            operation.Update(experimental: new InputExperimentalDetails("API001", [diagnosticId]));
+            var method = InputFactory.BasicServiceMethod("Read", operation);
+            var inputClient = InputFactory.Client("TestClient", methods: [method]);
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+            var generatedMethod = new ScmMethodProviderCollection(method, client)[0];
+            var tree = CSharpSyntaxTree.ParseText(generatedMethod.Suppressions.Single().DisableStatement.ToDisplayString());
+
+            Assert.AreEqual(0, tree.GetDiagnostics().Count());
+            var pragma = tree.GetRoot().DescendantTrivia(descendIntoTrivia: true).Select(t => t.GetStructure())
+                .OfType<PragmaWarningDirectiveTriviaSyntax>().Single();
+            Assert.AreEqual(diagnosticId, pragma.ErrorCodes.Single().ToString());
+        }
+
+        [Test]
+        public void ExperimentalDependenciesAlreadySuppressedForClientAreNotRestoredByMethods()
+        {
+            var model = InputFactory.Experimental(InputFactory.Model("Payload"), "MODEL001");
+            var operation = InputFactory.Operation("Read", responses: [InputFactory.OperationResponse(bodytype: model)]);
+            operation.Update(experimental: new InputExperimentalDetails("API001", ["MODEL001"]));
+            var method = InputFactory.BasicServiceMethod("Read", operation);
+            var inputClient = InputFactory.Client("TestClient", methods: [method]);
+            MockHelpers.LoadMockGenerator(inputModels: () => [model], clients: () => [inputClient]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+
+            foreach (var provider in new ScmMethodProviderCollection(method, client).Append(client.RestClient.GetCreateRequestMethod(operation)))
+            {
+                Assert.IsTrue(provider.EnclosingType.DisabledFileWarnings.Any(s => s.Code.ToDisplayString() == Snippet.Literal("MODEL001").ToDisplayString()));
+                Assert.AreEqual(0, provider.Suppressions.Count, "A method-local restore would undo the generated file's suppression.");
+            }
+        }
+
+        [TestCase(null)]
+        [TestCase("C")]
+        public void ExperimentalMultipartOperationHasOnePublicDiagnostic(string? diagnosticId)
+        {
+            var body = InputFactory.Model("UploadBody", usage: InputModelTypeUsage.Input | InputModelTypeUsage.MultipartFormData);
+            var operation = InputFactory.Operation("Upload",
+                parameters: [InputFactory.BodyParameter("body", body, isRequired: true)],
+                requestMediaTypes: ["multipart/form-data"]);
+            if (diagnosticId is not null)
+            {
+                operation.Update(experimental: new InputExperimentalDetails(diagnosticId, [ClientModel.Providers.ScmModelProvider.FileBinaryContentDiagnosticId]));
+            }
+            var serviceMethod = InputFactory.BasicServiceMethod("Upload", operation,
+                parameters: [InputFactory.MethodParameter("body", body, location: InputRequestLocation.Body, isRequired: true)]);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            MockHelpers.LoadMockGenerator(inputModels: () => [body], clients: () => [inputClient]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+            var methods = new ScmMethodProviderCollection(serviceMethod, client);
+
+            Assert.AreEqual(2, methods.Count(m => m.Kind == ScmMethodKind.Convenience));
+            foreach (var method in methods.Where(m => m.Kind == ScmMethodKind.Convenience))
+            {
+                var attribute = method.Signature.Attributes.Single(a => a.Type.Equals(typeof(ExperimentalAttribute)));
+                Assert.AreEqual(diagnosticId ?? ClientModel.Providers.ScmModelProvider.FileBinaryContentDiagnosticId,
+                    ((LiteralExpression)((ScopedApi<string>)attribute.Arguments.Single()).Original).Literal);
+            }
+        }
+
+        [Test]
+        public async Task ExperimentalOperationSupportsPartialMethods()
+        {
+            var operation = InputFactory.Operation("Bar");
+            operation.Update(experimental: new InputExperimentalDetails("C", ["A", "B"]));
+            var serviceMethod = InputFactory.BasicServiceMethod("Bar", operation);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [inputClient],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+            var methods = new ScmMethodProviderCollection(serviceMethod, client);
+
+            Assert.AreEqual(4, methods.Count);
+            foreach (var method in methods)
+            {
+                Assert.IsTrue(method.IsPartialMethod);
+                var attribute = method.Signature.Attributes.Single(a => a.Type.Equals(typeof(ExperimentalAttribute)));
+                Assert.AreEqual("C", ((LiteralExpression)((ScopedApi<string>)attribute.Arguments.Single()).Original).Literal);
+                Assert.AreEqual(2, method.Suppressions.Count);
+            }
+        }
+
+        [TestCase("plain", false, true, null)]
+        [TestCase("generic", false, true, null)]
+        [TestCase("array", false, true, null)]
+        [TestCase("nested", false, true, null)]
+        [TestCase("plain", true, true, null)]
+        [TestCase("plain", false, false, null)]
+        [TestCase("plain", false, true, "C")]
+        public void ExperimentalDependenciesCoverSignaturesAndBodies(string shape, bool expressionBody, bool suppressBodyDependency, string? publicDiagnosticId)
+        {
+            var operation = InputFactory.Operation("UseDependencies");
+            operation.Update(experimental: new InputExperimentalDetails(publicDiagnosticId, suppressBodyDependency ? ["A", "B"] : ["A"]));
+            var serviceMethod = InputFactory.BasicServiceMethod("UseDependencies", operation);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+
+            var tree = CSharpSyntaxTree.ParseText(Helpers.GetExpectedFromFile());
+            var references = AppDomain.CurrentDomain.GetAssemblies()
+                .Where(assembly => !assembly.IsDynamic && !string.IsNullOrEmpty(assembly.Location))
+                .Select(assembly => MetadataReference.CreateFromFile(assembly.Location));
+            var compilation = CSharpCompilation.Create(
+                "ExperimentalDependencies",
+                [tree],
+                references,
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            var dependency = compilation.GetTypeByMetadataName("Sample.SignatureDependency")!;
+            ITypeSymbol signatureSymbol = shape switch
+            {
+                "plain" => dependency,
+                "generic" => compilation.GetTypeByMetadataName("System.Collections.Generic.List`1")!.Construct(dependency),
+                "array" => compilation.CreateArrayTypeSymbol(dependency),
+                "nested" => compilation.GetTypeByMetadataName("System.Collections.Generic.List`1")!.Construct(compilation.CreateArrayTypeSymbol(dependency)),
+                _ => throw new ArgumentOutOfRangeException(nameof(shape))
+            };
+            var signatureType = signatureSymbol.GetCSharpType();
+            var bodyType = compilation.GetTypeByMetadataName("Sample.BodyDependency")!.GetCSharpType();
+            var parameter = new ParameterProvider("value", $"The value.", signatureType);
+            var attribute = ExperimentalApiHelpers.BuildAttribute(operation);
+            var signature = new MethodSignature(
+                "UseDependencies", null, MethodSignatureModifiers.Public, signatureType, null, [parameter],
+                Attributes: attribute is null ? [] : [attribute]);
+            var existingSuppression = new SuppressionStatement(null, Snippet.Literal("CS0168"), "Existing suppression.");
+            var method = expressionBody
+                ? new MethodProvider(signature, (ValueExpression)parameter, client, suppressions: [existingSuppression])
+                : new MethodProvider(signature, new MethodBodyStatements(
+                    [new ExpressionStatement(Snippet.New.Instance(bodyType)), Snippet.Return(parameter)]), client, suppressions: [existingSuppression]);
+            ExperimentalApiHelpers.AddDependencySuppressions(method, operation);
+            Assert.Contains(existingSuppression, method.Suppressions.ToArray());
+
+            using var writer = new CodeWriter();
+            writer.WriteMethod(method);
+            var root = tree.GetRoot();
+            var clientDeclaration = root.DescendantNodes().OfType<ClassDeclarationSyntax>().Single(c => c.Identifier.ValueText == "TestClient");
+            var generatedMethod = SyntaxFactory.ParseMemberDeclaration(writer.ToString(false))!;
+            var updatedRoot = root.ReplaceNode(clientDeclaration, clientDeclaration.AddMembers(generatedMethod));
+            var updatedTree = tree.WithRootAndOptions(updatedRoot, tree.Options);
+            compilation = compilation.ReplaceSyntaxTree(tree, updatedTree);
+
+            var emittedMethod = updatedTree.GetRoot().DescendantNodes().OfType<MethodDeclarationSyntax>()
+                .Single(m => m.Identifier.ValueText == "UseDependencies");
+            var diagnostics = compilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error).ToArray();
+            var methodDiagnostics = diagnostics.Where(d => emittedMethod.Span.Contains(d.Location.SourceSpan)).ToArray();
+            CollectionAssert.AreEqual(
+                suppressBodyDependency || expressionBody ? Array.Empty<string>() : ["B"],
+                methodDiagnostics.Select(d => d.Id),
+                string.Join(Environment.NewLine, methodDiagnostics.Select(d => d.ToString())));
+            var outsideDiagnostics = diagnostics.Where(d => !emittedMethod.Span.Contains(d.Location.SourceSpan)).ToArray();
+            CollectionAssert.AreEquivalent(
+                publicDiagnosticId is null ? new[] { "A", "B" } : ["A", "B", "C"],
+                outsideDiagnostics.Select(d => d.Id).Distinct());
+        }
+
+        [TestCase(null)]
+        [TestCase("GENERATED001")]
+        public async Task ExperimentalCustomizedPartialMethodsKeepExistingAttributes(string? diagnosticId)
+        {
+            var operation = InputFactory.Operation("Bar");
+            operation.Update(experimental: new InputExperimentalDetails(diagnosticId, []));
+            var serviceMethod = InputFactory.BasicServiceMethod("Bar", operation);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            MockHelpers.LoadMockGenerator();
+            var customCompilation = await Helpers.GetCompilationFromDirectoryAsync();
+            await MockHelpers.LoadMockGeneratorAsync(clients: () => [inputClient], compilation: () => Task.FromResult(customCompilation));
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+            var methods = new ScmMethodProviderCollection(serviceMethod, client);
+            var implementations = new List<MemberDeclarationSyntax>();
+
+            Assert.AreEqual(4, methods.Count);
+            foreach (var method in methods)
+            {
+                Assert.IsTrue(method.IsPartialMethod);
+                using var writer = new CodeWriter();
+                writer.WriteMethod(method);
+                var declaration = (MethodDeclarationSyntax)SyntaxFactory.ParseMemberDeclaration(writer.ToString(false))!;
+                implementations.Add(declaration
+                    .WithModifiers(SyntaxFactory.TokenList(declaration.Modifiers.Where(m => !m.IsKind(SyntaxKind.AsyncKeyword))))
+                    .WithBody(SyntaxFactory.Block(SyntaxFactory.ThrowStatement(SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression)))));
+            }
+
+            var customTree = customCompilation.SyntaxTrees.Single(t => t.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>()
+                .Any(c => c.Identifier.ValueText == "TestClient"));
+            var root = customTree.GetRoot();
+            var customClass = root.DescendantNodes().OfType<ClassDeclarationSyntax>().Single(c => c.Identifier.ValueText == "TestClient");
+            var implementationRoot = root.ReplaceNode(customClass, customClass.WithMembers(SyntaxFactory.List(implementations)));
+            var compilation = customCompilation.RemoveAllSyntaxTrees().AddSyntaxTrees(customTree, CSharpSyntaxTree.Create((CSharpSyntaxNode)implementationRoot));
+            var errors = compilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error).ToArray();
+            Assert.IsEmpty(errors.Select(d => d.ToString()), "Customized attributes must occur only on the defining partial declaration.");
+            var symbol = compilation.GetTypeByMetadataName("Sample.TestClient")!;
+            foreach (var method in symbol.GetMembers().OfType<IMethodSymbol>().Where(m => m.Name is "Bar" or "BarAsync"))
+            {
+                Assert.AreEqual("CUSTOM001", method.GetAttributes().Single().ConstructorArguments[0].Value);
+            }
+        }
+
+        [TestCase("plain", true)]
+        [TestCase("array", true)]
+        [TestCase("nested", true)]
+        [TestCase("plain", false)]
+        public async Task ExperimentalProductionMethodsCompile(string shape, bool suppressType)
+        {
+            var choice = InputFactory.StringEnum("Choice", [("One", "one")], isExtensible: true);
+            var payload = InputFactory.Model("Payload", usage: InputModelTypeUsage.Output | InputModelTypeUsage.Json);
+            InputType type = shape switch
+            {
+                "plain" => payload,
+                "array" => InputFactory.Array(payload),
+                "nested" => InputFactory.Array(InputFactory.Array(payload)),
+                _ => throw new ArgumentOutOfRangeException(nameof(shape))
+            };
+            var query = InputFactory.QueryParameter("value", choice, isRequired: true);
+            var operation = InputFactory.Operation("Read", parameters: [query], responses: [InputFactory.OperationResponse(bodytype: type)]);
+            operation.Update(experimental: new InputExperimentalDetails(null, suppressType ? ["A", "B"] : ["B"]));
+            var serviceMethod = InputFactory.BasicServiceMethod("Read", operation, parameters:
+                [InputFactory.MethodParameter("value", choice, isRequired: true, location: InputRequestLocation.Query)]);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            MockHelpers.LoadMockGenerator();
+            var customCompilation = await Helpers.GetCompilationFromDirectoryAsync();
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputEnums: () => [choice], inputModels: () => [payload], clients: () => [inputClient],
+                compilation: () => Task.FromResult(customCompilation));
+            var generator = ScmCodeModelGenerator.Instance;
+            var client = generator.TypeFactory.CreateClient(inputClient)!;
+            Assert.AreEqual(4, client.Methods.OfType<ScmMethodProvider>().Count());
+            foreach (var method in client.Methods.OfType<ScmMethodProvider>().Append((ScmMethodProvider)client.RestClient.GetCreateRequestMethod(operation)))
+            {
+                CollectionAssert.AreEqual(
+                    (suppressType ? new[] { "A", "B" } : ["B"]).Select(id => Snippet.Literal(id).ToDisplayString()),
+                    method.Suppressions.Select(s => s.Code.ToDisplayString()));
+            }
+
+            var customTree = customCompilation.SyntaxTrees.Single(t => t.GetRoot().DescendantNodes().OfType<StructDeclarationSyntax>()
+                .Any(s => s.Identifier.ValueText == "Choice"));
+            // Isolate the client and serialization paths; this GET does not use request-content or model-factory APIs.
+            var providers = generator.OutputLibrary.TypeProviders
+                .Where(p => p is not Utf8JsonBinaryContentDefinition and not BinaryContentHelperDefinition and not ModelFactoryProvider).ToArray();
+            var generatedTrees = providers.Concat(providers.SelectMany(p => p.SerializationProviders))
+                .Select(p => new TypeProviderWriter(p).Write())
+                .Select(file => CSharpSyntaxTree.ParseText(file.Content, path: file.Name));
+            var compilation = customCompilation.RemoveAllSyntaxTrees()
+                .AddSyntaxTrees(customTree)
+                .AddSyntaxTrees(generatedTrees);
+            var errors = compilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error).ToArray();
+            if (suppressType)
+            {
+                Assert.IsEmpty(errors.Select(d => d.ToString()));
+            }
+            else
+            {
+                Assert.IsTrue(errors.Length > 0);
+                Assert.IsTrue(errors.All(d => d.Id == "A"), string.Join(Environment.NewLine, errors.Select(d => d.ToString())));
+            }
+        }
 
         [Test]
         public void JsonLinesRequestGeneratesAsyncStreamingConvenienceMethod()

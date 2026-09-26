@@ -117,7 +117,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             foreach (var prop in properties)
             {
-                if (IsFileBinaryContentType(prop.Type))
+                if (IsFileBinaryContentType(prop.Type)
+                    && !prop.Attributes.Any(a => a.Type.Equals(typeof(ExperimentalAttribute))))
                 {
                     prop.Update(attributes: [.. prop.Attributes, new AttributeStatement(typeof(ExperimentalAttribute), [Literal(FileBinaryContentDiagnosticId)])]);
                 }

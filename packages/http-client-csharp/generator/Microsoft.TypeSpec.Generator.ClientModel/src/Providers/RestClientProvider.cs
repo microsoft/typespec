@@ -52,6 +52,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         public ClientProvider ClientProvider { get; }
 
+        protected override SuppressionStatement[] BuildDisabledFileWarnings()
+            => ExperimentalApiHelpers.GetSuppressions(_inputClient);
+
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.RestClient.cs");
 
         protected override string BuildName() => ClientProvider.Name;
@@ -245,13 +248,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // Build message and all request modifications
             var messageStatements = BuildMessage(serviceMethod, signature, isNextLinkRequest);
 
-            return new ScmMethodProvider(
+            var method = new ScmMethodProvider(
                 signature,
                 messageStatements,
                 this,
                 ScmMethodKind.CreateRequest,
                 xmlDocProvider: XmlDocProvider.Empty,
                 serviceMethod: serviceMethod);
+            ExperimentalApiHelpers.AddDependencySuppressions(method, serviceMethod.Operation);
+            return method;
         }
 
         private MethodBodyStatements BuildMessage(

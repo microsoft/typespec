@@ -1,6 +1,9 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
+using System.ClientModel.Primitives;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
@@ -10,6 +13,82 @@ namespace TestProjects.Local.Tests
 {
     public class CustomizationTests
     {
+        [TestCase("GetNotebookResult", "GetNotebookResponse")]
+        [TestCase("GetWidgetMetricsResult", "GetWidgetMetricsResponse")]
+        [TestCase("ListWithContinuationTokenHeaderResponseResult", "ListWithContinuationTokenHeaderResponseResponse")]
+        [TestCase("ListWithContinuationTokenResult", "ListWithContinuationTokenResponse")]
+        [TestCase("ListWithNextLinkResult", "ListWithNextLinkResponse")]
+        [TestCase("ListWithStringNextLinkResult", "ListWithStringNextLinkResponse")]
+        [TestCase("ReturnsAnonymousModelResult", "ReturnsAnonymousModelResponse")]
+        [TestCase("LifecycleModel", null)]
+        [TestCase("PagePreviewDetails", null)]
+        [TestCase("PreviewDetails", null)]
+        public void ModelReaderWriterContextRegistersGeneratedModels(string modelName, string? previousName)
+        {
+            var modelType = typeof(SampleTypeSpecClient).Assembly.GetType($"SampleTypeSpec.{modelName}");
+            Assert.IsNotNull(modelType);
+            var registeredTypes = typeof(SampleTypeSpecContext).GetCustomAttributesData()
+                .Where(attribute => attribute.AttributeType == typeof(ModelReaderWriterBuildableAttribute))
+                .Select(attribute => (Type)attribute.ConstructorArguments[0].Value!)
+                .ToArray();
+
+            Assert.AreEqual(1, registeredTypes.Count(type => type == modelType));
+            if (previousName != null)
+            {
+                Assert.IsNull(typeof(SampleTypeSpecClient).Assembly.GetType($"SampleTypeSpec.{previousName}"));
+                Assert.IsFalse(registeredTypes.Any(type => type.Name == previousName));
+            }
+        }
+
+        [TestCase("SampleTypeSpec.PreviewDetails", "SAMPLE0003")]
+        [TestCase("SampleTypeSpec.PreviewChoice", "SAMPLE0004")]
+        [TestCase("SampleTypeSpec.PreviewExtensibleChoice", "SAMPLE0005")]
+        [TestCase("SampleTypeSpec.ExperimentalSamples", "SAMPLE0009")]
+        [TestCase("SampleTypeSpec.LifecycleModel", null)]
+        public void ExperimentalTypeDiagnostics(string typeName, string? diagnosticId)
+        {
+            var type = typeof(SampleTypeSpecClient).Assembly.GetType(typeName);
+            Assert.IsNotNull(type);
+            Assert.AreEqual(diagnosticId, type!.GetCustomAttribute<ExperimentalAttribute>()?.DiagnosticId);
+        }
+
+        [TestCase("SampleTypeSpec.PreviewChoice", "Two", "SAMPLE0007")]
+        [TestCase("SampleTypeSpec.PreviewExtensibleChoice", "Two", "SAMPLE0006")]
+        [TestCase("SampleTypeSpec.LifecycleModel", "Preview", "SAMPLE0008")]
+        [TestCase("SampleTypeSpec.SampleTypeSpecModelFactory", "PreviewDetails", "SAMPLE0003")]
+        [TestCase("SampleTypeSpec.PreviewChoice", "One", null)]
+        [TestCase("SampleTypeSpec.PreviewExtensibleChoice", "One", null)]
+        [TestCase("SampleTypeSpec.SampleTypeSpecClientOptions+ServiceVersion", "V2024_08_16_Preview", "SAMPLE0010")]
+        public void ExperimentalMemberDiagnostics(string typeName, string memberName, string? diagnosticId)
+        {
+            var type = typeof(SampleTypeSpecClient).Assembly.GetType(typeName);
+            Assert.IsNotNull(type);
+            var member = type!.GetMember(memberName).Single();
+            Assert.AreEqual(diagnosticId, member.GetCustomAttribute<ExperimentalAttribute>()?.DiagnosticId);
+        }
+
+        [TestCase("HelloDemo2", "SAMPLE0001", 2)]
+        [TestCase("HelloDemo2Async", "SAMPLE0001", 2)]
+        [TestCase("DynamicModelOperation", "SAMPLE0002", 2)]
+        [TestCase("DynamicModelOperationAsync", "SAMPLE0002", 2)]
+        [TestCase("SayHi", null, 2)]
+        [TestCase("SayHiAsync", null, 2)]
+        [TestCase("CreateHelloDemo2Request", null, 1)]
+        [TestCase("CreateDynamicModelOperationRequest", null, 1)]
+        public void ExperimentalOperationDiagnosticsAreScopedToPublicApis(string methodName, string? diagnosticId, int overloadCount)
+        {
+            var methods = typeof(SampleTypeSpecClient)
+                .GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+                .Where(method => method.Name == methodName)
+                .ToArray();
+
+            Assert.AreEqual(overloadCount, methods.Length);
+            foreach (var method in methods)
+            {
+                Assert.AreEqual(diagnosticId, method.GetCustomAttribute<ExperimentalAttribute>()?.DiagnosticId);
+            }
+        }
+
         [Test]
         public void ModelNameIsCustomized()
         {

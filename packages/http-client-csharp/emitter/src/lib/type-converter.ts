@@ -43,6 +43,7 @@ import type {
   InputType,
   InputUnionType,
 } from "../type/input-type.js";
+import { getExperimentalDetails } from "./experimental.js";
 import { createDiagnostic } from "./lib.js";
 import { isReadOnly } from "./utils.js";
 
@@ -189,6 +190,22 @@ export function fromSdkType<T extends SdkType>(
       break;
   }
 
+  // External declarations are not emitted, but their known diagnostics apply at generated reference sites.
+  retVar.experimental = diagnostics.pipe(
+    getExperimentalDetails(
+      sdkContext,
+      sdkType.__raw,
+      retVar.external !== undefined ||
+        (retVar.kind === "model" && !retVar.isFileType) ||
+        retVar.kind === "enum" ||
+        retVar.kind === "enumvalue",
+    ),
+  );
+  if (sdkType.__raw?.kind === "Union" && retVar.kind !== "enum") {
+    for (const variant of sdkType.__raw.variants.values()) {
+      diagnostics.pipe(getExperimentalDetails(sdkContext, variant, false));
+    }
+  }
   sdkContext.__typeCache.updateSdkTypeReferences(sdkType, retVar);
   // we have to cast to any because TypeScript's type narrowing does not automatically infer the return type for conditional types
   return diagnostics.wrap(retVar as any);
@@ -300,6 +317,7 @@ function fromSdkModelProperty(
     isHttpMetadata: isHttpMetadata(sdkContext, sdkProperty),
     encode: sdkProperty.encode,
     isExactName: sdkProperty.isExactName,
+    experimental: diagnostics.pipe(getExperimentalDetails(sdkContext, sdkProperty.__raw)),
   } as InputModelProperty;
 
   if (sdkProperty.serializationOptions?.multipart?.isFilePart === true) {
@@ -520,6 +538,7 @@ function createEnumValueType(
     doc: sdkType.doc,
     decorators: sdkType.decorators,
     isExactName: sdkType.isExactName,
+    experimental: diagnostics.pipe(getExperimentalDetails(sdkContext, sdkType.__raw)),
   });
 }
 

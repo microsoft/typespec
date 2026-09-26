@@ -18,6 +18,7 @@ using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
+using Microsoft.TypeSpec.Generator.Utilities;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
@@ -183,6 +184,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "CollectionResults", $"{Name}.cs");
 
         protected override string BuildNamespace() => Client.Type.Namespace;
+
+        protected override SuppressionStatement[] BuildDisabledFileWarnings()
+            => ExperimentalApiHelpers.MergeSuppressions(
+                ResponseModel.DisabledFileWarnings,
+                ExperimentalApiHelpers.GetSuppressions(Operation, Client.InputClient));
 
         protected override string BuildName()
         {

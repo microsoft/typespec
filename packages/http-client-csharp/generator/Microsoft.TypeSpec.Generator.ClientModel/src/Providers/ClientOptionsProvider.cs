@@ -26,6 +26,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private const string LatestVersionFieldName = $"{LatestPrefix}{VersionSuffix}";
 
         private readonly InputClient _inputClient;
+        protected override SuppressionStatement[] BuildDisabledFileWarnings()
+            => ExperimentalApiHelpers.GetParameterSuppressions(_inputClient.Parameters);
+
         private readonly ClientProvider _clientProvider;
         private readonly Lazy<Dictionary<InputEnumType, EnumProvider>?> _serviceVersionsEnums;
         private static ClientOptionsProvider? _singletonInstance;

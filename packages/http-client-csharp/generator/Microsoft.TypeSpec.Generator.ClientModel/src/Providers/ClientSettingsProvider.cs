@@ -16,6 +16,7 @@ using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.ClientModel.Utilities;
+using Microsoft.TypeSpec.Generator.Utilities;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
@@ -25,6 +26,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         internal const string ClientSettingsDiagnosticId = "SCME0002";
 
         private readonly ClientProvider _clientProvider;
+        protected override SuppressionStatement[] BuildDisabledFileWarnings()
+            => ExperimentalApiHelpers.GetParameterSuppressions(_clientProvider.InputClient.Parameters);
+
         private readonly HashSet<string> _reportedUnsupportedCustomParameters = [];
 
 #pragma warning disable SCME0002 // ClientSettings is for evaluation purposes only

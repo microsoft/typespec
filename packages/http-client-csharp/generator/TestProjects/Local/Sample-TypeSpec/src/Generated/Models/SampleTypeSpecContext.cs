@@ -21,6 +21,7 @@ namespace SampleTypeSpec
     [ModelReaderWriterBuildable(typeof(Friend))]
     [ModelReaderWriterBuildable(typeof(GetNotebookResult))]
     [ModelReaderWriterBuildable(typeof(GetWidgetMetricsResult))]
+    [ModelReaderWriterBuildable(typeof(LifecycleModel))]
     [ModelReaderWriterBuildable(typeof(ListWithContinuationTokenHeaderResponseResult))]
     [ModelReaderWriterBuildable(typeof(ListWithContinuationTokenResult))]
     [ModelReaderWriterBuildable(typeof(ListWithNextLinkResult))]
@@ -28,9 +29,13 @@ namespace SampleTypeSpec
     [ModelReaderWriterBuildable(typeof(ModelWithEmbeddedNonBodyParameters))]
     [ModelReaderWriterBuildable(typeof(ModelWithRequiredNullableProperties))]
     [ModelReaderWriterBuildable(typeof(NullableDynamicModel))]
+    [ModelReaderWriterBuildable(typeof(PagePreviewDetails))]
     [ModelReaderWriterBuildable(typeof(PageThing))]
     [ModelReaderWriterBuildable(typeof(Pet))]
     [ModelReaderWriterBuildable(typeof(Plant))]
+#pragma warning disable SAMPLE0003 // global::SampleTypeSpec.PreviewDetails is experimental and may change in future versions.
+    [ModelReaderWriterBuildable(typeof(PreviewDetails))]
+#pragma warning restore SAMPLE0003 // global::SampleTypeSpec.PreviewDetails is experimental and may change in future versions.
     [ModelReaderWriterBuildable(typeof(RenamedModelCustom))]
     [ModelReaderWriterBuildable(typeof(ReturnsAnonymousModelResult))]
     [ModelReaderWriterBuildable(typeof(RoundTripModel))]

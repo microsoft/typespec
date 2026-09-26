@@ -215,9 +215,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     GetConvenienceMethodModifiers(protocolMethod.Signature.Modifiers, signatureParameters),
                     GetResponseType(ServiceMethod.Operation.Responses, true, isAsync, out _),
                     null,
-                    signatureParameters,
-                    Attributes: BuildConvenienceMethodAttributes());
+                    signatureParameters);
             }
+
+            ApplyExperimentalAttributes(methodSignature, customSignature, BuildConvenienceMethodAttributes() ?? []);
 
             // Recompute the response body type so we can branch the body accordingly.
             GetResponseType(ServiceMethod.Operation.Responses, true, isAsync, out var responseBodyType);
@@ -302,6 +303,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             var convenienceMethod = new ScmMethodProvider(methodSignature, methodBody, EnclosingType, ScmMethodKind.Convenience, collectionDefinition: collection, serviceMethod: ServiceMethod);
+            ExperimentalApiHelpers.AddDependencySuppressions(convenienceMethod, ServiceMethod.Operation);
 
             if (convenienceMethod.XmlDocs != null)
             {
@@ -1121,6 +1123,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private IReadOnlyList<AttributeStatement>? BuildConvenienceMethodAttributes()
         {
+            if (ExperimentalApiHelpers.BuildAttribute(ServiceMethod.Operation) is { } experimentalAttribute)
+            {
+                return [experimentalAttribute];
+            }
+
             var bodyInputParam = ServiceMethod.Parameters.FirstOrDefault(p => p.Location == InputRequestLocation.Body);
             if (bodyInputParam?.Type is InputModelType bodyModel
                 && bodyModel.Usage.HasFlag(InputModelTypeUsage.MultipartFormData))
@@ -1129,6 +1136,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return null;
+        }
+
+        private static void ApplyExperimentalAttributes(
+            MethodSignature signature,
+            MethodSignature? customSignature,
+            IReadOnlyList<AttributeStatement> generatedAttributes)
+        {
+            if (customSignature?.Attributes.Any(a => a.Type.Equals(typeof(ExperimentalAttribute))) == true)
+            {
+                // The defining partial declaration already carries the custom experiment.
+                signature.Update(attributes: [.. signature.Attributes.Where(a => !a.Type.Equals(typeof(ExperimentalAttribute)))]);
+            }
+            else if (generatedAttributes.Count > 0)
+            {
+                signature.Update(attributes: [.. signature.Attributes, .. generatedAttributes]);
+            }
         }
 
         private IReadOnlyList<ValueExpression> GetProtocolMethodArguments(Dictionary<string, ValueExpression> declarations)
@@ -1441,6 +1464,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 bodyParameters = parameters;
             }
 
+            ApplyExperimentalAttributes(methodSignature, customSignature, ExperimentalApiHelpers.BuildAttributes(ServiceMethod.Operation.Experimental));
+
             TypeProvider? collection = null;
             MethodBodyStatement[] methodBody;
             if (_pagingServiceMethod != null)
@@ -1478,6 +1503,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             var protocolMethod =
                 new ScmMethodProvider(methodSignature, methodBody, EnclosingType, ScmMethodKind.Protocol, collectionDefinition: collection, serviceMethod: ServiceMethod);
+            ExperimentalApiHelpers.AddDependencySuppressions(protocolMethod, ServiceMethod.Operation);
 
             if (protocolMethod.XmlDocs != null)
             {
