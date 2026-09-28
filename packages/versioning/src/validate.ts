@@ -773,10 +773,7 @@ function findAvailabilityOnOrBeforeVersion(
   return undefined;
 }
 
-function isFirstUnavailableVersion(
-  version: string,
-  avail: Map<string, Availability>,
-): boolean {
+function isFirstUnavailableVersion(version: string, avail: Map<string, Availability>): boolean {
   let previous: Availability | undefined;
   for (const [key, current] of avail) {
     if (key === version) {
