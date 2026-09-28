@@ -63,9 +63,8 @@ async function commitTarget() {
       "user.name=Integration Test",
       "-c",
       "user.email=test@example.invalid",
-      "-c",
-      "commit.gpgsign=false",
       "commit",
+      "--no-gpg-sign",
       "--quiet",
       "-m",
       "fixture",
@@ -290,15 +289,16 @@ if (fs.readFileSync(process.argv[3], "utf8") === "fail") process.exitCode = 1;
     reports.push(details);
   };
   await validateSpecs(runner, target, suite);
+  const expectedCwd = await realpath(target);
   expect(reports[0]).toContain(
     JSON.stringify({
-      cwd: target,
+      cwd: expectedCwd,
       args: ["compile", join(project, "main.tsp"), "--warn-as-error"],
     }),
   );
   expect(reports[0]).toContain(
     JSON.stringify({
-      cwd: target,
+      cwd: expectedCwd,
       args: ["compile", join(project, "client.tsp"), "--warn-as-error", "--no-emit"],
     }),
   );
