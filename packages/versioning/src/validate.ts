@@ -890,16 +890,20 @@ function validateAvailabilityForRef(
       isFirstUnavailableVersion(key, targetAvail) &&
       !hasLaterSourceRemovalDiagnostic(key, sourceAvail, targetAvail)
     ) {
+      const sourceVersion = getAllVersions(program, source)?.find(
+        (version) => version.name === key,
+      );
+      const versionValue = sourceVersion?.value ?? key;
       reportDiagnostic(program, {
         code: "incompatible-versioned-reference",
         messageId: "doesNotExist",
         format: {
           sourceName: getTypeName(source),
           targetName: getTypeName(target),
-          version: key,
+          version: versionValue,
         },
         target: source,
-        codefixes: getVersionRemovalCodeFixes(key, source, program),
+        codefixes: getVersionRemovalCodeFixes(versionValue, source, program),
       });
     }
     if (

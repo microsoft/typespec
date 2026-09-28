@@ -331,6 +331,33 @@ describe("versioning: validate incompatible references", () => {
       });
     });
 
+    it("uses explicit version values when a referenced type is removed", async () => {
+      const diagnostics = await Tester.diagnose(`
+        @versioned(Versions)
+        namespace TestService {
+          enum Versions {
+            v1: "2021-01-01",
+            v2: "2022-01-01",
+          }
+
+          @removed(Versions.v2)
+          model Target {}
+
+          @added(Versions.v1)
+          model Source {
+            target: Target;
+          }
+        }
+      `);
+
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/incompatible-versioned-reference",
+        message:
+          "'TestService.Source.target' is referencing type 'TestService.Target' which does not exist in version '2022-01-01'.",
+      });
+      ok(diagnostics[0].codefixes?.some((fix) => fix.id === "remove-version-from-type"));
+    });
+
     it("emit diagnostic when target is removed then re-added before source removal", async () => {
       const diagnostics = await runner.diagnose(`
         @removed(Versions.v2)
