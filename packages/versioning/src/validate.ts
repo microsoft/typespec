@@ -791,6 +791,29 @@ function isFirstUnavailableVersion(
   return false;
 }
 
+function hasLaterSourceRemovalDiagnostic(
+  version: string,
+  sourceAvail: Map<string, Availability>,
+  targetAvail: Map<string, Availability>,
+): boolean {
+  let afterVersion = false;
+  for (const [key, sourceStatus] of sourceAvail) {
+    if (afterVersion) {
+      if (
+        sourceStatus === Availability.Removed &&
+        targetAvail.get(key) === Availability.Unavailable
+      ) {
+        return true;
+      }
+      continue;
+    }
+    if (key === version) {
+      afterVersion = true;
+    }
+  }
+  return false;
+}
+
 function validateAvailabilityForRef(
   program: Program,
   sourceAvail: Map<string, Availability> | undefined,
@@ -868,7 +891,7 @@ function validateAvailabilityForRef(
     if (
       sourceVal === Availability.Available &&
       isFirstUnavailableVersion(key, targetAvail) &&
-      findAvailabilityAfterVersion(key, Availability.Removed, sourceAvail) === undefined
+      !hasLaterSourceRemovalDiagnostic(key, sourceAvail, targetAvail)
     ) {
       reportDiagnostic(program, {
         code: "incompatible-versioned-reference",
