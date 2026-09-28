@@ -50,6 +50,11 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             await File.WriteAllBytesAsync(
                 Path.Combine(CodeModelGenerator.Instance.Configuration.ProjectDirectory, $"{CodeModelGenerator.Instance.Configuration.PackageName}.csproj"),
                 Encoding.UTF8.GetBytes(NormalizeLineEndings(GetSourceProjectFileContent())));
+
+            Directory.CreateDirectory(CodeModelGenerator.Instance.Configuration.TestProjectDirectory);
+            await File.WriteAllBytesAsync(
+                Path.Combine(CodeModelGenerator.Instance.Configuration.TestProjectDirectory, $"{CodeModelGenerator.Instance.Configuration.PackageName}.Tests.csproj"),
+                Encoding.UTF8.GetBytes(NormalizeLineEndings(GetTestProjectFileContent())));
         }
 
         private string NormalizeLineEndings(string content)
@@ -97,6 +102,21 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             return builder.Write();
         }
 
+        protected virtual string GetTestProjectFileContent()
+        {
+            var builder = new CSharpProjectWriter()
+            {
+                TargetFramework = "net8.0",
+                IsTestProject = true,
+                IsPackable = false,
+            };
+            builder.ProjectReferences.Add(new($"../src/{CodeModelGenerator.Instance.Configuration.PackageName}.csproj"));
+            builder.PackageReferences.Add(new("NUnit", "3.13.2"));
+            builder.PackageReferences.Add(new("NUnit3TestAdapter", "4.5.0"));
+            builder.PackageReferences.Add(new("Microsoft.NET.Test.Sdk", "17.8.0"));
+            return builder.Write();
+        }
+
         private IReadOnlyList<CSharpProjectCompileInclude>? _compileIncludes;
         public IReadOnlyList<CSharpProjectCompileInclude> CompileIncludes => _compileIncludes ??= BuildCompileIncludes();
 
@@ -112,6 +132,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             return string.Format(
                 @"<Solution>
   <Project Path=""src/{0}.csproj"" />
+  <Project Path=""tests/{0}.Tests.csproj"" />
 </Solution>
 ", CodeModelGenerator.Instance.Configuration.PackageName);
         }
