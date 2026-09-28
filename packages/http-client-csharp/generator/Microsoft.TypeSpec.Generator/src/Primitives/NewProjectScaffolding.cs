@@ -47,13 +47,14 @@ namespace Microsoft.TypeSpec.Generator.Primitives
 
         private async Task WriteProjectFiles()
         {
+            var projectFileName = $"{CodeModelGenerator.Instance.Configuration.PackageName}.csproj";
             await File.WriteAllBytesAsync(
-                Path.Combine(CodeModelGenerator.Instance.Configuration.ProjectDirectory, $"{CodeModelGenerator.Instance.Configuration.PackageName}.csproj"),
+                Path.Combine(CodeModelGenerator.Instance.Configuration.ProjectDirectory, projectFileName),
                 Encoding.UTF8.GetBytes(NormalizeLineEndings(GetSourceProjectFileContent())));
 
             Directory.CreateDirectory(CodeModelGenerator.Instance.Configuration.TestProjectDirectory);
             await File.WriteAllBytesAsync(
-                Path.Combine(CodeModelGenerator.Instance.Configuration.TestProjectDirectory, $"{CodeModelGenerator.Instance.Configuration.PackageName}.Tests.csproj"),
+                Path.Combine(CodeModelGenerator.Instance.Configuration.TestProjectDirectory, Path.ChangeExtension(projectFileName, "Tests.csproj")),
                 Encoding.UTF8.GetBytes(NormalizeLineEndings(GetTestProjectFileContent())));
         }
 
@@ -111,9 +112,9 @@ namespace Microsoft.TypeSpec.Generator.Primitives
                 IsPackable = false,
             };
             builder.ProjectReferences.Add(new($"../src/{CodeModelGenerator.Instance.Configuration.PackageName}.csproj"));
-            builder.PackageReferences.Add(new("NUnit", "3.13.2"));
-            builder.PackageReferences.Add(new("NUnit3TestAdapter", "4.5.0"));
-            builder.PackageReferences.Add(new("Microsoft.NET.Test.Sdk", "17.8.0"));
+            builder.PackageReferences.Add(new("NUnit", "4.4.0"));
+            builder.PackageReferences.Add(new("NUnit3TestAdapter", "4.6.0"));
+            builder.PackageReferences.Add(new("Microsoft.NET.Test.Sdk", "18.0.1"));
             return builder.Write();
         }
 

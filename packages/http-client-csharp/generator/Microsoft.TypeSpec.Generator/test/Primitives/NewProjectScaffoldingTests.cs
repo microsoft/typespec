@@ -35,16 +35,20 @@ namespace Microsoft.TypeSpec.Generator.Tests.Primitives
             }
         }
 
-        [Test]
-        public async Task Execute_WritesSlnxAndCsprojFiles()
+        [TestCase("TestPackage")]
+        [TestCase("Test.Package")]
+        public async Task Execute_WritesSlnxAndCsprojFiles(string packageName)
         {
+            MockHelpers.LoadMockGenerator(
+                outputPath: _outputDir,
+                configuration: $"{{\"package-name\": \"{packageName}\"}}");
             var scaffolding = new NewProjectScaffolding();
             var result = await scaffolding.Execute();
 
             Assert.IsTrue(result);
-            Assert.IsTrue(File.Exists(Path.Combine(_outputDir, "TestPackage.slnx")));
-            Assert.IsTrue(File.Exists(Path.Combine(_outputDir, "src", "TestPackage.csproj")));
-            Assert.IsTrue(File.Exists(Path.Combine(_outputDir, "tests", "TestPackage.Tests.csproj")));
+            Assert.IsTrue(File.Exists(Path.Combine(_outputDir, $"{packageName}.slnx")));
+            Assert.IsTrue(File.Exists(Path.Combine(_outputDir, "src", $"{packageName}.csproj")));
+            Assert.IsTrue(File.Exists(Path.Combine(_outputDir, "tests", $"{packageName}.Tests.csproj")));
         }
 
         [Test]
@@ -63,9 +67,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Primitives
             var projectReference = project.Descendants("ProjectReference").Single();
             Assert.AreEqual("../src/TestPackage.csproj", projectReference.Attribute("Include")!.Value);
             CollectionAssert.AreEquivalent(
-                new[] { "NUnit", "NUnit3TestAdapter", "Microsoft.NET.Test.Sdk" },
-                project.Descendants("PackageReference").Select(p => p.Attribute("Include")!.Value));
-            Assert.IsTrue(project.Descendants("PackageReference").All(p => p.Attribute("Version") != null));
+                new[] { ("NUnit", "4.4.0"), ("NUnit3TestAdapter", "4.6.0"), ("Microsoft.NET.Test.Sdk", "18.0.1") },
+                project.Descendants("PackageReference").Select(p => (p.Attribute("Include")!.Value, p.Attribute("Version")!.Value)));
             Assert.IsEmpty(project.Descendants("None"));
         }
 
