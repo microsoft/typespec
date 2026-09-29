@@ -3,7 +3,12 @@ import type { EmitContext } from "@typespec/compiler";
 import { emitFile, joinPaths, listServices, NoTarget } from "@typespec/compiler";
 import pkgJson from "../../package.json" with { type: "json" };
 import { emitCodeModel } from "./code-model.js";
-import { BLOB_STORAGE_BASE_URL, PACKAGE_NAME, PYGEN_WHEEL_FILENAME } from "./constants.js";
+import {
+  BLOB_STORAGE_BASE_URL,
+  PACKAGE_NAME,
+  PYGEN_WHEEL_FILENAME,
+  PYODIDE_VERSION,
+} from "./constants.js";
 import type { PythonEmitterOptions, PythonSdkContext } from "./lib.js";
 import { reportDiagnostic } from "./lib.js";
 import { runNodeEmit } from "./node-runner.js";
@@ -11,6 +16,10 @@ import type { PyodideInterface } from "./pyodide-loader.js";
 import { loadPyodide } from "./pyodide-loader.js";
 import { getRootNamespace, md2Rst } from "./utils.js";
 import { dumpCodeModelToYaml } from "./yaml-utils.js";
+
+function getBrowserPygenWheelUrl(): string {
+  return `${BLOB_STORAGE_BASE_URL}/${PACKAGE_NAME}/${pkgJson.version}/generator/dist/${PYGEN_WHEEL_FILENAME}`;
+}
 
 function addDefaultOptions(sdkContext: PythonSdkContext) {
   const defaultOptions = {
@@ -273,98 +282,6 @@ function getBrowserPyodide(): Promise<PyodideInterface> | null {
   return browserPyodidePromise;
 }
 
-async function setupPyodideCallBrowser(): Promise<PyodideInterface> {
-  const assetsUrl = `${BLOB_STORAGE_BASE_URL}/${PACKAGE_NAME}/${pkgJson.version}/generator/dist`;
-  let pyodide: PyodideInterface | undefined;
-  let publicError: unknown;
-  try {
-    pyodide = await loadPyodide({
-      indexURL: `https://cdn.jsdelivr.net/pyodide/v${pkgJson.dependencies.pyodide}/full/`,
-    });
-  } catch (error) {
-    publicError = error;
-  }
-
-  if (pyodide) {
-    pyodide.FS.mkdirTree("/generator");
-    try {
-      await pyodide.loadPackage("micropip");
-      const micropip = pyodide.pyimport("micropip");
-      await micropip.install(`${assetsUrl}/${PYGEN_WHEEL_FILENAME}`);
-      return pyodide;
-    } catch (error) {
-      publicError = error;
-    }
-  }
-
-  try {
-    if (!pyodide) {
-      pyodide = await loadPyodide({ indexURL: `${assetsUrl}/pyodide/` });
-      pyodide.FS.mkdirTree("/generator");
-    }
-    await installHostedWheels(pyodide, assetsUrl);
-    return pyodide;
-  } catch (hostedError) {
-    throw new AggregateError(
-      [publicError, hostedError],
-      `Failed to load public Python runtime (${String(publicError)}) and hosted fallback (${String(hostedError)})`,
-    );
-  }
-}
-
-async function installHostedWheels(pyodide: PyodideInterface, assetsUrl: string): Promise<void> {
-  const response = await fetch(`${assetsUrl}/browser-wheels.json`);
-  if (!response.ok) {
-    throw new Error(`Failed to load browser Python wheels: ${response.status}`);
-  }
-  const manifest: unknown = await response.json();
-  const isWheelList = (value: unknown): value is string[] =>
-    Array.isArray(value) &&
-    value.length > 0 &&
-    value.every(
-      (name) =>
-        typeof name === "string" && /^[A-Za-z0-9_]+-[A-Za-z0-9_.-]+-py3-none-any\.whl$/.test(name),
-    );
-  const generatorWheels =
-    typeof manifest === "object" && manifest !== null && "generator" in manifest
-      ? manifest.generator
-      : undefined;
-  const pyodideWheels =
-    typeof manifest === "object" && manifest !== null && "pyodide" in manifest
-      ? manifest.pyodide
-      : undefined;
-  if (
-    !isWheelList(generatorWheels) ||
-    !isWheelList(pyodideWheels) ||
-    pyodideWheels.length !== 5 ||
-    !["packaging", "micropip", "click", "pyyaml", "markupsafe"].every((name, index) =>
-      pyodideWheels[index].startsWith(`${name}-`),
-    )
-  ) {
-    throw new Error("Invalid browser Python wheel manifest");
-  }
-
-  const pyodideWheelUrls = pyodideWheels.map((name) => `${assetsUrl}/pyodide-wheels/${name}`);
-  await pyodide.loadPackage(pyodideWheelUrls.slice(0, 2));
-
-  const globals = pyodide.toPy({
-    pyodideWheelUrls: pyodideWheelUrls.slice(2),
-    wheelUrls: generatorWheels.map((name) => `${assetsUrl}/browser-wheels/${name}`),
-    generatorWheelUrl: `${assetsUrl}/${PYGEN_WHEEL_FILENAME}`,
-  });
-  try {
-    await pyodide.runPythonAsync(
-      `import micropip
-await micropip.install(pyodideWheelUrls, deps=False)
-await micropip.install(wheelUrls, deps=False)
-await micropip.install(generatorWheelUrl, deps=False)`,
-      { globals },
-    );
-  } finally {
-    globals.destroy();
-  }
-}
-
 function clearMemfsDirectory(pyodide: PyodideInterface, dir: string): void {
   const entries: string[] = pyodide.FS.readdir(dir).filter(
     (entry: string) => entry !== "." && entry !== "..",
@@ -379,4 +296,18 @@ function clearMemfsDirectory(pyodide: PyodideInterface, dir: string): void {
       pyodide.FS.unlink(fullPath);
     }
   }
+}
+
+async function setupPyodideCallBrowser() {
+  const pyodide = await loadPyodide({
+    indexURL: `https://cdn.jsdelivr.net/pyodide/v${PYODIDE_VERSION}/full/`,
+  });
+
+  // use default MEMFS for browser, since NODEFS is not supported
+  pyodide.FS.mkdirTree("/generator");
+  await pyodide.loadPackage("micropip");
+  const micropip = pyodide.pyimport("micropip");
+  await micropip.install(getBrowserPygenWheelUrl());
+
+  return pyodide;
 }

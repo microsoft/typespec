@@ -173,24 +173,17 @@ export function usePlaygroundState({
 
   // Track last processed sample to avoid re-processing
   const lastProcessedSample = useRef<string>("");
-  const initialSampleConfig = useRef(
-    defaultPlaygroundState?.tspconfig ? defaultPlaygroundState.sampleName : undefined,
-  );
 
   // Handle sample changes
   useEffect(() => {
     if (selectedSampleName && samples && selectedSampleName !== lastProcessedSample.current) {
       const config = samples[selectedSampleName];
       if (config?.content) {
-        const isInitialSample = lastProcessedSample.current === "";
         lastProcessedSample.current = selectedSampleName;
         const updates: Partial<PlaygroundState> = { content: config.content };
         // Samples are authored with structured emitter/options — convert them into the
         // raw tspconfig.yaml which is the playground's source of truth.
-        if (
-          (config.preferredEmitter || config.compilerOptions) &&
-          (!isInitialSample || selectedSampleName !== initialSampleConfig.current)
-        ) {
+        if (config.preferredEmitter || config.compilerOptions) {
           updates.tspconfig = compilerOptionsToTspConfig(
             config.preferredEmitter ?? "",
             config.compilerOptions ?? {},

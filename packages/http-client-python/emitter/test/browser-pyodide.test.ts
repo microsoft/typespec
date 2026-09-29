@@ -1,5 +1,5 @@
 import { strictEqual } from "assert";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, it, vi } from "vitest";
 
 const loadPyodide = vi.hoisted(() => vi.fn());
 
@@ -9,7 +9,6 @@ describe("typespec-python: browser pyodide bootstrap", () => {
   afterEach(() => {
     delete (globalThis as any).window;
     loadPyodide.mockReset();
-    vi.unstubAllGlobals();
     vi.resetModules();
   });
 
@@ -22,31 +21,5 @@ describe("typespec-python: browser pyodide bootstrap", () => {
     await import("../src/emitter.js");
 
     strictEqual(loadPyodide.mock.calls.length, 0);
-  }, 15_000);
-
-  it("retries the hosted script when the CDN script fails", async () => {
-    const appendChild = vi.fn(
-      (script: { src: string; onload: (() => void) | null; onerror: (() => void) | null }) => {
-        if (new URL(script.src).origin === "https://cdn.jsdelivr.net") {
-          queueMicrotask(() => script.onerror?.());
-        } else {
-          vi.stubGlobal("loadPyodide", vi.fn().mockResolvedValue({}));
-          queueMicrotask(() => script.onload?.());
-        }
-      },
-    );
-    vi.stubGlobal("document", {
-      createElement: () => ({ src: "", onload: null, onerror: null }),
-      head: { appendChild },
-    });
-    const { loadPyodide: loadBrowserPyodide } = await import("../src/pyodide-loader.browser.js");
-
-    await expect(
-      loadBrowserPyodide({ indexURL: "https://cdn.jsdelivr.net/pyodide/v0.26.2/full/" }),
-    ).rejects.toThrow("Failed to load pyodide");
-    await expect(
-      loadBrowserPyodide({ indexURL: "https://typespec.blob.core.windows.net/pyodide/" }),
-    ).resolves.toEqual({});
-    expect(appendChild).toHaveBeenCalledTimes(2);
   });
 });

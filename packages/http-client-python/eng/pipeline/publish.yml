@@ -32,4 +32,4 @@ extends:
           EnableCadlRanchReport: false
           PythonVersion: "3.11"
           UploadPlaygroundBundle: true
-          PlaygroundBundleBuildScript: build:playground
+          PlaygroundBundlePipIndexUrl: https://packagefeedproxy.microsoft.io/pypi/simple/
