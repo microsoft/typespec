@@ -7,11 +7,18 @@ namespace Microsoft.TypeSpec.Generator.Expressions
 {
     public sealed record PositionalParameterReferenceExpression(string ParameterName, ValueExpression ParameterValue) : ValueExpression
     {
-        internal PositionalParameterReferenceExpression(ParameterProvider parameter) : this(parameter.Name, parameter) { }
+        private readonly ParameterProvider? _parameter;
+
+        internal PositionalParameterReferenceExpression(ParameterProvider parameter) : this(parameter, parameter) { }
+
+        internal PositionalParameterReferenceExpression(ParameterProvider parameter, ValueExpression value) : this(parameter.Name, value)
+        {
+            _parameter = parameter;
+        }
 
         internal override void Write(CodeWriter writer)
         {
-            writer.Append($"{ParameterName:I}: ");
+            writer.Append($"{_parameter?.Name ?? ParameterName:I}: ");
             ParameterValue.Write(writer);
         }
     }
