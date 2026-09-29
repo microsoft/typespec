@@ -195,12 +195,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var returnTypes = new List<CSharpType>();
             var seenMethods = new HashSet<string>(StringComparer.Ordinal);
             var visited = new HashSet<string>(StringComparer.Ordinal);
-            for (var provider = _model.LastContractView;
-                provider is not null && visited.Add(provider.Type.FullyQualifiedName);
-                provider = provider.BaseType is { } baseType && !baseType.IsGenericType
-                    ? CodeModelGenerator.Instance.SourceInputModel.FindForTypeInLastContract(
-                        baseType.Namespace, baseType.Name, baseType.DeclaringType?.Name)
-                    : null)
+            var provider = _model.LastContractView;
+            while (provider is not null && visited.Add(provider.Type.FullyQualifiedName))
             {
                 foreach (var method in provider.Methods.Where(method => IsCreateCoreMethod(method.Signature)))
                 {
@@ -212,6 +208,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         returnTypes.Add(returnType);
                     }
                 }
+
+                if (seenMethods.Count == s_createCoreMethodNames.Count)
+                {
+                    break;
+                }
+
+                var baseType = provider.BaseType;
+                if (baseType is null || baseType.IsGenericType)
+                {
+                    break;
+                }
+
+                provider = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInLastContract(
+                    baseType.Namespace, baseType.Name, baseType.DeclaringType?.Name);
             }
 
             var distinctReturnTypes = returnTypes.Distinct(CSharpType.IgnoreNullableComparer).ToArray();
