@@ -4781,6 +4781,207 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.AreEqual(expectedName, inputServiceMethod.Operation.Name);
         }
 
+        [TestCase("GetIpAddress", "GetIPAddress")]
+        [TestCase("GetDbStatus", "GetDBStatus")]
+        [TestCase("GetOsProfile", "GetOSProfile")]
+        [TestCase("GetIpv4Configuration", "GetIPv4Configuration")]
+        [TestCase("GetIpv6Configuration", "GetIPv6Configuration")]
+        [TestCase("GetIpV4Configuration", "GetIPv4Configuration")]
+        [TestCase("GetIpV6Configuration", "GetIPv6Configuration")]
+        [TestCase("GetIpIpDbDbOsOs", "GetIPIPDBDBOSOS")]
+        [TestCase("ListIpAddresses", "GetIPAddresses")]
+        [TestCase("ListIpUrl", "GetIPUri")]
+        [TestCase("GetIpUrls", "GetIPUrls")]
+        [TestCase("get_ip_address", "GetIPAddress")]
+        [TestCase("GetIp", "GetIP")]
+        [TestCase("GetDb", "GetDB")]
+        [TestCase("GetOs", "GetOS")]
+        [TestCase("GetIPv4Configuration", "GetIPv4Configuration")]
+        [TestCase("GetIPv6Configuration", "GetIPv6Configuration")]
+        [TestCase("GetIPV4Configuration", "GetIPV4Configuration")]
+        [TestCase("GetIPV6Configuration", "GetIPV6Configuration")]
+        [TestCase("GetIPAddress", "GetIPAddress")]
+        [TestCase("GetIpaddress", "GetIpaddress")]
+        [TestCase("GetDbase", "GetDbase")]
+        [TestCase("GetOstrich", "GetOstrich")]
+        [TestCase("GetIpv4address", "GetIpv4address")]
+        [TestCase("GetIpv6address", "GetIpv6address")]
+        [TestCase("GetIp1", "GetIp1")]
+        [TestCase("GetStartTime", "GetStartTime")]
+        [TestCase("Listen", "Listen")]
+        public void TestOperationNameNormalizesAcronyms(string operationName, string expectedName)
+        {
+            var operation = InputFactory.Operation(operationName, path: "/Ip/Db/Os");
+            var serviceMethod = InputFactory.BasicServiceMethod(operationName, operation);
+            var client = new ClientProvider(InputFactory.Client("TestClient", methods: [serviceMethod]));
+
+            Assert.AreEqual(expectedName, serviceMethod.Name);
+            Assert.AreEqual(expectedName, operation.Name);
+            Assert.AreEqual(operationName, operation.OriginalName);
+            Assert.AreEqual(operationName, operation.CrossLanguageDefinitionId);
+            Assert.AreEqual("/Ip/Db/Os", operation.Path);
+            var methods = client.GetMethodCollectionByOperation(operation);
+            CollectionAssert.AreEquivalent(
+                new[] { expectedName, expectedName + "Async", expectedName, expectedName + "Async" },
+                methods.Select(m => m.Signature.Name));
+        }
+
+        [TestCase("GetIpAddress")]
+        [TestCase("GetDbStatus")]
+        [TestCase("GetOsProfile")]
+        [TestCase("GetIpv4Configuration")]
+        [TestCase("GetIpv6Configuration")]
+        [TestCase("ListIpUrl")]
+        public void TestExactOperationNameSkipsAcronymNormalization(string operationName)
+        {
+            var operation = InputFactory.Operation(operationName, isExactName: true);
+            var serviceMethod = InputFactory.BasicServiceMethod(operationName, operation, isExactName: true);
+            var client = new ClientProvider(InputFactory.Client("TestClient", methods: [serviceMethod]));
+
+            CollectionAssert.AreEquivalent(
+                new[] { operationName, operationName + "Async", operationName, operationName + "Async" },
+                client.GetMethodCollectionByOperation(operation).Select(m => m.Signature.Name));
+        }
+
+        [TestCase("Basic")]
+        [TestCase("Paging")]
+        [TestCase("LongRunning")]
+        [TestCase("LongRunningPaging")]
+        public void TestAcronymOperationMethodVariants(string kind)
+        {
+            var item = InputFactory.Model("Item");
+            var page = InputFactory.Model("Page", properties: [InputFactory.Property("items", InputFactory.Array(item))]);
+            var response = InputFactory.OperationResponse([200], page);
+            var operation = InputFactory.Operation("ListIpAddresses", responses: [response]);
+            var serviceResponse = InputFactory.ServiceMethodResponse(page, null);
+            var paging = InputFactory.PagingMetadata(["items"], null, null);
+            InputServiceMethod serviceMethod = kind switch
+            {
+                "Paging" => InputFactory.PagingServiceMethod(operation.Name, operation, response: serviceResponse, pagingMetadata: paging),
+                "LongRunning" => new InputLongRunningServiceMethod(operation.Name, "public", [], null, null,
+                    operation, [], serviceResponse, null, false, true, true, operation.CrossLanguageDefinitionId,
+                    new InputLongRunningServiceMetadata(1, response, null)),
+                "LongRunningPaging" => new InputLongRunningPagingServiceMethod(operation.Name, "public", [], null, null,
+                    operation, [], serviceResponse, null, false, true, true, operation.CrossLanguageDefinitionId,
+                    new InputLongRunningServiceMetadata(1, response, null), paging),
+                _ => InputFactory.BasicServiceMethod(operation.Name, operation, response: serviceResponse)
+            };
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient], inputModels: () => [item, page]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+            var methods = client.GetMethodCollectionByOperation(operation);
+
+            CollectionAssert.AreEquivalent(
+                new[] { "GetIPAddresses", "GetIPAddressesAsync", "GetIPAddresses", "GetIPAddressesAsync" },
+                methods.Select(m => m.Signature.Name));
+            foreach (var method in methods)
+            {
+                bool isAsync = method.Signature.Name.EndsWith("Async", StringComparison.Ordinal);
+                var body = method.BodyStatements!.ToDisplayString();
+                if (kind == "Paging")
+                {
+                    StringAssert.Contains(isAsync ? "TestClientGetIPAddressesAsyncCollectionResult" : "TestClientGetIPAddressesCollectionResult", body);
+                }
+                else if (method.Kind == ScmMethodKind.Protocol)
+                {
+                    StringAssert.Contains("CreateGetIpAddressesRequest(", body);
+                }
+                else
+                {
+                    StringAssert.Contains(isAsync ? "GetIPAddressesAsync(" : "GetIPAddresses(", body);
+                }
+            }
+            Assert.AreEqual("CreateGetIpAddressesRequest", client.RestClient.GetCreateRequestMethod(operation).Signature.Name);
+            var output = new TypeProviderWriter(client).Write().Content;
+            StringAssert.DoesNotContain("cref=\"GetIpAddresses", output);
+            StringAssert.DoesNotContain("CreateGetIPAddressesRequest", output);
+            if (kind == "Paging")
+            {
+                var collections = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.OfType<CollectionResultDefinition>().ToList();
+                Assert.IsNotEmpty(collections);
+                foreach (var collection in collections)
+                {
+                    Assert.AreEqual("TestClient.GetIPAddresses", collection.ScopeName);
+                    StringAssert.Contains("CreateGetIpAddressesRequest(", new TypeProviderWriter(collection).Write().Content);
+                }
+            }
+        }
+
+        [TestCase("GetIpAddress", "GetIpAddress")]
+        [TestCase("GetDbStatus", "GetDbStatus")]
+        [TestCase("GetOsProfile", "GetOsProfile")]
+        [TestCase("GetIpv4Configuration", "GetIpv4Configuration")]
+        [TestCase("GetIpv6Configuration", "GetIpv6Configuration")]
+        [TestCase("ListIpAddresses", "GetIpAddresses")]
+        [TestCase("GetIpUrl", "GetIpUri")]
+        [TestCase("GetDbUrl", "GetDbUrl")]
+        [TestCase("GetOsUrl", "GetOsUrl")]
+        [TestCase("GetIpNew", "GetIPNew")]
+        public async Task TestOperationAcronymsPreserveLastContract(string operationName, string expectedName)
+        {
+            var operation = InputFactory.Operation(operationName);
+            var serviceMethod = InputFactory.BasicServiceMethod(operationName, operation);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [inputClient],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var client = new ClientProvider(inputClient);
+
+            CollectionAssert.AreEquivalent(
+                new[] { expectedName, expectedName + "Async", expectedName, expectedName + "Async" },
+                client.GetMethodCollectionByOperation(operation).Select(m => m.Signature.Name));
+        }
+
+        [TestCase("GetIpAddress", "GetIpAddress", "GetIPAddress")]
+        [TestCase("GetIpUrl", "GetIpUri", "GetIPUri")]
+        public async Task TestOperationAcronymsRespectPublicProjection(
+            string operationName, string publishedName, string normalizedName)
+        {
+            var operation = InputFactory.Operation(operationName);
+            var serviceMethod = InputFactory.BasicServiceMethod(operationName, operation);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [inputClient],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var client = new ClientProvider(inputClient);
+            Assert.AreEqual(normalizedName, serviceMethod.Name);
+            var wrapper = new BackCompatTypeProvider("MockableTestResource", "Sample");
+            var shippedMethods = client.GetMethodCollectionByOperation(operation, wrapper);
+            CollectionAssert.AreEquivalent(
+                new[] { publishedName, publishedName + "Async", publishedName, publishedName + "Async" },
+                shippedMethods.Select(m => m.Signature.Name));
+            var requestName = client.RestClient.GetCreateRequestMethod(operation).Signature.Name;
+
+            var newWrapper = new BackCompatTypeProvider("MissingWrapper", "Sample");
+            var newMethods = client.GetMethodCollectionByOperation(operation, newWrapper);
+            Assert.IsTrue(newMethods.All(m => m.Signature.Name == normalizedName || m.Signature.Name == normalizedName + "Async"));
+            Assert.AreEqual(requestName, client.RestClient.GetCreateRequestMethod(operation).Signature.Name);
+            StringAssert.Contains(requestName + "(", new TypeProviderWriter(client.RestClient).Write().Content);
+            Assert.AreEqual(publishedName, shippedMethods.First().Signature.Name);
+
+            _ = client.GetMethodCollectionByOperation(operation, wrapper);
+            Assert.AreEqual(publishedName, serviceMethod.Name);
+            _ = client.GetMethodCollectionByOperation(operation);
+            Assert.AreEqual(normalizedName, serviceMethod.Name);
+        }
+
+        [Test]
+        public async Task TestOperationAcronymsPreserveCustomMethods()
+        {
+            var operation = InputFactory.Operation("GetIpUrl");
+            var serviceMethod = InputFactory.BasicServiceMethod(operation.Name, operation);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [inputClient],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var client = new ClientProvider(inputClient);
+            var methods = client.GetMethodCollectionByOperation(operation);
+
+            Assert.AreEqual("GetIpUri", serviceMethod.Name);
+            Assert.IsTrue(methods.All(m => m.Signature.Name == "GetIpUri" || m.Signature.Name == "GetIpUriAsync"));
+            Assert.AreEqual(2, methods.Count(m => m.IsPartialMethod));
+        }
+
         [Test]
         public async Task TestOperationNamePreservesUrlSuffixFromLastContract()
         {

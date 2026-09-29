@@ -217,7 +217,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
         }
 
-        private string GetOperationName(InputServiceMethod serviceMethod, bool normalizeUrlSuffix = true)
+        private string GetOperationName(InputServiceMethod serviceMethod, bool normalizePublicName = true)
         {
             if (serviceMethod.IsExactName)
             {
@@ -237,34 +237,47 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 operationName = $"Get{operationName.Substring(4)}";
             }
 
-            if (!normalizeUrlSuffix)
+            if (!normalizePublicName)
             {
                 return operationName;
             }
 
-            var normalizedName = operationName.NormalizeCSharpUrlSuffix();
+            var urlNormalizedName = operationName.NormalizeCSharpUrlSuffix();
+            var normalizedName = urlNormalizedName.NormalizeCSharpAcronyms();
             if (normalizedName == operationName)
             {
                 return operationName;
             }
 
-            var lastContractMethods = BackCompatProvider.LastContractView?.Methods ?? LastContractView?.Methods;
-            if (lastContractMethods?.Any(m =>
-                m.Signature.Name == operationName ||
-                m.Signature.Name == $"{operationName}Async") == true)
+            if (HasExistingName(operationName))
             {
                 return operationName;
             }
 
+            // Previous generators may already have normalized Url to Uri without normalizing acronyms.
+            if (urlNormalizedName != operationName && HasExistingName(urlNormalizedName))
+            {
+                return urlNormalizedName;
+            }
+
             return normalizedName;
+
+            bool HasExistingName(string name)
+            {
+                var lastContractMethods = BackCompatProvider.LastContractView?.Methods ?? LastContractView?.Methods;
+                var customMethods = BackCompatProvider.CustomCodeView?.Methods ?? CustomCodeView?.Methods;
+                return lastContractMethods?.Any(MatchesName) == true || customMethods?.Any(MatchesName) == true;
+
+                bool MatchesName(MethodProvider method) => method.Signature.Name == name || method.Signature.Name == $"{name}Async";
+            }
         }
 
         internal string GetRestOperationName(InputServiceMethod serviceMethod)
         {
             // Request builders use the stable input operation identity rather than the mutable public method name.
-            // Preserve the original Url suffix so a projection honoring a previous GA name and a newer projection
-            // normalized to Uri continue to reference the same request builder.
-            return GetOperationName(serviceMethod, normalizeUrlSuffix: false).ToIdentifierName();
+            // Preserve the original acronym casing and Url suffix so projections honoring previous GA names
+            // and newer projections with normalized public names continue to reference the same request builder.
+            return GetOperationName(serviceMethod, normalizePublicName: false).ToIdentifierName();
         }
 
         private string? _namespace;
