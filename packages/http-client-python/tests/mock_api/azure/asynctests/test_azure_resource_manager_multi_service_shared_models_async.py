@@ -39,6 +39,10 @@ async def test_virtual_machines_get(client):
     assert isinstance(result, VirtualMachine)
     assert result.name == vm_name
     assert result.location == "eastus"
+    assert (
+        result.id
+        == "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg/providers/Microsoft.Compute/virtualMachinesShared/vm-shared1"
+    )
     assert result.type == "Microsoft.Compute/virtualMachinesShared"
     assert result.properties is not None
     assert result.properties.provisioning_state == "Succeeded"
@@ -73,6 +77,10 @@ async def test_virtual_machines_create_or_update(client):
     assert result is not None
     assert isinstance(result, VirtualMachine)
     assert result.location == "eastus"
+    assert (
+        result.id
+        == "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg/providers/Microsoft.Compute/virtualMachinesShared/vm-shared1"
+    )
     assert result.properties is not None
     assert result.properties.provisioning_state == "Succeeded"
     assert result.properties.metadata is not None
@@ -92,6 +100,10 @@ async def test_storage_accounts_get(client):
     assert isinstance(result, StorageAccount)
     assert result.name == account_name
     assert result.location == "westus"
+    assert (
+        result.id
+        == "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg/providers/Microsoft.Storage/storageAccounts/account1"
+    )
     assert result.type == "Microsoft.Storage/storageAccounts"
     assert result.properties is not None
     assert result.properties.provisioning_state == "Succeeded"
@@ -126,6 +138,10 @@ async def test_storage_accounts_create_or_update(client):
     assert result is not None
     assert isinstance(result, StorageAccount)
     assert result.location == "westus"
+    assert (
+        result.id
+        == "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg/providers/Microsoft.Storage/storageAccounts/account1"
+    )
     assert result.properties is not None
     assert result.properties.provisioning_state == "Succeeded"
     assert result.properties.metadata is not None

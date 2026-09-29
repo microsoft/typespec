@@ -39,6 +39,10 @@ async def test_virtual_machines_get(client):
     assert result is not None
     assert isinstance(result, VirtualMachine)
     assert result.name == vm_name
+    assert (
+        result.id
+        == "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg/providers/Microsoft.Compute/virtualMachines/vm1"
+    )
 
 
 @pytest.mark.asyncio
@@ -65,6 +69,10 @@ async def test_virtual_machines_create_or_update(client):
     assert result is not None
     assert isinstance(result, VirtualMachine)
     assert result.location == "eastus"
+    assert (
+        result.id
+        == "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg/providers/Microsoft.Compute/virtualMachines/vm1"
+    )
 
 
 @pytest.mark.asyncio
@@ -83,6 +91,10 @@ async def test_disks_get(client):
     assert result is not None
     assert isinstance(result, Disk)
     assert result.name == disk_name
+    assert (
+        result.id
+        == "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg/providers/Microsoft.Compute/disks/disk1"
+    )
 
 
 @pytest.mark.asyncio
@@ -109,3 +121,7 @@ async def test_disks_create_or_update(client):
     assert result is not None
     assert isinstance(result, Disk)
     assert result.location == "eastus"
+    assert (
+        result.id
+        == "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg/providers/Microsoft.Compute/disks/disk1"
+    )
