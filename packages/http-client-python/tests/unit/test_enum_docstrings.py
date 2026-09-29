@@ -12,7 +12,12 @@ from types import SimpleNamespace
 
 import black
 import pytest
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Environment, FileSystemLoader, PackageLoader
+
+from pygen import OptionsDict
+from pygen.codegen.models import CodeModel, build_type
+from pygen.codegen.serializers.enum_serializer import EnumSerializer
+from pygen.codegen.serializers.types_serializer import TypesSerializer
 
 
 @pytest.mark.parametrize(
@@ -65,3 +70,68 @@ def test_enum_docstrings_preserve_documentation(description, location):
     assert isinstance(doc, ast.Expr)
     assert isinstance(doc.value, ast.Constant)
     assert inspect.cleandoc(doc.value.value).strip() == description
+
+
+@pytest.mark.parametrize("typeddict_only", [False, True])
+def test_enum_serializers_preserve_documentation(typeddict_only):
+    description = 'Before """ after a path C:\\new.'
+    member_description = 'Member """ documentation.'
+    code_model = CodeModel(
+        {
+            "namespace": "sample",
+            "clients": [
+                {
+                    "name": "client",
+                    "namespace": "sample",
+                    "moduleName": "sample",
+                    "parameters": [],
+                    "url": "",
+                    "operationGroups": [],
+                }
+            ],
+        },
+        OptionsDict(
+            {
+                "models-mode": "none" if typeddict_only else "dpg",
+                "generate-typeddict": typeddict_only,
+                "flavor": "unbranded",
+                "tsp_file": True,
+            }
+        ),
+    )
+    enum_yaml = {
+        "type": "enum",
+        "name": "WidgetMode",
+        "description": description,
+        "valueType": {"type": "string"},
+        "values": [],
+    }
+    enum = build_type(enum_yaml, code_model)
+    enum.values.append(
+        build_type(
+            {
+                "type": "enumvalue",
+                "name": "FAST",
+                "value": "fast",
+                "description": member_description,
+                "enumType": enum_yaml,
+                "valueType": {"type": "string"},
+            },
+            code_model,
+        )
+    )
+    env = Environment(loader=PackageLoader("pygen.codegen", "templates"), trim_blocks=True, lstrip_blocks=True)
+    serializer = (
+        TypesSerializer(code_model, env, enums=[enum])
+        if typeddict_only
+        else EnumSerializer(code_model, env, enums=[enum])
+    )
+
+    source = black.format_str(serializer.serialize(), mode=black.Mode())
+    module = ast.parse(source)
+    docstrings = [
+        inspect.cleandoc(node.value.value).strip()
+        for node in ast.walk(module)
+        if isinstance(node, ast.Expr) and isinstance(node.value, ast.Constant) and isinstance(node.value.value, str)
+    ]
+    assert docstrings == ([description] if typeddict_only else [description, member_description])
