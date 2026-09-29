@@ -410,6 +410,14 @@ describe("json serialization of examples", () => {
       }[],
     ][] = [
       ["int32", [{ value: `123`, expect: 123 }]],
+      [
+        "int64",
+        [
+          { value: `123`, expect: 123 },
+          { value: `123`, expect: "123", encode: `@encode(string)` },
+        ],
+      ],
+      ["decimal", [{ value: `1050.25`, expect: "1050.25", encode: `@encode(string)` }]],
       ["string", [{ value: `"abc"`, expect: "abc" }]],
       ["boolean", [{ value: `true`, expect: true }]],
       [
@@ -514,6 +522,16 @@ describe("json serialization of examples", () => {
         },
       );
     });
+  });
+
+  it("serialize int64 default above 2^53 as a string with @encode(string)", async () => {
+    const { test, program } = (await Tester.compile(`
+      model TestModel {
+        @encode(string) /*test*/test: int64 = 9007199254740993;
+      }
+    `)) as any;
+
+    expect(serializeValueAsJson(program, test.defaultValue, test)).toEqual("9007199254740993");
   });
 
   it("serialize models with parent", async () => {

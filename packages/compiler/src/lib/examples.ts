@@ -85,7 +85,7 @@ export function serializeValueAsJson(
     case "StringValue":
       return value.value;
     case "NumericValue":
-      return value.value.asNumber();
+      return isEncodedAsString(program, encodeAs) ? value.value.toString() : value.value.asNumber();
     case "EnumValue":
       return value.value.value ?? value.value.name;
     case "ArrayValue":
@@ -108,6 +108,15 @@ export function serializeValueAsJson(
     case "Function":
       throw new UnserializableValueError("Cannot serialize a function value as JSON.");
   }
+}
+
+/** True for `@encode(string)`, which has no named encoding and uses `string` as the wire type. */
+function isEncodedAsString(program: Program, encodeAs: EncodeData | undefined): boolean {
+  return (
+    encodeAs !== undefined &&
+    encodeAs.encoding === undefined &&
+    program.checker.isStdType(encodeAs.type, "string")
+  );
 }
 
 /** Try to get the property of the type */

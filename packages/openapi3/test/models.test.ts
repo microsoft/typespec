@@ -312,6 +312,27 @@ worksFor(supportedVersions, ({ diagnoseOpenApiFor, oapiForModel, openApiFor, ver
     expect(res.schemas.Test.properties.minDate.default).toEqual("Mon, 01 Jan 2024 11:32:00 GMT");
   });
 
+  it("serialize default as a string when using @encode(string)", async () => {
+    const res = await oapiForModel(
+      "Test",
+      `
+        model Test {
+          @encode(string) id: int64 = 9007199254740993;
+          @encode(string) amount: decimal = 1050.25;
+        }
+      `,
+    );
+
+    expect(res.schemas.Test.properties.id).toMatchObject({
+      type: "string",
+      default: "9007199254740993",
+    });
+    expect(res.schemas.Test.properties.amount).toMatchObject({
+      type: "string",
+      default: "1050.25",
+    });
+  });
+
   it("throw warning for scalar constructor that don't have equivalent", async () => {
     const [res, diagnostics] = await emitOpenApiWithDiagnostics(
       `model Test { minDate: utcDateTime = utcDateTime.now(); }`,
