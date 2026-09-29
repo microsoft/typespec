@@ -53,6 +53,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// This field is not one of the fields in this client, but the field in my parent client to get myself.
         /// </summary>
         private readonly FieldProvider? _clientCachingField;
+        private ScmMethodProvider? _clientFactoryMethod;
 
         private readonly ApiKeyFields? _apiKeyAuthFields;
         private readonly OAuth2Fields? _oauth2Fields;
@@ -458,6 +459,34 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             : NormalizeTypeNameForNewContract(_inputClient.Name.ToIdentifierName());
 
         protected override string? BuildOriginalName() => _inputClient.IsExactName ? null : _inputClient.Name.ToIdentifierName();
+
+        protected override void OnIdentityUpdated(string previousName, string previousNamespace)
+        {
+            base.OnIdentityUpdated(previousName, previousNamespace);
+            _restClient?.Update(name: Name, @namespace: Type.Namespace);
+            UpdateDependentIdentity(ClientOptions, "Options");
+            UpdateDependentIdentity(ClientSettings, "Settings");
+
+            if (_clientFactoryMethod?.Signature.Name == GetClientAccessorName(previousName))
+            {
+                _clientFactoryMethod.Signature.Update(
+                    name: GetClientAccessorName(Name),
+                    description: $"Initializes a new instance of {Name}");
+            }
+
+            void UpdateDependentIdentity(TypeProvider? provider, string suffix)
+            {
+                // Do not rename shared options or explicitly customized dependent types.
+                if (provider?.Name == $"{previousName}{suffix}" && provider.Type.Namespace == previousNamespace)
+                {
+                    provider.Update(name: $"{Name}{suffix}", @namespace: Type.Namespace);
+                }
+            }
+        }
+
+        private static string GetClientAccessorName(string name) => name.EndsWith(ClientSuffix, StringComparison.OrdinalIgnoreCase)
+            ? $"Get{name}"
+            : $"Get{name}{ClientSuffix}";
 
         protected override IReadOnlyList<CSharpType> BuildHelperDependencyTypes()
         {
@@ -1283,9 +1312,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     }
                 }
 
-                var factoryMethodName = subClient.Name.EndsWith(ClientSuffix, StringComparison.OrdinalIgnoreCase)
-                    ? $"Get{subClient.Name}"
-                    : $"Get{subClient.Name}{ClientSuffix}";
+                var factoryMethodName = GetClientAccessorName(subClient.Name);
 
                 ScmMethodProvider factoryMethod;
                 if (accessorMethodParams.Count > 0)
@@ -1326,6 +1353,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         this,
                         ScmMethodKind.Convenience);
                 }
+                subClient._clientFactoryMethod = factoryMethod;
                 methods.Add(factoryMethod);
             }
 

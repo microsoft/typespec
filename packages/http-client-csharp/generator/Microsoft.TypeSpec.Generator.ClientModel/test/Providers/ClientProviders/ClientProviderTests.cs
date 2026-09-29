@@ -251,6 +251,69 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.IsNull(client.CustomCodeView);
         }
 
+        [Test]
+        public async Task TestBuildName_PreservesExistingClientAfterBuildingProviders([Values] bool lastContract, [Values] bool isSubClient)
+        {
+            var parent = isSubClient ? InputFactory.Client("ParentClient") : null;
+            var input = InputFactory.Client("IpClient", parent: parent,
+                initializedBy: isSubClient ? InputClientInitializedBy.Parent : InputClientInitializedBy.Individually);
+            var compilation = await Helpers.GetCompilationFromDirectoryAsync(method: "AcronymClients");
+            var generator = await MockHelpers.LoadMockGeneratorAsync(clients: () => [parent ?? input],
+                compilation: lastContract ? null : () => Task.FromResult(compilation),
+                lastContractCompilation: lastContract ? () => Task.FromResult(compilation) : null);
+            foreach (var provider in generator.Object.OutputLibrary.TypeProviders)
+            {
+                provider.EnsureBuilt();
+                _ = provider.RelativeFilePath;
+            }
+            var client = generator.Object.TypeFactory.CreateClient(input)!;
+            Assert.AreEqual("IPClient", client.Name);
+
+            client.Update(@namespace: "Sample.Published");
+
+            AssertClientIdentity(client, "IpClient", "Sample.Published");
+            if (parent != null)
+            {
+                AssertSubClientReference(generator.Object.TypeFactory.CreateClient(parent)!, client);
+            }
+        }
+
+        [Test]
+        public async Task TestBuildName_PreservesCustomizedDependentNames([Values] bool isSubClient)
+        {
+            var parent = isSubClient ? InputFactory.Client("ParentClient") : null;
+            var input = InputFactory.Client("IpClient", parent: parent,
+                initializedBy: isSubClient ? InputClientInitializedBy.Parent : InputClientInitializedBy.Individually);
+            var generator = await MockHelpers.LoadMockGeneratorAsync(clients: () => [parent ?? input],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(method: "AcronymClients"));
+            var client = generator.Object.TypeFactory.CreateClient(input)!;
+            MethodProvider? accessor = null;
+            if (parent != null)
+            {
+                accessor = generator.Object.TypeFactory.CreateClient(parent)!.Methods.Single();
+                accessor.Signature.Update(name: "GetCustomClient");
+            }
+            else
+            {
+                client.ClientOptions!.Update(name: "CustomOptions");
+                client.ClientSettings!.Update(name: "CustomSettings");
+            }
+
+            client.Update(@namespace: "Sample.Published");
+
+            Assert.AreEqual("IpClient", client.Name);
+            if (accessor != null)
+            {
+                Assert.AreEqual("GetCustomClient", accessor.Signature.Name);
+                Assert.AreSame(client.Type, accessor.Signature.ReturnType);
+            }
+            else
+            {
+                Assert.AreEqual("CustomOptions", client.ClientOptions!.Name);
+                Assert.AreEqual("CustomSettings", client.ClientSettings!.Name);
+            }
+        }
+
         private static void AssertClientIdentity(ClientProvider client, string expectedName, string expectedNamespace)
         {
             Assert.AreEqual(expectedName, client.Name);

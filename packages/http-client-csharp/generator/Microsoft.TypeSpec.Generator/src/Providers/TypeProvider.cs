@@ -945,6 +945,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private void ResetMembersBasedOnIdentityChange(string? name = null, string? @namespace = null)
         {
+            var previousName = Type.Name;
+            var previousNamespace = Type.Namespace;
             _declaringTypeName = new(() => GetDeclaringTypeName(DeclaringTypeProvider));
             // Reset the custom code view to reflect the new namespace
             _customCodeView = new(BuildCustomCodeView(name ?? Type.Name, @namespace ?? Type.Namespace));
@@ -962,7 +964,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // serialization providers need to reflect the new type name/namespace
             _serializationProviders = null;
             Type.Update(name: name, @namespace: @namespace);
+            if (Type.Name != previousName || Type.Namespace != previousNamespace)
+            {
+                OnIdentityUpdated(previousName, previousNamespace);
+            }
         }
+
+        /// <summary>
+        /// Updates generated dependencies after the type's name or namespace changes.
+        /// </summary>
+        protected virtual void OnIdentityUpdated(string previousName, string previousNamespace) { }
 
         public IReadOnlyList<EnumTypeMember> EnumValues => _enumValues ??= BuildEnumValues();
 
