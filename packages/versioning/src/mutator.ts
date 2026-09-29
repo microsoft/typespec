@@ -7,14 +7,10 @@ import {
   getReturnTypeChangedFrom,
   getTypeChangedFrom,
 } from "./decorators.js";
+import { hasChangedOptionality } from "./optionality.js";
 import type { Version } from "./types.js";
 import { VersioningTimeline, type TimelineMoment } from "./versioning-timeline.js";
-import {
-  Availability,
-  getAvailabilityMapInTimeline,
-  hasChangedOptionality,
-  resolveVersions,
-} from "./versioning.js";
+import { Availability, getAvailabilityMapInTimeline, resolveVersions } from "./versioning.js";
 
 /**
  * When the service is versioned.

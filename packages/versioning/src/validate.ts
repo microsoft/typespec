@@ -24,6 +24,7 @@ import {
   getUseDependencies,
 } from "./decorators.js";
 import { reportDiagnostic } from "./lib.js";
+import { hasChangedOptionality } from "./optionality.js";
 import type { Version } from "./types.js";
 import { getVersionAdditionCodefixes, getVersionRemovalCodeFixes } from "./validate.codefix.js";
 import {
@@ -32,7 +33,6 @@ import {
   getAvailabilityMap,
   getVersionDependencies,
   getVersions,
-  hasChangedOptionality,
 } from "./versioning.js";
 
 const relationCacheKey = Symbol.for("TypeSpec.Versioning.NamespaceRelationCache");
