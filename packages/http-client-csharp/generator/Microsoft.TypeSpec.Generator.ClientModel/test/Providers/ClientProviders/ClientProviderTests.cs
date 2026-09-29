@@ -5,6 +5,7 @@ using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -98,6 +99,195 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 clients: clients,
                 clientPipelineApi: _hasOAuth2WithOtherCredType ? TestClientPipelineApi.Instance : null,
                 auth: auth);
+        }
+
+        private static IEnumerable<TestCaseData> AcronymClientNames()
+        {
+            (string Input, string Expected)[] names =
+            [
+                ("IpClient", "IPClient"),
+                ("DbClient", "DBClient"),
+                ("OsClient", "OSClient"),
+                ("Ipv4Client", "IPv4Client"),
+                ("IpV4Client", "IPv4Client"),
+                ("Ipv6Client", "IPv6Client"),
+                ("IpV6Client", "IPv6Client"),
+                ("IpDbOsIpClientDb", "IPDBOSIPClientDB"),
+                ("Ipv4IpV4Ipv6IpV6Client", "IPv4IPv4IPv6IPv6Client"),
+                ("IPClientDBOS", "IPClientDBOS"),
+                ("IPv4IPv6Client", "IPv4IPv6Client"),
+                ("IPV4IPV6Client", "IPV4IPV6Client"),
+                ("OsloIpsumOsmosisDbzClient", "OsloIpsumOsmosisDbzClient"),
+                ("Ipv4addressIpv6addressClient", "Ipv4addressIpv6addressClient"),
+                ("Ipv42Ipv62Client", "Ipv42Ipv62Client"),
+                ("IpV42IpV62Client", "IPV42IPV62Client"),
+                ("Ip1Db2Os3Client", "Ip1Db2Os3Client"),
+                ("ip_client", "IPClient"),
+                ("ClientIp", "ClientIP"),
+                ("ClientResponse", "ClientResponse")
+            ];
+            foreach (var (input, expected) in names)
+            {
+                foreach (bool isSubClient in new[] { false, true })
+                {
+                    foreach (bool isExactName in new[] { false, true })
+                    {
+                        yield return new TestCaseData(input, isExactName ? input : expected, isSubClient, isExactName);
+                    }
+                }
+            }
+        }
+
+        [TestCaseSource(nameof(AcronymClientNames))]
+        public void TestBuildName_NormalizesAcronymCasing(
+            string inputName, string expectedName, bool isSubClient, bool isExactName)
+        {
+            var parent = isSubClient ? InputFactory.Client("ParentClient") : null;
+            var input = InputFactory.Client(inputName, clientNamespace: "Sample.IpDbOs",
+                parent: parent, isExactName: isExactName,
+                initializedBy: isSubClient ? InputClientInitializedBy.Parent : InputClientInitializedBy.Individually);
+            MockHelpers.LoadMockGenerator(clients: () => [parent ?? input]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(input)!;
+
+            AssertClientIdentity(client, expectedName, "Sample.IpDbOs");
+            if (parent != null)
+            {
+                AssertSubClientReference(ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(parent)!, client);
+            }
+        }
+
+        [Test]
+        public async Task TestBuildName_PreservesExistingClient(
+            [Values("IpClient", "DbClient", "OsClient", "Ipv4Client", "IpV6Client")] string inputName,
+            [Values] bool lastContract, [Values] bool updateNamespace, [Values] bool isSubClient)
+        {
+            var parent = isSubClient ? InputFactory.Client("ParentClient") : null;
+            var input = InputFactory.Client(inputName,
+                clientNamespace: updateNamespace ? "Sample" : "Sample.Published", parent: parent,
+                initializedBy: isSubClient ? InputClientInitializedBy.Parent : InputClientInitializedBy.Individually);
+            var compilation = await Helpers.GetCompilationFromDirectoryAsync(method: "AcronymClients");
+            await MockHelpers.LoadMockGeneratorAsync(clients: () => [parent ?? input],
+                compilation: lastContract ? null : () => Task.FromResult(compilation),
+                lastContractCompilation: lastContract ? () => Task.FromResult(compilation) : null);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(input)!;
+            var expectedName = inputName == "OsClient" ? "OSClient" : inputName;
+
+            if (updateNamespace)
+            {
+                Assert.AreNotEqual(inputName, client.Name);
+                client.Update(@namespace: "Sample.Published");
+            }
+
+            Assert.IsNotNull(lastContract ? client.LastContractView : client.CustomCodeView);
+            AssertClientIdentity(client, expectedName, "Sample.Published");
+            if (parent != null)
+            {
+                AssertSubClientReference(ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(parent)!, client);
+            }
+        }
+
+        [TestCase("MappedDbClient", "ExplicitDbClient")]
+        [TestCase("MappedIpClient", "ExplicitIpClient")]
+        public async Task TestBuildName_PreservesCustomClientMapping(string inputName, string expectedName)
+        {
+            var parent = InputFactory.Client("ParentClient");
+            var input = InputFactory.Client(inputName, parent: parent, initializedBy: InputClientInitializedBy.Parent);
+            await MockHelpers.LoadMockGeneratorAsync(clients: () => [parent],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(method: "AcronymClients"));
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(input)!;
+
+            Assert.IsNotNull(client.CustomCodeView);
+            AssertClientIdentity(client, expectedName, "Sample.Customized");
+            AssertSubClientReference(ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(parent)!, client);
+        }
+
+        [TestCase("MappedDbClient", "ExplicitDbClient")]
+        [TestCase("MappedIpClient", "ExplicitIpClient")]
+        public async Task TestBuildName_CustomizationPrecedesLastContract(string inputName, string expectedName)
+        {
+            var input = InputFactory.Client(inputName, clientNamespace: "Sample.Published");
+            var compilation = await Helpers.GetCompilationFromDirectoryAsync(method: "AcronymClients");
+            await MockHelpers.LoadMockGeneratorAsync(clients: () => [input],
+                compilation: () => Task.FromResult(compilation),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync("Last", method: "AcronymClients"));
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(input)!;
+
+            Assert.IsNotNull(client.CustomCodeView);
+            AssertClientIdentity(client, expectedName, "Sample.Customized");
+        }
+
+        [TestCase("IpClient", true, "IpClient")]
+        [TestCase("OsClient", true, "OsClient")]
+        [TestCase("InternalOsClient", false, "InternalOSClient")]
+        public async Task TestBuildName_OnlyPreservesMatchingPublicContract(string inputName, bool isExactName, string expectedName)
+        {
+            var input = InputFactory.Client(inputName, isExactName: isExactName);
+            await MockHelpers.LoadMockGeneratorAsync(clients: () => [input],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(method: "AcronymClients"));
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(input)!;
+
+            Assert.AreEqual(expectedName, client.Name);
+            Assert.AreEqual("Sample", client.Type.Namespace);
+            Assert.IsNull(client.LastContractView);
+            client.Update(@namespace: "Sample.Published");
+            AssertClientIdentity(client, expectedName, "Sample.Published");
+            Assert.AreEqual(inputName == "IpClient", client.LastContractView != null);
+        }
+
+        [Test]
+        public async Task TestBuildName_PreservesExplicitNameUpdate([Values] bool lastContract)
+        {
+            var input = InputFactory.Client("IpClient");
+            var compilation = await Helpers.GetCompilationFromDirectoryAsync(method: "AcronymClients");
+            await MockHelpers.LoadMockGeneratorAsync(clients: () => [input],
+                compilation: lastContract ? null : () => Task.FromResult(compilation),
+                lastContractCompilation: lastContract ? () => Task.FromResult(compilation) : null);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(input)!;
+
+            client.Update(name: "ExplicitIpClient", @namespace: "Sample.Published");
+
+            AssertClientIdentity(client, "ExplicitIpClient", "Sample.Published");
+            Assert.IsNull(client.LastContractView);
+            Assert.IsNull(client.CustomCodeView);
+        }
+
+        private static void AssertClientIdentity(ClientProvider client, string expectedName, string expectedNamespace)
+        {
+            Assert.AreEqual(expectedName, client.Name);
+            Assert.AreEqual(expectedNamespace, client.Type.Namespace);
+            Assert.AreEqual($"{expectedName}.cs", Path.GetFileName(client.RelativeFilePath));
+            Assert.IsNotEmpty(client.Constructors);
+            foreach (var constructor in client.Constructors)
+            {
+                Assert.AreEqual(expectedName, constructor.Signature.Name);
+                Assert.AreSame(client.Type, constructor.Signature.Type);
+                if (constructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public))
+                {
+                    Assert.That(constructor.Signature.Description!.ToString(), Does.Contain(expectedName));
+                }
+            }
+            Assert.AreEqual(expectedName, client.RestClient.Name);
+            Assert.AreEqual(expectedNamespace, client.RestClient.Type.Namespace);
+            Assert.AreEqual($"{expectedName}.RestClient.cs", Path.GetFileName(client.RestClient.RelativeFilePath));
+            foreach (var dependent in new TypeProvider?[] { client.ClientOptions, client.ClientSettings })
+            {
+                if (dependent != null)
+                {
+                    var suffix = dependent is ClientOptionsProvider ? "Options" : "Settings";
+                    Assert.AreEqual($"{expectedName}{suffix}", dependent.Name);
+                    Assert.AreEqual(expectedNamespace, dependent.Type.Namespace);
+                    Assert.AreEqual($"{dependent.Name}.cs", Path.GetFileName(dependent.RelativeFilePath));
+                }
+            }
+        }
+
+        private static void AssertSubClientReference(ClientProvider parent, ClientProvider client)
+        {
+            var accessor = parent.Methods.Single(m => m.Signature.ReturnType?.Equals(client.Type) == true);
+            var suffix = client.Name.EndsWith("Client", StringComparison.OrdinalIgnoreCase) ? "" : "Client";
+            Assert.AreEqual($"Get{client.Name}{suffix}", accessor.Signature.Name);
+            Assert.AreSame(client.Type, accessor.Signature.ReturnType);
+            Assert.IsTrue(parent.Fields.Any(f => ReferenceEquals(f.Type, client.Type)));
         }
 
         [Test]

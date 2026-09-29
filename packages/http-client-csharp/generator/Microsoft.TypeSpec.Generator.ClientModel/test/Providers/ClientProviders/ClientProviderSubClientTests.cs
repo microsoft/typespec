@@ -40,6 +40,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
+        [Test]
+        public void InheritedClientUsesNormalizedSubClient()
+        {
+            var parent = InputFactory.Client("DbClient");
+            _ = InputFactory.Client("Ipv4Client", parent: parent, initializedBy: InputClientInitializedBy.Parent);
+            MockHelpers.LoadMockGenerator(clients: () => [parent]);
+            var client = new MockClientProvider(parent, ["GetIPv4Client"]);
+
+            Assert.AreEqual("DBClient", client.Name);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), new TypeProviderWriter(client).Write().Content);
+        }
+
         // This test validates that the generated code is correct when a sub-client has a single sub-client.
         [Test]
         public void SubClientWithSingleSubClient()

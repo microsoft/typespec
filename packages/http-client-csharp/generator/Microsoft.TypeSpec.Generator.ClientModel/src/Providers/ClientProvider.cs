@@ -43,7 +43,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private const string CredentialParamName = "credential";
         private const string SettingsParamName = "settings";
         private const string ClientSuffix = "Client";
-        private readonly FormattableString _publicCtorDescription;
+        private FormattableString PublicCtorDescription => $"Initializes a new instance of {Name}.";
         private readonly InputClient _inputClient;
         internal InputClient InputClient => _inputClient;
         private readonly InputAuth? _inputAuth;
@@ -110,7 +110,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _inputAuth = ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Auth;
             _endpointParameter = BuildClientEndpointParameter();
             _subClientEndpointParameter = BuildSubClientEndpointParameter();
-            _publicCtorDescription = $"Initializes a new instance of {Name}.";
             ClientOptions = _inputClient.Parent is null ? ClientOptionsProvider.CreateClientOptionsProvider(_inputClient, this) : null;
             bool isIndividuallyInitialized = (_inputClient.InitializedBy & InputClientInitializedBy.Individually) != 0;
             ClientSettings = isIndividuallyInitialized
@@ -454,7 +453,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.cs");
 
-        protected override string BuildName() => _inputClient.IsExactName ? _inputClient.Name : _inputClient.Name.ToIdentifierName();
+        protected override string BuildName() => _inputClient.IsExactName
+            ? _inputClient.Name
+            : NormalizeTypeNameForNewContract(_inputClient.Name.ToIdentifierName());
+
+        protected override string? BuildOriginalName() => _inputClient.IsExactName ? null : _inputClient.Name.ToIdentifierName();
 
         protected override IReadOnlyList<CSharpType> BuildHelperDependencyTypes()
         {
@@ -651,7 +654,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         }
                     }
                     var subClientConstructor = new ConstructorProvider(
-                        new ConstructorSignature(Type, _publicCtorDescription, MethodSignatureModifiers.Internal, _subClientInternalConstructorParams.Value),
+                        new ConstructorSignature(Type, PublicCtorDescription, MethodSignatureModifiers.Internal, _subClientInternalConstructorParams.Value),
                         body,
                         this);
                     constructors.Add(subClientConstructor);
@@ -691,7 +694,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 // Use the first available auth fields to determine pipeline auth type
                 AuthFields? firstAuthFields = _apiKeyAuthFields as AuthFields ?? _oauth2Fields;
                 var internalConstructor = new ConstructorProvider(
-                    new ConstructorSignature(Type, _publicCtorDescription, MethodSignatureModifiers.Internal, internalConstructorParameters),
+                    new ConstructorSignature(Type, PublicCtorDescription, MethodSignatureModifiers.Internal, internalConstructorParameters),
                     BuildPrimaryConstructorBody(internalConstructorParameters, firstAuthFields, authPolicyParam, ClientOptions, ClientOptionsParameter, addExplicitValidation: true),
                     this);
                 primaryConstructors.Add(internalConstructor);
@@ -752,7 +755,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 initializerArgs.Add(ClientOptionsParameter!);
 
                 var primaryConstructor = new ConstructorProvider(
-                    new ConstructorSignature(Type, _publicCtorDescription, constructorModifier, primaryConstructorParameters,
+                    new ConstructorSignature(Type, PublicCtorDescription, constructorModifier, primaryConstructorParameters,
                         initializer: new ConstructorInitializer(false, initializerArgs)),
                     MethodBodyStatement.Empty,
                     this);
@@ -864,7 +867,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ParameterProvider[] internalConstructorParameters = [authPolicyParam, _endpointParameter, .. requiredNonAuthParams, clientOptionsParameter];
 
             var internalConstructor = new ConstructorProvider(
-                new ConstructorSignature(Type, _publicCtorDescription, MethodSignatureModifiers.Internal, internalConstructorParameters),
+                new ConstructorSignature(Type, PublicCtorDescription, MethodSignatureModifiers.Internal, internalConstructorParameters),
                 BuildPrimaryConstructorBody(internalConstructorParameters, null, authPolicyParam, clientOptionsProvider, clientOptionsParameter, addExplicitValidation: true),
                 this);
             primaryConstructors.Add(internalConstructor);
@@ -921,7 +924,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 initializerArgs.Add(clientOptionsParameter!);
 
                 var primaryConstructor = new ConstructorProvider(
-                    new ConstructorSignature(Type, _publicCtorDescription, constructorModifier, primaryConstructorParameters,
+                    new ConstructorSignature(Type, PublicCtorDescription, constructorModifier, primaryConstructorParameters,
                         initializer: new ConstructorInitializer(false, initializerArgs)),
                     MethodBodyStatement.Empty,
                     this);
@@ -1168,7 +1171,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
              ]);
             var constructorSignature = new ConstructorSignature(
                 Type,
-                _publicCtorDescription,
+                PublicCtorDescription,
                 modifier,
                 secondaryConstructorParameters,
                 initializer: primaryCtorInitializer);
