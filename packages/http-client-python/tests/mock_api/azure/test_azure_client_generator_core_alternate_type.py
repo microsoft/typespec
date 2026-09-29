@@ -32,6 +32,7 @@ def test_external_type_get_model(client: AlternateTypeClient):
     """Test getting a Feature object with geometry, properties, and optional id fields."""
     result = client.external_type.get_model()
 
+    assert isinstance(result, geojson.Feature)
     # Validate the response structure based on the TypeSpec example
     assert result.type == "Feature"
     assert result.geometry.type == "Point"
@@ -51,6 +52,7 @@ def test_external_type_get_property(client: AlternateTypeClient):
     """Test getting a ModelWithFeatureProperty object with feature and additionalProperty fields."""
     result = client.external_type.get_property()
 
+    assert isinstance(result.feature, geojson.Feature)
     # Validate the response structure based on the TypeSpec example
     assert result.feature.type == "Feature"
     assert result.feature.geometry.type == "Point"
