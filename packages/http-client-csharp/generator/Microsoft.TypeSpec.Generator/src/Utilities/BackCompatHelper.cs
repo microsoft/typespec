@@ -202,10 +202,14 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                     var inputParameter = parameter.InputParameter;
                     if (inputParameter is not null && !parameter.IsContentParameter)
                     {
+                        // Only the new acronym renames require a matching parameter type. Preserve the
+                        // existing fallback for other renames, including date/time type changes.
+                        var hasAcronymRename = inputParameter.Name != inputParameter.Name.NormalizeCSharpAcronyms(useCamelCase: true);
                         preservedName = matchingPrevious != null
                             ? matchingPrevious.Signature.Parameters.FirstOrDefault(p =>
                                 string.Equals(p.Name, inputParameter.OriginalName, StringComparison.OrdinalIgnoreCase))?.Name
-                            : FindPreviousParameterName(lastContractView, inputParameter.OriginalName, method.Signature.Name, parameter.Type);
+                            : FindPreviousParameterName(lastContractView, inputParameter.OriginalName, method.Signature.Name,
+                                hasAcronymRename ? parameter.Type : null);
                     }
 
                     // Fall back to a positional match for synthesized parameters
