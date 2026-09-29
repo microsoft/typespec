@@ -701,6 +701,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             property.Modifiers = lastContractProperty.Modifiers;
             property.Body = lastContractProperty.Body;
             property.IsInitOnly = lastContractProperty.IsInitOnly;
+            // A property visitor may have materialized AsParameter before the CLR shape was restored.
+            property.AsParameter.SynchronizePropertyShape();
             return property;
         }
 

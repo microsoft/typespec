@@ -79,6 +79,29 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             public static string Value { get; set; } = string.Empty;
         }
 
+        public class ResourceTypePropertyTarget
+        {
+            public int ResourceType { get; set; }
+        }
+
+        private sealed class EagerParameterVisitor : LibraryVisitor
+        {
+            protected internal override PropertyProvider? PreVisitProperty(InputProperty input, PropertyProvider? property)
+            {
+                _ = property?.AsParameter;
+                return property;
+            }
+        }
+
+        private sealed class EagerPublicInputParameterVisitor : LibraryVisitor
+        {
+            protected internal override PropertyProvider? PreVisitProperty(InputProperty input, PropertyProvider? property)
+            {
+                _ = property?.AsParameter.ToPublicInputParameter();
+                return property;
+            }
+        }
+
         [SetUp]
         public void Setup()
         {
@@ -223,6 +246,75 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual(baseProvider.Type, provider.Type.BaseType);
             Assert.AreEqual(1, provider.Properties.Count);
             Assert.AreEqual("ResourceType", provider.Properties[0].Name);
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void MappedLastContractPropertySynchronizesParameterAfterClrRemapping(bool materializeParameterInVisitor)
+        {
+            var inputModel = InputFactory.Model(
+                "CurrentBase",
+                properties: [InputFactory.Property("type", InputPrimitiveType.String)]);
+            var generator = MockHelpers.LoadMockGenerator(
+                inputModelTypes: [inputModel],
+                isLastContractModelBasePropertyCompatible: (_, _, _) => true);
+            if (materializeParameterInVisitor)
+            {
+                generator.Object.AddVisitor(new EagerParameterVisitor());
+            }
+
+            var historicalProperty = new PropertyProvider(
+                $"",
+                MethodSignatureModifiers.Public,
+                typeof(int),
+                "ResourceType",
+                new AutoPropertyBody(true, MethodSignatureModifiers.Public),
+                new TestTypeProvider());
+            var provider = new SystemObjectModelProvider(
+                new CSharpType(typeof(ResourceTypePropertyTarget)),
+                inputModel,
+                new TestTypeProvider(properties: [historicalProperty]));
+
+            var property = provider.Properties.Single();
+            Assert.Multiple(() =>
+            {
+                Assert.That(property.Name, Is.EqualTo("ResourceType"));
+                Assert.That(property.Type, Is.EqualTo(new CSharpType(typeof(int))));
+                Assert.That(property.AsParameter.Name, Is.EqualTo("resourceType"));
+                Assert.That(property.AsParameter.Type, Is.EqualTo(property.Type));
+            });
+        }
+
+        [Test]
+        public void MappedLastContractPropertySynchronizesCachedPublicInputParameterAndValidation()
+        {
+            var inputModel = InputFactory.Model(
+                "CurrentBase",
+                properties: [InputFactory.Property("type", InputPrimitiveType.String, isRequired: true)]);
+            var generator = MockHelpers.LoadMockGenerator(
+                inputModelTypes: [inputModel],
+                isLastContractModelBasePropertyCompatible: (_, _, _) => true);
+            generator.Object.AddVisitor(new EagerPublicInputParameterVisitor());
+
+            var historicalProperty = new PropertyProvider(
+                $"",
+                MethodSignatureModifiers.Public,
+                typeof(int),
+                "ResourceType",
+                new AutoPropertyBody(true, MethodSignatureModifiers.Public),
+                new TestTypeProvider());
+            var provider = new SystemObjectModelProvider(
+                new CSharpType(typeof(ResourceTypePropertyTarget)),
+                inputModel,
+                new TestTypeProvider(properties: [historicalProperty]));
+
+            var parameter = provider.Properties.Single().AsParameter;
+            Assert.Multiple(() =>
+            {
+                Assert.That(parameter.Validation, Is.EqualTo(ParameterValidationType.None));
+                Assert.That(parameter.ToPublicInputParameter().Name, Is.EqualTo("resourceType"));
+                Assert.That(parameter.ToPublicInputParameter().Type, Is.EqualTo(new CSharpType(typeof(int))));
+            });
         }
 
         [Test]
