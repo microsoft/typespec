@@ -86,6 +86,38 @@
       {
         "path": "generator/dist/pygen-*.whl",
         "contentType": "application/zip"
+      },
+      {
+        "path": "generator/dist/browser-wheels/*.whl",
+        "contentType": "application/zip"
+      },
+      {
+        "path": "generator/dist/browser-wheels.json",
+        "contentType": "application/json"
+      },
+      {
+        "path": "generator/dist/pyodide/*.js",
+        "contentType": "application/javascript"
+      },
+      {
+        "path": "generator/dist/pyodide/*.js.map",
+        "contentType": "application/json"
+      },
+      {
+        "path": "generator/dist/pyodide/*.wasm",
+        "contentType": "application/wasm"
+      },
+      {
+        "path": "generator/dist/pyodide/*.zip",
+        "contentType": "application/zip"
+      },
+      {
+        "path": "generator/dist/pyodide/*.json",
+        "contentType": "application/json"
+      },
+      {
+        "path": "generator/dist/pyodide-wheels/*.whl",
+        "contentType": "application/zip"
       }
     ],
     "bundlePeerDependencies": [

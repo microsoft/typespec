@@ -1,25 +1,14 @@
 import { createSdkContext } from "@azure-tools/typespec-client-generator-core";
 import type { EmitContext } from "@typespec/compiler";
 import { emitFile, joinPaths, listServices, NoTarget } from "@typespec/compiler";
-import pkgJson from "../../package.json" with { type: "json" };
+import { setupPyodideCallBrowser } from "./browser-runtime.js";
 import { emitCodeModel } from "./code-model.js";
-import {
-  BLOB_STORAGE_BASE_URL,
-  PACKAGE_NAME,
-  PYGEN_WHEEL_FILENAME,
-  PYODIDE_VERSION,
-} from "./constants.js";
 import type { PythonEmitterOptions, PythonSdkContext } from "./lib.js";
 import { reportDiagnostic } from "./lib.js";
 import { runNodeEmit } from "./node-runner.js";
 import type { PyodideInterface } from "./pyodide-loader.js";
-import { loadPyodide } from "./pyodide-loader.js";
 import { getRootNamespace, md2Rst } from "./utils.js";
 import { dumpCodeModelToYaml } from "./yaml-utils.js";
-
-function getBrowserPygenWheelUrl(): string {
-  return `${BLOB_STORAGE_BASE_URL}/${PACKAGE_NAME}/${pkgJson.version}/generator/dist/${PYGEN_WHEEL_FILENAME}`;
-}
 
 function addDefaultOptions(sdkContext: PythonSdkContext) {
   const defaultOptions = {
@@ -296,18 +285,4 @@ function clearMemfsDirectory(pyodide: PyodideInterface, dir: string): void {
       pyodide.FS.unlink(fullPath);
     }
   }
-}
-
-async function setupPyodideCallBrowser() {
-  const pyodide = await loadPyodide({
-    indexURL: `https://cdn.jsdelivr.net/pyodide/v${PYODIDE_VERSION}/full/`,
-  });
-
-  // use default MEMFS for browser, since NODEFS is not supported
-  pyodide.FS.mkdirTree("/generator");
-  await pyodide.loadPackage("micropip");
-  const micropip = pyodide.pyimport("micropip");
-  await micropip.install(getBrowserPygenWheelUrl());
-
-  return pyodide;
 }
