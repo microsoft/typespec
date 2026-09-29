@@ -5726,6 +5726,51 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.AreEqual(2, methods.Count(m => m.IsPartialMethod));
         }
 
+        [TestCase("LastContract", false)]
+        [TestCase("LastContract", true)]
+        [TestCase("Custom", false)]
+        [TestCase("Custom", true)]
+        [TestCase("CustomWithLastContract", false)]
+        [TestCase("CustomWithLastContract", true)]
+        public async Task AcronymNamedArgumentsUseProtocolSignature(string signatureSource, bool async)
+        {
+            var operation = InputFactory.Operation(
+                "Send",
+                parameters:
+                [
+                    InputFactory.QueryParameter("id", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.QueryParameter("filter", InputPrimitiveType.String),
+                    InputFactory.QueryParameter("sourceIpAddress", InputPrimitiveType.String)
+                ],
+                responses: [InputFactory.OperationResponse([204])]);
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "Send",
+                operation,
+                parameters:
+                [
+                    InputFactory.MethodParameter("id", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Query),
+                    InputFactory.MethodParameter("sourceIpAddress", InputPrimitiveType.String, location: InputRequestLocation.Query)
+                ]);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            var custom = signatureSource.StartsWith("Custom");
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [inputClient],
+                compilation: custom ? async () => await Helpers.GetCompilationFromDirectoryAsync("Custom") : null,
+                lastContractCompilation: signatureSource == "Custom" ? null : async () => await Helpers.GetCompilationFromDirectoryAsync("LastContract"));
+            var client = generator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().Single();
+            client.ProcessTypeForBackCompatibility();
+            var methodName = async ? "SendAsync" : "Send";
+            var convenienceMethod = client.Methods.OfType<ScmMethodProvider>().Single(
+                method => method.Kind == ScmMethodKind.Convenience && method.Signature.Name == methodName);
+            var protocolMethod = client.Methods.OfType<ScmMethodProvider>().Single(
+                method => method.Kind == ScmMethodKind.Protocol && method.Signature.Name == methodName);
+            Assert.AreEqual(custom ? "customIpWire" : "sourceIpAddressWire", protocolMethod.Signature.Parameters[2].Name);
+            Assert.AreEqual(custom ? "customOptions" : "legacyOptions", protocolMethod.Signature.Parameters[3].Name);
+            Assert.AreEqual(
+                Helpers.GetExpectedFromFile($"{(custom ? "Custom" : "LastContract")},{(async ? "Async" : "Sync")}"),
+                convenienceMethod.BodyStatements!.ToDisplayString());
+        }
+
         [Test]
         public async Task TestOperationNamePreservesUrlSuffixFromLastContract()
         {

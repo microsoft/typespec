@@ -155,6 +155,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                 StringAssert.Contains(
                     $"this.{method.Signature.Name}({expectedName}: {expectedName}, options: cancellationToken.ToRequestOptions())",
                     method.BodyStatements!.ToDisplayString());
+                if (signatureSource == "New")
+                {
+                    var protocolMethod = client.Methods.OfType<ScmMethodProvider>().Single(
+                        protocol => protocol.Kind == ScmMethodKind.Protocol && protocol.Signature.Name == method.Signature.Name);
+                    CollectionAssert.AreEqual(
+                        new[] { "sourceIPAddress", "version", "options" },
+                        protocolMethod.Signature.Parameters.Select(parameter => parameter.Name));
+                    Assert.AreEqual(
+                        Helpers.GetExpectedFromFile(method.Signature.Name.EndsWith("Async") ? "Async" : "Sync"),
+                        method.BodyStatements!.ToDisplayString());
+                }
             }
         }
 
