@@ -209,11 +209,25 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private void CleanOperationNames(InputClient inputClient)
         {
-            foreach (var serviceMethod in inputClient.Methods)
+            var projectedNames = inputClient.Methods.Select(serviceMethod => (
+                ServiceMethod: serviceMethod,
+                OriginalName: GetOperationName(serviceMethod, normalizePublicName: false),
+                UpdatedName: GetOperationName(serviceMethod))).ToArray();
+
+            foreach (var projectedName in projectedNames)
             {
-                var updatedOperationName = GetOperationName(serviceMethod);
-                serviceMethod.Update(name: updatedOperationName);
-                serviceMethod.Operation.Update(name: updatedOperationName);
+                var updatedOperationName = projectedName.UpdatedName;
+                if (updatedOperationName != projectedName.OriginalName &&
+                    projectedNames.Any(other =>
+                        !ReferenceEquals(other.ServiceMethod, projectedName.ServiceMethod) &&
+                        other.UpdatedName == updatedOperationName &&
+                        other.OriginalName != projectedName.OriginalName))
+                {
+                    updatedOperationName = projectedName.OriginalName;
+                }
+
+                projectedName.ServiceMethod.Update(name: updatedOperationName);
+                projectedName.ServiceMethod.Operation.Update(name: updatedOperationName);
             }
         }
 

@@ -4826,6 +4826,27 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 methods.Select(m => m.Signature.Name));
         }
 
+        [Test]
+        public void TestOperationNameNormalizationPreservesDistinctNames()
+        {
+            var firstOperation = InputFactory.Operation("GetIpAddress");
+            var firstServiceMethod = InputFactory.BasicServiceMethod(firstOperation.Name, firstOperation);
+            var secondOperation = InputFactory.Operation("GetIPAddress");
+            var secondServiceMethod = InputFactory.BasicServiceMethod(secondOperation.Name, secondOperation);
+            var client = new ClientProvider(InputFactory.Client(
+                "TestClient",
+                methods: [firstServiceMethod, secondServiceMethod]));
+
+            Assert.AreEqual("GetIpAddress", firstServiceMethod.Name);
+            Assert.AreEqual("GetIPAddress", secondServiceMethod.Name);
+            CollectionAssert.AreEquivalent(
+                new[] { "GetIpAddress", "GetIpAddressAsync", "GetIpAddress", "GetIpAddressAsync" },
+                client.GetMethodCollectionByOperation(firstOperation).Select(m => m.Signature.Name));
+            CollectionAssert.AreEquivalent(
+                new[] { "GetIPAddress", "GetIPAddressAsync", "GetIPAddress", "GetIPAddressAsync" },
+                client.GetMethodCollectionByOperation(secondOperation).Select(m => m.Signature.Name));
+        }
+
         [TestCase("GetIpAddress")]
         [TestCase("GetDbStatus")]
         [TestCase("GetOsProfile")]
