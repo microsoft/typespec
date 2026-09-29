@@ -229,7 +229,7 @@ namespace Microsoft.TypeSpec.Generator
             var result = new HashSet<string>(info.TypeNames);
             foreach (var provider in info.TypeProviders)
             {
-                result.Add(provider.Type.FullyQualifiedName);
+                result.Add(ProviderReferenceMapAnalyzer.GetProviderTypeName(provider.Type));
             }
             return result;
         }
