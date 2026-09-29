@@ -4853,6 +4853,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             var page = InputFactory.Model("Page", properties: [InputFactory.Property("items", InputFactory.Array(item))]);
             var response = InputFactory.OperationResponse([200], page);
             var operation = InputFactory.Operation("ListIpAddresses", responses: [response]);
+            operation.Update(doc: string.Empty);
             var serviceResponse = InputFactory.ServiceMethodResponse(page, null);
             var paging = InputFactory.PagingMetadata(["items"], null, null);
             InputServiceMethod serviceMethod = kind switch
@@ -4867,7 +4868,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 _ => InputFactory.BasicServiceMethod(operation.Name, operation, response: serviceResponse)
             };
             var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
-            MockHelpers.LoadMockGenerator(clients: () => [inputClient], inputModels: () => [item, page]);
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient], inputModels: () => [item, page], includeXmlDocs: true);
             var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
             var methods = client.GetMethodCollectionByOperation(operation);
 
@@ -4893,7 +4894,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             }
             Assert.AreEqual("CreateGetIpAddressesRequest", client.RestClient.GetCreateRequestMethod(operation).Signature.Name);
             var output = new TypeProviderWriter(client).Write().Content;
-            StringAssert.DoesNotContain("cref=\"GetIpAddresses", output);
+            StringAssert.Contains("[Protocol Method] GetIPAddresses", output);
             StringAssert.DoesNotContain("CreateGetIPAddressesRequest", output);
             if (kind == "Paging")
             {
