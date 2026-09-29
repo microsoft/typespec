@@ -257,6 +257,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             var parent = isSubClient ? InputFactory.Client("ParentClient") : null;
             var input = InputFactory.Client("IpClient", parent: parent,
                 initializedBy: isSubClient ? InputClientInitializedBy.Parent : InputClientInitializedBy.Individually);
+            var child = parent is null ? InputFactory.Client("ChildClient", parent: input) : null;
             var compilation = await Helpers.GetCompilationFromDirectoryAsync(method: "AcronymClients");
             var generator = await MockHelpers.LoadMockGeneratorAsync(clients: () => [parent ?? input],
                 compilation: lastContract ? null : () => Task.FromResult(compilation),
@@ -275,6 +276,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             if (parent != null)
             {
                 AssertSubClientReference(generator.Object.TypeFactory.CreateClient(parent)!, client);
+            }
+            if (child != null)
+            {
+                AssertClientIdentity(generator.Object.TypeFactory.CreateClient(child)!, "ChildClient", "Sample");
             }
         }
 
@@ -341,6 +346,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                     Assert.AreEqual(expectedNamespace, dependent.Type.Namespace);
                     Assert.AreEqual($"{dependent.Name}.cs", Path.GetFileName(dependent.RelativeFilePath));
                 }
+            }
+            if (client.ClientSettings != null && client.EffectiveClientOptions != null)
+            {
+                Assert.AreEqual(client.EffectiveClientOptions.Type.WithNullable(true),
+                    client.ClientSettings.Properties.Single(p => p.Name == "Options").Type);
             }
         }
 

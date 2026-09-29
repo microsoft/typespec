@@ -463,9 +463,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         protected override void OnIdentityUpdated(string previousName, string previousNamespace)
         {
             base.OnIdentityUpdated(previousName, previousNamespace);
+            var previousOptionsType = ClientOptions?.Type.WithNullable(true);
             _restClient?.Update(name: Name, @namespace: Type.Namespace);
             UpdateDependentIdentity(ClientOptions, "Options");
             UpdateDependentIdentity(ClientSettings, "Settings");
+            if (previousOptionsType != null && !CSharpType.IgnoreNullableComparer.Equals(previousOptionsType, ClientOptions!.Type))
+            {
+                UpdateOptionsReferences(this);
+            }
 
             if (_clientFactoryMethod?.Signature.Name == GetClientAccessorName(previousName))
             {
@@ -480,6 +485,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 if (provider?.Name == $"{previousName}{suffix}" && provider.Type.Namespace == previousNamespace)
                 {
                     provider.Update(name: $"{Name}{suffix}", @namespace: Type.Namespace);
+                }
+            }
+
+            void UpdateOptionsReferences(ClientProvider client)
+            {
+                foreach (var property in client.ClientSettings?.Properties ?? [])
+                {
+                    if (CSharpType.IgnoreNullableComparer.Equals(property.Type, previousOptionsType))
+                    {
+                        property.Update(type: ClientOptions!.Type.WithNullable(property.Type.IsNullable));
+                    }
+                }
+                if (client._subClients.IsValueCreated)
+                {
+                    foreach (var subClient in client._subClients.Value)
+                    {
+                        UpdateOptionsReferences(subClient);
+                    }
                 }
             }
         }
