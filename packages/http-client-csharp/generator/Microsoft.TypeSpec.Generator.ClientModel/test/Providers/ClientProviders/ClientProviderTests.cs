@@ -319,6 +319,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             }
         }
 
+        [TestCase("CustomRestClient", "Sample")]
+        [TestCase("IPClient", "Sample.Customized")]
+        public async Task TestBuildName_PreservesCustomizedRestClientIdentity(string restClientName, string restClientNamespace)
+        {
+            var input = InputFactory.Client("IpClient", clientNamespace: "Sample");
+            var generator = await MockHelpers.LoadMockGeneratorAsync(clients: () => [input]);
+            var client = generator.Object.TypeFactory.CreateClient(input)!;
+            var restClient = client.RestClient;
+            restClient.Update(name: restClientName, @namespace: restClientNamespace);
+
+            client.Update(@namespace: "Sample.Relocated");
+
+            Assert.AreEqual(restClientName, restClient.Name);
+            Assert.AreEqual(restClientNamespace, restClient.Type.Namespace);
+        }
+
         private static void AssertClientIdentity(ClientProvider client, string expectedName, string expectedNamespace)
         {
             Assert.AreEqual(expectedName, client.Name);

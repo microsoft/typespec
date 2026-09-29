@@ -464,7 +464,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             base.OnIdentityUpdated(previousName, previousNamespace);
             var previousOptionsType = ClientOptions?.Type.WithNullable(true);
-            _restClient?.Update(name: Name, @namespace: Type.Namespace);
+            if (_restClient is { } restClient && restClient.Name == previousName && restClient.Type.Namespace == previousNamespace)
+            {
+                restClient.Update(name: Name, @namespace: Type.Namespace);
+            }
             UpdateDependentIdentity(ClientOptions, "Options");
             UpdateDependentIdentity(ClientSettings, "Settings");
             if (previousOptionsType != null && !CSharpType.IgnoreNullableComparer.Equals(previousOptionsType, ClientOptions!.Type))
