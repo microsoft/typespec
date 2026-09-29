@@ -49,9 +49,10 @@ namespace Sample
             {
                 writer.WritePropertyName("propertyWithNestedArray"u8);
                 writer.WriteStartArray();
+                bool hasPatch = Patch.Contains("$"u8, "propertyWithNestedArray"u8);
                 for (int i = 0; (i < PropertyWithNestedArray.Count); i++)
                 {
-                    if (Patch.IsRemoved(global::System.Text.Encoding.UTF8.GetBytes($"$.propertyWithNestedArray[{i}]")))
+                    if ((hasPatch && Patch.IsRemoved(global::System.Text.Encoding.UTF8.GetBytes($"$.propertyWithNestedArray[{i}]"))))
                     {
                         continue;
                     }
@@ -63,7 +64,7 @@ namespace Sample
                     writer.WriteStartArray();
                     for (int i0 = 0; (i0 < PropertyWithNestedArray[i].Count); i0++)
                     {
-                        if (Patch.IsRemoved(global::System.Text.Encoding.UTF8.GetBytes($"$.propertyWithNestedArray[{i}][{i0}]")))
+                        if ((hasPatch && Patch.IsRemoved(global::System.Text.Encoding.UTF8.GetBytes($"$.propertyWithNestedArray[{i}][{i0}]"))))
                         {
                             continue;
                         }
@@ -75,16 +76,22 @@ namespace Sample
                         writer.WriteStartArray();
                         for (int i1 = 0; (i1 < PropertyWithNestedArray[i][i0].Count); i1++)
                         {
-                            if ((Patch.IsRemoved(global::System.Text.Encoding.UTF8.GetBytes($"$.propertyWithNestedArray[{i}][{i0}][{i1}]")) || ((PropertyWithNestedArray[i][i0][i1] != null) && PropertyWithNestedArray[i][i0][i1].Patch.IsRemoved("$"u8))))
+                            if (((hasPatch && Patch.IsRemoved(global::System.Text.Encoding.UTF8.GetBytes($"$.propertyWithNestedArray[{i}][{i0}][{i1}]"))) || ((PropertyWithNestedArray[i][i0][i1] != null) && PropertyWithNestedArray[i][i0][i1].Patch.IsRemoved("$"u8))))
                             {
                                 continue;
                             }
                             writer.WriteObjectValue<global::Sample.Models.DynamicCat>(PropertyWithNestedArray[i][i0][i1], options);
                         }
-                        Patch.WriteTo(writer, global::System.Text.Encoding.UTF8.GetBytes($"$.propertyWithNestedArray[{i}][{i0}]"));
+                        if (hasPatch)
+                        {
+                            Patch.WriteTo(writer, global::System.Text.Encoding.UTF8.GetBytes($"$.propertyWithNestedArray[{i}][{i0}]"));
+                        }
                         writer.WriteEndArray();
                     }
-                    Patch.WriteTo(writer, global::System.Text.Encoding.UTF8.GetBytes($"$.propertyWithNestedArray[{i}]"));
+                    if (hasPatch)
+                    {
+                        Patch.WriteTo(writer, global::System.Text.Encoding.UTF8.GetBytes($"$.propertyWithNestedArray[{i}]"));
+                    }
                     writer.WriteEndArray();
                 }
                 Patch.WriteTo(writer, "$.propertyWithNestedArray"u8);

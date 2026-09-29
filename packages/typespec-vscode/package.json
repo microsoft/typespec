@@ -27,7 +27,7 @@
   "main": "./dist/src/extension.cjs",
   "browser": "./dist/src/web/extension.js",
   "engines": {
-    "vscode": "^1.125.0"
+    "vscode": "^1.136.0"
   },
   "exports": {
     ".": {
@@ -289,7 +289,7 @@
     "@types/cross-spawn": "catalog:",
     "@types/node": "catalog:",
     "@types/semver": "catalog:",
-    "@types/vscode": "~1.125.0",
+    "@types/vscode": "~1.136.0",
     "@types/which": "catalog:",
     "@typespec/compiler": "workspace:^",
     "@typespec/internal-build-utils": "workspace:^",
