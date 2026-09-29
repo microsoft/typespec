@@ -20,7 +20,11 @@ from json import JSONEncoder
 import xml.etree.ElementTree as ET
 from collections.abc import MutableMapping
 import isodate
+{% if code_model.is_azure_flavor %}
+from {{ code_model.core_library }}.exceptions import DeserializationError, ODataV4Format
+{% else %}
 from {{ code_model.core_library }}.exceptions import DeserializationError
+{% endif %}
 from {{ code_model.core_library }}{{ "" if code_model.is_azure_flavor else ".utils" }} import CaseInsensitiveEnumMeta
 from {{ code_model.core_library }}.{{ "" if code_model.is_azure_flavor else "runtime." }}pipeline import PipelineResponse
 from {{ code_model.core_library }}.serialization import _Null
@@ -160,6 +164,21 @@ def _is_readonly(p):
         return False
 
 
+{% if code_model.is_azure_flavor %}
+def _odata_v4_format_as_dict(value: ODataV4Format) -> dict[str, typing.Any]:
+    result = {
+        key: field
+        for key in ("code", "message", "target")
+        if (field := getattr(value, key)) is not None
+    }
+    if value.details:
+        result["details"] = [_odata_v4_format_as_dict(detail) for detail in value.details]
+    if value.innererror:
+        result["innererror"] = Model._as_dict_value(value.innererror)
+    return result
+
+
+{% endif %}
 class SdkJSONEncoder(JSONEncoder):
     """A JSON encoder that's capable of serializing datetime objects and bytes.
 
@@ -182,6 +201,10 @@ class SdkJSONEncoder(JSONEncoder):
                 readonly_props = [p._rest_name for p in o._attr_to_rest_field.values() if _is_readonly(p)]
                 return {k: v for k, v in o.items() if k not in readonly_props}
             return dict(o.items())
+        {% if code_model.is_azure_flavor %}
+        if isinstance(o, ODataV4Format):
+            return _odata_v4_format_as_dict(o)
+        {% endif %}
         try:
             return super(SdkJSONEncoder, self).default(o)
         except TypeError:
@@ -599,6 +622,10 @@ def _is_model(obj: typing.Any) -> bool:
 
 
 def _serialize(o, format: typing.Optional[str] = None):  # pylint: disable=too-many-return-statements
+    {% if code_model.is_azure_flavor %}
+    if isinstance(o, ODataV4Format):
+        return _odata_v4_format_as_dict(o)
+    {% endif %}
     if isinstance(o, list):
         if format in _ARRAY_ENCODE_MAPPING and all(isinstance(x, str) for x in o):
             return _ARRAY_ENCODE_MAPPING[format].join(o)
@@ -1151,6 +1178,10 @@ class Model(_MyMutableMapping):
     def _as_dict_value(v: typing.Any, exclude_readonly: bool = False) -> typing.Any:
         if v is None or isinstance(v, _Null):
             return None
+        {% if code_model.is_azure_flavor %}
+        if isinstance(v, ODataV4Format):
+            return _odata_v4_format_as_dict(v)
+        {% endif %}
         if isinstance(v, (list, tuple, set)):
             return type(v)(Model._as_dict_value(x, exclude_readonly=exclude_readonly) for x in v)
         if isinstance(v, dict):
