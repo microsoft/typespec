@@ -1,5 +1,12 @@
 # Change Log - @typespec/http-server-csharp
 
+## 0.58.0-alpha.32
+
+### Bug Fixes
+
+- [#11591](https://github.com/microsoft/typespec/pull/11591) Apply C# naming conventions to generated type file names.
+
+
 ## 0.58.0-alpha.31
 
 ### Features

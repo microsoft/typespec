@@ -178,3 +178,36 @@ it("can check if an entity is a union", async () => {
   expect(tk.union.is(tk.builtin.string)).toBe(false);
   expect(tk.union.is(tk.value.create("value"))).toBe(false);
 });
+
+it("creates a named union declaration (expression: false) by default", async () => {
+  const { program } = await Tester.compile("");
+  const tk = $(program);
+  const union = tk.union.create({ name: "Foo", variants: { a: "a" } });
+  expect(union.expression).toBe(false);
+  expect(tk.union.isExpression(union)).toBe(false);
+});
+
+it("creates a union expression when given an empty name", async () => {
+  const { program } = await Tester.compile("");
+  const tk = $(program);
+  const union = tk.union.create({ name: "", variants: { a: "a" } });
+  expect(union.expression).toBe(true);
+  expect(tk.union.isExpression(union)).toBe(true);
+});
+
+it("throws when creating an anonymous union declaration", async () => {
+  const { program } = await Tester.compile("");
+  const tk = $(program);
+  expect(() => tk.union.create({ expression: false, variants: { a: "a" } })).toThrow(
+    /Cannot create an anonymous union declaration/,
+  );
+});
+
+it("creates a named union declaration expression when expression is set explicitly", async () => {
+  const { program } = await Tester.compile("");
+  const tk = $(program);
+  const union = tk.union.create({ name: "Foo", expression: true, variants: { a: "a" } });
+  expect(union.name).toBe("Foo");
+  expect(union.expression).toBe(true);
+  expect(tk.union.isExpression(union)).toBe(true);
+});

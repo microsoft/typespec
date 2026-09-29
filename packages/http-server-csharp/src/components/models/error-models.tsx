@@ -3,9 +3,9 @@ import type { ParameterProps } from "@alloy-js/csharp";
 import * as cs from "@alloy-js/csharp";
 import { isErrorModel, type Model, type Program } from "@typespec/compiler";
 import { getHeaderFieldName, isHeader, isStatusCode } from "@typespec/http";
+import { TypeExpression } from "../type-expression/type-expression.jsx";
 import {
   getAllProperties,
-  getCSharpTypeString,
   getDefaultValueString,
   getErrorStatusCode,
   getLiteralValue,
@@ -53,9 +53,13 @@ export function getErrorConstructor(program: Program, model: Model, className: s
       propName = propName === "Value" ? "ValueName" : `${propName}Prop`;
     }
 
-    const csharpType = getCSharpTypeString(program, prop.type);
+    const csharpType = <TypeExpression type={prop.type} />;
     const defaultStr = defaultValue ? defaultValue : prop.optional ? "default" : undefined;
-    parameters.push({ name: prop.name, type: csharpType, default: defaultStr });
+    parameters.push({
+      name: prop.name,
+      type: csharpType,
+      default: defaultStr,
+    });
     bodyParts.push(`${propName} = ${prop.name};`);
 
     if (isHeader(program, prop)) {

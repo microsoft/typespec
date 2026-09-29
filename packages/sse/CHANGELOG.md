@@ -1,5 +1,9 @@
 # Changelog - @typespec/sse
 
+## 0.86.0
+
+No changes, version bump only.
+
 ## 0.85.0
 
 No changes, version bump only.

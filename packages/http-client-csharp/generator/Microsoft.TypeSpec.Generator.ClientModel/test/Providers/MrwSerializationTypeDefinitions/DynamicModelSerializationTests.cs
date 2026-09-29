@@ -332,6 +332,37 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
+        public void PropagateNullableModelProperty(bool isRequired)
+        {
+            var child = InputFactory.Model("anotherDynamic", isDynamicModel: true);
+            var inputModel = InputFactory.Model(
+                "dynamicModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json,
+                isDynamicModel: true,
+                properties:
+                [
+                    InputFactory.Property("p1", new InputNullableType(child), isRequired: isRequired)
+                ]);
+
+            MockHelpers.LoadMockGenerator(inputModels: () => [inputModel, child]);
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
+            var constructor = model.Constructors.Single(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+
+            Assert.That(constructor.Signature.Parameters.Count, Is.EqualTo(isRequired ? 1 : 0));
+            if (isRequired)
+            {
+                Assert.That(constructor.Signature.Parameters[0].Validation, Is.EqualTo(ParameterValidationType.None));
+            }
+            StringAssert.Contains("_patch.SetPropagators(PropagateSet, PropagateGet);", constructor.BodyStatements!.ToDisplayString());
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                model.SerializationProviders.Single(),
+                name => name is "PropagateGet" or "PropagateSet"));
+            Assert.That(writer.Write().Content, Is.EqualTo(Helpers.GetExpectedFromFile(method: nameof(PropagateModelProperty))));
+        }
+
         [Test]
         public void PropagateModelListProperty()
         {

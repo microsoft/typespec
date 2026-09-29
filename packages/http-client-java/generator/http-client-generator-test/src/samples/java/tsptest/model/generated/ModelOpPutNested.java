@@ -14,7 +14,7 @@ public class ModelOpPutNested {
         ModelClient modelClient
             = new ModelClientBuilder().endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT")).buildClient();
         // BEGIN:tsptest.model.generated.model-op-put-nested.model-op-put-nested
-        NestedModel response = modelClient.putNested(null);
+        NestedModel response = modelClient.putNested((NestedModel) null);
         // END:tsptest.model.generated.model-op-put-nested.model-op-put-nested
     }
 }

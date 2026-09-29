@@ -10,7 +10,7 @@ foreach (var item in document.RootElement.EnumerateObject())
     }
     else
     {
-        value.Add(item.Name, global::System.BinaryData.FromString(item.Value.GetRawText()));
+        value.Add(item.Name, item.Value.GetUtf8Bytes());
     }
 }
 return global::System.ClientModel.ClientResult.FromValue(((global::System.Collections.Generic.IReadOnlyDictionary<string, global::System.BinaryData>)value), result.GetRawResponse());

@@ -36,7 +36,7 @@ namespace Sample
                 }
                 if (prop.NameEquals("anything"u8))
                 {
-                    anything = global::System.BinaryData.FromString(prop.Value.GetRawText());
+                    anything = prop.Value.GetUtf8Bytes();
                     continue;
                 }
                 patch.Set([.. "$."u8, .. global::System.Text.Encoding.UTF8.GetBytes(prop.Name)], prop.Value.GetUtf8Bytes());

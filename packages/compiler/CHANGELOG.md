@@ -1,5 +1,101 @@
 # Change Log - @typespec/compiler
 
+## 1.16.0
+
+### Features
+
+- [#11777](https://github.com/microsoft/typespec/pull/11777) Add `sanitizePathSegment` helper to make a value coming from a TypeSpec spec safe to use as a single path segment. Path separators, drive letter separators and values only made of `.` are replaced with `_`.
+  
+  ```ts
+  sanitizePathSegment("2021-10-01-preview"); // "2021-10-01-preview"
+  sanitizePathSegment("../../etc/passwd"); // ".._.._etc_passwd"
+  ```
+- [#11851](https://github.com/microsoft/typespec/pull/11851) Add support for defining a linter ruleset in a standalone yaml file and referencing it with the `file:` prefix in `linter.extends`. This lets a repository share and version a set of linter rules without depending on a library release.
+  
+  ```yaml
+  # tspconfig.yaml
+  linter:
+    extends:
+      - "file:../common-rules.yaml"
+  ```
+  
+  ```yaml
+  # common-rules.yaml
+  extends:
+    - "@typespec/best-practices/recommended"
+  enable:
+    "@typespec/best-practices/new-rule": true
+  disable:
+    "@typespec/best-practices/foo": "This rule is too strict for this repository"
+  ```
+- [#11489](https://github.com/microsoft/typespec/pull/11489) Add a new experimental `$provideTypeInfo` library provider and `program.getTypeInfo(type)` API allowing libraries to contribute extra, domain-specific information about types. Unlike the `$onValidate` lifecycle hook, a provider never runs during compilation and must not mutate the type graph — it is invoked lazily and on demand (e.g. by the language server for hover documentation, or by tooling querying the type).
+  
+  Providers are gated by the `type-info-provider` compiler feature, scoped to the package that declares it: a library opts in via its own `tspconfig.yaml` and consumers do not need to enable anything.
+  
+  ```ts
+  // A library exports a provider (use `defineTypeInfoProvider` for typing):
+  export const $provideTypeInfo = defineTypeInfoProvider(({ program, target }) => {
+    if (target.kind !== "Operation") return undefined;
+    return { content: "extra info about this operation" };
+  });
+  
+  // Tooling / language server queries it (merges every library's contribution):
+  const info = program.getTypeInfo(type);
+  ```
+- [#11771](https://github.com/microsoft/typespec/pull/11771) Add experimental support for an `extends` clause on union statements to constrain every variant to a common data type.
+  
+  Enable the `union-extends` compiler feature in `tspconfig.yaml` to use the clause.
+  
+  ```tsp
+  model PetBase {
+    name: string;
+  }
+  model Cat extends PetBase {
+    toy: string;
+  }
+  model Dog extends PetBase {
+    food: string;
+  }
+  
+  union Pet extends PetBase {
+    cat: Cat,
+    dog: Dog,
+  }
+  ```
+  
+  The base type is exposed on the type graph as `Union.baseType`, giving emitters an easy way to know that all the variants of a union share a common base type. A diagnostic is reported on any variant that isn't assignable to the base type.
+  
+  `extends` on a union is purely a constraint: it doesn't imply any subtyping relationship, it doesn't make the union extensible and it has no interaction with `@discriminator`.
+
+### Bug Fixes
+
+- [#11731](https://github.com/microsoft/typespec/pull/11731) Fix `duration` example values being serialized verbatim as an ISO 8601 string instead of a numeric value when encoded with `@encode("milliseconds", ...)`
+- [#11744](https://github.com/microsoft/typespec/pull/11744) Fix object values passed to decorators dropping members with special names like `__proto__`. All members are now defined as plain own properties.
+- [#11779](https://github.com/microsoft/typespec/pull/11779) Fix a stack overflow when checking assignability of mutually recursive types
+  
+  Checking whether a type was assignable to another one could recurse forever and crash the compiler with `RangeError: Maximum call stack size exceeded`. Two cases were affected:
+  
+  - mutually recursive models, such as `model A { b: B }` / `model B { a: A }`
+  - any union reaching itself, such as `union Foo { self: Foo }`
+  
+  The relation cache is now shared for the whole check instead of being recreated at every level, and unions seed it before walking their variants, so a cycle coming back to the same pair of types resolves instead of recursing.
+- [#11838](https://github.com/microsoft/typespec/pull/11838) [formatter] Split the template parameter list instead of splitting a parameter constraint or default when the declaration is too long
+  
+  ```tsp
+  // Before
+  op deleteJobPreview<AreaPreviewLabel extends
+    | FoundryFeaturesOptInKeys
+    | AgentDefinitionOptInKeys> is FoundryDataPlanePreviewOperation<AreaPreviewLabel>;
+  
+  // After
+  op deleteJobPreview<
+    AreaPreviewLabel extends FoundryFeaturesOptInKeys | AgentDefinitionOptInKeys
+  > is FoundryDataPlanePreviewOperation<AreaPreviewLabel>;
+  ```
+- [#11776](https://github.com/microsoft/typespec/pull/11776) Allow `tsp install` to download package managers from npm-compatible registry mirrors by resolving versions from package metadata instead of version-specific manifest endpoints.
+- [#11551](https://github.com/microsoft/typespec/pull/11551) Improve the name reported for an operation's parameters model expression. Diagnostics now refer to `MyService.test::parameters.param` instead of `MyService.{ param: MyService.Foo }.param`.
+
+
 ## 1.15.0
 
 ### Breaking Changes

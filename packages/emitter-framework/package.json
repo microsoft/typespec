@@ -1,6 +1,6 @@
 {
   "name": "@typespec/emitter-framework",
-  "version": "0.20.0",
+  "version": "0.21.0",
   "type": "module",
   "main": "dist/index.js",
   "repository": {
@@ -79,6 +79,7 @@
   "devDependencies": {
     "@alloy-js/cli": "catalog:",
     "@alloy-js/core": "catalog:",
+    "@alloy-js/csharp": "catalog:",
     "@alloy-js/python": "catalog:",
     "@alloy-js/rollup-plugin": "catalog:",
     "@alloy-js/typescript": "catalog:",

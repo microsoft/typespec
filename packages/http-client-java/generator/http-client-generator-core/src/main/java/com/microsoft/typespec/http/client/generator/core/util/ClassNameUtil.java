@@ -8,6 +8,10 @@ import java.util.regex.Pattern;
 
 public final class ClassNameUtil {
 
+    static final int MAX_PATH_LENGTH = 260;
+    private static final int MAX_DIRECTORY_LENGTH = 248;
+    static final int BASE_PATH_LENGTH = 30;
+
     /**
      * Truncate class name to avoid path too long.
      *
@@ -24,8 +28,6 @@ public final class ClassNameUtil {
         String classNameSuffix) {
         // see
         // https://github.com/Azure/azure-sdk-for-java/blob/main/eng/common/pipelines/templates/steps/verify-path-length.yml
-        final int maxPathLength = 260;
-        final int basePathLength = 38;
 
         // directory layout in Java SDK repository is:
         // sdk/<group>/<artifact>/<directory>/<package_name>/<class_name><class_name_suffix>.java
@@ -43,7 +45,7 @@ public final class ClassNameUtil {
 
         final int minRemainLength = 5;  // we still need some char for class name
 
-        final int remainLength = maxPathLength - basePathLength - groupLength - artifactLength - directoryLength
+        final int remainLength = MAX_PATH_LENGTH - BASE_PATH_LENGTH - groupLength - artifactLength - directoryLength
             - packageLength - classNameSuffixLength - extraLength;
 
         if (remainLength < className.length() && remainLength >= minRemainLength) {
@@ -68,10 +70,10 @@ public final class ClassNameUtil {
             ? artifactIdSegments[2]
             : artifactIdSegments[artifactIdSegments.length - 1]);
         final int parentDirectoryLength = ("sdk/" + group + "/" + artifactId + "/").length();
-        final int fileNameLength = "/reflect-config.json".length();
+        final int fileNameLength = "/resource-config.json".length();
 
-        if (parentDirectoryLength + metaInfPath.length() > (248 - 38)
-            || parentDirectoryLength + metaInfPath.length() + fileNameLength > (260 - 38)) {
+        if (parentDirectoryLength + metaInfPath.length() > (MAX_DIRECTORY_LENGTH - BASE_PATH_LENGTH)
+            || parentDirectoryLength + metaInfPath.length() + fileNameLength > (MAX_PATH_LENGTH - BASE_PATH_LENGTH)) {
             // see
             // https://github.com/Azure/azure-sdk-for-java/blob/main/eng/common/pipelines/templates/steps/verify-path-length.yml
             String shortenedArtifactId = artifactId;

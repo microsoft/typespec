@@ -5,20 +5,15 @@ import { it } from "vitest";
 import micromatch from "micromatch";
 
 import { formatDiagnostic, resolvePath } from "@typespec/compiler";
-import { createTester, findTestPackageRoot } from "@typespec/compiler/testing";
 import { readdirSync, statSync } from "fs";
-import { mkdir, readFile, readdir, rm, stat, writeFile } from "fs/promises";
+import { mkdir, readdir, readFile, rm, stat, writeFile } from "fs/promises";
 import type { ProtobufEmitterOptions } from "../src/lib.js";
+import { packageRoot, Tester } from "./tester.js";
 
-const pkgRoot = await findTestPackageRoot(import.meta.url);
-const SCENARIOS_DIRECTORY = resolvePath(pkgRoot, "test/scenarios");
+const SCENARIOS_DIRECTORY = resolvePath(packageRoot, "test/scenarios");
 
 const shouldRecord = process.env.RECORD === "true";
 const patternsToRun = process.env.RUN_SCENARIOS?.split(",") ?? ["*"];
-
-const ProtobufTester = createTester(resolvePath(pkgRoot), {
-  libraries: ["@typespec/protobuf"],
-});
 
 const scenarios = readdirSync(SCENARIOS_DIRECTORY)
   .map((dn) => path.join(SCENARIOS_DIRECTORY, dn))
@@ -127,10 +122,7 @@ async function doEmit(
   files: Record<string, string>,
   options: ProtobufEmitterOptions,
 ): Promise<EmitResult> {
-  const emitterTester = ProtobufTester.emit(
-    "@typespec/protobuf",
-    options as Record<string, unknown>,
-  );
+  const emitterTester = Tester.emit("@typespec/protobuf", options as Record<string, unknown>);
   const [result, diagnostics] = await emitterTester.compileAndDiagnose(files);
 
   // The EmitterTester strips the emitter output dir prefix, but the expected files

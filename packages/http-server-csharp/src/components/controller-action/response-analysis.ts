@@ -1,11 +1,14 @@
-import { isVoidType } from "@typespec/compiler";
+import { isErrorModel, isVoidType, type Program, type Type } from "@typespec/compiler";
 import type { OperationHttpCanonicalization } from "@typespec/http-canonicalization";
 
 /**
  * Determines the success HTTP status code and whether the response has a body.
  * Checks the original return type for @statusCode properties.
  */
-export function getSuccessStatusCode(operation: OperationHttpCanonicalization): {
+export function getSuccessStatusCode(
+  program: Program,
+  operation: OperationHttpCanonicalization,
+): {
   statusCode: number | undefined;
   hasBody: boolean;
 } {
@@ -13,20 +16,66 @@ export function getSuccessStatusCode(operation: OperationHttpCanonicalization): 
 
   // Check direct model response
   if (returnType.kind === "Model") {
+    if (isErrorModel(program, returnType) || returnType.name?.toLowerCase() === "error") {
+      return { statusCode: 204, hasBody: false };
+    }
     return analyzeResponseModel(returnType);
   }
 
   // Check union responses - find the first non-error success response
   if (returnType.kind === "Union") {
-    for (const variant of returnType.variants.values()) {
-      const vt = variant.type;
-      if (isVoidType(vt)) continue;
-      if (vt.kind === "Model") {
+    let hasVoidSuccess = false;
+    let hasValueSuccess = false;
+    let bodylessSuccess: { statusCode: number | undefined; hasBody: boolean } | undefined;
+    const visitedUnions = new Set<Type>();
+
+    function analyzeVariant(
+      type: Type,
+    ): { statusCode: number | undefined; hasBody: boolean } | undefined {
+      if (isVoidType(type)) {
+        hasVoidSuccess = true;
+        return undefined;
+      }
+
+      if (type.kind === "Union") {
+        if (visitedUnions.has(type)) return undefined;
+        visitedUnions.add(type);
+
+        for (const variant of type.variants.values()) {
+          const result = analyzeVariant(variant.type);
+          if (result !== undefined) return result;
+        }
+        return undefined;
+      }
+
+      if (type.kind === "Model") {
         // Skip models with @error decorator or error-range status codes
-        const result = analyzeResponseModel(vt);
-        if (result.statusCode !== undefined && result.statusCode >= 400) continue;
+        if (isErrorModel(program, type) || type.name?.toLowerCase() === "error") return undefined;
+        const result = analyzeResponseModel(type);
+        if (result.statusCode !== undefined && result.statusCode >= 400) return undefined;
+        if (!result.hasBody) {
+          bodylessSuccess ??= result;
+          return undefined;
+        }
         return result;
       }
+
+      hasValueSuccess = true;
+      return undefined;
+    }
+
+    const result = analyzeVariant(returnType);
+    if (result !== undefined) {
+      return result;
+    }
+    if (hasValueSuccess) {
+      return { statusCode: 200, hasBody: true };
+    }
+    if (bodylessSuccess !== undefined) {
+      return bodylessSuccess;
+    }
+    if (hasVoidSuccess) {
+      return { statusCode: 204, hasBody: false };
     }
   }
 

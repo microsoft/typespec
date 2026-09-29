@@ -1,5 +1,12 @@
 # Change Log - @typespec/openapi
 
+## 1.16.0
+
+### Bug Fixes
+
+- [#11744](https://github.com/microsoft/typespec/pull/11744) Fix `@extension` dropping object members with special names like `__proto__`. All members are now kept as plain own properties.
+
+
 ## 1.15.0
 
 ### Features
