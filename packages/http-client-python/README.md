@@ -4,14 +4,13 @@ TypeSpec emitter for Python SDKs
 
 In the browser Playground, the emitter loads Pyodide and the Python generator from
 TypeSpec's versioned package assets. The normal `npm run build` still builds only the
-generator wheel. During Playground publication, `npm run build:playground-assets` downloads
-Pyodide's runtime from the CFS npm feed and its bootstrap packages and generator
-dependencies from the configured CFS Python feed. PyYAML
-and MarkupSafe are built as pure-Python wheels from source so they work in Pyodide
-without native extensions. Visitors' browsers do not query an external package CDN or
-index. Keep `generator/browser-requirements.txt` aligned with `generator/setup.py` when
-upgrading the generator, and configure both `UV_DEFAULT_INDEX` and `PIP_INDEX_URL` for
-the intended package feed when building with uv.
+generator wheel. During Playground publication, `npm run build:playground` builds the
+emitter and prepares browser assets: Pyodide's runtime from the CFS npm feed and its
+bootstrap packages and generator dependencies from the CFS Python feed. PyYAML and
+MarkupSafe are built as pure-Python wheels from source so they work in Pyodide without
+native extensions. Visitors' browsers do not query an external package CDN or index.
+Keep `generator/browser-requirements.txt` aligned with `generator/setup.py` when upgrading
+the generator.
 
 ## Install
 

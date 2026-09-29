@@ -122,42 +122,34 @@ describe("browser Python runtime", () => {
     });
   });
 
-  it("rejects invalid wheel filenames before installing anything", async () => {
+  it.each([
+    {
+      name: "invalid wheel filenames",
+      manifest: {
+        generator: ["../../black.whl"],
+        pyodide: ["packaging-23.2-py3-none-any.whl", "micropip-0.6.0-py3-none-any.whl"],
+      },
+    },
+    {
+      name: "incomplete Pyodide assets",
+      manifest: {
+        generator: ["black-26.3.1-py3-none-any.whl"],
+        pyodide: ["micropip-0.6.0-py3-none-any.whl"],
+      },
+    },
+  ])("rejects $name without installing anything", async ({ manifest }) => {
+    const loadPackage = vi.fn();
     const runPythonAsync = vi.fn();
     loadPyodide.mockResolvedValue({
       FS: { mkdirTree: vi.fn() },
-      loadPackage: vi.fn().mockResolvedValue(undefined),
+      loadPackage,
       runPythonAsync,
     });
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue({
         ok: true,
-        json: async () => ({
-          generator: ["../../black.whl"],
-          pyodide: ["packaging-23.2-py3-none-any.whl", "micropip-0.6.0-py3-none-any.whl"],
-        }),
-      }),
-    );
-
-    expectDiagnostics(await emitInBrowser(), {
-      code: "@typespec/http-client-python/unknown-error",
-      message: /Invalid browser Python wheel manifest/,
-    });
-    expect(runPythonAsync).not.toHaveBeenCalled();
-  });
-
-  it("rejects incomplete Pyodide assets instead of resolving missing packages externally", async () => {
-    const loadPackage = vi.fn();
-    loadPyodide.mockResolvedValue({ FS: { mkdirTree: vi.fn() }, loadPackage });
-    vi.stubGlobal(
-      "fetch",
-      vi.fn().mockResolvedValue({
-        ok: true,
-        json: async () => ({
-          generator: ["black-26.3.1-py3-none-any.whl"],
-          pyodide: ["micropip-0.6.0-py3-none-any.whl"],
-        }),
+        json: async () => manifest,
       }),
     );
 
@@ -166,5 +158,6 @@ describe("browser Python runtime", () => {
       message: /Invalid browser Python wheel manifest/,
     });
     expect(loadPackage).not.toHaveBeenCalled();
+    expect(runPythonAsync).not.toHaveBeenCalled();
   });
 });
