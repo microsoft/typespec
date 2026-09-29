@@ -52,7 +52,37 @@ describe("browser Python runtime", () => {
     vi.clearAllMocks();
   });
 
-  it("installs published wheels without contacting the package index", async () => {
+  it("keeps the public CDN and package resolution when they are available", async () => {
+    const micropip = { install: vi.fn().mockResolvedValue(undefined) };
+    const pyodide = {
+      FS: {
+        mkdirTree: vi.fn(),
+        writeFile: vi.fn(),
+        readdir: vi.fn().mockReturnValue([".", ".."]),
+      },
+      loadPackage: vi.fn().mockResolvedValue(undefined),
+      pyimport: vi.fn().mockReturnValue(micropip),
+      toPy: vi.fn().mockReturnValue({ destroy: vi.fn() }),
+      runPythonAsync: vi.fn().mockResolvedValue(undefined),
+    };
+    loadPyodide.mockResolvedValue(pyodide);
+    const fetchAssets = vi.fn();
+    vi.stubGlobal("fetch", fetchAssets);
+
+    expectDiagnostics(await emitInBrowser(), []);
+
+    expect(loadPyodide).toHaveBeenCalledExactlyOnceWith({
+      indexURL: `https://cdn.jsdelivr.net/pyodide/v${pkgJson.dependencies.pyodide}/full/`,
+    });
+    expect(pyodide.loadPackage).toHaveBeenCalledExactlyOnceWith("micropip");
+    expect(micropip.install).toHaveBeenCalledExactlyOnceWith(
+      `https://typespec.blob.core.windows.net/pkgs/@typespec/http-client-python/${pkgJson.version}/generator/dist/pygen-0.1.0-py3-none-any.whl`,
+    );
+    expect(fetchAssets).not.toHaveBeenCalled();
+    expect(pyodide.runPythonAsync).toHaveBeenCalledOnce();
+  });
+
+  it("installs published wheels when the public CDN is unavailable", async () => {
     const globals = { destroy: vi.fn() };
     const pyodide = {
       FS: {
@@ -64,7 +94,7 @@ describe("browser Python runtime", () => {
       toPy: vi.fn().mockReturnValue(globals),
       runPythonAsync: vi.fn().mockResolvedValue(undefined),
     };
-    loadPyodide.mockResolvedValue(pyodide);
+    loadPyodide.mockRejectedValueOnce(new Error("CDN unavailable")).mockResolvedValueOnce(pyodide);
     const wheelNames = ["black-26.3.1-py3-none-any.whl", "jinja2-3.1.6-py3-none-any.whl"];
     const pyodideWheelNames = [
       "packaging-23.2-py3-none-any.whl",
@@ -83,7 +113,12 @@ describe("browser Python runtime", () => {
     expectDiagnostics(diagnostics, []);
 
     const base = `https://typespec.blob.core.windows.net/pkgs/@typespec/http-client-python/${pkgJson.version}`;
-    expect(loadPyodide).toHaveBeenCalledWith({ indexURL: `${base}/generator/dist/pyodide/` });
+    expect(loadPyodide).toHaveBeenNthCalledWith(1, {
+      indexURL: `https://cdn.jsdelivr.net/pyodide/v${pkgJson.dependencies.pyodide}/full/`,
+    });
+    expect(loadPyodide).toHaveBeenNthCalledWith(2, {
+      indexURL: `${base}/generator/dist/pyodide/`,
+    });
     expect(fetchManifest).toHaveBeenCalledWith(`${base}/generator/dist/browser-wheels.json`);
     expect(pyodide.loadPackage).toHaveBeenCalledWith([
       `${base}/generator/dist/pyodide-wheels/packaging-23.2-py3-none-any.whl`,
@@ -109,16 +144,68 @@ describe("browser Python runtime", () => {
     expect(globals.destroy).toHaveBeenCalledOnce();
   });
 
-  it("reports a missing wheel manifest instead of falling back to the package index", async () => {
-    loadPyodide.mockResolvedValue({
-      FS: { mkdirTree: vi.fn() },
+  it("installs published wheels into the existing runtime when public package resolution fails", async () => {
+    const globals = { destroy: vi.fn() };
+    const micropip = { install: vi.fn().mockRejectedValue(new Error("PyPI unavailable")) };
+    const pyodide = {
+      FS: {
+        mkdirTree: vi.fn(),
+        writeFile: vi.fn(),
+        readdir: vi.fn().mockReturnValue([".", ".."]),
+      },
       loadPackage: vi.fn().mockResolvedValue(undefined),
-    });
+      pyimport: vi.fn().mockReturnValue(micropip),
+      toPy: vi.fn().mockReturnValue(globals),
+      runPythonAsync: vi.fn().mockResolvedValue(undefined),
+    };
+    loadPyodide.mockResolvedValue(pyodide);
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          generator: ["black-26.3.1-py3-none-any.whl"],
+          pyodide: [
+            "packaging-23.2-py3-none-any.whl",
+            "micropip-0.6.0-py3-none-any.whl",
+            "click-8.1.7-py3-none-any.whl",
+            "pyyaml-6.0.1-py3-none-any.whl",
+            "markupsafe-2.1.5-py3-none-any.whl",
+          ],
+        }),
+      }),
+    );
+
+    expectDiagnostics(await emitInBrowser(), []);
+    expect(loadPyodide).toHaveBeenCalledOnce();
+    expect(micropip.install).toHaveBeenCalledOnce();
+    expect(pyodide.loadPackage).toHaveBeenCalledWith([
+      expect.stringContaining("/pyodide-wheels/packaging-23.2-py3-none-any.whl"),
+      expect.stringContaining("/pyodide-wheels/micropip-0.6.0-py3-none-any.whl"),
+    ]);
+    expect(pyodide.runPythonAsync.mock.calls[0][0]).toContain("deps=False");
+  });
+
+  it("reports a missing hosted wheel manifest after the CDN fails", async () => {
+    loadPyodide
+      .mockRejectedValueOnce(new Error("CDN unavailable"))
+      .mockResolvedValueOnce({ FS: { mkdirTree: vi.fn() }, loadPackage: vi.fn() });
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: false, status: 404 }));
 
     expectDiagnostics(await emitInBrowser(), {
       code: "@typespec/http-client-python/unknown-error",
       message: /Failed to load browser Python wheels: 404/,
+    });
+  });
+
+  it("reports both errors if the CDN and hosted runtime fail", async () => {
+    loadPyodide
+      .mockRejectedValueOnce(new Error("CDN unavailable"))
+      .mockRejectedValueOnce(new Error("Hosted runtime unavailable"));
+
+    expectDiagnostics(await emitInBrowser(), {
+      code: "@typespec/http-client-python/unknown-error",
+      message: /CDN unavailable.*Hosted runtime unavailable/,
     });
   });
 
@@ -140,11 +227,9 @@ describe("browser Python runtime", () => {
   ])("rejects $name without installing anything", async ({ manifest }) => {
     const loadPackage = vi.fn();
     const runPythonAsync = vi.fn();
-    loadPyodide.mockResolvedValue({
-      FS: { mkdirTree: vi.fn() },
-      loadPackage,
-      runPythonAsync,
-    });
+    loadPyodide
+      .mockRejectedValueOnce(new Error("CDN unavailable"))
+      .mockResolvedValueOnce({ FS: { mkdirTree: vi.fn() }, loadPackage, runPythonAsync });
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue({

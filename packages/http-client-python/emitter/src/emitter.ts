@@ -275,11 +275,44 @@ function getBrowserPyodide(): Promise<PyodideInterface> | null {
 
 async function setupPyodideCallBrowser(): Promise<PyodideInterface> {
   const assetsUrl = `${BLOB_STORAGE_BASE_URL}/${PACKAGE_NAME}/${pkgJson.version}/generator/dist`;
-  const pyodide = await loadPyodide({
-    indexURL: `${assetsUrl}/pyodide/`,
-  });
+  let pyodide: PyodideInterface | undefined;
+  let publicError: unknown;
+  try {
+    pyodide = await loadPyodide({
+      indexURL: `https://cdn.jsdelivr.net/pyodide/v${pkgJson.dependencies.pyodide}/full/`,
+    });
+  } catch (error) {
+    publicError = error;
+  }
 
-  pyodide.FS.mkdirTree("/generator");
+  if (pyodide) {
+    pyodide.FS.mkdirTree("/generator");
+    try {
+      await pyodide.loadPackage("micropip");
+      const micropip = pyodide.pyimport("micropip");
+      await micropip.install(`${assetsUrl}/${PYGEN_WHEEL_FILENAME}`);
+      return pyodide;
+    } catch (error) {
+      publicError = error;
+    }
+  }
+
+  try {
+    if (!pyodide) {
+      pyodide = await loadPyodide({ indexURL: `${assetsUrl}/pyodide/` });
+      pyodide.FS.mkdirTree("/generator");
+    }
+    await installHostedWheels(pyodide, assetsUrl);
+    return pyodide;
+  } catch (hostedError) {
+    throw new AggregateError(
+      [publicError, hostedError],
+      `Failed to load public Python runtime (${String(publicError)}) and hosted fallback (${String(hostedError)})`,
+    );
+  }
+}
+
+async function installHostedWheels(pyodide: PyodideInterface, assetsUrl: string): Promise<void> {
   const response = await fetch(`${assetsUrl}/browser-wheels.json`);
   if (!response.ok) {
     throw new Error(`Failed to load browser Python wheels: ${response.status}`);
@@ -330,7 +363,6 @@ await micropip.install(generatorWheelUrl, deps=False)`,
   } finally {
     globals.destroy();
   }
-  return pyodide;
 }
 
 function clearMemfsDirectory(pyodide: PyodideInterface, dir: string): void {

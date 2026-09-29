@@ -1,5 +1,5 @@
 // Browser stub for `pyodide-loader.ts`. Loads pyodide via a `<script>` tag
-// from the published package assets so that the npm `pyodide` package (which contains
+// from the public CDN or published package assets so that the npm `pyodide` package (which contains
 // static Node-builtin imports) never enters the browser bundle.
 
 // Pull the type-only import from pyodide so type-checking still works; this
