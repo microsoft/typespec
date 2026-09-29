@@ -5,8 +5,8 @@
 # --------------------------------------------------------------------------
 import pytest
 import pytest_asyncio
-from _specs_.azure.clientgenerator.core.responsereplacement.aio import ResponseReplacementClient
-from _specs_.azure.clientgenerator.core.responsereplacement.models import Widget
+from specs.azure.clientgenerator.core.responsereplacement.aio import ResponseReplacementClient
+from specs.azure.clientgenerator.core.responsereplacement.models import Widget
 
 
 @pytest_asyncio.fixture

@@ -4,8 +4,8 @@
 # license information.
 # --------------------------------------------------------------------------
 import pytest
-from _specs_.azure.clientgenerator.core.responsereplacement import ResponseReplacementClient
-from _specs_.azure.clientgenerator.core.responsereplacement.models import Widget
+from specs.azure.clientgenerator.core.responsereplacement import ResponseReplacementClient
+from specs.azure.clientgenerator.core.responsereplacement.models import Widget
 
 
 @pytest.fixture
