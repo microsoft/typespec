@@ -370,13 +370,29 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return false;
             }
 
+            // An override is the effective historical declaration for its slot. The overridden
+            // ancestor still appears in the symbol hierarchy, but its virtual modifier must not
+            // be compared against a sealed override on the current target.
+            var overriddenMethods = new List<MethodSignature>();
             for (var provider = _lastContractType; provider is not null; provider = provider.BaseTypeProvider)
             {
-                if (provider.Methods
-                    .Where(method => MethodSignatureHelper.IsPublicApi(method.Signature.Modifiers))
-                    .Any(method => !FindEffectiveFrameworkMethods(method.Signature)
-                        .Any(candidate => IsCompatibleMethod(method.Signature, candidate))) ||
-                    provider.Fields
+                foreach (var method in provider.Methods.Where(method =>
+                    MethodSignatureHelper.IsPublicApi(method.Signature.Modifiers)))
+                {
+                    var signature = method.Signature;
+                    if (overriddenMethods.Any(overrideSignature =>
+                        HaveSameMethodIdentity(overrideSignature, signature)))
+                    {
+                        continue;
+                    }
+                    if (!FindEffectiveFrameworkMethods(signature).Any(candidate => IsCompatibleMethod(signature, candidate)))
+                    {
+                        return false;
+                    }
+                }
+                overriddenMethods.AddRange(provider.Methods.Select(method => method.Signature)
+                    .Where(signature => signature.Modifiers.HasFlag(MethodSignatureModifiers.Override)));
+                if (provider.Fields
                     .Where(field => IsPublicApiField(field.Modifiers))
                     .Any(field => FindEffectiveFrameworkMember(field.Name) is not FieldInfo candidate ||
                         !IsCompatibleField(field, candidate)))
@@ -534,6 +550,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
             foreach (var type in EnumerateFrameworkHierarchy())
             {
+                // A nearer non-method member can change the binding of a method invocation
+                // (for example, a delegate-valued property with the same name).
+                if (type.GetMember(GetReflectionMethodName(previous.Name), flags)
+                    .Any(member => member is not MethodInfo))
+                {
+                    return [];
+                }
                 var methods = type.GetMethods(flags)
                     .Where(method => HasMatchingMethodIdentity(previous, method))
                     .ToArray();
@@ -571,6 +594,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     pair.First.IsParams == (pair.Second.GetCustomAttribute<ParamArrayAttribute>() is not null);
             });
         }
+
+        private static bool HaveSameMethodIdentity(MethodSignature left, MethodSignature right)
+            => MethodSignature.MethodSignatureComparer.Equals(left, right) &&
+                (left.GenericArguments?.Count ?? 0) == (right.GenericArguments?.Count ?? 0) &&
+                left.Parameters.Zip(right.Parameters).All(pair =>
+                    pair.First.IsRef == pair.Second.IsRef &&
+                    pair.First.IsIn == pair.Second.IsIn &&
+                    pair.First.IsOut == pair.Second.IsOut);
 
         private static bool HasMatchingMethodIdentity(MethodSignature previous, MethodInfo current)
         {
@@ -610,9 +641,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         private static bool RequiresOverridableMethod(MethodSignatureModifiers modifiers)
-            => modifiers.HasFlag(MethodSignatureModifiers.Virtual) ||
-                modifiers.HasFlag(MethodSignatureModifiers.Abstract) ||
-                modifiers.HasFlag(MethodSignatureModifiers.Override);
+            => !modifiers.HasFlag(MethodSignatureModifiers.Sealed) &&
+                (modifiers.HasFlag(MethodSignatureModifiers.Virtual) ||
+                    modifiers.HasFlag(MethodSignatureModifiers.Abstract) ||
+                    modifiers.HasFlag(MethodSignatureModifiers.Override));
 
         private static bool IsPublicApiField(FieldModifiers modifiers)
             => modifiers.HasFlag(FieldModifiers.Public) ||

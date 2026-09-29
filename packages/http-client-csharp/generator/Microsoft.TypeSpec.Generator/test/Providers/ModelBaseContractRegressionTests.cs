@@ -101,6 +101,47 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.That(mapped.HasCompatibleLastContractNonPropertyMembers(), Is.True);
         }
 
+        [Test]
+        public void MappedBaseRejectsDelegatePropertyHidingInheritedMethod()
+        {
+            var historical = ParseNamedType("public class Ancestor { public string GetValue() => string.Empty; } " +
+                "public class Previous : Ancestor { }", "Previous");
+            var mapped = Map(typeof(DelegatePropertyMethodTarget), historical);
+            Assert.That(mapped.HasCompatibleLastContractNonPropertyMembers(), Is.False);
+            Assert.That(CanRestoreMappedBase(mapped), Is.False);
+        }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        public void MappedBaseAcceptsUnchangedOverride(bool sealedOverride)
+        {
+            var historical = ParseNamedType("public class Ancestor { public virtual string GetValue() => string.Empty; } " +
+                $"public class Previous : Ancestor {{ public {(sealedOverride ? "sealed " : "")}override string GetValue() => string.Empty; }}", "Previous");
+            var mapped = Map(sealedOverride ? typeof(SealedOverrideMethodTarget) : typeof(OverrideMethodTarget), historical);
+            Assert.That(mapped.HasCompatibleLastContractNonPropertyMembers(), Is.True);
+            Assert.That(CanRestoreMappedBase(mapped), Is.True);
+        }
+
+        [Test]
+        public void MappedBaseRejectsSealingPreviouslyOverridableMethod()
+        {
+            var historical = ParseNamedType("public class Ancestor { public virtual string GetValue() => string.Empty; } " +
+                "public class Previous : Ancestor { public override string GetValue() => string.Empty; }", "Previous");
+            var mapped = Map(typeof(SealedOverrideMethodTarget), historical);
+            Assert.That(mapped.HasCompatibleLastContractNonPropertyMembers(), Is.False);
+        }
+
+        [Test]
+        public void MappedBaseStillChecksDistinctAncestorOverload()
+        {
+            var historical = ParseNamedType("public class Ancestor { public virtual string GetValue() => string.Empty; " +
+                "public string GetValue(int value) => string.Empty; } " +
+                "public class Previous : Ancestor { public sealed override string GetValue() => string.Empty; }", "Previous");
+            var mapped = Map(typeof(SealedOverrideMethodTarget), historical);
+            Assert.That(mapped.HasCompatibleLastContractNonPropertyMembers(), Is.False);
+            Assert.That(CanRestoreMappedBase(mapped), Is.False);
+        }
+
         [TestCase("public int Value { get; set; }")]
         [TestCase("public int? Value { get; init; }")]
         public void MappedPropertyRejectsChangedClrContract(string previous)
@@ -291,6 +332,12 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         private static SystemObjectModelProvider Map(Type target, TypeProvider previous)
             => new(new CSharpType(target), InputFactory.Model("CurrentBase", properties: []), previous);
 
+        private static bool CanRestoreMappedBase(SystemObjectModelProvider mapped)
+        {
+            var derived = new ModelProvider(InputFactory.Model("Derived", properties: [], baseModel: mapped.InputModel));
+            return new ModelBaseTypeCompatibility(derived).CanUseMappedBase(mapped);
+        }
+
         private static NamedTypeSymbolProvider Parse(string members, string implements = "")
             => ParseNamedType($"public interface IMarker {{ }} public class Previous{implements} {{ {members} }}", "Previous");
 
@@ -374,6 +421,20 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             public AmbiguousConstructorTarget(int value = 0) { Value = value; }
             public AmbiguousConstructorTarget(string text = "") { }
             public int Value { get; set; }
+        }
+        public class InheritedMethodTarget { public string GetValue() => string.Empty; }
+        public class DelegatePropertyMethodTarget : InheritedMethodTarget
+        {
+            public new Func<int> GetValue => () => 0;
+        }
+        public class VirtualOverrideMethodTarget { public virtual string GetValue() => string.Empty; }
+        public class SealedOverrideMethodTarget : VirtualOverrideMethodTarget
+        {
+            public sealed override string GetValue() => string.Empty;
+        }
+        public class OverrideMethodTarget : VirtualOverrideMethodTarget
+        {
+            public override string GetValue() => string.Empty;
         }
         public class FieldBase { public int Value; }
         public class HiddenFieldTarget : FieldBase { public new string Value = string.Empty; }
