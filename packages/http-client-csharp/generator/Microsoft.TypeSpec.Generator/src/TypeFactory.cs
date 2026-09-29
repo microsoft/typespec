@@ -91,6 +91,7 @@ namespace Microsoft.TypeSpec.Generator
             return currentType is not null &&
                 lastContractProperty.Name == currentName &&
                 lastContractProperty.Type.Equals(currentType, ignoreNullable: true) &&
+                !lastContractProperty.IsInitOnly &&
                 lastContractProperty.Body.HasSetter == !currentProperty.IsReadOnly;
         }
 

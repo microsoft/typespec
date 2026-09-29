@@ -116,6 +116,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var candidates = SystemType.FrameworkType.GetConstructors(flags).Where(constructor =>
                 IsPublicOrProtected(constructor) &&
                 constructor.GetParameters() is { } frameworkParameters &&
+                frameworkParameters.All(parameter => !parameter.ParameterType.IsByRef) &&
                 frameworkParameters.Length >= generatedParameters.Count &&
                 frameworkParameters.Take(generatedParameters.Count).Zip(generatedParameters).All(pair =>
                     ModelBaseMemberCompatibility.AreTypesCompatible(pair.Second.Type, new CSharpType(pair.First.ParameterType))) &&

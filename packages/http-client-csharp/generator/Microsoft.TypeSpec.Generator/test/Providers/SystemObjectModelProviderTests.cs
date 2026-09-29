@@ -84,6 +84,21 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             public int ResourceType { get; set; }
         }
 
+        public class SuffixedPropertyFrameworkBase
+        {
+            public string DerivedModelProperty { get; set; } = string.Empty;
+        }
+
+        public class PlainNameFrameworkBase
+        {
+            public string DerivedModel { get; set; } = string.Empty;
+        }
+
+        public class RefConstructorTarget
+        {
+            public RefConstructorTarget(ref string value) { }
+        }
+
         private sealed class EagerParameterVisitor : LibraryVisitor
         {
             protected internal override PropertyProvider? PreVisitProperty(InputProperty input, PropertyProvider? property)
@@ -315,6 +330,22 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 Assert.That(parameter.ToPublicInputParameter().Name, Is.EqualTo("resourceType"));
                 Assert.That(parameter.ToPublicInputParameter().Type, Is.EqualTo(new CSharpType(typeof(int))));
             });
+        }
+
+        [TestCase(typeof(SuffixedPropertyFrameworkBase), false)]
+        [TestCase(typeof(PlainNameFrameworkBase), true)]
+        public void MappedBaseChecksGeneratedModelNameCollisionSuffix(Type frameworkType, bool canRestore)
+        {
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var derived = InputFactory.Model(
+                "DerivedModel",
+                properties: [InputFactory.Property("derivedModel", InputPrimitiveType.String)],
+                baseModel: currentBase);
+            MockHelpers.LoadMockGenerator(inputModelTypes: [currentBase, derived]);
+
+            var mappedBase = new SystemObjectModelProvider(new CSharpType(frameworkType), currentBase);
+            var compatibility = new ModelBaseTypeCompatibility(new ModelProvider(derived));
+            Assert.That(compatibility.CanUseMappedBase(mappedBase), Is.EqualTo(canRestore));
         }
 
         [Test]
@@ -785,6 +816,37 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
 
         [Test]
+        public void MappedBaseRejectsRequiredByRefConstructorParameter()
+        {
+            var inputModel = InputFactory.Model("MappedBase", properties: []);
+            var mappedBase = new SystemObjectModelProvider(new CSharpType(typeof(RefConstructorTarget)), inputModel);
+
+            Assert.That(mappedBase.HasReconstructibleLastContractConstructor, Is.False);
+        }
+
+        [Test]
+        public void MappedBaseRejectsOptionalByRefConstructorParameter()
+        {
+            var name = new AssemblyName($"OptionalByRefBase{Guid.NewGuid():N}");
+            var assembly = AssemblyBuilder.DefineDynamicAssembly(name, AssemblyBuilderAccess.Run);
+            var type = assembly.DefineDynamicModule("Main").DefineType(
+                "TestFramework.OptionalByRefBase", TypeAttributes.Public | TypeAttributes.Class);
+            var constructor = type.DefineConstructor(
+                MethodAttributes.Public, CallingConventions.Standard, [typeof(string).MakeByRefType()]);
+            constructor.DefineParameter(1, ParameterAttributes.Optional, "value");
+            var il = constructor.GetILGenerator();
+            il.Emit(OpCodes.Ldarg_0);
+            il.Emit(OpCodes.Call, typeof(object).GetConstructor(Type.EmptyTypes)!);
+            il.Emit(OpCodes.Ret);
+            var frameworkType = type.CreateType()!;
+            Assert.That(frameworkType.GetConstructors().Single().GetParameters().Single().IsOptional, Is.True);
+
+            var inputModel = InputFactory.Model("MappedBase", properties: []);
+            var mappedBase = new SystemObjectModelProvider(new CSharpType(frameworkType), inputModel);
+            Assert.That(mappedBase.HasReconstructibleLastContractConstructor, Is.False);
+        }
+
+        [Test]
         public void LastContractMemberNamesIncludeMappedFrameworkSurface()
         {
             var inputModel = InputFactory.Model("MappedBase", properties: []);
@@ -966,6 +1028,27 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 new TestTypeProvider(properties: [historicalProperty]));
             var compatibility = new ModelBaseTypeCompatibility(new ModelProvider(derivedModel));
             return compatibility.CanUseMappedBase(mappedBase);
+        }
+
+        [TestCase(true, false)]
+        [TestCase(false, true)]
+        public void DefaultLastContractMappingRejectsInitOnlyForWritableInput(bool isInitOnly, bool expected)
+        {
+            var currentProperty = InputFactory.Property("value", InputPrimitiveType.String);
+            InputFactory.Model("CurrentBase", properties: [currentProperty]);
+            var historicalProperty = new PropertyProvider(
+                $"",
+                MethodSignatureModifiers.Public,
+                typeof(string),
+                "Value",
+                new AutoPropertyBody(true, MethodSignatureModifiers.Public),
+                new TestTypeProvider())
+            {
+                IsInitOnly = isInitOnly
+            };
+
+            Assert.That(CodeModelGenerator.Instance.TypeFactory.IsLastContractModelBasePropertyCompatible(
+                new CSharpType(typeof(InitOnlyPropertyTarget)), currentProperty, historicalProperty), Is.EqualTo(expected));
         }
 
         [Test]
