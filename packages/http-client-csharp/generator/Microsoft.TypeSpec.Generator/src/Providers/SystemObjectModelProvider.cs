@@ -549,21 +549,30 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             const BindingFlags flags = BindingFlags.DeclaredOnly | BindingFlags.Instance |
                 BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
+            var name = GetReflectionMethodName(previous.Name);
             foreach (var type in EnumerateFrameworkHierarchy())
             {
                 // A nearer non-method member can change the binding of a method invocation
                 // (for example, a delegate-valued property with the same name).
-                if (type.GetMember(GetReflectionMethodName(previous.Name), flags)
-                    .Any(member => member is not MethodInfo))
+                if (type.GetMember(name, flags).Any(member => member is not MethodInfo))
                 {
                     return [];
                 }
-                var methods = type.GetMethods(flags)
-                    .Where(method => HasMatchingMethodIdentity(previous, method))
-                    .ToArray();
-                if (methods.Length > 0)
+
+                var declaredMethods = type.GetMethods(flags).Where(method => method.Name == name).ToArray();
+                var matches = declaredMethods.Where(method => HasMatchingMethodIdentity(previous, method)).ToArray();
+                if (matches.Length > 0)
                 {
-                    return methods;
+                    return matches;
+                }
+
+                // New overloads can change which method a historical call binds to (including
+                // overloads with optional parameters). Only overrides leave other ancestor slots
+                // available for consideration; fail closed for other same-named declarations.
+                if (declaredMethods.Any(method => !method.IsVirtual ||
+                    method.GetBaseDefinition().DeclaringType == method.DeclaringType))
+                {
+                    return [];
                 }
             }
             return [];

@@ -111,6 +111,31 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.That(CanRestoreMappedBase(mapped), Is.False);
         }
 
+        [Test]
+        public void MappedBaseRejectsAncestorOverloadWithNearerOptionalOverload()
+        {
+            var historical = ParseNamedType("public class Ancestor { public string GetValue(int value) => string.Empty; } " +
+                "public class Previous : Ancestor { }", "Previous");
+            var mapped = Map(typeof(OptionalOverloadMethodTarget), historical);
+
+            // In C#, string result = target.GetValue(1) now binds to the nearer int-returning overload.
+            Assert.That(mapped.HasCompatibleLastContractNonPropertyMembers(), Is.False);
+            Assert.That(CanRestoreMappedBase(mapped), Is.False);
+        }
+
+        [Test]
+        public void MappedBaseKeepsAncestorOverloadVisibleThroughOverride()
+        {
+            var historical = ParseNamedType("public class Ancestor { public virtual string GetValue() => string.Empty; " +
+                "public string GetValue(int value) => string.Empty; } " +
+                "public class Previous : Ancestor { public override string GetValue() => string.Empty; }", "Previous");
+            var mapped = Map(typeof(OverrideOnlyOverloadTarget), historical);
+
+            Assert.That(new OverrideOnlyOverloadTarget().GetValue(1), Is.Empty);
+            Assert.That(mapped.HasCompatibleLastContractNonPropertyMembers(), Is.True);
+            Assert.That(CanRestoreMappedBase(mapped), Is.True);
+        }
+
         [TestCase(true)]
         [TestCase(false)]
         public void MappedBaseAcceptsUnchangedOverride(bool sealedOverride)
@@ -426,6 +451,20 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         public class DelegatePropertyMethodTarget : InheritedMethodTarget
         {
             public new Func<int> GetValue => () => 0;
+        }
+        public class OverloadMethodBase { public string GetValue(int value) => string.Empty; }
+        public class OptionalOverloadMethodTarget : OverloadMethodBase
+        {
+            public int GetValue(int value, bool optional = true) => 1;
+        }
+        public class VirtualOverloadMethodBase
+        {
+            public virtual string GetValue() => string.Empty;
+            public string GetValue(int value) => string.Empty;
+        }
+        public class OverrideOnlyOverloadTarget : VirtualOverloadMethodBase
+        {
+            public override string GetValue() => string.Empty;
         }
         public class VirtualOverrideMethodTarget { public virtual string GetValue() => string.Empty; }
         public class SealedOverrideMethodTarget : VirtualOverrideMethodTarget
