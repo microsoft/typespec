@@ -559,6 +559,18 @@ describe("json serialization of examples", () => {
     expect(serializeValueAsJson(program, examples[0].value, test)).toEqual("123");
   });
 
+  it("serialize nullable int64 default above 2^53 as a string with @encode(string) on the scalar", async () => {
+    const { test, program } = (await Tester.compile(`
+      model TestModel {
+        /*test*/test: Id | null = 9007199254740993;
+      }
+
+      @encode(string) scalar Id extends int64;
+    `)) as any;
+
+    expect(serializeValueAsJson(program, test.defaultValue, test)).toEqual("9007199254740993");
+  });
+
   it("serialize models with parent", async () => {
     const result = await getJsonValueOfExample(`
       @example(#{ a: "one", b: "two" })
