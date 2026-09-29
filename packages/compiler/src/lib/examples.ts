@@ -84,8 +84,13 @@ export function serializeValueAsJson(
     case "BooleanValue":
     case "StringValue":
       return value.value;
-    case "NumericValue":
-      return isEncodedAsString(program, encodeAs) ? value.value.toString() : value.value.asNumber();
+    case "NumericValue": {
+      // Like the date and duration scalars, fall back to the encoding on the value's scalar.
+      // A bare literal in an example has no scalar, so use the scalar it's serialized as.
+      const scalar = value.scalar ?? (type.kind === "Scalar" ? type : undefined);
+      const encoding = encodeAs ?? (scalar && getEncode(program, scalar));
+      return isEncodedAsString(program, encoding) ? value.value.toString() : value.value.asNumber();
+    }
     case "EnumValue":
       return value.value.value ?? value.value.name;
     case "ArrayValue":

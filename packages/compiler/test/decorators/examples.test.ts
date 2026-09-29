@@ -407,6 +407,8 @@ describe("json serialization of examples", () => {
         value: string;
         expect: unknown;
         encode?: string;
+        /** Encoding placed on a scalar that extends the type, used as the property type. */
+        scalarEncode?: string;
       }[],
     ][] = [
       ["int32", [{ value: `123`, expect: 123 }]],
@@ -415,9 +417,16 @@ describe("json serialization of examples", () => {
         [
           { value: `123`, expect: 123 },
           { value: `123`, expect: "123", encode: `@encode(string)` },
+          { value: `123`, expect: "123", scalarEncode: `@encode(string)` },
         ],
       ],
-      ["decimal", [{ value: `1050.25`, expect: "1050.25", encode: `@encode(string)` }]],
+      [
+        "decimal",
+        [
+          { value: `1050.25`, expect: "1050.25", encode: `@encode(string)` },
+          { value: `1050.25`, expect: "1050.25", scalarEncode: `@encode(string)` },
+        ],
+      ],
       ["string", [{ value: `"abc"`, expect: "abc" }]],
       ["boolean", [{ value: `true`, expect: true }]],
       [
@@ -502,17 +511,19 @@ describe("json serialization of examples", () => {
     describe.each(allCases)("%s", (type, cases) => {
       const casesWithLabel = cases.map((x) => ({
         ...x,
-        encodeLabel: x.encode ?? "default encoding",
+        encodeLabel:
+          x.encode ?? (x.scalarEncode ? `${x.scalarEncode} on the scalar` : "default encoding"),
       }));
       it.each(casesWithLabel)(
         `serialize with $encodeLabel`,
-        async ({ value, expect: expected, encode }) => {
+        async ({ value, expect: expected, encode, scalarEncode }) => {
           const result = await getJsonValueOfExample(`
           model TestModel {
             @example(${value})
             ${encode ?? ""}
-            /*test*/test: ${type};
+            /*test*/test: ${scalarEncode ? "TestScalar" : type};
           }
+          ${scalarEncode ? `${scalarEncode} scalar TestScalar extends ${type};` : ""}
         `);
           if (expected instanceof RegExp) {
             expect(result).toMatch(expected);
@@ -532,6 +543,20 @@ describe("json serialization of examples", () => {
     `)) as any;
 
     expect(serializeValueAsJson(program, test.defaultValue, test)).toEqual("9007199254740993");
+  });
+
+  it("serialize int64 default above 2^53 and example as strings with @encode(string) on the scalar", async () => {
+    const { test, program } = (await Tester.compile(`
+      model TestModel {
+        @example(123) /*test*/test: Id = 9007199254740993;
+      }
+
+      @encode(string) scalar Id extends int64;
+    `)) as any;
+
+    expect(serializeValueAsJson(program, test.defaultValue, test)).toEqual("9007199254740993");
+    const examples = getExamples(program, test);
+    expect(serializeValueAsJson(program, examples[0].value, test)).toEqual("123");
   });
 
   it("serialize models with parent", async () => {
