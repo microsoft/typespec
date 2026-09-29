@@ -27,7 +27,7 @@ describe("typespec-python: browser pyodide bootstrap", () => {
   it("retries the hosted script when the CDN script fails", async () => {
     const appendChild = vi.fn(
       (script: { src: string; onload: (() => void) | null; onerror: (() => void) | null }) => {
-        if (script.src.includes("cdn.jsdelivr.net")) {
+        if (new URL(script.src).origin === "https://cdn.jsdelivr.net") {
           queueMicrotask(() => script.onerror?.());
         } else {
           vi.stubGlobal("loadPyodide", vi.fn().mockResolvedValue({}));
