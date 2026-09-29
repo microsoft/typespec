@@ -644,7 +644,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 signature,
                 body,
                 enclosingType,
-                previousMethod.XmlDocs);
+                BuildOverloadXmlDocs(currentMethod, signature, enclosingType));
         }
 
         // Forwards a previous parameter to the current method. When the parameter's value-type nullability
@@ -859,7 +859,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 signature,
                 body,
                 enclosingType,
-                previousMethod.XmlDocs);
+                BuildOverloadXmlDocs(currentMethod, signature, enclosingType));
         }
 
         // Given two signatures already known to have equal parameter count and types (including nullability),
@@ -956,45 +956,75 @@ namespace Microsoft.TypeSpec.Generator.Utilities
 
             var body = BuildDelegatingBody(enclosingType, currentSignature, arguments);
             var signature = BuildHiddenOverloadSignature(previousSignature, shimParameters);
-            var xmlDocs = BuildXmlDocsWithoutParameter(previousMethod.XmlDocs, droppedParameter.Name.ToVariableName());
 
             return new MethodProvider(
                 signature,
                 body,
                 enclosingType,
-                xmlDocs);
+                BuildOverloadXmlDocs(currentMethod, signature, enclosingType));
         }
 
-        // Rebuilds an XML doc provider without any reference to the dropped parameter: its &lt;param&gt;
-        // entry is removed and every &lt;exception&gt; that referenced it is rebuilt without that
-        // &lt;paramref&gt; (exceptions that referenced only the dropped parameter are removed entirely).
-        // This avoids stale-doc compile errors (CS1572/CS1734) on the reduced-arity overload.
-        private static XmlDocProvider BuildXmlDocsWithoutParameter(XmlDocProvider docs, string droppedVariableName)
+        // Released XML has already been flattened by NamedTypeSymbolProvider. Use the current
+        // documentation, binding parameter tags/references to the shim without mutating either method.
+        private static XmlDocProvider BuildOverloadXmlDocs(
+            MethodProvider currentMethod,
+            MethodSignature signature,
+            TypeProvider enclosingType)
         {
-            var filteredParameters = docs.Parameters
-                .Where(p => p.Parameter.Name.ToVariableName() != droppedVariableName)
-                .ToList();
+            var docs = currentMethod.XmlDocs;
+            var parametersByName = signature.Parameters.ToDictionary(p => p.Name.ToVariableName());
+            var parameterDocsByName = docs.Parameters.ToDictionary(p => p.Parameter.Name.ToVariableName());
+            var parameters = new List<XmlDocParamStatement>();
+            foreach (var parameter in signature.Parameters)
+            {
+                if (parameterDocsByName.TryGetValue(parameter.Name.ToVariableName(), out var parameterDoc))
+                {
+                    parameters.Add(new XmlDocParamStatement(parameter, parameterDoc.Lines, [.. parameterDoc.InnerStatements]));
+                }
+            }
 
-            var filteredExceptions = new List<XmlDocExceptionStatement>(docs.Exceptions.Count);
+            var exceptions = new List<XmlDocExceptionStatement>();
             foreach (var exceptionDoc in docs.Exceptions)
             {
                 var remaining = exceptionDoc.Parameters
-                    .Where(p => p.Name.ToVariableName() != droppedVariableName)
-                    .ToList();
+                    .Select(p => parametersByName.GetValueOrDefault(p.Name.ToVariableName()))
+                    .OfType<ParameterProvider>()
+                    .ToArray();
 
-                // Drop an exception that referenced only the removed parameter; keep an unrelated one as-is;
-                // otherwise rebuild it without the removed paramref.
-                if (exceptionDoc.Parameters.Count > 0 && remaining.Count == 0)
+                if (exceptionDoc.Parameters.Count > 0 && remaining.Length == 0)
                 {
                     continue;
                 }
 
-                filteredExceptions.Add(remaining.Count == exceptionDoc.Parameters.Count
-                    ? exceptionDoc
-                    : new XmlDocExceptionStatement(exceptionDoc.ExceptionType, remaining));
+                exceptions.Add(exceptionDoc.WithParameters(remaining));
             }
 
-            return new XmlDocProvider(docs.Summary, filteredParameters, filteredExceptions, docs.Returns, docs.Inherit);
+            // The shim can validate more than its target, notably before unwrapping T? to T.
+            foreach (var exceptionDoc in MethodProviderHelpers.BuildXmlDocs(signature, enclosingType).Exceptions)
+            {
+                AddValidationException(exceptionDoc);
+            }
+            var currentParametersByName = currentMethod.Signature.Parameters.ToDictionary(p => p.Name.ToVariableName());
+            var unwrappedParameters = signature.Parameters.Where(p =>
+                currentParametersByName.TryGetValue(p.Name.ToVariableName(), out var currentParameter)
+                && IsNullabilityRelaxedValueType(p.Type, currentParameter.Type)).ToArray();
+            if (unwrappedParameters.Length > 0)
+            {
+                AddValidationException(new XmlDocExceptionStatement(typeof(ArgumentNullException), unwrappedParameters));
+            }
+
+            return new XmlDocProvider(docs.Summary, parameters, exceptions, docs.Returns, docs.Inherit);
+
+            void AddValidationException(XmlDocExceptionStatement exceptionDoc)
+            {
+                var documentedParameters = exceptions.Where(e => e.ExceptionType == exceptionDoc.ExceptionType)
+                    .SelectMany(e => e.Parameters).ToHashSet();
+                var missingParameters = exceptionDoc.Parameters.Where(p => !documentedParameters.Contains(p)).ToArray();
+                if (missingParameters.Length > 0)
+                {
+                    exceptions.Add(exceptionDoc.WithParameters(missingParameters));
+                }
+            }
         }
     }
 }

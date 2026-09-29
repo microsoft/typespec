@@ -20,7 +20,7 @@
       <PackageReference Include="BenchmarkDotNet.Diagnostics.Windows" />
     </ItemGroup>
 
-    <ItemGroup Condition="'$(IsTestProject)' == 'true'">
+    <ItemGroup Condition="'$(IsTestProject)' == 'true' and '$(IsGeneratedTestProject)' != 'true'">
       <PackageReference Include="Microsoft.NET.Test.Sdk" />
       <PackageReference Include="Moq" />
       <PackageReference Include="NUnit" />
