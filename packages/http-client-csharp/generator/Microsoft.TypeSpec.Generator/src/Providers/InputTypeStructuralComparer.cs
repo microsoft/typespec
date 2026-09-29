@@ -76,6 +76,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (current is InputEnumTypeValue || mapped is InputEnumTypeValue)
             {
                 return current is InputEnumTypeValue currentEnumValue && mapped is InputEnumTypeValue mappedEnumValue &&
+                    currentEnumValue.Name == mappedEnumValue.Name &&
                     object.Equals(currentEnumValue.Value, mappedEnumValue.Value) &&
                     Equals(currentEnumValue.ValueType, mappedEnumValue.ValueType) &&
                     Equals(currentEnumValue.EnumType, mappedEnumValue.EnumType);
@@ -105,6 +106,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return current is InputEnumType currentEnum && mapped is InputEnumType mappedEnum &&
                     currentEnum.IsExtensible == mappedEnum.IsExtensible &&
                     Equals(currentEnum.ValueType, mappedEnum.ValueType) &&
+                    currentEnum.Values.Count == mappedEnum.Values.Count &&
+                    // Compare members directly: InputEnumTypeValue.EnumType points back to this enum.
+                    currentEnum.Values.Zip(mappedEnum.Values).All(pair =>
+                        pair.First.Name == pair.Second.Name &&
+                        object.Equals(pair.First.Value, pair.Second.Value) &&
+                        Equals(pair.First.ValueType, pair.Second.ValueType)) &&
                     (!string.IsNullOrEmpty(currentEnum.CrossLanguageDefinitionId) &&
                         currentEnum.CrossLanguageDefinitionId == mappedEnum.CrossLanguageDefinitionId ||
                     string.IsNullOrEmpty(currentEnum.CrossLanguageDefinitionId) &&

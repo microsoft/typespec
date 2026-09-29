@@ -1373,6 +1373,36 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 new SystemObjectModelProvider(mappedType, secondInput)), Is.False);
         }
 
+        [TestCase("Ready", "ready", true)]
+        [TestCase("Ready", "changed", false)]
+        [TestCase("Other", "ready", false)]
+        public void BackCompat_MappedContractsRequireEquivalentEnumMembers(string memberName, string wireValue, bool equivalent)
+        {
+            var firstEnum = InputFactory.StringEnum("Status", [("Ready", "ready")]);
+            var secondEnum = InputFactory.StringEnum("Status", [(memberName, wireValue)]);
+            var firstInput = InputFactory.Model("FirstInput", properties: [InputFactory.Property("status", firstEnum)]);
+            var secondInput = InputFactory.Model("SecondInput", properties: [InputFactory.Property("status", secondEnum)]);
+            var mappedType = new CSharpType(typeof(Exception));
+
+            Assert.That(ModelBaseTypeCompatibility.AreMappedContractsEquivalent(
+                new SystemObjectModelProvider(mappedType, firstInput),
+                new SystemObjectModelProvider(mappedType, secondInput)), Is.EqualTo(equivalent));
+        }
+
+        [Test]
+        public void BackCompat_MappedContractsWithDifferentEnumMemberCountsAreNotEquivalent()
+        {
+            var firstEnum = InputFactory.StringEnum("Status", [("Ready", "ready")]);
+            var secondEnum = InputFactory.StringEnum("Status", [("Ready", "ready"), ("Pending", "pending")]);
+            var firstInput = InputFactory.Model("FirstInput", properties: [InputFactory.Property("status", firstEnum)]);
+            var secondInput = InputFactory.Model("SecondInput", properties: [InputFactory.Property("status", secondEnum)]);
+            var mappedType = new CSharpType(typeof(Exception));
+
+            Assert.That(ModelBaseTypeCompatibility.AreMappedContractsEquivalent(
+                new SystemObjectModelProvider(mappedType, firstInput),
+                new SystemObjectModelProvider(mappedType, secondInput)), Is.False);
+        }
+
         [Test]
         public async Task BackCompat_MappedContractsWithInputHierarchiesAreNotEquivalent()
         {
