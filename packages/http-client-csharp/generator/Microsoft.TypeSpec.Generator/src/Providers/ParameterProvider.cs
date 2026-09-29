@@ -72,9 +72,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public ParameterProvider(InputParameter inputParameter)
         {
             InputParameter = inputParameter;
-            Name = !inputParameter.IsExactName && inputParameter.Type.IsDateTimeInputType()
-                ? inputParameter.Name.NormalizeDateTimeSuffix()
-                : inputParameter.Name;
+            Name = inputParameter.IsExactName
+                ? inputParameter.Name
+                : inputParameter.Name.NormalizeCSharpAcronyms(inputParameter.Type.IsDateTimeInputType(), useCamelCase: true);
             Description = DocHelpers.GetFormattableDescription(inputParameter.Summary, inputParameter.Doc) ?? FormattableStringHelpers.Empty;
             var type = CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(inputParameter.Type);
             if (type is null)
@@ -153,12 +153,19 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// </summary>
         public ParameterProvider ToPublicInputParameter() => _inputParameter ??= BuildInputVariant();
 
-        private ParameterProvider BuildInputVariant()
+        private ParameterProvider BuildInputVariant() => Clone(Type.InputType, _asVariable);
+
+        /// <summary>
+        /// Creates a copy with an independent name and variable expression.
+        /// </summary>
+        public ParameterProvider Clone() => Clone(Type);
+
+        private ParameterProvider Clone(CSharpType type, VariableExpression? variable = null)
         {
             return new(
                 Name,
                 Description,
-                Type.InputType,
+                type,
                 DefaultValue,
                 IsRef,
                 IsOut,
@@ -172,7 +179,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 wireInfo: WireInfo,
                 validation: Validation)
             {
-                _asVariable = _asVariable,
+                _asVariable = variable,
                 SpreadSource = SpreadSource,
                 InputParameter = InputParameter,
                 IsExactName = IsExactName

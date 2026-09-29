@@ -119,6 +119,46 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
         }
 
         [Test]
+        public async Task AcronymNamedArgumentsFollowReorderedProtocolSignature(
+            [Values("New", "Published", "Custom")] string signatureSource)
+        {
+            var operation = InputFactory.Operation(
+                "Send",
+                parameters:
+                [
+                    InputFactory.PathParameter("version", InputPrimitiveType.String, isRequired: false),
+                    InputFactory.QueryParameter("sourceIpAddress", InputPrimitiveType.String, isRequired: true)
+                ],
+                uri: "/things/{version}",
+                responses: [InputFactory.OperationResponse([204])]);
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "Send", operation,
+                parameters: [InputFactory.MethodParameter("sourceIpAddress", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Query)]);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [inputClient],
+                compilation: signatureSource == "Custom" ? async () => await Helpers.GetCompilationFromDirectoryAsync("Custom") : null,
+                lastContractCompilation: signatureSource == "Published" ? async () => await Helpers.GetCompilationFromDirectoryAsync("Published") : null);
+            var client = generator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().Single();
+            client.ProcessTypeForBackCompatibility();
+
+            var expectedName = signatureSource switch
+            {
+                "Published" => "sourceIpAddress",
+                "Custom" => "customIpAddress",
+                _ => "sourceIPAddress"
+            };
+            var methods = client.Methods.OfType<ScmMethodProvider>().Where(m => m.Kind == ScmMethodKind.Convenience).ToArray();
+            Assert.AreEqual(2, methods.Length);
+            foreach (var method in methods)
+            {
+                StringAssert.Contains(
+                    $"this.{method.Signature.Name}({expectedName}: {expectedName}, options: cancellationToken.ToRequestOptions())",
+                    method.BodyStatements!.ToDisplayString());
+            }
+        }
+
+        [Test]
         public void CollidingNormalizedDateTimeOperationParametersAreSerialized()
         {
             var dateType = new InputDateTimeType(

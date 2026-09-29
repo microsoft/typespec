@@ -5558,6 +5558,83 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             }
         }
 
+        [TestCase("LastContract")]
+        [TestCase("DistinctLastContract")]
+        [TestCase("CaseOnlyLastContract")]
+        [TestCase("PrivateLastContract")]
+        [TestCase("TypeMismatchLastContract")]
+        [TestCase("Custom")]
+        [TestCase("CustomWithLastContract")]
+        public async Task AcronymOperationParameterNamesPreserveSignatures(string signatureSource)
+        {
+            var custom = signatureSource.StartsWith("Custom");
+            var distinctNames = signatureSource == "DistinctLastContract";
+            var hasMatchingContract = signatureSource is not ("PrivateLastContract" or "TypeMismatchLastContract");
+            var lastContractSource = custom ? "LastContract" : signatureSource;
+            string[] inputNames = ["sourceIpAddress", "targetDbName", "guestOsType", "IPv4Address", "IPv6Address"];
+            string[] contractNames = custom
+                ? ["customIpAddress", "customDbName", "customOsType", "customIPv4Address", "customIPv6Address"]
+                : ["sourceIpAddress", "targetDbName", "guestOsType", "iPv4Address", "iPv6Address"];
+            var operation = InputFactory.Operation(
+                "Send",
+                parameters: inputNames.Select(name => InputFactory.QueryParameter(name, InputPrimitiveType.String, isRequired: true)).ToArray(),
+                responses: [InputFactory.OperationResponse([204])]);
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "Send",
+                operation,
+                parameters: inputNames.Select(name => InputFactory.MethodParameter(name, InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Query)).ToArray());
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [inputClient],
+                compilation: custom ? async () => await Helpers.GetCompilationFromDirectoryAsync("Custom") : null,
+                lastContractCompilation: signatureSource == "Custom" ? null : async () => await Helpers.GetCompilationFromDirectoryAsync(lastContractSource),
+                configuration: """{"disable-xml-docs": false, "package-name": "Sample"}""");
+            var client = generator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().Single();
+            client.ProcessTypeForBackCompatibility();
+            var methods = client.Methods.OfType<ScmMethodProvider>().Where(method => method.Signature.Name is "Send" or "SendAsync").ToArray();
+            Assert.AreEqual(4, methods.Length);
+            foreach (var method in methods)
+            {
+                var suffix = (method.Signature.Name.EndsWith("Async") ? "Async" : "Sync")
+                    + (method.Kind == ScmMethodKind.Protocol ? "Protocol" : "Convenience");
+                var expectedNames = distinctNames ? contractNames.Select(name => name + suffix).ToArray() : contractNames;
+                if (!hasMatchingContract)
+                {
+                    expectedNames = ["sourceIPAddress", "targetDBName", "guestOSType", "ipv4Address", "ipv6Address"];
+                }
+                if (signatureSource == "CaseOnlyLastContract")
+                {
+                    expectedNames = suffix switch
+                    {
+                        "SyncProtocol" => ["sourceIpAddress", "targetDbName", "guestOsType", "iPv4Address", "iPv6Address"],
+                        "AsyncProtocol" => ["sourceIPAddress", "targetDBName", "guestOSType", "ipv4Address", "ipv6Address"],
+                        "SyncConvenience" => ["SourceIpAddress", "TargetDbName", "GuestOsType", "IPv4Address", "IPv6Address"],
+                        _ => ["SOURCEIPADDRESS", "TARGETDBNAME", "GUESTOSTYPE", "IPV4ADDRESS", "IPV6ADDRESS"]
+                    };
+                }
+                CollectionAssert.AreEqual(expectedNames, method.Signature.Parameters.Take(inputNames.Length).Select(parameter => parameter.Name));
+                Assert.AreEqual(custom, method.IsPartialMethod);
+                using var writer = new CodeWriter();
+                writer.WriteMethod(method);
+                var text = writer.ToString(false);
+                foreach (var name in expectedNames)
+                {
+                    StringAssert.Contains($"<param name=\"{name}\">", text);
+                    StringAssert.Contains($"<paramref name=\"{name}\"/>", text);
+                    StringAssert.Contains($"nameof({name})", text);
+                }
+                var target = method.Kind == ScmMethodKind.Protocol ? "CreateSendRequest" : method.Signature.Name;
+                var trailingArgument = method.Kind == ScmMethodKind.Protocol ? "options" : "cancellationToken.ToRequestOptions()";
+                StringAssert.Contains($"this.{target}({string.Join(", ", expectedNames)}, {trailingArgument})", text);
+                if (method.Kind == ScmMethodKind.Convenience && method.Signature.Name.EndsWith("Async"))
+                {
+                    Assert.AreEqual(
+                        Helpers.GetExpectedFromFile(custom ? "Custom" : hasMatchingContract ? signatureSource : "Normalized"),
+                        method.BodyStatements!.ToDisplayString());
+                }
+            }
+        }
+
         [TestCase("GetIpAddress", "GetIpAddress")]
         [TestCase("GetDbStatus", "GetDbStatus")]
         [TestCase("GetOsProfile", "GetOsProfile")]
