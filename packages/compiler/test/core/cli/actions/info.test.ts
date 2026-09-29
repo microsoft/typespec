@@ -1,8 +1,37 @@
-import { expect, it } from "vitest";
+import { expect, it, vi } from "vitest";
 import {
   formatCompilerFeatures,
   getPrintableConfig,
+  printInfoAction,
 } from "../../../../src/core/cli/actions/info.js";
+import { createTestHost, resolveVirtualPath } from "../../../../src/testing/index.js";
+
+it("omits internal linter source metadata from printInfoAction output", async () => {
+  const host = await createTestHost();
+  host.addTypeSpecFile(
+    "project/tspconfig.yaml",
+    `linter:
+  extends:
+    - test/all
+`,
+  );
+
+  const cwd = vi.spyOn(process, "cwd").mockReturnValue(resolveVirtualPath("project"));
+  const consoleLog = vi.spyOn(console, "log").mockImplementation(() => {});
+  try {
+    const diagnostics = await printInfoAction(host.compilerHost, {});
+    expect(diagnostics).toEqual([]);
+
+    const output = consoleLog.mock.calls.map(([value]) => String(value)).join("\n");
+    expect(output).toContain("linter:");
+    expect(output).toContain("- test/all");
+    expect(output).not.toContain("linterSource");
+    expect(output).not.toContain("diagnostics:");
+  } finally {
+    consoleLog.mockRestore();
+    cwd.mockRestore();
+  }
+});
 
 it("omits internal linter source metadata from printable config", () => {
   const config = getPrintableConfig({
