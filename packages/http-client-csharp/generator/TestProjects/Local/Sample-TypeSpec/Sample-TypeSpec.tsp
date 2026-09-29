@@ -63,6 +63,11 @@ enum IntFixedEnum {
   One: 1,
   Two: 2,
   Four: 4,
+  Ip: 10,
+  Db: 20,
+  Os: 30,
+  Ipv4: 40,
+  IpV6: 60,
 }
 
 @doc("Simple enum")
@@ -70,6 +75,11 @@ enum StringFixedEnum {
   One: "1",
   Two: "2",
   Four: "4",
+  Ip: "ip",
+  Db: "db",
+  Os: "os",
+  IpV4: "ipv4",
+  Ipv6: "ipv6",
 }
 
 @doc("Int based extensible enum")
@@ -102,6 +112,19 @@ union StringExtensibleEnum {
   One: "1",
   Two: "2",
   Four: "4",
+  Ip: "ip",
+  Db: "db",
+  Os: "os",
+  Ipv4: "ipv4",
+  IpV6: "ipv6",
+}
+
+union StringFixedUnion {
+  Ip: "ip",
+  Db: "db",
+  Os: "os",
+  IpV4: "ipv4",
+  Ipv6: "ipv6",
 }
 
 @doc("A model with a few properties of literal types")
@@ -176,6 +199,10 @@ model ModelWithRequiredNullableProperties {
 
   @doc("required nullable fixed enum type")
   requiredFixedEnum: StringFixedEnum | null;
+
+  fixedUnion?: StringFixedUnion;
+
+  numericEnum?: IntFixedEnum;
 }
 
 @doc("this is not a friendly model but with a friendly name")

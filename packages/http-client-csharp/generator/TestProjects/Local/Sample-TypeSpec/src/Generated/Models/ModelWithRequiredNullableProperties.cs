@@ -31,12 +31,16 @@ namespace SampleTypeSpec
         /// <param name="requiredNullablePrimitive"> required nullable primitive type. </param>
         /// <param name="requiredExtensibleEnum"> required nullable extensible enum type. </param>
         /// <param name="requiredFixedEnum"> required nullable fixed enum type. </param>
+        /// <param name="fixedUnion"></param>
+        /// <param name="numericEnum"></param>
         /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
-        internal ModelWithRequiredNullableProperties(int? requiredNullablePrimitive, StringExtensibleEnum? requiredExtensibleEnum, StringFixedEnum? requiredFixedEnum, IDictionary<string, BinaryData> additionalBinaryDataProperties)
+        internal ModelWithRequiredNullableProperties(int? requiredNullablePrimitive, StringExtensibleEnum? requiredExtensibleEnum, StringFixedEnum? requiredFixedEnum, StringFixedUnion? fixedUnion, IntFixedEnum? numericEnum, IDictionary<string, BinaryData> additionalBinaryDataProperties)
         {
             RequiredNullablePrimitive = requiredNullablePrimitive;
             RequiredExtensibleEnum = requiredExtensibleEnum;
             RequiredFixedEnum = requiredFixedEnum;
+            FixedUnion = fixedUnion;
+            NumericEnum = numericEnum;
             _additionalBinaryDataProperties = additionalBinaryDataProperties;
         }
 
@@ -48,5 +52,11 @@ namespace SampleTypeSpec
 
         /// <summary> required nullable fixed enum type. </summary>
         public StringFixedEnum? RequiredFixedEnum { get; set; }
+
+        /// <summary> Gets or sets the FixedUnion. </summary>
+        public StringFixedUnion? FixedUnion { get; set; }
+
+        /// <summary> Gets or sets the NumericEnum. </summary>
+        public IntFixedEnum? NumericEnum { get; set; }
     }
 }

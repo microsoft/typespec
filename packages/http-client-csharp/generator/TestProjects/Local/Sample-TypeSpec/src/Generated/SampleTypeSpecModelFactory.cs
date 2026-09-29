@@ -132,10 +132,18 @@ namespace SampleTypeSpec
         /// <param name="requiredNullablePrimitive"> required nullable primitive type. </param>
         /// <param name="requiredExtensibleEnum"> required nullable extensible enum type. </param>
         /// <param name="requiredFixedEnum"> required nullable fixed enum type. </param>
+        /// <param name="fixedUnion"></param>
+        /// <param name="numericEnum"></param>
         /// <returns> A new <see cref="SampleTypeSpec.ModelWithRequiredNullableProperties"/> instance for mocking. </returns>
-        public static ModelWithRequiredNullableProperties ModelWithRequiredNullableProperties(int? requiredNullablePrimitive = default, StringExtensibleEnum? requiredExtensibleEnum = default, StringFixedEnum? requiredFixedEnum = default)
+        public static ModelWithRequiredNullableProperties ModelWithRequiredNullableProperties(int? requiredNullablePrimitive = default, StringExtensibleEnum? requiredExtensibleEnum = default, StringFixedEnum? requiredFixedEnum = default, StringFixedUnion? fixedUnion = default, IntFixedEnum? numericEnum = default)
         {
-            return new ModelWithRequiredNullableProperties(requiredNullablePrimitive, requiredExtensibleEnum, requiredFixedEnum, additionalBinaryDataProperties: null);
+            return new ModelWithRequiredNullableProperties(
+                requiredNullablePrimitive,
+                requiredExtensibleEnum,
+                requiredFixedEnum,
+                fixedUnion,
+                numericEnum,
+                additionalBinaryDataProperties: null);
         }
 
         /// <summary> The Wrapper. </summary>
