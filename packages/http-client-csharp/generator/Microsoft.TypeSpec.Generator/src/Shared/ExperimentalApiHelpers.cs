@@ -13,7 +13,7 @@ using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.Utilities
 {
-    public static class ExperimentalApiHelpers
+    internal static class ExperimentalApiHelpers
     {
         public static AttributeStatement? BuildAttribute(InputOperation operation)
             => BuildAttribute(operation.Experimental);

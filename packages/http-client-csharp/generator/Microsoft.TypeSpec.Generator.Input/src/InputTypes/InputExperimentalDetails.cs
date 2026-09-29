@@ -8,7 +8,6 @@ namespace Microsoft.TypeSpec.Generator.Input
 {
     public sealed class InputExperimentalDetails
     {
-        [JsonConstructor]
         public InputExperimentalDetails(string? diagnosticId = null, IReadOnlyList<string>? dependsOn = null)
         {
             DiagnosticId = diagnosticId;

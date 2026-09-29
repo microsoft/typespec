@@ -101,6 +101,9 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
         [TestCase("""{"diagnosticId":"C","dependsOn":["A","B"]}""", "C", new[] { "A", "B" })]
         [TestCase("""{"diagnosticId":"C"}""", "C", new string[0])]
         [TestCase("""{"dependsOn":["A"]}""", null, new[] { "A" })]
+        [TestCase("""{"diagnosticId":null,"dependsOn":["A"]}""", null, new[] { "A" })]
+        [TestCase("""{"diagnosticId":"C","dependsOn":null}""", "C", new string[0])]
+        [TestCase("""{"diagnosticId":null,"dependsOn":null}""", null, new string[0])]
         [TestCase("""{}""", null, new string[0])]
         [TestCase("""null""", null, null)]
         [TestCase(null, null, null)]
@@ -135,6 +138,70 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
                 Assert.IsNotNull(operation.Experimental);
                 Assert.AreEqual(diagnosticId, operation.Experimental!.DiagnosticId);
                 CollectionAssert.AreEqual(dependencies, operation.Experimental.DependsOn);
+            }
+        }
+
+        [TestCase("""{"diagnosticId":"STREAM001","dependsOn":["A","B"]}""", "STREAM001", new[] { "A", "B" })]
+        [TestCase("""{"diagnosticId":"STREAM001"}""", "STREAM001", new string[0])]
+        [TestCase("""{"dependsOn":["A"]}""", null, new[] { "A" })]
+        [TestCase("""{"diagnosticId":"STREAM001","dependsOn":null}""", "STREAM001", new string[0])]
+        [TestCase("""{"diagnosticId":null,"dependsOn":null}""", null, new string[0])]
+        [TestCase("""{}""", null, new string[0])]
+        [TestCase("""null""", null, null)]
+        [TestCase(null, null, null)]
+        public void LoadsExperimentalStreamingDetails(
+            string? experimental,
+            string? diagnosticId,
+            string[]? dependencies)
+        {
+            foreach (var streamKind in new[] { "jsonl", "sse" })
+            {
+                var contentType = streamKind == "sse" ? "text/event-stream" : "application/jsonl";
+                var content = $$"""
+                {
+                  "name": "Test",
+                  "models": [{
+                    "$id": "wrapper", "name": "Wrapper",
+                    "properties": [{
+                      "$id": "first", "name": "first",
+                      "type": {
+                        "$id": "stream", "kind": "streaming", "name": "Events",
+                        {{(experimental is null ? "" : $@"""experimental"": {experimental},")}}
+                        "streamKind": "{{streamKind}}",
+                        "contentTypes": ["{{contentType}}"],
+                        "valueType": {
+                          "$id": "event", "kind": "model", "name": "Event", "properties": [],
+                          "experimental": {"diagnosticId":"EVENT001","dependsOn":["EVENTDEP"]}
+                        }
+                      }
+                    }, {
+                      "$id": "second", "name": "second",
+                      "type": {"$ref": "stream"}
+                    }]
+                  }]
+                }
+                """;
+                var model = TypeSpecSerialization.Deserialize(content)!.Models.Single();
+                var stream = model.Properties[0].Type as InputStreamingType;
+
+                Assert.IsNotNull(stream);
+                Assert.AreSame(stream, model.Properties[1].Type);
+                Assert.AreEqual(streamKind, stream!.StreamKind);
+                CollectionAssert.AreEqual(new[] { contentType }, stream.ContentTypes);
+                Assert.IsNull(model.Experimental);
+                Assert.IsNull(model.Properties[0].Experimental);
+                Assert.AreEqual("EVENT001", stream.ValueType.Experimental?.DiagnosticId);
+                CollectionAssert.AreEqual(new[] { "EVENTDEP" }, stream.ValueType.Experimental!.DependsOn);
+                if (dependencies is null)
+                {
+                    Assert.IsNull(stream.Experimental);
+                }
+                else
+                {
+                    Assert.IsNotNull(stream.Experimental);
+                    Assert.AreEqual(diagnosticId, stream.Experimental!.DiagnosticId);
+                    CollectionAssert.AreEqual(dependencies, stream.Experimental.DependsOn);
+                }
             }
         }
 

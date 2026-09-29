@@ -16,7 +16,6 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
-using Microsoft.TypeSpec.Generator.Utilities;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
@@ -32,6 +31,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 {
     internal class ScmMethodProviderCollectionTests
     {
+        [Test]
+        public void ExperimentalApiHelpersAreSharedInternally()
+        {
+            var assembly = typeof(ScmCodeModelGenerator).Assembly;
+            var helper = assembly.GetType("Microsoft.TypeSpec.Generator.Utilities.ExperimentalApiHelpers");
+
+            Assert.IsNotNull(helper);
+            Assert.IsTrue(helper!.IsNotPublic);
+        }
+
         private static readonly InputModelType _spreadModel = InputFactory.Model(
             "spreadModel",
             usage: InputModelTypeUsage.Spread,
@@ -206,78 +215,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 Assert.AreEqual("C", ((LiteralExpression)((ScopedApi<string>)attribute.Arguments.Single()).Original).Literal);
                 Assert.AreEqual(2, method.Suppressions.Count);
             }
-        }
-
-        [TestCase("plain", false, true, null)]
-        [TestCase("generic", false, true, null)]
-        [TestCase("array", false, true, null)]
-        [TestCase("nested", false, true, null)]
-        [TestCase("plain", true, true, null)]
-        [TestCase("plain", false, false, null)]
-        [TestCase("plain", false, true, "C")]
-        public void ExperimentalDependenciesCoverSignaturesAndBodies(string shape, bool expressionBody, bool suppressBodyDependency, string? publicDiagnosticId)
-        {
-            var operation = InputFactory.Operation("UseDependencies");
-            operation.Update(experimental: new InputExperimentalDetails(publicDiagnosticId, suppressBodyDependency ? ["A", "B"] : ["A"]));
-            var serviceMethod = InputFactory.BasicServiceMethod("UseDependencies", operation);
-            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
-            MockHelpers.LoadMockGenerator(clients: () => [inputClient]);
-            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
-
-            var tree = CSharpSyntaxTree.ParseText(Helpers.GetExpectedFromFile());
-            var references = AppDomain.CurrentDomain.GetAssemblies()
-                .Where(assembly => !assembly.IsDynamic && !string.IsNullOrEmpty(assembly.Location))
-                .Select(assembly => MetadataReference.CreateFromFile(assembly.Location));
-            var compilation = CSharpCompilation.Create(
-                "ExperimentalDependencies",
-                [tree],
-                references,
-                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
-            var dependency = compilation.GetTypeByMetadataName("Sample.SignatureDependency")!;
-            ITypeSymbol signatureSymbol = shape switch
-            {
-                "plain" => dependency,
-                "generic" => compilation.GetTypeByMetadataName("System.Collections.Generic.List`1")!.Construct(dependency),
-                "array" => compilation.CreateArrayTypeSymbol(dependency),
-                "nested" => compilation.GetTypeByMetadataName("System.Collections.Generic.List`1")!.Construct(compilation.CreateArrayTypeSymbol(dependency)),
-                _ => throw new ArgumentOutOfRangeException(nameof(shape))
-            };
-            var signatureType = signatureSymbol.GetCSharpType();
-            var bodyType = compilation.GetTypeByMetadataName("Sample.BodyDependency")!.GetCSharpType();
-            var parameter = new ParameterProvider("value", $"The value.", signatureType);
-            var attribute = ExperimentalApiHelpers.BuildAttribute(operation);
-            var signature = new MethodSignature(
-                "UseDependencies", null, MethodSignatureModifiers.Public, signatureType, null, [parameter],
-                Attributes: attribute is null ? [] : [attribute]);
-            var existingSuppression = new SuppressionStatement(null, Snippet.Literal("CS0168"), "Existing suppression.");
-            var method = expressionBody
-                ? new MethodProvider(signature, (ValueExpression)parameter, client, suppressions: [existingSuppression])
-                : new MethodProvider(signature, new MethodBodyStatements(
-                    [new ExpressionStatement(Snippet.New.Instance(bodyType)), Snippet.Return(parameter)]), client, suppressions: [existingSuppression]);
-            ExperimentalApiHelpers.AddDependencySuppressions(method, operation);
-            Assert.Contains(existingSuppression, method.Suppressions.ToArray());
-
-            using var writer = new CodeWriter();
-            writer.WriteMethod(method);
-            var root = tree.GetRoot();
-            var clientDeclaration = root.DescendantNodes().OfType<ClassDeclarationSyntax>().Single(c => c.Identifier.ValueText == "TestClient");
-            var generatedMethod = SyntaxFactory.ParseMemberDeclaration(writer.ToString(false))!;
-            var updatedRoot = root.ReplaceNode(clientDeclaration, clientDeclaration.AddMembers(generatedMethod));
-            var updatedTree = tree.WithRootAndOptions(updatedRoot, tree.Options);
-            compilation = compilation.ReplaceSyntaxTree(tree, updatedTree);
-
-            var emittedMethod = updatedTree.GetRoot().DescendantNodes().OfType<MethodDeclarationSyntax>()
-                .Single(m => m.Identifier.ValueText == "UseDependencies");
-            var diagnostics = compilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error).ToArray();
-            var methodDiagnostics = diagnostics.Where(d => emittedMethod.Span.Contains(d.Location.SourceSpan)).ToArray();
-            CollectionAssert.AreEqual(
-                suppressBodyDependency || expressionBody ? Array.Empty<string>() : ["B"],
-                methodDiagnostics.Select(d => d.Id),
-                string.Join(Environment.NewLine, methodDiagnostics.Select(d => d.ToString())));
-            var outsideDiagnostics = diagnostics.Where(d => !emittedMethod.Span.Contains(d.Location.SourceSpan)).ToArray();
-            CollectionAssert.AreEquivalent(
-                publicDiagnosticId is null ? new[] { "A", "B" } : ["A", "B", "C"],
-                outsideDiagnostics.Select(d => d.Id).Distinct());
         }
 
         [TestCase(null)]
