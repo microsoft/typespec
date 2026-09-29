@@ -129,12 +129,14 @@ namespace Microsoft.TypeSpec.Generator.Utilities
         /// <paramref name="originalName"/>, looked up in <paramref name="lastContractView"/>. When
         /// <paramref name="methodName"/> is supplied, the search is scoped to last-contract methods
         /// whose name matches it (allowing for a sync/async pair) so a parameter name shared across
-        /// methods cannot cross-match. Returns null when no match exists.
+        /// methods cannot cross-match. When supplied, <paramref name="parameterType"/> must also match.
+        /// Returns null when no match exists.
         /// </summary>
         public static string? FindPreviousParameterName(
             TypeProvider? lastContractView,
             string originalName,
-            string? methodName = null)
+            string? methodName = null,
+            CSharpType? parameterType = null)
         {
             var lastContractMethods = lastContractView?.Methods;
             if (lastContractMethods is null || lastContractMethods.Count == 0)
@@ -153,7 +155,8 @@ namespace Microsoft.TypeSpec.Generator.Utilities
 
             return scopedMethods
                 .SelectMany(method => method.Signature.Parameters)
-                .FirstOrDefault(p => string.Equals(p.Name, originalName, StringComparison.OrdinalIgnoreCase))
+                .FirstOrDefault(p => string.Equals(p.Name, originalName, StringComparison.OrdinalIgnoreCase)
+                    && (parameterType == null || p.Type.AreNamesEqual(parameterType)))
                 ?.Name;
         }
 
@@ -170,7 +173,8 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             foreach (var method in currentMethods)
             {
                 var modifiers = method.Signature.Modifiers;
-                if (!modifiers.HasFlag(MethodSignatureModifiers.Public) && !modifiers.HasFlag(MethodSignatureModifiers.Protected))
+                if (method.IsPartialMethod ||
+                    (!modifiers.HasFlag(MethodSignatureModifiers.Public) && !modifiers.HasFlag(MethodSignatureModifiers.Protected)))
                 {
                     continue;
                 }
@@ -197,7 +201,10 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                     var inputParameter = parameter.InputParameter;
                     if (inputParameter is not null && !parameter.IsContentParameter)
                     {
-                        preservedName = FindPreviousParameterName(lastContractView, inputParameter.OriginalName, method.Signature.Name);
+                        preservedName = matchingPrevious != null
+                            ? matchingPrevious.Signature.Parameters.FirstOrDefault(p =>
+                                string.Equals(p.Name, inputParameter.OriginalName, StringComparison.OrdinalIgnoreCase))?.Name
+                            : FindPreviousParameterName(lastContractView, inputParameter.OriginalName, method.Signature.Name, parameter.Type);
                     }
 
                     // Fall back to a positional match for synthesized parameters
