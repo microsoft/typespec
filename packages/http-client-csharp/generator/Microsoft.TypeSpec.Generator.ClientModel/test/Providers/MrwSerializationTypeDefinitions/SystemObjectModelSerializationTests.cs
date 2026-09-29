@@ -6,6 +6,7 @@ using System.ClientModel.Primitives;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -122,6 +123,67 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                     Is.EqualTo("TrackedResource"));
                 Assert.That(serialization.BuildJsonModelCreateCoreMethod().Signature.ReturnType?.Name,
                     Is.EqualTo("TrackedResource"));
+            });
+        }
+
+        [Test]
+        public async Task CreateCoreMethodsPreserveInheritedLastContractModelReturnTypeWithSystemBase()
+        {
+            var baseInputModel = InputFactory.Model("FrameworkMapped", properties: []);
+            var derivedInputModel = InputFactory.Model("DerivedModel", properties: [], baseModel: baseInputModel);
+            var systemBase = new SystemObjectModelProvider(new CSharpType(typeof(InheritedCreateCoreMapped)), baseInputModel);
+            var generator = MockHelpers.LoadMockGenerator(
+                inputModels: () => [baseInputModel, derivedInputModel],
+                createModelCore: model => model == baseInputModel ? systemBase : new ModelProvider(model),
+                createSerializationsCore: (inputType, typeProvider) =>
+                    inputType is InputModelType modelType && typeProvider is ModelProvider modelProvider
+                        ? [new MrwSerializationTypeDefinition(modelType, modelProvider)]
+                        : []);
+            generator.Object.AddMetadataReference(MetadataReference.CreateFromFile(typeof(InheritedCreateCoreMapped).Assembly.Location));
+            generator.SetupProperty(
+                plugin => plugin.SourceInputModel,
+                new SourceInputModel(null, await Helpers.GetCompilationFromDirectoryAsync()));
+
+            var derived = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(derivedInputModel)!;
+            var serialization = (MrwSerializationTypeDefinition)derived.SerializationProviders.Single();
+
+            Assert.That(derived.LastContractView!.Methods, Is.Empty);
+            Assert.Multiple(() =>
+            {
+                Assert.That(serialization.BuildPersistableModelCreateCoreMethod().Signature.ReturnType?.Name,
+                    Is.EqualTo(nameof(InheritedCreateCoreRoot)));
+                Assert.That(serialization.BuildJsonModelCreateCoreMethod().Signature.ReturnType?.Name,
+                    Is.EqualTo(nameof(InheritedCreateCoreRoot)));
+            });
+        }
+
+        [Test]
+        public async Task CreateCoreMethodsPreferNearestInheritedLastContractMethodWithSystemBase()
+        {
+            var baseInputModel = InputFactory.Model("FrameworkLeaf", properties: []);
+            var derivedInputModel = InputFactory.Model("DerivedModel", properties: [], baseModel: baseInputModel);
+            var systemBase = new SystemObjectModelProvider(new CSharpType(typeof(InheritedCreateCoreLeaf)), baseInputModel);
+            var generator = MockHelpers.LoadMockGenerator(
+                inputModels: () => [baseInputModel, derivedInputModel],
+                createModelCore: model => model == baseInputModel ? systemBase : new ModelProvider(model),
+                createSerializationsCore: (inputType, typeProvider) =>
+                    inputType is InputModelType modelType && typeProvider is ModelProvider modelProvider
+                        ? [new MrwSerializationTypeDefinition(modelType, modelProvider)]
+                        : []);
+            generator.Object.AddMetadataReference(MetadataReference.CreateFromFile(typeof(InheritedCreateCoreLeaf).Assembly.Location));
+            generator.SetupProperty(
+                plugin => plugin.SourceInputModel,
+                new SourceInputModel(null, await Helpers.GetCompilationFromDirectoryAsync()));
+
+            var derived = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(derivedInputModel)!;
+            var serialization = (MrwSerializationTypeDefinition)derived.SerializationProviders.Single();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(serialization.BuildPersistableModelCreateCoreMethod().Signature.ReturnType?.Name,
+                    Is.EqualTo(nameof(InheritedCreateCoreMiddle)));
+                Assert.That(serialization.BuildJsonModelCreateCoreMethod().Signature.ReturnType?.Name,
+                    Is.EqualTo(nameof(InheritedCreateCoreMiddle)));
             });
         }
 
@@ -615,4 +677,33 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             protected override CSharpType? BuildBaseType() => BaseModel?.Type;
         }
     }
+
+    // The mapped type inherits (rather than declares) the create-core signatures from its root.
+    public class InheritedCreateCoreRoot : IJsonModel<InheritedCreateCoreRoot>
+    {
+        protected virtual InheritedCreateCoreRoot PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
+            => this;
+
+        protected virtual InheritedCreateCoreRoot JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
+            => this;
+
+        void IJsonModel<InheritedCreateCoreRoot>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) { }
+        InheritedCreateCoreRoot IJsonModel<InheritedCreateCoreRoot>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => this;
+        BinaryData IPersistableModel<InheritedCreateCoreRoot>.Write(ModelReaderWriterOptions options) => BinaryData.FromString(string.Empty);
+        InheritedCreateCoreRoot IPersistableModel<InheritedCreateCoreRoot>.Create(BinaryData data, ModelReaderWriterOptions options) => this;
+        string IPersistableModel<InheritedCreateCoreRoot>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+    }
+
+    public class InheritedCreateCoreMapped : InheritedCreateCoreRoot { }
+
+    public class InheritedCreateCoreMiddle : InheritedCreateCoreRoot
+    {
+        protected override InheritedCreateCoreMiddle PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
+            => this;
+
+        protected override InheritedCreateCoreMiddle JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
+            => this;
+    }
+
+    public class InheritedCreateCoreLeaf : InheritedCreateCoreMiddle { }
 }

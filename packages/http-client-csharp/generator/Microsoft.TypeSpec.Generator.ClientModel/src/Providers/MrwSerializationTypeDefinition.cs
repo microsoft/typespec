@@ -192,14 +192,30 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private CSharpType? GetLastContractCreateCoreReturnType()
         {
-            var returnTypes = _model.LastContractView?.Methods
-                .Where(method => IsCreateCoreMethod(method.Signature) &&
-                    method.Signature.ReturnType is { } returnType &&
-                    IsLastContractModelType(returnType))
-                .Select(method => method.Signature.ReturnType!)
-                .Distinct(CSharpType.IgnoreNullableComparer)
-                .ToArray();
-            return returnTypes is { Length: 1 } ? returnTypes[0] : null;
+            var returnTypes = new List<CSharpType>();
+            var seenMethods = new HashSet<string>(StringComparer.Ordinal);
+            var visited = new HashSet<string>(StringComparer.Ordinal);
+            for (var provider = _model.LastContractView;
+                provider is not null && visited.Add(provider.Type.FullyQualifiedName);
+                provider = provider.BaseType is { } baseType && !baseType.IsGenericType
+                    ? CodeModelGenerator.Instance.SourceInputModel.FindForTypeInLastContract(
+                        baseType.Namespace, baseType.Name, baseType.DeclaringType?.Name)
+                    : null)
+            {
+                foreach (var method in provider.Methods.Where(method => IsCreateCoreMethod(method.Signature)))
+                {
+                    // An override on a nearer type supersedes the inherited create-core method.
+                    if (seenMethods.Add(method.Signature.Name) &&
+                        method.Signature.ReturnType is { } returnType &&
+                        IsLastContractModelType(returnType))
+                    {
+                        returnTypes.Add(returnType);
+                    }
+                }
+            }
+
+            var distinctReturnTypes = returnTypes.Distinct(CSharpType.IgnoreNullableComparer).ToArray();
+            return distinctReturnTypes.Length == 1 ? distinctReturnTypes[0] : null;
         }
 
         private bool IsLastContractModelType(CSharpType candidate)
