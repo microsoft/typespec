@@ -71,6 +71,81 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 client.CanonicalView.Attributes.Single(a => a.Type.Equals(typeof(ExperimentalAttribute))).Arguments[0].ToDisplayString());
         }
 
+        [TestCase(null, false, InputClientInitializedBy.Parent)]
+        [TestCase("GENERATED001", false, InputClientInitializedBy.Parent)]
+        [TestCase("CUSTOM001", false, InputClientInitializedBy.Parent)]
+        [TestCase(null, true, InputClientInitializedBy.Parent)]
+        [TestCase("GENERATED001", true, InputClientInitializedBy.Parent)]
+        [TestCase(null, false, InputClientInitializedBy.Default)]
+        [TestCase(null, false, InputClientInitializedBy.Individually)]
+        public async Task ExperimentalCustomChildDiagnosticsAreSuppressedOnParentAccessors(
+            string? generatedDiagnosticId,
+            bool hasAccessorParameter,
+            InputClientInitializedBy initializedBy)
+        {
+            var parent = InputFactory.Client("ParentClient");
+            var child = InputFactory.Client("ChildClient", parent: parent,
+                parameters: hasAccessorParameter
+                    ? [InputFactory.PathParameter("id", InputPrimitiveType.String, isRequired: true, scope: InputParameterScope.Client)]
+                    : [],
+                initializedBy: initializedBy);
+            var otherChild = InputFactory.Client("OtherChildClient", parent: parent, initializedBy: initializedBy);
+            var stableChild = InputFactory.Client("StableClient", parent: parent, initializedBy: InputClientInitializedBy.Parent);
+            if (generatedDiagnosticId is not null)
+            {
+                InputFactory.Experimental(child, generatedDiagnosticId);
+                InputFactory.Experimental(otherChild, generatedDiagnosticId);
+            }
+            var customCompilation = await Helpers.GetCompilationFromDirectoryAsync();
+            await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [parent, child, otherChild, stableChild],
+                compilation: () => Task.FromResult(customCompilation));
+            var generator = ScmCodeModelGenerator.Instance;
+            var parentProvider = generator.TypeFactory.CreateClient(parent)!;
+            var childProvider = generator.TypeFactory.CreateClient(child)!;
+            bool hasAccessor = initializedBy != InputClientInitializedBy.Individually;
+            var accessor = parentProvider.Methods.SingleOrDefault(method => method.Signature.Name == "GetChildClient");
+
+            Assert.AreEqual(hasAccessor, accessor is not null);
+            if (hasAccessor)
+            {
+                Assert.AreEqual(hasAccessorParameter ? 1 : 0, accessor!.Signature.Parameters.Count);
+                Assert.IsFalse(accessor.Signature.Attributes.Any(attribute => attribute.Type.Equals(typeof(ExperimentalAttribute))));
+            }
+            Assert.IsFalse(parentProvider.Attributes.Any(attribute => attribute.Type.Equals(typeof(ExperimentalAttribute))));
+            Assert.IsEmpty(childProvider.Attributes.Where(attribute => attribute.Type.Equals(typeof(ExperimentalAttribute))));
+            Assert.AreEqual(Literal("CUSTOM001").ToDisplayString(),
+                childProvider.CanonicalView.Attributes.Single(attribute => attribute.Type.Equals(typeof(ExperimentalAttribute))).Arguments[0].ToDisplayString());
+            Assert.IsFalse(generator.TypeFactory.CreateClient(stableChild)!.DisabledFileWarnings
+                .Any(suppression => suppression.Code.ToDisplayString() == Literal("CUSTOM001").ToDisplayString()));
+
+            var references = AppDomain.CurrentDomain.GetAssemblies()
+                .Where(assembly => !assembly.IsDynamic && !string.IsNullOrEmpty(assembly.Location))
+                .Select(assembly => MetadataReference.CreateFromFile(assembly.Location))
+                .Append(MetadataReference.CreateFromFile(typeof(Microsoft.Extensions.Configuration.IConfigurationSection).Assembly.Location));
+            var providers = generator.OutputLibrary.TypeProviders
+                .Where(provider => provider is not Utf8JsonBinaryContentDefinition and not BinaryContentHelperDefinition);
+            var generatedTrees = providers.Select(provider => new TypeProviderWriter(provider).Write())
+                .Select(file => CSharpSyntaxTree.ParseText(file.Content, path: file.Name));
+            var customTrees = customCompilation.SyntaxTrees
+                .Where(tree => tree.FilePath.EndsWith("CustomClients.cs", StringComparison.Ordinal));
+            var compilation = CSharpCompilation.Create(
+                "ExperimentalCustomizedChildren",
+                generatedTrees.Concat(customTrees),
+                references,
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, generalDiagnosticOption: ReportDiagnostic.Error));
+            Assert.IsEmpty(compilation.GetDiagnostics().Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error).Select(diagnostic => diagnostic.ToString()));
+            Assert.AreEqual(hasAccessor ? 1 : 0,
+                parentProvider.DisabledFileWarnings.Count(suppression => suppression.Code.ToDisplayString() == Literal("CUSTOM001").ToDisplayString()));
+
+            var consumerTree = CSharpSyntaxTree.ParseText(Helpers.GetExpectedFromFile(parameters: "Consumer"));
+            var consumerErrors = compilation.AddSyntaxTrees(consumerTree).GetDiagnostics()
+                .Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error).ToArray();
+            Assert.IsNotEmpty(consumerErrors);
+            Assert.IsTrue(consumerErrors.All(diagnostic => diagnostic.Id == "CUSTOM001" && diagnostic.Location.SourceTree == consumerTree),
+                string.Join(Environment.NewLine, consumerErrors.Select(diagnostic => diagnostic.ToString())));
+        }
+
         [Test]
         public void ExperimentalClientAndModelReferences()
         {

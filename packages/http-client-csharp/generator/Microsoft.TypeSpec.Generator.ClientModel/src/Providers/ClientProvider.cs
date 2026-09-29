@@ -52,7 +52,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 : ExperimentalApiHelpers.BuildAttributes(_inputClient.Experimental);
 
         protected override SuppressionStatement[] BuildDisabledFileWarnings()
-            => ExperimentalApiHelpers.GetSuppressions(_inputClient);
+            => ExperimentalApiHelpers.MergeSuppressions(
+                ExperimentalApiHelpers.GetSuppressions(_inputClient),
+                SubClients.Where(client => client._clientCachingField is not null)
+                    .SelectMany(client => client.CustomCodeView?.Attributes ?? [])
+                    .Where(attribute => attribute.Type.Equals(typeof(ExperimentalAttribute)))
+                    .Select(attribute => new SuppressionStatement(null, attribute.Arguments[0],
+                        "This generated code references an experimental child client.")));
 
         private readonly InputAuth? _inputAuth;
         private readonly ParameterProvider _endpointParameter;
