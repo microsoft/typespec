@@ -24,7 +24,6 @@ using NUnit.Framework;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 {
-#pragma warning disable SCME0005 // Type is for evaluation purposes only and is subject to change or removal in future updates.
     internal class ScmMethodProviderCollectionTests
     {
         private static readonly InputModelType _spreadModel = InputFactory.Model(
@@ -138,10 +137,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 method.Signature.Parameters.Any(parameter => parameter.Name == "options"));
             var expectedProtocolReturnType = new CSharpType(
                 typeof(Task<>),
-                new CSharpType(typeof(AsyncStreamingClientResult<>), typeof(BinaryData)));
+                new CSharpType(typeof(AsyncStreamingResult<>), typeof(BinaryData)));
             Assert.IsTrue(rawProtocolMethod.Signature.ReturnType!.Equals(expectedProtocolReturnType));
             StringAssert.Contains(
-                "return global::System.ClientModel.AsyncStreamingClientResult.CreateJsonLines",
+                "return global::System.ClientModel.AsyncStreamingResult.CreateJsonLines",
                 rawProtocolMethod.BodyStatements!.ToDisplayString());
 
             var convenienceMethod = methodCollection.Single(method =>
@@ -150,11 +149,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var expectedReturnType = new CSharpType(
                 typeof(Task<>),
                 new CSharpType(
-                    typeof(AsyncStreamingClientResult<>),
+                    typeof(AsyncStreamingResult<>),
                     ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(itemType)!));
             Assert.IsTrue(convenienceMethod.Signature.ReturnType!.Equals(expectedReturnType));
             StringAssert.Contains(
-                "return global::System.ClientModel.AsyncStreamingClientResult.CreateJsonLines",
+                "return global::System.ClientModel.AsyncStreamingResult.CreateJsonLines",
                 convenienceMethod.BodyStatements!.ToDisplayString());
             StringAssert.Contains(
                 "global::Sample.SampleContext.Default",
@@ -165,7 +164,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             using var writer = new CodeWriter();
             writer.WriteMethod(convenienceMethod);
             Assert.AreEqual(
-                Helpers.GetExpectedFromFile(method: "JsonLinesStreamingMethodSuppressionIsScoped"),
+                Helpers.GetExpectedFromFile(),
                 writer.ToString(false));
 
             foreach (var protocolMethod in methodCollection.Where(method =>
@@ -216,11 +215,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var expectedProtocolReturnType = new CSharpType(
                 typeof(Task<>),
                 new CSharpType(
-                    typeof(AsyncStreamingClientResult<>),
+                    typeof(AsyncStreamingResult<>),
                     new CSharpType(typeof(SseItem<>), typeof(BinaryData))));
             Assert.IsTrue(rawProtocolMethod.Signature.ReturnType!.Equals(expectedProtocolReturnType));
             StringAssert.Contains(
-                "return global::System.ClientModel.AsyncStreamingClientResult.CreateSse",
+                "return global::System.ClientModel.AsyncStreamingResult.CreateSse",
                 rawProtocolMethod.BodyStatements!.ToDisplayString());
 
             var convenienceMethod = methodCollection.Single(method =>
@@ -229,14 +228,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var expectedReturnType = new CSharpType(
                 typeof(Task<>),
                 new CSharpType(
-                    typeof(AsyncStreamingClientResult<>),
+                    typeof(AsyncStreamingResult<>),
                     new CSharpType(
                         typeof(SseItem<>),
                         ScmCodeModelGenerator.Instance.TypeFactory.CreateCSharpType(eventType)!)));
             Assert.IsTrue(convenienceMethod.Signature.ReturnType!.Equals(expectedReturnType));
             var body = convenienceMethod.BodyStatements!.ToDisplayString();
             StringAssert.Contains(
-                "return global::System.ClientModel.AsyncStreamingClientResult.CreateSse",
+                "return global::System.ClientModel.AsyncStreamingResult.CreateSse",
                 body);
             StringAssert.Contains(
                 "global::Sample.SampleContext.Default",
@@ -287,6 +286,48 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             StringAssert.DoesNotContain(
                 "ToObjectFromJson",
                 convenienceMethod.BodyStatements!.ToDisplayString());
+        }
+
+        [TestCase("jsonl", "application/jsonl", true)]
+        [TestCase("jsonl", "application/jsonl", false)]
+        [TestCase("sse", "text/event-stream", true)]
+        [TestCase("sse", "text/event-stream", false)]
+        public void StreamingResponsesUseAsyncStreamingResult(
+            string streamKind,
+            string contentType,
+            bool generateConvenienceMethod)
+        {
+            var streamType = new InputStreamingType(
+                "Stream",
+                "Sample.Stream",
+                InputPrimitiveType.String,
+                [contentType],
+                streamKind: streamKind);
+            var operation = InputFactory.Operation(
+                "Receive",
+                responses: [InputFactory.OperationResponse([200], streamType)],
+                bufferResponse: false,
+                generateConvenienceMethod: generateConvenienceMethod);
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "Receive",
+                operation,
+                response: InputFactory.ServiceMethodResponse(streamType, null));
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            Assert.IsNotNull(client);
+
+            var methods = new ScmMethodProviderCollection(serviceMethod, client!);
+            Assert.AreEqual(generateConvenienceMethod ? 2 : 1, methods.Count);
+            foreach (var method in methods)
+            {
+                Assert.AreEqual("AsyncStreamingResult", method.Signature.ReturnType!.Arguments[0].Name);
+                Assert.IsEmpty(method.Suppressions);
+                using var writer = new CodeWriter();
+                writer.WriteMethod(method);
+                StringAssert.DoesNotContain("SCME0005", writer.ToString(false));
+                StringAssert.DoesNotContain("AsyncStreamingClientResult", writer.ToString(false));
+            }
         }
 
         [Test]
@@ -912,7 +953,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                         convenienceMethod.BodyStatements!.ToDisplayString());
                 }
             }
-#pragma warning restore SCME0005
         }
 
         // Enum bodies must be serialized via Utf8JsonWriter (not BinaryData.FromObjectAsJson<T>) to stay AOT/trim safe (IL2026/IL3050).

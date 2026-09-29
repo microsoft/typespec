@@ -35,9 +35,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private static readonly CancellationTokenExtensionsDefinition _cancellationTokenExtensionsDefinition = new();
         private const string JsonMediaType = "application/json";
         private const string XmlMediaType = "application/xml";
-        internal const string StreamingResultDiagnosticId = "SCME0005";
-        internal const string StreamingResultSuppressionJustification =
-            "Type is for evaluation purposes only and is subject to change or removal in future updates.";
         private IList<ParameterProvider> ProtocolMethodParameters => _protocolMethodParameters ??= RestClientProvider.GetMethodParameters(ServiceMethod, ScmMethodKind.Protocol, Client);
         private IList<ParameterProvider>? _protocolMethodParameters;
 
@@ -96,11 +93,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var asyncProtocol = BuildProtocolMethod(_createRequestMethod, true, shouldMakeParametersRequired);
             if (_streamingResponse.Value != null)
             {
-                AddStreamingResultSuppression(asyncProtocol);
                 if (_generateConvenienceMethod && ProtocolMethodExists(asyncProtocol))
                 {
                     var convenienceMethod = BuildConvenienceMethod(asyncProtocol, true);
-                    AddStreamingResultSuppression(convenienceMethod);
                     return
                     [
                         asyncProtocol,
@@ -148,16 +143,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 asyncProtocol,
             ];
         }
-
-        private static void AddStreamingResultSuppression(MethodProvider method)
-            => method.Update(suppressions:
-            [
-                new SuppressionStatement(
-                    null,
-                    Literal(StreamingResultDiagnosticId),
-                    StreamingResultSuppressionJustification),
-                .. method.Suppressions
-            ]);
 
         private bool ProtocolMethodExists(MethodProvider generatedProtocolMethod)
         {
@@ -1820,7 +1805,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             if (streamingResponse != null)
             {
                 responseBodyType = GetRawStreamingItemType(streamingResponse);
-                var resultType = AsyncStreamingClientResultSnippets.Of(responseBodyType);
+                var resultType = AsyncStreamingResultSnippets.Of(responseBodyType);
                 return new CSharpType(typeof(Task<>), resultType);
             }
 
@@ -1835,7 +1820,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             if (response?.BodyType is InputStreamingType streamingType)
             {
                 responseBodyType = GetConvenienceStreamingItemType(streamingType);
-                var resultType = AsyncStreamingClientResultSnippets.Of(responseBodyType);
+                var resultType = AsyncStreamingResultSnippets.Of(responseBodyType);
                 return isAsync ? new CSharpType(typeof(Task<>), resultType) : resultType;
             }
 
@@ -1945,7 +1930,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     var arguments = cancellationToken != null
                         ? new ValueExpression[] { response, parser, terminalPredicate, cancellationToken }
                         : [response, parser, terminalPredicate];
-                    return AsyncStreamingClientResultSnippets.CreateSse(
+                    return AsyncStreamingResultSnippets.CreateSse(
                         response,
                         arguments[1..],
                         payloadCSharpType);
@@ -1956,12 +1941,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     : terminalPredicate == Null
                         ? [response]
                         : [response, terminalPredicate];
-                return AsyncStreamingClientResultSnippets.CreateSse(response, rawArguments[1..]);
+                return AsyncStreamingResultSnippets.CreateSse(response, rawArguments[1..]);
             }
 
             if (!useConvenienceType)
             {
-                return AsyncStreamingClientResultSnippets.CreateJsonLines(
+                return AsyncStreamingResultSnippets.CreateJsonLines(
                     response,
                     cancellationToken != null
                         ? [cancellationToken]
@@ -1991,7 +1976,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     response,
                     jsonLinesParser
                 ];
-            return AsyncStreamingClientResultSnippets.CreateJsonLines(
+            return AsyncStreamingResultSnippets.CreateJsonLines(
                 response,
                 jsonLinesArguments[1..],
                 itemType);

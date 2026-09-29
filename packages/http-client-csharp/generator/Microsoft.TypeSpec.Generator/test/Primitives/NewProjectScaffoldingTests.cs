@@ -2,7 +2,9 @@
 // Licensed under the MIT License.
 
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using Microsoft.TypeSpec.Generator.Primitives;
 using NUnit.Framework;
 
@@ -33,15 +35,79 @@ namespace Microsoft.TypeSpec.Generator.Tests.Primitives
             }
         }
 
-        [Test]
-        public async Task Execute_WritesSlnxAndCsprojFiles()
+        [TestCase("TestPackage")]
+        [TestCase("Test.Package")]
+        public async Task Execute_WritesSlnxAndCsprojFiles(string packageName)
         {
+            MockHelpers.LoadMockGenerator(
+                outputPath: _outputDir,
+                configuration: $"{{\"package-name\": \"{packageName}\"}}");
             var scaffolding = new NewProjectScaffolding();
             var result = await scaffolding.Execute();
 
             Assert.IsTrue(result);
-            Assert.IsTrue(File.Exists(Path.Combine(_outputDir, "TestPackage.slnx")));
-            Assert.IsTrue(File.Exists(Path.Combine(_outputDir, "src", "TestPackage.csproj")));
+            Assert.IsTrue(File.Exists(Path.Combine(_outputDir, $"{packageName}.slnx")));
+            Assert.IsTrue(File.Exists(Path.Combine(_outputDir, "src", $"{packageName}.csproj")));
+            Assert.IsTrue(File.Exists(Path.Combine(_outputDir, "tests", $"{packageName}.Tests.csproj")));
+        }
+
+        [Test]
+        public async Task Execute_WritesTestProjectContent()
+        {
+            var scaffolding = new NewProjectScaffolding();
+            await scaffolding.Execute();
+
+            var project = XDocument.Load(Path.Combine(_outputDir, "tests", "TestPackage.Tests.csproj"));
+            Assert.AreEqual("Microsoft.NET.Sdk", project.Root!.Attribute("Sdk")!.Value);
+            var properties = project.Root.Element("PropertyGroup")!;
+            Assert.AreEqual("net8.0", properties.Element("TargetFramework")!.Value);
+            Assert.AreEqual("true", properties.Element("IsTestProject")!.Value);
+            Assert.AreEqual("false", properties.Element("IsPackable")!.Value);
+
+            var projectReference = project.Descendants("ProjectReference").Single();
+            Assert.AreEqual("../src/TestPackage.csproj", projectReference.Attribute("Include")!.Value);
+            CollectionAssert.AreEquivalent(
+                new[] { ("NUnit", "4.4.0"), ("NUnit3TestAdapter", "4.6.0"), ("Microsoft.NET.Test.Sdk", "18.0.1") },
+                project.Descendants("PackageReference").Select(p => (p.Attribute("Include")!.Value, p.Attribute("Version")!.Value)));
+            Assert.IsEmpty(project.Descendants("None"));
+        }
+
+        [Test]
+        public async Task Execute_PreservesExistingTestFiles()
+        {
+            var testDirectory = Path.Combine(_outputDir, "tests");
+            Directory.CreateDirectory(testDirectory);
+            var testDataPath = Path.Combine(testDirectory, "TestData.txt");
+            await File.WriteAllTextAsync(testDataPath, "existing test data");
+
+            var scaffolding = new NewProjectScaffolding();
+            await scaffolding.Execute();
+
+            Assert.AreEqual("existing test data", await File.ReadAllTextAsync(testDataPath));
+            Assert.IsTrue(File.Exists(Path.Combine(testDirectory, "TestPackage.Tests.csproj")));
+        }
+
+        [Test]
+        public async Task Execute_CanRegenerateTestProject()
+        {
+            var scaffolding = new NewProjectScaffolding();
+            await scaffolding.Execute();
+            var testProjectPath = Path.Combine(_outputDir, "tests", "TestPackage.Tests.csproj");
+            var content = await File.ReadAllTextAsync(testProjectPath);
+
+            await scaffolding.Execute();
+
+            Assert.AreEqual(content, await File.ReadAllTextAsync(testProjectPath));
+        }
+
+        [Test]
+        public async Task Execute_UsesCustomTestProjectContent()
+        {
+            var scaffolding = new TestScaffolding();
+            await scaffolding.Execute();
+
+            var project = XDocument.Load(Path.Combine(_outputDir, "tests", "TestPackage.Tests.csproj"));
+            Assert.AreEqual("net10.0", project.Root!.Element("PropertyGroup")!.Element("TargetFramework")!.Value);
         }
 
         [Test]
@@ -80,6 +146,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Primitives
             var content = await File.ReadAllTextAsync(slnxPath);
             Assert.That(content, Does.Contain("src/TestPackage.csproj"));
             Assert.That(content, Does.Not.Contain("src\\TestPackage.csproj"));
+            Assert.That(content, Does.Contain("tests/TestPackage.Tests.csproj"));
+            Assert.That(content, Does.Not.Contain("tests\\TestPackage.Tests.csproj"));
         }
 
         [Test]
@@ -106,6 +174,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Primitives
         private class TestScaffolding : NewProjectScaffolding
         {
             public bool WriteAdditionalFilesCalled { get; private set; }
+
+            protected override string GetTestProjectFileContent()
+            {
+                return new CSharpProjectWriter { TargetFramework = "net10.0" }.Write();
+            }
 
             protected override Task WriteAdditionalFiles()
             {
