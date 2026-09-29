@@ -1,5 +1,5 @@
 import { Tester } from "#test/tester.js";
-import type { TesterInstance } from "@typespec/compiler/testing";
+import { t, type TesterInstance } from "@typespec/compiler/testing";
 import { $ } from "@typespec/compiler/typekit";
 import { HttpCanonicalizer } from "@typespec/http-canonicalization";
 import { beforeEach, expect, it, vi } from "vitest";
@@ -147,7 +147,31 @@ it("skips operation canonicalization when it is disabled", async () => {
   expect(resolution.models.map((model) => model.name)).toContain("Widget");
   expect(resolution.interfaces).toHaveLength(1);
   expect(resolution.canonicalOpsMap).toEqual(new Map());
+  expect(resolution.canonicalOperationSourceMap).toEqual(new Map());
   expect(canonicalize).not.toHaveBeenCalled();
+});
+
+it("tracks the exact source operation for each canonical operation", async () => {
+  const { read } = await runner.compile(t.code`
+    @service
+    namespace Contoso {
+      interface ${t.interface("PetStore")} {
+        @route("/pets/{id}") @get ${t.op("read")}(
+          @path id: string,
+          @query apiVersion?: string,
+        ): string;
+      }
+    }
+  `);
+  const tk = $(runner.program);
+  const resolution = resolveServiceTypes(runner.program, tk, new HttpCanonicalizer(tk));
+  const canonicalOperation = [...resolution.canonicalOperationSourceMap].find(
+    ([, sourceOperation]) => sourceOperation === read,
+  )?.[0];
+
+  expect(canonicalOperation).toBeDefined();
+  expect(resolution.canonicalOperationSourceMap.get(canonicalOperation!)).toBe(read);
+  expect([...resolution.canonicalOpsMap.values()].flat()).toContain(canonicalOperation);
 });
 
 it("discovers the payload type of an HttpPart", async () => {

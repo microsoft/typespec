@@ -1,11 +1,13 @@
 import { getDocData, Numeric } from "@typespec/compiler";
 import { ok } from "assert";
 import { describe, expect, it } from "vitest";
+import { convertOpenAPI3Document } from "../../src/index.js";
 import { expectDecorators } from "./utils/expect.js";
 import {
   compileForOpenAPI3,
   renderTypeSpecForOpenAPI3,
   tspForOpenAPI3,
+  validateTsp,
 } from "./utils/tsp-for-openapi3.js";
 
 describe("$ref with sibling keywords", () => {
@@ -302,10 +304,15 @@ describe("$ref with sibling keywords", () => {
 
   describe("parameter with $ref and deprecated", () => {
     it("should handle deprecated on $ref parameter", async () => {
-      const tsp = await renderTypeSpecForOpenAPI3({
-        schemas: {
-          StringType: {
-            type: "string",
+      const tsp = await convertOpenAPI3Document({
+        openapi: "3.2.0",
+        info: { title: "Test Service", version: "1.0.0" },
+        components: {
+          schemas: {
+            OrderEnum: {
+              type: "string",
+              enum: ["asc", "desc"],
+            },
           },
         },
         paths: {
@@ -314,12 +321,13 @@ describe("$ref with sibling keywords", () => {
               operationId: "getFoo",
               parameters: [
                 {
-                  name: "oldParam",
+                  name: "order",
                   in: "query",
                   schema: {
-                    $ref: "#/components/schemas/StringType",
+                    $ref: "#/components/schemas/OrderEnum",
+                    default: "desc",
                     deprecated: true,
-                  } as any,
+                  },
                 },
               ],
               responses: {
@@ -330,9 +338,9 @@ describe("$ref with sibling keywords", () => {
         },
       });
 
-      // Should contain #deprecated directive
-      expect(tsp).toContain("#deprecated");
-      expect(tsp).toContain("oldParam");
+      expect(tsp).toMatch(/#deprecated "deprecated"\n\s*@query\(/);
+      expect(tsp).toContain("order?: OrderEnum = OrderEnum.desc");
+      await validateTsp(tsp);
     });
   });
 
