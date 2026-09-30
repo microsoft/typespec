@@ -1,25 +1,14 @@
 import { createSdkContext } from "@azure-tools/typespec-client-generator-core";
 import type { EmitContext } from "@typespec/compiler";
 import { emitFile, joinPaths, listServices, NoTarget } from "@typespec/compiler";
-import pkgJson from "../../package.json" with { type: "json" };
+import { getBrowserPyodide } from "./browser-runtime.js";
 import { emitCodeModel } from "./code-model.js";
-import {
-  BLOB_STORAGE_BASE_URL,
-  PACKAGE_NAME,
-  PYGEN_WHEEL_FILENAME,
-  PYODIDE_VERSION,
-} from "./constants.js";
 import type { PythonEmitterOptions, PythonSdkContext } from "./lib.js";
 import { reportDiagnostic } from "./lib.js";
 import { runNodeEmit } from "./node-runner.js";
 import type { PyodideInterface } from "./pyodide-loader.js";
-import { loadPyodide } from "./pyodide-loader.js";
 import { getRootNamespace, md2Rst } from "./utils.js";
 import { dumpCodeModelToYaml } from "./yaml-utils.js";
-
-function getBrowserPygenWheelUrl(): string {
-  return `${BLOB_STORAGE_BASE_URL}/${PACKAGE_NAME}/${pkgJson.version}/generator/dist/${PYGEN_WHEEL_FILENAME}`;
-}
 
 function addDefaultOptions(sdkContext: PythonSdkContext) {
   const defaultOptions = {
@@ -258,30 +247,6 @@ async function onEmitMain(context: EmitContext<PythonEmitterOptions>) {
   }
 }
 
-let browserPyodidePromise: Promise<PyodideInterface> | undefined;
-
-/**
- * Boot the Pyodide runtime lazily, on the first browser emit.
- *
- * This must not happen when the module is imported: hosts like the TypeSpec playground import every
- * available emitter up front, and booting Pyodide downloads a full CPython WebAssembly runtime plus
- * its wheels (~10MB, ~290MB of resident memory). Doing that eagerly pushed the playground past the
- * per-tab memory budget on mobile browsers, which made the page fail to load.
- */
-function getBrowserPyodide(): Promise<PyodideInterface> | null {
-  if (typeof window === "undefined") {
-    return null;
-  }
-  if (browserPyodidePromise === undefined) {
-    browserPyodidePromise = setupPyodideCallBrowser().catch((error) => {
-      // Clear the cached promise so a later emit can retry after a transient failure.
-      browserPyodidePromise = undefined;
-      throw error;
-    });
-  }
-  return browserPyodidePromise;
-}
-
 function clearMemfsDirectory(pyodide: PyodideInterface, dir: string): void {
   const entries: string[] = pyodide.FS.readdir(dir).filter(
     (entry: string) => entry !== "." && entry !== "..",
@@ -296,18 +261,4 @@ function clearMemfsDirectory(pyodide: PyodideInterface, dir: string): void {
       pyodide.FS.unlink(fullPath);
     }
   }
-}
-
-async function setupPyodideCallBrowser() {
-  const pyodide = await loadPyodide({
-    indexURL: `https://cdn.jsdelivr.net/pyodide/v${PYODIDE_VERSION}/full/`,
-  });
-
-  // use default MEMFS for browser, since NODEFS is not supported
-  pyodide.FS.mkdirTree("/generator");
-  await pyodide.loadPackage("micropip");
-  const micropip = pyodide.pyimport("micropip");
-  await micropip.install(getBrowserPygenWheelUrl());
-
-  return pyodide;
 }
