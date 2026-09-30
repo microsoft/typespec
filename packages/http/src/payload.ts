@@ -181,8 +181,14 @@ function resolveBody(
     }
   }
 
+  const bodyProperties = new Set<ModelProperty>();
+  for (const item of metadata) {
+    if (item.kind === "bodyProperty") {
+      bodyProperties.add(item.property);
+    }
+  }
   const unannotatedProperties = filterModelProperties(program, requestOrResponseType, (p) =>
-    metadata.some((x) => x.property === p && x.kind === "bodyProperty"),
+    bodyProperties.has(p),
   );
 
   if (unannotatedProperties.properties.size > 0) {
