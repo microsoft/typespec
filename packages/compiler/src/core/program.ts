@@ -430,6 +430,7 @@ async function createProgram(
   linter.registerLinterLibrary(builtInLinterLibraryName, createBuiltInLinterLibrary());
   if (options.linterRuleSet) {
     let linterSource: RuleSetYamlSource | undefined;
+    const hasLinterSourceMetadata = options.configFile?.linterSource !== undefined;
     const linterSourcePath = options.configFile?.linterSource?.extends;
     const needsLinterSource =
       options.linterRuleSet.extends?.some((ref) => ref.startsWith(linterRuleSetFilePrefix)) ??
@@ -444,7 +445,9 @@ async function createProgram(
       }
     }
     const canUseFinalConfigSource =
-      !needsLinterSource || !linterSourcePath || linterSourcePath === options.configFile?.filename;
+      !needsLinterSource ||
+      !hasLinterSourceMetadata ||
+      linterSourcePath === options.configFile?.filename;
     linterSource ??=
       canUseFinalConfigSource && options.configFile?.file
         ? { script: options.configFile.file, path: ["linter"] }

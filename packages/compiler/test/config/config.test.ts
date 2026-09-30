@@ -300,6 +300,52 @@ describe("file discovery", () => {
       strictEqual(target.file?.path, resolveVirtualPath("base/tspconfig.yaml"));
       strictEqual(parentConfig.slice(target.pos, target.end), `"file:./missing.yaml"`);
     });
+    it("does not reuse inherited linter source metadata for a linter override", async () => {
+      const fs = createTestFileSystem();
+      fs.addTypeSpecFile(
+        "base/tspconfig.yaml",
+        `
+        linter:
+          extends:
+            - "file:./base-missing.yaml"
+        `,
+      );
+      fs.addTypeSpecFile(
+        "project/tspconfig.yaml",
+        `
+        extends: "../base/tspconfig.yaml"
+        `,
+      );
+      fs.addTypeSpecFile("project/main.tsp", "");
+      fs.addTypeSpecFile("node_modules/@typespec/compiler/lib/intrinsics.tsp", "");
+
+      const config = await loadTypeSpecConfigForPath(
+        fs.compilerHost,
+        resolveVirtualPath("project/tspconfig.yaml"),
+        true,
+        false,
+      );
+      const overridePath = resolveVirtualPath("override/missing.yaml");
+      const [options, optionDiagnostics] = resolveOptionsFromConfig(config, {
+        cwd: resolveVirtualPath("project"),
+        overrides: { linter: { extends: [`file:${overridePath}`] } },
+      });
+      expectDiagnosticEmpty(optionDiagnostics);
+      deepStrictEqual(options.configFile?.linterSource, {});
+
+      const program = await compile(fs.compilerHost, resolveVirtualPath("project/main.tsp"), {
+        ...options,
+        noEmit: true,
+        nostdlib: true,
+      });
+      expectDiagnostics(program.diagnostics, {
+        code: "file-not-found",
+        severity: "error",
+        message: `File ${overridePath} not found.`,
+      });
+      strictEqual(program.diagnostics[0].target, NoTarget);
+    });
+
     it("falls back when an inherited linter source becomes unreadable before compilation", async () => {
       const fs = createTestFileSystem();
       const parentPath = resolveVirtualPath("base/tspconfig.yaml");
