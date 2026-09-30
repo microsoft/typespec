@@ -45,7 +45,7 @@ namespace Sample
                 {
                     if ((prop.Value.ValueKind == global::System.Text.Json.JsonValueKind.Null))
                     {
-                        requiredNullableNames = new global::Sample.ChangeTrackingList<string>();
+                        requiredNullableNames = new global::System.Collections.Generic.List<string>();
                         continue;
                     }
                     global::System.Collections.Generic.List<string> array = new global::System.Collections.Generic.List<string>();

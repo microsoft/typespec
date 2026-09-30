@@ -1644,9 +1644,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 if (propertyIsRequired && !serializedType.IsValueType)
                 {
+                    var initializationType = serializedType.FrameworkType.IsInterface
+                        ? serializedType.PropertyInitializationType
+                        : serializedType;
                     return new IfStatement(checkEmptyProperty)
                     {
-                        propertyVarRef.Assign(New.Instance(serializedType.PropertyInitializationType)).Terminate(),
+                        propertyVarRef.Assign(New.Instance(initializationType)).Terminate(),
                         Continue
                     };
                 }
