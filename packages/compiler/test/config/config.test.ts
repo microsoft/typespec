@@ -9,6 +9,7 @@ import { NodeHost } from "../../src/core/node-host.js";
 import { compile } from "../../src/core/program.js";
 import { createJSONSchemaValidator } from "../../src/core/schema-validator.js";
 import { createSourceFile } from "../../src/core/source-file.js";
+import { NoTarget } from "../../src/core/types.js";
 import { resolvePath } from "../../src/index.js";
 import { createTestFileSystem } from "../../src/testing/fs.js";
 import { expectDiagnosticEmpty, expectDiagnostics } from "../../src/testing/index.js";
@@ -351,6 +352,7 @@ describe("file discovery", () => {
         severity: "error",
         message: `File ${resolveVirtualPath("base/missing.yaml")} not found.`,
       });
+      strictEqual(program.diagnostics[0].target, NoTarget);
     });
   });
 });

@@ -439,13 +439,16 @@ async function createProgram(
         const [script] = parseYaml(await host.readFile(linterSourcePath));
         linterSource = { script, path: ["linter"] };
       } catch {
-        // The config was readable when it was loaded. If it disappeared between
-        // config resolution and compilation, fall back to the final config source.
+        // The config was readable when it was loaded. If an inherited declaring
+        // config disappeared, do not misattribute its diagnostic to the child config.
       }
     }
-    linterSource ??= options.configFile?.file
-      ? { script: options.configFile.file, path: ["linter"] }
-      : undefined;
+    const canUseFinalConfigSource =
+      !needsLinterSource || !linterSourcePath || linterSourcePath === options.configFile?.filename;
+    linterSource ??=
+      canUseFinalConfigSource && options.configFile?.file
+        ? { script: options.configFile.file, path: ["linter"] }
+        : undefined;
 
     program.reportDiagnostics(
       await linter.extendRuleSet(options.linterRuleSet, {
