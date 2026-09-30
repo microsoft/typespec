@@ -1,9 +1,9 @@
-/* eslint-disable @typescript-eslint/no-unsafe-declaration-merging */
-import type { Parameter } from "@autorest/codemodel";
-import { Info, Metadata, OperationGroup, Schemas, Security } from "@autorest/codemodel";
-import type { DeepPartial } from "@azure-tools/codegen";
-import { enableSourceTracking } from "@azure-tools/codegen";
 import type { Client } from "./client.js";
+import type { Info, Metadata, ModelOptions, Parameter, Security } from "./model.js";
+import { createInfo, createMetadata, createSecurity, initializeMetadata } from "./model.js";
+import type { OperationGroup } from "./operation.js";
+import type { Schemas } from "./schemas.js";
+import { createSchemas } from "./schemas.js";
 
 /** the model that contains all the information required to generate a service api */
 export interface CodeModel extends Metadata {
@@ -32,82 +32,30 @@ export interface CodeModel extends Metadata {
   crossLanguageVersion?: string;
 }
 
-export class CodeModel extends Metadata implements CodeModel {
-  constructor(title: string, sourceTracking = false, objectInitializer?: DeepPartial<CodeModel>) {
-    super();
-    // if we are enabling source tracking, then we have to use a proxied version of this
-    const $this = sourceTracking ? enableSourceTracking(this) : this;
-
-    $this.info = new Info(title);
-    $this.schemas = new Schemas();
-    $this.operationGroups = [];
-    $this.security = new Security(false);
-    $this.clients = [];
-
-    this.applyTo($this, objectInitializer);
-  }
-
-  private get globals(): Array<Parameter> {
-    return this.globalParameters || (this.globalParameters = []);
-  }
-
-  getOperationGroup(group: string) {
-    let result = this.operationGroups.find(
-      (each) => group.toLowerCase() === each.$key.toLowerCase(),
-    );
-    if (!result) {
-      result = new OperationGroup(group);
-      this.operationGroups.push(result);
-    }
-    return result;
-  }
-
-  findGlobalParameter(predicate: (value: Parameter) => boolean) {
-    return this.globals.find(predicate);
-  }
-
-  addGlobalParameter(parameter: Parameter): Parameter;
-  addGlobalParameter(find: (value: Parameter) => boolean, create: () => Parameter): Parameter;
-  addGlobalParameter(
-    predicateOrParameter: Parameter | ((value: Parameter) => boolean),
-    create: ValueOrFactory<Parameter> = <any>undefined,
-  ): Parameter {
-    try {
-      if (typeof predicateOrParameter !== "function") {
-        // overload : parameter passed
-        this.globals.push(predicateOrParameter);
-
-        return predicateOrParameter;
-      }
-
-      // overload : predicate, parameter passed
-      let p = this.findGlobalParameter(predicateOrParameter);
-      if (!p) {
-        this.globals.push((p = realize(create)));
-      }
-      return p;
-    } finally {
-      this.globalParameters = sortAscendingInvalidLast(
-        this.globals,
-        (each) => each.extensions?.["x-ms-priority"],
-      );
-    }
-  }
+export function createCodeModel(
+  title: string,
+  options: Omit<ModelOptions<CodeModel>, "info"> & { info?: Partial<Info> } = {},
+): CodeModel {
+  return initializeMetadata<CodeModel>(
+    {
+      ...createMetadata(),
+      info: createInfo(title),
+      schemas: createSchemas(),
+      operationGroups: [],
+      security: createSecurity(false),
+      clients: [],
+    },
+    { ...options, info: createInfo(title, options.info) },
+  );
 }
 
-export type ValueOrFactory<T> = T | (() => T);
-
-function realize<T>(f: ValueOrFactory<T>): T {
-  return f instanceof Function ? f() : f;
-}
-
-function sortAscendingInvalidLast<T>(
-  input: Array<T>,
-  accessor: (each: T) => number | undefined,
-): Array<T> {
-  return input.sort((a, b) => {
-    const pA = accessor(a) ?? Number.MAX_VALUE;
-    const pB = accessor(b) ?? Number.MAX_VALUE;
-    return pA - pB;
-  });
+export function addGlobalParameter(model: CodeModel, parameter: Parameter): Parameter {
+  const parameters = (model.globalParameters ??= []);
+  parameters.push(parameter);
+  parameters.sort(
+    (a, b) =>
+      (a.extensions?.["x-ms-priority"] ?? Number.MAX_VALUE) -
+      (b.extensions?.["x-ms-priority"] ?? Number.MAX_VALUE),
+  );
+  return parameter;
 }

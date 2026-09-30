@@ -1,7 +1,7 @@
-import type { ApiVersions, Parameter } from "@autorest/codemodel";
 import type { ModelProperty, Namespace, Operation, Program } from "@typespec/compiler";
 import type { Version } from "@typespec/versioning";
 import { findVersionedNamespace, getVersions } from "@typespec/versioning";
+import type { ApiVersions, Parameter } from "./common/model.js";
 import {
   getFilteredApiVersions,
   InconsistentVersions,
