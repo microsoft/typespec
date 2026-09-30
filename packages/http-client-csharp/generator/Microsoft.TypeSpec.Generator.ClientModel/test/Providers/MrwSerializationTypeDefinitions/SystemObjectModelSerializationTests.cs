@@ -10,12 +10,14 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
+using ClientModelProvider = Microsoft.TypeSpec.Generator.ClientModel.Providers.ScmModelProvider;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.SourceInput;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using Moq;
+using Moq.Protected;
 using NUnit.Framework;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializationTypeDefinitions
@@ -125,6 +127,88 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                     Is.EqualTo("TrackedResource"));
                 Assert.That(serialization.BuildJsonModelCreateCoreMethod().Signature.ReturnType?.Name,
                     Is.EqualTo("TrackedResource"));
+            });
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void CreateCoreHistoricalReturnIsNotWidenedByMappedCandidateDiscovery(bool discoverMappedCandidate)
+        {
+            var mappedInput = InputFactory.Model("KnownMappedBase", properties: []);
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var derivedInput = InputFactory.Model("Derived", properties: [], baseModel: currentBase);
+            var frameworkType = new CSharpType(typeof(CreateCoreFrameworkRoot));
+            var generator = MockHelpers.LoadMockGenerator(
+                inputModels: () => discoverMappedCandidate
+                    ? [mappedInput, currentBase, derivedInput] : [currentBase, derivedInput],
+                createModelCore: input => input == mappedInput
+                    ? new SystemObjectModelProvider(frameworkType, input) : new ClientModelProvider(input));
+            Mock.Get(generator.Object.TypeFactory).Protected()
+                .Setup<CSharpType?>("CreateLastContractModelBaseCore", ItExpr.IsAny<CSharpType>(), ItExpr.IsAny<InputModelType>())
+                .Returns(frameworkType);
+
+            var references = ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!).Split(System.IO.Path.PathSeparator)
+                .Append(typeof(ModelReaderWriterOptions).Assembly.Location)
+                .Append(typeof(BinaryData).Assembly.Location)
+                .Append(typeof(CreateCoreFrameworkRoot).Assembly.Location)
+                .Distinct().Select(path => MetadataReference.CreateFromFile(path)).ToArray();
+            var historicalSource = $$"""
+                namespace Sample.Models
+                {
+                    public class Derived : {{frameworkType.Namespace}}.{{frameworkType.Name}}
+                    {
+                        protected virtual Derived PersistableModelCreateCore(System.BinaryData data,
+                            System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw new System.NotImplementedException();
+                        protected virtual Derived JsonModelCreateCore(ref System.Text.Json.Utf8JsonReader reader,
+                            System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw new System.NotImplementedException();
+                    }
+                }
+                """;
+            var historical = CSharpCompilation.Create("HistoricalCreateCoreReturn",
+                [CSharpSyntaxTree.ParseText(historicalSource)], references,
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            generator.SetupProperty(plugin => plugin.SourceInputModel, new SourceInputModel(null, historical));
+
+            // Let normal discovery register the candidate. Do not modify CSharpTypeMap or
+            // normalize the historical parameters to manufacture the root traversal.
+            var model = generator.Object.TypeFactory.CreateModel(derivedInput)!;
+            Assert.That(model.BaseType?.AreNamesEqual(frameworkType), Is.True);
+            Assert.That(generator.Object.TypeFactory.CSharpTypeMap.Keys.Any(type => type.AreNamesEqual(frameworkType)),
+                Is.EqualTo(discoverMappedCandidate));
+            var serialization = (MrwSerializationTypeDefinition)model.SerializationProviders.Single();
+            var emitted = CSharpSyntaxTree.ParseText(new TypeProviderWriter(serialization).Write().Content);
+            var signatures = emitted.GetRoot().DescendantNodes().OfType<MethodDeclarationSyntax>()
+                .Where(method => method.Identifier.Text is "PersistableModelCreateCore" or "JsonModelCreateCore")
+                .Select(method => method.WithBody(SyntaxFactory.Block(
+                    SyntaxFactory.ParseStatement("throw new System.NotImplementedException();"))).ToFullString()).ToArray();
+            Assert.That(signatures, Has.Length.EqualTo(2));
+            var consumer = CSharpSyntaxTree.ParseText("""
+                namespace Consumer
+                {
+                    public class ExistingSubclass : Sample.Models.Derived
+                    {
+                        public Sample.Models.Derived Clone(System.BinaryData data,
+                            System.ClientModel.Primitives.ModelReaderWriterOptions options)
+                            => base.PersistableModelCreateCore(data, options);
+                        public Sample.Models.Derived Read(ref System.Text.Json.Utf8JsonReader reader,
+                            System.ClientModel.Primitives.ModelReaderWriterOptions options)
+                            => base.JsonModelCreateCore(ref reader, options);
+                    }
+                }
+                """);
+            Assert.That(historical.AddSyntaxTrees(consumer).GetDiagnostics()
+                .Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error), Is.Empty,
+                "The unchanged consumer must compile against the shipped signatures.");
+            var generatedSource = $"namespace Sample.Models {{ public class Derived : {frameworkType.Namespace}.{frameworkType.Name} {{ {string.Join("\n", signatures)} }} }}";
+            var generated = CSharpCompilation.Create("GeneratedCreateCoreReturn",
+                [CSharpSyntaxTree.ParseText(generatedSource), consumer], references,
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            Assert.Multiple(() =>
+            {
+                Assert.That(generated.GetDiagnostics().Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error),
+                    Is.Empty, "Root traversal must not break existing Derived-returning consumers with CS0266.");
+                Assert.That(serialization.BuildPersistableModelCreateCoreMethod().Signature.ReturnType?.Name, Is.EqualTo("Derived"));
+                Assert.That(serialization.BuildJsonModelCreateCoreMethod().Signature.ReturnType?.Name, Is.EqualTo("Derived"));
             });
         }
 
@@ -768,6 +852,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             protected override CSharpType? BuildBaseType() => BaseModel?.Type;
         }
     }
+
+    public class CreateCoreFrameworkRoot { }
 
     // The mapped type inherits (rather than declares) the create-core signatures from its root.
     public class InheritedCreateCoreRoot : IJsonModel<InheritedCreateCoreRoot>

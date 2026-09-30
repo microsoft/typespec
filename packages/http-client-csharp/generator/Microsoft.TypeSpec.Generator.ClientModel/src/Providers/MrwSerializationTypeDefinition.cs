@@ -171,14 +171,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // Preserve the shipped create-core return type when back compatibility restores a mapped
             // base. The prior contract may have used a covariant model return rather than the mapped
             // framework root type.
-            var lastContractReturnType = _model.BaseModelProvider is SystemObjectModelProvider
-                ? GetLastContractCreateCoreReturnType()
-                : null;
+            if (_model.BaseModelProvider is SystemObjectModelProvider &&
+                GetLastContractCreateCoreReturnType() is { } lastContractReturnType)
+            {
+                return lastContractReturnType;
+            }
 
             // We need to explicitly use the BaseModelProvider when looking up the root type
             // to account for any customizations that may have changed the base model.
-            var returnType = lastContractReturnType ??
-                _model.BaseModelProvider?.Type ??
+            var returnType = _model.BaseModelProvider?.Type ??
                 GetCustomMrwBaseRootType() ??
                 Type;
             while (returnType.BaseType != null
