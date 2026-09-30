@@ -1,11 +1,11 @@
-import type { BinarySchema, Schema, Schemas, StringSchema } from "@autorest/codemodel";
-import { ArraySchema, ObjectSchema, Property } from "@autorest/codemodel";
-import { KnownMediaType } from "@azure-tools/codegen";
 import type {
   SdkModelPropertyType,
   SdkModelType,
   SdkType,
 } from "@azure-tools/typespec-client-generator-core";
+import { KnownMediaType } from "./common/codemodel-helpers.js";
+import type { BinarySchema, Schema, Schemas, StringSchema } from "./common/codemodel.js";
+import { ArraySchema, ObjectSchema, Property } from "./common/codemodel.js";
 import { getNamespace, pascalCase } from "./utils.js";
 
 /*

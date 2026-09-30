@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-declaration-merging */
-import { PrimitiveSchema, SchemaType } from "@autorest/codemodel";
-import type { DeepPartial } from "@azure-tools/codegen";
+import type { DeepPartial } from "../codemodel-helpers.js";
+import { PrimitiveSchema, SchemaType } from "../codemodel.js";
 
 /** a schema that represents a Duration value */
 export interface DurationSchema extends PrimitiveSchema {
