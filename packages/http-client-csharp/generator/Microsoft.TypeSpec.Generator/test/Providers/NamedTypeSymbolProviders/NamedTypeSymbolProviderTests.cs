@@ -3,7 +3,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -30,6 +32,114 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
             _iNamedSymbol = CompilationHelper.GetSymbol(compilation.Assembly.Modules.First().GlobalNamespace, "NamedSymbol")!;
 
             _namedTypeSymbolProvider = new NamedTypeSymbolProvider(_iNamedSymbol, compilation);
+        }
+
+        [Test]
+        public async Task SemanticModelsAreSharedAcrossProviders()
+        {
+            var compilation = await Helpers.GetCompilationFromDirectoryAsync(method: "SemanticModelReuse");
+            var tree = compilation.SyntaxTrees.Single(tree => Path.GetFileName(tree.FilePath) == "Custom.cs");
+            var first = new NamedTypeSymbolProvider(compilation.GetTypeByMetadataName("Sample.First")!, compilation);
+            var second = new NamedTypeSymbolProvider(compilation.GetTypeByMetadataName("Sample.Second")!, compilation);
+
+            var model = first.GetSemanticModel(tree);
+
+            Assert.AreSame(model, first.GetSemanticModel(tree));
+            Assert.AreSame(model, second.GetSemanticModel(tree));
+            Assert.AreSame(compilation, model.Compilation);
+            Assert.AreSame(tree, model.SyntaxTree);
+        }
+
+        [Test]
+        public async Task SemanticModelsAreNotSharedAcrossCompilations()
+        {
+            var compilation = await Helpers.GetCompilationFromDirectoryAsync(method: "SemanticModelReuse");
+            var otherCompilation = compilation.Clone();
+            var tree = compilation.SyntaxTrees.Single(tree => Path.GetFileName(tree.FilePath) == "Custom.cs");
+            var first = new NamedTypeSymbolProvider(compilation.GetTypeByMetadataName("Sample.First")!, compilation);
+            var other = new NamedTypeSymbolProvider(otherCompilation.GetTypeByMetadataName("Sample.First")!, otherCompilation);
+
+            Assert.AreNotSame(first.GetSemanticModel(tree), other.GetSemanticModel(tree));
+            Assert.AreSame(compilation, first.GetSemanticModel(tree).Compilation);
+            Assert.AreSame(otherCompilation, other.GetSemanticModel(tree).Compilation);
+        }
+
+        [Test]
+        public async Task SemanticModelsUseTreeIdentityRatherThanFilePath()
+        {
+            var compilation = await Helpers.GetCompilationFromDirectoryAsync(method: "SemanticModelReuse");
+            var original = compilation.SyntaxTrees.Single(tree => Path.GetFileName(tree.FilePath) == "Custom.cs");
+            var other = CSharpSyntaxTree.ParseText(original.GetText(), path: original.FilePath);
+            compilation = compilation.AddSyntaxTrees(other);
+            var symbol = compilation.GetTypeByMetadataName("Sample.First")!;
+            var provider = new NamedTypeSymbolProvider(symbol, compilation);
+
+            Assert.AreNotSame(provider.GetSemanticModel(original), provider.GetSemanticModel(other));
+            Assert.AreSame(original, provider.GetSemanticModel(original).SyntaxTree);
+            Assert.AreSame(other, provider.GetSemanticModel(other).SyntaxTree);
+        }
+
+        [Test]
+        public async Task SemanticModelReuseSupportsConcurrentReaders()
+        {
+            var compilation = await Helpers.GetCompilationFromDirectoryAsync(method: "SemanticModelReuse");
+            var tree = compilation.SyntaxTrees.Single(tree => Path.GetFileName(tree.FilePath) == "Custom.cs");
+            var symbol = compilation.GetTypeByMetadataName("Sample.First")!;
+            var models = await Task.WhenAll(Enumerable.Range(0, 32).Select(_ => Task.Run(() =>
+                new NamedTypeSymbolProvider(symbol, compilation).GetSemanticModel(tree))));
+
+            Assert.That(models, Is.All.SameAs(models[0]));
+        }
+
+        [Test]
+        public async Task SemanticModelReusePreservesInitializersAndDependencies()
+        {
+            var compilation = await Helpers.GetCompilationFromDirectoryAsync(method: "SemanticModelReuse");
+            var provider = new NamedTypeSymbolProvider(compilation.GetTypeByMetadataName("Sample.First")!, compilation);
+            var tree = compilation.SyntaxTrees.Single(tree => Path.GetFileName(tree.FilePath) == "Custom.cs");
+            var model = provider.GetSemanticModel(tree);
+
+            var value = (AutoPropertyBody)provider.Properties.Single(property => property.Name == "Value").Body;
+            Assert.AreEqual(42, ((LiteralExpression)value.InitializationExpression!).Literal);
+            Assert.That(provider.SignatureDependencyTypes.Select(type => type.FullyQualifiedName), Contains.Item("Sample.Second"));
+            Assert.That(provider.BodyDependencyTypes.Select(type => type.FullyQualifiedName), Contains.Item("Sample.Second"));
+            Assert.AreSame(model, provider.GetSemanticModel(tree));
+        }
+
+        [Test]
+        public async Task SemanticModelsRejectTreesOutsideTheirCompilation()
+        {
+            var compilation = await Helpers.GetCompilationFromDirectoryAsync(method: "SemanticModelReuse");
+            var provider = new NamedTypeSymbolProvider(compilation.GetTypeByMetadataName("Sample.First")!, compilation);
+            var original = compilation.SyntaxTrees.First();
+            var outside = CSharpSyntaxTree.ParseText(original.GetText(), path: original.FilePath);
+
+            Assert.Throws<ArgumentException>(() => provider.GetSemanticModel(outside));
+            Assert.AreSame(original, provider.GetSemanticModel(original).SyntaxTree);
+        }
+
+        [Test]
+        public void SemanticModelCacheDoesNotKeepCompilationsAlive()
+        {
+            var references = CreateCachedCompilation();
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+            GC.Collect();
+
+            Assert.IsFalse(references.Compilation.IsAlive);
+            Assert.IsFalse(references.Model.IsAlive);
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private static (WeakReference Compilation, WeakReference Model) CreateCachedCompilation()
+        {
+            var source = File.ReadAllText(Path.Combine(
+                Helpers.GetAssetFileOrDirectoryPath(false, method: "SemanticModelReuse"), "Custom.cs"));
+            var tree = CSharpSyntaxTree.ParseText(source);
+            var compilation = CSharpCompilation.Create("Transient", [tree],
+                [MetadataReference.CreateFromFile(typeof(object).Assembly.Location)]);
+            var provider = new NamedTypeSymbolProvider(compilation.GetTypeByMetadataName("Sample.First")!, compilation);
+            return (new WeakReference(compilation), new WeakReference(provider.GetSemanticModel(tree)));
         }
 
         [Test]

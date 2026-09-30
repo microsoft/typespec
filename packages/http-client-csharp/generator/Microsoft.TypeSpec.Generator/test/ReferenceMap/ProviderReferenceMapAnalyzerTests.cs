@@ -38,6 +38,85 @@ namespace Microsoft.TypeSpec.Generator.Tests.ReferenceMap
         }
 
         [Test]
+        public void ReverseReferencesPreserveAllIncomingEdges()
+        {
+            var references = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal)
+            {
+                ["First"] = ["First", "Second", "Target"],
+                ["Second"] = ["First", "Target"],
+                ["target"] = ["Target"],
+                ["Isolated"] = []
+            };
+
+            var predecessors = ProviderReferenceMapAnalyzer.ReverseReferences(references);
+
+            CollectionAssert.AreEquivalent(new[] { "First", "Second" }, predecessors["First"]);
+            CollectionAssert.AreEquivalent(new[] { "First" }, predecessors["Second"]);
+            CollectionAssert.AreEquivalent(new[] { "First", "Second", "target" }, predecessors["Target"]);
+            Assert.IsFalse(predecessors.ContainsKey("target"));
+            Assert.IsFalse(predecessors.ContainsKey("Isolated"));
+            CollectionAssert.AreEquivalent(new[] { "First", "Second", "Target" }, references["First"]);
+        }
+
+        [Test]
+        public void ReverseReferencesAreRebuiltAfterGraphChanges()
+        {
+            var references = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal)
+            {
+                ["First"] = ["Second"]
+            };
+            var before = ProviderReferenceMapAnalyzer.ReverseReferences(references);
+            references["First"].Add("Third");
+
+            var after = ProviderReferenceMapAnalyzer.ReverseReferences(references);
+
+            Assert.IsFalse(before.ContainsKey("Third"));
+            CollectionAssert.AreEquivalent(new[] { "First" }, after["Third"]);
+            Assert.IsEmpty(ProviderReferenceMapAnalyzer.ReverseReferences(new Dictionary<string, HashSet<string>>()));
+        }
+
+        [Test]
+        public void AccessibilityPropagationPreservesChainsAndCycles(
+            [Values(false, true)] bool reverseOrder,
+            [Values(false, true)] bool cycle,
+            [Values(false, true)] bool publicRoot)
+        {
+            var models = Enumerable.Range(0, 8)
+                .Select(i => new GeneratedModelTestTypeProvider($"Model{i}", TypeSignatureModifiers.Public, "Sample"))
+                .ToArray();
+            MockHelpers.LoadMockGenerator(
+                createOutputLibrary: () => new TestOutputLibrary(models),
+                configuration: "{\"unreferenced-types-handling\":\"removeOrInternalize\"}");
+            for (var i = 0; i < models.Length; i++)
+            {
+                if (i < models.Length - 1 || cycle)
+                {
+                    models[i].Update(properties:
+                    [
+                        new PropertyProvider($"", MethodSignatureModifiers.Public,
+                            models[(i + 1) % models.Length].Type, "Next", new AutoPropertyBody(false), models[i]),
+                        new PropertyProvider($"", MethodSignatureModifiers.Public,
+                            models[i].Type, "Self", new AutoPropertyBody(false), models[i])
+                    ]);
+                }
+            }
+            if (publicRoot)
+            {
+                CodeModelGenerator.Instance.AddTypeToKeep(models[0]);
+            }
+            TypeProvider[] providers = reverseOrder ? models.Reverse().ToArray() : models;
+
+            using var session = ProviderReferenceMapAnalyzer.PrepareForGeneration(providers);
+
+            foreach (var model in models)
+            {
+                Assert.AreEqual(publicRoot, model.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public), model.Name);
+                Assert.AreEqual(!publicRoot, model.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Internal), model.Name);
+                Assert.AreEqual(publicRoot, session.ShouldWriteProvider(model), model.Name);
+            }
+        }
+
+        [Test]
         public void NonRootKeptTypesKeepTheirAccessibility()
         {
             var context = new TestTypeProvider("SampleContext", TypeSignatureModifiers.Public);
