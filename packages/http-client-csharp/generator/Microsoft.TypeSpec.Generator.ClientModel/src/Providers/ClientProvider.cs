@@ -220,7 +220,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 if (updatedOperationName != projectedName.OriginalName &&
                     projectedNames.Any(other =>
                         !ReferenceEquals(other.ServiceMethod, projectedName.ServiceMethod) &&
-                        other.UpdatedName == updatedOperationName &&
+                        (other.UpdatedName == updatedOperationName ||
+                            other.UpdatedName == $"{updatedOperationName}Async" ||
+                            $"{other.UpdatedName}Async" == updatedOperationName) &&
                         other.OriginalName != projectedName.OriginalName))
                 {
                     updatedOperationName = projectedName.OriginalName;

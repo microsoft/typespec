@@ -4826,25 +4826,46 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 methods.Select(m => m.Signature.Name));
         }
 
-        [Test]
-        public void TestOperationNameNormalizationPreservesDistinctNames()
+        [TestCase("GetIpAddress", "GetIPAddress", "GetIpAddress", "GetIPAddress")]
+        [TestCase("GetIPAddress", "GetIpAddress", "GetIPAddress", "GetIpAddress")]
+        [TestCase("GetIp", "GetIPAsync", "GetIp", "GetIPAsync")]
+        [TestCase("GetIPAsync", "GetIp", "GetIPAsync", "GetIp")]
+        [TestCase("GetIpAsync", "GetIP", "GetIpAsync", "GetIP")]
+        [TestCase("GetIP", "GetIpAsync", "GetIP", "GetIpAsync")]
+        [TestCase("GetIpAsync", "GetIPAsyncAsync", "GetIpAsync", "GetIPAsyncAsync")]
+        [TestCase("GetIpv4", "GetIpV4Async", "GetIpv4", "GetIpV4Async")]
+        [TestCase("GetIpV4Async", "GetIpv4", "GetIpV4Async", "GetIpv4")]
+        [TestCase("ListIp", "GetIPAsync", "GetIp", "GetIPAsync")]
+        [TestCase("GetDb", "GetDBAsync", "GetDb", "GetDBAsync")]
+        [TestCase("GetOsAsync", "GetOS", "GetOsAsync", "GetOS")]
+        [TestCase("GetIp", "GetIPAsyncAsync", "GetIP", "GetIPAsyncAsync")]
+        [TestCase("GetIp", "GetIPAsyncValue", "GetIP", "GetIPAsyncValue")]
+        [TestCase("GetIp", "GetIPasync", "GetIP", "GetIPasync")]
+        [TestCase("GetIp", "GetDbAsync", "GetIP", "GetDBAsync")]
+        public void TestOperationNameNormalizationPreservesDistinctNames(
+            string firstName, string secondName, string expectedFirstName, string expectedSecondName)
         {
-            var firstOperation = InputFactory.Operation("GetIpAddress");
+            var firstOperation = InputFactory.Operation(firstName);
             var firstServiceMethod = InputFactory.BasicServiceMethod(firstOperation.Name, firstOperation);
-            var secondOperation = InputFactory.Operation("GetIPAddress");
+            var secondOperation = InputFactory.Operation(secondName);
             var secondServiceMethod = InputFactory.BasicServiceMethod(secondOperation.Name, secondOperation);
             var client = new ClientProvider(InputFactory.Client(
                 "TestClient",
                 methods: [firstServiceMethod, secondServiceMethod]));
 
-            Assert.AreEqual("GetIpAddress", firstServiceMethod.Name);
-            Assert.AreEqual("GetIPAddress", secondServiceMethod.Name);
+            Assert.AreEqual(expectedFirstName, firstServiceMethod.Name);
+            Assert.AreEqual(expectedFirstName, firstOperation.Name);
+            Assert.AreEqual(expectedSecondName, secondServiceMethod.Name);
+            Assert.AreEqual(expectedSecondName, secondOperation.Name);
+            var firstMethodNames = client.GetMethodCollectionByOperation(firstOperation).Select(m => m.Signature.Name).ToArray();
+            var secondMethodNames = client.GetMethodCollectionByOperation(secondOperation).Select(m => m.Signature.Name).ToArray();
             CollectionAssert.AreEquivalent(
-                new[] { "GetIpAddress", "GetIpAddressAsync", "GetIpAddress", "GetIpAddressAsync" },
-                client.GetMethodCollectionByOperation(firstOperation).Select(m => m.Signature.Name));
+                new[] { expectedFirstName, expectedFirstName + "Async", expectedFirstName, expectedFirstName + "Async" },
+                firstMethodNames);
             CollectionAssert.AreEquivalent(
-                new[] { "GetIPAddress", "GetIPAddressAsync", "GetIPAddress", "GetIPAddressAsync" },
-                client.GetMethodCollectionByOperation(secondOperation).Select(m => m.Signature.Name));
+                new[] { expectedSecondName, expectedSecondName + "Async", expectedSecondName, expectedSecondName + "Async" },
+                secondMethodNames);
+            CollectionAssert.IsEmpty(firstMethodNames.Intersect(secondMethodNames));
         }
 
         [TestCase("GetIpAddress")]
