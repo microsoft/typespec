@@ -1334,6 +1334,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             DictionaryExpression additionalPropsDict = additionalPropertiesProperty.AsVariableExpression.AsDictionary(additionalPropertiesProperty.Type);
             var valueType = additionalPropertiesProperty.Type.ElementType;
 
+            // A union may expose several nullable dictionaries; store each null entry in only the first one.
+            if (valueType.IsNullable && !additionalPropsValueKindBodyStatements.ContainsKey(JsonValueKind.Null))
+            {
+                AddStatements(JsonValueKind.Null,
+                [
+                    additionalPropsDict.Add(jsonProperty.Name(), Null),
+                    Continue
+                ]);
+            }
+
             // Handle the known verifiable additional property value types
             if (valueType.IsFrameworkType && AdditionalPropertiesHelper.VerifiableAdditionalPropertyTypes.Contains(valueType.FrameworkType))
             {
@@ -1547,6 +1557,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 switch (valueKind)
                 {
+                    case JsonValueKind.Null:
+                        switchCases.Add(new SwitchCaseStatement(JsonValueKindSnippets.Null, statements));
+                        break;
                     case JsonValueKind.String:
                         switchCases.Add(new(JsonValueKindSnippets.String, statements));
                         break;
@@ -2771,11 +2784,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 var additionalPropertiesProperty = AdditionalProperties[i];
                 var tKey = additionalPropertiesProperty.Type.Arguments[0];
                 var tValue = additionalPropertiesProperty.Type.Arguments[1];
+                var serializedName = additionalPropertiesProperty.WireInfo?.SerializedName ?? additionalPropertiesProperty.Name;
                 // generate serialization statements for each key-value pair in the additional properties dictionary
                 var forEachStatement = new ForEachStatement("item", additionalPropertiesProperty.AsDictionary(tKey, tValue), out KeyValuePairExpression item)
                 {
                     _utf8JsonWriterSnippet.WritePropertyName(item.Key),
-                    CreateSerializationStatement(additionalPropertiesProperty.Type.Arguments[1], item.Value, SerializationFormat.Default, additionalPropertiesProperty.WireInfo?.SerializedName ?? additionalPropertiesProperty.Name),
+                    tValue.IsNullable
+                        ? CreateNullCheckAndSerializationStatement(tValue, item.Value, SerializationFormat.Default, serializedName)
+                        : CreateSerializationStatement(tValue, item.Value, SerializationFormat.Default, serializedName),
                 };
                 statements[i] = forEachStatement;
             }

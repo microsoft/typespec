@@ -113,12 +113,39 @@ namespace TestProjects.Local.Tests
 
         [Test]
         public void OptionalNullableFieldNames_RoundTrip(
-            [Values("{}", """{"additionalStringProperties":null}""", """{"additionalStringProperties":"value","additionalStringPropertiesIsDefined":null,"extra":"additional"}""")] string json,
+            [Values(
+                "{}",
+                """{"additionalStringProperties":null}""",
+                """{"extra":null}""",
+                """{"extra":""}""",
+                """{"extra":"additional","second":null}""",
+                """{"additionalStringProperties":null,"additionalStringPropertiesIsDefined":null,"extra":null}""",
+                """{"additionalStringProperties":"value","additionalStringPropertiesIsDefined":null,"extra":"additional"}""")] string json,
             [Values("W", "J")] string readFormat,
-            [Values("W", "J")] string writeFormat)
+            [Values("W", "J")] string writeFormat,
+            [Values(false, true)] bool useJsonModel)
         {
-            var model = ModelReaderWriter.Read<OptionalNullableFieldNames>(BinaryData.FromString(json),
-                new ModelReaderWriterOptions(readFormat), SampleTypeSpecContext.Default)!;
+            var data = BinaryData.FromString(json);
+            var options = new ModelReaderWriterOptions(readFormat);
+            OptionalNullableFieldNames model;
+            if (useJsonModel)
+            {
+                var reader = new Utf8JsonReader(data.ToMemory().Span);
+                model = ((IJsonModel<OptionalNullableFieldNames>)new OptionalNullableFieldNames()).Create(ref reader, options)!;
+            }
+            else
+            {
+                model = ModelReaderWriter.Read<OptionalNullableFieldNames>(data, options, SampleTypeSpecContext.Default)!;
+            }
+
+            using var expected = JsonDocument.Parse(json);
+            var additionalProperties = expected.RootElement.EnumerateObject()
+                .Where(p => p.Name is not "additionalStringProperties" and not "additionalStringPropertiesIsDefined").ToArray();
+            Assert.That(model.AdditionalProperties.Keys, Is.EquivalentTo(additionalProperties.Select(p => p.Name)));
+            foreach (var property in additionalProperties)
+            {
+                Assert.That(model.AdditionalProperties[property.Name], Is.EqualTo(property.Value.GetString()));
+            }
 
             AssertModelJson(model, json, writeFormat);
         }

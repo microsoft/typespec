@@ -100,6 +100,11 @@ namespace SampleTypeSpec
             foreach (var item in AdditionalProperties)
             {
                 writer.WritePropertyName(item.Key);
+                if (item.Value == null)
+                {
+                    writer.WriteNullValue();
+                    continue;
+                }
                 writer.WriteStringValue(item.Value);
             }
             if (options.Format != "W" && _additionalBinaryDataProperties != null)
@@ -176,6 +181,9 @@ namespace SampleTypeSpec
                 }
                 switch (prop.Value.ValueKind)
                 {
+                    case JsonValueKind.Null:
+                        additionalProperties.Add(prop.Name, null);
+                        continue;
                     case JsonValueKind.String:
                         additionalProperties.Add(prop.Name, prop.Value.GetString());
                         continue;

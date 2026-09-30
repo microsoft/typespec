@@ -10,6 +10,8 @@ Use C# code customizations (partial classes) when TypeSpec cannot express the be
 
 For a TypeSpec property such as `feature?: Feature | null`, generated model classes distinguish an omitted property from an explicitly assigned `null` during JSON serialization. Leaving the property untouched omits it; assigning `null` writes `"feature": null`; assigning a value writes that value. Reading JSON preserves the same distinction when the model is serialized again, including nested models and wire-format serialization.
 
+For nullable additional-property values, such as `Record<string | null>`, JSON null entries are retained in `AdditionalProperties` and included when the model is serialized again, including in wire format.
+
 XML serialization omits null optional properties, including collections, rather than emitting explicit-null elements. Writing XML does not change their JSON presence state.
 
 Presence tracking does not change the public property type or constructor/model-factory signatures. Defaulted constructor and model-factory arguments retain their existing behavior: a scalar `null` argument is treated as omitted, since C# cannot distinguish an omitted argument from an explicitly supplied default value. Model factories also retain their existing collection initialization behavior, which can materialize a defaulted list argument as an empty list. To write explicit null for a writable property, assign the property after construction.
