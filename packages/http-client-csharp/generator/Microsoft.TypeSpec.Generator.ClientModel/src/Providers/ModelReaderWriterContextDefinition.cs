@@ -89,11 +89,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return attributes.OrderBy(a => GetSimpleTypeName(a.Key)).Select(kvp => kvp.Value).ToList();
         }
 
-        // protected internal is part of the public API surface, but private protected is not
+        // Protected-only providers can also have the Public flag added by TypeProvider.
         private static bool IsPublicApi(TypeProvider provider)
-            => provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public)
-                || (provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Protected)
-                    && !provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Private));
+        {
+            var modifiers = provider.DeclarationModifiers;
+            if (modifiers.HasFlag(TypeSignatureModifiers.Protected))
+            {
+                return modifiers.HasFlag(TypeSignatureModifiers.Internal)
+                    && !modifiers.HasFlag(TypeSignatureModifiers.Private);
+            }
+
+            return modifiers.HasFlag(TypeSignatureModifiers.Public);
+        }
 
         protected override IReadOnlyList<MethodBodyStatement> BuildAttributesForBackCompatibility(IReadOnlyList<MethodBodyStatement> originalAttributes)
         {

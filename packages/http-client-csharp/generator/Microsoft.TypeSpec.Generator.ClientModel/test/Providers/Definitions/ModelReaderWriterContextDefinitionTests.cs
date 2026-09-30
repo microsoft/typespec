@@ -125,6 +125,25 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
         }
 
         [Test]
+        public void ProtectedNestedBuildableTypesDoNotContributeAttributes()
+        {
+            var provider = new TestMrwSerialization(
+                implementsPersistableModel: true,
+                includeDepModelProperty: true,
+                declaringTypeProvider: new TestContainer(),
+                declarationModifiers: TypeSignatureModifiers.Protected | TypeSignatureModifiers.Class);
+            MockHelpers.LoadMockGenerator(createOutputLibrary: () => new TestOutputLibrary([provider]));
+
+            Assert.IsTrue(provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public));
+            Assert.IsTrue(provider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Protected));
+
+            var contextDefinition = new ModelReaderWriterContextDefinition();
+            var file = new TypeProviderWriter(contextDefinition).Write();
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
         public void NonPublicFrameworkTypesDoNotContributeBuildableAttributes()
         {
             MockHelpers.LoadMockGenerator(
@@ -1293,13 +1312,27 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
         {
             private readonly bool _implementsPersistableModel;
             private readonly bool _includeTypeWithDepModelProperty;
-            public TestMrwSerialization(bool implementsPersistableModel, bool includeDepModelProperty) : base()
+            private readonly TypeProvider? _declaringTypeProvider;
+            private readonly TypeSignatureModifiers? _declarationModifiers;
+
+            public TestMrwSerialization(
+                bool implementsPersistableModel,
+                bool includeDepModelProperty,
+                TypeProvider? declaringTypeProvider = null,
+                TypeSignatureModifiers? declarationModifiers = null) : base()
             {
                 _implementsPersistableModel = implementsPersistableModel;
                 _includeTypeWithDepModelProperty = includeDepModelProperty;
+                _declaringTypeProvider = declaringTypeProvider;
+                _declarationModifiers = declarationModifiers;
             }
 
             protected override string BuildName() => "TestMrwSerialization";
+
+            protected override TypeProvider? BuildDeclaringTypeProvider() => _declaringTypeProvider;
+
+            protected override TypeSignatureModifiers BuildDeclarationModifiers()
+                => _declarationModifiers ?? TypeSignatureModifiers.None;
 
             protected internal override CSharpType[] BuildImplements()
             {
@@ -1322,6 +1355,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
             {
                 return Path.Combine("src", "Generated", $"{Name}.cs");
             }
+        }
+
+        private class TestContainer : TypeProvider
+        {
+            protected override string BuildName() => "TestContainer";
+
+            protected override TypeSignatureModifiers BuildDeclarationModifiers()
+                => TypeSignatureModifiers.Public | TypeSignatureModifiers.Class;
+
+            protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.cs");
         }
 
         private class RemovedProviderWithFrameworkDependency : TypeProvider
