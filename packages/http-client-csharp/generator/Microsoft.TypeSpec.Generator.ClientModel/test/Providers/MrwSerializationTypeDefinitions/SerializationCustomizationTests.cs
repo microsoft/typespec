@@ -67,6 +67,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         {
             var inputModel = InputFactory.Model("Model", properties: [
                     InputFactory.Property("requiredNames", InputFactory.Array(InputPrimitiveType.String), isRequired: true),
+                    InputFactory.Property("requiredNullableNames", new InputNullableType(InputFactory.Array(InputPrimitiveType.String)), isRequired: true),
                     InputFactory.Property("optionalNames", InputFactory.Array(InputPrimitiveType.String))
                 ],
                 usage: InputModelTypeUsage.Json);

@@ -19,6 +19,7 @@ namespace Sample
                 return null;
             }
             global::System.Collections.Generic.List<string> requiredNames = default;
+            global::System.Collections.Generic.List<string> requiredNullableNames = default;
             global::System.Collections.Generic.List<string> optionalNames = default;
             global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties = new global::Sample.ChangeTrackingDictionary<string, global::System.BinaryData>();
             foreach (var prop in element.EnumerateObject())
@@ -38,6 +39,28 @@ namespace Sample
                         }
                     }
                     requiredNames = array;
+                    continue;
+                }
+                if (prop.NameEquals("requiredNullableNames"u8))
+                {
+                    if ((prop.Value.ValueKind == global::System.Text.Json.JsonValueKind.Null))
+                    {
+                        requiredNullableNames = new global::Sample.ChangeTrackingList<string>();
+                        continue;
+                    }
+                    global::System.Collections.Generic.List<string> array = new global::System.Collections.Generic.List<string>();
+                    foreach (var item in prop.Value.EnumerateArray())
+                    {
+                        if ((item.ValueKind == global::System.Text.Json.JsonValueKind.Null))
+                        {
+                            array.Add(null);
+                        }
+                        else
+                        {
+                            array.Add(item.GetString());
+                        }
+                    }
+                    requiredNullableNames = array;
                     continue;
                 }
                 if (prop.NameEquals("optionalNames"u8))
@@ -66,7 +89,7 @@ namespace Sample
                     additionalBinaryDataProperties.Add(prop.Name, prop.Value.GetUtf8Bytes());
                 }
             }
-            return new global::Sample.Models.Model((requiredNames ?? new global::System.Collections.Generic.List<string>()), (optionalNames ?? new global::System.Collections.Generic.List<string>()), additionalBinaryDataProperties);
+            return new global::Sample.Models.Model((requiredNames ?? new global::System.Collections.Generic.List<string>()), requiredNullableNames, (optionalNames ?? new global::System.Collections.Generic.List<string>()), additionalBinaryDataProperties);
         }
     }
 }
