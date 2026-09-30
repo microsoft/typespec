@@ -1184,7 +1184,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     ? New.ReadOnlyDictionary(propertyProvider.Type.Arguments[0], propertyProvider.Type.ElementType, propertyProvider.AsVariableExpression)
                     : propertyProvider.AsVariableExpression;
             }
-            else if (!isRequired)
+            else if (!isRequired || !propertyProvider.Type.IsNullable)
             {
                 return OptionalSnippets.FallBackToChangeTrackingCollection(propertyProvider.AsVariableExpression, propertyProvider.Type);
             }
