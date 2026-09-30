@@ -144,6 +144,41 @@ namespace SampleTypeSpec
             base.JsonModelWriteCore(writer, options);
             writer.WritePropertyName("age"u8);
             writer.WriteNumberValue(Age);
+            if (_nullableTextIsDefined || Optional.IsDefined(NullableText))
+            {
+                if (NullableText != null)
+                {
+                    writer.WritePropertyName("nullableText"u8);
+                    writer.WriteStringValue(NullableText);
+                }
+                else
+                {
+                    writer.WriteNull("nullableText"u8);
+                }
+            }
+            if (Optional.IsCollectionDefined(NullableLabels))
+            {
+                if (NullableLabels != null)
+                {
+                    writer.WritePropertyName("nullableLabels"u8);
+                    writer.WriteStartObject();
+                    foreach (var item in NullableLabels)
+                    {
+                        writer.WritePropertyName(item.Key);
+                        if (item.Value == null)
+                        {
+                            writer.WriteNullValue();
+                            continue;
+                        }
+                        writer.WriteStringValue(item.Value);
+                    }
+                    writer.WriteEndObject();
+                }
+                else
+                {
+                    writer.WriteNull("nullableLabels"u8);
+                }
+            }
         }
 
         /// <param name="reader"> The JSON reader. </param>
@@ -176,6 +211,9 @@ namespace SampleTypeSpec
             int height = default;
             IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             int age = default;
+            bool nullableTextIsDefined = false;
+            string nullableText = default;
+            IDictionary<string, string> nullableLabels = new ChangeTrackingDictionary<string, string>();
             foreach (var prop in element.EnumerateObject())
             {
                 if (prop.NameEquals("species"u8))
@@ -198,12 +236,55 @@ namespace SampleTypeSpec
                     age = prop.Value.GetInt32();
                     continue;
                 }
+                if (prop.NameEquals("nullableText"u8))
+                {
+                    nullableTextIsDefined = true;
+                    if (prop.Value.ValueKind == JsonValueKind.Null)
+                    {
+                        nullableText = null;
+                        continue;
+                    }
+                    nullableText = prop.Value.GetString();
+                    continue;
+                }
+                if (prop.NameEquals("nullableLabels"u8))
+                {
+                    if (prop.Value.ValueKind == JsonValueKind.Null)
+                    {
+                        nullableLabels = null;
+                        continue;
+                    }
+                    Dictionary<string, string> dictionary = new Dictionary<string, string>();
+                    foreach (var prop0 in prop.Value.EnumerateObject())
+                    {
+                        if (prop0.Value.ValueKind == JsonValueKind.Null)
+                        {
+                            dictionary.Add(prop0.Name, null);
+                        }
+                        else
+                        {
+                            dictionary.Add(prop0.Name, prop0.Value.GetString());
+                        }
+                    }
+                    nullableLabels = dictionary;
+                    continue;
+                }
                 if (options.Format != "W")
                 {
                     additionalBinaryDataProperties.Add(prop.Name, prop.Value.GetUtf8Bytes());
                 }
             }
-            return new Tree(species, id, height, additionalBinaryDataProperties, age);
+            return new Tree(
+                species,
+                id,
+                height,
+                additionalBinaryDataProperties,
+                age,
+                nullableText,
+                nullableLabels)
+            {
+                _nullableTextIsDefined = nullableTextIsDefined
+            };
         }
 
         /// <param name="writer"> The XML writer. </param>
@@ -238,6 +319,23 @@ namespace SampleTypeSpec
             writer.WriteStartElement("age");
             writer.WriteValue(Age);
             writer.WriteEndElement();
+            if (Optional.IsDefined(NullableText))
+            {
+                writer.WriteStartElement("nullableText");
+                writer.WriteValue(NullableText);
+                writer.WriteEndElement();
+            }
+            if (Optional.IsCollectionDefined(NullableLabels))
+            {
+                writer.WriteStartElement("nullableLabels");
+                foreach (var pair in NullableLabels)
+                {
+                    writer.WriteStartElement(pair.Key);
+                    writer.WriteValue(pair.Value);
+                    writer.WriteEndElement();
+                }
+                writer.WriteEndElement();
+            }
         }
 
         /// <param name="element"> The xml element to deserialize. </param>
@@ -254,6 +352,8 @@ namespace SampleTypeSpec
             int height = default;
             IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             int age = default;
+            string nullableText = default;
+            IDictionary<string, string> nullableLabels = default;
 
             foreach (var child in element.Elements())
             {
@@ -278,8 +378,30 @@ namespace SampleTypeSpec
                     age = (int)child;
                     continue;
                 }
+                if (localName == "nullableText")
+                {
+                    nullableText = (string)child;
+                    continue;
+                }
+                if (localName == "nullableLabels")
+                {
+                    Dictionary<string, string> dictionary = new Dictionary<string, string>();
+                    foreach (var e in child.Elements())
+                    {
+                        dictionary.Add(e.Name.LocalName, (string)e);
+                    }
+                    nullableLabels = dictionary;
+                    continue;
+                }
             }
-            return new Tree(species, id, height, additionalBinaryDataProperties, age);
+            return new Tree(
+                species,
+                id,
+                height,
+                additionalBinaryDataProperties,
+                age,
+                nullableText,
+                nullableLabels ?? new ChangeTrackingDictionary<string, string>());
         }
     }
 }

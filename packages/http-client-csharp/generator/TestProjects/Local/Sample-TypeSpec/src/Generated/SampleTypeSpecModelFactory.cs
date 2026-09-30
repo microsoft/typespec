@@ -473,10 +473,21 @@ namespace SampleTypeSpec
         /// <param name="id"> The unique identifier of the plant. </param>
         /// <param name="height"> The height of the plant in centimeters. </param>
         /// <param name="age"> The age of the tree in years. </param>
+        /// <param name="nullableText"></param>
+        /// <param name="nullableLabels"></param>
         /// <returns> A new <see cref="SampleTypeSpec.Tree"/> instance for mocking. </returns>
-        public static Tree Tree(string id = default, int height = default, int age = default)
+        public static Tree Tree(string id = default, int height = default, int age = default, string nullableText = default, IDictionary<string, string> nullableLabels = default)
         {
-            return new Tree("tree", id, height, additionalBinaryDataProperties: null, age);
+            nullableLabels ??= new ChangeTrackingDictionary<string, string>();
+
+            return new Tree(
+                "tree",
+                id,
+                height,
+                additionalBinaryDataProperties: null,
+                age,
+                nullableText,
+                nullableLabels);
         }
 
         /// <summary>

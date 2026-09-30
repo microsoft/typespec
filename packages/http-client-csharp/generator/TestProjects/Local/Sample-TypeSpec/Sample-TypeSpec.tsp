@@ -866,6 +866,9 @@ model Tree extends Plant {
 
   @doc("The age of the tree in years")
   age: int32;
+
+  nullableText?: string | null;
+  nullableLabels?: Record<string> | null;
 }
 
 @route("/plants")

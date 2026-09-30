@@ -570,6 +570,18 @@ namespace TestProjects.Local.Tests
             }
         }
 
+        [TestCase("true", "false")]
+        [TestCase("false", "true")]
+        [TestCase("""{"value":true}""", """{"value":false}""")]
+        [TestCase("""{"value":false}""", """{"value":true}""")]
+        public void AssertJsonShapeRejectsDifferentBooleanValues(string expectedJson, string actualJson)
+        {
+            using var expected = JsonDocument.Parse(expectedJson);
+            using var actual = JsonDocument.Parse(actualJson);
+
+            Assert.Throws<AssertionException>(() => AssertJsonShape(expected.RootElement, actual.RootElement));
+        }
+
         private static void AssertBase64Value(byte[] payload, string format)
         {
             string expected = Convert.ToBase64String(payload);
