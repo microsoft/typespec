@@ -325,7 +325,7 @@ namespace SampleTypeSpec
                 writer.WriteValue(NullableText);
                 writer.WriteEndElement();
             }
-            if (Optional.IsCollectionDefined(NullableLabels))
+            if (NullableLabels != null && Optional.IsCollectionDefined(NullableLabels))
             {
                 writer.WriteStartElement("nullableLabels");
                 foreach (var pair in NullableLabels)

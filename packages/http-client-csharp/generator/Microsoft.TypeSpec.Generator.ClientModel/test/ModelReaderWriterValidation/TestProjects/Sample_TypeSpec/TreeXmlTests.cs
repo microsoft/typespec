@@ -4,6 +4,7 @@
 using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
@@ -128,6 +129,65 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ModelReaderWriterValida
             foreach (var property in expected.RootElement.EnumerateObject())
             {
                 Assert.That(actual.RootElement.GetProperty(property.Name).GetRawText(), Is.EqualTo(property.Value.GetRawText()), property.Name);
+            }
+        }
+
+        [Test]
+        public void NullCollectionsAreOmittedInXmlWithoutChangingJsonPresence(
+            [Values("J", "W")] string jsonFormat,
+            [Values(false, true)] bool deserialize,
+            [Values(false, true)] bool useInterface)
+        {
+            var jsonOptions = new ModelReaderWriterOptions(jsonFormat);
+            var model = deserialize
+                ? ModelReaderWriter.Read<Tree>(
+                    BinaryData.FromString("""{"species":"tree","id":"tree-123","height":500,"age":100,"nullableLabels":null}"""),
+                    jsonOptions, SampleTypeSpecContext.Default)!
+                : new Tree("tree-123", 500, 100) { NullableLabels = null };
+            var xmlOptions = new ModelReaderWriterOptions("X");
+            Assert.That(model.NullableLabels, Is.Null);
+
+            foreach (var state in new[] { "null", "empty", "populated", "null" })
+            {
+                if (state == "empty")
+                {
+                    model.NullableLabels = new Dictionary<string, string>();
+                }
+                else if (state == "populated")
+                {
+                    model.NullableLabels!.Add("key", "value");
+                }
+                else if (model.NullableLabels != null)
+                {
+                    model.NullableLabels = null;
+                }
+
+                var expectedXml = XElement.Parse(XmlPayload);
+                if (state != "null")
+                {
+                    expectedXml.Add(new XElement("nullableLabels", state == "populated" ? new XElement("key", "value") : null));
+                }
+                var xml = useInterface
+                    ? ((IPersistableModel<Tree>)model).Write(xmlOptions)
+                    : ModelReaderWriter.Write(model, xmlOptions, SampleTypeSpecContext.Default);
+                Assert.That(XNode.DeepEquals(expectedXml, XElement.Parse(xml.ToString())), Is.True, state);
+
+                using var json = JsonDocument.Parse(ModelReaderWriter.Write(model, jsonOptions, SampleTypeSpecContext.Default));
+                var labels = json.RootElement.GetProperty("nullableLabels");
+                if (state == "null")
+                {
+                    Assert.That(model.NullableLabels, Is.Null);
+                    Assert.That(labels.ValueKind, Is.EqualTo(JsonValueKind.Null));
+                }
+                else
+                {
+                    Assert.That(labels.ValueKind, Is.EqualTo(JsonValueKind.Object));
+                    Assert.That(labels.EnumerateObject().Count(), Is.EqualTo(state == "populated" ? 1 : 0));
+                    if (state == "populated")
+                    {
+                        Assert.That(labels.GetProperty("key").GetString(), Is.EqualTo("value"));
+                    }
+                }
             }
         }
 
