@@ -47,9 +47,15 @@ namespace Microsoft.TypeSpec.Generator.Primitives
 
         private async Task WriteProjectFiles()
         {
+            var projectFileName = $"{CodeModelGenerator.Instance.Configuration.PackageName}.csproj";
             await File.WriteAllBytesAsync(
-                Path.Combine(CodeModelGenerator.Instance.Configuration.ProjectDirectory, $"{CodeModelGenerator.Instance.Configuration.PackageName}.csproj"),
+                Path.Combine(CodeModelGenerator.Instance.Configuration.ProjectDirectory, projectFileName),
                 Encoding.UTF8.GetBytes(NormalizeLineEndings(GetSourceProjectFileContent())));
+
+            Directory.CreateDirectory(CodeModelGenerator.Instance.Configuration.TestProjectDirectory);
+            await File.WriteAllBytesAsync(
+                Path.Combine(CodeModelGenerator.Instance.Configuration.TestProjectDirectory, Path.ChangeExtension(projectFileName, "Tests.csproj")),
+                Encoding.UTF8.GetBytes(NormalizeLineEndings(GetTestProjectFileContent())));
         }
 
         private string NormalizeLineEndings(string content)
@@ -97,6 +103,21 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             return builder.Write();
         }
 
+        protected virtual string GetTestProjectFileContent()
+        {
+            var builder = new CSharpProjectWriter()
+            {
+                TargetFramework = "net8.0",
+                IsTestProject = true,
+                IsPackable = false,
+            };
+            builder.ProjectReferences.Add(new($"../src/{CodeModelGenerator.Instance.Configuration.PackageName}.csproj"));
+            builder.PackageReferences.Add(new("NUnit", "4.4.0"));
+            builder.PackageReferences.Add(new("NUnit3TestAdapter", "4.6.0"));
+            builder.PackageReferences.Add(new("Microsoft.NET.Test.Sdk", "18.0.1"));
+            return builder.Write();
+        }
+
         private IReadOnlyList<CSharpProjectCompileInclude>? _compileIncludes;
         public IReadOnlyList<CSharpProjectCompileInclude> CompileIncludes => _compileIncludes ??= BuildCompileIncludes();
 
@@ -112,6 +133,7 @@ namespace Microsoft.TypeSpec.Generator.Primitives
             return string.Format(
                 @"<Solution>
   <Project Path=""src/{0}.csproj"" />
+  <Project Path=""tests/{0}.Tests.csproj"" />
 </Solution>
 ", CodeModelGenerator.Instance.Configuration.PackageName);
         }
