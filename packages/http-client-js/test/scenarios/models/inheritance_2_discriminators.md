@@ -50,7 +50,10 @@ export async function getModel(
   if (typeof options?.operationOptions?.onResponse === "function") {
     options?.operationOptions?.onResponse(response);
   }
-  if (+response.status === 200 && response.headers["content-type"]?.includes("application/json")) {
+  if (
+    +response.status === 200 &&
+    response.headers["content-type"]?.includes("application/json")
+  ) {
     return jsonFishToApplicationTransform(response.body)!;
   }
   throw createRestError(response);
@@ -225,7 +228,9 @@ export function jsonSharkToApplicationTransform(input_?: any): Shark {
     age: input_.age,
   }!;
 }
-export function jsonSawSharkToTransportTransform(input_?: SawShark | null): any {
+export function jsonSawSharkToTransportTransform(
+  input_?: SawShark | null,
+): any {
   if (!input_) {
     return input_ as any;
   }
@@ -245,7 +250,9 @@ export function jsonSawSharkToApplicationTransform(input_?: any): SawShark {
     age: input_.age,
   }!;
 }
-export function jsonGoblinSharkToTransportTransform(input_?: GoblinShark | null): any {
+export function jsonGoblinSharkToTransportTransform(
+  input_?: GoblinShark | null,
+): any {
   if (!input_) {
     return input_ as any;
   }
@@ -255,7 +262,9 @@ export function jsonGoblinSharkToTransportTransform(input_?: GoblinShark | null)
     age: input_.age,
   }!;
 }
-export function jsonGoblinSharkToApplicationTransform(input_?: any): GoblinShark {
+export function jsonGoblinSharkToApplicationTransform(
+  input_?: any,
+): GoblinShark {
   if (!input_) {
     return input_ as any;
   }
@@ -289,7 +298,9 @@ export function jsonSalmonToApplicationTransform(input_?: any): Salmon {
     age: input_.age,
   }!;
 }
-export function jsonArrayFishToTransportTransform(items_?: Array<Fish> | null): any {
+export function jsonArrayFishToTransportTransform(
+  items_?: Array<Fish> | null,
+): any {
   if (!items_) {
     return items_ as any;
   }
@@ -315,7 +326,9 @@ export function jsonArrayFishToApplicationTransform(items_?: any): Array<Fish> {
 
   return _transformedArray as any;
 }
-export function jsonRecordFishToTransportTransform(items_?: Record<string, any> | null): any {
+export function jsonRecordFishToTransportTransform(
+  items_?: Record<string, any> | null,
+): any {
   if (!items_) {
     return items_ as any;
   }
@@ -329,7 +342,9 @@ export function jsonRecordFishToTransportTransform(items_?: Record<string, any> 
 
   return _transformedRecord;
 }
-export function jsonRecordFishToApplicationTransform(items_?: any): Record<string, any> {
+export function jsonRecordFishToApplicationTransform(
+  items_?: any,
+): Record<string, any> {
   if (!items_) {
     return items_ as any;
   }
