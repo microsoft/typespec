@@ -73,7 +73,7 @@ namespace SampleTypeSpec
         /// <returns> The values from the specified page. </returns>
         protected override async IAsyncEnumerable<Thing> GetValuesFromPageAsync(ClientResult page)
         {
-            foreach (Thing item in ((ListWithContinuationTokenHeaderResponseResponse)page).Things)
+            foreach (Thing item in ((ListWithContinuationTokenHeaderResponseResult)page).Things)
             {
                 yield return item;
                 await Task.Yield();

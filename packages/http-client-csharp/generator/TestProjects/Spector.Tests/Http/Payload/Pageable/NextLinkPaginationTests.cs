@@ -7,11 +7,36 @@ using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Payload.Pageable;
+using Payload.Pageable._ServerDrivenPagination.AlternateInitialVerb;
 
 namespace TestProjects.Spector.Tests.Http.Payload.Pageable
 {
     public class NextLinkPaginationTests : SpectorTestBase
     {
+        [SpectorTest]
+        public Task ConvenienceMethodAlternateInitialVerb() => Test(async (host) =>
+        {
+            var client = new PageableClient(host, null);
+            var result = client
+                .GetServerDrivenPaginationClient()
+                .GetServerDrivenPaginationAlternateInitialVerbClient()
+                .PostAsync(new Filter("foo eq bar"));
+            int count = 0;
+            var expectedPets = new Dictionary<string, string>()
+            {
+                { "1", "dog" },
+                { "2", "cat" },
+                { "3", "bird" },
+                { "4", "fish" },
+            };
+            await foreach (var pet in result)
+            {
+                Assert.IsNotNull(pet);
+                Assert.AreEqual((++count).ToString(), pet.Id);
+                Assert.AreEqual(expectedPets[pet.Id], pet.Name);
+            }
+        });
+
         [SpectorTest]
         public Task ConvenienceMethod() => Test(async (host) =>
         {

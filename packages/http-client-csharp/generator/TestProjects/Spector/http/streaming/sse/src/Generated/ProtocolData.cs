@@ -19,20 +19,12 @@ namespace Streaming.Sse._Protocol.Data
 
         public ClientPipeline Pipeline => throw null;
 
-#pragma warning disable SCME0005 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-        public virtual Task<AsyncStreamingClientResult<SseItem<BinaryData>>> WithEnvelopeAsync(RequestOptions options) => throw null;
-#pragma warning restore SCME0005 // Type is for evaluation purposes only and is subject to change or removal in future updates.
+        public virtual Task<AsyncStreamingResult<SseItem<BinaryData>>> WithEnvelopeAsync(RequestOptions options) => throw null;
 
-#pragma warning disable SCME0005 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-        public virtual Task<AsyncStreamingClientResult<SseItem<BinaryData>>> WithEnvelopeAsync(CancellationToken cancellationToken = default) => throw null;
-#pragma warning restore SCME0005 // Type is for evaluation purposes only and is subject to change or removal in future updates.
+        public virtual Task<AsyncStreamingResult<SseItem<BinaryData>>> WithEnvelopeAsync(CancellationToken cancellationToken = default) => throw null;
 
-#pragma warning disable SCME0005 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-        public virtual Task<AsyncStreamingClientResult<SseItem<BinaryData>>> WithoutEnvelopeAsync(RequestOptions options) => throw null;
-#pragma warning restore SCME0005 // Type is for evaluation purposes only and is subject to change or removal in future updates.
+        public virtual Task<AsyncStreamingResult<SseItem<BinaryData>>> WithoutEnvelopeAsync(RequestOptions options) => throw null;
 
-#pragma warning disable SCME0005 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-        public virtual Task<AsyncStreamingClientResult<SseItem<BinaryData>>> WithoutEnvelopeAsync(CancellationToken cancellationToken = default) => throw null;
-#pragma warning restore SCME0005 // Type is for evaluation purposes only and is subject to change or removal in future updates.
+        public virtual Task<AsyncStreamingResult<SseItem<BinaryData>>> WithoutEnvelopeAsync(CancellationToken cancellationToken = default) => throw null;
     }
 }

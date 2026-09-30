@@ -161,19 +161,19 @@ namespace SampleTypeSpec
         /// <summary> Get a notebook by name. </summary>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult<GetNotebookResponse> GetNotebook(CancellationToken cancellationToken = default)
+        public virtual ClientResult<GetNotebookResult> GetNotebook(CancellationToken cancellationToken = default)
         {
             ClientResult result = GetNotebook(cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue((GetNotebookResponse)result, result.GetRawResponse());
+            return ClientResult.FromValue((GetNotebookResult)result, result.GetRawResponse());
         }
 
         /// <summary> Get a notebook by name. </summary>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult<GetNotebookResponse>> GetNotebookAsync(CancellationToken cancellationToken = default)
+        public virtual async Task<ClientResult<GetNotebookResult>> GetNotebookAsync(CancellationToken cancellationToken = default)
         {
             ClientResult result = await GetNotebookAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue((GetNotebookResponse)result, result.GetRawResponse());
+            return ClientResult.FromValue((GetNotebookResult)result, result.GetRawResponse());
         }
     }
 }
