@@ -11,9 +11,6 @@ using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Text.Json;
 
-#pragma warning disable SAMPLE0003 // This generated code depends on experimental functionality.
-#pragma warning disable SAMPLE0005 // This generated code depends on experimental functionality.
-#pragma warning disable SAMPLE0008 // This generated code depends on experimental functionality.
 namespace SampleTypeSpec
 {
     /// <summary> The LifecycleModel. </summary>
@@ -90,13 +87,19 @@ namespace SampleTypeSpec
             {
                 throw new FormatException($"The model {nameof(LifecycleModel)} does not support writing '{format}' format.");
             }
+#pragma warning disable SAMPLE0003 // This generated code depends on experimental functionality.
+#pragma warning disable SAMPLE0008 // This generated code depends on experimental functionality.
             if (Optional.IsDefined(Preview))
             {
                 writer.WritePropertyName("preview"u8);
                 writer.WriteObjectValue(Preview, options);
             }
+#pragma warning restore SAMPLE0008 // This generated code depends on experimental functionality.
+#pragma warning restore SAMPLE0003 // This generated code depends on experimental functionality.
+#pragma warning disable SAMPLE0005 // This generated code depends on experimental functionality.
             writer.WritePropertyName("choice"u8);
             writer.WriteStringValue(Choice.ToString());
+#pragma warning restore SAMPLE0005 // This generated code depends on experimental functionality.
             if (options.Format != "W" && _additionalBinaryDataProperties != null)
             {
                 foreach (var item in _additionalBinaryDataProperties)
@@ -133,6 +136,8 @@ namespace SampleTypeSpec
 
         /// <param name="element"> The JSON element to deserialize. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
+#pragma warning disable SAMPLE0003 // This generated code depends on experimental functionality.
+#pragma warning disable SAMPLE0005 // This generated code depends on experimental functionality.
         internal static LifecycleModel DeserializeLifecycleModel(JsonElement element, ModelReaderWriterOptions options)
         {
             if (element.ValueKind == JsonValueKind.Null)
@@ -165,8 +170,7 @@ namespace SampleTypeSpec
             }
             return new LifecycleModel(preview, choice, additionalBinaryDataProperties);
         }
-    }
-}
 #pragma warning restore SAMPLE0003 // This generated code depends on experimental functionality.
 #pragma warning restore SAMPLE0005 // This generated code depends on experimental functionality.
-#pragma warning restore SAMPLE0008 // This generated code depends on experimental functionality.
+    }
+}

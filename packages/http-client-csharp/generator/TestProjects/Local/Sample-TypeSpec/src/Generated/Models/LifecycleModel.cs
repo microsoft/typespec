@@ -9,9 +9,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
-#pragma warning disable SAMPLE0003 // This generated code depends on experimental functionality.
-#pragma warning disable SAMPLE0005 // This generated code depends on experimental functionality.
-#pragma warning disable SAMPLE0008 // This generated code depends on experimental functionality.
 namespace SampleTypeSpec
 {
     /// <summary> The LifecycleModel. </summary>
@@ -22,30 +19,39 @@ namespace SampleTypeSpec
 
         /// <summary> Initializes a new instance of <see cref="LifecycleModel"/>. </summary>
         /// <param name="choice"></param>
+#pragma warning disable SAMPLE0005 // This generated code depends on experimental functionality.
         internal LifecycleModel(PreviewExtensibleChoice choice)
         {
             Choice = choice;
         }
+#pragma warning restore SAMPLE0005 // This generated code depends on experimental functionality.
 
         /// <summary> Initializes a new instance of <see cref="LifecycleModel"/>. </summary>
         /// <param name="preview"></param>
         /// <param name="choice"></param>
         /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
+#pragma warning disable SAMPLE0003 // This generated code depends on experimental functionality.
+#pragma warning disable SAMPLE0005 // This generated code depends on experimental functionality.
         internal LifecycleModel(PreviewDetails preview, PreviewExtensibleChoice choice, IDictionary<string, BinaryData> additionalBinaryDataProperties)
         {
+#pragma warning disable SAMPLE0008 // This generated code depends on experimental functionality.
             Preview = preview;
+#pragma warning restore SAMPLE0008 // This generated code depends on experimental functionality.
             Choice = choice;
             _additionalBinaryDataProperties = additionalBinaryDataProperties;
         }
+#pragma warning restore SAMPLE0003 // This generated code depends on experimental functionality.
+#pragma warning restore SAMPLE0005 // This generated code depends on experimental functionality.
 
+#pragma warning disable SAMPLE0003 // This generated code depends on experimental functionality.
         /// <summary> Gets the Preview. </summary>
         [Experimental("SAMPLE0008")]
         public PreviewDetails Preview { get; }
+#pragma warning restore SAMPLE0003 // This generated code depends on experimental functionality.
 
+#pragma warning disable SAMPLE0005 // This generated code depends on experimental functionality.
         /// <summary> Gets the Choice. </summary>
         public PreviewExtensibleChoice Choice { get; }
+#pragma warning restore SAMPLE0005 // This generated code depends on experimental functionality.
     }
 }
-#pragma warning restore SAMPLE0003 // This generated code depends on experimental functionality.
-#pragma warning restore SAMPLE0005 // This generated code depends on experimental functionality.
-#pragma warning restore SAMPLE0008 // This generated code depends on experimental functionality.

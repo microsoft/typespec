@@ -102,7 +102,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     name: name,
                     body: new AutoPropertyBody(false, InitializationExpression: New.Instance(Type, field)),
                     this,
-                    attributes: ExperimentalApiHelpers.BuildAttributes(enumValue.Experimental));
+                    attributes: ExperimentalApiHelpers.BuildAttributes(enumValue.Experimental),
+                    suppressions: ExperimentalApiHelpers.GetDependencySuppressions(enumValue.Experimental));
             }
 
             return properties;

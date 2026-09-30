@@ -30,6 +30,20 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.IsTrue(typeof(ExperimentalApiHelpers).IsNotPublic);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
+        public void ExperimentalNestedTypeReferencesIncludeTheDeclaringType(bool generic)
+        {
+            var input = InputFactory.Experimental(InputFactory.Model("Container"), "OUTER001");
+            var declaringType = CodeModelGenerator.Instance.TypeFactory.CreateModel(input)!.Type;
+            var nestedType = new CSharpType("Nested", declaringType.Namespace, false, false, declaringType, [], true, false);
+            var referencedType = generic ? new CSharpType(typeof(List<>), nestedType) : nestedType;
+
+            CollectionAssert.AreEqual(
+                new[] { Snippet.Literal("OUTER001").ToDisplayString() },
+                ExperimentalApiHelpers.GetReferenceSuppressions(referencedType).Select(suppression => suppression.Code.ToDisplayString()));
+        }
+
         [TestCase("plain", false, true, null)]
         [TestCase("generic", false, true, null)]
         [TestCase("array", false, true, null)]
@@ -177,8 +191,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual(Snippet.Literal("PROPERTY001").ToDisplayString(),
                 provider.Properties.Single(p => p.Name == "Value").Attributes.Single(a => a.Type.Equals(typeof(ExperimentalAttribute))).Arguments[0].ToDisplayString());
             CollectionAssert.AreEquivalent(
-                new[] { "MODEL001", "MODELDEP", "PROPERTY001", "PROPERTYDEP" }.Select(id => Snippet.Literal(id).ToDisplayString()),
+                new[] { "MODELDEP" }.Select(id => Snippet.Literal(id).ToDisplayString()),
                 provider.DisabledFileWarnings.Select(s => s.Code.ToDisplayString()));
+            StringAssert.Contains("#pragma warning disable PROPERTY001", new TypeProviderWriter(provider).Write().Content);
+            StringAssert.Contains("#pragma warning disable PROPERTYDEP", new TypeProviderWriter(provider).Write().Content);
         }
 
         [TestCase(false)]
@@ -200,8 +216,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual(Snippet.Literal("MEMBER001").ToDisplayString(),
                 attributes.Single(a => a.Type.Equals(typeof(ExperimentalAttribute))).Arguments[0].ToDisplayString());
             CollectionAssert.AreEquivalent(
-                new[] { "ENUM001", "ENUMDEP", "MEMBER001", "MEMBERDEP" }.Select(id => Snippet.Literal(id).ToDisplayString()),
+                new[] { "ENUMDEP" }.Select(id => Snippet.Literal(id).ToDisplayString()),
                 provider.DisabledFileWarnings.Select(s => s.Code.ToDisplayString()));
+            StringAssert.Contains("#pragma warning disable MEMBERDEP", new TypeProviderWriter(provider).Write().Content);
             var controlAttributes = isExtensible
                 ? provider.Properties.Single(p => p.Name == "Two").Attributes
                 : provider.EnumValues.Single(v => v.Name == "Two").Field.Attributes;
@@ -217,7 +234,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             var provider = CodeModelGenerator.Instance.TypeFactory.CreateModel(model)!;
 
             Assert.IsFalse(provider.Attributes.Any(a => a.Type.Equals(typeof(ExperimentalAttribute))));
-            Assert.AreEqual(Snippet.Literal("DEP001").ToDisplayString(), provider.DisabledFileWarnings.Single().Code.ToDisplayString());
+            Assert.AreEqual(0, provider.DisabledFileWarnings.Count);
+            StringAssert.Contains("#pragma warning disable DEP001", new TypeProviderWriter(provider).Write().Content);
             Assert.IsTrue(CodeModelGenerator.Instance.TypeFactory.CreateModel(dependency)!.Attributes.Any(a => a.Type.Equals(typeof(ExperimentalAttribute))));
         }
 

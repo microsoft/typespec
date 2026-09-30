@@ -29,9 +29,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
             Assert.AreEqual(4, helpers.Length);
             foreach (var helper in helpers)
             {
-                CollectionAssert.IsSubsetOf(
-                    new[] { "ITEM001", "CLIENT001", "API001", "DEPENDENCY001" }.Select(id => Snippet.Literal(id).ToDisplayString()),
-                    helper.DisabledFileWarnings.Select(s => s.Code.ToDisplayString()));
+                Assert.IsTrue(helper.DisabledFileWarnings.All(s => s.Code.ToDisplayString() == Snippet.Literal("ITEM001").ToDisplayString()));
+                var code = new TypeProviderWriter(helper).Write().Content;
+                foreach (var id in new[] { "CLIENT001", "API001", "DEPENDENCY001" })
+                {
+                    StringAssert.Contains($"#pragma warning disable {id}", code);
+                }
             }
         }
 

@@ -11,7 +11,6 @@ using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Text.Json;
 
-#pragma warning disable SAMPLE0003 // This generated code depends on experimental functionality.
 namespace SampleTypeSpec
 {
     /// <summary> The PagePreviewDetails. </summary>
@@ -88,6 +87,7 @@ namespace SampleTypeSpec
             {
                 throw new FormatException($"The model {nameof(PagePreviewDetails)} does not support writing '{format}' format.");
             }
+#pragma warning disable SAMPLE0003 // This generated code depends on experimental functionality.
             writer.WritePropertyName("items"u8);
             writer.WriteStartArray();
             foreach (PreviewDetails item in Items)
@@ -95,6 +95,7 @@ namespace SampleTypeSpec
                 writer.WriteObjectValue(item, options);
             }
             writer.WriteEndArray();
+#pragma warning restore SAMPLE0003 // This generated code depends on experimental functionality.
             if (options.Format != "W" && _additionalBinaryDataProperties != null)
             {
                 foreach (var item in _additionalBinaryDataProperties)
@@ -131,6 +132,7 @@ namespace SampleTypeSpec
 
         /// <param name="element"> The JSON element to deserialize. </param>
         /// <param name="options"> The client options for reading and writing models. </param>
+#pragma warning disable SAMPLE0003 // This generated code depends on experimental functionality.
         internal static PagePreviewDetails DeserializePagePreviewDetails(JsonElement element, ModelReaderWriterOptions options)
         {
             if (element.ValueKind == JsonValueKind.Null)
@@ -158,6 +160,6 @@ namespace SampleTypeSpec
             }
             return new PagePreviewDetails(items, additionalBinaryDataProperties);
         }
+#pragma warning restore SAMPLE0003 // This generated code depends on experimental functionality.
     }
 }
-#pragma warning restore SAMPLE0003 // This generated code depends on experimental functionality.

@@ -26,9 +26,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         internal const string ClientSettingsDiagnosticId = "SCME0002";
 
         private readonly ClientProvider _clientProvider;
-        protected override SuppressionStatement[] BuildDisabledFileWarnings()
-            => ExperimentalApiHelpers.GetParameterSuppressions(_clientProvider.InputClient.Parameters);
-
         private readonly HashSet<string> _reportedUnsupportedCustomParameters = [];
 
 #pragma warning disable SCME0002 // ClientSettings is for evaluation purposes only

@@ -49,11 +49,12 @@ do not repeat the model attribute. Generated code suppresses diagnostics when re
 to source-annotated experimental types and members, so serialization, factories, and client
 implementations can compile without changing the experimental status of other public APIs.
 
-For operation dependencies, suppressions surround each method declaration and body.
-For type/member dependencies and generated references to experimental declarations,
-suppressions are scoped to the generated file. Both include parameter and return types,
-generic arguments, and implementation references; neither suppresses diagnostics in
-consumer code.
+Suppressions surround only the member declarations or serialization blocks that need them,
+including parameter and return types, generic arguments, and implementation references.
+Explicit type-level `dependsOn` entries and base-type dependencies can require a type-wide
+scope. References within a declaration carrying the same experimental diagnostic ID,
+including its other partial declarations, do not need an additional suppression.
+These suppressions do not affect diagnostics in consumer code or separate custom files.
 
 Dependencies identify diagnostics rather than individual types: one diagnostic can apply
 to multiple types or members, including those defined in external libraries. For externally

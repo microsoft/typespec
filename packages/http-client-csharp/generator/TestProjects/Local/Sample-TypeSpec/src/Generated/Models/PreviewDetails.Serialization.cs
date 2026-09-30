@@ -10,7 +10,6 @@ using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Text.Json;
 
-#pragma warning disable SAMPLE0003 // This generated code depends on experimental functionality.
 #pragma warning disable SAMPLE0004 // This generated code depends on experimental functionality.
 namespace SampleTypeSpec
 {
@@ -142,5 +141,4 @@ namespace SampleTypeSpec
         }
     }
 }
-#pragma warning restore SAMPLE0003 // This generated code depends on experimental functionality.
 #pragma warning restore SAMPLE0004 // This generated code depends on experimental functionality.

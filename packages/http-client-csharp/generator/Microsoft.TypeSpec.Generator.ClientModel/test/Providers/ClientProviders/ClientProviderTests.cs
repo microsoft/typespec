@@ -41,7 +41,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             var client = generator.TypeFactory.CreateClient(parent)!;
             var accessor = client.Methods.Single(m => m.Signature.Name == "GetChildClient");
             Assert.AreEqual("Mode", accessor.Signature.Parameters.Single().Type.Name);
-            Assert.IsTrue(client.DisabledFileWarnings.Any(s => s.Code.ToDisplayString() == Literal("MODE001").ToDisplayString()));
+            Assert.AreEqual(0, client.DisabledFileWarnings.Count);
+            StringAssert.Contains("#pragma warning disable MODE001", new TypeProviderWriter(client).Write().Content);
 
             var references = AppDomain.CurrentDomain.GetAssemblies()
                 .Where(a => !a.IsDynamic && !string.IsNullOrEmpty(a.Location))
@@ -135,8 +136,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 references,
                 new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, generalDiagnosticOption: ReportDiagnostic.Error));
             Assert.IsEmpty(compilation.GetDiagnostics().Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error).Select(diagnostic => diagnostic.ToString()));
-            Assert.AreEqual(hasAccessor ? 1 : 0,
-                parentProvider.DisabledFileWarnings.Count(suppression => suppression.Code.ToDisplayString() == Literal("CUSTOM001").ToDisplayString()));
+            Assert.AreEqual(0, parentProvider.DisabledFileWarnings.Count);
+            var parentCode = new TypeProviderWriter(parentProvider).Write().Content;
+            Assert.AreEqual(hasAccessor, parentCode.Contains("#pragma warning disable CUSTOM001", StringComparison.Ordinal));
+            if (hasAccessor)
+            {
+                Assert.Greater(parentCode.IndexOf("#pragma warning disable CUSTOM001", StringComparison.Ordinal),
+                    parentCode.IndexOf("partial class ParentClient", StringComparison.Ordinal));
+                Assert.AreEqual(parentCode.Split("#pragma warning disable CUSTOM001").Length,
+                    parentCode.Split("#pragma warning restore CUSTOM001").Length);
+            }
 
             var consumerTree = CSharpSyntaxTree.ParseText(Helpers.GetExpectedFromFile(parameters: "Consumer"));
             var consumerErrors = compilation.AddSyntaxTrees(consumerTree).GetDiagnostics()
@@ -161,8 +170,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 client.Attributes.Single(a => a.Type.Equals(typeof(ExperimentalAttribute))).Arguments[0].ToDisplayString());
             foreach (var provider in new TypeProvider[] { client, client.RestClient })
             {
-                CollectionAssert.IsSubsetOf(
-                    new[] { "CLIENT001", "DEP001", "MODEL001" }.Select(id => Literal(id).ToDisplayString()),
+                CollectionAssert.AreEqual(
+                    new[] { "DEP001" }.Select(id => Literal(id).ToDisplayString()),
                     provider.DisabledFileWarnings.Select(s => s.Code.ToDisplayString()));
             }
             Assert.IsFalse(client.RestClient.Attributes.Any(a => a.Type.Equals(typeof(ExperimentalAttribute))));

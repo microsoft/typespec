@@ -6,8 +6,11 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
+using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
+using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
@@ -33,77 +36,98 @@ namespace Microsoft.TypeSpec.Generator.Utilities
 
         public static void AddDependencySuppressions(MethodProvider method, InputOperation operation)
         {
-            if (operation.Experimental?.DependsOn is not { Count: > 0 } dependencies)
-            {
-                return;
-            }
-
-            var fileSuppressions = method.EnclosingType.DisabledFileWarnings
-                .Select(s => s.Code.ToDisplayString()).ToHashSet(StringComparer.Ordinal);
             method.Update(suppressions: MergeSuppressions(
                 method.Suppressions,
-                CreateSuppressions(dependencies).Where(s => !fileSuppressions.Contains(s.Code.ToDisplayString()))));
+                GetDependencySuppressions(operation.Experimental),
+                operation.Parameters.SelectMany(parameter => GetReferenceSuppressions(parameter.Type)),
+                operation.Responses.SelectMany(response => GetReferenceSuppressions(response.BodyType))));
         }
 
-        public static SuppressionStatement[] GetSuppressions(InputType? type)
-            => GetSuppressions(type is null ? [] : new[] { type });
+        public static SuppressionStatement[] GetDependencySuppressions(InputExperimentalDetails? details)
+            => CreateSuppressions(details?.DependsOn ?? []);
 
-        public static SuppressionStatement[] GetSuppressions(IEnumerable<InputType> types)
+        public static SuppressionStatement[] GetTypeSuppressions(InputType? type)
+            => MergeSuppressions(
+                GetDependencySuppressions(type?.Experimental),
+                GetReferenceSuppressions((type as InputModelType)?.BaseModel));
+
+        public static SuppressionStatement[] GetReferenceSuppressions(InputType? type)
         {
             var collector = new DiagnosticCollector();
-            foreach (var type in types)
-            {
-                collector.AddDeclaration(type);
-            }
+            collector.AddReference(type);
             return CreateSuppressions(collector.Ids.Order(StringComparer.Ordinal));
         }
 
-        public static SuppressionStatement[] GetSuppressions(InputClient client)
+        public static SuppressionStatement[] GetReferenceSuppressions(CSharpType? type)
         {
-            var collector = new DiagnosticCollector();
-            collector.AddMetadata(client.Experimental);
-            collector.AddId(client.Parent?.Experimental?.DiagnosticId);
-            foreach (var child in client.Children)
+            if (type is null)
             {
-                collector.AddId(child.Experimental?.DiagnosticId);
-                foreach (var parameter in child.Parameters)
+                return [];
+            }
+            var suppressions = new List<SuppressionStatement>();
+            suppressions.AddRange(GetReferenceSuppressions(type.DeclaringType));
+            foreach (var argument in type.Arguments)
+            {
+                suppressions.AddRange(GetReferenceSuppressions(argument));
+            }
+            if (type.IsArray)
+            {
+                suppressions.AddRange(GetReferenceSuppressions(type.ElementType));
+            }
+            if (CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(type, out var provider) && provider is not null)
+            {
+                var custom = GetAttributeSuppressions(provider.CustomCodeView?.Attributes ?? []);
+                suppressions.AddRange(custom.Length > 0 ? custom : GetAttributeSuppressions(provider.Attributes));
+                if (type.IsLiteral && type.Literal is EnumTypeMember member)
                 {
-                    collector.AddProperty(parameter);
+                    suppressions.AddRange(GetAttributeSuppressions(provider.Properties.Where(p => p.Name == member.Name).SelectMany(p => p.Attributes)));
+                    suppressions.AddRange(GetAttributeSuppressions(provider.Fields.Where(f => f.Name == member.Name).SelectMany(f => f.Attributes)));
                 }
             }
-            foreach (var parameter in client.Parameters)
-            {
-                collector.AddProperty(parameter);
-            }
-            foreach (var method in client.Methods)
-            {
-                foreach (var parameter in method.Parameters.Concat<InputProperty>(method.Operation.Parameters))
-                {
-                    collector.AddProperty(parameter);
-                }
-                collector.AddReference(method.Response.Type);
-                foreach (var response in method.Operation.Responses)
-                {
-                    collector.AddReference(response.BodyType);
-                }
-            }
-            return CreateSuppressions(collector.Ids.Order(StringComparer.Ordinal));
+            return MergeSuppressions(suppressions);
         }
 
-        public static SuppressionStatement[] GetParameterSuppressions(IEnumerable<InputProperty> parameters)
+        public static SuppressionStatement[] GetAttributeSuppressions(IEnumerable<AttributeStatement> attributes)
         {
-            var collector = new DiagnosticCollector();
-            foreach (var parameter in parameters)
+            var ids = new List<string>();
+            foreach (var attribute in attributes)
             {
-                collector.AddProperty(parameter);
+                if (!attribute.Type.Equals(typeof(ExperimentalAttribute)))
+                {
+                    continue;
+                }
+                var argument = attribute.Arguments.Single();
+                while (argument is ScopedApi scoped)
+                {
+                    argument = scoped.Original;
+                }
+                if (argument is not LiteralExpression { Literal: string id })
+                {
+                    throw new InvalidOperationException("Experimental attributes must have a constant string diagnostic ID.");
+                }
+                ids.Add(id);
             }
-            return CreateSuppressions(collector.Ids.Order(StringComparer.Ordinal));
+            return CreateSuppressions(ids);
         }
 
-        public static SuppressionStatement[] GetSuppressions(InputOperation operation, InputClient? client = null)
+        public static SuppressionStatement[] GetMemberSuppressions(PropertyProvider property)
+            => MergeSuppressions(property.Suppressions, GetReferenceSuppressions(property.Type), GetAttributeSuppressions(property.Attributes));
+
+        public static SuppressionStatement[] GetMemberSuppressions(FieldProvider field)
+            => MergeSuppressions(field.Suppressions, GetReferenceSuppressions(field.Type), GetAttributeSuppressions(field.Attributes));
+
+        public static MethodBodyStatement Suppress(MethodBodyStatement statement, params IEnumerable<SuppressionStatement>[] suppressions)
+        {
+            foreach (var suppression in MergeSuppressions(suppressions).Reverse())
+            {
+                statement = new SuppressionStatement(statement, suppression.Code, suppression.Justification);
+            }
+            return statement;
+        }
+
+        public static SuppressionStatement[] GetOperationSuppressions(InputOperation operation)
         {
             var collector = new DiagnosticCollector();
-            collector.AddMetadata(client?.Experimental);
             collector.AddMetadata(operation.Experimental);
             foreach (var parameter in operation.Parameters)
             {
@@ -136,7 +160,6 @@ namespace Microsoft.TypeSpec.Generator.Utilities
 
         private sealed class DiagnosticCollector
         {
-            private readonly HashSet<InputType> _declarations = [];
             private readonly HashSet<InputType> _references = [];
             public HashSet<string> Ids { get; } = new(StringComparer.Ordinal);
 
@@ -163,38 +186,6 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 AddMetadata(property.Experimental);
                 AddReference(property.Type);
                 AddReference(property.DefaultValue?.Type);
-            }
-
-            public void AddDeclaration(InputType type)
-            {
-                if (!_declarations.Add(type))
-                {
-                    return;
-                }
-                AddMetadata(type.Experimental);
-                if (type is InputModelType model)
-                {
-                    foreach (var property in model.Properties)
-                    {
-                        AddProperty(property);
-                    }
-                    if (model.BaseModel is { } baseModel)
-                    {
-                        AddDeclaration(baseModel);
-                    }
-                    AddReference(model.AdditionalProperties);
-                    foreach (var derived in model.DerivedModels)
-                    {
-                        AddReference(derived);
-                    }
-                }
-                else if (type is InputEnumType enumType)
-                {
-                    foreach (var value in enumType.Values)
-                    {
-                        AddMetadata(value.Experimental);
-                    }
-                }
             }
 
             public void AddReference(InputType? type)

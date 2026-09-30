@@ -26,13 +26,12 @@ namespace Microsoft.TypeSpec.Generator.Statements
 
         internal override void Write(CodeWriter writer)
         {
-            DisableStatement.Write(writer);
+            using var warnings = writer.SuppressWarnings([this]);
             Inner?.Write(writer);
             if (Inner is AttributeStatement)
             {
                 writer.WriteLine();
             }
-            RestoreStatement.Write(writer);
         }
     }
 }

@@ -26,9 +26,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private const string LatestVersionFieldName = $"{LatestPrefix}{VersionSuffix}";
 
         private readonly InputClient _inputClient;
-        protected override SuppressionStatement[] BuildDisabledFileWarnings()
-            => ExperimentalApiHelpers.GetParameterSuppressions(_inputClient.Parameters);
-
         private readonly ClientProvider _clientProvider;
         private readonly Lazy<Dictionary<InputEnumType, EnumProvider>?> _serviceVersionsEnums;
         private static ClientOptionsProvider? _singletonInstance;
@@ -258,6 +255,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     name: fieldName,
                     enclosingType: this,
                     initializationValue: Static(enumProvider.Type).Property(enumProvider.EnumValues[^1].Name));
+                field.Update(suppressions: ExperimentalApiHelpers.GetMemberSuppressions(enumProvider.EnumValues[^1].Field));
 
                 latestVersionFields.Add(field, enumProvider);
             }
@@ -390,7 +388,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
 
                 switchCases.Add(SwitchCaseExpression.Default(ThrowExpression(New.NotSupportedException(ValueExpression.Empty))));
-                constructorBody.Add(versionProperty.Assign(new SwitchExpression(versionParam, [.. switchCases])).Terminate());
+                constructorBody.Add(ExperimentalApiHelpers.Suppress(
+                    versionProperty.Assign(new SwitchExpression(versionParam, [.. switchCases])).Terminate(),
+                    enumValues.SelectMany(member => ExperimentalApiHelpers.GetMemberSuppressions(member.Field))));
             }
 
             var constructor = new ConstructorProvider(

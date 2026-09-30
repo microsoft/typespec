@@ -114,6 +114,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     DocHelpers.GetFormattableDescription(inputValue.Summary, inputValue.Doc) ?? $"{name}",
                     initializationValue,
                     attributes: ExperimentalApiHelpers.BuildAttributes(inputValue.Experimental));
+                field.Update(suppressions: ExperimentalApiHelpers.GetDependencySuppressions(inputValue.Experimental));
 
                 values[i] = new EnumTypeMember(name, field, inputValue.Value) { Experimental = inputValue.Experimental };
             }

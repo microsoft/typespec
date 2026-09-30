@@ -10,47 +10,59 @@ using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-#pragma warning disable SAMPLE0003 // This generated code depends on experimental functionality.
-#pragma warning disable SAMPLE0009 // This generated code depends on experimental functionality.
 namespace SampleTypeSpec
 {
     internal partial class ExperimentalSamplesGetAllAsyncCollectionResult : AsyncCollectionResult
     {
+#pragma warning disable SAMPLE0009 // This generated code depends on experimental functionality.
         private readonly ExperimentalSamples _client;
+#pragma warning restore SAMPLE0009 // This generated code depends on experimental functionality.
         private readonly RequestOptions _options;
 
         /// <summary> Initializes a new instance of ExperimentalSamplesGetAllAsyncCollectionResult, which is used to iterate over the pages of a collection. </summary>
         /// <param name="client"> The ExperimentalSamples client used to send requests. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+#pragma warning disable SAMPLE0009 // This generated code depends on experimental functionality.
         public ExperimentalSamplesGetAllAsyncCollectionResult(ExperimentalSamples client, RequestOptions options)
         {
             _client = client;
             _options = options;
         }
+#pragma warning restore SAMPLE0009 // This generated code depends on experimental functionality.
 
         /// <summary> Gets the raw pages of the collection. </summary>
         /// <returns> The raw pages of the collection. </returns>
+#pragma warning disable SAMPLE0009 // This generated code depends on experimental functionality.
+#pragma warning disable SAMPLE0003 // This generated code depends on experimental functionality.
         public override async IAsyncEnumerable<ClientResult> GetRawPagesAsync()
         {
             PipelineMessage message = _client.CreateGetAllRequest(_options);
             yield return await GetNextResponseAsync(message).ConfigureAwait(false);
         }
+#pragma warning restore SAMPLE0009 // This generated code depends on experimental functionality.
+#pragma warning restore SAMPLE0003 // This generated code depends on experimental functionality.
 
         /// <summary> Gets the continuation token from the specified page. </summary>
         /// <param name="page"></param>
         /// <returns> The continuation token for the specified page. </returns>
+#pragma warning disable SAMPLE0009 // This generated code depends on experimental functionality.
+#pragma warning disable SAMPLE0003 // This generated code depends on experimental functionality.
         public override ContinuationToken GetContinuationToken(ClientResult page)
         {
             return null;
         }
+#pragma warning restore SAMPLE0009 // This generated code depends on experimental functionality.
+#pragma warning restore SAMPLE0003 // This generated code depends on experimental functionality.
 
         /// <summary> Sends the request in the pipeline message and returns the response. </summary>
         /// <param name="message"> The pipeline message containing the request to send. </param>
+#pragma warning disable SAMPLE0009 // This generated code depends on experimental functionality.
+#pragma warning disable SAMPLE0003 // This generated code depends on experimental functionality.
         private async ValueTask<ClientResult> GetNextResponseAsync(PipelineMessage message)
         {
             return ClientResult.FromResponse(await _client.Pipeline.ProcessMessageAsync(message, _options).ConfigureAwait(false));
         }
+#pragma warning restore SAMPLE0009 // This generated code depends on experimental functionality.
+#pragma warning restore SAMPLE0003 // This generated code depends on experimental functionality.
     }
 }
-#pragma warning restore SAMPLE0003 // This generated code depends on experimental functionality.
-#pragma warning restore SAMPLE0009 // This generated code depends on experimental functionality.

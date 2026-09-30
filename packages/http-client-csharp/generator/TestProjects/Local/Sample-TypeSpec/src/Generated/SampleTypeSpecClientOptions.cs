@@ -10,24 +10,27 @@ using System.ClientModel.Primitives;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Configuration;
 
-#pragma warning disable SAMPLE0010 // This generated code depends on experimental functionality.
 namespace SampleTypeSpec
 {
     /// <summary> Client options for <see cref="SampleTypeSpecClient"/>. </summary>
     public partial class SampleTypeSpecClientOptions : ClientPipelineOptions
     {
+#pragma warning disable SAMPLE0010 // This generated code depends on experimental functionality.
         private const ServiceVersion LatestVersion = ServiceVersion.V2024_08_16_Preview;
+#pragma warning restore SAMPLE0010 // This generated code depends on experimental functionality.
 
         /// <summary> Initializes a new instance of SampleTypeSpecClientOptions. </summary>
         /// <param name="version"> The service version. </param>
         public SampleTypeSpecClientOptions(ServiceVersion version = LatestVersion)
         {
+#pragma warning disable SAMPLE0010 // This generated code depends on experimental functionality.
             Version = version switch
             {
                 ServiceVersion.V2024_07_16_Preview => "2024-07-16-preview",
                 ServiceVersion.V2024_08_16_Preview => "2024-08-16-preview",
                 _ => throw new NotSupportedException()
             };
+#pragma warning restore SAMPLE0010 // This generated code depends on experimental functionality.
         }
 
         /// <summary> Initializes a new instance of SampleTypeSpecClientOptions from configuration. </summary>
@@ -60,4 +63,3 @@ namespace SampleTypeSpec
         }
     }
 }
-#pragma warning restore SAMPLE0010 // This generated code depends on experimental functionality.

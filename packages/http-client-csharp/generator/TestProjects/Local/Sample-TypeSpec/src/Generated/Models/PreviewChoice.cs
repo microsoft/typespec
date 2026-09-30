@@ -7,8 +7,6 @@
 
 using System.Diagnostics.CodeAnalysis;
 
-#pragma warning disable SAMPLE0004 // This generated code depends on experimental functionality.
-#pragma warning disable SAMPLE0007 // This generated code depends on experimental functionality.
 namespace SampleTypeSpec
 {
     /// <summary></summary>
@@ -22,5 +20,3 @@ namespace SampleTypeSpec
         Two
     }
 }
-#pragma warning restore SAMPLE0004 // This generated code depends on experimental functionality.
-#pragma warning restore SAMPLE0007 // This generated code depends on experimental functionality.

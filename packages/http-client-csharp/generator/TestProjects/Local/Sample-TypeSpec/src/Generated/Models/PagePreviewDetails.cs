@@ -9,7 +9,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-#pragma warning disable SAMPLE0003 // This generated code depends on experimental functionality.
 namespace SampleTypeSpec
 {
     /// <summary> The PagePreviewDetails. </summary>
@@ -20,22 +19,27 @@ namespace SampleTypeSpec
 
         /// <summary> Initializes a new instance of <see cref="PagePreviewDetails"/>. </summary>
         /// <param name="items"></param>
+#pragma warning disable SAMPLE0003 // This generated code depends on experimental functionality.
         internal PagePreviewDetails(IEnumerable<PreviewDetails> items)
         {
             Items = items.ToList();
         }
+#pragma warning restore SAMPLE0003 // This generated code depends on experimental functionality.
 
         /// <summary> Initializes a new instance of <see cref="PagePreviewDetails"/>. </summary>
         /// <param name="items"></param>
         /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
+#pragma warning disable SAMPLE0003 // This generated code depends on experimental functionality.
         internal PagePreviewDetails(IList<PreviewDetails> items, IDictionary<string, BinaryData> additionalBinaryDataProperties)
         {
             Items = items;
             _additionalBinaryDataProperties = additionalBinaryDataProperties;
         }
+#pragma warning restore SAMPLE0003 // This generated code depends on experimental functionality.
 
+#pragma warning disable SAMPLE0003 // This generated code depends on experimental functionality.
         /// <summary> Gets the Items. </summary>
         public IList<PreviewDetails> Items { get; }
+#pragma warning restore SAMPLE0003 // This generated code depends on experimental functionality.
     }
 }
-#pragma warning restore SAMPLE0003 // This generated code depends on experimental functionality.

@@ -36,9 +36,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.cs");
 
-        protected internal override SuppressionStatement[] BuildDisabledFileWarnings()
-            => ExperimentalApiHelpers.GetSuppressions(_models);
-
         protected override TypeSignatureModifiers BuildDeclarationModifiers()
             => TypeSignatureModifiers.Static | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Class;
 
@@ -93,7 +90,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
                 MethodBodyStatement statements = ConstructMethodBody(signature, typeToInstantiate);
 
-                methods.Add(new MethodProvider(signature, statements, this, docs));
+                methods.Add(new MethodProvider(signature, statements, this, docs,
+                    suppressions: ExperimentalApiHelpers.MergeSuppressions(
+                        ExperimentalApiHelpers.GetReferenceSuppressions(model),
+                        ExperimentalApiHelpers.GetReferenceSuppressions(model.AdditionalProperties),
+                        model.Properties.SelectMany(property => ExperimentalApiHelpers.GetReferenceSuppressions(property.Type)))));
             }
 
             return [.. methods];

@@ -7,34 +7,38 @@
 
 using System;
 
-#pragma warning disable SAMPLE0004 // This generated code depends on experimental functionality.
-#pragma warning disable SAMPLE0007 // This generated code depends on experimental functionality.
 namespace SampleTypeSpec
 {
     internal static partial class PreviewChoiceExtensions
     {
         /// <param name="value"> The value to serialize. </param>
+#pragma warning disable SAMPLE0007 // This generated code depends on experimental functionality.
+#pragma warning disable SAMPLE0004 // This generated code depends on experimental functionality.
         public static string ToSerialString(this PreviewChoice value) => value switch
         {
             PreviewChoice.One => "one",
             PreviewChoice.Two => "two",
             _ => throw new ArgumentOutOfRangeException(nameof(value), value, "Unknown PreviewChoice value.")
         };
+#pragma warning restore SAMPLE0007 // This generated code depends on experimental functionality.
+#pragma warning restore SAMPLE0004 // This generated code depends on experimental functionality.
 
         /// <param name="value"> The value to deserialize. </param>
+#pragma warning disable SAMPLE0004 // This generated code depends on experimental functionality.
         public static PreviewChoice ToPreviewChoice(this string value)
         {
             if (StringComparer.OrdinalIgnoreCase.Equals(value, "one"))
             {
                 return PreviewChoice.One;
             }
+#pragma warning disable SAMPLE0007 // This generated code depends on experimental functionality.
             if (StringComparer.OrdinalIgnoreCase.Equals(value, "two"))
             {
                 return PreviewChoice.Two;
             }
+#pragma warning restore SAMPLE0007 // This generated code depends on experimental functionality.
             throw new ArgumentOutOfRangeException(nameof(value), value, "Unknown PreviewChoice value.");
         }
+#pragma warning restore SAMPLE0004 // This generated code depends on experimental functionality.
     }
 }
-#pragma warning restore SAMPLE0004 // This generated code depends on experimental functionality.
-#pragma warning restore SAMPLE0007 // This generated code depends on experimental functionality.

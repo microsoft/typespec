@@ -9,8 +9,6 @@ using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 
-#pragma warning disable SAMPLE0003 // This generated code depends on experimental functionality.
-#pragma warning disable SAMPLE0009 // This generated code depends on experimental functionality.
 namespace SampleTypeSpec
 {
     /// <summary></summary>
@@ -504,6 +502,7 @@ namespace SampleTypeSpec
             return message;
         }
 
+#pragma warning disable SAMPLE0003 // This generated code depends on experimental functionality.
         internal PipelineMessage CreateReceiveExperimentalJsonLinesRequest(RequestOptions options)
         {
             ClientUriBuilder uri = new ClientUriBuilder();
@@ -515,7 +514,6 @@ namespace SampleTypeSpec
             message.Apply(options);
             return message;
         }
+#pragma warning restore SAMPLE0003 // This generated code depends on experimental functionality.
     }
 }
-#pragma warning restore SAMPLE0003 // This generated code depends on experimental functionality.
-#pragma warning restore SAMPLE0009 // This generated code depends on experimental functionality.

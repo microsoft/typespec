@@ -9,7 +9,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
-#pragma warning disable SAMPLE0003 // This generated code depends on experimental functionality.
 #pragma warning disable SAMPLE0004 // This generated code depends on experimental functionality.
 namespace SampleTypeSpec
 {
@@ -40,5 +39,4 @@ namespace SampleTypeSpec
         public PreviewChoice Choice { get; }
     }
 }
-#pragma warning restore SAMPLE0003 // This generated code depends on experimental functionality.
 #pragma warning restore SAMPLE0004 // This generated code depends on experimental functionality.

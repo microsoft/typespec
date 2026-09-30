@@ -52,13 +52,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 : ExperimentalApiHelpers.BuildAttributes(_inputClient.Experimental);
 
         protected override SuppressionStatement[] BuildDisabledFileWarnings()
-            => ExperimentalApiHelpers.MergeSuppressions(
-                ExperimentalApiHelpers.GetSuppressions(_inputClient),
-                SubClients.Where(client => client._clientCachingField is not null)
-                    .SelectMany(client => client.CustomCodeView?.Attributes ?? [])
-                    .Where(attribute => attribute.Type.Equals(typeof(ExperimentalAttribute)))
-                    .Select(attribute => new SuppressionStatement(null, attribute.Arguments[0],
-                        "This generated code references an experimental child client.")));
+            => ExperimentalApiHelpers.GetDependencySuppressions(_inputClient.Experimental);
 
         private readonly InputAuth? _inputAuth;
         private readonly ParameterProvider _endpointParameter;
@@ -1387,13 +1381,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 if (!originalSignatures.ContainsKey(method) && PreviousSignatureEndsWithCancellationToken(method.Signature))
                 {
-                    method.Update(suppressions:
+                    method.Update(suppressions: ExperimentalApiHelpers.MergeSuppressions(method.Suppressions,
                     [
                         new SuppressionStatement(
                             inner: null,
                             code: Literal("AZC0002"),
                             justification: "Back-compat overload preserves the previous method signature where CancellationToken was the trailing parameter. Making it optional would introduce an ambiguous call with the new method.")
-                    ]);
+                    ]));
                 }
             }
 

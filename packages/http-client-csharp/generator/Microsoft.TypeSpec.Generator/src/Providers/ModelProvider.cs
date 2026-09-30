@@ -554,11 +554,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return;
             }
 
-            fields.Add(new(
+            var field = new FieldProvider(
                 FieldModifiers.Private,
                 additionalPropsType,
                 BuildAdditionalTypePropertiesFieldName(additionalPropsType.ElementType),
-                this));
+                this);
+            field.Update(suppressions: ExperimentalApiHelpers.GetReferenceSuppressions(_inputModel.AdditionalProperties));
+            fields.Add(field);
         }
 
         private List<PropertyProvider> BuildAdditionalPropertyProperties()
@@ -581,7 +583,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     propertyType,
                     i == 0 ? AdditionalPropertiesHelper.DefaultAdditionalPropertiesPropertyName : field.Name.ToIdentifierName(),
                     assignment,
-                    this)
+                    this,
+                    suppressions: field.Suppressions)
                 {
                     BackingField = field,
                     IsAdditionalProperties = true
@@ -1686,7 +1689,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 var baseDiscriminatorProperty = BaseModelProvider?.DiscriminatorProperty;
                 if (baseDiscriminatorProperty is { WireInfo.IsRequired: false })
                 {
-                    methodBodyStatements.Add(baseDiscriminatorProperty.Assign(DiscriminatorValueExpression).Terminate());
+                    methodBodyStatements.Add(ExperimentalApiHelpers.Suppress(
+                        baseDiscriminatorProperty.Assign(DiscriminatorValueExpression).Terminate(),
+                        ExperimentalApiHelpers.GetMemberSuppressions(baseDiscriminatorProperty)));
                 }
             }
 
@@ -1706,7 +1711,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         assignment = backingField.Assign(New.Instance(backingField.Type.PropertyInitializationType, property.AsParameter));
                     }
 
-                    methodBodyStatements.Add(assignment.Terminate());
+                    methodBodyStatements.Add(ExperimentalApiHelpers.Suppress(assignment.Terminate(),
+                        ExperimentalApiHelpers.GetMemberSuppressions(property)));
                 }
             }
 
@@ -1750,7 +1756,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (!isPrimaryConstructor)
             {
                 // always add the property for the serialization constructor
-                methodBodyStatements.Add(assignee.Assign(GetConversion(property, field)).Terminate());
+                methodBodyStatements.Add(ExperimentalApiHelpers.Suppress(assignee.Assign(GetConversion(property, field)).Terminate(),
+                    property is not null ? ExperimentalApiHelpers.GetMemberSuppressions(property) : ExperimentalApiHelpers.GetMemberSuppressions(field!)));
                 return;
             }
 
@@ -1779,7 +1786,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             if (initializationValue != null)
             {
-                methodBodyStatements.Add(assignee.Assign(initializationValue).Terminate());
+                methodBodyStatements.Add(ExperimentalApiHelpers.Suppress(assignee.Assign(initializationValue).Terminate(),
+                    property is not null ? ExperimentalApiHelpers.GetMemberSuppressions(property) : ExperimentalApiHelpers.GetMemberSuppressions(field!)));
             }
         }
 

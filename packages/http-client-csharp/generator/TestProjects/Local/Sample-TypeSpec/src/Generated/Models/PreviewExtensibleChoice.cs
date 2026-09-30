@@ -9,8 +9,6 @@ using System;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 
-#pragma warning disable SAMPLE0005 // This generated code depends on experimental functionality.
-#pragma warning disable SAMPLE0006 // This generated code depends on experimental functionality.
 namespace SampleTypeSpec
 {
     /// <summary></summary>
@@ -71,5 +69,3 @@ namespace SampleTypeSpec
         public override string ToString() => _value;
     }
 }
-#pragma warning restore SAMPLE0005 // This generated code depends on experimental functionality.
-#pragma warning restore SAMPLE0006 // This generated code depends on experimental functionality.

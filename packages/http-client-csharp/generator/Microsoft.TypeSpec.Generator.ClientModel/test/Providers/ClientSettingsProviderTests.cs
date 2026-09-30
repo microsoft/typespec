@@ -51,7 +51,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.IsEmpty(errors.Select(d => d.ToString()));
             foreach (var provider in new TypeProvider[] { options, settings })
             {
-                Assert.IsTrue(provider.DisabledFileWarnings.Any(s => s.Code.ToDisplayString() == Snippet.Literal("MODE001").ToDisplayString()));
+                Assert.AreEqual(0, provider.DisabledFileWarnings.Count);
+                StringAssert.Contains("#pragma warning disable MODE001", new TypeProviderWriter(provider).Write().Content);
             }
         }
 

@@ -290,8 +290,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public IReadOnlyList<SuppressionStatement> DisabledFileWarnings => _disabledFileWarnings ??=
             ExperimentalApiHelpers.MergeSuppressions(
                 BuildDisabledFileWarnings(),
-                ExperimentalApiHelpers.GetSuppressions(_inputType ?? SerializationProviderOwner?._inputType),
-                NestedTypes.SelectMany(type => type.DisabledFileWarnings));
+                ExperimentalApiHelpers.GetTypeSuppressions(_inputType ?? SerializationProviderOwner?._inputType));
 
         private protected virtual bool FilterCustomizedMembers => true;
 

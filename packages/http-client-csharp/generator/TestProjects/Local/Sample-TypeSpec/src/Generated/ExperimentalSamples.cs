@@ -12,8 +12,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 
-#pragma warning disable SAMPLE0003 // This generated code depends on experimental functionality.
-#pragma warning disable SAMPLE0009 // This generated code depends on experimental functionality.
 namespace SampleTypeSpec
 {
     /// <summary> The ExperimentalSamples sub-client. </summary>
@@ -126,19 +124,21 @@ namespace SampleTypeSpec
         /// <summary> GetAll. </summary>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+#pragma warning disable SAMPLE0003 // This generated code depends on experimental functionality.
         public virtual CollectionResult<PreviewDetails> GetAll(CancellationToken cancellationToken = default)
         {
             return new ExperimentalSamplesGetAllCollectionResultOfT(this, cancellationToken.ToRequestOptions());
         }
+#pragma warning restore SAMPLE0003 // This generated code depends on experimental functionality.
 
         /// <summary> GetAll. </summary>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+#pragma warning disable SAMPLE0003 // This generated code depends on experimental functionality.
         public virtual AsyncCollectionResult<PreviewDetails> GetAllAsync(CancellationToken cancellationToken = default)
         {
             return new ExperimentalSamplesGetAllAsyncCollectionResultOfT(this, cancellationToken.ToRequestOptions());
         }
+#pragma warning restore SAMPLE0003 // This generated code depends on experimental functionality.
     }
 }
-#pragma warning restore SAMPLE0003 // This generated code depends on experimental functionality.
-#pragma warning restore SAMPLE0009 // This generated code depends on experimental functionality.

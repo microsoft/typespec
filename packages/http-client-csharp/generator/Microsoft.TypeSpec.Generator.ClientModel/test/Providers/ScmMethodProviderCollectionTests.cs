@@ -155,15 +155,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var operation = InputFactory.Operation("Read", responses: [InputFactory.OperationResponse(bodytype: model)]);
             operation.Update(experimental: new InputExperimentalDetails("API001", ["MODEL001"]));
             var method = InputFactory.BasicServiceMethod("Read", operation);
-            var inputClient = InputFactory.Client("TestClient", methods: [method]);
+            var inputClient = InputFactory.Experimental(InputFactory.Client("TestClient", methods: [method]), null, "MODEL001");
             MockHelpers.LoadMockGenerator(inputModels: () => [model], clients: () => [inputClient]);
             var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
 
             foreach (var provider in new ScmMethodProviderCollection(method, client).Append(client.RestClient.GetCreateRequestMethod(operation)))
             {
                 Assert.IsTrue(provider.EnclosingType.DisabledFileWarnings.Any(s => s.Code.ToDisplayString() == Snippet.Literal("MODEL001").ToDisplayString()));
-                Assert.AreEqual(0, provider.Suppressions.Count, "A method-local restore would undo the generated file's suppression.");
+                Assert.IsTrue(provider.Suppressions.Any(s => s.Code.ToDisplayString() == Snippet.Literal("MODEL001").ToDisplayString()));
             }
+            var code = new TypeProviderWriter(client).Write().Content;
+            Assert.AreEqual(1, code.Split("#pragma warning disable MODEL001").Length - 1);
+            Assert.AreEqual(1, code.Split("#pragma warning restore MODEL001").Length - 1);
         }
 
         [TestCase(null)]
@@ -307,15 +310,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 .AddSyntaxTrees(customTree)
                 .AddSyntaxTrees(generatedTrees);
             var errors = compilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error).ToArray();
-            if (suppressType)
-            {
-                Assert.IsEmpty(errors.Select(d => d.ToString()));
-            }
-            else
-            {
-                Assert.IsTrue(errors.Length > 0);
-                Assert.IsTrue(errors.All(d => d.Id == "A"), string.Join(Environment.NewLine, errors.Select(d => d.ToString())));
-            }
+            Assert.IsEmpty(errors.Select(d => d.ToString()), "Known custom type attributes are suppressed at their generated reference sites.");
         }
 
         [Test]

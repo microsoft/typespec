@@ -186,9 +186,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         protected override string BuildNamespace() => Client.Type.Namespace;
 
         protected override SuppressionStatement[] BuildDisabledFileWarnings()
-            => ExperimentalApiHelpers.MergeSuppressions(
-                ResponseModel.DisabledFileWarnings,
-                ExperimentalApiHelpers.GetSuppressions(Operation, Client.InputClient));
+            => ExperimentalApiHelpers.GetReferenceSuppressions(ItemModelType);
 
         protected override string BuildName()
         {
@@ -360,6 +358,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             methods.Add(BuildGetNextResponseMethod());
 
+            foreach (var method in methods)
+            {
+                method.Update(suppressions: ExperimentalApiHelpers.MergeSuppressions(
+                    method.Suppressions,
+                    ExperimentalApiHelpers.GetOperationSuppressions(Operation),
+                    ExperimentalApiHelpers.GetReferenceSuppressions(Client.Type),
+                    ExperimentalApiHelpers.GetReferenceSuppressions(ResponseModelType),
+                    ResponseModel.CanonicalView.Properties.SelectMany(ExperimentalApiHelpers.GetMemberSuppressions)));
+            }
             return methods.ToArray();
         }
 

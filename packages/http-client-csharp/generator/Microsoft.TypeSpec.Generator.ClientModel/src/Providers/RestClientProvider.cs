@@ -53,7 +53,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         public ClientProvider ClientProvider { get; }
 
         protected override SuppressionStatement[] BuildDisabledFileWarnings()
-            => ExperimentalApiHelpers.GetSuppressions(_inputClient);
+            => ExperimentalApiHelpers.GetDependencySuppressions(_inputClient.Experimental);
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.RestClient.cs");
 

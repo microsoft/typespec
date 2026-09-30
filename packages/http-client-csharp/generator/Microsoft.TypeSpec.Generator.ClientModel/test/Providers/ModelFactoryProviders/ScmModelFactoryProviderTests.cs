@@ -45,7 +45,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ModelFactoryP
             Assert.AreEqual("Payload", factory.Methods.Single().Signature.Name);
             Assert.IsFalse(model.Attributes.Any(a => a.Type.Equals(typeof(ExperimentalAttribute))));
             Assert.IsFalse(factory.Methods.Single().Signature.Attributes.Any(a => a.Type.Equals(typeof(ExperimentalAttribute))));
-            Assert.IsTrue(model.DisabledFileWarnings.Any(s => s.Code.ToDisplayString() == Snippet.Literal("SCME0001").ToDisplayString()));
+            Assert.AreEqual(0, model.DisabledFileWarnings.Count);
+            StringAssert.Contains("#pragma warning disable SCME0001", new TypeProviderWriter(model).Write().Content);
 
             var references = AppDomain.CurrentDomain.GetAssemblies()
                 .Where(a => !a.IsDynamic && !string.IsNullOrEmpty(a.Location))
@@ -80,10 +81,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ModelFactoryP
             Assert.IsFalse(enumProvider.Attributes.Any(a => a.Type.Equals(typeof(ExperimentalAttribute))));
             foreach (var provider in new TypeProvider[] { model, factory })
             {
-                CollectionAssert.AreEqual(
-                    new[] { Snippet.Literal("SAMPLE_MEMBER").ToDisplayString() },
-                    provider.DisabledFileWarnings.Select(s => s.Code.ToDisplayString()));
+                Assert.AreEqual(0, provider.DisabledFileWarnings.Count);
+                var code = new TypeProviderWriter(provider).Write().Content;
+                StringAssert.DoesNotContain("#pragma warning disable OTHER_MEMBER", code);
             }
+            StringAssert.Contains("#pragma warning disable SAMPLE_MEMBER", new TypeProviderWriter(factory).Write().Content);
             var references = AppDomain.CurrentDomain.GetAssemblies()
                 .Where(a => !a.IsDynamic && !string.IsNullOrEmpty(a.Location))
                 .Select(a => MetadataReference.CreateFromFile(a.Location));
