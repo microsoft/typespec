@@ -274,7 +274,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 var matches = candidate.Signature.Parameters
                     .Select(parameter => properties.FirstOrDefault(property =>
                         property.AsParameter.Name == parameter.Name &&
-                        property.Type.Equals(parameter.Type, ignoreNullable: true)))
+                        property.Type.Equals(parameter.Type, ignoreNullable: true) &&
+                        (!property.Type.IsValueType || property.Type.IsNullable == parameter.Type.IsNullable)))
                     .ToArray();
                 if (matches.All(property => property is not null) &&
                     InputModel.Properties.All(inputProperty => matches.Any(property =>
@@ -309,13 +310,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             var properties = new List<PropertyProvider>();
+            var seenPropertyNames = new HashSet<string>(StringComparer.Ordinal);
             for (var provider = _lastContractType; provider is not null; provider = provider.BaseTypeProvider)
             {
                 foreach (var property in provider.Properties.Where(property =>
-                    MethodSignatureHelper.IsPublicApi(property.Modifiers) &&
-                    !properties.Any(existing => existing.Name == property.Name)))
+                    MethodSignatureHelper.IsPublicApi(property.Modifiers) && seenPropertyNames.Add(property.Name)))
                 {
-                    properties.Add(ApplyCurrentInputMetadata(property));
+                    if (ApplyCurrentInputMetadata(property) is { } projectedProperty)
+                    {
+                        properties.Add(projectedProperty);
+                    }
                 }
             }
             return [.. properties];
@@ -699,17 +703,22 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private static bool IsPublicOrProtected(FieldInfo field)
             => field.IsPublic || field.IsFamily || field.IsFamilyOrAssembly;
 
-        private PropertyProvider ApplyCurrentInputMetadata(PropertyProvider lastContractProperty)
+        private PropertyProvider? ApplyCurrentInputMetadata(PropertyProvider lastContractProperty)
         {
             var matchingInputProperties = InputModel.Properties.Where(property =>
                 CodeModelGenerator.Instance.TypeFactory.IsLastContractModelBasePropertyCompatible(
                     SystemType,
                     property,
                     lastContractProperty)).ToArray();
-            if (matchingInputProperties.Length != 1 ||
-                CodeModelGenerator.Instance.TypeFactory.CreateUncachedProperty(matchingInputProperties[0], this) is not { } property)
+            if (matchingInputProperties.Length != 1)
             {
                 return lastContractProperty;
+            }
+            if (CodeModelGenerator.Instance.TypeFactory.CreateUncachedProperty(matchingInputProperties[0], this) is not { } property)
+            {
+                // Honor the current input visitor's veto. The one-to-one compatibility check will
+                // reject restoration rather than reintroducing this historical property.
+                return null;
             }
 
             // Keep the shipped CLR surface while using the current input as the authority for wire metadata.

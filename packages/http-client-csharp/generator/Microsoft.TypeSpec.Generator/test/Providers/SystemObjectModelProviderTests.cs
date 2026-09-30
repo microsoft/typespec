@@ -1051,6 +1051,46 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 new CSharpType(typeof(InitOnlyPropertyTarget)), currentProperty, historicalProperty), Is.EqualTo(expected));
         }
 
+        [TestCase(false, false, true)]
+        [TestCase(true, true, true)]
+        [TestCase(false, true, false)]
+        [TestCase(true, false, false)]
+        public void DefaultLastContractMappingRequiresMatchingValueNullability(
+            bool inputNullable, bool historicalNullable, bool expected)
+        {
+            var currentProperty = InputFactory.Property("value",
+                inputNullable ? new InputNullableType(InputPrimitiveType.Int32) : InputPrimitiveType.Int32);
+            var historicalProperty = new PropertyProvider($"", MethodSignatureModifiers.Public,
+                new CSharpType(typeof(int), isNullable: historicalNullable), "Value", new AutoPropertyBody(true),
+                new TestTypeProvider());
+
+            Assert.That(CodeModelGenerator.Instance.TypeFactory.IsLastContractModelBasePropertyCompatible(
+                new CSharpType(typeof(ResourceTypePropertyTarget)), currentProperty, historicalProperty), Is.EqualTo(expected));
+        }
+
+        [Test]
+        public void DefaultLastContractMappingIgnoresReferenceNullabilityAnnotations()
+        {
+            var currentProperty = InputFactory.Property("value", new InputNullableType(InputPrimitiveType.String));
+            var historicalProperty = new PropertyProvider($"", MethodSignatureModifiers.Public,
+                typeof(string), "Value", new AutoPropertyBody(true), new TestTypeProvider());
+
+            Assert.That(CodeModelGenerator.Instance.TypeFactory.IsLastContractModelBasePropertyCompatible(
+                new CSharpType(typeof(InitOnlyPropertyTarget)), currentProperty, historicalProperty), Is.True);
+        }
+
+        [Test]
+        public void DownstreamLastContractMappingCanExplicitlyReconcileValueNullability()
+        {
+            MockHelpers.LoadMockGenerator(isLastContractModelBasePropertyCompatible: (_, _, _) => true);
+            var currentProperty = InputFactory.Property("value", new InputNullableType(InputPrimitiveType.Int32));
+            var historicalProperty = new PropertyProvider($"", MethodSignatureModifiers.Public,
+                typeof(int), "Value", new AutoPropertyBody(true), new TestTypeProvider());
+
+            Assert.That(CodeModelGenerator.Instance.TypeFactory.IsLastContractModelBasePropertyCompatible(
+                new CSharpType(typeof(ResourceTypePropertyTarget)), currentProperty, historicalProperty), Is.True);
+        }
+
         [Test]
         public void LastContractMappingRejectsStaticHistoricalPropertyForInstanceInput()
         {

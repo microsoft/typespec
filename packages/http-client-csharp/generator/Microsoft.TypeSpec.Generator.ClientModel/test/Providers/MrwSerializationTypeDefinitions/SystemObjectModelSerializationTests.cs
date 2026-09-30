@@ -7,6 +7,8 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -124,6 +126,59 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 Assert.That(serialization.BuildJsonModelCreateCoreMethod().Signature.ReturnType?.Name,
                     Is.EqualTo("TrackedResource"));
             });
+        }
+
+        [TestCase("PersistableOnlyResource")]
+        [TestCase("JsonOnlyResource")]
+        public async Task SingleHistoricalCreateCoreMethodCanSupplyVirtualModelReturnType(string modelName)
+        {
+            var baseInputModel = InputFactory.Model("Resource", properties: []);
+            var derivedInputModel = InputFactory.Model(modelName, properties: [], baseModel: baseInputModel);
+            var systemBase = new SystemObjectModelProvider(new CSharpType(typeof(object)), baseInputModel);
+            var generator = MockHelpers.LoadMockGenerator(
+                inputModels: () => [baseInputModel, derivedInputModel],
+                createModelCore: model => model == baseInputModel ? systemBase : new ModelProvider(model),
+                createSerializationsCore: (inputType, typeProvider) =>
+                    inputType is InputModelType modelType && typeProvider is ModelProvider modelProvider
+                        ? [new MrwSerializationTypeDefinition(modelType, modelProvider)]
+                        : []);
+            var lastContractCompilation = await Helpers.GetCompilationFromDirectoryAsync();
+            generator.SetupProperty(plugin => plugin.SourceInputModel, new SourceInputModel(null, lastContractCompilation));
+            var derived = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(derivedInputModel)!;
+            var historicalMethod = derived.LastContractView!.Methods.Single();
+            if (historicalMethod.Signature.Name == "JsonModelCreateCore")
+            {
+                // Isolate return selection using the reader shape required by the existing matcher.
+                historicalMethod.Signature.Parameters[0].Update(type: typeof(Utf8JsonReader));
+            }
+            Assert.That(MrwSerializationTypeDefinition.IsCreateCoreMethod(historicalMethod.Signature), Is.True);
+            var serialization = (MrwSerializationTypeDefinition)derived.SerializationProviders.Single();
+            var methods = new[] { serialization.BuildPersistableModelCreateCoreMethod(), serialization.BuildJsonModelCreateCoreMethod() };
+            Assert.Multiple(() =>
+            {
+                foreach (var method in methods)
+                {
+                    Assert.That(method.Signature.ReturnType?.Name, Is.EqualTo(modelName));
+                    Assert.That(method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Virtual), Is.True);
+                    Assert.That(method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Override), Is.False);
+                }
+            });
+
+            // Compile the exact emitted signatures with throw bodies to isolate the reported
+            // invalid-override concern from unrelated deserializer/helper dependencies.
+            var emitted = CSharpSyntaxTree.ParseText(new TypeProviderWriter(serialization).Write().Content);
+            var signatures = emitted.GetRoot().DescendantNodes().OfType<MethodDeclarationSyntax>()
+                .Where(method => method.Identifier.Text is "PersistableModelCreateCore" or "JsonModelCreateCore")
+                .Select(method => method.WithBody(SyntaxFactory.Block(
+                    SyntaxFactory.ParseStatement("throw new System.NotImplementedException();"))).ToFullString());
+            var references = ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!).Split(System.IO.Path.PathSeparator)
+                .Append(typeof(ModelReaderWriterOptions).Assembly.Location)
+                .Append(typeof(BinaryData).Assembly.Location)
+                .Distinct().Select(path => MetadataReference.CreateFromFile(path));
+            var compilation = CSharpCompilation.Create("SingleHistoricalCreateCoreSignatures",
+                [CSharpSyntaxTree.ParseText($"namespace Sample.Models {{ public class {modelName} : object {{ {string.Join("\n", signatures)} }} }}")],
+                references, new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            Assert.That(compilation.GetDiagnostics().Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error), Is.Empty);
         }
 
         [Test]

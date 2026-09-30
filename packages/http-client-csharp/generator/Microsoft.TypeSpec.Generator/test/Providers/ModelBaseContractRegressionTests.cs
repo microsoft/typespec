@@ -340,6 +340,45 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.That(new ModelBaseTypeCompatibility(derived).IsSupportedModelBase(candidate), Is.True);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
+        public void MappedBaseRejectsConstructorPropertyValueNullabilityMismatch(bool propertyNullable)
+        {
+            var currentBase = InputFactory.Model("CurrentBase", properties: [InputFactory.Property("value",
+                propertyNullable ? new InputNullableType(InputPrimitiveType.Int32) : InputPrimitiveType.Int32)]);
+            var previous = Parse($"public Previous() {{ }} public Previous({(propertyNullable ? "int" : "int?")} value) {{ }} " +
+                $"public {(propertyNullable ? "int?" : "int")} Value {{ get; set; }}");
+            var mapped = new SystemObjectModelProvider(new CSharpType(propertyNullable
+                ? typeof(NullablePropertyConstructorTarget) : typeof(NullableConstructorTarget)), currentBase, previous);
+
+            Assert.That(mapped.HasReconstructibleLastContractConstructor, Is.False);
+            Assert.That(CanRestoreMappedBase(mapped), Is.False);
+        }
+
+        [Test]
+        public void RemovedMappedPropertyDoesNotReappearFromHistoricalAncestor()
+        {
+            var currentBase = InputFactory.Model("CurrentBase", properties: [InputFactory.Property("value",
+                new InputNullableType(InputPrimitiveType.Int32))]);
+            var previous = ParseNamedType("public class Root { public int? Value { get; set; } } " +
+                "public class Previous : Root { public new int? Value { get; set; } }", "Previous");
+            var mapped = new SystemObjectModelProvider(new CSharpType(typeof(NullablePropertyTarget)), currentBase, previous);
+            var visitor = new RemoveFirstValueProjectionVisitor();
+            CodeModelGenerator.Instance.AddVisitor(visitor);
+
+            Assert.That(mapped.Properties, Is.Empty);
+            Assert.That(visitor.ValueProjectionCount, Is.EqualTo(1),
+                "The rejected nearest declaration must still hide the historical ancestor property.");
+        }
+
+        private sealed class RemoveFirstValueProjectionVisitor : LibraryVisitor
+        {
+            public int ValueProjectionCount { get; private set; }
+
+            protected internal override PropertyProvider? PreVisitProperty(InputProperty input, PropertyProvider? property)
+                => input.Name == "value" && ++ValueProjectionCount == 1 ? null : property;
+        }
+
         [Test]
         public void MappedBaseRejectsUnprovenConstantValue()
         {
@@ -493,6 +532,18 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             public void BoolDefault(bool value = true) { }
         }
         public class NullablePropertyTarget { public int? Value { get; set; } }
+        public class NullablePropertyConstructorTarget
+        {
+            public NullablePropertyConstructorTarget() { }
+            public NullablePropertyConstructorTarget(int value) { Value = value; }
+            public int? Value { get; set; }
+        }
+        public class NullableConstructorTarget
+        {
+            public NullableConstructorTarget() { }
+            public NullableConstructorTarget(int? value) { Value = value ?? 0; }
+            public int Value { get; set; }
+        }
         public class RequiredPropertyTarget { public required string Value { get; set; } }
         public class RequiredFieldTarget { public required string Value; }
         public class RequiredPropertyBase { public required string Value { get; set; } }
