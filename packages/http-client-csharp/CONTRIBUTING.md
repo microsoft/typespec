@@ -197,6 +197,34 @@ Generate test projects to validate the emitter and generator:
   ./eng/scripts/Generate.ps1 -Stubbed $false
   ```
 
+### Comparing Generator Performance on SDK Libraries
+
+Use an isolated SDK worktree so regeneration does not overwrite your working changes.
+Run `tsp-client sync` followed by `tsp-client generate --save-inputs` in a real SDK library
+to obtain `tspCodeModel.json` and `Configuration.json`. Keep the SDK commit, custom sources,
+API baseline, inputs, and plugin assemblies identical for both generator builds.
+
+Build the baseline and candidate generators in Release mode and save their complete output
+directories separately. For Azure libraries, include the same Azure generator plugin and
+dependencies in both directories. If `Configuration.json` specifies custom plugins, point
+them at prebuilt assemblies so plugin compilation is not included in the timing.
+
+```powershell
+./eng/scripts/Compare-Generation.ps1 `
+  -BaselineGenerator C:\bench\before\Microsoft.TypeSpec.Generator.dll `
+  -CandidateGenerator C:\bench\after\Microsoft.TypeSpec.Generator.dll `
+  -LibraryDirectory C:\sdk-worktree\sdk\appconfiguration\Azure.Data.AppConfiguration `
+  -GeneratorName AzureClientGenerator `
+  -ResultDirectory C:\bench\appconfiguration
+```
+
+Use `ScmCodeModelGenerator` for unbranded libraries. The script performs one warmup per build,
+then five measured runs per build, alternating their order. It fails on generation errors,
+changed inputs, or any byte difference in the files under `src/Generated`. Results include
+per-run wall-clock and generator-stage timings, medians, input hashes, and generated-file
+hash manifests. Run comparisons without concurrent builds or tests; these measurements
+cover C# generation, not TypeSpec compilation or generated-client runtime performance.
+
 ## Code Generation
 
 ### Regenerating Test Projects
