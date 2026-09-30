@@ -377,6 +377,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var overriddenMethods = new List<MethodSignature>();
             for (var provider = _lastContractType; provider is not null; provider = provider.BaseTypeProvider)
             {
+                // Fail closed on this unsupported symbol-backed contract; ordinary mappings keep
+                // using the external type's own surface without generalized CLR reconciliation.
+                if (ModelBaseMemberCompatibility.HasPublicApiNestedTypes(provider))
+                {
+                    return false;
+                }
+
                 foreach (var method in provider.Methods.Where(method =>
                     MethodSignatureHelper.IsPublicApi(method.Signature.Modifiers)))
                 {

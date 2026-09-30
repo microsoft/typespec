@@ -201,12 +201,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 foreach (var method in provider.Methods.Where(method => IsCreateCoreMethod(method.Signature)))
                 {
                     // An override on a nearer type supersedes the inherited create-core method.
-                    if (seenMethods.Add(method.Signature.Name) &&
-                        method.Signature.ReturnType is { } returnType &&
-                        IsLastContractModelType(returnType))
+                    if (!seenMethods.Add(method.Signature.Name))
                     {
-                        returnTypes.Add(returnType);
+                        continue;
                     }
+                    if (method.Signature.ReturnType is not { } returnType ||
+                        !IsLastContractModelType(returnType))
+                    {
+                        // A partial match cannot supply a common historical model return type.
+                        return null;
+                    }
+                    returnTypes.Add(returnType);
                 }
 
                 if (seenMethods.Count == s_createCoreMethodNames.Count)

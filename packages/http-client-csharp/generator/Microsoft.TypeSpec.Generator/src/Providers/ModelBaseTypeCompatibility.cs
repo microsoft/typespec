@@ -78,6 +78,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return true;
             }
 
+            if (ModelBaseMemberCompatibility.HasPublicApiNestedTypes(lastContract))
+            {
+                return false;
+            }
+
             var currentGeneratedMethods = candidate.Methods
                 .Concat(candidate.SerializationProviders.SelectMany(provider => provider.Methods))
                 .ToArray();

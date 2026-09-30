@@ -217,6 +217,42 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             });
         }
 
+        [TestCase("TrackedResource")]
+        [TestCase("ResourceWithMixedReturn")]
+        public async Task CreateCoreMethodsIgnoreMixedLastContractReturnTypesWithSystemBase(string modelName)
+        {
+            var baseInputModel = InputFactory.Model("Resource", properties: []);
+            var derivedInputModel = InputFactory.Model(modelName, properties: [], baseModel: baseInputModel);
+            var systemBase = new SystemObjectModelProvider(new CSharpType(typeof(object)), baseInputModel);
+            var generator = MockHelpers.LoadMockGenerator(
+                inputModels: () => [baseInputModel, derivedInputModel],
+                createModelCore: model => model == baseInputModel ? systemBase : new ModelProvider(model),
+                createSerializationsCore: (inputType, typeProvider) =>
+                    inputType is InputModelType modelType && typeProvider is ModelProvider modelProvider
+                        ? [new MrwSerializationTypeDefinition(modelType, modelProvider)]
+                        : []);
+            generator.SetupProperty(
+                plugin => plugin.SourceInputModel,
+                new SourceInputModel(null, await Helpers.GetCompilationFromDirectoryAsync()));
+
+            var derived = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(derivedInputModel)!;
+            var serialization = (MrwSerializationTypeDefinition)derived.SerializationProviders.Single();
+            // The matcher intentionally requires the framework-backed reader parameter shape.
+            // Keep this regression about return matching, not symbol/framework type reconciliation.
+            derived.LastContractView!.Methods.Single(method => method.Signature.Name == "JsonModelCreateCore")
+                .Signature.Parameters[0].Update(type: typeof(Utf8JsonReader));
+            Assert.That(derived.LastContractView.Methods.Count(method =>
+                MrwSerializationTypeDefinition.IsCreateCoreMethod(method.Signature)), Is.EqualTo(2),
+                "Both historical methods must be recognized to reproduce the partial-return match.");
+            Assert.Multiple(() =>
+            {
+                Assert.That(serialization.BuildPersistableModelCreateCoreMethod().Signature.ReturnType?.Name,
+                    Is.EqualTo("Object"));
+                Assert.That(serialization.BuildJsonModelCreateCoreMethod().Signature.ReturnType?.Name,
+                    Is.EqualTo("Object"));
+            });
+        }
+
         [Test]
         public async Task CreateCoreMethodsIgnoreRemovedLastContractReturnTypeWithSystemBase()
         {

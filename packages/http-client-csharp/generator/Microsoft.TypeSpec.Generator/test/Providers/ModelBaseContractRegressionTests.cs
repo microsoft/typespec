@@ -347,6 +347,72 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.That(mapped.HasCompatibleLastContractNonPropertyMembers(), Is.False);
         }
 
+        [TestCase("public class Nested { }")]
+        [TestCase("protected class Nested { }")]
+        [TestCase("protected internal class Nested { }")]
+        [TestCase("public enum Nested { Value }")]
+        [TestCase("public delegate void Nested();")]
+        public void GeneratedBaseRejectsUnsupportedHistoricalNestedTypes(string declaration)
+        {
+            Assert.That(CanUseGenerated(declaration, ""), Is.False);
+        }
+
+        [TestCase("private class Nested { }")]
+        [TestCase("internal class Nested { }")]
+        public void GeneratedBaseIgnoresNonPublicHistoricalNestedTypes(string declaration)
+        {
+            Assert.That(CanUseGenerated(declaration, ""), Is.True);
+        }
+
+        [TestCase("public class Nested { }")]
+        [TestCase("protected class Nested { }")]
+        [TestCase("protected internal class Nested { }")]
+        [TestCase("public enum Nested { Value }")]
+        [TestCase("public delegate void Nested();")]
+        public void SymbolBackedMappedBaseRejectsUnsupportedHistoricalNestedTypes(string declaration)
+        {
+            Assert.That(CanRestoreMappedBase(Map(typeof(EmptyTarget), Parse(declaration))), Is.False);
+        }
+
+        [Test]
+        public void SymbolBackedMappedBaseRejectsInheritedHistoricalNestedTypes()
+        {
+            var previous = ParseNamedType(
+                "public class Root { public class Nested { } } public class Previous : Root { }", "Previous");
+            Assert.That(CanRestoreMappedBase(Map(typeof(EmptyTarget), previous)), Is.False);
+        }
+
+        [TestCase("private class Nested { }")]
+        [TestCase("internal class Nested { }")]
+        public void SymbolBackedMappedBaseIgnoresNonPublicHistoricalNestedTypes(string declaration)
+        {
+            Assert.That(CanRestoreMappedBase(Map(typeof(EmptyTarget), Parse(declaration))), Is.True);
+        }
+
+        [Test]
+        public void OrdinaryMappedBaseCanSupplyItsOwnNestedTypes()
+        {
+            var mapped = new SystemObjectModelProvider(new CSharpType(typeof(NestedTypeTarget)),
+                InputFactory.Model("CurrentBase", properties: []));
+            Assert.That(CanRestoreMappedBase(mapped), Is.True);
+        }
+
+        [TestCase(typeof(AbstractPropertyTarget))]
+        [TestCase(typeof(AbstractEventTarget))]
+        [TestCase(typeof(AbstractIndexerTarget))]
+        [TestCase(typeof(InheritedAbstractPropertyTarget))]
+        public void MappedBaseRejectsAbstractAccessors(Type target)
+        {
+            Assert.That(MappedModelBaseCompatibility.IsSupportedModelBase(Map(target, Parse(""))), Is.False);
+        }
+
+        [Test]
+        public void MappedBaseAcceptsConcreteAccessorOverride()
+        {
+            Assert.That(MappedModelBaseCompatibility.IsSupportedModelBase(
+                Map(typeof(ConcretePropertyTarget), Parse(""))), Is.True);
+        }
+
         private static bool CanUseGenerated(string previous, string current)
         {
             var candidate = new ContractModel(Parse(previous), Parse(current));
@@ -404,6 +470,15 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         public class AdditionalUnionPropertyTarget { public void AdditionalInt32Properties() { } }
         public class AdditionalRawPropertyTarget { public string AdditionalBinaryDataProperties = string.Empty; }
         public class EmptyTarget { }
+        public class NestedTypeTarget { public class Nested { } }
+        public abstract class AbstractPropertyTarget { public abstract string Name { get; set; } }
+        public abstract class AbstractEventTarget { public abstract event System.EventHandler Changed; }
+        public abstract class AbstractIndexerTarget { public abstract int this[int index] { get; } }
+        public abstract class InheritedAbstractPropertyTarget : AbstractPropertyTarget { }
+        public class ConcretePropertyTarget : AbstractPropertyTarget
+        {
+            public override string Name { get; set; } = string.Empty;
+        }
         public class ConstantTarget { public const int Value = 2; }
         public class MethodTarget
         {

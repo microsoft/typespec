@@ -16,6 +16,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
     /// </summary>
     internal static class ModelBaseMemberCompatibility
     {
+        // Neither restoration path reconciles historical nested type declarations. Inspect the
+        // symbol directly when its nested declarations are not represented by NestedTypes.
+        public static bool HasPublicApiNestedTypes(TypeProvider provider)
+            => provider is NamedTypeSymbolProvider { HasPublicApiNestedTypes: true } ||
+                provider.NestedTypes.Any(type =>
+                    (type.DeclarationModifiers & (TypeSignatureModifiers.Public | TypeSignatureModifiers.Protected)) != 0);
+
         public static bool AreTypesCompatible(CSharpType previous, CSharpType current)
             => previous.AreNamesEqual(current) && previous.IsValueType == current.IsValueType &&
                 previous.IsEnum == current.IsEnum &&
