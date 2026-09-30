@@ -216,6 +216,51 @@ it("does not treat a named union of error responses as a value success", async (
   `);
 });
 
+it("does not assign a result for unions containing only error responses", async () => {
+  const { deletePet } = await runner.compile(t.code`
+    @error
+    model NotFound {
+      code: string;
+    }
+
+    @error
+    model Conflict {
+      code: string;
+    }
+
+    union ApiError {
+      NotFound,
+      Conflict,
+    }
+
+    interface PetStore {
+      @route("/pets") @delete ${t.op("deletePet")}(): ApiError;
+    }
+  `);
+
+  const canonOp = canonicalizeOp(deletePet);
+
+  expect(
+    <Wrapper>
+      <ControllerAction operation={canonOp} implFieldName="PetStoreImpl" />
+    </Wrapper>,
+  ).toRenderTo(`
+    using Microsoft.AspNetCore.Mvc;
+
+    class TestController
+    {
+        [HttpDelete]
+        [Route("/pets")]
+        [ProducesResponseType((int)HttpStatusCode.NoContent, Type = typeof(void))]
+        public virtual async Task<IActionResult> DeletePet()
+        {
+            await PetStoreImpl.DeletePetAsync();
+            return NoContent();
+        }
+    }
+  `);
+});
+
 it("preserves explicit success status codes after scalar variants", async () => {
   const { createPet } = await runner.compile(t.code`
     model CreatedPet {
