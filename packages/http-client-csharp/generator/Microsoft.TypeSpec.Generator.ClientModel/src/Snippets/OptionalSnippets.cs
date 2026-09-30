@@ -31,6 +31,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
                 return collection;
             }
 
+            if (!collection.Type.FrameworkType.IsInterface)
+            {
+                return collection.NullCoalesce(New.Instance(collection.Type));
+            }
+
             var changeTrackingType = collection.Type.Arguments.Count == 1
                 ? ScmCodeModelGenerator.Instance.TypeFactory.ListInitializationType.MakeGenericType(collection.Type.Arguments)
                 : ScmCodeModelGenerator.Instance.TypeFactory.DictionaryInitializationType.MakeGenericType(collection.Type.Arguments);

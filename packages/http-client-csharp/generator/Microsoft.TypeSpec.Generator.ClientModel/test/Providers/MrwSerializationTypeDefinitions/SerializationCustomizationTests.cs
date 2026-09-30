@@ -63,6 +63,25 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         }
 
         [Test]
+        public async Task ConcreteListPropertyType()
+        {
+            var inputModel = InputFactory.Model("Model", properties: [
+                    InputFactory.Property("requiredNames", InputFactory.Array(InputPrimitiveType.String), isRequired: true),
+                    InputFactory.Property("optionalNames", InputFactory.Array(InputPrimitiveType.String))
+                ],
+                usage: InputModelTypeUsage.Json);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider);
+            var serializationProvider = modelProvider.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition);
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                serializationProvider, name => name == "DeserializeModel"));
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), writer.Write().Content);
+        }
+
+        [Test]
         public async Task CanCustomizeSerializationMethod()
         {
             var inputModel = InputFactory.Model("mockInputModel", properties: [
