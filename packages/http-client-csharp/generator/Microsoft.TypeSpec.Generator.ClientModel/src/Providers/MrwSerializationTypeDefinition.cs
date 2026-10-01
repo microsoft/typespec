@@ -1187,6 +1187,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private static ValueExpression GetValueForSerializationConstructor(PropertyProvider propertyProvider)
         {
             var isRequired = propertyProvider.WireInfo?.IsRequired ?? false;
+            var isNullable = propertyProvider.WireInfo?.IsNullable ?? propertyProvider.Type.IsNullable;
+            var shouldFallBack = OptionalSnippets.IsConcreteCollection(propertyProvider.Type)
+                ? isRequired && !isNullable
+                : !isRequired || !isNullable;
 
             if (!propertyProvider.Type.IsFrameworkType || propertyProvider.IsAdditionalProperties)
             {
@@ -1194,7 +1198,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     ? New.ReadOnlyDictionary(propertyProvider.Type.Arguments[0], propertyProvider.Type.ElementType, propertyProvider.AsVariableExpression)
                     : propertyProvider.AsVariableExpression;
             }
-            else if (!isRequired)
+            else if (shouldFallBack)
             {
                 return OptionalSnippets.FallBackToChangeTrackingCollection(propertyProvider.AsVariableExpression, propertyProvider.Type);
             }
@@ -1654,9 +1658,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 if (propertyIsRequired && !serializedType.IsValueType)
                 {
+                    ValueExpression fallbackValue = OptionalSnippets.IsConcreteCollection(serializedType)
+                        ? Null
+                        : New.Instance(serializedType.PropertyInitializationType);
                     return new IfStatement(checkEmptyProperty)
                     {
-                        propertyVarRef.Assign(New.Instance(serializedType.PropertyInitializationType)).Terminate(),
+                        propertyVarRef.Assign(fallbackValue).Terminate(),
                         Continue
                     };
                 }
@@ -2644,7 +2651,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             var isDefinedCondition = propertyType is { IsCollection: true, IsReadOnlyMemory: false }
-                ? OptionalSnippets.IsCollectionDefined(propertyMemberExpression)
+                ? OptionalSnippets.IsCollectionDefined(propertyMemberExpression, propertyType)
                 : OptionalSnippets.IsDefined(propertyMemberExpression);
 
             if (patchCheck != null && !shouldCheckJsonPath)

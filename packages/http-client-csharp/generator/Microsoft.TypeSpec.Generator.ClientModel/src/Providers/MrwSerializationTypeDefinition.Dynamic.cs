@@ -764,7 +764,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             var bodyStatements = new MethodBodyStatement[]
             {
-                new IfStatement(Not(OptionalSnippets.IsCollectionDefined((ValueExpression)property)))
+                new IfStatement(Not(OptionalSnippets.IsCollectionDefined(property, property.Type)))
                 {
                     YieldBreak()
                 },

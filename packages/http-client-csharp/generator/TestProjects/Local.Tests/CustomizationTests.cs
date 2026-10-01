@@ -13,26 +13,31 @@ namespace TestProjects.Local.Tests
 {
     public class CustomizationTests
     {
-        [TestCase("GetNotebookResult", "GetNotebookResponse")]
-        [TestCase("GetWidgetMetricsResult", "GetWidgetMetricsResponse")]
-        [TestCase("ListWithContinuationTokenHeaderResponseResult", "ListWithContinuationTokenHeaderResponseResponse")]
-        [TestCase("ListWithContinuationTokenResult", "ListWithContinuationTokenResponse")]
-        [TestCase("ListWithNextLinkResult", "ListWithNextLinkResponse")]
-        [TestCase("ListWithStringNextLinkResult", "ListWithStringNextLinkResponse")]
-        [TestCase("ReturnsAnonymousModelResult", "ReturnsAnonymousModelResponse")]
-        [TestCase("LifecycleModel", null)]
-        [TestCase("PagePreviewDetails", null)]
-        [TestCase("PreviewDetails", null)]
-        public void ModelReaderWriterContextRegistersGeneratedModels(string modelName, string? previousName)
+        [TestCase("GetNotebookResult", "GetNotebookResponse", true)]
+        [TestCase("GetWidgetMetricsResult", "GetWidgetMetricsResponse", true)]
+        [TestCase("ListWithContinuationTokenHeaderResponseResult", "ListWithContinuationTokenHeaderResponseResponse", false)]
+        [TestCase("ListWithContinuationTokenResult", "ListWithContinuationTokenResponse", false)]
+        [TestCase("ListWithNextLinkResult", "ListWithNextLinkResponse", false)]
+        [TestCase("ListWithStringNextLinkResult", "ListWithStringNextLinkResponse", false)]
+        [TestCase("ReturnsAnonymousModelResult", "ReturnsAnonymousModelResponse", true)]
+        [TestCase("LifecycleModel", null, true)]
+        [TestCase("PagePreviewDetails", null, false)]
+        [TestCase("PreviewDetails", null, true)]
+        [TestCase("PageThing", null, false)]
+        [TestCase("UnknownAnimal", null, false)]
+        [TestCase("UnknownPet", null, false)]
+        [TestCase("UnknownPlant", null, false)]
+        public void ModelReaderWriterContextRegistersOnlyPublicModels(string modelName, string? previousName, bool isPublic)
         {
             var modelType = typeof(SampleTypeSpecClient).Assembly.GetType($"SampleTypeSpec.{modelName}");
             Assert.IsNotNull(modelType);
+            Assert.AreEqual(isPublic, modelType!.IsPublic);
             var registeredTypes = typeof(SampleTypeSpecContext).GetCustomAttributesData()
                 .Where(attribute => attribute.AttributeType == typeof(ModelReaderWriterBuildableAttribute))
                 .Select(attribute => (Type)attribute.ConstructorArguments[0].Value!)
                 .ToArray();
 
-            Assert.AreEqual(1, registeredTypes.Count(type => type == modelType));
+            Assert.AreEqual(isPublic ? 1 : 0, registeredTypes.Count(type => type == modelType));
             if (previousName != null)
             {
                 Assert.IsNull(typeof(SampleTypeSpecClient).Assembly.GetType($"SampleTypeSpec.{previousName}"));

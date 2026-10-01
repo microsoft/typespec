@@ -158,7 +158,7 @@ namespace SampleTypeSpec
                     additionalBinaryDataProperties.Add(prop.Name, prop.Value.GetUtf8Bytes());
                 }
             }
-            return new PagePreviewDetails(items, additionalBinaryDataProperties);
+            return new PagePreviewDetails(items ?? new ChangeTrackingList<PreviewDetails>(), additionalBinaryDataProperties);
         }
 #pragma warning restore SAMPLE0003 // This generated code depends on experimental functionality.
     }
