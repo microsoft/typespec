@@ -209,15 +209,31 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private void CleanOperationNames(InputClient inputClient)
         {
-            foreach (var serviceMethod in inputClient.Methods)
+            var projectedNames = inputClient.Methods.Select(serviceMethod => (
+                ServiceMethod: serviceMethod,
+                OriginalName: GetOperationName(serviceMethod, normalizePublicName: false),
+                UpdatedName: GetOperationName(serviceMethod))).ToArray();
+
+            foreach (var projectedName in projectedNames)
             {
-                var updatedOperationName = GetOperationName(serviceMethod);
-                serviceMethod.Update(name: updatedOperationName);
-                serviceMethod.Operation.Update(name: updatedOperationName);
+                var updatedOperationName = projectedName.UpdatedName;
+                if (updatedOperationName != projectedName.OriginalName &&
+                    projectedNames.Any(other =>
+                        other.OriginalName != projectedName.OriginalName &&
+                        OperationNamesCollide(other.UpdatedName, updatedOperationName)))
+                {
+                    updatedOperationName = projectedName.OriginalName;
+                }
+
+                projectedName.ServiceMethod.Update(name: updatedOperationName);
+                projectedName.ServiceMethod.Operation.Update(name: updatedOperationName);
             }
         }
 
-        private string GetOperationName(InputServiceMethod serviceMethod, bool normalizeUrlSuffix = true)
+        private static bool OperationNamesCollide(string firstName, string secondName)
+            => firstName == secondName || firstName == $"{secondName}Async" || $"{firstName}Async" == secondName;
+
+        private string GetOperationName(InputServiceMethod serviceMethod, bool normalizePublicName = true)
         {
             if (serviceMethod.IsExactName)
             {
@@ -237,34 +253,63 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 operationName = $"Get{operationName.Substring(4)}";
             }
 
-            if (!normalizeUrlSuffix)
+            if (!normalizePublicName)
             {
                 return operationName;
             }
 
-            var normalizedName = operationName.NormalizeCSharpUrlSuffix();
+            var urlNormalizedName = operationName.NormalizeCSharpUrlSuffix();
+            var normalizedName = urlNormalizedName.NormalizeCSharpAcronyms();
             if (normalizedName == operationName)
             {
                 return operationName;
             }
 
-            var lastContractMethods = BackCompatProvider.LastContractView?.Methods ?? LastContractView?.Methods;
-            if (lastContractMethods?.Any(m =>
-                m.Signature.Name == operationName ||
-                m.Signature.Name == $"{operationName}Async") == true)
+            if (HasExistingName(operationName))
             {
                 return operationName;
+            }
+
+            // Previous generators may already have normalized Url to Uri without normalizing acronyms.
+            if (urlNormalizedName != operationName && HasExistingName(urlNormalizedName))
+            {
+                return urlNormalizedName;
             }
 
             return normalizedName;
         }
 
+        private bool HasExistingName(string name)
+        {
+            var asyncName = $"{name}Async";
+            var lastContractMethods = BackCompatProvider.LastContractView?.Methods ?? LastContractView?.Methods;
+            foreach (var method in lastContractMethods ?? [])
+            {
+                if (MethodSignatureHelper.IsPublicApi(method.Signature.Modifiers) &&
+                    (method.Signature.Name == name || method.Signature.Name == asyncName))
+                {
+                    return true;
+                }
+            }
+
+            var customMethods = BackCompatProvider.CustomCodeView?.Methods ?? CustomCodeView?.Methods;
+            foreach (var method in customMethods ?? [])
+            {
+                if (method.Signature.Name == name || method.Signature.Name == asyncName)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         internal string GetRestOperationName(InputServiceMethod serviceMethod)
         {
             // Request builders use the stable input operation identity rather than the mutable public method name.
-            // Preserve the original Url suffix so a projection honoring a previous GA name and a newer projection
-            // normalized to Uri continue to reference the same request builder.
-            return GetOperationName(serviceMethod, normalizeUrlSuffix: false).ToIdentifierName();
+            // Preserve the original acronym casing and Url suffix so projections honoring previous GA names
+            // and newer projections with normalized public names continue to reference the same request builder.
+            return GetOperationName(serviceMethod, normalizePublicName: false).ToIdentifierName();
         }
 
         private string? _namespace;
