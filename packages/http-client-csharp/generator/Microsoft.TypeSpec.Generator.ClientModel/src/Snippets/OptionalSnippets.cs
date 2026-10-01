@@ -27,7 +27,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
                 : IsCollectionDefined(collection);
         }
 
-        public static bool IsConcreteCollection(CSharpType type)
+        internal static bool IsConcreteCollection(CSharpType type)
             => type is { IsCollection: true, IsReadOnlyMemory: false } && !type.FrameworkType.IsInterface;
 
         public static ScopedApi<bool> IsDefined(ValueExpression value)
