@@ -13,6 +13,7 @@ using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Statements;
+using Microsoft.TypeSpec.Generator.Utilities;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
@@ -603,9 +604,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             string key)
         {
             AttributeStatement? experimentalOrObsoleteAttribute = typeProvider.CanonicalView.Attributes
-                .FirstOrDefault(a => a.Type.Equals(typeof(ExperimentalAttribute)) || a.Type.Equals(typeof(ObsoleteAttribute)));
+                .FirstOrDefault(a => ExperimentalApiHelpers.IsExperimentalAttribute(a) || a.Type.Equals(typeof(ObsoleteAttribute)));
 
-            if (experimentalOrObsoleteAttribute?.Type.Equals(typeof(ExperimentalAttribute)) == true)
+            if (experimentalOrObsoleteAttribute is not null && ExperimentalApiHelpers.IsExperimentalAttribute(experimentalOrObsoleteAttribute))
             {
                 string justification = $"{typeProvider.Type} is experimental and may change in future versions.";
                 attributes.Add(key, new SuppressionStatement(attributeStatement, experimentalOrObsoleteAttribute.Arguments[0], justification));

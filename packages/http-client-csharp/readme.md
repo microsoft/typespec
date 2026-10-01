@@ -82,7 +82,8 @@ Diagnostic IDs must be single C# warning identifiers (ASCII letters, digits, and
 not starting with a digit) or decimal warning numbers. Whitespace, punctuation, comments, and
 line breaks are rejected with `invalid-experimental-diagnostic-id` before generating C#.
 An `ExperimentalAttribute` on a customized partial client or method takes precedence over
-the generated attribute. Generated parent-client accessors suppress a child client's custom
+the generated attribute, including a polyfilled `System.Diagnostics.CodeAnalysis.ExperimentalAttribute`
+on older target frameworks. Generated parent-client accessors suppress a child client's custom
 diagnostic without marking the parent or accessor as experimental.
 
 Some TypeSpec declarations have no corresponding C# declaration, such as scalars or unions

@@ -23,7 +23,7 @@ import {
   UsageFlags,
 } from "@azure-tools/typespec-client-generator-core";
 import type { Diagnostic, Model } from "@typespec/compiler";
-import { createDiagnosticCollector, NoTarget } from "@typespec/compiler";
+import { compilerAssert, createDiagnosticCollector, NoTarget } from "@typespec/compiler";
 import { _httpFileCrossLanguageDefinitionId } from "../constants.js";
 import type { CSharpEmitterContext } from "../sdk-context.js";
 import type {
@@ -190,17 +190,19 @@ export function fromSdkType<T extends SdkType>(
       break;
   }
 
-  // External declarations are not emitted, but their known diagnostics apply at generated reference sites.
-  retVar.experimental = diagnostics.pipe(
-    getExperimentalDetails(
-      sdkContext,
-      sdkType.__raw,
-      retVar.external !== undefined ||
-        (retVar.kind === "model" && !retVar.isFileType) ||
-        retVar.kind === "enum" ||
-        retVar.kind === "enumvalue",
-    ),
-  );
+  // Enum values already carry metadata validated when their declaring enum was converted.
+  if (sdkType.kind !== "enumvalue") {
+    // External declarations are not emitted, but their known diagnostics apply at generated reference sites.
+    retVar.experimental = diagnostics.pipe(
+      getExperimentalDetails(
+        sdkContext,
+        sdkType.__raw,
+        retVar.external !== undefined ||
+          (retVar.kind === "model" && !retVar.isFileType) ||
+          retVar.kind === "enum",
+      ),
+    );
+  }
   if (sdkType.__raw?.kind === "Union" && retVar.kind !== "enum") {
     for (const variant of sdkType.__raw.variants.values()) {
       diagnostics.pipe(getExperimentalDetails(sdkContext, variant, false));
@@ -509,9 +511,10 @@ function fromSdkEnumValueType(
   enumValueType: SdkEnumValueType,
 ): [InputEnumValueType, readonly Diagnostic[]] {
   const diagnostics = createDiagnosticCollector();
-  return diagnostics.wrap(
-    diagnostics.pipe(createEnumValueType(sdkContext, enumValueType, enumValueType.enumType)),
-  );
+  const enumType = diagnostics.pipe(fromSdkType(sdkContext, enumValueType.enumType));
+  const value = enumType.values.find((value) => value.name === enumValueType.name);
+  compilerAssert(value !== undefined, "Enum value must belong to its declaring enum.");
+  return diagnostics.wrap(value);
 }
 
 function createEnumValueType(

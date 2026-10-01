@@ -75,6 +75,89 @@ describe("Test emitting decorator list", () => {
       });
     });
 
+    describe.each(["diagnosticId", "dependsOn"])("validating enum member %s", (field) => {
+      it.each([false, true])(
+        "reports each invalid member once with member reference %s",
+        async (referenceMember) => {
+          const metadata =
+            field === "diagnosticId" ? 'diagnosticId: "INVALID-ID"' : 'dependsOn: #["INVALID-ID"]';
+          const program = await typeSpecCompile(
+            `
+          enum Choice {
+            @TypeSpec.HttpClient.experimental(#{ ${metadata} }) One: "one",
+            @TypeSpec.HttpClient.experimental(#{ ${metadata} }) Two: "two",
+          }
+          model Payload {
+            choice: Choice;
+            ${referenceMember ? "first: Choice.One; second: Choice.One;" : ""}
+          }
+          op read(): Payload;
+          `,
+            runner,
+            { IsHttpClientNeeded: true },
+          );
+          expectDiagnosticEmpty(program.diagnostics);
+          const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+          const [, diagnostics] = createModel(sdkContext);
+          expectDiagnostics(diagnostics, [
+            { code: "@typespec/http-client-csharp/invalid-experimental-diagnostic-id" },
+            { code: "@typespec/http-client-csharp/invalid-experimental-diagnostic-id" },
+          ]);
+          strictEqual(new Set(diagnostics.map((diagnostic) => diagnostic.target)).size, 2);
+        },
+      );
+    });
+
+    describe.each([false, true])(
+      "enum member conversion before enum property %s",
+      (memberFirst) => {
+        it.each([
+          { scope: "@typespec/http-client-csharp", applies: true },
+          { scope: "!other-emitter", applies: true },
+          { scope: "other-emitter", applies: false },
+        ])("reuses member metadata scoped to $scope", async ({ scope, applies }) => {
+          const members = "first: Choice.One; second: Choice.One;";
+          const program = await typeSpecCompile(
+            `
+          enum Choice {
+            @TypeSpec.HttpClient.experimental(#{
+              emitterScope: "${scope}", diagnosticId: "MEMBER001", dependsOn: #["DEP001"]
+            }) One: "one",
+            Two: "two",
+          }
+          model Payload {
+            ${memberFirst ? members : ""}
+            choice: Choice;
+            ${memberFirst ? "" : members}
+          }
+          op read(): Payload;
+          `,
+            runner,
+            { IsHttpClientNeeded: true },
+          );
+          expectDiagnosticEmpty(program.diagnostics);
+          const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+          const [root, diagnostics] = createModel(sdkContext);
+          expectDiagnosticEmpty(diagnostics);
+          const choice = root.enums.find((type) => type.name === "Choice")!;
+          const payload = root.models.find((type) => type.name === "Payload")!;
+          const member = choice.values[0];
+          strictEqual(member.enumType, choice);
+          for (const name of ["first", "second"]) {
+            strictEqual(
+              payload.properties.find((property) => property.name === name)!.type,
+              member,
+            );
+          }
+          deepStrictEqual(
+            member.experimental,
+            applies ? { diagnosticId: "MEMBER001", dependsOn: ["DEP001"] } : undefined,
+          );
+          strictEqual(choice.values[1].experimental, undefined);
+        });
+      },
+    );
+
     it.each(["A", "DEP001", "_DEP001", "CS0618", "0618", "class"])(
       "accepts pragma identifier %s",
       async (id) => {

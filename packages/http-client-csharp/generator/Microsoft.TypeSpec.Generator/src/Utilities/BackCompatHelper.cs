@@ -506,13 +506,13 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 ? enclosingType.CustomCodeView?.Methods.FirstOrDefault(
                     method => MethodSignatureBase.SignatureComparer.Equals(method.Signature, currentMethod.Signature))
                 : null;
-            var attribute = customMethod?.Signature.Attributes.FirstOrDefault(a => a.Type.Equals(typeof(ExperimentalAttribute)))
-                ?? currentMethod.Signature.Attributes.FirstOrDefault(a => a.Type.Equals(typeof(ExperimentalAttribute)));
+            var attribute = customMethod?.Signature.Attributes.FirstOrDefault(ExperimentalApiHelpers.IsExperimentalAttribute)
+                ?? currentMethod.Signature.Attributes.FirstOrDefault(ExperimentalApiHelpers.IsExperimentalAttribute);
 
             // Graduation and custom partial attributes follow the current API, not the last contract.
             overload.Signature.Update(attributes:
             [
-                .. overload.Signature.Attributes.Where(a => !a.Type.Equals(typeof(ExperimentalAttribute))),
+                .. overload.Signature.Attributes.Where(a => !ExperimentalApiHelpers.IsExperimentalAttribute(a)),
                 .. attribute is null ? Array.Empty<AttributeStatement>() : [attribute]
             ]);
             overload.Update(suppressions: ExperimentalApiHelpers.MergeSuppressions(overload.Suppressions, currentMethod.Suppressions));

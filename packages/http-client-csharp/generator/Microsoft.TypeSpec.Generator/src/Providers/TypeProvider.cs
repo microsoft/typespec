@@ -727,7 +727,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected virtual IReadOnlyList<MethodBodyStatement> BuildAttributes()
         {
             var attribute = ExperimentalApiHelpers.BuildAttribute(_inputType?.Experimental);
-            return attribute is null || CustomCodeView?.Attributes.Any(a => a.Type.Equals(attribute.Type)) == true
+            return attribute is null || CustomCodeView?.Attributes.Any(ExperimentalApiHelpers.IsExperimentalAttribute) == true
                 ? []
                 : [attribute];
         }

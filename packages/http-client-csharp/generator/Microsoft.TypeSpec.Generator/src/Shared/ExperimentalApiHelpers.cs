@@ -18,6 +18,9 @@ namespace Microsoft.TypeSpec.Generator.Utilities
 {
     internal static class ExperimentalApiHelpers
     {
+        public static bool IsExperimentalAttribute(AttributeStatement attribute)
+            => attribute.Type.FullyQualifiedName == typeof(ExperimentalAttribute).FullName;
+
         public static AttributeStatement? BuildAttribute(InputOperation operation)
             => BuildAttribute(operation.Experimental);
 
@@ -92,7 +95,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             var ids = new List<string>();
             foreach (var attribute in attributes)
             {
-                if (!attribute.Type.Equals(typeof(ExperimentalAttribute)))
+                if (!IsExperimentalAttribute(attribute))
                 {
                     continue;
                 }

@@ -1143,10 +1143,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             MethodSignature? customSignature,
             IReadOnlyList<AttributeStatement> generatedAttributes)
         {
-            if (customSignature?.Attributes.Any(a => a.Type.Equals(typeof(ExperimentalAttribute))) == true)
+            if (customSignature?.Attributes.Any(ExperimentalApiHelpers.IsExperimentalAttribute) == true)
             {
                 // The defining partial declaration already carries the custom experiment.
-                signature.Update(attributes: [.. signature.Attributes.Where(a => !a.Type.Equals(typeof(ExperimentalAttribute)))]);
+                signature.Update(attributes: [.. signature.Attributes.Where(a => !ExperimentalApiHelpers.IsExperimentalAttribute(a))]);
             }
             else if (generatedAttributes.Count > 0)
             {

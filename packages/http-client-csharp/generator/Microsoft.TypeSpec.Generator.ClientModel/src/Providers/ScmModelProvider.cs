@@ -23,6 +23,7 @@ using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
+using Microsoft.TypeSpec.Generator.Utilities;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
@@ -118,7 +119,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             foreach (var prop in properties)
             {
                 if (IsFileBinaryContentType(prop.Type)
-                    && !prop.Attributes.Any(a => a.Type.Equals(typeof(ExperimentalAttribute))))
+                    && !prop.Attributes.Any(ExperimentalApiHelpers.IsExperimentalAttribute))
                 {
                     prop.Update(attributes: [.. prop.Attributes, new AttributeStatement(typeof(ExperimentalAttribute), [Literal(FileBinaryContentDiagnosticId)])]);
                 }

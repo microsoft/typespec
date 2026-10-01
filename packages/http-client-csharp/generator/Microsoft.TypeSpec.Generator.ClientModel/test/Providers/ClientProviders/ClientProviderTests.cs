@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
@@ -28,6 +29,86 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
 {
     public class ClientProviderTests
     {
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task ExperimentalPolyfilledCustomDeclarationsCompile(bool sourceAnnotated)
+        {
+            var model = InputFactory.Model("Payload", properties: []);
+            var choice = InputFactory.StringEnum("Choice", [("One", "one")], isExtensible: true);
+            var control = InputFactory.Experimental(InputFactory.Model("Control", properties: []), "CONTROL001");
+            var operation = InputFactory.Operation("Bar");
+            var parent = InputFactory.Client("ParentClient");
+            var child = InputFactory.Client("ChildClient", parent: parent,
+                methods: [InputFactory.BasicServiceMethod("Bar", operation)],
+                initializedBy: InputClientInitializedBy.Parent);
+            if (sourceAnnotated)
+            {
+                InputFactory.Experimental(model, "GENERATED_MODEL");
+                InputFactory.Experimental(choice, "GENERATED_ENUM");
+                InputFactory.Experimental(child, "GENERATED_CLIENT");
+                operation.Update(experimental: new InputExperimentalDetails("GENERATED_METHOD"));
+            }
+            Compilation? customCompilation = null;
+            var mock = await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [model, control], inputEnums: () => [choice], clients: () => [parent, child],
+                compilation: async () => customCompilation = await Helpers.GetCompilationFromDirectoryAsync());
+            // Keep the source-defined polyfill as a symbol instead of resolving it to the host runtime's BCL type.
+            Moq.Mock.Get(mock.Object.TypeFactory)
+                .Setup(factory => factory.CreateFrameworkType(typeof(ExperimentalAttribute).FullName!))
+                .Returns((Type?)null);
+            var generator = ScmCodeModelGenerator.Instance;
+            var modelProvider = generator.TypeFactory.CreateModel(model)!;
+            var enumProvider = generator.TypeFactory.CreateEnum(choice)!;
+            var childProvider = generator.TypeFactory.CreateClient(child)!;
+            var parentProvider = generator.TypeFactory.CreateClient(parent)!;
+            var providers = generator.OutputLibrary.TypeProviders
+                .Where(provider => provider is not Utf8JsonBinaryContentDefinition and not BinaryContentHelperDefinition);
+            var trees = providers.Select(provider => new TypeProviderWriter(provider).Write())
+                .Select(file =>
+                {
+                    var tree = CSharpSyntaxTree.ParseText(file.Content, path: file.Name);
+                    var root = tree.GetRoot();
+                    var partialMethods = root.DescendantNodes().OfType<MethodDeclarationSyntax>()
+                        .Where(method => method.Modifiers.Any(SyntaxKind.PartialKeyword));
+                    // Isolate attribute placement from custom partial implementation bodies.
+                    var updatedRoot = root.ReplaceNodes(partialMethods, (_, method) => method
+                        .WithModifiers(SyntaxFactory.TokenList(method.Modifiers.Where(modifier => !modifier.IsKind(SyntaxKind.AsyncKeyword))))
+                        .WithBody(SyntaxFactory.Block(SyntaxFactory.ThrowStatement(SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression)))));
+                    return tree.WithRootAndOptions(updatedRoot, tree.Options);
+                });
+            var references = AppDomain.CurrentDomain.GetAssemblies()
+                .Where(assembly => !assembly.IsDynamic && !string.IsNullOrEmpty(assembly.Location))
+                .Select(assembly => MetadataReference.CreateFromFile(assembly.Location))
+                .Append(MetadataReference.CreateFromFile(typeof(Microsoft.Extensions.Configuration.IConfigurationSection).Assembly.Location));
+            var options = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, generalDiagnosticOption: ReportDiagnostic.Error)
+                .WithSpecificDiagnosticOptions(new Dictionary<string, ReportDiagnostic> { ["CS0436"] = ReportDiagnostic.Suppress });
+            var compilation = CSharpCompilation.Create("PolyfilledCustomDeclarations",
+                trees.Concat(customCompilation!.SyntaxTrees.Where(tree => tree.FilePath.EndsWith("CustomTypes.cs", StringComparison.Ordinal))),
+                references, options);
+            Assert.IsEmpty(compilation.GetDiagnostics().Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error)
+                .Select(diagnostic => diagnostic.ToString()));
+            foreach (var provider in new TypeProvider[] { modelProvider, enumProvider, childProvider })
+            {
+                Assert.IsFalse(provider.Attributes.Any(attribute => attribute.Type.FullyQualifiedName == typeof(ExperimentalAttribute).FullName));
+                var custom = provider.CanonicalView.Attributes.Single(attribute => attribute.Type.FullyQualifiedName == typeof(ExperimentalAttribute).FullName);
+                Assert.IsFalse(custom.Type.IsFrameworkType);
+                Assert.IsFalse(custom.Type.IsPublic);
+            }
+            Assert.AreEqual("CONTROL001", compilation.GetTypeByMetadataName("Sample.Models.Control")!.GetAttributes()
+                .Single(attribute => attribute.AttributeClass!.ToDisplayString() == typeof(ExperimentalAttribute).FullName)
+                .ConstructorArguments[0].Value);
+            foreach (var method in compilation.GetTypeByMetadataName("Sample.ChildClient")!.GetMembers()
+                .OfType<IMethodSymbol>().Where(method => method.Name is "Bar" or "BarAsync"))
+            {
+                Assert.AreEqual("CUSTOM_METHOD", method.GetAttributes().Single().ConstructorArguments[0].Value);
+            }
+            var parentCode = new TypeProviderWriter(parentProvider).Write().Content;
+            StringAssert.Contains("#pragma warning disable CUSTOM_CLIENT", parentCode);
+            StringAssert.DoesNotContain("#pragma warning disable GENERATED_CLIENT", parentCode);
+            var controlCode = new TypeProviderWriter(generator.TypeFactory.CreateModel(control)!).Write().Content;
+            StringAssert.DoesNotContain("#pragma warning disable UNRELATED001", controlCode);
+        }
+
         [Test]
         public void ExperimentalChildParametersAreSuppressedOnParentAccessors()
         {
