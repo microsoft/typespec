@@ -58,7 +58,7 @@ it.each([
   const error = new Error("ERR_PNPM_IGNORED_BUILDS");
   vi.mocked(utils.execWithSpinner).mockImplementationOnce(async () => {
     await writeFile(lockfilePath, "# package-manager metadata written by pnpm\n");
-    await writeFile(workspacePath, "allowBuilds:\n  unreviewed: set this to true or false\n");
+    await writeFile(workspacePath, "allowBuilds:\n  example: set this to true or false\n");
     if (fail) throw error;
   });
 
