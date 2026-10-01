@@ -64,6 +64,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             var enumProvider = generator.TypeFactory.CreateEnum(choice)!;
             var childProvider = generator.TypeFactory.CreateClient(child)!;
             var parentProvider = generator.TypeFactory.CreateClient(parent)!;
+            var methodBody = (BlockSyntax)SyntaxFactory.ParseStatement(Helpers.GetExpectedFromFile("MethodBody"));
             var providers = generator.OutputLibrary.TypeProviders
                 .Where(provider => provider is not Utf8JsonBinaryContentDefinition and not BinaryContentHelperDefinition);
             var trees = providers.Select(provider => new TypeProviderWriter(provider).Write())
@@ -76,7 +77,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                     // Isolate attribute placement from custom partial implementation bodies.
                     var updatedRoot = root.ReplaceNodes(partialMethods, (_, method) => method
                         .WithModifiers(SyntaxFactory.TokenList(method.Modifiers.Where(modifier => !modifier.IsKind(SyntaxKind.AsyncKeyword))))
-                        .WithBody(SyntaxFactory.Block(SyntaxFactory.ThrowStatement(SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression)))));
+                        .WithBody(methodBody));
                     return tree.WithRootAndOptions(updatedRoot, tree.Options);
                 });
             var references = AppDomain.CurrentDomain.GetAssemblies()
@@ -105,11 +106,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             {
                 Assert.AreEqual("CUSTOM_METHOD", method.GetAttributes().Single().ConstructorArguments[0].Value);
             }
-            var parentCode = new TypeProviderWriter(parentProvider).Write().Content;
-            StringAssert.Contains("#pragma warning disable CUSTOM_CLIENT", parentCode);
-            StringAssert.DoesNotContain("#pragma warning disable GENERATED_CLIENT", parentCode);
-            var controlCode = new TypeProviderWriter(generator.TypeFactory.CreateModel(control)!).Write().Content;
-            StringAssert.DoesNotContain("#pragma warning disable UNRELATED001", controlCode);
+            foreach (var provider in new TypeProvider[] { parentProvider, generator.TypeFactory.CreateModel(control)! })
+            {
+                var file = new TypeProviderWriter(provider).Write();
+                Assert.AreEqual(Helpers.GetExpectedFromFile(provider.Name), file.Content);
+            }
         }
 
         [Test]
