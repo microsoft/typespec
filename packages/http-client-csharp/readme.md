@@ -72,6 +72,7 @@ Dependencies identify diagnostics rather than individual types: one diagnostic c
 to multiple types or members, including those defined in external libraries. For externally
 mapped types, source `@experimental` metadata is retained for generated-reference suppressions;
 the emitter does not generate the external declaration or add attributes to its library.
+This also covers client parameters exposed through generated settings and options properties.
 Other external experiments require explicit `dependsOn` entries. They are not discovered by reflection.
 
 Both metadata fields are optional. Without `diagnosticId`, no public experimental attribute

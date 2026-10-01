@@ -662,6 +662,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             "_" + p.Name.ToVariableName(),
                             this,
                             wireInfo: wireInfo);
+                        field.Update(suppressions: ExperimentalApiHelpers.GetReferenceSuppressions(p.Type));
                         fields.Add(field);
                     }
                 }
@@ -921,7 +922,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     attributes: [experimentalAttr],
                     initializer: new ConstructorInitializer(false, args)),
                 MethodBodyStatement.Empty,
-                this);
+                this,
+                suppressions: ExperimentalApiHelpers.MergeSuppressions(
+                    ClientSettings.EndpointProperty.Suppressions,
+                    ClientSettings.OtherRequiredParams.SelectMany(parameter => ExperimentalApiHelpers.GetReferenceSuppressions(parameter.InputParameter?.Type))));
 
             yield return settingsConstructor;
         }

@@ -60,6 +60,7 @@ namespace Microsoft.TypeSpec.Generator
                 ExperimentalApiHelpers.GetReferenceSuppressions(signature.ReturnType),
                 signature.Parameters.SelectMany(parameter => ExperimentalApiHelpers.MergeSuppressions(
                     ExperimentalApiHelpers.GetReferenceSuppressions(parameter.Type),
+                    parameter.Field?.Suppressions ?? [],
                     parameter.Property is { IsAdditionalProperties: true } property ? property.Suppressions : [],
                     ExperimentalApiHelpers.GetReferenceSuppressions(parameter.InputParameter?.Type ?? parameter.Property?.InputProperty?.Type))));
         }

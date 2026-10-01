@@ -463,7 +463,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     sectionParam,
                     property.Name,
                     property.Name.ToVariableName(),
-                    property.Type);
+                    property.Type,
+                    suppressions: property.Suppressions);
             }
 
             // Also bind custom code properties (e.g., hand-written properties added via partial classes)
@@ -533,7 +534,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         type,
                         p.Name.ToIdentifierName(),
                         new AutoPropertyBody(true),
-                        this));
+                        this,
+                        suppressions: ExperimentalApiHelpers.GetReferenceSuppressions(p.Type)));
                 }
             }
 

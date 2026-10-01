@@ -23,6 +23,102 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 {
     public class ClientSettingsProviderTests
     {
+        [TestCase("required", false, true)]
+        [TestCase("required", true, true)]
+        [TestCase("optional", false, true)]
+        [TestCase("optional", true, true)]
+        [TestCase("child", false, true)]
+        [TestCase("child", true, true)]
+        [TestCase("required", false, false)]
+        [TestCase("optional", false, false)]
+        public void ExperimentalExternalClientParametersCompileWithScopedSuppressions(string shape, bool nullable, bool annotated)
+        {
+            var references = AppDomain.CurrentDomain.GetAssemblies()
+                .Where(assembly => !assembly.IsDynamic && !string.IsNullOrEmpty(assembly.Location))
+                .Select(assembly => MetadataReference.CreateFromFile(assembly.Location))
+                .Append(MetadataReference.CreateFromFile(typeof(Microsoft.Extensions.Configuration.IConfigurationSection).Assembly.Location))
+                .ToArray();
+            var dependency = CSharpCompilation.Create(
+                $"ExperimentalExternalParameter{Guid.NewGuid():N}",
+                [CSharpSyntaxTree.ParseText(Helpers.GetExpectedFromFile())],
+                references,
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, generalDiagnosticOption: ReportDiagnostic.Error));
+            using var stream = new MemoryStream();
+            var emitted = dependency.Emit(stream);
+            Assert.IsTrue(emitted.Success, string.Join(Environment.NewLine, emitted.Diagnostics));
+            var image = stream.ToArray();
+            var externalType = Assembly.Load(image).GetType("External.ParameterValue")!;
+            var inputType = InputFactory.Model("ParameterValue", properties: [],
+                external: new InputExternalTypeMetadata("External.ParameterValue", null, null));
+            if (annotated)
+            {
+                InputFactory.Experimental(inputType, "EXTERNAL001", "UNRELATED001");
+            }
+            InputType parameterType = nullable ? new InputNullableType(inputType) : inputType;
+            var required = shape != "optional";
+            var endpoint = InputFactory.EndpointParameter("endpoint", InputPrimitiveType.Url, isEndpoint: true,
+                isRequired: true, scope: InputParameterScope.Client);
+            var parameter = InputFactory.MethodParameter("value", parameterType, isRequired: required,
+                defaultValue: required ? null : new InputConstant(null, parameterType), scope: InputParameterScope.Client);
+            var stable = InputFactory.MethodParameter("stable", InputPrimitiveType.String, isRequired: required,
+                defaultValue: required ? null : InputFactory.Constant.String("stable"), scope: InputParameterScope.Client);
+            var parent = shape == "child" ? InputFactory.Client("ParentClient", parameters: [endpoint]) : null;
+            var input = InputFactory.Client("TestClient", parameters: [endpoint, parameter, stable], parent: parent,
+                initializedBy: parent is null ? InputClientInitializedBy.Individually : InputClientInitializedBy.Parent | InputClientInitializedBy.Individually);
+            var mock = MockHelpers.LoadMockGenerator(clients: () => parent is null ? [input] : [parent, input]);
+            Moq.Mock.Get(mock.Object.TypeFactory).Setup(factory => factory.CreateFrameworkType("External.ParameterValue"))
+                .Returns(externalType);
+            var generator = ScmCodeModelGenerator.Instance;
+            var client = generator.TypeFactory.CreateClient(input)!;
+            var configuration = required ? (TypeProvider)client.ClientSettings! : client.ClientOptions!;
+            var files = generator.OutputLibrary.TypeProviders
+                .Where(provider => provider is not Utf8JsonBinaryContentDefinition and not BinaryContentHelperDefinition)
+                .Select(provider => new TypeProviderWriter(provider).Write()).ToArray();
+            var compilation = CSharpCompilation.Create(
+                "ExternalClientParameterReferences",
+                files.Select(file => CSharpSyntaxTree.ParseText(file.Content, path: file.Name)),
+                references.Append(MetadataReference.CreateFromImage(image)),
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, generalDiagnosticOption: ReportDiagnostic.Error)
+                    // This no-operation fixture intentionally leaves optional client fields unused.
+                    .WithSpecificDiagnosticOptions(new Dictionary<string, ReportDiagnostic> { ["CS0169"] = ReportDiagnostic.Suppress }));
+            var errors = compilation.GetDiagnostics().Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error).ToArray();
+            if (!annotated)
+            {
+                Assert.IsNotEmpty(errors);
+                Assert.IsTrue(errors.All(diagnostic => diagnostic.Id == "EXTERNAL001"),
+                    string.Join(Environment.NewLine, errors.Select(diagnostic => diagnostic.ToString())));
+                return;
+            }
+            Assert.IsEmpty(errors.Select(diagnostic => diagnostic.ToString()));
+            Assert.AreEqual(0, configuration.DisabledFileWarnings.Count);
+            Assert.AreEqual(0, client.DisabledFileWarnings.Count);
+            var property = configuration.Properties.Single(property => property.Name == "Value");
+            Assert.AreEqual(0, property.Attributes.Count);
+            CollectionAssert.AreEqual(new[] { Snippet.Literal("EXTERNAL001").ToDisplayString() },
+                property.Suppressions.Select(suppression => suppression.Code.ToDisplayString()));
+            var code = new TypeProviderWriter(configuration).Write().Content;
+            var propertyIndex = code.IndexOf(" Value ", StringComparison.Ordinal);
+            var disable = code.LastIndexOf("#pragma warning disable EXTERNAL001", propertyIndex, StringComparison.Ordinal);
+            var restore = code.IndexOf("#pragma warning restore EXTERNAL001", propertyIndex, StringComparison.Ordinal);
+            Assert.Greater(disable, code.IndexOf($"partial class {configuration.Name}", StringComparison.Ordinal));
+            Assert.Greater(restore, propertyIndex);
+            Assert.Less(restore, code.IndexOf(" Stable ", StringComparison.Ordinal));
+            var binding = code.IndexOf("new global::External.ParameterValue(", StringComparison.Ordinal);
+            Assert.Greater(binding, 0);
+            var bindingRestore = code.IndexOf("#pragma warning restore EXTERNAL001", binding, StringComparison.Ordinal);
+            Assert.Greater(bindingRestore, binding);
+            Assert.Less(bindingRestore, code.IndexOf("section[\"Stable\"]", binding, StringComparison.Ordinal));
+            foreach (var file in files)
+            {
+                StringAssert.DoesNotContain("#pragma warning disable UNRELATED001", file.Content);
+            }
+            var consumer = CSharpSyntaxTree.ParseText(Helpers.GetExpectedFromFile("Consumer"));
+            var consumerErrors = compilation.AddSyntaxTrees(consumer).GetDiagnostics()
+                .Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error).ToArray();
+            Assert.IsNotEmpty(consumerErrors);
+            Assert.IsTrue(consumerErrors.All(diagnostic => diagnostic.Id == "EXTERNAL001" && diagnostic.Location.SourceTree == consumer));
+        }
+
         [Test]
         public void ExperimentalClientParametersCompileInOptionsAndSettings()
         {
