@@ -4960,6 +4960,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         [TestCase("GetDbUrl", "GetDbUrl")]
         [TestCase("GetOsUrl", "GetOsUrl")]
         [TestCase("GetIpNew", "GetIPNew")]
+        [TestCase("GetIpPrivate", "GetIPPrivate")]
+        [TestCase("GetDbPrivate", "GetDBPrivate")]
+        [TestCase("GetIpInternal", "GetIPInternal")]
+        [TestCase("GetDbInternal", "GetDBInternal")]
+        [TestCase("GetIpPrivateProtected", "GetIPPrivateProtected")]
+        [TestCase("GetDbPrivateProtected", "GetDBPrivateProtected")]
+        [TestCase("GetIpProtected", "GetIpProtected")]
+        [TestCase("GetDbProtected", "GetDbProtected")]
+        [TestCase("GetIpProtectedInternal", "GetIpProtectedInternal")]
+        [TestCase("GetDbProtectedInternal", "GetDbProtectedInternal")]
+        [TestCase("GetOsPrivateUrl", "GetOSPrivateUri")]
+        [TestCase("GetOsInternalUrl", "GetOSInternalUri")]
         public async Task TestOperationAcronymsPreserveLastContract(string operationName, string expectedName)
         {
             var operation = InputFactory.Operation(operationName);
@@ -5008,10 +5020,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.AreEqual(normalizedName, serviceMethod.Name);
         }
 
-        [Test]
-        public async Task TestOperationAcronymsPreserveCustomMethods()
+        [TestCase("GetIpUrl", "GetIpUri")]
+        [TestCase("GetIpPrivate", "GetIpPrivate")]
+        [TestCase("GetIpInternal", "GetIpInternal")]
+        public async Task TestOperationAcronymsPreserveCustomMethods(string operationName, string expectedName)
         {
-            var operation = InputFactory.Operation("GetIpUrl");
+            var operation = InputFactory.Operation(operationName);
             var serviceMethod = InputFactory.BasicServiceMethod(operation.Name, operation);
             var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
             await MockHelpers.LoadMockGeneratorAsync(
@@ -5020,8 +5034,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             var client = new ClientProvider(inputClient);
             var methods = client.GetMethodCollectionByOperation(operation);
 
-            Assert.AreEqual("GetIpUri", serviceMethod.Name);
-            Assert.IsTrue(methods.All(m => m.Signature.Name == "GetIpUri" || m.Signature.Name == "GetIpUriAsync"));
+            Assert.AreEqual(expectedName, serviceMethod.Name);
+            CollectionAssert.AreEquivalent(
+                new[] { expectedName, expectedName + "Async", expectedName, expectedName + "Async" },
+                methods.Select(m => m.Signature.Name));
             Assert.AreEqual(2, methods.Count(m => m.IsPartialMethod));
         }
 

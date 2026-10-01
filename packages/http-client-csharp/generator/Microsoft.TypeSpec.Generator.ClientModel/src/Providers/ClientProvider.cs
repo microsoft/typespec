@@ -219,11 +219,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 var updatedOperationName = projectedName.UpdatedName;
                 if (updatedOperationName != projectedName.OriginalName &&
                     projectedNames.Any(other =>
-                        !ReferenceEquals(other.ServiceMethod, projectedName.ServiceMethod) &&
-                        (other.UpdatedName == updatedOperationName ||
-                            other.UpdatedName == $"{updatedOperationName}Async" ||
-                            $"{other.UpdatedName}Async" == updatedOperationName) &&
-                        other.OriginalName != projectedName.OriginalName))
+                        other.OriginalName != projectedName.OriginalName &&
+                        OperationNamesCollide(other.UpdatedName, updatedOperationName)))
                 {
                     updatedOperationName = projectedName.OriginalName;
                 }
@@ -232,6 +229,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 projectedName.ServiceMethod.Operation.Update(name: updatedOperationName);
             }
         }
+
+        private static bool OperationNamesCollide(string firstName, string secondName)
+            => firstName == secondName || firstName == $"{secondName}Async" || $"{firstName}Async" == secondName;
 
         private string GetOperationName(InputServiceMethod serviceMethod, bool normalizePublicName = true)
         {
@@ -277,15 +277,31 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return normalizedName;
+        }
 
-            bool HasExistingName(string name)
+        private bool HasExistingName(string name)
+        {
+            var asyncName = $"{name}Async";
+            var lastContractMethods = BackCompatProvider.LastContractView?.Methods ?? LastContractView?.Methods;
+            foreach (var method in lastContractMethods ?? [])
             {
-                var lastContractMethods = BackCompatProvider.LastContractView?.Methods ?? LastContractView?.Methods;
-                var customMethods = BackCompatProvider.CustomCodeView?.Methods ?? CustomCodeView?.Methods;
-                return lastContractMethods?.Any(MatchesName) == true || customMethods?.Any(MatchesName) == true;
-
-                bool MatchesName(MethodProvider method) => method.Signature.Name == name || method.Signature.Name == $"{name}Async";
+                if (MethodSignatureHelper.IsPublicApi(method.Signature.Modifiers) &&
+                    (method.Signature.Name == name || method.Signature.Name == asyncName))
+                {
+                    return true;
+                }
             }
+
+            var customMethods = BackCompatProvider.CustomCodeView?.Methods ?? CustomCodeView?.Methods;
+            foreach (var method in customMethods ?? [])
+            {
+                if (method.Signature.Name == name || method.Signature.Name == asyncName)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         internal string GetRestOperationName(InputServiceMethod serviceMethod)
