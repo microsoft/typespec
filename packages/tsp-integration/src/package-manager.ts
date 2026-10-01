@@ -1,5 +1,6 @@
-import { readFile, stat } from "node:fs/promises";
+import { readFile, rm, stat, writeFile } from "node:fs/promises";
 import { join } from "pathe";
+import { readOptionalFile } from "./utils.js";
 
 export type PackageManager = "npm" | "pnpm";
 
@@ -42,6 +43,27 @@ export function getInstallCommand(manager: PackageManager) {
         ? ["install", "--no-lockfile", "--no-frozen-lockfile"]
         : ["install", "--no-package-lock"],
   };
+}
+
+export async function withPreservedLockfile<T>(
+  dir: string,
+  manager: PackageManager,
+  action: () => Promise<T>,
+): Promise<T> {
+  if (manager !== "pnpm") return action();
+
+  // pnpm's version management can write this even with --no-lockfile or during exec.
+  const path = join(dir, "pnpm-lock.yaml");
+  const contents = await readOptionalFile(path);
+  try {
+    return await action();
+  } finally {
+    if (contents === undefined) {
+      await rm(path, { force: true });
+    } else {
+      await writeFile(path, contents);
+    }
+  }
 }
 
 export function getCompileCommand(manager: PackageManager, file: string, args: string[] = []) {
