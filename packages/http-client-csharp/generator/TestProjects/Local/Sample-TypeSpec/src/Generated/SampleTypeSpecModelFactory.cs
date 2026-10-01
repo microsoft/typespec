@@ -10,6 +10,7 @@ using System.ClientModel;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using Azure.ResourceManager.Resources.Models;
 using SampleTypeSpec.Models.Custom;
 
 namespace SampleTypeSpec
@@ -537,6 +538,19 @@ namespace SampleTypeSpec
                 dictionaryChildren,
                 listOfDictionaries.ToList(),
                 default);
+        }
+
+        /// <summary> The ExternalModelProperties. </summary>
+        /// <param name="scalar"></param>
+        /// <param name="list"></param>
+        /// <param name="dictionary"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.ExternalModelProperties"/> instance for mocking. </returns>
+        public static ExternalModelProperties ExternalModelProperties(ResourceGroupPatch scalar = default, IEnumerable<ResourceGroupPatch> list = default, IDictionary<string, ResourceGroupPatch> dictionary = default)
+        {
+            list ??= new ChangeTrackingList<ResourceGroupPatch>();
+            dictionary ??= new ChangeTrackingDictionary<string, ResourceGroupPatch>();
+
+            return new ExternalModelProperties(scalar, list.ToList(), dictionary, additionalBinaryDataProperties: null);
         }
     }
 }
