@@ -90,6 +90,32 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         }
 
         [Test]
+        public async Task ConcreteListPropertyUsesNullCheckForOptionalCollection()
+        {
+            var inputModel = InputFactory.Model(
+                "model",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml,
+                properties:
+                [
+                    InputFactory.Property(
+                        "Names",
+                        InputFactory.Array(InputPrimitiveType.String),
+                        serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("names")))
+                ]);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider);
+            var serializationProvider = modelProvider.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition);
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                serializationProvider, name => name == "XmlModelWriteCore"));
+            var actual = writer.Write().Content;
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), actual);
+        }
+
+        [Test]
         public async Task XmlModelWriteCoreDoesNotOverrideJsonOnlyCustomBase()
         {
             var inputModel = InputFactory.Model(
