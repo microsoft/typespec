@@ -4,7 +4,7 @@
 
 .tree-navigation-pane {
   height: 100%;
-  overflow-y: auto;
+  overflow: hidden;
 }
 
 .view-pane {
@@ -14,4 +14,26 @@
 
 .current-path {
   margin-bottom: 10px;
+}
+
+.hidden-by-filter {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+  padding: 2px 4px 2px 8px;
+  font-size: 12px;
+  color: var(--colorNeutralForeground3);
+  background-color: var(--colorNeutralBackground3);
+  border: 1px solid var(--colorNeutralStroke2);
+  border-radius: var(--borderRadiusMedium);
+}
+
+.hidden-by-filter-message {
+  flex: 1;
+  min-width: 0;
+}
+
+.hidden-by-filter-action {
+  white-space: nowrap;
 }

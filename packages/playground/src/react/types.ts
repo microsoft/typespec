@@ -1,4 +1,4 @@
-import type { Program } from "@typespec/compiler";
+import type { DiagnosticTarget, Program } from "@typespec/compiler";
 import type { ReactNode } from "react";
 
 export type CompilationCrashed = {
@@ -21,6 +21,8 @@ export interface OutputViewerProps {
   readonly viewerState?: Record<string, any>;
   /** Callback to update viewer state */
   readonly onViewerStateChange?: (state: Record<string, any>) => void;
+  /** Reveal in the editor where the given target is declared. */
+  readonly onRevealSource?: (target: DiagnosticTarget) => void;
 }
 
 export interface ProgramViewer {

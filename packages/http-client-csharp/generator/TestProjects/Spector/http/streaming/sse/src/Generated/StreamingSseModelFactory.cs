@@ -2,6 +2,7 @@
 
 #nullable disable
 
+using Streaming.Sse._Protocol;
 using Streaming.Sse._Retrieve;
 using Streaming.Sse._Unnamed;
 
@@ -12,5 +13,7 @@ namespace Streaming.Sse
         public static Info Info(string desc = default) => throw null;
 
         public static RetrievalRequest RetrievalRequest(string query = default) => throw null;
+
+        public static ProtocolInfo ProtocolInfo(string message = default) => throw null;
     }
 }

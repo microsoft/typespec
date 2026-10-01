@@ -63,7 +63,7 @@ internal static global::Sample.Models.MockInputModel DeserializeMockInputModel(g
         }
         if ((options.Format != "W"))
         {
-            additionalBinaryDataProperties.Add(prop.Name, global::System.BinaryData.FromString(prop.Value.GetRawText()));
+            additionalBinaryDataProperties.Add(prop.Name, prop.Value.GetUtf8Bytes());
         }
     }
     return new global::Sample.Models.MockInputModel(scalar, (list ?? new global::Sample.ChangeTrackingList<global::System.IO.File>()), (dictionary ?? new global::Sample.ChangeTrackingDictionary<string, global::System.IO.File>()), additionalBinaryDataProperties);

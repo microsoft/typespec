@@ -1,6 +1,6 @@
-import { expectDiagnosticEmpty } from "@typespec/compiler/testing";
+import { expectDiagnosticEmpty, expectDiagnostics } from "@typespec/compiler/testing";
 import { describe, expect, it } from "vitest";
-import { emitSingleSchemaWithDiagnostics } from "./test-host.js";
+import { EmitterTester, emitSingleSchemaWithDiagnostics } from "./test-host.js";
 
 describe("emitter", () => {
   it("emits a schema with query operations", async () => {
@@ -70,5 +70,83 @@ describe("emitter", () => {
     expect(result.graphQLOutput).toBeDefined();
     expect(result.graphQLOutput).toMatch(/type Book \{/);
     expect(result.graphQLOutput).toMatch(/input BookInput \{/);
+  });
+
+  it("sanitizes schema names used in output paths", async () => {
+    const result = await EmitterTester.compile(
+      `
+        @schema(#{ name: "../../outside/schema" })
+        namespace TestNamespace {
+          @query op ping(): string;
+        }
+      `,
+      {
+        compilerOptions: {
+          options: {
+            "@typespec/graphql": { "output-file": "{schema-name}.graphql" },
+          },
+        },
+      },
+    );
+
+    expect(result.outputs).toHaveProperty(".._.._outside_schema.graphql");
+    expect(result.outputs).not.toHaveProperty("../../outside/schema.graphql");
+  });
+
+  it("reports schema names that resolve to the same output path", async () => {
+    const [result, diagnostics] = await EmitterTester.compileAndDiagnose(
+      `
+        @schema(#{ name: "a/b" })
+        namespace First {
+          @query op first(): string;
+        }
+
+        @schema(#{ name: "a_b" })
+        namespace Second {
+          @query op second(): string;
+        }
+      `,
+      {
+        compilerOptions: {
+          options: {
+            "@typespec/graphql": { "output-file": "{schema-name}.graphql" },
+          },
+        },
+      },
+    );
+
+    expectDiagnostics(diagnostics, {
+      code: "@typespec/graphql/output-file-collision",
+      message: 'Multiple GraphQL schemas resolve to the output file "a_b.graphql".',
+    });
+    expect(Object.keys(result.outputs)).toEqual(["a_b.graphql"]);
+  });
+
+  it("reports output collisions that occur on case-insensitive file systems", async () => {
+    const [, diagnostics] = await EmitterTester.compileAndDiagnose(
+      `
+        @schema(#{ name: "Api" })
+        namespace First {
+          @query op first(): string;
+        }
+
+        @schema(#{ name: "api" })
+        namespace Second {
+          @query op second(): string;
+        }
+      `,
+      {
+        compilerOptions: {
+          options: {
+            "@typespec/graphql": { "output-file": "{schema-name}.graphql" },
+          },
+        },
+      },
+    );
+
+    expectDiagnostics(diagnostics, {
+      code: "@typespec/graphql/output-file-collision",
+      message: 'Multiple GraphQL schemas resolve to the output file "api.graphql".',
+    });
   });
 });

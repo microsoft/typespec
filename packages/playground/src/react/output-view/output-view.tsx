@@ -5,6 +5,7 @@ import {
   TabList,
   type SelectTabEventHandler,
 } from "@fluentui/react-components";
+import type { DiagnosticTarget } from "@typespec/compiler";
 import { useCallback, useMemo, useState, type FunctionComponent } from "react";
 import { ErrorBoundary, type FallbackProps } from "react-error-boundary";
 import type { PlaygroundEditorsOptions } from "../playground.js";
@@ -41,6 +42,10 @@ export interface OutputViewProps {
    * Callback when viewer state changes.
    */
   onViewerStateChange?: (state: Record<string, any>) => void;
+  /**
+   * Reveal in the editor where the given target is declared.
+   */
+  onRevealSource?: (target: DiagnosticTarget) => void;
 }
 
 export const OutputView: FunctionComponent<OutputViewProps> = ({
@@ -53,6 +58,7 @@ export const OutputView: FunctionComponent<OutputViewProps> = ({
   onViewerChange,
   viewerState,
   onViewerStateChange,
+  onRevealSource,
 }) => {
   const resolvedViewers = useMemo(
     () => resolveViewers(viewers, fileViewers),
@@ -91,6 +97,7 @@ export const OutputView: FunctionComponent<OutputViewProps> = ({
         onViewerChange={onViewerChange}
         viewerState={viewerState}
         onViewerStateChange={onViewerStateChange}
+        onRevealSource={onRevealSource}
       />
     </div>
   );
@@ -126,6 +133,7 @@ const OutputViewInternal: FunctionComponent<{
   onViewerChange?: (viewerKey: string) => void;
   viewerState?: Record<string, any>;
   onViewerStateChange?: (state: Record<string, any>) => void;
+  onRevealSource?: (target: DiagnosticTarget) => void;
 }> = ({
   compilationResult,
   viewers,
@@ -133,6 +141,7 @@ const OutputViewInternal: FunctionComponent<{
   onViewerChange,
   viewerState,
   onViewerStateChange,
+  onRevealSource,
 }) => {
   const viewerList = Object.values(viewers.programViewers);
   const [internalSelected, setInternalSelected] = useState(viewerList[0].key);
@@ -161,6 +170,7 @@ const OutputViewInternal: FunctionComponent<{
             outputFiles={compilationResult.outputFiles}
             viewerState={viewerState}
             onViewerStateChange={onViewerStateChange}
+            onRevealSource={onRevealSource}
           />
         </ErrorBoundary>
       </div>

@@ -17,7 +17,7 @@ public final class VersioningOpListTests extends VersioningClientTestBase {
     @Disabled
     public void testVersioningOpListTests() {
         // method invocation
-        PagedIterable<Resource> response = versioningClient.list(Arrays.asList("name=name"), null);
+        PagedIterable<Resource> response = versioningClient.list(Arrays.asList("name=name"), (String) null);
 
         // response assertion
         Assertions.assertEquals(200, response.iterableByPage().iterator().next().getStatusCode());

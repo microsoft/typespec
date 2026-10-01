@@ -833,6 +833,14 @@ describe("meta-member helper APIs", () => {
       ResolutionResultFlags.NotFound,
     );
   });
+
+  it("handles symbols without a node", () => {
+    expect(resolver.getMetaMemberNames(resolver.symbols.null)).toEqual([]);
+    strictEqual(
+      resolver.resolveMetaMemberByName(resolver.symbols.null, "type").resolutionResult,
+      ResolutionResultFlags.NotFound,
+    );
+  });
 });
 
 describe("accessing non members resolve to NotFound", () => {

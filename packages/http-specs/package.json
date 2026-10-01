@@ -1,13 +1,14 @@
 {
   "name": "@typespec/http-specs",
   "displayName": "Http Specs",
-  "version": "0.1.0-alpha.42",
+  "version": "0.1.0-alpha.43",
   "description": "Spec scenarios and mock apis",
   "main": "dist/index.js",
   "type": "module",
   "files": [
     "dist/**",
     "specs/**",
+    "smoke/**",
     "assets/**"
   ],
   "scripts": {

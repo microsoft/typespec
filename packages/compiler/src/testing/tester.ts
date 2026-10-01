@@ -1,6 +1,8 @@
 import { realpath } from "fs/promises";
 import { pathToFileURL } from "url";
+import type { TypeSpecConfig } from "../config/types.js";
 import { compilerAssert } from "../core/diagnostics.js";
+import type { CompilerFeatureName } from "../core/features.js";
 import { getEntityName } from "../core/helpers/type-name-utils.js";
 import { NodeHost } from "../core/node-host.js";
 import type { CompilerOptions } from "../core/options.js";
@@ -42,6 +44,17 @@ export interface TesterOptions {
   libraries: string[];
 
   /**
+   * Default compiler options applied to every compilation. Per-call options are merged on top.
+   */
+  compilerOptions?: CompilerOptions;
+
+  /**
+   * Compiler features to enable for every compilation (e.g. experimental features gated behind a
+   * `features` entry in `tspconfig.yaml`). Equivalent to setting `features` in the project config.
+   */
+  features?: CompilerFeatureName[];
+
+  /**
    * System host for loading libraries
    * @internal
    */
@@ -51,7 +64,39 @@ export function createTester(base: string, options: TesterOptions): Tester {
   return createTesterInternal({
     fs: once(() => createTesterFs(base, options)),
     libraries: options.libraries,
+    compilerOptions: resolveTesterCompilerOptions(options),
   });
+}
+
+function resolveTesterCompilerOptions(options: TesterOptions): CompilerOptions | undefined {
+  if (options.features === undefined) {
+    return options.compilerOptions;
+  }
+  // The tester compiles directly without resolving a `tspconfig.yaml`, so the enabled features have
+  // to be injected into the synthetic `configFile` the compiler reads them from. Only `features` is
+  // relevant here, hence the cast to the otherwise more complete `TypeSpecConfig`.
+  const configFile = {
+    ...options.compilerOptions?.configFile,
+    features: [...(options.compilerOptions?.configFile?.features ?? []), ...options.features],
+  } as TypeSpecConfig;
+  return { ...options.compilerOptions, configFile };
+}
+
+/**
+ * Merge per-call compiler options on top of the tester defaults.
+ *
+ * `configFile` is merged as well so that per-call options (e.g. `emit`) don't drop the features
+ * or config the tester instance was created with.
+ */
+function mergeCompilerOptions(
+  base: CompilerOptions | undefined,
+  override: CompilerOptions | undefined,
+): CompilerOptions {
+  const configFile =
+    base?.configFile && override?.configFile
+      ? ({ ...base.configFile, ...override.configFile } as TypeSpecConfig)
+      : (override?.configFile ?? base?.configFile);
+  return { ...base, ...override, ...(configFile && { configFile }) };
 }
 
 function once<T>(fn: () => Promise<T>): () => Promise<T> {
@@ -314,8 +359,7 @@ async function createEmitterTesterInstance<Result>(
     const resolvedOptions: TestCompileOptions = {
       ...options,
       compilerOptions: {
-        ...params.compilerOptions,
-        ...options?.compilerOptions,
+        ...mergeCompilerOptions(params.compilerOptions, options?.compilerOptions),
         outputDir: "tsp-output",
         emit: [params.emitter],
       },
@@ -433,7 +477,7 @@ async function createTesterInstance(params: TesterInternalParams): Promise<Teste
     const program = await coreCompile(
       fs.compilerHost,
       resolveVirtualPath("main.tsp"),
-      options?.compilerOptions,
+      mergeCompilerOptions(params.compilerOptions, options?.compilerOptions),
     );
     savedProgram = program;
     saved$ = $(program);

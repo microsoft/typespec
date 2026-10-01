@@ -98,6 +98,9 @@ export class SchemaToExpressionGenerator {
       case "parameters":
         scopeAndName.scope.unshift("Parameters");
         break;
+      case "responses":
+        scopeAndName.scope.unshift("Responses");
+        break;
     }
 
     return scopeAndName;

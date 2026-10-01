@@ -78,7 +78,7 @@
     "concurrently": "catalog:",
     "cross-env": "catalog:",
     "execa": "catalog:",
-    "@inquirer/prompts": "catalog:",
+    "@inquirer/select": "catalog:",
     "ora": "catalog:",
     "p-limit": "catalog:",
     "picocolors": "catalog:",

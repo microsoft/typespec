@@ -1,6 +1,7 @@
 vi.resetModules();
 
 import type { TestHost } from "@typespec/compiler/testing";
+import { expectDiagnosticEmpty } from "@typespec/compiler/testing";
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { beforeEach, describe, it, vi } from "vitest";
 import { createModel } from "../../src/lib/client-model-builder.js";
@@ -570,6 +571,64 @@ describe("parseApiVersions", () => {
     ok(previewEnum);
     deepStrictEqual(previewEnum.apiVersions, ["2024-06-01-preview"]);
   });
+
+  it.each(["v1", "v2", "latest", undefined])(
+    "should emit models available in API version %s",
+    async (apiVersion) => {
+      const program = await typeSpecCompile(
+        `
+        @service
+        @versioned(Versions)
+        @usage(Usage.input | Usage.output)
+        namespace TestService;
+
+        enum Versions {
+          v1: "v1",
+          v2: "v2",
+        }
+
+        @added(Versions.v2)
+        model AlsoAddedInV2 {}
+
+        @removed(Versions.v2)
+        model RemovedInV2 {}
+
+        model Foo {
+          name: string;
+
+          @added(Versions.v2)
+          addedInV2: string;
+        }
+
+        @route("/foo")
+        op getFoo(): Foo;
+        `,
+        runner,
+        { IsNamespaceNeeded: false, IsTCGCNeeded: true },
+      );
+      expectDiagnosticEmpty(program.diagnostics);
+      const context = createEmitterContext(program, { "api-version": apiVersion });
+      const sdkContext = await createCSharpSdkContext(context);
+      expectDiagnosticEmpty(sdkContext.diagnostics);
+      const [root, diagnostics] = createModel(sdkContext);
+
+      expectDiagnosticEmpty(diagnostics);
+      const foo = root.models.find((model) => model.name === "Foo");
+      ok(foo);
+      deepStrictEqual(
+        foo.properties.map((property) => property.name),
+        apiVersion === "v1" ? ["name"] : ["name", "addedInV2"],
+      );
+      strictEqual(
+        root.models.some((model) => model.name === "AlsoAddedInV2"),
+        apiVersion !== "v1",
+      );
+      strictEqual(
+        root.models.some((model) => model.name === "RemovedInV2"),
+        apiVersion === "v1",
+      );
+    },
+  );
 });
 
 describe("createModel diagnostic collection", () => {

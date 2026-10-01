@@ -1,5 +1,12 @@
 # @typespec/http-specs
 
+## 0.1.0-alpha.43
+
+### Bug Fixes
+
+- [#11920](https://github.com/microsoft/typespec/pull/11920) Use a unique `ProtocolInfo` model name in the SSE protocol scenarios to avoid model-name collisions in generated clients.
+
+
 ## 0.1.0-alpha.42
 
 ### Features

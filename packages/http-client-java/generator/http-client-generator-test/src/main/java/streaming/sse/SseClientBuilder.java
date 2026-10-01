@@ -45,9 +45,13 @@ import streaming.sse.implementation.SseClientImpl;
         UnnamedClient.class,
         NamedClient.class,
         RetrieveClient.class,
+        ProtocolClient.class,
+        ProtocolDataClient.class,
         UnnamedAsyncClient.class,
         NamedAsyncClient.class,
-        RetrieveAsyncClient.class })
+        RetrieveAsyncClient.class,
+        ProtocolAsyncClient.class,
+        ProtocolDataAsyncClient.class })
 public final class SseClientBuilder
     implements HttpTrait<SseClientBuilder>, ConfigurationTrait<SseClientBuilder>, EndpointTrait<SseClientBuilder> {
     @Generated
@@ -301,6 +305,26 @@ public final class SseClientBuilder
     }
 
     /**
+     * Builds an instance of ProtocolAsyncClient class.
+     * 
+     * @return an instance of ProtocolAsyncClient.
+     */
+    @Generated
+    public ProtocolAsyncClient buildProtocolAsyncClient() {
+        return new ProtocolAsyncClient(buildInnerClient().getProtocols());
+    }
+
+    /**
+     * Builds an instance of ProtocolDataAsyncClient class.
+     * 
+     * @return an instance of ProtocolDataAsyncClient.
+     */
+    @Generated
+    public ProtocolDataAsyncClient buildProtocolDataAsyncClient() {
+        return new ProtocolDataAsyncClient(buildInnerClient().getProtocolDatas());
+    }
+
+    /**
      * Builds an instance of UnnamedClient class.
      * 
      * @return an instance of UnnamedClient.
@@ -328,6 +352,26 @@ public final class SseClientBuilder
     @Generated
     public RetrieveClient buildRetrieveClient() {
         return new RetrieveClient(buildInnerClient().getRetrieves());
+    }
+
+    /**
+     * Builds an instance of ProtocolClient class.
+     * 
+     * @return an instance of ProtocolClient.
+     */
+    @Generated
+    public ProtocolClient buildProtocolClient() {
+        return new ProtocolClient(buildInnerClient().getProtocols());
+    }
+
+    /**
+     * Builds an instance of ProtocolDataClient class.
+     * 
+     * @return an instance of ProtocolDataClient.
+     */
+    @Generated
+    public ProtocolDataClient buildProtocolDataClient() {
+        return new ProtocolDataClient(buildInnerClient().getProtocolDatas());
     }
 
     private static final ClientLogger LOGGER = new ClientLogger(SseClientBuilder.class);

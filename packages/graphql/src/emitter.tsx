@@ -3,6 +3,7 @@ import {
   emitFile,
   interpolatePath,
   resolvePath,
+  sanitizePathSegment,
   type EmitContext,
   type Namespace,
   type Program,
@@ -11,7 +12,7 @@ import { TspContext } from "@typespec/emitter-framework";
 import { printSchema } from "graphql";
 import { Schema } from "./components/schema.js";
 import { GraphQLSchemaContext } from "./context/index.js";
-import { type GraphQLEmitterOptions } from "./lib.js";
+import { reportDiagnostic, type GraphQLEmitterOptions } from "./lib.js";
 import { getOperationKind } from "./lib/operation-kind.js";
 import { listSchemas } from "./lib/schema.js";
 import { createGraphQLMutationEngine } from "./mutation-engine/index.js";
@@ -21,6 +22,7 @@ import { resolveTypeUsage } from "./type-usage.js";
 
 export async function $onEmit(context: EmitContext<GraphQLEmitterOptions>) {
   const schemas = listSchemas(context.program);
+  const outputFiles = new Set<string>();
   if (schemas.length === 0) {
     schemas.push({ type: context.program.getGlobalNamespaceType() });
   }
@@ -32,8 +34,18 @@ export async function $onEmit(context: EmitContext<GraphQLEmitterOptions>) {
       if (!context.program.compilerOptions.dryRun) {
         const outputFile = context.options["output-file"] ?? "{schema-name}.graphql";
         const fileName = interpolatePath(outputFile, {
-          "schema-name": schema.name ?? "schema",
+          "schema-name": sanitizePathSegment(schema.name ?? "schema"),
         });
+        const outputFileKey = fileName.normalize("NFC").toLowerCase();
+        if (outputFiles.has(outputFileKey)) {
+          reportDiagnostic(context.program, {
+            code: "output-file-collision",
+            format: { path: fileName },
+            target: schema.type,
+          });
+          continue;
+        }
+        outputFiles.add(outputFileKey);
         await emitFile(context.program, {
           path: resolvePath(context.emitterOutputDir, fileName),
           content: sdl,

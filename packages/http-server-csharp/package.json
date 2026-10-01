@@ -95,7 +95,7 @@
     "@typespec/versioning": "workspace:^",
     "@vitest/coverage-v8": "catalog:",
     "@vitest/ui": "catalog:",
-    "@inquirer/prompts": "catalog:",
+    "@inquirer/select": "catalog:",
     "ora": "catalog:",
     "p-limit": "catalog:",
     "pathe": "catalog:",
