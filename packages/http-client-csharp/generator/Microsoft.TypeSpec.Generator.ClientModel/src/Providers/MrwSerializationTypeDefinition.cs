@@ -1184,7 +1184,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     ? New.ReadOnlyDictionary(propertyProvider.Type.Arguments[0], propertyProvider.Type.ElementType, propertyProvider.AsVariableExpression)
                     : propertyProvider.AsVariableExpression;
             }
-            else if (!isRequired || !(propertyProvider.WireInfo?.IsNullable ?? propertyProvider.Type.IsNullable))
+            else if (OptionalSnippets.IsConcreteCollection(propertyProvider.Type)
+                ? isRequired && !(propertyProvider.WireInfo?.IsNullable ?? propertyProvider.Type.IsNullable)
+                : !isRequired || !(propertyProvider.WireInfo?.IsNullable ?? propertyProvider.Type.IsNullable))
             {
                 return OptionalSnippets.FallBackToChangeTrackingCollection(propertyProvider.AsVariableExpression, propertyProvider.Type);
             }
@@ -1644,12 +1646,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 if (propertyIsRequired && !serializedType.IsValueType)
                 {
-                    var initializationType = serializedType.FrameworkType.IsInterface
-                        ? serializedType.PropertyInitializationType
-                        : serializedType;
+                    ValueExpression nullValue = OptionalSnippets.IsConcreteCollection(serializedType)
+                        ? Null
+                        : New.Instance(serializedType.PropertyInitializationType);
                     return new IfStatement(checkEmptyProperty)
                     {
-                        propertyVarRef.Assign(New.Instance(initializationType)).Terminate(),
+                        propertyVarRef.Assign(nullValue).Terminate(),
                         Continue
                     };
                 }
@@ -2629,7 +2631,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             var isDefinedCondition = propertyType is { IsCollection: true, IsReadOnlyMemory: false }
-                ? OptionalSnippets.IsCollectionDefined(propertyMemberExpression)
+                ? OptionalSnippets.IsCollectionDefined(propertyMemberExpression, propertyType)
                 : OptionalSnippets.IsDefined(propertyMemberExpression);
 
             if (patchCheck != null && !shouldCheckJsonPath)

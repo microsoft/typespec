@@ -19,6 +19,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
             return Static<OptionalDefinition>().Invoke(IsCollectionDefinedMethodName, [collection]).As<bool>();
         }
 
+        public static ScopedApi<bool> IsCollectionDefined(ValueExpression collection, CSharpType collectionType)
+        {
+            // Concrete collection types cannot track an undefined state, so null represents an undefined collection.
+            return IsConcreteCollection(collectionType)
+                ? collection.NotEqual(Null)
+                : IsCollectionDefined(collection);
+        }
+
+        public static bool IsConcreteCollection(CSharpType type)
+            => type is { IsCollection: true, IsReadOnlyMemory: false } && !type.FrameworkType.IsInterface;
+
         public static ScopedApi<bool> IsDefined(ValueExpression value)
         {
             return Static<OptionalDefinition>().Invoke(IsDefinedMethodName, [value]).As<bool>();
@@ -31,7 +42,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
                 return collection;
             }
 
-            if (!collection.Type.FrameworkType.IsInterface)
+            if (IsConcreteCollection(collection.Type))
             {
                 return collection.NullCoalesce(New.Instance(collection.Type));
             }

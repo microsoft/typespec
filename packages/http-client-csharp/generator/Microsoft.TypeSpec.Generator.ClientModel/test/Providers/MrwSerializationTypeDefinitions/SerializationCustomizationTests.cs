@@ -78,7 +78,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider);
             var serializationProvider = modelProvider.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition);
             var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
-                serializationProvider, name => name == "DeserializeModel"));
+                serializationProvider, name => name is "DeserializeModel" or "JsonModelWriteCore"));
             Assert.AreEqual(Helpers.GetExpectedFromFile(), writer.Write().Content);
         }
 

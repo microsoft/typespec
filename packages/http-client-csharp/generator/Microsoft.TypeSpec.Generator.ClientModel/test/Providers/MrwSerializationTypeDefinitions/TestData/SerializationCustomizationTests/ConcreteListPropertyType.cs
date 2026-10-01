@@ -12,6 +12,76 @@ namespace Sample
 {
     public partial class Model
     {
+        protected virtual void JsonModelWriteCore(global::System.Text.Json.Utf8JsonWriter writer, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
+        {
+            string format = (options.Format == "W") ? ((global::System.ClientModel.Primitives.IPersistableModel<global::Sample.Models.Model>)this).GetFormatFromOptions(options) : options.Format;
+            if ((format != "J"))
+            {
+                throw new global::System.FormatException($"The model {nameof(global::Sample.Models.Model)} does not support writing '{format}' format.");
+            }
+            writer.WritePropertyName("requiredNames"u8);
+            writer.WriteStartArray();
+            foreach (string item in RequiredNames)
+            {
+                if ((item == null))
+                {
+                    writer.WriteNullValue();
+                    continue;
+                }
+                writer.WriteStringValue(item);
+            }
+            writer.WriteEndArray();
+            if ((RequiredNullableNames != null))
+            {
+                writer.WritePropertyName("requiredNullableNames"u8);
+                writer.WriteStartArray();
+                foreach (string item in RequiredNullableNames)
+                {
+                    if ((item == null))
+                    {
+                        writer.WriteNullValue();
+                        continue;
+                    }
+                    writer.WriteStringValue(item);
+                }
+                writer.WriteEndArray();
+            }
+            else
+            {
+                writer.WriteNull("requiredNullableNames"u8);
+            }
+            if ((OptionalNames != null))
+            {
+                writer.WritePropertyName("optionalNames"u8);
+                writer.WriteStartArray();
+                foreach (string item in OptionalNames)
+                {
+                    if ((item == null))
+                    {
+                        writer.WriteNullValue();
+                        continue;
+                    }
+                    writer.WriteStringValue(item);
+                }
+                writer.WriteEndArray();
+            }
+            if (((options.Format != "W") && (_additionalBinaryDataProperties != null)))
+            {
+                foreach (var item in _additionalBinaryDataProperties)
+                {
+                    writer.WritePropertyName(item.Key);
+#if NET6_0_OR_GREATER
+                    writer.WriteRawValue(item.Value);
+#else
+                    using (global::System.Text.Json.JsonDocument document = global::System.Text.Json.JsonDocument.Parse(item.Value))
+                    {
+                        global::System.Text.Json.JsonSerializer.Serialize(writer, document.RootElement);
+                    }
+#endif
+                }
+            }
+        }
+
         internal static global::Sample.Models.Model DeserializeModel(global::System.Text.Json.JsonElement element, global::System.ClientModel.Primitives.ModelReaderWriterOptions options)
         {
             if ((element.ValueKind == global::System.Text.Json.JsonValueKind.Null))
@@ -45,7 +115,7 @@ namespace Sample
                 {
                     if ((prop.Value.ValueKind == global::System.Text.Json.JsonValueKind.Null))
                     {
-                        requiredNullableNames = new global::System.Collections.Generic.List<string>();
+                        requiredNullableNames = null;
                         continue;
                     }
                     global::System.Collections.Generic.List<string> array = new global::System.Collections.Generic.List<string>();
@@ -89,7 +159,7 @@ namespace Sample
                     additionalBinaryDataProperties.Add(prop.Name, prop.Value.GetUtf8Bytes());
                 }
             }
-            return new global::Sample.Models.Model((requiredNames ?? new global::System.Collections.Generic.List<string>()), requiredNullableNames, (optionalNames ?? new global::System.Collections.Generic.List<string>()), additionalBinaryDataProperties);
+            return new global::Sample.Models.Model((requiredNames ?? new global::System.Collections.Generic.List<string>()), requiredNullableNames, optionalNames, additionalBinaryDataProperties);
         }
     }
 }
