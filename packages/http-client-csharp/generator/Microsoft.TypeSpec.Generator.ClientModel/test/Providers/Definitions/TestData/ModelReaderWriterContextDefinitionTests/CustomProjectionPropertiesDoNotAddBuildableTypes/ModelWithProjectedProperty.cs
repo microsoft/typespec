@@ -7,6 +7,6 @@ namespace Sample.Models
         [CodeGenMember("Error")]
         internal string ErrorInternal { get; }
 
-        public Azure.ResponseError Error => new("code", "message");
+        public Azure.ResponseError Error => new();
     }
 }

@@ -3,7 +3,6 @@
   <ItemGroup>
     <PackageReference Include="System.Memory.Data" />
     <PackageReference Include="System.ClientModel" />
-    <PackageReference Include="Azure.ResourceManager" />
   </ItemGroup>
 
   <ItemGroup>

@@ -2629,6 +2629,37 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
 
 }
 
+namespace Azure
+{
+    public class ResponseError : IJsonModel<ResponseError>
+    {
+        ResponseError? IJsonModel<ResponseError>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
+        {
+            throw new NotImplementedException();
+        }
+
+        ResponseError? IPersistableModel<ResponseError>.Create(BinaryData data, ModelReaderWriterOptions options)
+        {
+            throw new NotImplementedException();
+        }
+
+        string IPersistableModel<ResponseError>.GetFormatFromOptions(ModelReaderWriterOptions options)
+        {
+            throw new NotImplementedException();
+        }
+
+        void IJsonModel<ResponseError>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+        {
+            throw new NotImplementedException();
+        }
+
+        BinaryData IPersistableModel<ResponseError>.Write(ModelReaderWriterOptions options)
+        {
+            throw new NotImplementedException();
+        }
+    }
+}
+
 namespace Sample.Agents
 {
     public class ShadowedModel : IJsonModel<ShadowedModel>

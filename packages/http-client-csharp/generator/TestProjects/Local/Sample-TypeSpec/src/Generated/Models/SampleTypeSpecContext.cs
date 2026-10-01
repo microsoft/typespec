@@ -6,7 +6,6 @@
 #nullable disable
 
 using System.ClientModel.Primitives;
-using Azure.ResourceManager.Resources.Models;
 using SampleTypeSpec.Models.Custom;
 
 namespace SampleTypeSpec
@@ -19,7 +18,6 @@ namespace SampleTypeSpec
     [ModelReaderWriterBuildable(typeof(AnotherDynamicModel))]
     [ModelReaderWriterBuildable(typeof(Dog))]
     [ModelReaderWriterBuildable(typeof(DynamicModel))]
-    [ModelReaderWriterBuildable(typeof(ExternalModelProperties))]
     [ModelReaderWriterBuildable(typeof(Friend))]
     [ModelReaderWriterBuildable(typeof(GetNotebookResult))]
     [ModelReaderWriterBuildable(typeof(GetWidgetMetricsResult))]
@@ -29,7 +27,6 @@ namespace SampleTypeSpec
     [ModelReaderWriterBuildable(typeof(Pet))]
     [ModelReaderWriterBuildable(typeof(Plant))]
     [ModelReaderWriterBuildable(typeof(RenamedModelCustom))]
-    [ModelReaderWriterBuildable(typeof(ResourceGroupPatch))]
     [ModelReaderWriterBuildable(typeof(ReturnsAnonymousModelResult))]
     [ModelReaderWriterBuildable(typeof(RoundTripModel))]
     [ModelReaderWriterBuildable(typeof(StreamingItem))]

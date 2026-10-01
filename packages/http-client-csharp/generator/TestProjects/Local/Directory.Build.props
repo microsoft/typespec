@@ -7,7 +7,4 @@
     <IsGeneratedTestProject>true</IsGeneratedTestProject>
   </PropertyGroup>
   <Import Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory)..\.., Directory.Build.props))\Directory.Build.props" />
-  <ItemGroup>
-    <PackageReference Include="Azure.ResourceManager" />
-  </ItemGroup>
 </Project>

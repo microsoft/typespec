@@ -947,23 +947,3 @@ op receiveJsonLines(): JsonlStream<StreamingItem>;
 @get
 @route("/streaming/sse/receive")
 op receiveSse(): SSEStream<SampleEvents>;
-
-@alternateType(
-  {
-    identity: "Azure.ResourceManager.Resources.Models.ResourceGroupPatch",
-    package: "Azure.ResourceManager",
-    minVersion: "1.14.0",
-  },
-  "csharp"
-)
-model ExternalResourceGroupPatch {
-  name?: string;
-}
-
-@usage(Usage.input | Usage.output | Usage.json)
-@access(Access.public)
-model ExternalModelProperties {
-  `scalar`: ExternalResourceGroupPatch | null;
-  list: (ExternalResourceGroupPatch | null)[];
-  dictionary: Record<ExternalResourceGroupPatch | null>;
-}
