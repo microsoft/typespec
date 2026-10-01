@@ -210,7 +210,7 @@ namespace SampleTypeSpec
                     additionalBinaryDataProperties.Add(prop.Name, prop.Value.GetUtf8Bytes());
                 }
             }
-            return new ExternalModelProperties(scalar, list, dictionary, additionalBinaryDataProperties);
+            return new ExternalModelProperties(scalar, list ?? new ChangeTrackingList<ResourceGroupPatch>(), dictionary ?? new ChangeTrackingDictionary<string, ResourceGroupPatch>(), additionalBinaryDataProperties);
         }
     }
 }

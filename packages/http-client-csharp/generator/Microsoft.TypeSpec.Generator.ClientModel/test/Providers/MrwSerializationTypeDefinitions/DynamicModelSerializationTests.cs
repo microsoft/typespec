@@ -254,6 +254,38 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         }
 
         [Test]
+        public async Task PropagateCustomizedDynamicConcreteListProperty()
+        {
+            var otherDynamicModel = InputFactory.Model(
+                "foo",
+                isDynamicModel: true,
+                properties:
+                [
+                    InputFactory.Property("someOtherProperty", InputPrimitiveType.String, isRequired: true)
+                ]);
+
+            var inputModel = InputFactory.Model(
+                "dynamicModel",
+                isDynamicModel: true,
+                properties:
+                [
+                    InputFactory.Property("prop1", InputFactory.Array(otherDynamicModel))
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                inputModels: () => [inputModel, otherDynamicModel]);
+            var model = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.OfType<ClientModel.Providers.ScmModelProvider>().Single(m => m.Name == "DynamicModel");
+            var serialization = model.SerializationProviders.Single();
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                serialization,
+                name => name is "PropagateGet" or "PropagateSet" or "TryResolveProp2Array" or "ActiveProp2"));
+            var actual = writer.Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), actual);
+        }
+
+        [Test]
         public async Task PropagateCustomizedDynamicListPropertyMixed()
         {
             var otherDynamicModel = InputFactory.Model(

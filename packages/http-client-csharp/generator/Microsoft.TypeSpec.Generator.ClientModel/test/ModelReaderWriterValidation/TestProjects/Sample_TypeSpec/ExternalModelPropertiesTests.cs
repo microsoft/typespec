@@ -81,6 +81,26 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ModelReaderWriterValida
             Assert.IsTrue(JsonElement.DeepEquals(expected.RootElement, actual.RootElement));
         }
 
+        [TestCase("J")]
+        [TestCase("W")]
+        public void OmittedExternalModelCollectionsAreInitialized(string format)
+        {
+            var payload = File.ReadAllText(ModelTestHelper.GetLocation("TestData/ExternalModelProperties/ExternalModelPropertiesWithOmittedCollections.json"));
+            var options = format == "J" ? ModelReaderWriterOptions.Json : new ModelReaderWriterOptions("W");
+            var model = ModelReaderWriter.Read<ExternalModelProperties>(new BinaryData(payload), options, SampleTypeSpecContext.Default)!;
+
+            Assert.IsNull(model.Scalar);
+            Assert.IsNotNull(model.List);
+            Assert.IsEmpty(model.List);
+            Assert.IsNotNull(model.Dictionary);
+            Assert.IsEmpty(model.Dictionary);
+
+            using var actual = JsonDocument.Parse(ModelReaderWriter.Write(model, options, SampleTypeSpecContext.Default));
+            Assert.AreEqual(JsonValueKind.Null, actual.RootElement.GetProperty("scalar").ValueKind);
+            Assert.AreEqual(0, actual.RootElement.GetProperty("list").GetArrayLength());
+            Assert.IsEmpty(actual.RootElement.GetProperty("dictionary").EnumerateObject());
+        }
+
         private static void AssertExternalModel(ResourceGroupPatch model, JsonElement expected, string format)
         {
             Assert.AreEqual(expected.GetProperty("name").GetString(), model.Name);

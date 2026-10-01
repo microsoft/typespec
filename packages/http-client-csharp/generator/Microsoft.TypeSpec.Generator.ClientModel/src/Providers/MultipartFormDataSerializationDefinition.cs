@@ -141,7 +141,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             var isDefinedCondition = prop.Type is { IsCollection: true, IsReadOnlyMemory: false }
-                ? OptionalSnippets.IsCollectionDefined(prop)
+                ? OptionalSnippets.IsCollectionDefined(prop, prop.Type)
                 : OptionalSnippets.IsDefined(prop);
 
             return new IfStatement(isDefinedCondition) { addStatement };
