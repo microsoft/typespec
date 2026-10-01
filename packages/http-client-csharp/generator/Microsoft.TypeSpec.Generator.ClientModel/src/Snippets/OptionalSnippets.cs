@@ -14,17 +14,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
         private const string IsDefinedMethodName = "IsDefined";
         private const string IsCollectionDefinedMethodName = "IsCollectionDefined";
 
-        public static ScopedApi<bool> IsCollectionDefined(ValueExpression collection)
-        {
-            return Static<OptionalDefinition>().Invoke(IsCollectionDefinedMethodName, [collection]).As<bool>();
-        }
-
-        public static ScopedApi<bool> IsCollectionDefined(ValueExpression collection, CSharpType collectionType)
+        internal static ScopedApi<bool> IsCollectionDefined(ValueExpression collection, CSharpType? collectionType = null)
         {
             // Concrete collection types cannot track an undefined state, so null represents an undefined collection.
-            return IsConcreteCollection(collectionType)
+            return collectionType is not null && IsConcreteCollection(collectionType)
                 ? collection.NotEqual(Null)
-                : IsCollectionDefined(collection);
+                : Static<OptionalDefinition>().Invoke(IsCollectionDefinedMethodName, [collection]).As<bool>();
         }
 
         public static bool IsConcreteCollection(CSharpType type)

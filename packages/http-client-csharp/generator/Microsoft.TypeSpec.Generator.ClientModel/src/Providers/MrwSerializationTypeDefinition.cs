@@ -1648,12 +1648,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 if (propertyIsRequired && !serializedType.IsValueType)
                 {
-                    ValueExpression nullValue = OptionalSnippets.IsConcreteCollection(serializedType)
+                    ValueExpression fallbackValue = OptionalSnippets.IsConcreteCollection(serializedType)
                         ? Null
                         : New.Instance(serializedType.PropertyInitializationType);
                     return new IfStatement(checkEmptyProperty)
                     {
-                        propertyVarRef.Assign(nullValue).Terminate(),
+                        propertyVarRef.Assign(fallbackValue).Terminate(),
                         Continue
                     };
                 }
