@@ -159,6 +159,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         existingMember.Field.Description,
                         initializationValue,
                         attributes: existingMember.Field.Attributes);
+                    updatedField.Update(suppressions: existingMember.Field.Suppressions);
                     allMembers.Add(new EnumTypeMember(existingMember.Name, updatedField, memberValue) { Experimental = existingMember.Experimental });
                 }
                 else if (customMemberLastContractNames.Contains(field.Name))

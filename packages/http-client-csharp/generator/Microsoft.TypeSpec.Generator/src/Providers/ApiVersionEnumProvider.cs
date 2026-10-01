@@ -101,6 +101,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         DocHelpers.GetFormattableDescription(inputValue.Summary, inputValue.Doc) ?? $"{name}",
                         initializationValue,
                         attributes: ExperimentalApiHelpers.BuildAttributes(inputValue.Experimental));
+                    field.Update(suppressions: ExperimentalApiHelpers.GetDependencySuppressions(inputValue.Experimental));
 
                     values.Add(new EnumTypeMember(name, field, inputValue.Value) { Experimental = inputValue.Experimental });
                 }
@@ -126,6 +127,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     $"",
                     member.InitializationValue,
                     attributes: ExperimentalApiHelpers.BuildAttributes(enumValue?.Experimental));
+                field.Update(suppressions: ExperimentalApiHelpers.GetDependencySuppressions(enumValue?.Experimental));
                 object inputValue = enumValue?.Value ?? member.Name;
                 values.Add(new EnumTypeMember(member.Name, field, inputValue) { Experimental = enumValue?.Experimental });
             }
@@ -183,6 +185,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     member.Field.Description,
                     Literal(i + 1),
                     attributes: member.Field.Attributes);
+                updatedField.Update(suppressions: member.Field.Suppressions);
                 allMembers[i] = new EnumTypeMember(member.Name, updatedField, member.Value) { Experimental = member.Experimental };
             }
 
