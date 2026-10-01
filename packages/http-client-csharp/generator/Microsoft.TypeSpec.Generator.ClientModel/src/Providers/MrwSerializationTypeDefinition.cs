@@ -1177,6 +1177,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private static ValueExpression GetValueForSerializationConstructor(PropertyProvider propertyProvider)
         {
             var isRequired = propertyProvider.WireInfo?.IsRequired ?? false;
+            var isNullable = propertyProvider.WireInfo?.IsNullable ?? propertyProvider.Type.IsNullable;
+            var shouldFallBack = OptionalSnippets.IsConcreteCollection(propertyProvider.Type)
+                ? isRequired && !isNullable
+                : !isRequired || !isNullable;
 
             if (!propertyProvider.Type.IsFrameworkType || propertyProvider.IsAdditionalProperties)
             {
@@ -1184,9 +1188,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     ? New.ReadOnlyDictionary(propertyProvider.Type.Arguments[0], propertyProvider.Type.ElementType, propertyProvider.AsVariableExpression)
                     : propertyProvider.AsVariableExpression;
             }
-            else if (OptionalSnippets.IsConcreteCollection(propertyProvider.Type)
-                ? isRequired && !(propertyProvider.WireInfo?.IsNullable ?? propertyProvider.Type.IsNullable)
-                : !isRequired || !(propertyProvider.WireInfo?.IsNullable ?? propertyProvider.Type.IsNullable))
+            else if (shouldFallBack)
             {
                 return OptionalSnippets.FallBackToChangeTrackingCollection(propertyProvider.AsVariableExpression, propertyProvider.Type);
             }
