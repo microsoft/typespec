@@ -337,6 +337,93 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.AreEqual(restClientNamespace, restClient.Type.Namespace);
         }
 
+        [Test]
+        public async Task TestBuildName_PreservesDependentConstructorCustomizations(
+            [Values("Options", "Settings", "RestClient")] string dependentKind,
+            [Values] bool lastContract, [Values] bool removeConstructors)
+        {
+            var input = InputFactory.Client("IpClient", initializedBy: InputClientInitializedBy.Individually);
+            var compilation = await Helpers.GetCompilationFromDirectoryAsync(method: "AcronymClients");
+            var generator = await MockHelpers.LoadMockGeneratorAsync(clients: () => [input],
+                compilation: lastContract ? null : () => Task.FromResult(compilation),
+                lastContractCompilation: lastContract ? () => Task.FromResult(compilation) : null);
+            var client = generator.Object.TypeFactory.CreateClient(input)!;
+            TypeProvider dependent = dependentKind switch
+            {
+                "Options" => client.ClientOptions!,
+                "Settings" => client.ClientSettings!,
+                _ => client.RestClient
+            };
+            dependent.EnsureBuilt();
+            var constructor = dependent.Constructors.FirstOrDefault() ?? new ConstructorProvider(
+                new ConstructorSignature(dependent.Type, null, MethodSignatureModifiers.Public, []),
+                MethodBodyStatement.Empty, dependent);
+            var parameter = new ParameterProvider("custom", $"A custom parameter.", typeof(string));
+            constructor.Signature.Update(description: $"Customized constructor.", modifiers: MethodSignatureModifiers.Internal,
+                parameters: [parameter]);
+            var body = new MethodBodyStatements([MethodBodyStatement.Empty]);
+            var docs = new XmlDocProvider(new XmlDocSummaryStatement([$"Customized documentation."]));
+            constructor.Update(bodyStatements: body, xmlDocs: docs);
+            dependent.Update(constructors: removeConstructors ? [] : [constructor]);
+
+            client.Update(@namespace: "Sample.Published");
+
+            var expectedName = dependentKind == "RestClient" ? "IpClient" : $"IpClient{dependentKind}";
+            Assert.AreEqual(expectedName, dependent.Name);
+            Assert.AreEqual("Sample.Published", dependent.Type.Namespace);
+            if (removeConstructors)
+            {
+                Assert.IsEmpty(dependent.Constructors);
+            }
+            else
+            {
+                Assert.AreSame(constructor, dependent.Constructors.Single());
+                Assert.AreEqual(expectedName, constructor.Signature.Name);
+                Assert.AreSame(dependent.Type, constructor.Signature.Type);
+                Assert.AreSame(parameter, constructor.Signature.Parameters.Single());
+                Assert.AreEqual(MethodSignatureModifiers.Internal, constructor.Signature.Modifiers);
+                Assert.AreEqual("Customized constructor.", constructor.Signature.Description!.ToString());
+                Assert.AreSame(body, constructor.BodyStatements);
+                Assert.AreSame(docs, constructor.XmlDocs);
+            }
+        }
+
+        [Test]
+        public async Task TestBuildName_UpdatesDependentConstructorDocumentation([Values] bool customSummary)
+        {
+            var input = InputFactory.Client("IpClient");
+            var generator = await MockHelpers.LoadMockGeneratorAsync(clients: () => [input],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(method: "AcronymClients"));
+            var client = generator.Object.TypeFactory.CreateClient(input)!;
+            var options = client.ClientOptions!;
+            var constructors = options.Constructors.ToArray();
+            var summary = new XmlDocSummaryStatement([$"Customized documentation."]);
+            if (customSummary)
+            {
+                foreach (var constructor in constructors)
+                {
+                    constructor.XmlDocs.Update(summary: summary);
+                }
+            }
+
+            client.Update(@namespace: "Sample.Published");
+
+            Assert.AreEqual(constructors, options.Constructors);
+            foreach (var constructor in options.Constructors)
+            {
+                Assert.AreEqual("IpClientOptions", constructor.Signature.Name);
+                Assert.That(constructor.Signature.Description!.ToString(), Does.Contain("IpClientOptions"));
+                if (customSummary)
+                {
+                    Assert.AreSame(summary, constructor.XmlDocs.Summary);
+                }
+                else
+                {
+                    Assert.That(constructor.XmlDocs.Summary!.Lines.Single().ToString(), Does.Contain("IpClientOptions"));
+                }
+            }
+        }
+
         private static void AssertClientIdentity(ClientProvider client, string expectedName, string expectedNamespace)
         {
             Assert.AreEqual(expectedName, client.Name);
@@ -363,6 +450,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                     Assert.AreEqual($"{expectedName}{suffix}", dependent.Name);
                     Assert.AreEqual(expectedNamespace, dependent.Type.Namespace);
                     Assert.AreEqual($"{dependent.Name}.cs", Path.GetFileName(dependent.RelativeFilePath));
+                    foreach (var constructor in dependent.Constructors)
+                    {
+                        Assert.AreEqual(dependent.Name, constructor.Signature.Name);
+                        Assert.AreSame(dependent.Type, constructor.Signature.Type);
+                        Assert.That(constructor.Signature.Description!.ToString(), Does.Contain(dependent.Name));
+                    }
                 }
             }
             if (client.ClientSettings != null && client.EffectiveClientOptions != null)

@@ -464,10 +464,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             base.OnIdentityUpdated(previousName, previousNamespace);
             var previousOptionsType = ClientOptions?.Type.WithNullable(true);
-            if (_restClient is { } restClient && restClient.Name == previousName && restClient.Type.Namespace == previousNamespace)
-            {
-                restClient.Update(name: Name, @namespace: Type.Namespace);
-            }
+            UpdateDependentIdentity(_restClient, string.Empty);
             UpdateDependentIdentity(ClientOptions, "Options");
             UpdateDependentIdentity(ClientSettings, "Settings");
             if (previousOptionsType != null && !CSharpType.IgnoreNullableComparer.Equals(previousOptionsType, ClientOptions!.Type))
@@ -487,7 +484,32 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 // Do not rename shared options or explicitly customized dependent types.
                 if (provider?.Name == $"{previousName}{suffix}" && provider.Type.Namespace == previousNamespace)
                 {
+                    var constructors = provider.Constructors;
                     provider.Update(name: $"{Name}{suffix}", @namespace: Type.Namespace);
+                    foreach (var constructor in constructors)
+                    {
+                        constructor.Signature.Update(name: provider.Name);
+                        var previousDescription = constructor.Signature.Description?.ToString();
+                        FormattableString? description = previousDescription switch
+                        {
+                            var value when value == $"Initializes a new instance of {previousName}{suffix}."
+                                => $"Initializes a new instance of {provider.Name}.",
+                            var value when value == $"Initializes a new instance of {previousName}{suffix} from configuration."
+                                => $"Initializes a new instance of {provider.Name} from configuration.",
+                            _ => null
+                        };
+                        if (description != null)
+                        {
+                            constructor.Signature.Update(description: description);
+                            if (constructor.XmlDocs.Summary is { Lines.Count: 1, InnerStatements.Count: 0 } summary &&
+                                summary.Lines[0].ToString() == previousDescription)
+                            {
+                                constructor.XmlDocs.Update(summary: new XmlDocSummaryStatement([description]));
+                            }
+                        }
+                    }
+                    // Identity updates reset constructors; retain changes from earlier visitors.
+                    provider.Update(constructors: constructors);
                 }
             }
 

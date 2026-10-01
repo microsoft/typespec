@@ -971,7 +971,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         /// <summary>
-        /// Updates generated dependencies after the type's name or namespace changes.
+        /// Updates generated dependencies after a name or namespace change has resolved
+        /// the type's final identity from custom code and the last contract.
         /// </summary>
         protected virtual void OnIdentityUpdated(string previousName, string previousNamespace) { }
 
