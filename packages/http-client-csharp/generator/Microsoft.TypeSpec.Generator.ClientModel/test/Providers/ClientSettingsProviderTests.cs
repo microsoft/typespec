@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
@@ -23,6 +24,79 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 {
     public class ClientSettingsProviderTests
     {
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task ExperimentalCustomConfigurationBindingsUseContainingExperimentalContext(bool generatedModel)
+        {
+            var inputModel = InputFactory.Model("BindingValue", @namespace: "Sample", properties: []);
+            var inputClient = InputFactory.Client("TestClient");
+            Compilation? customCompilation = null;
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => generatedModel ? [inputModel] : [],
+                clients: () => [inputClient],
+                compilation: async () => customCompilation = await Helpers.GetCompilationFromDirectoryAsync());
+            var generator = ScmCodeModelGenerator.Instance;
+            if (generatedModel)
+            {
+                generator.TypeFactory.CreateModel(inputModel);
+            }
+            var client = generator.TypeFactory.CreateClient(inputClient)!;
+            var settings = client.ClientSettings!;
+            var options = client.ClientOptions!;
+            var files = new TypeProvider[] { settings, options, new ArgumentDefinition() }
+                .Select(provider => new TypeProviderWriter(provider).Write()).ToArray();
+            var references = AppDomain.CurrentDomain.GetAssemblies()
+                .Where(assembly => !assembly.IsDynamic && !string.IsNullOrEmpty(assembly.Location))
+                .Select(assembly => MetadataReference.CreateFromFile(assembly.Location))
+                .Append(MetadataReference.CreateFromFile(typeof(Microsoft.Extensions.Configuration.IConfigurationSection).Assembly.Location));
+            var compilation = CSharpCompilation.Create(
+                "ExperimentalCustomConfigurationBindings",
+                files.Select(file => CSharpSyntaxTree.ParseText(file.Content, path: file.Name))
+                    .Concat(customCompilation!.SyntaxTrees.Where(tree => tree.FilePath.EndsWith("CustomTypes.cs", StringComparison.Ordinal))),
+                references,
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, generalDiagnosticOption: ReportDiagnostic.Error));
+            Assert.IsEmpty(compilation.GetDiagnostics().Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error)
+                .Select(diagnostic => diagnostic.ToString()));
+
+            foreach (var provider in new TypeProvider[] { settings, options })
+            {
+                Assert.AreEqual(0, provider.DisabledFileWarnings.Count);
+                var tree = compilation.SyntaxTrees.Single(tree => tree.FilePath == provider.RelativeFilePath);
+                var root = tree.GetRoot();
+                var creation = root.DescendantNodes().OfType<ObjectCreationExpressionSyntax>()
+                    .Single(expression => expression.Type.ToString() == "global::Sample.BindingValue");
+                MemberDeclarationSyntax bindingMethod = provider == settings
+                    ? creation.Ancestors().OfType<MethodDeclarationSyntax>().Single()
+                    : creation.Ancestors().OfType<ConstructorDeclarationSyntax>().Single();
+                StringAssert.DoesNotContain("#pragma warning disable CUSTOM001", bindingMethod.ToFullString());
+                var containingDeclaration = provider == settings
+                    ? (MemberDeclarationSyntax)creation.Ancestors().OfType<ClassDeclarationSyntax>().Single()
+                    : bindingMethod;
+                var contextSymbol = compilation.GetSemanticModel(tree).GetDeclaredSymbol(containingDeclaration)!;
+                Assert.AreEqual("SCME0002", contextSymbol.GetAttributes().Single(attribute =>
+                    attribute.AttributeClass?.ToDisplayString() == "System.Diagnostics.CodeAnalysis.ExperimentalAttribute").ConstructorArguments[0].Value);
+
+                // Removing the existing experimental context must expose the custom type's diagnostic.
+                var withoutContext = containingDeclaration.WithAttributeLists(default);
+                var unannotatedTree = tree.WithRootAndOptions(root.ReplaceNode(containingDeclaration, withoutContext), tree.Options);
+                var bindingErrors = compilation.ReplaceSyntaxTree(tree, unannotatedTree).GetDiagnostics()
+                    .Where(diagnostic => diagnostic.Id == "CUSTOM001" && diagnostic.Location.SourceTree == unannotatedTree).ToArray();
+                var unannotatedCreation = unannotatedTree.GetRoot().DescendantNodes().OfType<ObjectCreationExpressionSyntax>()
+                    .Single(expression => expression.Type.ToString() == "global::Sample.BindingValue");
+                Assert.IsTrue(bindingErrors.Any(diagnostic => unannotatedCreation.Span.Contains(diagnostic.Location.SourceSpan)));
+                Assert.IsFalse(provider.Methods.SelectMany(member => member.Signature.Attributes)
+                    .Concat(provider.Constructors.SelectMany(member => member.Signature.Attributes))
+                    .Any(attribute => attribute.Arguments.Any(argument => argument.ToDisplayString() == Snippet.Literal("CUSTOM001").ToDisplayString())));
+            }
+            var settingsProperty = settings.Properties.Single(property => property.Name == "Value");
+            Assert.AreEqual(0, settingsProperty.Attributes.Count);
+            var consumer = CSharpSyntaxTree.ParseText(Helpers.GetExpectedFromFile("Consumer"));
+            var consumerErrors = compilation.AddSyntaxTrees(consumer).GetDiagnostics()
+                .Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error).ToArray();
+            Assert.IsNotEmpty(consumerErrors);
+            Assert.IsTrue(consumerErrors.All(diagnostic => diagnostic.Id == "CUSTOM001" && diagnostic.Location.SourceTree == consumer));
+        }
+
         [TestCase("required", false, true)]
         [TestCase("required", true, true)]
         [TestCase("optional", false, true)]
