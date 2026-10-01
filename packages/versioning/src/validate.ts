@@ -773,6 +773,44 @@ function findAvailabilityOnOrBeforeVersion(
   return undefined;
 }
 
+function isFirstUnavailableVersion(version: string, avail: Map<string, Availability>): boolean {
+  let previous: Availability | undefined;
+  for (const [key, current] of avail) {
+    if (key === version) {
+      return (
+        [Availability.Removed, Availability.Unavailable].includes(current) &&
+        previous !== undefined &&
+        [Availability.Added, Availability.Available].includes(previous)
+      );
+    }
+    previous = current;
+  }
+  return false;
+}
+
+function hasLaterSourceRemovalDiagnostic(
+  version: string,
+  sourceAvail: Map<string, Availability>,
+  targetAvail: Map<string, Availability>,
+): boolean {
+  let afterVersion = false;
+  for (const [key, sourceStatus] of sourceAvail) {
+    if (afterVersion) {
+      if (
+        sourceStatus === Availability.Removed &&
+        targetAvail.get(key) === Availability.Unavailable
+      ) {
+        return true;
+      }
+      continue;
+    }
+    if (key === version) {
+      afterVersion = true;
+    }
+  }
+  return false;
+}
+
 function validateAvailabilityForRef(
   program: Program,
   sourceAvail: Map<string, Availability> | undefined,
@@ -845,6 +883,27 @@ function validateAvailabilityForRef(
         },
         target: source,
         codefixes: getVersionAdditionCodefixes(targetVersion, target, program),
+      });
+    }
+    if (
+      sourceVal === Availability.Available &&
+      isFirstUnavailableVersion(key, targetAvail) &&
+      !hasLaterSourceRemovalDiagnostic(key, sourceAvail, targetAvail)
+    ) {
+      const sourceVersion = getAllVersions(program, source)?.find(
+        (version) => version.name === key,
+      );
+      const versionValue = sourceVersion?.value ?? key;
+      reportDiagnostic(program, {
+        code: "incompatible-versioned-reference",
+        messageId: "doesNotExist",
+        format: {
+          sourceName: getTypeName(source),
+          targetName: getTypeName(target),
+          version: versionValue,
+        },
+        target: source,
+        codefixes: getVersionRemovalCodeFixes(versionValue, source, program),
       });
     }
     if (

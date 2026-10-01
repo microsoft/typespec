@@ -321,7 +321,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private protected override string NormalizeTypeName(string name)
         {
             var normalizedName = base.NormalizeTypeName(name);
-            if (!normalizedName.EndsWith(ResponseSuffix, StringComparison.Ordinal))
+            if (_inputModel.Usage.HasFlag(InputModelTypeUsage.Error) ||
+                !normalizedName.EndsWith(ResponseSuffix, StringComparison.Ordinal))
             {
                 return normalizedName;
             }
