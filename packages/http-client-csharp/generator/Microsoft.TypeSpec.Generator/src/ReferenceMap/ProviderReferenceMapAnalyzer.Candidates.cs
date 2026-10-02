@@ -78,8 +78,7 @@ namespace Microsoft.TypeSpec.Generator
             HashSet<string> customPublicRoots,
             HashSet<string> publicRoots,
             HashSet<string> nodes,
-            IReadOnlyDictionary<string, HashSet<string>> references,
-            IReadOnlyDictionary<string, HashSet<string>> predecessors)
+            IReadOnlyDictionary<string, HashSet<string>> references)
         {
             var candidates = new HashSet<string>(StringComparer.Ordinal);
             foreach (var node in internalizeDeclaredNodes)
@@ -124,7 +123,7 @@ namespace Microsoft.TypeSpec.Generator
             // Non-root keep entries preserve the declared type/file, but deliberately do not
             // root their dependencies. They can still be internalized when needed to avoid
             // exposing custom/internal types through a public surface.
-            RemoveKeptNonRootNames(candidates, nodes, references, predecessors, customInternalDeclarations, generatedInternalDeclarations, customInternalBoundaryNodes);
+            RemoveKeptNonRootNames(candidates, nodes, references, customInternalDeclarations, generatedInternalDeclarations, customInternalBoundaryNodes);
             return candidates;
         }
 
@@ -132,7 +131,7 @@ namespace Microsoft.TypeSpec.Generator
             HashSet<string> internalizeDeclaredNodes,
             HashSet<string> candidates,
             HashSet<string> customInternalDeclarations,
-            IReadOnlyDictionary<string, HashSet<string>> predecessors)
+            IReadOnlyDictionary<string, HashSet<string>> references)
         {
             var removedCandidate = true;
             while (removedCandidate)
@@ -140,16 +139,16 @@ namespace Microsoft.TypeSpec.Generator
                 removedCandidate = false;
                 foreach (var candidate in candidates.ToArray())
                 {
-                    if (customInternalDeclarations.Contains(candidate) ||
-                        !predecessors.TryGetValue(candidate, out var owners))
+                    if (customInternalDeclarations.Contains(candidate))
                     {
                         continue;
                     }
 
-                    foreach (var node in owners)
+                    foreach (var node in internalizeDeclaredNodes)
                     {
                         if (candidates.Contains(node) ||
-                            !internalizeDeclaredNodes.Contains(node))
+                            !references.TryGetValue(node, out var nodeReferences) ||
+                            !nodeReferences.Contains(candidate))
                         {
                             continue;
                         }
@@ -199,7 +198,7 @@ namespace Microsoft.TypeSpec.Generator
             HashSet<string> customInternalDeclarations,
             HashSet<string> generatedInternalDeclarations,
             HashSet<string> explicitPublicRoots,
-            IReadOnlyDictionary<string, HashSet<string>> predecessors,
+            IReadOnlyDictionary<string, HashSet<string>> references,
             HashSet<string> generatedImplementationInternalDeclarations)
         {
             var addedCandidate = true;
@@ -208,19 +207,18 @@ namespace Microsoft.TypeSpec.Generator
                 addedCandidate = false;
                 foreach (var node in internalizeDeclaredNodes)
                 {
-                    if (candidates.Contains(node) ||
-                        explicitPublicRoots.Contains(node) ||
-                        !predecessors.TryGetValue(node, out var owners))
+                    if (candidates.Contains(node) || explicitPublicRoots.Contains(node))
                     {
                         continue;
                     }
 
                     var hasPredecessor = false;
                     var allPredecessorsInternalized = true;
-                    foreach (var owner in owners)
+                    foreach (var (owner, children) in references)
                     {
                         if (string.Equals(owner, node, StringComparison.Ordinal) ||
-                            generatedImplementationInternalDeclarations.Contains(owner))
+                            generatedImplementationInternalDeclarations.Contains(owner) ||
+                            !children.Contains(node))
                         {
                             continue;
                         }
@@ -256,8 +254,8 @@ namespace Microsoft.TypeSpec.Generator
             HashSet<string> publicRootExclusions,
             HashSet<string> generatedInternalDeclarations,
             HashSet<string> publicRoots,
-            IReadOnlyDictionary<string, HashSet<string>> publicApiPredecessors,
-            IReadOnlyDictionary<string, HashSet<string>> internalizePredecessors,
+            Dictionary<string, HashSet<string>> publicApiReferences,
+            Dictionary<string, HashSet<string>> internalizeReferences,
             HashSet<string> generatedImplementationInternalDeclarations)
         {
             var candidates = new HashSet<string>(StringComparer.Ordinal);
@@ -274,13 +272,13 @@ namespace Microsoft.TypeSpec.Generator
 
                 if (generatedInternalDeclarations.Contains(node) &&
                     !publicRoots.Contains(node) &&
-                    !HasPublicApiPredecessor(node, publicApiPredecessors, publicReachable, generatedImplementationInternalDeclarations))
+                    !HasPublicApiPredecessor(node, publicApiReferences, publicReachable, generatedImplementationInternalDeclarations))
                 {
                     continue;
                 }
 
                 if (!publicRoots.Contains(node) &&
-                    !HasPublicApiPredecessor(node, internalizePredecessors, publicReachable, generatedInternalDeclarations, generatedImplementationInternalDeclarations))
+                    !HasPublicApiPredecessor(node, internalizeReferences, publicReachable, generatedInternalDeclarations, generatedImplementationInternalDeclarations))
                 {
                     continue;
                 }
@@ -342,7 +340,6 @@ namespace Microsoft.TypeSpec.Generator
             HashSet<string> candidates,
             HashSet<string> nodes,
             IReadOnlyDictionary<string, HashSet<string>> references,
-            IReadOnlyDictionary<string, HashSet<string>> predecessors,
             HashSet<string> customInternalDeclarations,
             HashSet<string> generatedInternalDeclarations,
             HashSet<string> customInternalBoundaryNodes)
@@ -358,7 +355,7 @@ namespace Microsoft.TypeSpec.Generator
                 }
 
                 if (IsKeptName(node, nonRootTypes, nodes) &&
-                    !HasCandidateReference(node, candidates, references, predecessors))
+                    !HasCandidateReference(node, candidates, references))
                 {
                     candidates.Remove(node);
                 }
@@ -368,8 +365,7 @@ namespace Microsoft.TypeSpec.Generator
         private static bool HasCandidateReference(
             string node,
             HashSet<string> candidates,
-            IReadOnlyDictionary<string, HashSet<string>> references,
-            IReadOnlyDictionary<string, HashSet<string>> predecessors)
+            IReadOnlyDictionary<string, HashSet<string>> references)
         {
             if (references.TryGetValue(node, out var nodeReferences))
             {
@@ -383,15 +379,13 @@ namespace Microsoft.TypeSpec.Generator
                 }
             }
 
-            if (predecessors.TryGetValue(node, out var owners))
+            foreach (var (source, sourceReferences) in references)
             {
-                foreach (var source in owners)
+                if (!string.Equals(source, node, StringComparison.Ordinal) &&
+                    candidates.Contains(source) &&
+                    sourceReferences.Contains(node))
                 {
-                    if (!string.Equals(source, node, StringComparison.Ordinal) &&
-                        candidates.Contains(source))
-                    {
-                        return true;
-                    }
+                    return true;
                 }
             }
 
@@ -407,26 +401,6 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             return clone;
-        }
-
-        internal static Dictionary<string, HashSet<string>> ReverseReferences(IReadOnlyDictionary<string, HashSet<string>> references)
-        {
-            var predecessors = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
-            foreach (var (owner, children) in references)
-            {
-                foreach (var child in children)
-                {
-                    if (!predecessors.TryGetValue(child, out var owners))
-                    {
-                        owners = new HashSet<string>(StringComparer.Ordinal);
-                        predecessors.Add(child, owners);
-                    }
-
-                    owners.Add(owner);
-                }
-            }
-
-            return predecessors;
         }
 
         private static void AddDerivedModelReferences(
