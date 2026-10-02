@@ -46,6 +46,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private FormattableString PublicCtorDescription => $"Initializes a new instance of {Name}.";
         private readonly InputClient _inputClient;
         internal InputClient InputClient => _inputClient;
+        protected override IReadOnlyList<MethodBodyStatement> BuildAttributes()
+            => CustomCodeView?.Attributes.Any(ExperimentalApiHelpers.IsExperimentalAttribute) == true
+                ? []
+                : ExperimentalApiHelpers.BuildAttributes(_inputClient.Experimental);
+
+        protected override SuppressionStatement[] BuildDisabledFileWarnings()
+            => ExperimentalApiHelpers.GetDependencySuppressions(_inputClient.Experimental);
+
         private readonly InputAuth? _inputAuth;
         private readonly ParameterProvider _endpointParameter;
         private readonly ParameterProvider _subClientEndpointParameter;
@@ -699,6 +707,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             "_" + p.Name.ToVariableName(),
                             this,
                             wireInfo: wireInfo);
+                        field.Update(suppressions: ExperimentalApiHelpers.GetReferenceSuppressions(p.Type));
                         fields.Add(field);
                     }
                 }
@@ -958,7 +967,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     attributes: [experimentalAttr],
                     initializer: new ConstructorInitializer(false, args)),
                 MethodBodyStatement.Empty,
-                this);
+                this,
+                suppressions: ExperimentalApiHelpers.MergeSuppressions(
+                    ClientSettings.EndpointProperty.Suppressions,
+                    ClientSettings.OtherRequiredParams.SelectMany(parameter => ExperimentalApiHelpers.GetReferenceSuppressions(parameter.InputParameter?.Type))));
 
             yield return settingsConstructor;
         }
@@ -1497,13 +1509,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 if (!originalSignatures.ContainsKey(method) && PreviousSignatureEndsWithCancellationToken(method.Signature))
                 {
-                    method.Update(suppressions:
+                    method.Update(suppressions: ExperimentalApiHelpers.MergeSuppressions(method.Suppressions,
                     [
                         new SuppressionStatement(
                             inner: null,
                             code: Literal("AZC0002"),
                             justification: "Back-compat overload preserves the previous method signature where CancellationToken was the trailing parameter. Making it optional would introduce an ambiguous call with the new method.")
-                    ]);
+                    ]));
                 }
             }
 

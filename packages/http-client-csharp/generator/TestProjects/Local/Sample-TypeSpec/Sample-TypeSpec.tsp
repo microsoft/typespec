@@ -4,6 +4,7 @@ import "@typespec/http/streams";
 import "@typespec/sse";
 import "@typespec/events";
 import "@typespec/xml";
+import "@typespec/http-client";
 import "@typespec/http-client-csharp";
 import "@azure-tools/typespec-client-generator-core";
 import "@azure-tools/typespec-azure-core";
@@ -41,7 +42,76 @@ alias SampleOAuth2 = OAuth2Auth<[
 
 enum Versions {
   `2024-07-16-preview`,
+
+  @TypeSpec.HttpClient.experimental(#{
+    emitterScope: "@typespec/http-client-csharp",
+    diagnosticId: "SAMPLE0010",
+  })
   `2024-08-16-preview`,
+}
+
+@TypeSpec.HttpClient.experimental(#{
+  emitterScope: "@typespec/http-client-csharp",
+  diagnosticId: "SAMPLE0003",
+  dependsOn: #["SAMPLE0004"],
+})
+model PreviewDetails {
+  choice: PreviewChoice;
+}
+
+@TypeSpec.HttpClient.experimental(#{
+  emitterScope: "@typespec/http-client-csharp",
+  diagnosticId: "SAMPLE0004",
+})
+enum PreviewChoice {
+  One: "one",
+
+  @TypeSpec.HttpClient.experimental(#{
+    emitterScope: "@typespec/http-client-csharp",
+    diagnosticId: "SAMPLE0007",
+  })
+  Two: "two",
+}
+
+@TypeSpec.HttpClient.experimental(#{
+  emitterScope: "@typespec/http-client-csharp",
+  diagnosticId: "SAMPLE0005",
+})
+union PreviewExtensibleChoice {
+  string,
+  One: "one",
+
+  @TypeSpec.HttpClient.experimental(#{
+    emitterScope: "@typespec/http-client-csharp",
+    diagnosticId: "SAMPLE0006",
+  })
+  Two: "two",
+}
+
+model LifecycleModel {
+  @TypeSpec.HttpClient.experimental(#{
+    emitterScope: "@typespec/http-client-csharp",
+    diagnosticId: "SAMPLE0008",
+    dependsOn: #["SAMPLE0003"],
+  })
+  preview?: PreviewDetails;
+
+  choice: PreviewExtensibleChoice;
+}
+
+@TypeSpec.HttpClient.experimental(#{
+  emitterScope: "@typespec/http-client-csharp",
+  diagnosticId: "SAMPLE0009",
+})
+interface ExperimentalSamples {
+  @route("/experimental")
+  @get
+  read(): LifecycleModel;
+
+  @route("/experimental/pages")
+  @get
+  @list
+  list(): Page<PreviewDetails>;
 }
 
 @doc("float fixed enum")
@@ -553,6 +623,10 @@ op noContentTypeOverride(info: Wrapper): RoundTripModel;
 @doc("Return hi in demo2")
 @get
 @convenientAPI(true, "csharp")
+@TypeSpec.HttpClient.experimental(#{
+  emitterScope: "@typespec/http-client-csharp",
+  diagnosticId: "SAMPLE0001",
+})
 op helloDemo2(): Thing;
 
 @route("/literal")
@@ -710,6 +784,11 @@ op EmbeddedParameters(@bodyRoot body: ModelWithEmbeddedNonBodyParameters): void;
 @route("dynamicModel")
 @doc("An operation with a dynamic model")
 @post
+@TypeSpec.HttpClient.experimental(#{
+  emitterScope: "@typespec/http-client-csharp",
+  diagnosticId: "SAMPLE0002",
+  dependsOn: #["SCME0001"],
+})
 op DynamicModelOperation(@body body: DynamicModel): void;
 
 @route("xmlAdvanced")
@@ -947,3 +1026,7 @@ op receiveJsonLines(): JsonlStream<StreamingItem>;
 @get
 @route("/streaming/sse/receive")
 op receiveSse(): SSEStream<SampleEvents>;
+
+@route("/experimental/jsonl")
+@get
+op receiveExperimentalJsonLines(): JsonlStream<PreviewDetails>;

@@ -74,7 +74,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     DocHelpers.GetFormattableDescription(inputValue.Summary, inputValue.Doc),
                     initializationValue);
 
-                values[i] = new EnumTypeMember(valueName, field, inputValue.Value);
+                values[i] = new EnumTypeMember(valueName, field, inputValue.Value) { Experimental = inputValue.Experimental };
             }
 
             return values;
@@ -101,7 +101,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     type: Type,
                     name: name,
                     body: new AutoPropertyBody(false, InitializationExpression: New.Instance(Type, field)),
-                    this);
+                    this,
+                    attributes: ExperimentalApiHelpers.BuildAttributes(enumValue.Experimental),
+                    suppressions: ExperimentalApiHelpers.GetDependencySuppressions(enumValue.Experimental));
             }
 
             return properties;
