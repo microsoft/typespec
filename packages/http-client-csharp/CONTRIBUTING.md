@@ -245,7 +245,10 @@ The original emitter directory is also restored after completion or failure. All
 restoration and staging work is outside the timer; staging must not overlap build, result or
 snapshot directories. In particular, the staging directory cannot contain the system temp
 directory where the snapshot is created. Unsafe placements are rejected before snapshot
-creation. The timed command includes
+creation. Staging equal to or above the SDK library is rejected; the installed emitter
+directory beneath the library is supported. Both E2E generator paths must select
+`Microsoft.TypeSpec.Generator.dll`, the fixed entry assembly executed by the emitter.
+The timed command includes
 TypeSpec compilation, emitter processing and C# generation. Both builds must use identical
 compiler, TypeScript emitter, external plugin and dependency versions. Never stage into
 a shared or main checkout. Installation and spec synchronization are setup, not timed work;

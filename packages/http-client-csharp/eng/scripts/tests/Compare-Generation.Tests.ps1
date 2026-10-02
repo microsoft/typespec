@@ -11,15 +11,19 @@ $global:compareGenerationTest = @{
     EmitterManifest = ''
 }
 
-function Get-EmitterManifest {
-    $files = @(Get-ChildItem $global:compareGenerationTest.Emitter -File -Recurse -Force |
+function Get-DirectoryManifest([string]$directory) {
+    $files = @(Get-ChildItem -LiteralPath $directory -File -Recurse -Force |
         Sort-Object FullName | ForEach-Object {
             [ordered]@{
-                path = [IO.Path]::GetRelativePath($global:compareGenerationTest.Emitter, $_.FullName)
+                path = [IO.Path]::GetRelativePath($directory, $_.FullName)
                 hash = (Get-FileHash -LiteralPath $_.FullName).Hash
             }
         })
     return ConvertTo-Json -InputObject $files -Compress
+}
+
+function Get-EmitterManifest {
+    return Get-DirectoryManifest $global:compareGenerationTest.Emitter
 }
 
 function Assert-EmitterRestored {
@@ -89,8 +93,13 @@ function New-Case([string]$name) {
     $global:compareGenerationTest.Scenario = $name
     $global:compareGenerationTest.Calls.Clear()
     $caseRoot = Join-Path $root "$name-$([Guid]::NewGuid())"
-    $script:library = Join-Path $caseRoot 'library'
-    $script:emitter = Join-Path $caseRoot 'emitter'
+    $script:library = Join-Path $caseRoot 'sdk' 'library'
+    $script:emitter = if ($name -eq 'end-to-end-library-emitter') {
+        Join-Path $library 'TempTypeSpecFiles' 'node_modules' 'emitter' 'dist' 'generator'
+    }
+    else {
+        Join-Path $caseRoot 'emitter'
+    }
     $global:compareGenerationTest.Library = $library
     $global:compareGenerationTest.Emitter = $emitter
     foreach ($directory in @(
@@ -159,25 +168,77 @@ function Assert-InvalidStaging([string]$scenario) {
         'results-child' { Join-Path $parameters.ResultDirectory 'staging' }
         'results-parent' { $emitter }
         'root' { [IO.Path]::GetPathRoot($emitter) }
+        'same-library' { $library }
+        'library-parent' { Split-Path $library }
+        'library-trailing' { "$library$([IO.Path]::DirectorySeparatorChar)" }
     }
     if ($scenario -eq 'results-parent') {
         $parameters.ResultDirectory = Join-Path $emitter 'results'
     }
     New-Item -ItemType Directory -Path $parameters.EmitterGeneratorDirectory -Force | Out-Null
     $originalBuildHash = (Get-FileHash -LiteralPath $parameters.BaselineGenerator).Hash
-    $message = if ($scenario -eq 'root') { 'cannot be a filesystem root' } else { 'must be separate' }
+    $originalLibrary = Get-DirectoryManifest $library
+    $message = if ($scenario -eq 'root') {
+        'cannot be a filesystem root'
+    }
+    elseif ($scenario -in @('same-library', 'library-parent', 'library-trailing')) {
+        'must not be the library directory or its ancestor'
+    }
+    else {
+        'must be separate'
+    }
+    function New-Item {
+        [CmdletBinding()]
+        param([string]$Path, [string]$ItemType, [switch]$Force)
+        if ((Split-Path -Leaf $Path) -like 'compare-generation-emitter-*') {
+            throw 'Snapshot creation was attempted before rejecting unsafe staging.'
+        }
+        Microsoft.PowerShell.Management\New-Item @PSBoundParameters
+    }
     try {
         & $compare @parameters | Out-Null
     }
     catch {
         if ($_.Exception.Message -notlike "*$message*" -or
             $global:compareGenerationTest.Calls.Count -ne 0 -or
-            (Get-FileHash -LiteralPath $parameters.BaselineGenerator).Hash -ne $originalBuildHash) {
+            (Get-FileHash -LiteralPath $parameters.BaselineGenerator).Hash -ne $originalBuildHash -or
+            (Get-DirectoryManifest $library) -cne $originalLibrary) {
             throw "Staging isolation failed for ${scenario}: $($_.Exception.Message)"
         }
         return
     }
     throw "Expected staging rejection for $scenario"
+}
+
+function Assert-InvalidEntry([string[]]$variants) {
+    $parameters = New-Case 'invalid-entry'
+    $parameters.EmitterGeneratorDirectory = $emitter
+    foreach ($variant in $variants) {
+        $parameter = "${variant}Generator"
+        $parameters[$parameter] = Join-Path (Split-Path $parameters[$parameter]) 'dependency.dll'
+    }
+    $originalLibrary = Get-DirectoryManifest $library
+    function New-Item {
+        [CmdletBinding()]
+        param([string]$Path, [string]$ItemType, [switch]$Force)
+        if ((Split-Path -Leaf $Path) -like 'compare-generation-emitter-*') {
+            throw 'Snapshot creation was attempted before validating the entry DLL.'
+        }
+        Microsoft.PowerShell.Management\New-Item @PSBoundParameters
+    }
+    try {
+        & $compare @parameters | Out-Null
+    }
+    catch {
+        if ($_.Exception.Message -notlike '*E2E generator must be Microsoft.TypeSpec.Generator.dll*' -or
+            $global:compareGenerationTest.Calls.Count -ne 0 -or
+            (Get-DirectoryManifest $library) -cne $originalLibrary) {
+            throw "Entry DLL validation failed: $($_.Exception.Message)"
+        }
+        Assert-EmitterRestored
+        return
+    }
+    throw 'Expected non-entry DLL rejection.'
 }
 
 function Assert-SnapshotPlacement([string]$scenario, [bool]$reject) {
@@ -264,6 +325,22 @@ try {
         }
     }
 
+    $parameters = New-Case 'generator-renamed'
+    $parameters.GeneratorName = 'TestGenerator'
+    foreach ($variant in @('Baseline', 'Candidate')) {
+        $parameter = "${variant}Generator"
+        $renamed = Join-Path (Split-Path $parameters[$parameter]) 'runner.dll'
+        Copy-Item -LiteralPath $parameters[$parameter] -Destination $renamed
+        $parameters[$parameter] = $renamed
+    }
+    & $compare @parameters | Out-Null
+    $results = Get-Content -Raw (Join-Path $parameters.ResultDirectory 'results.json') | ConvertFrom-Json
+    if ($results.measurement -ne 'csharp-generation' -or
+        $results.results[0].generator -ne $parameters.BaselineGenerator -or
+        $results.results[1].generator -ne $parameters.CandidateGenerator) {
+        throw 'Saved-input mode no longer accepts a renamed generator entry.'
+    }
+
     $parameters = New-Case 'defaults'
     $parameters.GeneratorName = 'TestGenerator'
     $parameters.Remove('Iterations')
@@ -279,16 +356,18 @@ try {
         }
     }
 
-    $parameters = New-Case 'end-to-end'
-    $parameters.EmitterGeneratorDirectory = $emitter
-    & $compare @parameters | Out-Null
-    Assert-EmitterRestored
-    $results = Get-Content -Raw (Join-Path $parameters.ResultDirectory 'results.json') | ConvertFrom-Json
-    if ($results.measurement -ne 'typespec-to-csharp' -or
-        ($global:compareGenerationTest.Calls -join ',') -ne 'baseline,candidate,candidate,baseline,baseline,candidate' -or
-        (Get-Content -Raw (Join-Path $emitter 'plugin.dll')).Trim() -ne 'same external plugin' -or
-        $results.results[0].samples[0].stages.'All files have been written to disk' -ne 1) {
-        throw 'E2E mode did not stage the correct binaries, preserve plugins or capture trace stages.'
+    foreach ($scenario in @('end-to-end', 'end-to-end-library-emitter')) {
+        $parameters = New-Case $scenario
+        $parameters.EmitterGeneratorDirectory = $emitter
+        & $compare @parameters | Out-Null
+        Assert-EmitterRestored
+        $results = Get-Content -Raw (Join-Path $parameters.ResultDirectory 'results.json') | ConvertFrom-Json
+        if ($results.measurement -ne 'typespec-to-csharp' -or
+            ($global:compareGenerationTest.Calls -join ',') -ne 'baseline,candidate,candidate,baseline,baseline,candidate' -or
+            (Get-Content -Raw (Join-Path $emitter 'plugin.dll')).Trim() -ne 'same external plugin' -or
+            $results.results[0].samples[0].stages.'All files have been written to disk' -ne 1) {
+            throw 'E2E mode did not stage the correct binaries, preserve plugins or capture trace stages.'
+        }
     }
 
     Assert-Failure 'exit' 'Generation failed (7)'
@@ -301,15 +380,19 @@ try {
     Assert-Failure 'empty' 'No generated files found' $true
     Assert-Failure 'output' 'Generated output differs' $true
     Assert-Failure 'input' 'Saved generator inputs changed' $true
-    foreach ($scenario in @('same-build', 'build-parent', 'build-child', 'same-results', 'results-parent', 'results-child', 'root')) {
+    foreach ($scenario in @('same-build', 'build-parent', 'build-child', 'same-results', 'results-parent', 'results-child', 'root',
+            'same-library', 'library-parent', 'library-trailing')) {
         Assert-InvalidStaging $scenario
     }
+    Assert-InvalidEntry @('Baseline')
+    Assert-InvalidEntry @('Candidate')
+    Assert-InvalidEntry @('Baseline', 'Candidate')
     foreach ($scenario in @('snapshot-same', 'snapshot-child', 'snapshot-trailing')) {
         Assert-SnapshotPlacement $scenario $true
     }
     Assert-SnapshotPlacement 'snapshot-sibling' $false
     Assert-SnapshotPlacement 'snapshot-create-failure' $false
-    Write-Output 'Compare-Generation tests passed (generator/E2E modes, staging/snapshot isolation, restoration, medians and twenty-one failure cases).'
+    Write-Output 'Compare-Generation tests passed (generator/E2E modes, entry/staging/snapshot isolation, restoration, medians and twenty-seven failure cases).'
 }
 finally {
     Remove-Variable -Name compareGenerationTest -Scope Global

@@ -32,9 +32,15 @@ $generators = [ordered]@{
     baseline = (Resolve-Path $BaselineGenerator).Path
     candidate = (Resolve-Path $CandidateGenerator).Path
 }
-$LibraryDirectory = (Resolve-Path $LibraryDirectory).Path
+$LibraryDirectory = [IO.Path]::TrimEndingDirectorySeparator((Resolve-Path $LibraryDirectory).Path)
 $endToEnd = $PSCmdlet.ParameterSetName -eq 'EndToEnd'
 if ($endToEnd) {
+    $entryDll = 'Microsoft.TypeSpec.Generator.dll'
+    foreach ($generator in $generators.Values) {
+        if ([IO.Path]::GetFileName($generator) -cne $entryDll) {
+            throw "E2E generator must be Microsoft.TypeSpec.Generator.dll: $generator"
+        }
+    }
     $EmitterGeneratorDirectory = [IO.Path]::TrimEndingDirectorySeparator((Resolve-Path $EmitterGeneratorDirectory).Path)
 }
 $generatedDirectory = Join-Path $LibraryDirectory 'src' 'Generated'
@@ -55,14 +61,18 @@ if ($endToEnd) {
     $emitterSnapshot = [IO.Path]::GetFullPath(
         (Join-Path ([IO.Path]::GetTempPath()) "compare-generation-emitter-$([Guid]::NewGuid())"))
     $buildDirectories = @($generators.Values | ForEach-Object { [IO.Path]::GetDirectoryName($_) })
+    $separator = [IO.Path]::DirectorySeparatorChar
     foreach ($directory in ($buildDirectories + $ResultDirectory + $emitterSnapshot)) {
         $directory = [IO.Path]::TrimEndingDirectorySeparator($directory)
-        $separator = [IO.Path]::DirectorySeparatorChar
         if ($directory -eq $EmitterGeneratorDirectory -or
             $directory.StartsWith("$EmitterGeneratorDirectory$separator", [StringComparison]::OrdinalIgnoreCase) -or
             $EmitterGeneratorDirectory.StartsWith("$directory$separator", [StringComparison]::OrdinalIgnoreCase)) {
             throw 'Emitter staging directory must be separate from generator builds, results and the snapshot directory.'
         }
+    }
+    if ($EmitterGeneratorDirectory -eq $LibraryDirectory -or
+        $LibraryDirectory.StartsWith("$EmitterGeneratorDirectory$separator", [StringComparison]::OrdinalIgnoreCase)) {
+        throw 'Emitter staging directory must not be the library directory or its ancestor.'
     }
 }
 
@@ -92,7 +102,7 @@ try {
                 Restore-EmitterDirectory
                 Get-ChildItem ([IO.Path]::GetDirectoryName($generators[$variant])) -Force |
                     Copy-Item -Destination $EmitterGeneratorDirectory -Recurse -Force
-                $stagedGenerator = Join-Path $EmitterGeneratorDirectory ([IO.Path]::GetFileName($generators[$variant]))
+                $stagedGenerator = Join-Path $EmitterGeneratorDirectory $entryDll
                 if ((Get-FileHash $stagedGenerator).Hash -ne (Get-FileHash $generators[$variant]).Hash) {
                     throw "Staged generator does not match $variant build."
                 }
