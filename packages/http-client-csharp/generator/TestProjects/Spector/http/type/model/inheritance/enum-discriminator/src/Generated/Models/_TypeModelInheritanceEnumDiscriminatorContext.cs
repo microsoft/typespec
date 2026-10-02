@@ -10,6 +10,8 @@ namespace _Type.Model.Inheritance.EnumDiscriminator
     [ModelReaderWriterBuildable(typeof(Dog))]
     [ModelReaderWriterBuildable(typeof(Golden))]
     [ModelReaderWriterBuildable(typeof(Snake))]
+    [ModelReaderWriterBuildable(typeof(UnknownDog))]
+    [ModelReaderWriterBuildable(typeof(UnknownSnake))]
     public partial class _TypeModelInheritanceEnumDiscriminatorContext : ModelReaderWriterContext
     {
     }
