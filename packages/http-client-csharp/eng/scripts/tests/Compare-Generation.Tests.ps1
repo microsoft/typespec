@@ -180,6 +180,72 @@ function Assert-InvalidStaging([string]$scenario) {
     throw "Expected staging rejection for $scenario"
 }
 
+function Assert-SnapshotPlacement([string]$scenario, [bool]$reject) {
+    $parameters = New-Case $scenario
+    $parameters.EmitterGeneratorDirectory = $emitter
+    $temporaryDirectory = switch ($scenario) {
+        'snapshot-same' { $emitter }
+        'snapshot-child' { Join-Path $emitter 'temp' }
+        'snapshot-trailing' { "$(Join-Path $emitter 'temp')$([IO.Path]::DirectorySeparatorChar)" }
+        'snapshot-sibling' { "$emitter-temp" }
+        'snapshot-create-failure' { "$emitter-temp" }
+    }
+    if ($scenario -eq 'snapshot-trailing') {
+        $parameters.EmitterGeneratorDirectory += [IO.Path]::DirectorySeparatorChar
+    }
+    New-Item -ItemType Directory -Path $temporaryDirectory -Force | Out-Null
+    $sentinel = Join-Path $temporaryDirectory 'sentinel.txt'
+    Set-Content -LiteralPath $sentinel 'retain temporary contents'
+    $global:compareGenerationTest.EmitterManifest = Get-EmitterManifest
+    $originalEnvironment = @{}
+    function New-Item {
+        [CmdletBinding()]
+        param([string]$Path, [string]$ItemType, [switch]$Force)
+        if ($reject -and (Split-Path -Leaf $Path) -like 'compare-generation-emitter-*') {
+            throw 'Unsafe snapshot creation was attempted.'
+        }
+        if ($scenario -eq 'snapshot-create-failure' -and (Split-Path -Leaf $Path) -like 'compare-generation-emitter-*') {
+            throw 'Snapshot creation failed for test.'
+        }
+        Microsoft.PowerShell.Management\New-Item @PSBoundParameters
+    }
+    try {
+        foreach ($name in @('TEMP', 'TMP', 'TMPDIR')) {
+            $originalEnvironment[$name] = [Environment]::GetEnvironmentVariable($name)
+            [Environment]::SetEnvironmentVariable($name, $temporaryDirectory)
+        }
+        if ([IO.Path]::TrimEndingDirectorySeparator([IO.Path]::GetTempPath()) -ne
+            [IO.Path]::TrimEndingDirectorySeparator($temporaryDirectory)) {
+            throw 'Snapshot placement test did not use its isolated temporary directory.'
+        }
+        $rejected = $false
+        $expectedFailure = $reject -or $scenario -eq 'snapshot-create-failure'
+        $expectedMessage = if ($reject) { '*must be separate*' } else { '*Snapshot creation failed for test.*' }
+        try {
+            & $compare @parameters | Out-Null
+        }
+        catch {
+            if (-not $expectedFailure -or $_.Exception.Message -notlike $expectedMessage) {
+                throw "Unexpected snapshot placement failure for ${scenario}: $($_.Exception.Message)"
+            }
+            $rejected = $true
+        }
+        if ($expectedFailure -and (-not $rejected -or $global:compareGenerationTest.Calls.Count -ne 0)) {
+            throw "Snapshot placement failure was not reported before generation: $scenario"
+        }
+        Assert-EmitterRestored
+        if ((Get-Content -LiteralPath $sentinel -Raw).Trim() -ne 'retain temporary contents' -or
+            @(Get-ChildItem -LiteralPath $temporaryDirectory -Directory -Filter 'compare-generation-emitter-*').Count -ne 0) {
+            throw "Snapshot placement changed temporary contents or leaked a snapshot: $scenario"
+        }
+    }
+    finally {
+        foreach ($name in $originalEnvironment.Keys) {
+            [Environment]::SetEnvironmentVariable($name, $originalEnvironment[$name])
+        }
+    }
+}
+
 try {
     $parameters = New-Case 'generator'
     $parameters.GeneratorName = 'TestGenerator'
@@ -238,7 +304,12 @@ try {
     foreach ($scenario in @('same-build', 'build-parent', 'build-child', 'same-results', 'results-parent', 'results-child', 'root')) {
         Assert-InvalidStaging $scenario
     }
-    Write-Output 'Compare-Generation tests passed (generator/E2E modes, asymmetric staging, restoration, medians and seventeen failure cases).'
+    foreach ($scenario in @('snapshot-same', 'snapshot-child', 'snapshot-trailing')) {
+        Assert-SnapshotPlacement $scenario $true
+    }
+    Assert-SnapshotPlacement 'snapshot-sibling' $false
+    Assert-SnapshotPlacement 'snapshot-create-failure' $false
+    Write-Output 'Compare-Generation tests passed (generator/E2E modes, staging/snapshot isolation, restoration, medians and twenty-one failure cases).'
 }
 finally {
     Remove-Variable -Name compareGenerationTest -Scope Global

@@ -242,8 +242,10 @@ This mode snapshots the isolated emitter's pristine directory, restores it befor
 each build's complete directory, then runs `tsp-client generate --skip-install --save-inputs`.
 Restoring preserves external plugins without retaining files from the preceding build.
 The original emitter directory is also restored after completion or failure. All snapshot,
-restoration and staging work is outside the timer; staging must not overlap build or result
-directories. The timed command includes
+restoration and staging work is outside the timer; staging must not overlap build, result or
+snapshot directories. In particular, the staging directory cannot contain the system temp
+directory where the snapshot is created. Unsafe placements are rejected before snapshot
+creation. The timed command includes
 TypeSpec compilation, emitter processing and C# generation. Both builds must use identical
 compiler, TypeScript emitter, external plugin and dependency versions. Never stage into
 a shared or main checkout. Installation and spec synchronization are setup, not timed work;

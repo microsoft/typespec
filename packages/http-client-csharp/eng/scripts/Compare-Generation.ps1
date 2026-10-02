@@ -35,7 +35,7 @@ $generators = [ordered]@{
 $LibraryDirectory = (Resolve-Path $LibraryDirectory).Path
 $endToEnd = $PSCmdlet.ParameterSetName -eq 'EndToEnd'
 if ($endToEnd) {
-    $EmitterGeneratorDirectory = (Resolve-Path $EmitterGeneratorDirectory).Path
+    $EmitterGeneratorDirectory = [IO.Path]::TrimEndingDirectorySeparator((Resolve-Path $EmitterGeneratorDirectory).Path)
 }
 $generatedDirectory = Join-Path $LibraryDirectory 'src' 'Generated'
 $inputFiles = @('tspCodeModel.json', 'Configuration.json')
@@ -46,18 +46,22 @@ New-Item -ItemType Directory -Path $ResultDirectory -Force | Out-Null
 $ResultDirectory = (Resolve-Path $ResultDirectory).Path
 $samples = @{ baseline = @(); candidate = @() }
 $expected = $null
+$emitterSnapshot = $null
 
 if ($endToEnd) {
     if ($EmitterGeneratorDirectory -eq [IO.Path]::GetPathRoot($EmitterGeneratorDirectory)) {
         throw 'Emitter staging directory cannot be a filesystem root.'
     }
+    $emitterSnapshot = [IO.Path]::GetFullPath(
+        (Join-Path ([IO.Path]::GetTempPath()) "compare-generation-emitter-$([Guid]::NewGuid())"))
     $buildDirectories = @($generators.Values | ForEach-Object { [IO.Path]::GetDirectoryName($_) })
-    foreach ($directory in ($buildDirectories + $ResultDirectory)) {
+    foreach ($directory in ($buildDirectories + $ResultDirectory + $emitterSnapshot)) {
+        $directory = [IO.Path]::TrimEndingDirectorySeparator($directory)
         $separator = [IO.Path]::DirectorySeparatorChar
         if ($directory -eq $EmitterGeneratorDirectory -or
             $directory.StartsWith("$EmitterGeneratorDirectory$separator", [StringComparison]::OrdinalIgnoreCase) -or
             $EmitterGeneratorDirectory.StartsWith("$directory$separator", [StringComparison]::OrdinalIgnoreCase)) {
-            throw 'Emitter staging directory must be separate from generator builds and results.'
+            throw 'Emitter staging directory must be separate from generator builds, results and the snapshot directory.'
         }
     }
 }
@@ -70,12 +74,12 @@ function Restore-EmitterDirectory {
         Copy-Item -Destination $EmitterGeneratorDirectory -Recurse -Force
 }
 
-$emitterSnapshot = $null
+$snapshotCreated = $false
 $snapshotReady = $false
 try {
     if ($endToEnd) {
-        $emitterSnapshot = Join-Path ([IO.Path]::GetTempPath()) "compare-generation-emitter-$([Guid]::NewGuid())"
         New-Item -ItemType Directory -Path $emitterSnapshot | Out-Null
+        $snapshotCreated = $true
         Get-ChildItem -LiteralPath $EmitterGeneratorDirectory -Force |
             Copy-Item -Destination $emitterSnapshot -Recurse -Force
         $snapshotReady = $true
@@ -161,7 +165,7 @@ try {
     }
 }
 finally {
-    if ($emitterSnapshot) {
+    if ($snapshotCreated) {
         if ($snapshotReady) {
             Restore-EmitterDirectory
         }
