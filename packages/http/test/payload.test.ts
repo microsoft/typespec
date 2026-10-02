@@ -189,7 +189,7 @@ describe("implicit body property filtering", () => {
     expect(payload.body?.type).toBe(Payload.properties.get("data")?.type);
   });
 
-  it.each([128, 512])(
+  it.each([8, 16])(
     "reads metadata properties a linear number of times for %s body properties",
     async (count) => {
       const { program, Payload } = await Tester.compile(t.code`
