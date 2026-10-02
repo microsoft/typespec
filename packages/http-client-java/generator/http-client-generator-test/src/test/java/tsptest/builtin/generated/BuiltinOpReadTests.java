@@ -4,6 +4,7 @@
 
 package tsptest.builtin.generated;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
@@ -17,7 +18,8 @@ public final class BuiltinOpReadTests extends BuiltinClientTestBase {
     @Disabled
     public void testBuiltinOpReadTests() {
         // method invocation
-        Builtin response = builtinClient.read(null, null, null, "myFilter", null, null);
+        Builtin response = builtinClient.read((String) null, (String) null, (OffsetDateTime) null, "myFilter",
+            (String) null, (String) null);
 
         // response assertion
         Assertions.assertNotNull(response);

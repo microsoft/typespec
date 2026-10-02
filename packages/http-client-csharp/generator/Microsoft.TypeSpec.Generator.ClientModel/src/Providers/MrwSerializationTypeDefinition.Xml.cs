@@ -512,7 +512,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             var isDefinedCondition = prop.PropertyType is { IsCollection: true, IsReadOnlyMemory: false }
-                ? OptionalSnippets.IsCollectionDefined(prop.SerializationExp)
+                ? OptionalSnippets.IsCollectionDefined(prop.SerializationExp, prop.PropertyType)
                 : OptionalSnippets.IsDefined(prop.SerializationExp);
 
             return new IfStatement(isDefinedCondition)

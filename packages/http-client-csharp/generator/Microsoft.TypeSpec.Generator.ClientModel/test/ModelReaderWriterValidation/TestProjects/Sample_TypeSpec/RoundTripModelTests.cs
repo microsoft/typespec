@@ -1,9 +1,12 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.ClientModel;
+using System.ClientModel.Primitives;
 using System.IO;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
 using SampleTypeSpec;
@@ -16,6 +19,92 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.ModelReaderWriterValida
         protected override string WirePayload => File.ReadAllText(ModelTestHelper.GetLocation("TestData/RoundTripModel/RoundTripModelWireFormat.json"));
         protected override RoundTripModel ToModel(ClientResult result) => (RoundTripModel)result;
         protected override BinaryContent ToBinaryContent(RoundTripModel model) => model;
+
+        [TestCase("J")]
+        [TestCase("W")]
+        public void OmittedRequiredCollectionsAreMutable(string format)
+        {
+            var options = new ModelReaderWriterOptions(format);
+            var model = ModelReaderWriter.Read<RoundTripModel>(CreateCollectionPayload(true), options, SampleTypeSpecContext.Default)!;
+
+            Assert.That(model.RequiredCollection, Is.Not.Null.And.Empty);
+            Assert.That(model.RequiredDictionary, Is.Not.Null.And.Empty);
+            Assert.That(model.RequiredRecordUnknown, Is.Not.Null.And.Empty);
+            Assert.That(model.ReadOnlyRequiredRecordUnknown, Is.Not.Null.And.Empty);
+
+            model.RequiredCollection.Add(StringFixedEnum.One);
+            model.RequiredDictionary.Add("key", new StringExtensibleEnum("value"));
+            model.RequiredRecordUnknown.Add("key", BinaryData.FromString("\"value\""));
+            model.IntExtensibleEnumCollection.Add(new IntExtensibleEnum(1));
+            model.OptionalRecordUnknown.Add("key", BinaryData.FromString("\"value\""));
+
+            var roundTripped = ModelReaderWriter.Read<RoundTripModel>(
+                ModelReaderWriter.Write(model, options, SampleTypeSpecContext.Default), options, SampleTypeSpecContext.Default)!;
+            Assert.That(roundTripped.RequiredCollection, Is.EqualTo(new[] { StringFixedEnum.One }));
+            Assert.That(roundTripped.RequiredDictionary["key"], Is.EqualTo(new StringExtensibleEnum("value")));
+            Assert.That(roundTripped.RequiredRecordUnknown["key"].ToString(), Is.EqualTo("\"value\""));
+            Assert.That(roundTripped.IntExtensibleEnumCollection, Is.EqualTo(new[] { new IntExtensibleEnum(1) }));
+            Assert.That(roundTripped.OptionalRecordUnknown["key"].ToString(), Is.EqualTo("\"value\""));
+        }
+
+        [Test]
+        public void RequiredCollectionsRoundTripWithoutAccess(
+            [Values("J", "W")] string format,
+            [Values(true, false)] bool omitted)
+        {
+            var options = new ModelReaderWriterOptions(format);
+            var model = ModelReaderWriter.Read<RoundTripModel>(CreateCollectionPayload(omitted), options, SampleTypeSpecContext.Default)!;
+            var data = ModelReaderWriter.Write(model, options, SampleTypeSpecContext.Default);
+
+            using var document = JsonDocument.Parse(data);
+            var json = document.RootElement;
+            Assert.That(json.GetProperty("requiredCollection").GetArrayLength(), Is.Zero);
+            Assert.That(json.GetProperty("requiredDictionary").EnumerateObject(), Is.Empty);
+            Assert.That(json.GetProperty("requiredRecordUnknown").EnumerateObject(), Is.Empty);
+            if (format == "J")
+            {
+                Assert.That(json.GetProperty("readOnlyRequiredRecordUnknown").EnumerateObject(), Is.Empty);
+            }
+            else
+            {
+                Assert.That(json.TryGetProperty("readOnlyRequiredRecordUnknown", out _), Is.False);
+            }
+            Assert.That(json.TryGetProperty("intExtensibleEnumCollection", out _), Is.False);
+            Assert.That(json.TryGetProperty("optionalRecordUnknown", out _), Is.False);
+            Assert.That(json.TryGetProperty("readOnlyOptionalRecordUnknown", out _), Is.False);
+        }
+
+        [Test]
+        public void RequiredCollectionsRejectExplicitNull(
+            [Values("J", "W")] string format,
+            [Values("requiredCollection", "requiredDictionary", "requiredRecordUnknown", "readOnlyRequiredRecordUnknown")] string propertyName)
+        {
+            var payload = JsonNode.Parse(JsonPayload)!.AsObject();
+            payload[propertyName] = null;
+
+            Assert.Throws<InvalidOperationException>(() => ModelReaderWriter.Read<RoundTripModel>(
+                BinaryData.FromString(payload.ToJsonString()), new ModelReaderWriterOptions(format), SampleTypeSpecContext.Default));
+        }
+
+        private BinaryData CreateCollectionPayload(bool omitted)
+        {
+            var payload = JsonNode.Parse(JsonPayload)!.AsObject();
+            foreach (var propertyName in new[] { "requiredCollection", "requiredDictionary", "requiredRecordUnknown", "readOnlyRequiredRecordUnknown" })
+            {
+                if (omitted)
+                {
+                    payload.Remove(propertyName);
+                }
+                else
+                {
+                    payload[propertyName] = propertyName == "requiredCollection" ? new JsonArray() : new JsonObject();
+                }
+            }
+            payload.Remove("intExtensibleEnumCollection");
+            payload.Remove("optionalRecordUnknown");
+            payload.Remove("readOnlyOptionalRecordUnknown");
+            return BinaryData.FromString(payload.ToJsonString());
+        }
 
         protected override void CompareModels(RoundTripModel model, RoundTripModel model2, string format)
         {

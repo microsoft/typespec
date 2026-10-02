@@ -49,7 +49,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             (HashSet<CSharpType> buildableTypes, HashSet<TypeProvider> buildableProviders) = CollectBuildableTypes();
             foreach (var type in buildableTypes)
             {
-                if (customizedBuildableTypes.Contains(GetTypeIdentity(type)))
+                if (!type.FrameworkType.IsVisible || customizedBuildableTypes.Contains(GetTypeIdentity(type)))
                 {
                     continue;
                 }
@@ -68,7 +68,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
             foreach (var provider in buildableProviders)
             {
-                if (!ShouldWriteProvider(provider) || customizedBuildableTypes.Contains(GetTypeIdentity(provider.Type)))
+                if (!IsPublicApi(provider)
+                    || !ShouldWriteProvider(provider)
+                    || customizedBuildableTypes.Contains(GetTypeIdentity(provider.Type)))
                 {
                     continue;
                 }
@@ -85,6 +87,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             // Sort by the simple type name (last part after the last dot) instead of the fully qualified name
             return attributes.OrderBy(a => GetSimpleTypeName(a.Key)).Select(kvp => kvp.Value).ToList();
+        }
+
+        // Protected-only providers can also have the Public flag added by TypeProvider.
+        private static bool IsPublicApi(TypeProvider provider)
+        {
+            var modifiers = provider.DeclarationModifiers;
+            if (modifiers.HasFlag(TypeSignatureModifiers.Protected))
+            {
+                return modifiers.HasFlag(TypeSignatureModifiers.Internal)
+                    && !modifiers.HasFlag(TypeSignatureModifiers.Private);
+            }
+
+            return modifiers.HasFlag(TypeSignatureModifiers.Public);
         }
 
         protected override IReadOnlyList<MethodBodyStatement> BuildAttributesForBackCompatibility(IReadOnlyList<MethodBodyStatement> originalAttributes)
