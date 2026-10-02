@@ -1,5 +1,7 @@
+import { collectSuppressions } from "../ast/suppressions.js";
 import type { DiagnosticCodeResolver } from "./diagnostic-code.js";
 import { defineCodeFix, getSourceLocation } from "./diagnostics.js";
+import { parseDirective } from "./directives.js";
 import { builtInLinterLibraryName } from "./linter.js";
 import { compilerDiagnosticCodes } from "./messages.js";
 import { visitChildren } from "./parser.js";
@@ -11,7 +13,6 @@ import type {
   Node,
   SuppressDirective,
 } from "./types.js";
-import { SyntaxKind } from "./types.js";
 
 export interface UnusedSuppression {
   directive: SuppressDirective;
@@ -36,7 +37,7 @@ export function createSuppressionTracker(
   sourceResolution: SourceResolution,
   codeResolver?: DiagnosticCodeResolver,
 ): SuppressionTracker {
-  const suppressions = collectSuppressions(sourceResolution);
+  const suppressions = collectProjectSuppressions(sourceResolution);
 
   return {
     markUsed(directiveNode) {
@@ -146,7 +147,7 @@ interface SuppressionRecord {
   used: boolean;
 }
 
-function collectSuppressions(
+function collectProjectSuppressions(
   sourceResolution: SourceResolution,
 ): Map<DirectiveExpressionNode, SuppressionRecord> {
   const suppressions = new Map<DirectiveExpressionNode, SuppressionRecord>();
@@ -155,21 +156,12 @@ function collectSuppressions(
       continue;
     }
 
-    visit(script);
+    for (const { directive } of collectSuppressions(script)) {
+      suppressions.set(directive.node, { directive, used: false });
+    }
   }
 
   return suppressions;
-
-  function visit(node: Node) {
-    for (const directiveNode of node.directives ?? []) {
-      const directive = parseDirective(directiveNode);
-      if (directive?.name === "suppress") {
-        suppressions.set(directive.node, { directive, used: false });
-      }
-    }
-
-    visitChildren(node, visit);
-  }
 }
 
 function resolveCode(codeResolver: DiagnosticCodeResolver | undefined, code: string): string {
@@ -239,26 +231,6 @@ export function findDirectiveSuppressingCode(
     }
   }
   return undefined;
-}
-
-export function parseDirective(node: DirectiveExpressionNode): Directive | undefined {
-  const args = node.arguments.map((x) => {
-    return x.kind === SyntaxKind.Identifier ? x.sv : x.value;
-  });
-  switch (node.target.sv) {
-    case "suppress":
-      if (typeof args[0] !== "string") {
-        return undefined;
-      }
-      return { name: "suppress", code: args[0], message: args[1] ?? "", node };
-    case "deprecated":
-      if (typeof args[0] !== "string") {
-        return undefined;
-      }
-      return { name: "deprecated", message: args[0], node };
-    default:
-      return undefined;
-  }
 }
 
 export function createRemoveUnusedSuppressionCodeFix(node: DirectiveExpressionNode): CodeFix {

@@ -1,11 +1,51 @@
-import { strictEqual } from "assert";
+import { deepStrictEqual, strictEqual } from "assert";
 import { it } from "vitest";
-import { SyntaxKind } from "../src/ast/index.js";
+import { collectSuppressions, parse, SyntaxKind } from "../src/ast/index.js";
 import { navigateProgram } from "../src/core/semantic-walker.js";
-import { createRemoveUnusedSuppressionCodeFix } from "../src/core/suppression-tracking.js";
+import type { SourceResolution } from "../src/core/source-loader.js";
+import {
+  createRemoveUnusedSuppressionCodeFix,
+  createSuppressionTracker,
+} from "../src/core/suppression-tracking.js";
+import { createSourceFile } from "../src/index.js";
 import { expectCodeFixOnAst } from "../src/testing/code-fix-testing.js";
 import { expectDiagnosticEmpty, expectDiagnostics } from "../src/testing/index.js";
 import { Tester } from "./tester.js";
+
+it("tracks the collected directive identities while filtering non-project sources", () => {
+  const text = `namespace Outer {
+    #suppress "deprecated" "first"
+    #suppress "deprecated" "second"
+    namespace A.B {}
+  }`;
+  const project = parse(createSourceFile(text, "main.tsp"));
+  const dependency = parse(createSourceFile(text, "library.tsp"));
+  const resolution: SourceResolution = {
+    sourceFiles: new Map([
+      [project.file.path, project],
+      [dependency.file.path, dependency],
+    ]),
+    jsSourceFiles: new Map(),
+    locationContexts: new WeakMap(),
+    loadedLibraries: new Map(),
+    externals: [],
+    diagnostics: [],
+  };
+  resolution.locationContexts.set(project.file, { type: "project" });
+  resolution.locationContexts.set(dependency.file, { type: "compiler" });
+  const tracker = createSuppressionTracker(resolution);
+  const collected = collectSuppressions(project);
+  strictEqual(collectSuppressions(dependency).length, 2);
+  deepStrictEqual(
+    tracker.getUnusedSuppressions().map(({ directive }) => directive.node),
+    collected.map(({ directive }) => directive.node),
+  );
+  tracker.markUsed(collected[0].directive.node);
+  deepStrictEqual(
+    tracker.getUnusedSuppressions().map(({ directive }) => directive.node),
+    [collected[1].directive.node],
+  );
+});
 
 async function run(typespec: string) {
   const { program } = await Tester.compile(typespec, {

@@ -447,6 +447,30 @@ linter:
 
 If two loaded libraries would resolve to the same short name, that short name is ambiguous: using it reports a warning and the entry is skipped, so the full name must be used for those libraries.
 
+#### Inspecting local rule disables
+
+Tools can inspect disables in one configuration file without compiling a project:
+
+```ts
+import { collectLinterDisables, createSourceFile } from "@typespec/compiler";
+
+const [disables, diagnostics] = collectLinterDisables(createSourceFile(text, "tspconfig.yaml"));
+if (disables === undefined) {
+  throw new Error(diagnostics.map((diagnostic) => diagnostic.message).join("\n"));
+}
+
+for (const { code, message, location } of disables) {
+  console.log(code, message);
+  console.log(location.file.path, location.file.getLineAndCharacterOfPosition(location.pos));
+}
+```
+
+`collectLinterDisables` returns each written rule code, its string justification, and the source range of its YAML key, in source order. Same-file YAML aliases are supported; an aliased mapping retains the original keys' locations. Line and character positions are zero-based.
+
+The API reads only `linter.disable`. It does not follow configuration or ruleset `extends`, count `enable: false`, resolve rule aliases, or validate unrelated settings. It reports syntax and relevant configuration errors through diagnostics and returns `undefined` instead of a partial inventory. Missing or empty optional sections produce an empty list; warnings can accompany a successful result.
+
+This is an inventory of local declarations, not the effective linter configuration. Use [`collectSuppressions`](../../language-basics/directives.md#suppress) from `@typespec/compiler/ast` for inline directives.
+
 #### Configuring rule options
 
 Some rules accept options to customize their behavior. To pass options, use an object instead of `true` when enabling the rule:
