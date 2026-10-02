@@ -2,10 +2,8 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Xml;
 using System.Xml.Linq;
@@ -22,8 +20,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
 {
     internal sealed class NamedTypeSymbolProvider : TypeProvider
     {
-        // Semantic models retain their compilation, so scope the cache with a weak compilation key.
-        private static readonly ConditionalWeakTable<Compilation, ConcurrentDictionary<SyntaxTree, SemanticModel>> _semanticModels = new();
         private INamedTypeSymbol _namedTypeSymbol;
         private readonly Compilation _compilation;
         private string? _metadataName;
@@ -35,10 +31,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _namedTypeSymbol = namedTypeSymbol;
             _compilation = compilation;
         }
-
-        internal SemanticModel GetSemanticModel(SyntaxTree tree) =>
-            _semanticModels.GetValue(_compilation, static _ => new())
-                .GetOrAdd(tree, static (tree, compilation) => compilation.GetSemanticModel(tree), _compilation);
 
         internal string MetadataName
         {
@@ -232,7 +224,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
 
                 // Get the semantic model to evaluate constant values
-                var semanticModel = GetSemanticModel(propertySyntax.SyntaxTree);
+                var semanticModel = _compilation.GetSemanticModel(propertySyntax.SyntaxTree);
                 // Check if this is an enum member access
                 var symbolInfo = semanticModel.GetSymbolInfo(initializerValue);
                 if (symbolInfo.Symbol is IFieldSymbol fieldSymbol
@@ -393,7 +385,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     continue;
                 }
 
-                var semanticModel = GetSemanticModel(typeDeclaration.SyntaxTree);
+                var semanticModel = _compilation.GetSemanticModel(typeDeclaration.SyntaxTree);
                 var namespaceCandidates = GetNamespaceCandidates(typeDeclaration);
                 AddPublicTypeSignatureDependencyTypes(typeDeclaration, dependencies, semanticModel, namespaceCandidates);
             }
@@ -403,7 +395,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private void AddBodyDependencyTypes(SyntaxNode syntax, HashSet<CSharpType> dependencies)
         {
-            var semanticModel = GetSemanticModel(syntax.SyntaxTree);
+            var semanticModel = _compilation.GetSemanticModel(syntax.SyntaxTree);
             AddSyntaxTypeReferences(syntax, dependencies, semanticModel, GetNamespaceCandidates(syntax));
 
             foreach (var invocation in syntax.DescendantNodes().OfType<InvocationExpressionSyntax>())
@@ -423,7 +415,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private void AddPublicSignatureDependencyTypes(MemberDeclarationSyntax member, HashSet<CSharpType> dependencies)
         {
-            var semanticModel = GetSemanticModel(member.SyntaxTree);
+            var semanticModel = _compilation.GetSemanticModel(member.SyntaxTree);
             var namespaceCandidates = GetNamespaceCandidates(member);
             switch (member)
             {

@@ -341,8 +341,7 @@ namespace Microsoft.TypeSpec.Generator
             AddDerivedModelReferences(providers, publicGraph.Nodes, internalizeReferences, internalizeReachableWithoutHelpers, generatedDiscriminatorBaseNames);
             internalizeReachableWithoutHelpers = GetReachableTypes(internalizeRoots, internalizeReferences);
             var publicRoots = new HashSet<string>(internalizeRoots, StringComparer.Ordinal);
-            var publicApiPredecessors = ReverseReferences(publicGraph.References);
-            var internalizePredecessors = ReverseReferences(internalizeReferences);
+            var publicApiReferences = CloneReferences(publicGraph.References);
             var internalizeHelperRoots = GetHelperRootNames(generatedProviders, graph.Nodes, internalizeReachableWithoutHelpers, graph.References);
             internalizeRoots.UnionWith(internalizeHelperRoots);
             var internalizeDeclaredNodes = GetGeneratedDeclaredNodes(generatedProviders, graph.Nodes, publicOnly: true);
@@ -367,8 +366,7 @@ namespace Microsoft.TypeSpec.Generator
                 customPublicRoots,
                 publicRoots,
                 graph.Nodes,
-                internalizeReferences,
-                internalizePredecessors);
+                internalizeReferences);
             AddNestedInternalizeCandidates(generatedProviders, internalizeCandidates, graph.Nodes);
             AddInternalOnlyDependencyCandidates(
                 internalizeDeclaredNodes,
@@ -376,13 +374,13 @@ namespace Microsoft.TypeSpec.Generator
                 customInternalDeclarations,
                 generatedInternalDeclarations,
                 publicRoots,
-                internalizePredecessors,
+                internalizeReferences,
                 generatedImplementationInternalDeclarations);
             RemovePublicApiExposedCandidates(
                 internalizeDeclaredNodes,
                 internalizeCandidates,
                 customInternalDeclarations,
-                internalizePredecessors);
+                internalizeReferences);
             AddNestedInternalizeCandidates(generatedProviders, internalizeCandidates, graph.Nodes);
 
             // Recompute reachability without internalized roots, then promote only declarations that
@@ -405,8 +403,8 @@ namespace Microsoft.TypeSpec.Generator
                 publicRootExclusions,
                 generatedInternalDeclarations,
                 publicRoots,
-                publicApiPredecessors,
-                internalizePredecessors,
+                publicApiReferences,
+                internalizeReferences,
                 generatedImplementationInternalDeclarations);
             return (internalizeCandidates, publicCandidates, internalizeHelperRoots);
         }
