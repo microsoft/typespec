@@ -129,5 +129,3 @@ Each result contains the directive, its attached syntax node (`target`), a sourc
 Results are in source order. Separate duplicate directives are retained, but multiple AST references to the same directive are returned once. Codes are preserved without resolving short names or aliases, and collection does not check whether a directive is used or effective. Missing justifications are returned as empty strings.
 
 Locations work on unbound parsed files. Use `location.file.text.slice(location.pos, location.end)` for source text; directive ranges can include trailing trivia. Line and character positions are zero-based. The collector does not modify the AST and is subject to the [AST compatibility policy](../handbook/breaking-change-policy.mdx).
-
-To inspect `linter.disable` entries in a configuration file, use [`collectLinterDisables`](../handbook/configuration/configuration.mdx#inspecting-local-rule-disables).
