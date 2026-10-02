@@ -7,6 +7,7 @@ using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -14,6 +15,9 @@ using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
@@ -28,6 +32,236 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
 {
     public class ClientProviderTests
     {
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task ExperimentalPolyfilledCustomDeclarationsCompile(bool sourceAnnotated)
+        {
+            var model = InputFactory.Model("Payload", properties: []);
+            var choice = InputFactory.StringEnum("Choice", [("One", "one")], isExtensible: true);
+            var control = InputFactory.Experimental(InputFactory.Model("Control", properties: []), "CONTROL001");
+            var operation = InputFactory.Operation("Bar");
+            var parent = InputFactory.Client("ParentClient");
+            var child = InputFactory.Client("ChildClient", parent: parent,
+                methods: [InputFactory.BasicServiceMethod("Bar", operation)],
+                initializedBy: InputClientInitializedBy.Parent);
+            if (sourceAnnotated)
+            {
+                InputFactory.Experimental(model, "GENERATED_MODEL");
+                InputFactory.Experimental(choice, "GENERATED_ENUM");
+                InputFactory.Experimental(child, "GENERATED_CLIENT");
+                operation.Update(experimental: new InputExperimentalDetails("GENERATED_METHOD"));
+            }
+            Compilation? customCompilation = null;
+            var mock = await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [model, control], inputEnums: () => [choice], clients: () => [parent, child],
+                compilation: async () => customCompilation = await Helpers.GetCompilationFromDirectoryAsync());
+            // Keep the source-defined polyfill as a symbol instead of resolving it to the host runtime's BCL type.
+            Moq.Mock.Get(mock.Object.TypeFactory)
+                .Setup(factory => factory.CreateFrameworkType(typeof(ExperimentalAttribute).FullName!))
+                .Returns((Type?)null);
+            var generator = ScmCodeModelGenerator.Instance;
+            var modelProvider = generator.TypeFactory.CreateModel(model)!;
+            var enumProvider = generator.TypeFactory.CreateEnum(choice)!;
+            var childProvider = generator.TypeFactory.CreateClient(child)!;
+            var parentProvider = generator.TypeFactory.CreateClient(parent)!;
+            var methodBody = (BlockSyntax)SyntaxFactory.ParseStatement(Helpers.GetExpectedFromFile("MethodBody"));
+            var providers = generator.OutputLibrary.TypeProviders
+                .Where(provider => provider is not Utf8JsonBinaryContentDefinition and not BinaryContentHelperDefinition);
+            var trees = providers.Select(provider => new TypeProviderWriter(provider).Write())
+                .Select(file =>
+                {
+                    var tree = CSharpSyntaxTree.ParseText(file.Content, path: file.Name);
+                    var root = tree.GetRoot();
+                    var partialMethods = root.DescendantNodes().OfType<MethodDeclarationSyntax>()
+                        .Where(method => method.Modifiers.Any(SyntaxKind.PartialKeyword));
+                    // Isolate attribute placement from custom partial implementation bodies.
+                    var updatedRoot = root.ReplaceNodes(partialMethods, (_, method) => method
+                        .WithModifiers(SyntaxFactory.TokenList(method.Modifiers.Where(modifier => !modifier.IsKind(SyntaxKind.AsyncKeyword))))
+                        .WithBody(methodBody));
+                    return tree.WithRootAndOptions(updatedRoot, tree.Options);
+                });
+            var references = AppDomain.CurrentDomain.GetAssemblies()
+                .Where(assembly => !assembly.IsDynamic && !string.IsNullOrEmpty(assembly.Location))
+                .Select(assembly => MetadataReference.CreateFromFile(assembly.Location))
+                .Append(MetadataReference.CreateFromFile(typeof(Microsoft.Extensions.Configuration.IConfigurationSection).Assembly.Location));
+            var options = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, generalDiagnosticOption: ReportDiagnostic.Error)
+                .WithSpecificDiagnosticOptions(new Dictionary<string, ReportDiagnostic> { ["CS0436"] = ReportDiagnostic.Suppress });
+            var compilation = CSharpCompilation.Create("PolyfilledCustomDeclarations",
+                trees.Concat(customCompilation!.SyntaxTrees.Where(tree => tree.FilePath.EndsWith("CustomTypes.cs", StringComparison.Ordinal))),
+                references, options);
+            Assert.IsEmpty(compilation.GetDiagnostics().Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error)
+                .Select(diagnostic => diagnostic.ToString()));
+            foreach (var provider in new TypeProvider[] { modelProvider, enumProvider, childProvider })
+            {
+                Assert.IsFalse(provider.Attributes.Any(attribute => attribute.Type.FullyQualifiedName == typeof(ExperimentalAttribute).FullName));
+                var custom = provider.CanonicalView.Attributes.Single(attribute => attribute.Type.FullyQualifiedName == typeof(ExperimentalAttribute).FullName);
+                Assert.IsFalse(custom.Type.IsFrameworkType);
+                Assert.IsFalse(custom.Type.IsPublic);
+            }
+            Assert.AreEqual("CONTROL001", compilation.GetTypeByMetadataName("Sample.Models.Control")!.GetAttributes()
+                .Single(attribute => attribute.AttributeClass!.ToDisplayString() == typeof(ExperimentalAttribute).FullName)
+                .ConstructorArguments[0].Value);
+            foreach (var method in compilation.GetTypeByMetadataName("Sample.ChildClient")!.GetMembers()
+                .OfType<IMethodSymbol>().Where(method => method.Name is "Bar" or "BarAsync"))
+            {
+                Assert.AreEqual("CUSTOM_METHOD", method.GetAttributes().Single().ConstructorArguments[0].Value);
+            }
+            foreach (var provider in new TypeProvider[] { parentProvider, generator.TypeFactory.CreateModel(control)! })
+            {
+                var file = new TypeProviderWriter(provider).Write();
+                Assert.AreEqual(Helpers.GetExpectedFromFile(provider.Name), file.Content);
+            }
+        }
+
+        [Test]
+        public void ExperimentalChildParametersAreSuppressedOnParentAccessors()
+        {
+            var mode = InputFactory.Experimental(InputFactory.StringEnum("Mode", [("One", "one")], isExtensible: true), "MODE001");
+            var parent = InputFactory.Client("ParentClient");
+            var child = InputFactory.Client("ChildClient", parent: parent,
+                parameters: [InputFactory.PathParameter("mode", mode, isRequired: true, scope: InputParameterScope.Client)],
+                initializedBy: InputClientInitializedBy.Parent);
+            MockHelpers.LoadMockGenerator(inputEnums: () => [mode], clients: () => [parent, child]);
+            var generator = ScmCodeModelGenerator.Instance;
+            var client = generator.TypeFactory.CreateClient(parent)!;
+            var accessor = client.Methods.Single(m => m.Signature.Name == "GetChildClient");
+            Assert.AreEqual("Mode", accessor.Signature.Parameters.Single().Type.Name);
+            Assert.AreEqual(0, client.DisabledFileWarnings.Count);
+            StringAssert.Contains("#pragma warning disable MODE001", new TypeProviderWriter(client).Write().Content);
+
+            var references = AppDomain.CurrentDomain.GetAssemblies()
+                .Where(a => !a.IsDynamic && !string.IsNullOrEmpty(a.Location))
+                .Select(a => MetadataReference.CreateFromFile(a.Location))
+                .Append(MetadataReference.CreateFromFile(typeof(Microsoft.Extensions.Configuration.IConfigurationSection).Assembly.Location));
+            var providers = generator.OutputLibrary.TypeProviders
+                .Where(p => p is not Utf8JsonBinaryContentDefinition and not BinaryContentHelperDefinition);
+            var compilation = CSharpCompilation.Create(
+                "ExperimentalChildParameters",
+                providers.Select(p => CSharpSyntaxTree.ParseText(new TypeProviderWriter(p).Write().Content)),
+                references,
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, generalDiagnosticOption: ReportDiagnostic.Error));
+            Assert.IsEmpty(compilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error).Select(d => d.ToString()));
+        }
+
+        [Test]
+        public async Task ExperimentalCustomClientKeepsExistingAttribute()
+        {
+            var input = InputFactory.Experimental(InputFactory.Client("TestClient"), "GENERATED001");
+            await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [input],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(input)!;
+
+            Assert.AreEqual(0, client.Attributes.Count(a => a.Type.Equals(typeof(ExperimentalAttribute))));
+            Assert.AreEqual(Literal("CUSTOM001").ToDisplayString(),
+                client.CanonicalView.Attributes.Single(a => a.Type.Equals(typeof(ExperimentalAttribute))).Arguments[0].ToDisplayString());
+        }
+
+        [TestCase(null, false, InputClientInitializedBy.Parent)]
+        [TestCase("GENERATED001", false, InputClientInitializedBy.Parent)]
+        [TestCase("CUSTOM001", false, InputClientInitializedBy.Parent)]
+        [TestCase(null, true, InputClientInitializedBy.Parent)]
+        [TestCase("GENERATED001", true, InputClientInitializedBy.Parent)]
+        [TestCase(null, false, InputClientInitializedBy.Default)]
+        [TestCase(null, false, InputClientInitializedBy.Individually)]
+        public async Task ExperimentalCustomChildDiagnosticsAreSuppressedOnParentAccessors(
+            string? generatedDiagnosticId,
+            bool hasAccessorParameter,
+            InputClientInitializedBy initializedBy)
+        {
+            var parent = InputFactory.Client("ParentClient");
+            var child = InputFactory.Client("ChildClient", parent: parent,
+                parameters: hasAccessorParameter
+                    ? [InputFactory.PathParameter("id", InputPrimitiveType.String, isRequired: true, scope: InputParameterScope.Client)]
+                    : [],
+                initializedBy: initializedBy);
+            var otherChild = InputFactory.Client("OtherChildClient", parent: parent, initializedBy: initializedBy);
+            var stableChild = InputFactory.Client("StableClient", parent: parent, initializedBy: InputClientInitializedBy.Parent);
+            if (generatedDiagnosticId is not null)
+            {
+                InputFactory.Experimental(child, generatedDiagnosticId);
+                InputFactory.Experimental(otherChild, generatedDiagnosticId);
+            }
+            var customCompilation = await Helpers.GetCompilationFromDirectoryAsync();
+            await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [parent, child, otherChild, stableChild],
+                compilation: () => Task.FromResult(customCompilation));
+            var generator = ScmCodeModelGenerator.Instance;
+            var parentProvider = generator.TypeFactory.CreateClient(parent)!;
+            var childProvider = generator.TypeFactory.CreateClient(child)!;
+            bool hasAccessor = initializedBy != InputClientInitializedBy.Individually;
+            var accessor = parentProvider.Methods.SingleOrDefault(method => method.Signature.Name == "GetChildClient");
+
+            Assert.AreEqual(hasAccessor, accessor is not null);
+            if (hasAccessor)
+            {
+                Assert.AreEqual(hasAccessorParameter ? 1 : 0, accessor!.Signature.Parameters.Count);
+                Assert.IsFalse(accessor.Signature.Attributes.Any(attribute => attribute.Type.Equals(typeof(ExperimentalAttribute))));
+            }
+            Assert.IsFalse(parentProvider.Attributes.Any(attribute => attribute.Type.Equals(typeof(ExperimentalAttribute))));
+            Assert.IsEmpty(childProvider.Attributes.Where(attribute => attribute.Type.Equals(typeof(ExperimentalAttribute))));
+            Assert.AreEqual(Literal("CUSTOM001").ToDisplayString(),
+                childProvider.CanonicalView.Attributes.Single(attribute => attribute.Type.Equals(typeof(ExperimentalAttribute))).Arguments[0].ToDisplayString());
+            Assert.IsFalse(generator.TypeFactory.CreateClient(stableChild)!.DisabledFileWarnings
+                .Any(suppression => suppression.Code.ToDisplayString() == Literal("CUSTOM001").ToDisplayString()));
+
+            var references = AppDomain.CurrentDomain.GetAssemblies()
+                .Where(assembly => !assembly.IsDynamic && !string.IsNullOrEmpty(assembly.Location))
+                .Select(assembly => MetadataReference.CreateFromFile(assembly.Location))
+                .Append(MetadataReference.CreateFromFile(typeof(Microsoft.Extensions.Configuration.IConfigurationSection).Assembly.Location));
+            var providers = generator.OutputLibrary.TypeProviders
+                .Where(provider => provider is not Utf8JsonBinaryContentDefinition and not BinaryContentHelperDefinition);
+            var generatedTrees = providers.Select(provider => new TypeProviderWriter(provider).Write())
+                .Select(file => CSharpSyntaxTree.ParseText(file.Content, path: file.Name));
+            var customTrees = customCompilation.SyntaxTrees
+                .Where(tree => tree.FilePath.EndsWith("CustomClients.cs", StringComparison.Ordinal));
+            var compilation = CSharpCompilation.Create(
+                "ExperimentalCustomizedChildren",
+                generatedTrees.Concat(customTrees),
+                references,
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, generalDiagnosticOption: ReportDiagnostic.Error));
+            Assert.IsEmpty(compilation.GetDiagnostics().Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error).Select(diagnostic => diagnostic.ToString()));
+            Assert.AreEqual(0, parentProvider.DisabledFileWarnings.Count);
+            var parentCode = new TypeProviderWriter(parentProvider).Write().Content;
+            Assert.AreEqual(hasAccessor, parentCode.Contains("#pragma warning disable CUSTOM001", StringComparison.Ordinal));
+            if (hasAccessor)
+            {
+                Assert.Greater(parentCode.IndexOf("#pragma warning disable CUSTOM001", StringComparison.Ordinal),
+                    parentCode.IndexOf("partial class ParentClient", StringComparison.Ordinal));
+                Assert.AreEqual(parentCode.Split("#pragma warning disable CUSTOM001").Length,
+                    parentCode.Split("#pragma warning restore CUSTOM001").Length);
+            }
+
+            var consumerTree = CSharpSyntaxTree.ParseText(Helpers.GetExpectedFromFile(parameters: "Consumer"));
+            var consumerErrors = compilation.AddSyntaxTrees(consumerTree).GetDiagnostics()
+                .Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error).ToArray();
+            Assert.IsNotEmpty(consumerErrors);
+            Assert.IsTrue(consumerErrors.All(diagnostic => diagnostic.Id == "CUSTOM001" && diagnostic.Location.SourceTree == consumerTree),
+                string.Join(Environment.NewLine, consumerErrors.Select(diagnostic => diagnostic.ToString())));
+        }
+
+        [Test]
+        public void ExperimentalClientAndModelReferences()
+        {
+            var model = InputFactory.Experimental(InputFactory.Model("Payload"), "MODEL001");
+            var operation = InputFactory.Operation("Read", responses: [InputFactory.OperationResponse(bodytype: model)]);
+            var clientInput = InputFactory.Experimental(
+                InputFactory.Client("Experiment", methods: [InputFactory.BasicServiceMethod("Read", operation)]),
+                "CLIENT001", "DEP001");
+            MockHelpers.LoadMockGenerator(inputModels: () => [model], clients: () => [clientInput]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(clientInput)!;
+
+            Assert.AreEqual(Literal("CLIENT001").ToDisplayString(),
+                client.Attributes.Single(a => a.Type.Equals(typeof(ExperimentalAttribute))).Arguments[0].ToDisplayString());
+            foreach (var provider in new TypeProvider[] { client, client.RestClient })
+            {
+                CollectionAssert.AreEqual(
+                    new[] { "DEP001" }.Select(id => Literal(id).ToDisplayString()),
+                    provider.DisabledFileWarnings.Select(s => s.Code.ToDisplayString()));
+            }
+            Assert.IsFalse(client.RestClient.Attributes.Any(a => a.Type.Equals(typeof(ExperimentalAttribute))));
+        }
+
         [TestCase("Foo", "Foo", ExpectedResult = true)]
         [TestCase("Foo", "Bar", ExpectedResult = false)]
         [TestCase("Foo", "_Foo", ExpectedResult = false)]

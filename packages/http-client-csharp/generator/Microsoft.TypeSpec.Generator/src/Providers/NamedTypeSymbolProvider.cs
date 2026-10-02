@@ -2,9 +2,13 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading;
 using System.Xml;
 using System.Xml.Linq;
 using Microsoft.CodeAnalysis;
@@ -20,6 +24,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 {
     internal sealed class NamedTypeSymbolProvider : TypeProvider
     {
+        // Semantic models retain their compilation, so scope the cache with a weak compilation key.
+        private static readonly ConditionalWeakTable<Compilation, ConcurrentDictionary<SyntaxTree, Lazy<SemanticModel>>> _semanticModels = new();
         private INamedTypeSymbol _namedTypeSymbol;
         private readonly Compilation _compilation;
         private string? _metadataName;
@@ -31,6 +37,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _namedTypeSymbol = namedTypeSymbol;
             _compilation = compilation;
         }
+
+        internal SemanticModel GetSemanticModel(SyntaxTree tree) =>
+            _semanticModels.GetValue(_compilation, static _ => new())
+                .GetOrAdd(tree, static (tree, compilation) => new Lazy<SemanticModel>(
+                    () => compilation.GetSemanticModel(tree),
+                    LazyThreadSafetyMode.ExecutionAndPublication), _compilation).Value;
 
         internal string MetadataName
         {
@@ -224,7 +236,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
 
                 // Get the semantic model to evaluate constant values
-                var semanticModel = _compilation.GetSemanticModel(propertySyntax.SyntaxTree);
+                var semanticModel = GetSemanticModel(propertySyntax.SyntaxTree);
                 // Check if this is an enum member access
                 var symbolInfo = semanticModel.GetSymbolInfo(initializerValue);
                 if (symbolInfo.Symbol is IFieldSymbol fieldSymbol
@@ -345,6 +357,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     GetNullableCSharpType(methodSymbol.ReturnType),
                     GetSymbolXmlDoc(methodSymbol, "returns"),
                     [.. methodSymbol.Parameters.Select(p => ConvertToParameterProvider(methodSymbol, p))],
+                    Attributes: [.. methodSymbol.GetAttributes()
+                        .Where(a => a.AttributeClass?.ToDisplayString() == typeof(ExperimentalAttribute).FullName)
+                        .Select(a => new AttributeStatement(a))],
                     GenericArguments: methodSymbol.TypeParameters.IsEmpty
                         ? null
                         : [.. methodSymbol.TypeParameters.Select(parameter => parameter.GetCSharpType())],
@@ -385,7 +400,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     continue;
                 }
 
-                var semanticModel = _compilation.GetSemanticModel(typeDeclaration.SyntaxTree);
+                var semanticModel = GetSemanticModel(typeDeclaration.SyntaxTree);
                 var namespaceCandidates = GetNamespaceCandidates(typeDeclaration);
                 AddPublicTypeSignatureDependencyTypes(typeDeclaration, dependencies, semanticModel, namespaceCandidates);
             }
@@ -395,7 +410,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private void AddBodyDependencyTypes(SyntaxNode syntax, HashSet<CSharpType> dependencies)
         {
-            var semanticModel = _compilation.GetSemanticModel(syntax.SyntaxTree);
+            var semanticModel = GetSemanticModel(syntax.SyntaxTree);
             AddSyntaxTypeReferences(syntax, dependencies, semanticModel, GetNamespaceCandidates(syntax));
 
             foreach (var invocation in syntax.DescendantNodes().OfType<InvocationExpressionSyntax>())
@@ -415,7 +430,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private void AddPublicSignatureDependencyTypes(MemberDeclarationSyntax member, HashSet<CSharpType> dependencies)
         {
-            var semanticModel = _compilation.GetSemanticModel(member.SyntaxTree);
+            var semanticModel = GetSemanticModel(member.SyntaxTree);
             var namespaceCandidates = GetNamespaceCandidates(member);
             switch (member)
             {

@@ -1,14 +1,20 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Simplification;
+using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
+using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.Tests.Common;
@@ -19,6 +25,152 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
 {
     public class ScmModelProviderTests
     {
+        [TestCase(false, "json")]
+        [TestCase(true, "json")]
+        [TestCase(false, "xml")]
+        [TestCase(true, "xml")]
+        [TestCase(false, "multipart")]
+        [TestCase(true, "multipart")]
+        [TestCase(false, "dynamic")]
+        [TestCase(true, "dynamic")]
+        [TestCase(true, "dynamic-array")]
+        [TestCase(true, "additional")]
+        [TestCase(false, "json", true)]
+        [TestCase(true, "json", true)]
+        [TestCase(false, "xml", true)]
+        [TestCase(true, "xml", true)]
+        [TestCase(false, "dynamic", true)]
+        [TestCase(true, "dynamic", true)]
+        [TestCase(false, "dynamic-derived")]
+        [TestCase(true, "dynamic-derived")]
+        [TestCase(false, "dynamic-derived", true)]
+        [TestCase(true, "dynamic-derived", true)]
+        public async Task ExperimentalPropertySuppressionsAreScoped(bool experimentalValueType, string format, bool isNullable = false)
+        {
+            var formatUsage = format switch
+            {
+                "xml" => InputModelTypeUsage.Xml,
+                "multipart" => InputModelTypeUsage.MultipartFormData,
+                _ => InputModelTypeUsage.Json
+            };
+            var usage = InputModelTypeUsage.Input | InputModelTypeUsage.Output | formatUsage;
+            var value = InputFactory.Experimental(InputFactory.Model("PreviewValue",
+                usage: format == "multipart" ? InputModelTypeUsage.Json : usage,
+                isDynamicModel: format.StartsWith("dynamic", StringComparison.Ordinal)), "TYPE001");
+            InputType propertyType = format == "dynamic-array"
+                ? InputFactory.Array(value)
+                : experimentalValueType && format != "additional" ? value : InputPrimitiveType.String;
+            if (isNullable)
+            {
+                propertyType = new InputNullableType(propertyType);
+            }
+            var property = InputFactory.Experimental(
+                InputFactory.Property("preview", propertyType,
+                    serializationOptions: InputFactory.Serialization.Options(
+                        xml: InputFactory.Serialization.Xml("preview"),
+                        multipart: InputFactory.Serialization.Multipart("preview", isFilePart: false, defaultContentTypes: ["application/json"]))),
+                "PROPERTY001");
+            var stableProperty = InputFactory.Property("stable", InputPrimitiveType.String,
+                serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("stable")));
+            var baseModel = format == "dynamic-derived"
+                ? InputFactory.Model("BasePayload", properties: [property], usage: usage)
+                : null;
+            var input = InputFactory.Model("Payload",
+                properties: baseModel is null ? [property, stableProperty] : [stableProperty],
+                usage: usage,
+                isDynamicModel: format.StartsWith("dynamic", StringComparison.Ordinal),
+                additionalProperties: format == "additional" ? value : null,
+                baseModel: baseModel);
+            var inputModels = new List<InputModelType> { input };
+            if (experimentalValueType)
+            {
+                inputModels.Add(value);
+            }
+            if (baseModel is not null)
+            {
+                inputModels.Add(baseModel);
+            }
+            MockHelpers.LoadMockGenerator(inputModels: () => inputModels);
+            var generator = ScmCodeModelGenerator.Instance;
+            var model = generator.TypeFactory.CreateModel(input)!;
+            var serialization = model.SerializationProviders.Single(provider => format == "multipart"
+                ? provider is MultipartFormDataSerializationDefinition : provider is MrwSerializationTypeDefinition);
+            foreach (var provider in new[] { model, serialization })
+            {
+                Assert.IsFalse(provider.DisabledFileWarnings.Any(suppression =>
+                    suppression.Code.ToDisplayString() == Snippet.Literal("PROPERTY001").ToDisplayString() ||
+                    suppression.Code.ToDisplayString() == Snippet.Literal("TYPE001").ToDisplayString()));
+            }
+            var code = new TypeProviderWriter(serialization).Write().Content;
+            var disable = code.IndexOf("#pragma warning disable PROPERTY001", StringComparison.Ordinal);
+            var restore = code.IndexOf("#pragma warning restore PROPERTY001", StringComparison.Ordinal);
+            var writeMethod = format switch { "xml" => "void XmlModelWriteCore(", "multipart" => "ToMultipartFormContent(", _ => "void JsonModelWriteCore(" };
+            Assert.Greater(disable, code.IndexOf(writeMethod, StringComparison.Ordinal));
+            Assert.Greater(restore, code.IndexOf("Preview", disable, StringComparison.Ordinal));
+            Assert.Less(restore, code.IndexOf("Optional.IsDefined(Stable)", StringComparison.Ordinal));
+
+            if (isNullable && format != "xml")
+            {
+                var propertyModel = baseModel is null ? model : generator.TypeFactory.CreateModel(baseModel)!;
+                var presence = ScmModel.GetNullablePropertyPresence(propertyModel.Properties.Single(p => p.Name == "Preview"));
+                Assert.That(presence, Is.Not.Null);
+                StringAssert.Contains(presence!.Name, code[disable..restore]);
+            }
+
+            var providers = generator.OutputLibrary.TypeProviders
+                .Where(provider => provider is not Utf8JsonBinaryContentDefinition and not BinaryContentHelperDefinition)
+                .ToArray();
+            var trees = providers.Concat(providers.SelectMany(provider => provider.SerializationProviders))
+                .Select(provider => new TypeProviderWriter(provider).Write())
+                .Select(file => CSharpSyntaxTree.ParseText(file.Content, path: file.Name));
+            var references = AppDomain.CurrentDomain.GetAssemblies()
+                .Where(assembly => !assembly.IsDynamic && !string.IsNullOrEmpty(assembly.Location))
+                .Select(assembly => MetadataReference.CreateFromFile(assembly.Location)).ToArray();
+            var options = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, generalDiagnosticOption: ReportDiagnostic.Error);
+            using var workspace = new AdhocWorkspace();
+            var project = workspace.AddProject("ScopedExperimentalProperties", LanguageNames.CSharp)
+                .WithCompilationOptions(options).AddMetadataReferences(references);
+            foreach (var tree in trees.Append(CSharpSyntaxTree.ParseText(Helpers.GetExpectedFromFile("Context"))))
+            {
+                project = project.AddDocument(tree.FilePath, tree.GetRoot().WithAdditionalAnnotations(Simplifier.Annotation)).Project;
+            }
+            var simplifiedTrees = new List<SyntaxTree>();
+            foreach (var document in project.Documents)
+            {
+                var simplified = await Simplifier.ReduceAsync(document);
+                simplifiedTrees.Add((await simplified.GetSyntaxTreeAsync())!);
+            }
+            var compilation = CSharpCompilation.Create("ScopedExperimentalProperties", simplifiedTrees, references, options);
+            Assert.IsEmpty(compilation.GetDiagnostics().Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error)
+                .Select(diagnostic => $"{diagnostic} [{diagnostic.Location.SourceTree?.GetText().ToString(diagnostic.Location.SourceSpan)}]"));
+
+            var consumer = CSharpSyntaxTree.ParseText(Helpers.GetExpectedFromFile());
+            var errors = compilation.AddSyntaxTrees(consumer).GetDiagnostics()
+                .Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error).ToArray();
+            Assert.IsTrue(errors.Any(diagnostic => diagnostic.Id == "PROPERTY001"));
+            Assert.IsTrue(errors.All(diagnostic => diagnostic.Location.SourceTree == consumer));
+        }
+
+        [Test]
+        public void ExperimentalModelAttributeIsNotRepeatedOnSerializationPartials()
+        {
+            var property = InputFactory.Experimental(InputFactory.Property("value", InputPrimitiveType.String), "PROPERTY001");
+            var inputModel = InputFactory.Experimental(InputFactory.Model("Payload", properties: [property]), "MODEL001", "DEP001");
+            MockHelpers.LoadMockGenerator(inputModels: () => [inputModel]);
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
+
+            Assert.AreEqual(1, model.Attributes.Count(a => a.Type.Equals(typeof(ExperimentalAttribute))));
+            Assert.IsNotEmpty(model.SerializationProviders);
+            foreach (var serialization in model.SerializationProviders)
+            {
+                Assert.IsFalse(serialization.Attributes.Any(a => a.Type.Equals(typeof(ExperimentalAttribute))));
+                CollectionAssert.AreEqual(
+                    new[] { "DEP001" }.Select(id => Snippet.Literal(id).ToDisplayString()),
+                    serialization.DisabledFileWarnings.Select(s => s.Code.ToDisplayString()));
+                StringAssert.DoesNotContain("#pragma warning disable MODEL001", new TypeProviderWriter(serialization).Write().Content);
+            }
+        }
+
         private sealed class DerivedScmModelProvider : ScmModel
         {
             public DerivedScmModelProvider(InputModelType inputModel) : base(inputModel)

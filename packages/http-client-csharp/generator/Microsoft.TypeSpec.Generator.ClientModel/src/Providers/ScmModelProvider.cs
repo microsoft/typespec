@@ -132,7 +132,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             AddNullablePropertyPresence(properties);
             foreach (var prop in properties)
             {
-                if (IsFileBinaryContentType(prop.Type))
+                if (IsFileBinaryContentType(prop.Type)
+                    && !prop.Attributes.Any(ExperimentalApiHelpers.IsExperimentalAttribute))
                 {
                     prop.Update(attributes: [.. prop.Attributes, new AttributeStatement(typeof(ExperimentalAttribute), [Literal(FileBinaryContentDiagnosticId)])]);
                 }

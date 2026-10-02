@@ -197,6 +197,68 @@ Generate test projects to validate the emitter and generator:
   ./eng/scripts/Generate.ps1 -Stubbed $false
   ```
 
+### Comparing Generator Performance on SDK Libraries
+
+Use an isolated SDK worktree so regeneration does not overwrite your working changes.
+Run `tsp-client sync` followed by `tsp-client generate --save-inputs` in a real SDK library
+to obtain `tspCodeModel.json` and `Configuration.json`. Keep the SDK commit, custom sources,
+API baseline, inputs, and plugin assemblies identical for both generator builds.
+
+Build the baseline and candidate generators in Release mode and save their complete output
+directories separately. For Azure libraries, include the same Azure generator plugin and
+dependencies in both directories. If `Configuration.json` specifies custom plugins, point
+them at prebuilt assemblies so plugin compilation is not included in the timing.
+
+```powershell
+./eng/scripts/Compare-Generation.ps1 `
+  -BaselineGenerator C:\bench\before\Microsoft.TypeSpec.Generator.dll `
+  -CandidateGenerator C:\bench\after\Microsoft.TypeSpec.Generator.dll `
+  -LibraryDirectory C:\sdk-worktree\sdk\appconfiguration\Azure.Data.AppConfiguration `
+  -GeneratorName AzureClientGenerator `
+  -ResultDirectory C:\bench\appconfiguration
+```
+
+Use `ScmCodeModelGenerator` for unbranded libraries. The script performs one warmup per build,
+then five measured runs per build, alternating their order. It fails on generation errors,
+changed inputs, or any byte difference in the files under `src/Generated`. Results include
+per-run wall-clock and generator-stage timings, medians, input hashes, and generated-file
+hash manifests.
+
+The example above isolates C# generation by replaying saved code models. To measure the
+end-to-end TypeSpec-to-C# experience, keep the synced `TempTypeSpecFiles` project and its
+installed dependencies, then pass the installed emitter's generator directory instead
+of `GeneratorName`:
+
+```powershell
+./eng/scripts/Compare-Generation.ps1 `
+  -BaselineGenerator C:\bench\before\Microsoft.TypeSpec.Generator.dll `
+  -CandidateGenerator C:\bench\after\Microsoft.TypeSpec.Generator.dll `
+  -LibraryDirectory C:\sdk-worktree\sdk\appconfiguration\Azure.Data.AppConfiguration `
+  -EmitterGeneratorDirectory C:\sdk-worktree\sdk\appconfiguration\Azure.Data.AppConfiguration\TempTypeSpecFiles\node_modules\@azure-typespec\http-client-csharp\dist\generator `
+  -ResultDirectory C:\bench\appconfiguration-e2e
+```
+
+This mode snapshots the isolated emitter's pristine directory, restores it before staging
+each build's complete directory, then runs `tsp-client generate --skip-install --save-inputs`.
+Restoring preserves external plugins without retaining files from the preceding build.
+The original emitter directory is also restored after completion or failure. All snapshot,
+restoration and staging work is outside the timer; staging must not overlap build, result or
+snapshot directories. In particular, the staging directory cannot contain the system temp
+directory where the snapshot is created. Unsafe placements are rejected before snapshot
+creation. Staging equal to or above the SDK library is rejected; the installed emitter
+directory beneath the library is supported. Both E2E generator paths must select
+`Microsoft.TypeSpec.Generator.dll`, the fixed entry assembly executed by the emitter.
+The timed command includes
+TypeSpec compilation, emitter processing and C# generation. Both builds must use identical
+compiler, TypeScript emitter, external plugin and dependency versions. Never stage into
+a shared or main checkout. Installation and spec synchronization are setup, not timed work;
+any build hooks invoked by the emitter remain part of end-to-end generation.
+
+Run comparisons without concurrent builds or tests. Results label the measurement as
+`csharp-generation` or `typespec-to-csharp`; neither measures generated-client runtime
+performance. Run the harness regression tests with
+`pwsh ./eng/scripts/tests/Compare-Generation.Tests.ps1`.
+
 ## Code Generation
 
 ### Regenerating Test Projects
