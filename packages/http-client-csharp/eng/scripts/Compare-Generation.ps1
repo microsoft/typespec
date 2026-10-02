@@ -110,4 +110,4 @@ $results = foreach ($variant in $generators.Keys) {
     generatedFileCount = $files.Count
     results = @($results)
 } | ConvertTo-Json -Depth 10 | Set-Content (Join-Path $ResultDirectory 'results.json')
-$results | ForEach-Object { [pscustomobject]$_ } | Select-Object variant, medianWallMilliseconds
+$results | ForEach-Object { [PSCustomObject]$_ } | Select-Object variant, medianWallMilliseconds

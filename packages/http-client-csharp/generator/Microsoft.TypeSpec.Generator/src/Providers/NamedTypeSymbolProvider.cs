@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading;
 using System.Xml;
 using System.Xml.Linq;
 using Microsoft.CodeAnalysis;
@@ -23,7 +24,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
     internal sealed class NamedTypeSymbolProvider : TypeProvider
     {
         // Semantic models retain their compilation, so scope the cache with a weak compilation key.
-        private static readonly ConditionalWeakTable<Compilation, ConcurrentDictionary<SyntaxTree, SemanticModel>> _semanticModels = new();
+        private static readonly ConditionalWeakTable<Compilation, ConcurrentDictionary<SyntaxTree, Lazy<SemanticModel>>> _semanticModels = new();
         private INamedTypeSymbol _namedTypeSymbol;
         private readonly Compilation _compilation;
         private string? _metadataName;
@@ -38,7 +39,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         internal SemanticModel GetSemanticModel(SyntaxTree tree) =>
             _semanticModels.GetValue(_compilation, static _ => new())
-                .GetOrAdd(tree, static (tree, compilation) => compilation.GetSemanticModel(tree), _compilation);
+                .GetOrAdd(tree, static (tree, compilation) => new Lazy<SemanticModel>(
+                    () => compilation.GetSemanticModel(tree),
+                    LazyThreadSafetyMode.ExecutionAndPublication), _compilation).Value;
 
         internal string MetadataName
         {

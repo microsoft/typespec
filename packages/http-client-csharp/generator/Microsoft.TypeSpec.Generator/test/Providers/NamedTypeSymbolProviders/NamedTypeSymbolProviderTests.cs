@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -85,10 +86,85 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
             var compilation = await Helpers.GetCompilationFromDirectoryAsync(method: "SemanticModelReuse");
             var tree = compilation.SyntaxTrees.Single(tree => Path.GetFileName(tree.FilePath) == "Custom.cs");
             var symbol = compilation.GetTypeByMetadataName("Sample.First")!;
-            var models = await Task.WhenAll(Enumerable.Range(0, 32).Select(_ => Task.Run(() =>
-                new NamedTypeSymbolProvider(symbol, compilation).GetSemanticModel(tree))));
+            var models = await ReadConcurrently(() =>
+                new NamedTypeSymbolProvider(symbol, compilation).GetSemanticModel(tree));
 
             Assert.That(models, Is.All.SameAs(models[0]));
+            Assert.AreSame(compilation, models[0].Compilation);
+            Assert.AreSame(tree, models[0].SyntaxTree);
+        }
+
+        [Test]
+        public async Task SemanticModelConstructionFailuresAreSharedAcrossProviders()
+        {
+            var compilation = await Helpers.GetCompilationFromDirectoryAsync(method: "SemanticModelReuse");
+            var original = compilation.SyntaxTrees.First();
+            var outside = CSharpSyntaxTree.ParseText(original.GetText(), path: original.FilePath);
+            var first = new NamedTypeSymbolProvider(compilation.GetTypeByMetadataName("Sample.First")!, compilation);
+            var second = new NamedTypeSymbolProvider(compilation.GetTypeByMetadataName("Sample.Second")!, compilation);
+
+            var failure = Assert.Throws<ArgumentException>(() => first.GetSemanticModel(outside));
+
+            Assert.AreSame(failure, Assert.Throws<ArgumentException>(() => first.GetSemanticModel(outside)));
+            Assert.AreSame(failure, Assert.Throws<ArgumentException>(() => second.GetSemanticModel(outside)));
+            Assert.AreSame(first.GetSemanticModel(original), second.GetSemanticModel(original));
+        }
+
+        [Test]
+        public async Task SemanticModelConstructionFailuresAreSharedAcrossConcurrentReaders()
+        {
+            var compilation = await Helpers.GetCompilationFromDirectoryAsync(method: "SemanticModelReuse");
+            var original = compilation.SyntaxTrees.First();
+            var outside = CSharpSyntaxTree.ParseText(original.GetText(), path: original.FilePath);
+            var symbol = compilation.GetTypeByMetadataName("Sample.First")!;
+
+            // Each failed Roslyn construction throws a new exception, exposing duplicate factory calls.
+            var failures = await ReadConcurrently(() => Assert.Throws<ArgumentException>(() =>
+                new NamedTypeSymbolProvider(symbol, compilation).GetSemanticModel(outside)));
+
+            Assert.That(failures, Is.All.SameAs(failures[0]));
+            var provider = new NamedTypeSymbolProvider(symbol, compilation);
+            Assert.AreSame(failures[0], Assert.Throws<ArgumentException>(() => provider.GetSemanticModel(outside)));
+            Assert.AreSame(original, provider.GetSemanticModel(original).SyntaxTree);
+        }
+
+        [Test]
+        public async Task SemanticModelConstructionFailuresAreScopedByCompilationAndTree()
+        {
+            var compilation = await Helpers.GetCompilationFromDirectoryAsync(method: "SemanticModelReuse");
+            var original = compilation.SyntaxTrees.First();
+            var outside = CSharpSyntaxTree.ParseText(original.GetText(), path: original.FilePath);
+            var otherTree = CSharpSyntaxTree.ParseText(original.GetText(), path: original.FilePath);
+            var otherCompilation = compilation.Clone();
+            var provider = new NamedTypeSymbolProvider(compilation.GetTypeByMetadataName("Sample.First")!, compilation);
+            var otherProvider = new NamedTypeSymbolProvider(otherCompilation.GetTypeByMetadataName("Sample.First")!, otherCompilation);
+
+            var failure = Assert.Throws<ArgumentException>(() => provider.GetSemanticModel(outside));
+            var otherTreeFailure = Assert.Throws<ArgumentException>(() => provider.GetSemanticModel(otherTree));
+            var otherCompilationFailure = Assert.Throws<ArgumentException>(() => otherProvider.GetSemanticModel(outside));
+
+            Assert.AreNotSame(failure, otherTreeFailure);
+            Assert.AreNotSame(failure, otherCompilationFailure);
+            Assert.AreSame(otherTreeFailure, Assert.Throws<ArgumentException>(() => provider.GetSemanticModel(otherTree)));
+            Assert.AreSame(otherCompilationFailure, Assert.Throws<ArgumentException>(() => otherProvider.GetSemanticModel(outside)));
+
+            var expandedCompilation = compilation.AddSyntaxTrees(outside);
+            var expandedProvider = new NamedTypeSymbolProvider(
+                expandedCompilation.GetTypeByMetadataName("Sample.First")!, expandedCompilation);
+            Assert.AreSame(outside, expandedProvider.GetSemanticModel(outside).SyntaxTree);
+            Assert.AreSame(expandedCompilation, expandedProvider.GetSemanticModel(outside).Compilation);
+        }
+
+        private static async Task<T[]> ReadConcurrently<T>(Func<T> read)
+        {
+            const int readerCount = 8;
+            using var start = new Barrier(readerCount);
+            return await Task.WhenAll(Enumerable.Range(0, readerCount).Select(_ =>
+                Task.Factory.StartNew(() =>
+                {
+                    Assert.IsTrue(start.SignalAndWait(TimeSpan.FromSeconds(30)), "Concurrent readers failed to start.");
+                    return read();
+                }, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default)));
         }
 
         [Test]
