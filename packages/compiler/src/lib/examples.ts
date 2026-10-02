@@ -84,8 +84,13 @@ export function serializeValueAsJson(
     case "BooleanValue":
     case "StringValue":
       return value.value;
-    case "NumericValue":
-      return value.value.asNumber();
+    case "NumericValue": {
+      // Like the date and duration scalars, fall back to the encoding on the value's scalar.
+      // A bare literal in an example has no scalar, so use the scalar it's serialized as.
+      const scalar = value.scalar ?? (type.kind === "Scalar" ? type : undefined);
+      const encoding = encodeAs ?? (scalar && getEncode(program, scalar));
+      return isEncodedAsString(program, encoding) ? value.value.toString() : value.value.asNumber();
+    }
     case "EnumValue":
       return value.value.value ?? value.value.name;
     case "ArrayValue":
@@ -108,6 +113,15 @@ export function serializeValueAsJson(
     case "Function":
       throw new UnserializableValueError("Cannot serialize a function value as JSON.");
   }
+}
+
+/** True for `@encode(string)`, which has no named encoding and uses `string` as the wire type. */
+function isEncodedAsString(program: Program, encodeAs: EncodeData | undefined): boolean {
+  return (
+    encodeAs !== undefined &&
+    encodeAs.encoding === undefined &&
+    program.checker.isStdType(encodeAs.type, "string")
+  );
 }
 
 /** Try to get the property of the type */
