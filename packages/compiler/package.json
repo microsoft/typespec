@@ -1,6 +1,6 @@
 {
   "name": "@typespec/compiler",
-  "version": "1.15.0",
+  "version": "1.16.0",
   "description": "TypeSpec compiler and standard library",
   "author": "Microsoft Corporation",
   "license": "MIT",
@@ -110,7 +110,10 @@
   },
   "dependencies": {
     "@babel/code-frame": "catalog:",
-    "@inquirer/prompts": "catalog:",
+    "@inquirer/checkbox": "catalog:",
+    "@inquirer/confirm": "catalog:",
+    "@inquirer/input": "catalog:",
+    "@inquirer/select": "catalog:",
     "ajv": "catalog:",
     "change-case": "catalog:",
     "env-paths": "catalog:",

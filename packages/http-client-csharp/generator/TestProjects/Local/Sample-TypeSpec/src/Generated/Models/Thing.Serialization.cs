@@ -256,7 +256,7 @@ namespace SampleTypeSpec
                 }
                 if (prop.NameEquals("requiredUnion"u8))
                 {
-                    requiredUnion = BinaryData.FromString(prop.Value.GetRawText());
+                    requiredUnion = prop.Value.GetUtf8Bytes();
                     continue;
                 }
                 if (prop.NameEquals("requiredLiteralString"u8))
@@ -386,7 +386,7 @@ namespace SampleTypeSpec
                 }
                 if (options.Format != "W")
                 {
-                    additionalBinaryDataProperties.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
+                    additionalBinaryDataProperties.Add(prop.Name, prop.Value.GetUtf8Bytes());
                 }
             }
             return new Thing(

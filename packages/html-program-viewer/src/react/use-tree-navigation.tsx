@@ -10,6 +10,7 @@ import {
 } from "react";
 import { isMapLike, type NamedType } from "../utils.js";
 import { TypeConfig } from "./type-config.js";
+import { createIsProjectTypePredicate } from "./type-filter.js";
 
 export interface TypeGraphNodeBase {
   readonly id: string;
@@ -34,6 +35,11 @@ export interface TreeNavigator {
   readonly selectPath: (path: string) => void;
   readonly navToType: (type: Type) => void;
   readonly tree: TypeGraphListNode;
+  /** If the tree is currently only showing the types declared in the user project. */
+  readonly onlyProjectCode: boolean;
+  readonly setOnlyProjectCode: (value: boolean) => void;
+  /** If the selected node is hidden from the tree by the {@link onlyProjectCode} filter. */
+  readonly selectionHiddenByFilter: boolean;
 }
 
 function expandNamespaces(namespace: Namespace): Namespace[] {
@@ -59,14 +65,22 @@ export interface TypeGraphNavigatorProvider {
   children: ReactNode;
   onNavigationChange?: (path: string) => void;
   currentPath?: string;
+  /** If the tree should only show the types declared in the user project by default. @default true */
+  defaultOnlyProjectCode?: boolean;
 }
 export const TypeGraphNavigatorProvider = ({
   program,
   children,
   onNavigationChange,
   currentPath,
+  defaultOnlyProjectCode,
 }: TypeGraphNavigatorProvider) => {
-  const treeNavigator = useTreeNavigatorInternal(program, onNavigationChange, currentPath);
+  const treeNavigator = useTreeNavigatorInternal(
+    program,
+    onNavigationChange,
+    currentPath,
+    defaultOnlyProjectCode,
+  );
   return (
     <TreeNavigatorContext.Provider value={treeNavigator}>{children}</TreeNavigatorContext.Provider>
   );
@@ -76,8 +90,10 @@ function useTreeNavigatorInternal(
   program: Program,
   onNavigationChange?: (path: string) => void,
   currentPath?: string,
+  defaultOnlyProjectCode: boolean = true,
 ): TreeNavigator {
   const [selectedPath, setSelectedPath] = useState<string>(currentPath || "");
+  const [onlyProjectCode, setOnlyProjectCode] = useState<boolean>(defaultOnlyProjectCode);
 
   // Update internal state when currentPath prop changes
   const selectPath = useCallback(
@@ -95,19 +111,58 @@ function useTreeNavigatorInternal(
     }
   }, [currentPath, selectedPath]);
 
-  const tree = useMemo(() => computeTree(program), [program]);
-  const { pathToNode, typeToPath } = useMemo(() => computeReferences(tree), [tree]);
-  const selectedNode = useMemo(() => pathToNode.get(selectedPath), [pathToNode, selectedPath]);
+  const fullTree = useMemo(() => computeTree(program), [program]);
+  const projectTree = useMemo(() => filterProjectCode(program, fullTree), [program, fullTree]);
+  const fullReferences = useMemo(() => computeReferences(fullTree), [fullTree]);
+  const projectReferences = useMemo(() => computeReferences(projectTree), [projectTree]);
+  const tree = onlyProjectCode ? projectTree : fullTree;
+  const { pathToNode, typeToPath } = onlyProjectCode ? projectReferences : fullReferences;
+  // A node hidden from the tree by the filter is still shown when selected, so a link or a shared path to a library type keeps working.
+  const selectedNode = useMemo(
+    () => pathToNode.get(selectedPath) ?? fullReferences.pathToNode.get(selectedPath),
+    [pathToNode, fullReferences, selectedPath],
+  );
+  const selectionHiddenByFilter = selectedNode !== undefined && !pathToNode.has(selectedPath);
   const navToType = useCallback(
     (type: Type) => {
-      const path = typeToPath.get(type);
+      const path = typeToPath.get(type) ?? fullReferences.typeToPath.get(type);
       if (path) {
         selectPath(path);
       }
     },
-    [selectPath, typeToPath],
+    [selectPath, typeToPath, fullReferences],
   );
-  return { tree, selectedPath, selectedNode, selectPath, navToType };
+  return {
+    tree,
+    selectedPath,
+    selectedNode,
+    selectPath,
+    navToType,
+    onlyProjectCode,
+    setOnlyProjectCode,
+    selectionHiddenByFilter,
+  };
+}
+
+/**
+ * Keep only the nodes that were declared in the user project. A node is kept if it is itself declared in the project or if any of its descendants is.
+ */
+export function filterProjectCode(program: Program, tree: TypeGraphListNode): TypeGraphListNode {
+  const isProjectType = createIsProjectTypePredicate(program);
+
+  function filterNode(node: TypeGraphNode): TypeGraphNode | undefined {
+    const children = node.children.map(filterNode).filter((x) => x !== undefined);
+    if (node.kind === "type") {
+      if (children.length === 0 && !isProjectType(node.type)) {
+        return undefined;
+      }
+    } else if (children.length === 0) {
+      return undefined;
+    }
+    return { ...node, children };
+  }
+
+  return { ...tree, children: tree.children.map(filterNode).filter((x) => x !== undefined) };
 }
 
 function computeReferences(node: TypeGraphNode): {
@@ -128,7 +183,7 @@ function computeReferences(node: TypeGraphNode): {
   return { pathToNode, typeToPath };
 }
 
-function computeTree(program: Program): TypeGraphListNode {
+export function computeTree(program: Program): TypeGraphListNode {
   const root = program.getGlobalNamespaceType();
 
   const namespaces = expandNamespaces(root);

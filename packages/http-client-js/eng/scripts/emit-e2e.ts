@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /* eslint-disable no-console */
-import { select } from "@inquirer/prompts";
+import select from "@inquirer/select";
 import { execa } from "execa";
 import { access, copyFile, glob, mkdir, readFile, rm, stat, writeFile } from "fs/promises";
 import ora from "ora";

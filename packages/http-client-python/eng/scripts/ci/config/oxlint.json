@@ -1,0 +1,6 @@
+{
+  "ignorePatterns": ["**/dist/**/*", "**/node_modules/**/*"],
+  "rules": {
+    "unicorn/no-useless-spread": "off"
+  }
+}

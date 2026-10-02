@@ -8,6 +8,7 @@ using System.ComponentModel.Composition.Hosting;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Moq;
@@ -34,6 +35,40 @@ namespace Microsoft.TypeSpec.Generator.Tests.StartUp
             Assert.DoesNotThrow(() => generatorHandler.SelectGenerator(options));
 
             // Configure must be called on the selected generator
+            mockGenerator.Verify(p => p.Configure(), Times.Once);
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void SelectGeneratorSetsHostedModeBeforePluginsAndConfigure(bool isHosted)
+        {
+            var configuration = Configuration.Load(
+                Path.GetTempPath(),
+                JsonSerializer.Serialize(new { hosted = !isHosted }));
+            var mockGenerator = new Mock<CodeModelGenerator>(new GeneratorContext(configuration));
+            mockGenerator.Object.IsHosted = !isHosted;
+            mockGenerator.Setup(p => p.Configure())
+                .Callback(() => Assert.AreEqual(isHosted, mockGenerator.Object.IsHosted));
+
+            var plugin = new Mock<GeneratorPlugin>();
+            plugin.Setup(p => p.Apply(mockGenerator.Object))
+                .Callback(() => Assert.AreEqual(isHosted, mockGenerator.Object.IsHosted));
+            var metadata = new Mock<IMetadata>();
+            metadata.SetupGet(m => m.GeneratorName).Returns("MockGenerator");
+            var handler = new GeneratorHandler
+            {
+                Generators = [new Lazy<CodeModelGenerator, IMetadata>(() => mockGenerator.Object, metadata.Object)],
+                Plugins = [plugin.Object],
+            };
+
+            handler.SelectGenerator(new CommandLineOptions
+            {
+                GeneratorName = "MockGenerator",
+                IsHosted = isHosted,
+            });
+
+            Assert.AreEqual(isHosted, CodeModelGenerator.Instance.IsHosted);
+            plugin.Verify(p => p.Apply(mockGenerator.Object), Times.Once);
             mockGenerator.Verify(p => p.Configure(), Times.Once);
         }
 
@@ -563,8 +598,95 @@ namespace TypedPlugin { public class MyType { public int Value => 42; } }");
             Assert.AreEqual(expected, result);
         }
 
+        [TestCase(false, 1)]
+        [TestCase(true, 0)]
+        public void AddPluginDlls_HostedModeControlsDependencyDiscovery(bool isHosted, int expectedCatalogCount)
+        {
+            var testDir = Path.Combine(Path.GetTempPath(), "typespec-test-plugin-" + Guid.NewGuid().ToString("N"));
+            try
+            {
+                var pluginDir = Path.Combine(testDir, "node_modules", "custom-plugin", "dist");
+                Directory.CreateDirectory(pluginDir);
+                File.Copy(typeof(GeneratorHandlerTests).Assembly.Location, Path.Combine(pluginDir, "Plugin.dll"));
+                File.WriteAllText(Path.Combine(testDir, "package.json"),
+                    JsonSerializer.Serialize(new { dependencies = new Dictionary<string, string> { ["custom-plugin"] = "1.0.0" } }));
+
+                using var catalog = new AggregateCatalog();
+                GeneratorHandler.AddPluginDlls(catalog, pluginDir, isHosted);
+
+                Assert.AreEqual(expectedCatalogCount, catalog.Catalogs.Count);
+            }
+            finally
+            {
+                Directory.Delete(testDir, true);
+            }
+        }
+
         [Test]
-        public void AddConfiguredPluginDlls_NoPluginPaths_DoesNothing()
+        public void AddPluginDlls_HostedModeDoesNotBuildDependencyProjects()
+        {
+            var testDir = Path.Combine(Path.GetTempPath(), "typespec-test-plugin-" + Guid.NewGuid().ToString("N"));
+            try
+            {
+                var pluginDir = Path.Combine(testDir, "node_modules", "custom-plugin");
+                Directory.CreateDirectory(pluginDir);
+                File.WriteAllText(Path.Combine(pluginDir, "Plugin.csproj"), "<Project />");
+                File.WriteAllText(Path.Combine(testDir, "package.json"),
+                    JsonSerializer.Serialize(new { dependencies = new Dictionary<string, string> { ["custom-plugin"] = "1.0.0" } }));
+
+                using var catalog = new AggregateCatalog();
+                Assert.DoesNotThrow(() => GeneratorHandler.AddPluginDlls(catalog, pluginDir, isHosted: true));
+                Assert.That(catalog.Catalogs, Is.Empty);
+                Assert.That(Directory.GetFiles(pluginDir), Has.Length.EqualTo(1));
+            }
+            finally
+            {
+                Directory.Delete(testDir, true);
+            }
+        }
+
+        [TestCase("prebuilt")]
+        [TestCase("project")]
+        [TestCase("missing")]
+        public void AddConfiguredPluginDlls_HostedModeRejectsCustomPlugins(string pluginKind)
+        {
+            var testDir = Path.Combine(Path.GetTempPath(), "typespec-test-plugin-" + Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(testDir);
+            try
+            {
+                var pluginDir = Path.Combine(testDir, "plugin");
+                if (pluginKind != "missing")
+                {
+                    Directory.CreateDirectory(pluginDir);
+                    if (pluginKind == "prebuilt")
+                    {
+                        File.Copy(typeof(GeneratorHandlerTests).Assembly.Location, Path.Combine(pluginDir, "Plugin.dll"));
+                    }
+                    else
+                    {
+                        File.WriteAllText(Path.Combine(pluginDir, "Plugin.csproj"), "<Project />");
+                    }
+                }
+
+                var configuration = Configuration.Load(
+                    testDir, JsonSerializer.Serialize(new { plugins = new[] { pluginDir }, hosted = false }));
+                using var catalog = new AggregateCatalog();
+
+                var exception = Assert.Throws<InvalidOperationException>(() =>
+                    GeneratorHandler.AddConfiguredPluginDlls(catalog, configuration, isHosted: true));
+
+                Assert.AreEqual("Custom plugins are disabled in hosted mode.", exception!.Message);
+                Assert.That(catalog.Catalogs, Is.Empty);
+            }
+            finally
+            {
+                Directory.Delete(testDir, true);
+            }
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void AddConfiguredPluginDlls_NoPluginPaths_DoesNothing(bool isHosted)
         {
             var config = new Configuration(
                 Path.GetTempPath(),
@@ -576,7 +698,7 @@ namespace TypedPlugin { public class MyType { public int Value => 42; } }");
                 pluginPaths: null);
 
             using var catalog = new AggregateCatalog();
-            GeneratorHandler.AddConfiguredPluginDlls(catalog, config);
+            GeneratorHandler.AddConfiguredPluginDlls(catalog, config, isHosted);
 
             Assert.AreEqual(0, catalog.Catalogs.Count);
         }

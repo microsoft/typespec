@@ -21,7 +21,7 @@ public final class SawShark extends Shark {
     /*
      * Discriminator property for Fish.
      */
-    private String kind = "shark";
+    private final String kind = "shark";
 
     /*
      * The sharktype property.

@@ -405,6 +405,37 @@ worksFor(["3.1.0"], ({ oapiForModel }) => {
   });
 });
 
+worksFor(["3.1.0", "3.2.0"], ({ oapiForModel }) => {
+  it("emits models referenced in tuple values as $ref", async () => {
+    const res = await oapiForModel(
+      "Pet",
+      `
+      model Bar { b: string }
+      model Pet { names: [Bar] };
+      `,
+    );
+
+    deepStrictEqual(res.schemas.Pet.properties.names, {
+      type: "array",
+      prefixItems: [{ $ref: "#/components/schemas/Bar" }],
+    });
+  });
+
+  it("emits self-referencing tuple as $ref without crashing", async () => {
+    const res = await oapiForModel(
+      "Pet",
+      `
+      model Pet { names?: [Pet] };
+      `,
+    );
+
+    deepStrictEqual(res.schemas.Pet.properties.names, {
+      type: "array",
+      prefixItems: [{ $ref: "#/components/schemas/Pet" }],
+    });
+  });
+});
+
 it("removes array items when an array property is encoded to a scalar", async () => {
   const res = await openApiFor(
     `

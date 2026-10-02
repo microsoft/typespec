@@ -34,5 +34,6 @@ namespace Microsoft.TypeSpec.Generator.Input
         Array_NewlineDelimited,
         Duration_Seconds_Int64,
         Duration_Milliseconds_Int64,
+        Boolean_String,
     }
 }

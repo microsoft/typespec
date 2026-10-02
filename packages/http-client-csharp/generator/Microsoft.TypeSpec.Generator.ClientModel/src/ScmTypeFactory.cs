@@ -129,9 +129,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
                 case InputNullableType nullableType:
                     PopulateRootOutputModelsFromTypeRecursive(nullableType.Type, targetSet, visited);
                     break;
-                case InputStreamingType streamingType:
-                    PopulateRootOutputModelsFromTypeRecursive(streamingType.ValueType, targetSet, visited);
-                    break;
                 case InputUnionType unionType:
                     foreach (var variantType in unionType.VariantTypes)
                     {

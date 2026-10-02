@@ -389,7 +389,7 @@ export class OpenAPI31SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPISch
   tupleLiteralValues(tuple: Tuple): EmitterOutput<Record<string, any>> {
     const values = new ArrayBuilder();
     for (const value of tuple.values.values()) {
-      values.push(this.emitter.emitType(value));
+      values.push(this.emitter.emitTypeReference(value));
     }
     return values;
   }

@@ -79,7 +79,7 @@ public final class InterfaceV2Client {
 
     /**
      * The v2InInterface operation.
-     *
+     * 
      * @param body The body parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

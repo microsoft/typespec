@@ -1,3 +1,4 @@
+import { isPathAbsolute, normalizePath } from "../../core/path-utils.js";
 import type { SourceFile } from "../../core/types.js";
 import type { InitTemplate } from "../init-template.js";
 
@@ -19,4 +20,16 @@ export interface LoadedTemplateIndex {
 export interface TemplateSource {
   loadIndex(): Promise<LoadedTemplateIndex>;
   readFile(relativePath: string): Promise<SourceFile>;
+}
+
+export function validateTemplateRelativePath(path: string, kind: "path" | "destination"): string {
+  const normalizedPath = normalizePath(path);
+  if (
+    isPathAbsolute(normalizedPath) ||
+    normalizedPath === ".." ||
+    normalizedPath.startsWith("../")
+  ) {
+    throw new Error(`Template file ${kind} must be a relative path: "${path}"`);
+  }
+  return normalizedPath;
 }

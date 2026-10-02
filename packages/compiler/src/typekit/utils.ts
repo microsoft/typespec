@@ -12,6 +12,30 @@ export function copyMap<T, U>(map: RekeyableMap<T, U>): RekeyableMap<T, U> {
 }
 
 /**
+ * Resolve the `expression` flag for a created type.
+ *
+ * A declaration must have a name, so an anonymous type is always an expression. Passing
+ * `expression: false` without a name is a caller error and is rejected.
+ *
+ * @internal
+ */
+export function resolveExpressionFlag(
+  kind: string,
+  name: string | undefined,
+  expression: boolean | undefined,
+): boolean {
+  if (!name) {
+    if (expression === false) {
+      throw new Error(
+        `Cannot create an anonymous ${kind} declaration. Provide a name or leave \`expression\` unset.`,
+      );
+    }
+    return true;
+  }
+  return expression ?? false;
+}
+
+/**
  * Decorator arguments can be either a single decorator (treated as a decorator with no arguments) or an array where the
  * first element is the decorator and the rest of the elements are the JavaScript values of the arguments.
  *

@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import { spawn, type SpawnOptions } from "child_process";
 import logSymbols from "log-symbols";
+import { readFile } from "node:fs/promises";
 import ora, { type Ora } from "ora";
 import { resolve } from "pathe";
 import pc from "picocolors";
@@ -39,12 +40,28 @@ export async function execWithSpinner(
 
     subprocess.on("close", (code) => {
       if (code !== 0) {
-        reject(new Error(`Command failed with exit code ${code}`));
+        reject(new Error(`Command "${command} ${args.join(" ")}" failed with exit code ${code}`));
       } else {
         resolve();
       }
     });
+    subprocess.on("error", (cause) => {
+      reject(
+        new Error(`Failed to start "${command}". Ensure it is installed and available on PATH.`, {
+          cause,
+        }),
+      );
+    });
   });
+}
+
+export async function readOptionalFile(path: string): Promise<string | undefined> {
+  try {
+    return await readFile(path, "utf8");
+  } catch (error) {
+    if (error instanceof Error && "code" in error && error.code === "ENOENT") return undefined;
+    throw error;
+  }
 }
 
 export async function action<T>(message: string, fn: (spinner: Ora) => Promise<T>): Promise<T> {

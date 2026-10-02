@@ -33,12 +33,17 @@ function printNodeInfoInternal(node: Node): string {
     case SyntaxKind.JsNamespaceDeclaration:
     case SyntaxKind.NamespaceStatement:
     case SyntaxKind.ModelStatement:
+    case SyntaxKind.ModelDeclarationExpression:
     case SyntaxKind.OperationStatement:
     case SyntaxKind.EnumStatement:
+    case SyntaxKind.EnumDeclarationExpression:
     case SyntaxKind.AliasStatement:
     case SyntaxKind.ConstStatement:
     case SyntaxKind.UnionStatement:
-      return node.id.sv;
+    case SyntaxKind.UnionDeclarationExpression:
+    case SyntaxKind.ScalarStatement:
+    case SyntaxKind.ScalarDeclarationExpression:
+      return node.id?.sv ?? "";
     default:
       return "";
   }

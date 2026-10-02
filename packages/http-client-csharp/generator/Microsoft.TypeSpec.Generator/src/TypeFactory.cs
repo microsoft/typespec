@@ -485,6 +485,7 @@ namespace Microsoft.TypeSpec.Generator
                 InputPrimitiveTypeKind.Integer or InputPrimitiveTypeKind.Int8 or InputPrimitiveTypeKind.Int16 or InputPrimitiveTypeKind.Int32
                     or InputPrimitiveTypeKind.Int64 or InputPrimitiveTypeKind.UInt8 or InputPrimitiveTypeKind.UInt16 or InputPrimitiveTypeKind.UInt32
                     or InputPrimitiveTypeKind.UInt64 or InputPrimitiveTypeKind.SafeInt when primitiveType.Encode is "string" => SerializationFormat.Int_String,
+                InputPrimitiveTypeKind.Boolean when primitiveType.Encode is "string" => SerializationFormat.Boolean_String,
                 _ => SerializationFormat.Default
             },
             _ => SerializationFormat.Default

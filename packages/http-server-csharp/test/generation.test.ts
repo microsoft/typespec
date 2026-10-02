@@ -1451,17 +1451,20 @@ it("Handles user-defined model templates", async () => {
     [
       [
         "IMyServiceOperations.cs",
-        ["interface IMyServiceOperations", "Task<ResponsePageToy> FooAsync();"],
+        ["interface IMyServiceOperations", "Task<MyService.ResponsePageToy> FooAsync();"],
       ],
       [
         "MyServiceOperationsController.cs",
         [
           "public partial class MyServiceOperationsController : ControllerBase",
-          "[ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(ResponsePageToy))]",
+          "[ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(MyService.ResponsePageToy))]",
           "public virtual async Task<IActionResult> Foo()",
         ],
       ],
-      ["ResponsePageToy.cs", ["public partial class ResponsePageToy"]],
+      [
+        "ResponsePageToy.cs",
+        ["namespace Contoso", "namespace MyService", "public partial class ResponsePageToy"],
+      ],
     ],
   );
 });
@@ -3113,7 +3116,7 @@ describe("emit correct code for `@error` models", () => {
         `public Error(`,
         `string code,`,
         `string message,`,
-        `string optionalMessage = default,`,
+        `string? optionalMessage = default,`,
         `string defined = "default message"`,
         `) : base(200, value: new { code = code, message = message, optionalMessage = optionalMessage, defined = defined })`,
       ],

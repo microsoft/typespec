@@ -3,6 +3,7 @@ import * as cs from "@alloy-js/csharp";
 import { Attribute, Reference } from "@alloy-js/csharp";
 import type { Interface } from "@typespec/compiler";
 import type { OperationHttpCanonicalization } from "@typespec/http-canonicalization";
+import { useOperationSources } from "../../context/operation-source-context.js";
 import { AspNetMvc } from "../../utils/csharp-libs.jsx";
 import { ControllerAction } from "../controller-action/controller-action.jsx";
 import { businessLogicInterfaceRefkey } from "../interfaces/interfaces.jsx";
@@ -26,6 +27,7 @@ export function Controller(props: ControllerProps): Children {
   const baseName = namePolicy.getName(props.type.name, "class");
   const controllerName = `${baseName}Controller`;
   const implPropName = `${baseName}Impl`;
+  const operationSources = useOperationSources();
 
   const interfaceRef = <Reference refkey={businessLogicInterfaceRefkey(props.type)} />;
 
@@ -49,7 +51,14 @@ export function Controller(props: ControllerProps): Children {
       <For each={props.operations} doubleHardline>
         {(op) => {
           const rm = props.requestModels?.find((r) => r.op === op);
-          return <ControllerAction operation={op} implFieldName={implPropName} requestModel={rm} />;
+          return (
+            <ControllerAction
+              operation={op}
+              businessOperation={operationSources.get(op)}
+              implFieldName={implPropName}
+              requestModel={rm}
+            />
+          );
         }}
       </For>
     </cs.ClassDeclaration>

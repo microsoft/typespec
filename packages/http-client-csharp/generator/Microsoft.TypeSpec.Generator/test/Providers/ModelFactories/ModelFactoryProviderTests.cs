@@ -1822,6 +1822,59 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
         }
 
         [Test]
+        public async Task BackCompatibility_AbstractReturnTypeWithoutCurrentOverload()
+        {
+            var derived = InputFactory.Model("DerivedModel", discriminatedKind: "derived");
+            var baseModel = InputFactory.Model(
+                "AbstractModel",
+                properties:
+                [
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+                    InputFactory.Property("prop1", InputPrimitiveType.String),
+                    InputFactory.Property("prop2", InputPrimitiveType.String),
+                ],
+                derivedModels: [derived]);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [baseModel, derived],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync())).Object;
+
+            var modelFactory = _instance!.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task BackCompatibility_AbstractReturnTypeWithoutConcreteUnknownModelIsSkipped(bool hasUnknownModel)
+        {
+            var derived = InputFactory.Model("DerivedModel", discriminatedKind: "derived");
+            var baseModel = InputFactory.Model(
+                "AbstractModel",
+                properties:
+                [
+                    InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: hasUnknownModel),
+                    InputFactory.Property("prop1", InputPrimitiveType.String),
+                ],
+                derivedModels: hasUnknownModel ? [derived] : []);
+
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: hasUnknownModel ? [baseModel, derived] : [baseModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompatibility_AbstractReturnTypeWithoutCurrentOverload)))).Object;
+
+            var modelFactory = _instance!.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            Assert.IsEmpty(modelFactory.Methods.Where(m => m.Signature.Name is "AbstractModel" or "AbstractModelOldName"));
+        }
+
+        [Test]
         public async Task BackCompatibility_UnknownDiscriminatorReturnTypeOverloadIsGenerated()
         {
             var derived = InputFactory.Model("DerivedModel", discriminatedKind: "derived");

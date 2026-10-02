@@ -1,7 +1,7 @@
 {
   "name": "typespec-vscode",
   "private": true,
-  "version": "1.15.0",
+  "version": "1.16.0",
   "author": "Microsoft Corporation",
   "description": "TypeSpec language support for VS Code",
   "homepage": "https://typespec.io",
@@ -27,7 +27,7 @@
   "main": "./dist/src/extension.cjs",
   "browser": "./dist/src/web/extension.js",
   "engines": {
-    "vscode": "^1.125.0"
+    "vscode": "^1.136.0"
   },
   "exports": {
     ".": {
@@ -282,14 +282,14 @@
     "deploy": "vsce publish",
     "open-in-browser": "vscode-test-web --extensionDevelopmentPath=. .",
     "test:e2e": "pnpm test:web && pnpm test:extension",
-    "test:web": "vscode-test-web --quality stable --commit=8a7abeba6e03ea3af87bfbce9a1b7e48fed567b8 --port 3011 --extensionDevelopmentPath=. --headless --extensionTestsPath=dist/test/web/suite.js ./test/web/data",
+    "test:web": "vscode-test-web --quality stable --port 3011 --extensionDevelopmentPath=. --headless --extensionTestsPath=dist/test/web/suite.js ./test/web/data",
     "test:extension": "vitest run --root test/extension"
   },
   "devDependencies": {
     "@types/cross-spawn": "catalog:",
     "@types/node": "catalog:",
     "@types/semver": "catalog:",
-    "@types/vscode": "~1.125.0",
+    "@types/vscode": "~1.136.0",
     "@types/which": "catalog:",
     "@typespec/compiler": "workspace:^",
     "@typespec/internal-build-utils": "workspace:^",

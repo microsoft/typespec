@@ -7,7 +7,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
@@ -22,6 +24,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 {
     public class ModelProviderTests
     {
+        string? _projectDir = null;
+
         [SetUp]
         public void Setup()
         {
@@ -44,6 +48,32 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
 
             Assert.IsNotNull(provider);
             Assert.AreEqual("BaseModel description", provider!.Description.ToString());
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        [SetCulture("en-US")]
+        public void DerivedModelsAreSortedAndDeduplicated(bool reverseInputOrder)
+        {
+            var cat = InputFactory.Model("Cat");
+            var zebra = InputFactory.Model("Zebra");
+            var antelope = InputFactory.Model("antelope", isExactName: true);
+            InputModelType[] subtypes = [zebra, cat];
+            InputModelType[] derivedModels = [antelope, cat];
+            if (reverseInputOrder)
+            {
+                Array.Reverse(subtypes);
+                Array.Reverse(derivedModels);
+            }
+
+            var inputModel = InputFactory.Model(
+                "Animal",
+                discriminatedModels: subtypes.ToDictionary(m => m.Name),
+                derivedModels: derivedModels);
+            var model = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel);
+
+            Assert.IsNotNull(model);
+            Assert.AreEqual(new[] { "Cat", "Zebra", "antelope" }, model!.DerivedModels.Select(m => m.Name));
         }
 
         [Test]
@@ -98,6 +128,101 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var modelProvider = new ModelProvider(inputModel);
 
             Assert.AreEqual(expectedName, modelProvider.Name);
+        }
+
+        [TestCase("WidgetResponse", false, "WidgetResult")]
+        [TestCase("Response", false, "Result")]
+        [TestCase("widget_response", false, "WidgetResult")]
+        [TestCase("IpResponse", false, "IPResult")]
+        [TestCase("WidgetResponseResponse", false, "WidgetResponseResult")]
+        [TestCase("WidgetResponse", true, "WidgetResponse")]
+        [TestCase("IpResponse", true, "IpResponse")]
+        [TestCase("WidgetResult", false, "WidgetResult")]
+        [TestCase("ResponseWidget", false, "ResponseWidget")]
+        [TestCase("WidgetResponses", false, "WidgetResponses")]
+        [TestCase("Widgetresponse", false, "Widgetresponse")]
+        public void TestBuildName_ResponseSuffix(string inputName, bool isExactName, string expectedName)
+        {
+            var inputModel = InputFactory.Model(
+                inputName,
+                isExactName: isExactName,
+                properties: [InputFactory.Property("serviceResponse", InputPrimitiveType.String)]);
+            var model = new ModelProvider(inputModel);
+
+            Assert.AreEqual(expectedName, model.Name);
+            Assert.AreEqual($"{expectedName}.cs", Path.GetFileName(model.RelativeFilePath));
+            Assert.AreEqual("ServiceResponse", model.Properties[0].Name);
+        }
+
+        [TestCase("ErrorResponse", false, "ErrorResponse")]
+        [TestCase("ServiceErrorResponse", false, "ServiceErrorResponse")]
+        [TestCase("IpResponse", false, "IPResponse")]
+        [TestCase("IpResponse", true, "IpResponse")]
+        public void TestBuildName_ErrorResponseSuffix(string inputName, bool isExactName, string expectedName)
+        {
+            var inputModel = InputFactory.Model(
+                inputName,
+                usage: InputModelTypeUsage.Error | InputModelTypeUsage.Output | InputModelTypeUsage.Json,
+                isExactName: isExactName);
+            var model = new ModelProvider(inputModel);
+
+            Assert.AreEqual(expectedName, model.Name);
+            Assert.AreEqual($"{expectedName}.cs", Path.GetFileName(model.RelativeFilePath));
+        }
+
+        [TestCase("WidgetResponse", "WidgetResponse", false, false)]
+        [TestCase("WidgetResponse", "WidgetResponse", true, false)]
+        [TestCase("WidgetResponse", "WidgetResponse", false, true)]
+        [TestCase("WidgetResponse", "WidgetResponse", true, true)]
+        [TestCase("IpResponse", "IPResponse", false, false)]
+        [TestCase("IpResponse", "IPResponse", true, false)]
+        [TestCase("IpResponse", "IPResponse", false, true)]
+        [TestCase("IpResponse", "IPResponse", true, true)]
+        [TestCase("DbResponse", "DbResponse", false, false)]
+        [TestCase("DbResponse", "DbResponse", true, false)]
+        [TestCase("DbResponse", "DbResponse", false, true)]
+        [TestCase("DbResponse", "DbResponse", true, true)]
+        public async Task TestBuildName_ResponseSuffixPreservesExistingName(
+            string inputName, string expectedName, bool lastContract, bool updateNamespace)
+        {
+            var inputModel = InputFactory.Model(
+                inputName, @namespace: updateNamespace ? "Sample" : "Sample.Models");
+            var compilation = await Helpers.GetCompilationFromDirectoryAsync();
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                compilation: lastContract ? null : () => Task.FromResult(compilation),
+                lastContractCompilation: lastContract ? () => Task.FromResult(compilation) : null);
+            var model = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
+
+            if (updateNamespace)
+            {
+                Assert.That(model.Name, Does.EndWith("Result"));
+                model.Update(@namespace: "Sample.Models");
+            }
+
+            Assert.AreEqual(expectedName, model.Name);
+            Assert.IsNotNull(lastContract ? model.LastContractView : model.CustomCodeView);
+        }
+
+        [TestCase("WidgetResponse", "CustomizedWidget", false)]
+        [TestCase("WidgetResponse", "CustomizedWidget", true)]
+        [TestCase("IpResponse", "CustomizedIP", false)]
+        [TestCase("IpResponse", "CustomizedIP", true)]
+        [TestCase("GadgetResponse", "CustomizedGadget", false)]
+        public async Task TestBuildName_ResponseSuffixPreservesCustomName(
+            string inputName, string expectedName, bool isError)
+        {
+            var inputModel = InputFactory.Model(inputName,
+                usage: InputModelTypeUsage.Output | InputModelTypeUsage.Json |
+                    (isError ? InputModelTypeUsage.Error : InputModelTypeUsage.None));
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var model = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
+
+            Assert.AreEqual(expectedName, model.Name);
+            Assert.IsNotNull(model.CustomCodeView);
         }
 
         [Test]
@@ -1998,15 +2123,17 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Directory.CreateDirectory(nugetCacheDir);
 
             const string pkgName = "Test.ModelProvider.External";
+            const string pkgVersion = "1.0.0";
             const string typeName = "Test.ModelProvider.External.MyExternalType";
             FakeNuGetPackage.Create(
                 nugetCacheDir,
                 pkgName,
-                "1.0.0",
+                pkgVersion,
                 $"namespace {pkgName} {{ public class MyExternalType {{ }} }}");
 
             var originalNugetPackages = Environment.GetEnvironmentVariable("NUGET_PACKAGES", EnvironmentVariableTarget.Process);
             Environment.SetEnvironmentVariable("NUGET_PACKAGES", nugetCacheDir, EnvironmentVariableTarget.Process);
+
             ExternalTypeReferenceResolver.Reset();
             try
             {
@@ -2020,7 +2147,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                         InputFactory.Property("name", InputPrimitiveType.String)
                     ]);
 
-                MockHelpers.LoadMockGenerator(inputModelTypes: [model]);
+                await CreateProjectAndLoadDependencies([pkgName], [pkgVersion], tempDir, nugetCacheDir, model);
                 await ExternalTypeReferenceResolver.ResolveAllAsync();
 
                 var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
@@ -2041,6 +2168,64 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 Environment.SetEnvironmentVariable("NUGET_PACKAGES", originalNugetPackages, EnvironmentVariableTarget.Process);
                 Directory.Delete(tempDir, true);
             }
+        }
+
+        private async Task CreateProjectAndLoadDependencies(string[] packages, string?[] versions, string temporaryDir, string nugetCache, InputModelType model)
+        {
+            _projectDir = Path.Combine(temporaryDir, "ProjectDir");
+            Directory.CreateDirectory(Path.Combine(_projectDir, "src"));
+            Assert.That(packages.Length, Is.EqualTo(versions.Length), "Each package must have a version (it can be null)");
+            StringBuilder sbPackagesProject = new();
+            StringBuilder sbPackagesAssets = new();
+            string tab = "    ";
+            for (int i = 0; i < packages.Length; i++)
+            {
+                sbPackagesProject.Append($"\n  <PackageReference Include=\"{packages[i]}\">\n    <Version>{versions[i]}</Version>\n  </PackageReference>\n");
+                sbPackagesAssets.Append($"\n{tab}{tab}\"{packages[i]}\": {{\n{tab}{tab}{tab}\"type\": \"package\",\n{tab}{tab}{tab}\"dependencies\": {{}}\n{tab}{tab}}}\n");
+            }
+            var csprojContent = $@"<Project Sdk=""Microsoft.NET.Sdk"">
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;net10.0</TargetFrameworks>
+  </PropertyGroup>
+  <ItemGroup>{sbPackagesProject}</ItemGroup>
+</Project>";
+            string minimalProjectAssets = $$"""
+            {
+              "version": 4,
+              "targets": {
+                  "netstandard2.0": {{{sbPackagesAssets}}
+                  },
+                  "net10.0": {{{sbPackagesAssets}}
+                  }
+              }
+            }
+            """;
+            Assert.That(_projectDir, Is.Not.Null.And.Not.Empty);
+            Directory.CreateDirectory(Path.Combine(_projectDir!, "src"));
+            Directory.CreateDirectory(Path.Combine(_projectDir!, "src", "obj"));
+            string ns = "TestProject";
+            File.WriteAllText(Path.Combine(_projectDir!, "src", "obj", "project.assets.json"), minimalProjectAssets);
+            File.WriteAllText(Path.Combine(_projectDir!, "src", $"{ns}.csproj"), csprojContent);
+
+            MockHelpers.LoadMockGenerator(
+                inputNamespaceName: ns,
+                outputPath: _projectDir!,
+                inputModelTypes: [model],
+                configuration: $"{{\"package-name\": \"{ns}\"}}");
+            await GeneratedCodeWorkspace.AddPackageReferencesFromProject();
+            var nugetConfigPath = Path.Combine(_projectDir, "NuGet.Config");
+            var normalizedCachePath = nugetCache.Replace("\\", "/");
+            var config = $@"<?xml version=""1.0"" encoding=""utf-8""?>
+<configuration>
+    <packageSources>
+        <clear />
+        <add key=""local-cache"" value=""{normalizedCachePath}"" />
+    </packageSources>
+    <disabledPackageSources>
+        <clear />
+    </disabledPackageSources>
+</configuration>";
+            await File.WriteAllTextAsync(nugetConfigPath, config);
         }
 
         [Test]
@@ -3458,6 +3643,15 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             else
             {
                 Assert.IsNull(rawDataField, "Expected _additionalBinaryDataProperties field to NOT be generated for XML-only models");
+            }
+        }
+
+        [TearDown]
+        public void CleanUp()
+        {
+            if(_projectDir != null && Directory.Exists(_projectDir))
+            {
+                Directory.Delete(_projectDir, true);
             }
         }
     }
