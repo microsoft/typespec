@@ -73,7 +73,7 @@ namespace SampleTypeSpec
             {
                 throw new FormatException($"The model {nameof(OptionalNullableFieldNames)} does not support writing '{format}' format.");
             }
-            if (_additionalStringPropertiesIsDefined0 || Optional.IsDefined(AdditionalStringProperties))
+            if (_additionalStringPropertiesIsDefined1 || Optional.IsDefined(AdditionalStringProperties))
             {
                 if (AdditionalStringProperties != null)
                 {
@@ -149,7 +149,7 @@ namespace SampleTypeSpec
             {
                 return null;
             }
-            bool additionalStringPropertiesIsDefined0 = false;
+            bool additionalStringPropertiesIsDefined1 = false;
             string additionalStringProperties = default;
             bool additionalStringPropertiesIsDefinedIsDefined = false;
             string additionalStringPropertiesIsDefined = default;
@@ -159,7 +159,7 @@ namespace SampleTypeSpec
             {
                 if (prop.NameEquals("additionalStringProperties"u8))
                 {
-                    additionalStringPropertiesIsDefined0 = true;
+                    additionalStringPropertiesIsDefined1 = true;
                     if (prop.Value.ValueKind == JsonValueKind.Null)
                     {
                         additionalStringProperties = null;
@@ -195,7 +195,7 @@ namespace SampleTypeSpec
             }
             return new OptionalNullableFieldNames(additionalStringProperties, additionalStringPropertiesIsDefined, additionalProperties, additionalBinaryDataProperties)
             {
-                _additionalStringPropertiesIsDefined0 = additionalStringPropertiesIsDefined0,
+                _additionalStringPropertiesIsDefined1 = additionalStringPropertiesIsDefined1,
                 _additionalStringPropertiesIsDefinedIsDefined = additionalStringPropertiesIsDefinedIsDefined
             };
         }

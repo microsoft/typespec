@@ -123,15 +123,23 @@ namespace TestProjects.Local.Tests
                 """{"additionalStringProperties":"value","additionalStringPropertiesIsDefined":null,"extra":"additional"}""")] string json,
             [Values("W", "J")] string readFormat,
             [Values("W", "J")] string writeFormat,
-            [Values(false, true)] bool useJsonModel)
+            [Values(null, JsonTokenType.None, JsonTokenType.StartObject)] JsonTokenType? readerToken)
         {
             var data = BinaryData.FromString(json);
             var options = new ModelReaderWriterOptions(readFormat);
             OptionalNullableFieldNames model;
-            if (useJsonModel)
+            if (readerToken is { } token)
             {
                 var reader = new Utf8JsonReader(data.ToMemory().Span);
+                if (token == JsonTokenType.StartObject)
+                {
+                    Assert.That(reader.Read(), Is.True);
+                }
+                Assert.That(reader.TokenType, Is.EqualTo(token));
                 model = ((IJsonModel<OptionalNullableFieldNames>)new OptionalNullableFieldNames()).Create(ref reader, options)!;
+                Assert.That(reader.TokenType, Is.EqualTo(JsonTokenType.EndObject));
+                Assert.That(reader.BytesConsumed, Is.EqualTo(data.ToMemory().Length));
+                Assert.That(reader.Read(), Is.False);
             }
             else
             {

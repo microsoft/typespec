@@ -16,8 +16,8 @@ namespace SampleTypeSpec
         /// <summary> Keeps track of any properties unknown to the library. </summary>
         private protected readonly IDictionary<string, BinaryData> _additionalBinaryDataProperties;
         private IDictionary<string, string> _additionalStringProperties;
-        private string _additionalStringProperties0;
-        internal bool _additionalStringPropertiesIsDefined0;
+        private string _additionalStringProperties1;
+        internal bool _additionalStringPropertiesIsDefined1;
         private string _additionalStringPropertiesIsDefined;
         internal bool _additionalStringPropertiesIsDefinedIsDefined;
 
@@ -34,7 +34,7 @@ namespace SampleTypeSpec
         /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
         internal OptionalNullableFieldNames(string additionalStringProperties, string additionalStringPropertiesIsDefined, IDictionary<string, string> additionalProperties, IDictionary<string, BinaryData> additionalBinaryDataProperties)
         {
-            _additionalStringProperties0 = additionalStringProperties;
+            _additionalStringProperties1 = additionalStringProperties;
             _additionalStringPropertiesIsDefined = additionalStringPropertiesIsDefined;
             _additionalStringProperties = additionalProperties;
             _additionalBinaryDataProperties = additionalBinaryDataProperties;
@@ -45,12 +45,12 @@ namespace SampleTypeSpec
         {
             get
             {
-                return _additionalStringProperties0;
+                return _additionalStringProperties1;
             }
             set
             {
-                _additionalStringProperties0 = value;
-                _additionalStringPropertiesIsDefined0 = true;
+                _additionalStringProperties1 = value;
+                _additionalStringPropertiesIsDefined1 = true;
             }
         }
 

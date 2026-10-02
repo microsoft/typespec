@@ -250,6 +250,28 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
 
             Assert.That(model.Fields.Select(f => f.Name), Is.Unique);
             Assert.That(model.Properties.Select(p => p.BackingField!.Type), Is.All.EqualTo(model.Properties[0].Type));
+            Assert.That(ScmModel.GetNullablePropertyPresence(model.Properties[0])!.Name, Is.EqualTo("_textIsDefined1"));
+        }
+
+        [Test]
+        public void OptionalNullableFieldsPreserveDeclarationOrder(
+            [Values(false, true)] bool isDynamic,
+            [Values(0, 1, 128)] int propertyCount)
+        {
+            var model = new ScmModel(InputFactory.Model("model", isDynamicModel: isDynamic,
+                additionalProperties: InputPrimitiveType.String,
+                properties: Enumerable.Range(0, propertyCount)
+                    .Select(i => InputFactory.Property($"text{i}", new InputNullableType(InputPrimitiveType.String))).ToArray()));
+            var nullableProperties = model.Properties.Where(p => ScmModel.GetNullablePropertyPresence(p) is not null).ToArray();
+            var expectedFields = nullableProperties
+                .SelectMany(p => new[] { p.BackingField!, ScmModel.GetNullablePropertyPresence(p)! }).ToArray();
+            var presenceFieldSet = expectedFields.ToHashSet();
+
+            Assert.That(nullableProperties, Has.Length.EqualTo(propertyCount));
+            Assert.That(model.Fields.Select(f => f.Name), Is.Unique);
+            Assert.That(model.Fields.Where(presenceFieldSet.Contains), Is.EqualTo(expectedFields));
+            Assert.That(model.Fields, Does.Contain(model.Properties.Single(p => p.IsAdditionalProperties).BackingField));
+            Assert.That(model.Fields.Count(f => f.Name.EndsWith("IsDefined", StringComparison.Ordinal)), Is.EqualTo(propertyCount));
         }
 
         [TestCase(false)]
@@ -264,7 +286,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
                 ]));
 
             var property = model.Properties.Single(p => p.Name == "AdditionalStringProperties");
-            Assert.That(property.BackingField!.Name, Is.Not.EqualTo("_additionalStringProperties"));
+            Assert.That(property.BackingField!.Name, Is.EqualTo("_additionalStringProperties1"));
+            Assert.That(ScmModel.GetNullablePropertyPresence(property)!.Name, Is.EqualTo("_additionalStringPropertiesIsDefined1"));
             Assert.That(model.Fields.Select(f => f.Name), Is.Unique);
             Assert.That(model.Fields, Does.Contain(property.BackingField));
             Assert.That(model.Properties.Single(p => p.IsAdditionalProperties).BackingField!.Type.IsDictionary, Is.True);
@@ -283,9 +306,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
             var model = (ScmModel)ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(derivedModel)!;
             var customFields = model.BaseModelProvider!.BaseModelProvider!.CustomCodeView!.Fields;
 
-            Assert.That(customFields.Select(f => f.Name), Is.EquivalentTo(new[] { "_text", "_textIsDefined" }));
+            Assert.That(customFields.Select(f => f.Name), Is.EquivalentTo(new[]
+            {
+                "_text", "_text1", "_text2", "_text4",
+                "_textIsDefined", "_textIsDefined1", "_textIsDefined2", "_textIsDefined4"
+            }));
             Assert.That(model.Fields.Select(f => f.Name).Intersect(customFields.Select(f => f.Name)), Is.Empty);
-            Assert.That(ScmModel.GetNullablePropertyPresence(model.Properties.Single()), Is.Not.Null);
+            var property = model.Properties.Single();
+            Assert.That(property.BackingField!.Name, Is.EqualTo("_text3"));
+            Assert.That(ScmModel.GetNullablePropertyPresence(property)!.Name, Is.EqualTo("_textIsDefined3"));
         }
 
         [TestCase("URL", "_url", "_urlIsDefined")]
@@ -388,6 +417,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
             Assert.That(baseProperty.BackingField!.Name, Is.EqualTo(property.BackingField!.Name));
             Assert.That(baseProperty.BackingField.Modifiers, Is.EqualTo(FieldModifiers.Private | FieldModifiers.Protected));
             Assert.That(model.BaseModelProvider.Fields.Select(f => f.Name), Is.Unique);
+            Assert.That(model.BaseModelProvider.Fields.Count(f => f.Name == baseProperty.BackingField.Name), Is.EqualTo(1));
+            Assert.That(model.BaseModelProvider.Fields, Does.Contain(ScmModel.GetNullablePropertyPresence(baseProperty)));
         }
 
         [TestCase(false)]

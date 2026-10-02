@@ -78,14 +78,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         protected override FieldProvider[] BuildFields()
         {
             var fields = base.BuildFields().ToList();
+            HashSet<string>? fieldNames = null;
             foreach (var property in Properties)
             {
                 if (_nullablePropertyPresence.TryGetValue(property, out var presence) && presence.EnclosingType == this)
                 {
-                    if (property.BackingField is { } backingField && !fields.Any(f => f.Name == backingField.Name))
+                    fieldNames ??= new HashSet<string>(fields.Select(f => f.Name), StringComparer.Ordinal);
+                    if (property.BackingField is { } backingField && fieldNames.Add(backingField.Name))
                     {
                         fields.Add(backingField);
                     }
+                    fieldNames.Add(presence.Name);
                     fields.Add(presence);
                 }
             }
@@ -166,7 +169,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private static string GetAvailableFieldName(string preferredName, HashSet<string> reservedNames)
         {
             var name = preferredName;
-            for (var suffix = 0; !reservedNames.Add(name); suffix++)
+            for (var suffix = 1; !reservedNames.Add(name); suffix++)
             {
                 name = $"{preferredName}{suffix}";
             }
