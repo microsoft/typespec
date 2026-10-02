@@ -103,29 +103,3 @@ namespace Lib {
 ```
 
 The full name is always accepted. If two loaded libraries would resolve to the same short name, that short name becomes ambiguous: referencing it reports a warning and you must use the full name for those libraries.
-
-### Api
-
-Use `collectSuppressions` from `@typespec/compiler/ast` to inspect directives without compiling a project or loading its dependencies:
-
-```ts
-import { createSourceFile } from "@typespec/compiler";
-import { collectSuppressions, parse } from "@typespec/compiler/ast";
-
-const script = parse(createSourceFile(text, "main.tsp"));
-if (script.parseDiagnostics.some((diagnostic) => diagnostic.severity === "error")) {
-  throw new Error("Cannot produce a complete inventory from invalid TypeSpec.");
-}
-
-for (const { directive, target, location, scope } of collectSuppressions(script)) {
-  console.log(directive.code, directive.message);
-  console.log(location.file.path, location.file.getLineAndCharacterOfPosition(location.pos));
-  console.log(scope.map(({ name }) => name));
-}
-```
-
-Each result contains the directive, its attached syntax node (`target`), a source range, and structural declaration context (`scope`). Context is ordered outermost first and includes file-scoped namespaces and the target when it is a declaration or member. Anonymous containers have no name. Context is not a unique identifier or a description of which diagnostics the directive suppresses; tools choose their own reporting identities.
-
-Results are in source order. Separate duplicate directives are retained, but multiple AST references to the same directive are returned once. Codes are preserved without resolving short names or aliases, and collection does not check whether a directive is used or effective. Missing justifications are returned as empty strings.
-
-Locations work on unbound parsed files. Use `location.file.text.slice(location.pos, location.end)` for source text; directive ranges can include trailing trivia. Line and character positions are zero-based. The collector does not modify the AST and is subject to the [AST compatibility policy](../handbook/breaking-change-policy.mdx).
