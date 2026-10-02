@@ -8,9 +8,44 @@ $global:compareGenerationTest = @{
     Scenario = ''
     Library = ''
     Emitter = ''
+    EmitterManifest = ''
+}
+
+function Get-EmitterManifest {
+    $files = @(Get-ChildItem $global:compareGenerationTest.Emitter -File -Recurse -Force |
+        Sort-Object FullName | ForEach-Object {
+            [ordered]@{
+                path = [IO.Path]::GetRelativePath($global:compareGenerationTest.Emitter, $_.FullName)
+                hash = (Get-FileHash -LiteralPath $_.FullName).Hash
+            }
+        })
+    return ConvertTo-Json -InputObject $files -Compress
+}
+
+function Assert-EmitterRestored {
+    if ((Get-EmitterManifest) -cne $global:compareGenerationTest.EmitterManifest) {
+        throw 'E2E comparison did not restore the pristine emitter directory.'
+    }
 }
 
 function Invoke-FakeGeneration([string]$variant, [bool]$endToEnd) {
+    if ($endToEnd) {
+        $emitter = $global:compareGenerationTest.Emitter
+        $other = if ($variant -eq 'baseline') { 'candidate' } else { 'baseline' }
+        if ((Get-Content -Raw (Join-Path $emitter 'plugin.dll')).Trim() -ne 'same external plugin' -or
+            (Get-Content -Raw (Join-Path $emitter 'plugins' 'nested.dll')).Trim() -ne 'nested external plugin' -or
+            (Get-Content -Raw (Join-Path $emitter 'dependency.dll')).Trim() -ne 'same dependency' -or
+            (Get-Content -Raw (Join-Path $emitter 'runtime.dll')).Trim() -ne $variant -or
+            (Get-Content -Raw (Join-Path $emitter "$variant-only.dll")).Trim() -ne $variant -or
+            (Get-Content -Raw (Join-Path $emitter 'resources' "$variant.txt")).Trim() -ne $variant -or
+            (Test-Path -LiteralPath (Join-Path $emitter "$other-only.dll")) -or
+            (Test-Path -LiteralPath (Join-Path $emitter 'resources' "$other.txt")) -or
+            (Test-Path -LiteralPath (Join-Path $emitter 'generation.tmp'))) {
+            throw 'E2E staging retained another build or failed to restore pristine plugins.'
+        }
+        Set-Content (Join-Path $emitter 'generation.tmp') $variant
+        Set-Content (Join-Path $emitter 'plugin.dll') 'changed by generation'
+    }
     $global:compareGenerationTest.Calls.Add($variant)
     $global:LASTEXITCODE = 0
     if ($global:compareGenerationTest.Scenario -eq 'exit') {
@@ -60,9 +95,9 @@ function New-Case([string]$name) {
     $global:compareGenerationTest.Emitter = $emitter
     foreach ($directory in @(
         (Join-Path $library 'src' 'Generated'),
-        $emitter,
-        (Join-Path $caseRoot 'baseline'),
-        (Join-Path $caseRoot 'candidate')
+        (Join-Path $emitter 'plugins'),
+        (Join-Path $caseRoot 'baseline' 'resources'),
+        (Join-Path $caseRoot 'candidate' 'resources')
     )) {
         New-Item -ItemType Directory -Path $directory -Force | Out-Null
     }
@@ -72,8 +107,15 @@ function New-Case([string]$name) {
     foreach ($variant in @('baseline', 'candidate')) {
         Set-Content (Join-Path $caseRoot $variant 'Microsoft.TypeSpec.Generator.dll') $variant
         Set-Content (Join-Path $caseRoot $variant 'dependency.dll') 'same dependency'
+        Set-Content (Join-Path $caseRoot $variant 'runtime.dll') $variant
+        Set-Content (Join-Path $caseRoot $variant "$variant-only.dll") $variant
+        Set-Content (Join-Path $caseRoot $variant 'resources' "$variant.txt") $variant
     }
+    Set-Content (Join-Path $emitter 'Microsoft.TypeSpec.Generator.dll') 'original generator'
+    Set-Content (Join-Path $emitter 'runtime.dll') 'original runtime'
     Set-Content (Join-Path $emitter 'plugin.dll') 'same external plugin'
+    Set-Content (Join-Path $emitter 'plugins' 'nested.dll') 'nested external plugin'
+    $global:compareGenerationTest.EmitterManifest = Get-EmitterManifest
     return @{
         BaselineGenerator = Join-Path $caseRoot 'baseline' 'Microsoft.TypeSpec.Generator.dll'
         CandidateGenerator = Join-Path $caseRoot 'candidate' 'Microsoft.TypeSpec.Generator.dll'
@@ -98,9 +140,44 @@ function Assert-Failure([string]$scenario, [string]$message, [bool]$endToEnd = $
         if ($_.Exception.Message -notlike "*$message*") {
             throw "Unexpected failure for ${scenario}: $($_.Exception.Message)"
         }
+        if ($endToEnd) {
+            Assert-EmitterRestored
+        }
         return
     }
     throw "Expected failure for $scenario"
+}
+
+function Assert-InvalidStaging([string]$scenario) {
+    $parameters = New-Case $scenario
+    $buildDirectory = Split-Path $parameters.BaselineGenerator
+    $parameters.EmitterGeneratorDirectory = switch ($scenario) {
+        'same-build' { $buildDirectory }
+        'build-parent' { Split-Path $buildDirectory }
+        'build-child' { Join-Path $buildDirectory 'staging' }
+        'same-results' { $parameters.ResultDirectory }
+        'results-child' { Join-Path $parameters.ResultDirectory 'staging' }
+        'results-parent' { $emitter }
+        'root' { [IO.Path]::GetPathRoot($emitter) }
+    }
+    if ($scenario -eq 'results-parent') {
+        $parameters.ResultDirectory = Join-Path $emitter 'results'
+    }
+    New-Item -ItemType Directory -Path $parameters.EmitterGeneratorDirectory -Force | Out-Null
+    $originalBuildHash = (Get-FileHash -LiteralPath $parameters.BaselineGenerator).Hash
+    $message = if ($scenario -eq 'root') { 'cannot be a filesystem root' } else { 'must be separate' }
+    try {
+        & $compare @parameters | Out-Null
+    }
+    catch {
+        if ($_.Exception.Message -notlike "*$message*" -or
+            $global:compareGenerationTest.Calls.Count -ne 0 -or
+            (Get-FileHash -LiteralPath $parameters.BaselineGenerator).Hash -ne $originalBuildHash) {
+            throw "Staging isolation failed for ${scenario}: $($_.Exception.Message)"
+        }
+        return
+    }
+    throw "Expected staging rejection for $scenario"
 }
 
 try {
@@ -139,6 +216,7 @@ try {
     $parameters = New-Case 'end-to-end'
     $parameters.EmitterGeneratorDirectory = $emitter
     & $compare @parameters | Out-Null
+    Assert-EmitterRestored
     $results = Get-Content -Raw (Join-Path $parameters.ResultDirectory 'results.json') | ConvertFrom-Json
     if ($results.measurement -ne 'typespec-to-csharp' -or
         ($global:compareGenerationTest.Calls -join ',') -ne 'baseline,candidate,candidate,baseline,baseline,candidate' -or
@@ -157,7 +235,10 @@ try {
     Assert-Failure 'empty' 'No generated files found' $true
     Assert-Failure 'output' 'Generated output differs' $true
     Assert-Failure 'input' 'Saved generator inputs changed' $true
-    Write-Output 'Compare-Generation tests passed (generator/E2E modes, medians and ten failure cases).'
+    foreach ($scenario in @('same-build', 'build-parent', 'build-child', 'same-results', 'results-parent', 'results-child', 'root')) {
+        Assert-InvalidStaging $scenario
+    }
+    Write-Output 'Compare-Generation tests passed (generator/E2E modes, asymmetric staging, restoration, medians and seventeen failure cases).'
 }
 finally {
     Remove-Variable -Name compareGenerationTest -Scope Global

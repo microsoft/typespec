@@ -238,8 +238,12 @@ of `GeneratorName`:
   -ResultDirectory C:\bench\appconfiguration-e2e
 ```
 
-This mode stages each build's complete directory into the isolated emitter package before
-the timer starts, then runs `tsp-client generate --skip-install --save-inputs`. It includes
+This mode snapshots the isolated emitter's pristine directory, restores it before staging
+each build's complete directory, then runs `tsp-client generate --skip-install --save-inputs`.
+Restoring preserves external plugins without retaining files from the preceding build.
+The original emitter directory is also restored after completion or failure. All snapshot,
+restoration and staging work is outside the timer; staging must not overlap build or result
+directories. The timed command includes
 TypeSpec compilation, emitter processing and C# generation. Both builds must use identical
 compiler, TypeScript emitter, external plugin and dependency versions. Never stage into
 a shared or main checkout. Installation and spec synchronization are setup, not timed work;
