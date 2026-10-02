@@ -13,21 +13,21 @@ namespace TestProjects.Local.Tests
 {
     public class CustomizationTests
     {
-        [TestCase("GetNotebookResult", "GetNotebookResponse", true)]
-        [TestCase("GetWidgetMetricsResult", "GetWidgetMetricsResponse", true)]
-        [TestCase("ListWithContinuationTokenHeaderResponseResult", "ListWithContinuationTokenHeaderResponseResponse", false)]
-        [TestCase("ListWithContinuationTokenResult", "ListWithContinuationTokenResponse", false)]
-        [TestCase("ListWithNextLinkResult", "ListWithNextLinkResponse", false)]
-        [TestCase("ListWithStringNextLinkResult", "ListWithStringNextLinkResponse", false)]
-        [TestCase("ReturnsAnonymousModelResult", "ReturnsAnonymousModelResponse", true)]
-        [TestCase("LifecycleModel", null, true)]
-        [TestCase("PagePreviewDetails", null, false)]
-        [TestCase("PreviewDetails", null, true)]
-        [TestCase("PageThing", null, false)]
-        [TestCase("UnknownAnimal", null, false)]
-        [TestCase("UnknownPet", null, false)]
-        [TestCase("UnknownPlant", null, false)]
-        public void ModelReaderWriterContextRegistersOnlyPublicModels(string modelName, string? previousName, bool isPublic)
+        [TestCase("GetNotebookResult", "GetNotebookResponse", true, true)]
+        [TestCase("GetWidgetMetricsResult", "GetWidgetMetricsResponse", true, true)]
+        [TestCase("ListWithContinuationTokenHeaderResponseResult", "ListWithContinuationTokenHeaderResponseResponse", false, true)]
+        [TestCase("ListWithContinuationTokenResult", "ListWithContinuationTokenResponse", false, true)]
+        [TestCase("ListWithNextLinkResult", "ListWithNextLinkResponse", false, true)]
+        [TestCase("ListWithStringNextLinkResult", "ListWithStringNextLinkResponse", false, true)]
+        [TestCase("ReturnsAnonymousModelResult", "ReturnsAnonymousModelResponse", true, true)]
+        [TestCase("LifecycleModel", null, true, true)]
+        [TestCase("PagePreviewDetails", null, false, false)]
+        [TestCase("PreviewDetails", null, true, true)]
+        [TestCase("PageThing", null, false, true)]
+        [TestCase("UnknownAnimal", null, false, true)]
+        [TestCase("UnknownPet", null, false, true)]
+        [TestCase("UnknownPlant", null, false, true)]
+        public void ModelReaderWriterContextRegistersBuildableModels(string modelName, string? previousName, bool isPublic, bool isRegistered)
         {
             var modelType = typeof(SampleTypeSpecClient).Assembly.GetType($"SampleTypeSpec.{modelName}");
             Assert.IsNotNull(modelType);
@@ -37,7 +37,7 @@ namespace TestProjects.Local.Tests
                 .Select(attribute => (Type)attribute.ConstructorArguments[0].Value!)
                 .ToArray();
 
-            Assert.AreEqual(isPublic ? 1 : 0, registeredTypes.Count(type => type == modelType));
+            Assert.AreEqual(isRegistered ? 1 : 0, registeredTypes.Count(type => type == modelType));
             if (previousName != null)
             {
                 Assert.IsNull(typeof(SampleTypeSpecClient).Assembly.GetType($"SampleTypeSpec.{previousName}"));
