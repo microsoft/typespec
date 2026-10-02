@@ -107,6 +107,44 @@ Optional message fields (TypeSpec optional properties where the type is a model)
 
 Optional `repeated` and `map` fields are emitted without `optional` and produce a warning; protobuf cannot distinguish between _unset_ and _empty_ for those shapes because they are represented by "repeating" a field index within the protobuf message payload (if the field isn't set in the message, that means "_empty_" and there is no alternative to represent "_this field is not set_").
 
+### Enums
+
+Enums referenced by messages are translated into Protobuf enums. Every member must have an explicit integer value, and the first member must have value `0`. Values do not need to be consecutive. If multiple members share a number, the emitter adds `option allow_alias = true`.
+
+By default, enum member names are emitted unchanged. Protobuf enum values share their containing scope, so values from different package-level enums cannot have the same name. Both [AIP-126](https://google.aip.dev/126) and the [Protobuf style guide](https://protobuf.dev/programming-guides/style/#enum-value-prefixing) recommend prefixing all package-level enum values with the enum name.
+
+To write short TypeSpec member names while emitting prefixed `UPPER_SNAKE_CASE` values, enable `enum-value-prefix`:
+
+```yaml
+options:
+  "@typespec/protobuf":
+    enum-value-prefix: enum-name
+```
+
+For example, this enum referenced by a message:
+
+```typespec
+enum OrderState {
+  Unspecified: 0,
+  Pending: 1,
+  Shipped: 2,
+}
+```
+
+is emitted as:
+
+```protobuf
+enum OrderState {
+  ORDER_STATE_UNSPECIFIED = 0;
+  ORDER_STATE_PENDING = 1;
+  ORDER_STATE_SHIPPED = 2;
+}
+```
+
+The enum name and member name are converted to `UPPER_SNAKE_CASE`, with acronyms treated as words: `HTTPStatus.HttpTimeout` becomes `HTTP_STATUS_HTTP_TIMEOUT`. Names that already start with the emitted enum prefix are preserved unchanged. Names that acquire the prefix during case conversion are not prefixed twice. The emitter reports an error if the resulting value name collides with another enum value or a declaration in the same Protobuf package.
+
+This option changes names only. It does not insert an `Unspecified` member or infer numbers, and an existing zero member such as `Unknown: 0` keeps its meaning. Numeric values, member order, and enum type names are preserved. Changing value names can affect generated APIs and Protobuf JSON strings, even though the numeric binary values remain unchanged.
+
 ### Services
 
 TypeSpec defines a "service" using the [`TypeSpec.service` decorator][native-service], but the Protobuf "service" concept is different and is denoted by the [`TypeSpec.Protobuf.service` decorator][protobuf-service].

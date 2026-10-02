@@ -4,6 +4,7 @@
 import type {
   DiagnosticTarget,
   Enum,
+  EnumMember,
   Interface,
   IntrinsicType,
   Model,
@@ -30,6 +31,7 @@ import {
 } from "@typespec/compiler";
 import { SyntaxKind } from "@typespec/compiler/ast";
 import { capitalize } from "@typespec/compiler/casing";
+import { constantCase } from "change-case";
 import type {
   ProtoEnumDeclaration,
   ProtoEnumVariantDeclaration,
@@ -101,6 +103,10 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
   const declaredMessages = [...(program.stateSet(state.message) as Set<Model>)];
 
   const declarationMap = new Map<Namespace, ProtoTopLevelDeclaration[]>(
+    [...packages].map((p) => [p, []]),
+  );
+
+  const enumValueNames = new Map<Namespace, { name: string; member: EnumMember }[]>(
     [...packages].map((p) => [p, []]),
   );
 
@@ -217,6 +223,20 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
   });
 
   checkForNamespaceCollisions(files);
+
+  for (const file of files) {
+    const names = new Set([...file.declarations].map((declaration) => declaration.name));
+    for (const { name, member } of enumValueNames.get(file.source) ?? []) {
+      if (names.has(name)) {
+        reportDiagnostic(program, {
+          target: member,
+          code: "enum-value-name-collision",
+          format: { name },
+        });
+      }
+      names.add(name);
+    }
+  }
 
   return files;
 
@@ -879,17 +899,36 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
    */
   function toEnum(e: Enum): ProtoEnumDeclaration {
     const needsAlias = new Set([...e.members.values()].map((v) => v.value)).size !== e.members.size;
+    const prefix =
+      emitterOptions["enum-value-prefix"] === "enum-name"
+        ? constantCase(e.name, { prefixCharacters: "_" }) + "_"
+        : undefined;
+    const enumPackage = getPackageOfType(program, e);
 
     return {
       kind: "enum",
       name: e.name,
       allowAlias: needsAlias,
-      variants: [...e.members.values()].map((variant): ProtoEnumVariantDeclaration => ({
-        kind: "variant",
-        name: variant.name,
-        value: variant.value as number,
-        doc: getDoc(program, variant),
-      })),
+      variants: [...e.members.values()].map((variant): ProtoEnumVariantDeclaration => {
+        let name = variant.name;
+        if (prefix !== undefined) {
+          if (!name.startsWith(prefix)) {
+            name = constantCase(name, { prefixCharacters: "_" });
+            if (!name.startsWith(prefix)) {
+              name = prefix + name;
+            }
+          }
+          if (enumPackage) {
+            enumValueNames.get(enumPackage)?.push({ name, member: variant });
+          }
+        }
+        return {
+          kind: "variant",
+          name,
+          value: variant.value as number,
+          doc: getDoc(program, variant),
+        };
+      }),
       doc: getDoc(program, e),
     };
   }
