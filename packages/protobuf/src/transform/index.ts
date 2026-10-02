@@ -106,9 +106,7 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
     [...packages].map((p) => [p, []]),
   );
 
-  const enumValueNames = new Map<Namespace, { name: string; member: EnumMember }[]>(
-    [...packages].map((p) => [p, []]),
-  );
+  const enumMemberSources = new WeakMap<ProtoEnumVariantDeclaration, EnumMember>();
 
   const visitedTypes = new Set<Type>();
 
@@ -224,17 +222,9 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
 
   checkForNamespaceCollisions(files);
 
-  for (const file of files) {
-    const names = new Set([...file.declarations].map((declaration) => declaration.name));
-    for (const { name, member } of enumValueNames.get(file.source) ?? []) {
-      if (names.has(name)) {
-        reportDiagnostic(program, {
-          target: member,
-          code: "enum-value-name-collision",
-          format: { name },
-        });
-      }
-      names.add(name);
+  if (emitterOptions["enum-value-prefix"] === "enum-name") {
+    for (const file of files) {
+      checkForEnumValueNameCollisions(file);
     }
   }
 
@@ -709,6 +699,39 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
     }
   }
 
+  function checkForEnumValueNameCollisions(file: ProtoFile) {
+    const declarations = [...file.declarations];
+    const names = new Map<
+      string,
+      { kind: ProtoTopLevelDeclaration["kind"] | "enum value"; owner: string }
+    >();
+
+    for (const declaration of declarations) {
+      if (!names.has(declaration.name)) {
+        names.set(declaration.name, { kind: declaration.kind, owner: declaration.name });
+      }
+    }
+
+    for (const declaration of declarations) {
+      if (declaration.kind !== "enum") continue;
+
+      for (const variant of declaration.variants) {
+        const member = enumMemberSources.get(variant);
+        compilerAssert(member, "Missing TypeSpec source for emitted enum value.");
+        const existing = names.get(variant.name);
+        if (existing) {
+          reportDiagnostic(program, {
+            target: member,
+            code: "enum-value-name-collision",
+            format: { name: variant.name, kind: existing.kind, owner: existing.owner },
+          });
+        } else {
+          names.set(variant.name, { kind: "enum value", owner: getTypeName(member) });
+        }
+      }
+    }
+  }
+
   /**
    * @param model - the Model to convert
    * @returns a corresponding message declaration
@@ -903,8 +926,6 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
       emitterOptions["enum-value-prefix"] === "enum-name"
         ? constantCase(e.name, { prefixCharacters: "_" }) + "_"
         : undefined;
-    const enumPackage = getPackageOfType(program, e);
-
     return {
       kind: "enum",
       name: e.name,
@@ -918,16 +939,15 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
               name = prefix + name;
             }
           }
-          if (enumPackage) {
-            enumValueNames.get(enumPackage)?.push({ name, member: variant });
-          }
         }
-        return {
+        const declaration: ProtoEnumVariantDeclaration = {
           kind: "variant",
           name,
           value: variant.value as number,
           doc: getDoc(program, variant),
         };
+        enumMemberSources.set(declaration, variant);
+        return declaration;
       }),
       doc: getDoc(program, e),
     };

@@ -155,7 +155,7 @@ export const TypeSpecProtobufLibrary = createTypeSpecLibrary({
     "enum-value-name-collision": {
       severity: "error",
       messages: {
-        default: paramMessage`enum value name '${"name"}' is already used in this Protobuf package`,
+        default: paramMessage`enum value name '${"name"}' collides with ${"kind"} '${"owner"}' in this Protobuf package`,
       },
     },
     "nested-array": {

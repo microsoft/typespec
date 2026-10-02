@@ -94,7 +94,7 @@ describe("enum-value-prefix", () => {
     expect(result.outputs["main.proto"]).not.toContain("_UNSPECIFIED");
   });
 
-  it("diagnoses member names that collide after normalization", async () => {
+  it("diagnoses member names that collide after normalization and identifies the first use", async () => {
     const [result, diagnostics] = await PrefixTester.compileAndDiagnose(`
       @package
       namespace Test;
@@ -105,13 +105,22 @@ describe("enum-value-prefix", () => {
         Unspecified: 0,
         InProgress: 1,
         in_progress: 2,
+        ORDER_STATE_IN_PROGRESS: 3,
       }
     `);
 
-    expectDiagnostics(diagnostics, {
-      code: "@typespec/protobuf/enum-value-name-collision",
-      message: "enum value name 'ORDER_STATE_IN_PROGRESS' is already used in this Protobuf package",
-    });
+    expectDiagnostics(diagnostics, [
+      {
+        code: "@typespec/protobuf/enum-value-name-collision",
+        message:
+          "enum value name 'ORDER_STATE_IN_PROGRESS' collides with enum value 'Test.OrderState.InProgress' in this Protobuf package",
+      },
+      {
+        code: "@typespec/protobuf/enum-value-name-collision",
+        message:
+          "enum value name 'ORDER_STATE_IN_PROGRESS' collides with enum value 'Test.OrderState.InProgress' in this Protobuf package",
+      },
+    ]);
     expect(result.outputs).toEqual({});
   });
 
@@ -131,14 +140,17 @@ describe("enum-value-prefix", () => {
 
     expectDiagnostics(diagnostics, {
       code: "@typespec/protobuf/enum-value-name-collision",
-      message: "enum value name 'ORDER_STATE_SHIPPED' is already used in this Protobuf package",
+      message:
+        "enum value name 'ORDER_STATE_SHIPPED' collides with enum value 'Test.OrderState.Shipped' in this Protobuf package",
     });
     expect(result.outputs).toEqual({});
   });
 
-  it("diagnoses collisions across enums in nested namespaces of the same package", async () => {
-    const [result, diagnostics] = await PrefixTester.compileAndDiagnose(`
-      @package
+  it.each(["@package", '@package({ name: "example.v1" })'])(
+    "diagnoses collisions across nested enums with %s",
+    async (packageDecorator) => {
+      const [result, diagnostics] = await PrefixTester.compileAndDiagnose(`
+      ${packageDecorator}
       namespace Test;
       model Example {
         @field(1) first: HTTPStatus;
@@ -154,12 +166,14 @@ describe("enum-value-prefix", () => {
       }
     `);
 
-    expectDiagnostics(diagnostics, {
-      code: "@typespec/protobuf/enum-value-name-collision",
-      message: "enum value name 'HTTP_STATUS_UNKNOWN' is already used in this Protobuf package",
-    });
-    expect(result.outputs).toEqual({});
-  });
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/protobuf/enum-value-name-collision",
+        message:
+          "enum value name 'HTTP_STATUS_UNKNOWN' collides with enum value 'Test.HTTPStatus.Unknown' in this Protobuf package",
+      });
+      expect(result.outputs).toEqual({});
+    },
+  );
 
   it("allows identical enum value names in different packages", async () => {
     const result = await PrefixTester.compile(`
@@ -187,26 +201,69 @@ describe("enum-value-prefix", () => {
     expect(result.outputs["second.proto"]).toContain("  ORDER_STATE_UNKNOWN = 0;");
   });
 
-  it("diagnoses a collision with a package-level message name", async () => {
-    const [result, diagnostics] = await PrefixTester.compileAndDiagnose(`
+  it.each([
+    {
+      kind: "message",
+      declaration: "@message model ORDER_STATE_SHIPPED {}",
+      field: "",
+    },
+    {
+      kind: "enum",
+      declaration: "enum ORDER_STATE_SHIPPED { Unknown: 0 }",
+      field: "@field(2) other: ORDER_STATE_SHIPPED;",
+    },
+    {
+      kind: "service",
+      declaration: "@Protobuf.service interface ORDER_STATE_SHIPPED { ping(): void; }",
+      field: "",
+    },
+  ])(
+    "diagnoses a collision with a package-level $kind and identifies its kind and name",
+    async ({ kind, declaration, field }) => {
+      const [result, diagnostics] = await PrefixTester.compileAndDiagnose(`
       @package
       namespace Test;
       model Example {
         @field(1) state: OrderState;
+        ${field}
       }
-      @message
-      model ORDER_STATE_SHIPPED {}
+      ${declaration}
       enum OrderState {
         Unknown: 0,
         Shipped: 1,
       }
     `);
 
-    expectDiagnostics(diagnostics, {
-      code: "@typespec/protobuf/enum-value-name-collision",
-      message: "enum value name 'ORDER_STATE_SHIPPED' is already used in this Protobuf package",
-    });
-    expect(result.outputs).toEqual({});
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/protobuf/enum-value-name-collision",
+        message: `enum value name 'ORDER_STATE_SHIPPED' collides with ${kind} 'ORDER_STATE_SHIPPED' in this Protobuf package`,
+      });
+      expect(result.outputs).toEqual({});
+    },
+  );
+
+  it("keeps collision validation opt-in when default names overlap across enums", async () => {
+    const result = await Tester.emit("@typespec/protobuf").compile(`
+      @package
+      namespace Test;
+      model Example {
+        @field(1) order: OrderState;
+        @field(2) payment: PaymentState;
+      }
+      enum OrderState {
+        Unknown: 0,
+      }
+      enum PaymentState {
+        Unknown: 0,
+      }
+    `);
+
+    expect(result.outputs["main.proto"]).toContain(`enum OrderState {
+  Unknown = 0;
+}`);
+    expect(result.outputs["main.proto"]).toContain(`enum PaymentState {
+  Unknown = 0;
+}`);
   });
 
   it("still requires an explicit integer on every member", async () => {

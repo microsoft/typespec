@@ -141,7 +141,7 @@ enum OrderState {
 }
 ```
 
-The enum name and member name are converted to `UPPER_SNAKE_CASE`, with acronyms treated as words: `HTTPStatus.HttpTimeout` becomes `HTTP_STATUS_HTTP_TIMEOUT`. Names that already start with the emitted enum prefix are preserved unchanged. Names that acquire the prefix during case conversion are not prefixed twice. The emitter reports an error if the resulting value name collides with another enum value or a declaration in the same Protobuf package.
+The enum name and member name are converted to `UPPER_SNAKE_CASE`, with acronyms treated as words: `HTTPStatus.HttpTimeout` becomes `HTTP_STATUS_HTTP_TIMEOUT`. Names that already start with the emitted enum prefix are preserved unchanged. Names that acquire the prefix during case conversion are not prefixed twice. The emitter reports an error if the resulting value name collides with another enum value or a declaration in the same Protobuf package, including packages without a name. The diagnostic identifies the original conflicting enum member, or the kind and emitted name of the conflicting message, enum, or service.
 
 This option changes names only. It does not insert an `Unspecified` member or infer numbers, and an existing zero member such as `Unknown: 0` keeps its meaning. Numeric values, member order, and enum type names are preserved. Changing value names can affect generated APIs and Protobuf JSON strings, even though the numeric binary values remain unchanged.
 
