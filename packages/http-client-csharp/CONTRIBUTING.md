@@ -222,8 +222,33 @@ Use `ScmCodeModelGenerator` for unbranded libraries. The script performs one war
 then five measured runs per build, alternating their order. It fails on generation errors,
 changed inputs, or any byte difference in the files under `src/Generated`. Results include
 per-run wall-clock and generator-stage timings, medians, input hashes, and generated-file
-hash manifests. Run comparisons without concurrent builds or tests; these measurements
-cover C# generation, not TypeSpec compilation or generated-client runtime performance.
+hash manifests.
+
+The example above isolates C# generation by replaying saved code models. To measure the
+end-to-end TypeSpec-to-C# experience, keep the synced `TempTypeSpecFiles` project and its
+installed dependencies, then pass the installed emitter's generator directory instead
+of `GeneratorName`:
+
+```powershell
+./eng/scripts/Compare-Generation.ps1 `
+  -BaselineGenerator C:\bench\before\Microsoft.TypeSpec.Generator.dll `
+  -CandidateGenerator C:\bench\after\Microsoft.TypeSpec.Generator.dll `
+  -LibraryDirectory C:\sdk-worktree\sdk\appconfiguration\Azure.Data.AppConfiguration `
+  -EmitterGeneratorDirectory C:\sdk-worktree\sdk\appconfiguration\Azure.Data.AppConfiguration\TempTypeSpecFiles\node_modules\@azure-typespec\http-client-csharp\dist\generator `
+  -ResultDirectory C:\bench\appconfiguration-e2e
+```
+
+This mode stages each build's complete directory into the isolated emitter package before
+the timer starts, then runs `tsp-client generate --skip-install --save-inputs`. It includes
+TypeSpec compilation, emitter processing and C# generation. Both builds must use identical
+compiler, TypeScript emitter, external plugin and dependency versions. Never stage into
+a shared or main checkout. Installation and spec synchronization are setup, not timed work;
+any build hooks invoked by the emitter remain part of end-to-end generation.
+
+Run comparisons without concurrent builds or tests. Results label the measurement as
+`csharp-generation` or `typespec-to-csharp`; neither measures generated-client runtime
+performance. Run the harness regression tests with
+`pwsh ./eng/scripts/tests/Compare-Generation.Tests.ps1`.
 
 ## Code Generation
 
