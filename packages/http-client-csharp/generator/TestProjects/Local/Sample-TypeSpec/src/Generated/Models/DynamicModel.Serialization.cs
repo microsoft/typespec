@@ -890,14 +890,14 @@ namespace SampleTypeSpec
                 requiredNullableList,
                 optionalNullableDictionary,
                 requiredNullableDictionary,
-                primitiveDictionary,
+                primitiveDictionary ?? new ChangeTrackingDictionary<string, int>(),
                 foo,
-                listFoo,
-                listOfListFoo,
-                dictionaryFoo,
-                dictionaryOfDictionaryFoo,
-                dictionaryListFoo,
-                listOfDictionaryFoo,
+                listFoo ?? new ChangeTrackingList<AnotherDynamicModel>(),
+                listOfListFoo ?? new ChangeTrackingList<IList<AnotherDynamicModel>>(),
+                dictionaryFoo ?? new ChangeTrackingDictionary<string, AnotherDynamicModel>(),
+                dictionaryOfDictionaryFoo ?? new ChangeTrackingDictionary<string, IDictionary<string, AnotherDynamicModel>>(),
+                dictionaryListFoo ?? new ChangeTrackingDictionary<string, IList<AnotherDynamicModel>>(),
+                listOfDictionaryFoo ?? new ChangeTrackingList<IDictionary<string, AnotherDynamicModel>>(),
                 patch);
         }
 

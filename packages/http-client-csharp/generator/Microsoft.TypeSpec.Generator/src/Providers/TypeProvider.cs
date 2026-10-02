@@ -46,10 +46,26 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         private protected virtual TypeProvider? BuildCustomCodeView(string? generatedTypeName = null, string? generatedTypeNamespace = null)
-            => CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(
-                generatedTypeNamespace ?? BuildNamespace(),
-                generatedTypeName ?? BuildName(),
+        {
+            var typeNamespace = generatedTypeNamespace ?? BuildNamespace();
+            var typeName = generatedTypeName ?? BuildName();
+            var customCodeView = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(
+                typeNamespace,
+                typeName,
                 _declaringTypeName.Value);
+            var originalName = BuildOriginalName();
+            if (customCodeView is not null || originalName is null ||
+                typeName == originalName || typeName != originalName.NormalizeCSharpAcronyms())
+            {
+                return customCodeView;
+            }
+
+            // Namespace updates can reveal custom code after the generated name was normalized.
+            return CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(
+                typeNamespace,
+                originalName,
+                _declaringTypeName.Value);
+        }
 
         private protected virtual TypeProvider? BuildLastContractView(string? generatedTypeName = null, string? generatedTypeNamespace = null)
         {
@@ -59,12 +75,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 typeNamespace,
                 typeName,
                 _declaringTypeName.Value);
-            if (lastContractView is not null || _inputType is null || _inputType.IsExactName)
+            var originalName = BuildOriginalName();
+            if (lastContractView is not null || originalName is null)
             {
                 return lastContractView;
             }
 
-            var originalName = _inputType.Name.ToIdentifierName();
             var normalizedOriginalName = originalName.NormalizeCSharpAcronyms();
             if (normalizedOriginalName == originalName || typeName != normalizedOriginalName)
             {
@@ -737,6 +753,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected abstract string BuildRelativeFilePath();
         protected abstract string BuildName();
 
+        /// <summary>
+        /// Gets the original identifier for compatibility lookup before acronym normalization,
+        /// or null when the name must be used exactly as specified.
+        /// </summary>
+        protected virtual string? BuildOriginalName() => _inputType is { IsExactName: false } ? _inputType.Name.ToIdentifierName() : null;
+
         protected string NormalizeTypeNameForNewContract(string name)
         {
             var typeNamespace = BuildNamespace();
@@ -753,6 +775,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (normalizedName == name)
             {
                 return name;
+            }
+
+            if (CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(
+                typeNamespace, normalizedName, _declaringTypeName.Value) is not null)
+            {
+                return normalizedName;
             }
 
             var lastContractType = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInLastContract(
@@ -917,6 +945,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private void ResetMembersBasedOnIdentityChange(string? name = null, string? @namespace = null)
         {
+            var previousName = Type.Name;
+            var previousNamespace = Type.Namespace;
             _declaringTypeName = new(() => GetDeclaringTypeName(DeclaringTypeProvider));
             // Reset the custom code view to reflect the new namespace
             _customCodeView = new(BuildCustomCodeView(name ?? Type.Name, @namespace ?? Type.Namespace));
@@ -934,7 +964,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // serialization providers need to reflect the new type name/namespace
             _serializationProviders = null;
             Type.Update(name: name, @namespace: @namespace);
+            if (Type.Name != previousName || Type.Namespace != previousNamespace)
+            {
+                OnIdentityUpdated(previousName, previousNamespace);
+            }
         }
+
+        /// <summary>
+        /// Updates generated dependencies after a name or namespace change has resolved
+        /// the type's final identity from custom code and the last contract.
+        /// </summary>
+        protected virtual void OnIdentityUpdated(string previousName, string previousNamespace) { }
 
         public IReadOnlyList<EnumTypeMember> EnumValues => _enumValues ??= BuildEnumValues();
 

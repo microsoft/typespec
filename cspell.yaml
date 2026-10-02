@@ -62,6 +62,7 @@ words:
   - CRUDL
   - ctxt
   - dbaeumer
+  - Dbase
   - Dcodegen
   - debouncer
   - debugpy
@@ -127,6 +128,7 @@ words:
   - intrinsics
   - ints
   - IOHTTP
+  - IPIPDBDBOSOS
   - isascii
   - isdigit
   - isinstance

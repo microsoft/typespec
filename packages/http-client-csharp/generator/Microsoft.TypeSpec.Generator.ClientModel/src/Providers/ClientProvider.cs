@@ -43,7 +43,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private const string CredentialParamName = "credential";
         private const string SettingsParamName = "settings";
         private const string ClientSuffix = "Client";
-        private readonly FormattableString _publicCtorDescription;
+        private FormattableString PublicCtorDescription => $"Initializes a new instance of {Name}.";
         private readonly InputClient _inputClient;
         internal InputClient InputClient => _inputClient;
         private readonly InputAuth? _inputAuth;
@@ -53,6 +53,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// This field is not one of the fields in this client, but the field in my parent client to get myself.
         /// </summary>
         private readonly FieldProvider? _clientCachingField;
+        private ScmMethodProvider? _clientFactoryMethod;
 
         private readonly ApiKeyFields? _apiKeyAuthFields;
         private readonly OAuth2Fields? _oauth2Fields;
@@ -110,7 +111,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _inputAuth = ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Auth;
             _endpointParameter = BuildClientEndpointParameter();
             _subClientEndpointParameter = BuildSubClientEndpointParameter();
-            _publicCtorDescription = $"Initializes a new instance of {Name}.";
             ClientOptions = _inputClient.Parent is null ? ClientOptionsProvider.CreateClientOptionsProvider(_inputClient, this) : null;
             bool isIndividuallyInitialized = (_inputClient.InitializedBy & InputClientInitializedBy.Individually) != 0;
             ClientSettings = isIndividuallyInitialized
@@ -209,15 +209,31 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private void CleanOperationNames(InputClient inputClient)
         {
-            foreach (var serviceMethod in inputClient.Methods)
+            var projectedNames = inputClient.Methods.Select(serviceMethod => (
+                ServiceMethod: serviceMethod,
+                OriginalName: GetOperationName(serviceMethod, normalizePublicName: false),
+                UpdatedName: GetOperationName(serviceMethod))).ToArray();
+
+            foreach (var projectedName in projectedNames)
             {
-                var updatedOperationName = GetOperationName(serviceMethod);
-                serviceMethod.Update(name: updatedOperationName);
-                serviceMethod.Operation.Update(name: updatedOperationName);
+                var updatedOperationName = projectedName.UpdatedName;
+                if (updatedOperationName != projectedName.OriginalName &&
+                    projectedNames.Any(other =>
+                        other.OriginalName != projectedName.OriginalName &&
+                        OperationNamesCollide(other.UpdatedName, updatedOperationName)))
+                {
+                    updatedOperationName = projectedName.OriginalName;
+                }
+
+                projectedName.ServiceMethod.Update(name: updatedOperationName);
+                projectedName.ServiceMethod.Operation.Update(name: updatedOperationName);
             }
         }
 
-        private string GetOperationName(InputServiceMethod serviceMethod, bool normalizeUrlSuffix = true)
+        private static bool OperationNamesCollide(string firstName, string secondName)
+            => firstName == secondName || firstName == $"{secondName}Async" || $"{firstName}Async" == secondName;
+
+        private string GetOperationName(InputServiceMethod serviceMethod, bool normalizePublicName = true)
         {
             if (serviceMethod.IsExactName)
             {
@@ -237,34 +253,63 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 operationName = $"Get{operationName.Substring(4)}";
             }
 
-            if (!normalizeUrlSuffix)
+            if (!normalizePublicName)
             {
                 return operationName;
             }
 
-            var normalizedName = operationName.NormalizeCSharpUrlSuffix();
+            var urlNormalizedName = operationName.NormalizeCSharpUrlSuffix();
+            var normalizedName = urlNormalizedName.NormalizeCSharpAcronyms();
             if (normalizedName == operationName)
             {
                 return operationName;
             }
 
-            var lastContractMethods = BackCompatProvider.LastContractView?.Methods ?? LastContractView?.Methods;
-            if (lastContractMethods?.Any(m =>
-                m.Signature.Name == operationName ||
-                m.Signature.Name == $"{operationName}Async") == true)
+            if (HasExistingName(operationName))
             {
                 return operationName;
+            }
+
+            // Previous generators may already have normalized Url to Uri without normalizing acronyms.
+            if (urlNormalizedName != operationName && HasExistingName(urlNormalizedName))
+            {
+                return urlNormalizedName;
             }
 
             return normalizedName;
         }
 
+        private bool HasExistingName(string name)
+        {
+            var asyncName = $"{name}Async";
+            var lastContractMethods = BackCompatProvider.LastContractView?.Methods ?? LastContractView?.Methods;
+            foreach (var method in lastContractMethods ?? [])
+            {
+                if (MethodSignatureHelper.IsPublicApi(method.Signature.Modifiers) &&
+                    (method.Signature.Name == name || method.Signature.Name == asyncName))
+                {
+                    return true;
+                }
+            }
+
+            var customMethods = BackCompatProvider.CustomCodeView?.Methods ?? CustomCodeView?.Methods;
+            foreach (var method in customMethods ?? [])
+            {
+                if (method.Signature.Name == name || method.Signature.Name == asyncName)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         internal string GetRestOperationName(InputServiceMethod serviceMethod)
         {
             // Request builders use the stable input operation identity rather than the mutable public method name.
-            // Preserve the original Url suffix so a projection honoring a previous GA name and a newer projection
-            // normalized to Uri continue to reference the same request builder.
-            return GetOperationName(serviceMethod, normalizeUrlSuffix: false).ToIdentifierName();
+            // Preserve the original acronym casing and Url suffix so projections honoring previous GA names
+            // and newer projections with normalized public names continue to reference the same request builder.
+            return GetOperationName(serviceMethod, normalizePublicName: false).ToIdentifierName();
         }
 
         private string? _namespace;
@@ -454,7 +499,87 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.cs");
 
-        protected override string BuildName() => _inputClient.IsExactName ? _inputClient.Name : _inputClient.Name.ToIdentifierName();
+        protected override string BuildName() => _inputClient.IsExactName
+            ? _inputClient.Name
+            : NormalizeTypeNameForNewContract(_inputClient.Name.ToIdentifierName());
+
+        protected override string? BuildOriginalName() => _inputClient.IsExactName ? null : _inputClient.Name.ToIdentifierName();
+
+        protected override void OnIdentityUpdated(string previousName, string previousNamespace)
+        {
+            base.OnIdentityUpdated(previousName, previousNamespace);
+            var previousOptionsType = ClientOptions?.Type.WithNullable(true);
+            UpdateDependentIdentity(_restClient, string.Empty);
+            UpdateDependentIdentity(ClientOptions, "Options");
+            UpdateDependentIdentity(ClientSettings, "Settings");
+            if (previousOptionsType != null && !CSharpType.IgnoreNullableComparer.Equals(previousOptionsType, ClientOptions!.Type))
+            {
+                UpdateOptionsReferences(this);
+            }
+
+            if (_clientFactoryMethod?.Signature.Name == GetClientAccessorName(previousName))
+            {
+                _clientFactoryMethod.Signature.Update(
+                    name: GetClientAccessorName(Name),
+                    description: $"Initializes a new instance of {Name}");
+            }
+
+            void UpdateDependentIdentity(TypeProvider? provider, string suffix)
+            {
+                // Do not rename shared options or explicitly customized dependent types.
+                if (provider?.Name == $"{previousName}{suffix}" && provider.Type.Namespace == previousNamespace)
+                {
+                    var constructors = provider.Constructors;
+                    provider.Update(name: $"{Name}{suffix}", @namespace: Type.Namespace);
+                    foreach (var constructor in constructors)
+                    {
+                        constructor.Signature.Update(name: provider.Name);
+                        var previousDescription = constructor.Signature.Description?.ToString();
+                        FormattableString? description = previousDescription switch
+                        {
+                            var value when value == $"Initializes a new instance of {previousName}{suffix}."
+                                => $"Initializes a new instance of {provider.Name}.",
+                            var value when value == $"Initializes a new instance of {previousName}{suffix} from configuration."
+                                => $"Initializes a new instance of {provider.Name} from configuration.",
+                            _ => null
+                        };
+                        if (description != null)
+                        {
+                            constructor.Signature.Update(description: description);
+                            if (constructor.XmlDocs.Summary is { Lines.Count: 1, InnerStatements.Count: 0 } summary &&
+                                summary.Lines[0].ToString() == previousDescription)
+                            {
+                                constructor.XmlDocs.Update(summary: new XmlDocSummaryStatement([description]));
+                            }
+                        }
+                    }
+                    // Identity updates reset constructors; retain changes from earlier visitors.
+                    provider.Update(constructors: constructors);
+                }
+            }
+
+            void UpdateOptionsReferences(ClientProvider client)
+            {
+                foreach (var property in client.ClientSettings?.Properties ?? [])
+                {
+                    if (CSharpType.IgnoreNullableComparer.Equals(property.Type, previousOptionsType))
+                    {
+                        property.Update(type: ClientOptions!.Type.WithNullable(property.Type.IsNullable));
+                    }
+                }
+                if (client._subClients.IsValueCreated)
+                {
+                    foreach (var subClient in client._subClients.Value)
+                    {
+                        UpdateOptionsReferences(subClient);
+                    }
+                }
+            }
+        }
+
+        private static string GetClientAccessorName(string name) => name.EndsWith(ClientSuffix, StringComparison.OrdinalIgnoreCase)
+            ? $"Get{name}"
+            : $"Get{name}{ClientSuffix}";
 
         protected override IReadOnlyList<CSharpType> BuildHelperDependencyTypes()
         {
@@ -651,7 +776,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         }
                     }
                     var subClientConstructor = new ConstructorProvider(
-                        new ConstructorSignature(Type, _publicCtorDescription, MethodSignatureModifiers.Internal, _subClientInternalConstructorParams.Value),
+                        new ConstructorSignature(Type, PublicCtorDescription, MethodSignatureModifiers.Internal, _subClientInternalConstructorParams.Value),
                         body,
                         this);
                     constructors.Add(subClientConstructor);
@@ -691,7 +816,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 // Use the first available auth fields to determine pipeline auth type
                 AuthFields? firstAuthFields = _apiKeyAuthFields as AuthFields ?? _oauth2Fields;
                 var internalConstructor = new ConstructorProvider(
-                    new ConstructorSignature(Type, _publicCtorDescription, MethodSignatureModifiers.Internal, internalConstructorParameters),
+                    new ConstructorSignature(Type, PublicCtorDescription, MethodSignatureModifiers.Internal, internalConstructorParameters),
                     BuildPrimaryConstructorBody(internalConstructorParameters, firstAuthFields, authPolicyParam, ClientOptions, ClientOptionsParameter, addExplicitValidation: true),
                     this);
                 primaryConstructors.Add(internalConstructor);
@@ -752,7 +877,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 initializerArgs.Add(ClientOptionsParameter!);
 
                 var primaryConstructor = new ConstructorProvider(
-                    new ConstructorSignature(Type, _publicCtorDescription, constructorModifier, primaryConstructorParameters,
+                    new ConstructorSignature(Type, PublicCtorDescription, constructorModifier, primaryConstructorParameters,
                         initializer: new ConstructorInitializer(false, initializerArgs)),
                     MethodBodyStatement.Empty,
                     this);
@@ -864,7 +989,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ParameterProvider[] internalConstructorParameters = [authPolicyParam, _endpointParameter, .. requiredNonAuthParams, clientOptionsParameter];
 
             var internalConstructor = new ConstructorProvider(
-                new ConstructorSignature(Type, _publicCtorDescription, MethodSignatureModifiers.Internal, internalConstructorParameters),
+                new ConstructorSignature(Type, PublicCtorDescription, MethodSignatureModifiers.Internal, internalConstructorParameters),
                 BuildPrimaryConstructorBody(internalConstructorParameters, null, authPolicyParam, clientOptionsProvider, clientOptionsParameter, addExplicitValidation: true),
                 this);
             primaryConstructors.Add(internalConstructor);
@@ -921,7 +1046,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 initializerArgs.Add(clientOptionsParameter!);
 
                 var primaryConstructor = new ConstructorProvider(
-                    new ConstructorSignature(Type, _publicCtorDescription, constructorModifier, primaryConstructorParameters,
+                    new ConstructorSignature(Type, PublicCtorDescription, constructorModifier, primaryConstructorParameters,
                         initializer: new ConstructorInitializer(false, initializerArgs)),
                     MethodBodyStatement.Empty,
                     this);
@@ -1168,7 +1293,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
              ]);
             var constructorSignature = new ConstructorSignature(
                 Type,
-                _publicCtorDescription,
+                PublicCtorDescription,
                 modifier,
                 secondaryConstructorParameters,
                 initializer: primaryCtorInitializer);
@@ -1280,9 +1405,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     }
                 }
 
-                var factoryMethodName = subClient.Name.EndsWith(ClientSuffix, StringComparison.OrdinalIgnoreCase)
-                    ? $"Get{subClient.Name}"
-                    : $"Get{subClient.Name}{ClientSuffix}";
+                var factoryMethodName = GetClientAccessorName(subClient.Name);
 
                 ScmMethodProvider factoryMethod;
                 if (accessorMethodParams.Count > 0)
@@ -1323,6 +1446,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         this,
                         ScmMethodKind.Convenience);
                 }
+                subClient._clientFactoryMethod = factoryMethod;
                 methods.Add(factoryMethod);
             }
 
