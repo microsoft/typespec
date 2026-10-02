@@ -11,47 +11,6 @@ export async function validateDependencies(
   program: Program | undefined,
   logDiagnostic: boolean = false,
 ) {
-  // Check JDK and version
-  try {
-    const result = await spawnAsync("javac", ["-version"], { stdio: "pipe" });
-    const javaVersion = findJavaVersion(result.stdout) ?? findJavaVersion(result.stderr);
-    if (javaVersion) {
-      if (program && logDiagnostic) {
-        trace(program, `Java Development Kit (JDK) in PATH is version ${javaVersion}.`);
-      }
-      const javaMajorVersion = getJavaMajorVersion(javaVersion);
-      if (javaMajorVersion < 11) {
-        // the message is JDK 17, because clientcore depends on JDK 17
-        // emitter only require JDK 11
-        if (program && logDiagnostic) {
-          reportDiagnostic(program, {
-            code: "invalid-java-sdk-dependency",
-            messageId: "jdkVersion",
-            format: { javaVersion: javaVersion },
-            target: NoTarget,
-          });
-        }
-      }
-    }
-  } catch (error: any) {
-    if (error && "code" in error && error["code"] === "ENOENT") {
-      if (program && logDiagnostic) {
-        reportDiagnostic(program, {
-          code: "invalid-java-sdk-dependency",
-          target: NoTarget,
-        });
-      }
-    } else {
-      if (program && logDiagnostic) {
-        reportDiagnostic(program, {
-          code: "unknown-error",
-          format: { errorMessage: error.message },
-          target: NoTarget,
-        });
-      }
-    }
-  }
-
   // Check Java Runtime and version
   try {
     const result = await spawnAsync("java", ["-version"], { stdio: "pipe" });
@@ -92,45 +51,6 @@ export async function validateDependencies(
       }
     }
   }
-
-  // Check Maven
-  // nodejs does not allow spawn of .cmd on win32
-  const shell = process.platform === "win32";
-  try {
-    const result = await spawnAsync("mvn", ["-v"], { stdio: "pipe", shell: shell });
-    const mavenVersion = findMavenVersion(result.stdout) ?? findMavenVersion(result.stderr);
-    if (mavenVersion) {
-      if (program && logDiagnostic) {
-        trace(program, `Apache Maven in PATH is version ${mavenVersion}.`);
-      }
-    }
-  } catch (error: any) {
-    if (shell || (error && "code" in error && error["code"] === "ENOENT")) {
-      if (program && logDiagnostic) {
-        reportDiagnostic(program, {
-          code: "invalid-java-sdk-dependency",
-          messageId: "maven",
-          target: NoTarget,
-        });
-      }
-    } else {
-      if (program && logDiagnostic) {
-        reportDiagnostic(program, {
-          code: "unknown-error",
-          format: { errorMessage: error.message },
-          target: NoTarget,
-        });
-      }
-    }
-  }
-}
-
-export function findJavaVersion(output: string): string | undefined {
-  const matches = output.match(/javac ([\d.]+).*/);
-  if (matches && matches.length > 1) {
-    return matches[1];
-  }
-  return undefined;
 }
 
 export function getJavaMajorVersion(version: string): number {
@@ -138,17 +58,17 @@ export function getJavaMajorVersion(version: string): number {
   if (matches && matches.length > 2) {
     // match pattern "major.minor*"
     if (matches[1] === "1") {
-      // "javac 1.8.0_422" -> 8
+      // "1.8.0_422" -> 8
       return +matches[2];
     } else {
-      // "javac 21.0.3" -> 21
+      // "21.0.3" -> 21
       return +matches[1];
     }
   } else {
     // match pattern "major*"
     matches = version.match(/(\d+).*/);
     if (matches && matches.length > 1) {
-      // "javac 24" -> 24
+      // "24" -> 24
       return +matches[1];
     }
   }
@@ -158,15 +78,6 @@ export function getJavaMajorVersion(version: string): number {
 export function findJavaRuntimeVersion(output: string): string | undefined {
   // "java version "21.0.3"" or "openjdk version "17.0.11""
   const matches = output.match(/version "?([\d.]+)"?.*/);
-  if (matches && matches.length > 1) {
-    return matches[1];
-  }
-  return undefined;
-}
-
-function findMavenVersion(output: string): string | undefined {
-  // there is control characters in the output
-  const matches = output.match(/.*Apache Maven ([\d.]+).*/);
   if (matches && matches.length > 1) {
     return matches[1];
   }
