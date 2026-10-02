@@ -36,7 +36,8 @@
     "clean": "rimraf ./dist ./dist-dev ./temp ./samples/dist",
     "build-samples": "node ./samples/build.ts",
     "build": "pnpm build-samples && pnpm build:lib && vite build 2>&1",
-    "build:lib": "vite build --config vite.lib.config.ts",
+    "build:lib": "vite build --config vite.lib.config.ts && pnpm build:types",
+    "build:types": "tsc -p tsconfig.declaration.json",
     "preview": "pnpm build && vite preview",
     "start": "vite",
     "test": "vitest run",
@@ -95,7 +96,6 @@
     "rollup-plugin-visualizer": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",
-    "vite-plugin-dts": "catalog:",
     "vitest": "catalog:"
   }
 }
