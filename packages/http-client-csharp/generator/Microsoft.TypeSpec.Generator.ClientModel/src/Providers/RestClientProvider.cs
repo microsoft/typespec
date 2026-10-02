@@ -342,7 +342,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             // Create the message
-            statements.AddRange([.. pipelineField.CreateMessage(options.ToApi<HttpRequestOptionsApi>(), uri, Literal(operation.HttpMethod), classifier, out HttpMessageApi message, out HttpRequestApi request)]);
+            var httpMethod = isNextLinkRequest
+                ? nextLink?.Operation?.HttpMethod ?? nextLink?.Verb ?? "GET"
+                : operation.HttpMethod;
+            statements.AddRange([.. pipelineField.CreateMessage(options.ToApi<HttpRequestOptionsApi>(), uri, Literal(httpMethod), classifier, out HttpMessageApi message, out HttpRequestApi request)]);
 
             // Handle request modifications
             if (isNextLinkRequest && nextLink != null)
