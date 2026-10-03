@@ -250,6 +250,7 @@ const keywords = [
   // Modifiers
   ["extern", { root: true, namespace: true }],
   ["internal", { root: true, namespace: true }],
+  ["partial", { root: true, namespace: true }],
 
   // Scalars
   ["init", { scalarBody: true }],

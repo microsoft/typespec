@@ -10,6 +10,7 @@ import type {
   IntrinsicScalarName,
   Model,
   ModelProperty,
+  Node,
   Scalar,
   Type,
 } from "./types.js";
@@ -308,11 +309,22 @@ export function validateDecoratorUniqueOnNode(
 ) {
   compilerAssert("decorators" in type, "Type should have decorators");
 
+  // A declaration can be split across multiple nodes when it is declared `partial`
+  // (currently only interfaces). In that case `type.node` is just the canonical
+  // declaration, but the same decorator applied once on each partial declaration
+  // should still be flagged as a duplicate, so check against every node that
+  // contributes to the underlying symbol rather than only `type.node`.
+  const ownerNodes: readonly Node[] = type.node?.symbol
+    ? type.node.symbol.declarations
+    : type.node
+      ? [type.node]
+      : [];
+
   const sameDecorators = type.decorators.filter(
     (x) =>
       x.decorator === decorator &&
       x.node?.kind === SyntaxKind.DecoratorExpression &&
-      x.node?.parent === type.node,
+      ownerNodes.includes(x.node?.parent as Node),
   );
 
   if (sameDecorators.length > 1) {
