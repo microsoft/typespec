@@ -159,5 +159,69 @@ namespace Microsoft.TypeSpec.Generator.Tests.Utilities
             Assert.IsNotNull(propertySymbol, $"Failed to resolve property '{propertyName}'.");
             return propertySymbol!;
         }
+
+        [TestCase("Model", false)]
+        [TestCase("Model", true)]
+        [TestCase("FixedEnum", false)]
+        [TestCase("FixedEnum", true)]
+        [TestCase("ExtensibleEnum", false)]
+        [TestCase("ExtensibleEnum", true)]
+        public async Task UnresolvedGeneratedTypes(string name, bool isNullable)
+        {
+            var compilation = await Helpers.GetCompilationFromDirectoryAsync();
+            var generator = MockHelpers.LoadMockGenerator().Object;
+            CSharpType expected = name == "Model"
+                ? generator.TypeFactory.CreateModel(InputFactory.Model(name))!.Type
+                : generator.TypeFactory.CreateEnum(InputFactory.StringEnum(
+                    name, [("Value", "value")], isExtensible: name == "ExtensibleEnum"))!.Type;
+            var symbol = GetPropertySymbol(compilation, "Container", isNullable ? $"Nullable{name}" : name).Type;
+            var unresolvedSymbol = isNullable ? ((INamedTypeSymbol)symbol).TypeArguments.Single() : symbol;
+            Assert.AreEqual(TypeKind.Error, unresolvedSymbol.TypeKind);
+
+            var type = symbol.GetCSharpType();
+
+            Assert.AreEqual(expected.WithNullable(isNullable), type);
+            Assert.AreEqual(expected.IsEnum, type.IsEnum);
+            Assert.AreEqual(expected.IsStruct, type.IsStruct);
+            Assert.AreEqual(expected.IsValueType, type.IsValueType);
+            Assert.AreEqual(expected.IsPublic, type.IsPublic);
+        }
+
+        [Test]
+        public async Task UnresolvedGeneratedTypesInGenericArguments()
+        {
+            var compilation = await Helpers.GetCompilationFromDirectoryAsync(method: nameof(UnresolvedGeneratedTypes));
+            var generator = MockHelpers.LoadMockGenerator().Object;
+            var expected = generator.TypeFactory.CreateModel(InputFactory.Model("Model"))!.Type;
+            var symbol = GetPropertySymbol(compilation, "Container", "Dictionary").Type;
+
+            var type = symbol.GetCSharpType();
+
+            Assert.AreEqual(typeof(System.Collections.Generic.IDictionary<,>), type.FrameworkType);
+            Assert.AreEqual(expected, type.Arguments[0]);
+            Assert.AreEqual(expected, type.Arguments[1].Arguments[0]);
+        }
+
+        [TestCase("Missing", "Missing", "")]
+        [TestCase("Qualified", "Model", "Other")]
+        [TestCase("Resolved", "Model", "Resolved")]
+        [TestCase("Global", "GlobalModel", "")]
+        [TestCase("Generic", "Model", "")]
+        public async Task OtherTypesDoNotResolveByGeneratedName(string property, string name, string expectedNamespace)
+        {
+            var compilation = await Helpers.GetCompilationFromDirectoryAsync(method: nameof(UnresolvedGeneratedTypes));
+            var generator = MockHelpers.LoadMockGenerator().Object;
+            generator.TypeFactory.CreateModel(InputFactory.Model("Model"));
+            generator.TypeFactory.CreateModel(InputFactory.Model("GlobalModel"));
+
+            var type = GetPropertySymbol(compilation, "Container", property).Type.GetCSharpType();
+
+            Assert.AreEqual(name, type.Name);
+            Assert.AreEqual(expectedNamespace, type.Namespace);
+            if (property == "Generic")
+            {
+                Assert.AreEqual(1, type.Arguments.Count);
+            }
+        }
     }
 }
