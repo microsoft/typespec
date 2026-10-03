@@ -2,6 +2,7 @@ import type { TypeSpecServer, TypeSpecServiceInfo, TypeSpecTagMetadata } from ".
 import { generateDocs } from "../utils/docs.js";
 import { generateNamespaceName } from "../utils/generate-namespace-name.js";
 import { toTspValues } from "../utils/tsp-values.js";
+import { stringLiteral } from "./common.js";
 import { generateServers } from "./generate-servers.js";
 import { generateTags } from "./generate-tags.js";
 
@@ -17,7 +18,7 @@ export function generateServiceInformation(
 
   definitions.push(`
     @service(#{
-      title: "${name}"
+      title: ${stringLiteral(name)}
     })
     @info(${toTspValues(info)})
     `);
