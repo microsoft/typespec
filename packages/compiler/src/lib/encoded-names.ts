@@ -1,7 +1,7 @@
 import { reportDiagnostic } from "../core/messages.js";
 import { parseMimeType } from "../core/mime-type.js";
 import type { Program } from "../core/program.js";
-import type { DecoratorContext, Enum, Model, Type, Union } from "../core/types.js";
+import type { DecoratorContext, Enum, EnumMember, Model, Type, Union } from "../core/types.js";
 import { DuplicateTracker, useStateMap } from "../utils/index.js";
 import { createStateSymbol } from "./utils.js";
 
@@ -79,6 +79,37 @@ export function resolveEncodedName(
   mimeType: string,
 ): string {
   return getEncodedName(program, target, mimeType) ?? target.name;
+}
+
+/**
+ * Resolve the value the given enum member serializes to for the given mime type.
+ * A member is serialized as its `@encodedName` for that mime type if it has one, otherwise as its
+ * explicit value, otherwise as its name.
+ *
+ * @example
+ *
+ * For the given
+ * ```tsp
+ * enum Status {
+ *   @encodedName("application/json", "ready")
+ *   CONVERSATION_STATUS_READY: 1,
+ *   busy: 2,
+ *   unknown,
+ * }
+ * ```
+ *
+ * ```ts
+ * resolveEncodedEnumMemberValue(program, CONVERSATION_STATUS_READY, "application/json") // "ready"
+ * resolveEncodedEnumMemberValue(program, busy, "application/json") // 2
+ * resolveEncodedEnumMemberValue(program, unknown, "application/json") // "unknown"
+ * ```
+ */
+export function resolveEncodedEnumMemberValue(
+  program: Program,
+  member: EnumMember,
+  mimeType: string,
+): string | number {
+  return getEncodedName(program, member, mimeType) ?? member.value ?? member.name;
 }
 
 /**

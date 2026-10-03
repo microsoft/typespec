@@ -1246,6 +1246,24 @@ describe("@discriminated", () => {
     });
   });
 
+  it("use the json encoded name of an enum member discriminator value", async () => {
+    const diagnostics = await Tester.diagnose(`
+        enum Kind {
+          @encodedName("application/json", "a")
+          aKind,
+        }
+        model A {
+          kind: Kind.aKind,
+        }
+        @discriminated(#{envelope: "none"})
+        union Foo {
+          a: A;
+        }
+      `);
+
+    expectDiagnosticEmpty(diagnostics);
+  });
+
   async function getTestDiscriminatedUnion(code: string) {
     const { Foo, program } = (await Tester.compile(code)) as any;
     return getDiscriminatedUnion(program, Foo)[0]!;
@@ -1410,6 +1428,32 @@ describe("@encodedName", () => {
         }
       `);
     strictEqual(resolveEncodedName(program, expireAt, "application/xml"), "expireAt");
+  });
+
+  it("resolve encoded name of an enum member", async () => {
+    const { active, program } = await Tester.compile(t.code`
+        enum Status {
+          @encodedName("application/json", "on")
+          ${t.enumMember("active")},
+        }
+      `);
+    strictEqual(resolveEncodedName(program, active, "application/json"), "on");
+    strictEqual(resolveEncodedName(program, active, "application/xml"), "active");
+  });
+
+  it("resolve encoded name of an enum member copied with a spread", async () => {
+    const { Extended, program } = await Tester.compile(t.code`
+        enum Status {
+          @encodedName("application/json", "on")
+          active,
+        }
+        enum ${t.enum("Extended")} {
+          ...Status,
+        }
+      `);
+    const active = Extended.members.get("active")!;
+    strictEqual(active.enum, Extended);
+    strictEqual(resolveEncodedName(program, active, "application/json"), "on");
   });
 });
 
