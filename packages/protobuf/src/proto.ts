@@ -13,6 +13,7 @@ import type {
   Program,
   StringLiteral,
   Type,
+  UnionVariant,
 } from "@typespec/compiler";
 import { resolvePath } from "@typespec/compiler";
 
@@ -153,7 +154,8 @@ export const $message: MessageDecorator = (ctx: DecoratorContext, target: Type) 
 };
 
 /**
- * Decorate a model property with a field index. Field indices are required for all fields of emitted messages.
+ * Decorate a model property or union variant with a field index. Field indices are required for all fields of emitted
+ * messages and all variants of unions that are emitted as a `oneof`.
  *
  * @param param0
  * @param target
@@ -162,7 +164,7 @@ export const $message: MessageDecorator = (ctx: DecoratorContext, target: Type) 
  */
 export const $field: FieldDecorator = (
   ctx: DecoratorContext,
-  target: ModelProperty,
+  target: ModelProperty | UnionVariant,
   fieldIndex: number,
 ) => {
   if (!Number.isInteger(fieldIndex) || fieldIndex <= 0) {
