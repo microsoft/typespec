@@ -97,6 +97,17 @@ model QueryOptions {
    *
    */
   explode?: boolean;
+
+  /**
+   * The style used to serialize the query parameter.
+   *
+   * - `form`: Serialize primitive values, arrays, and objects using form-style expansion.
+   * - `deepObject`: Serialize object properties using bracket notation, for example `filter[name]=alice`.
+   *
+   * Use `@encode(ArrayEncoding.spaceDelimited)` or `@encode(ArrayEncoding.pipeDelimited)` for
+   * delimited array query parameters.
+   */
+  style?: "form" | "deepObject";
 }
 
 /**

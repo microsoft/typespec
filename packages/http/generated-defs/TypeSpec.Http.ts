@@ -20,6 +20,7 @@ export interface CookieOptions {
 export interface QueryOptions {
   readonly name?: string;
   readonly explode?: boolean;
+  readonly style?: "form" | "deepObject";
 }
 
 export interface PathOptions {

@@ -386,7 +386,10 @@ function getQueryParameterValue(
   originalValue: Value,
   property: Extract<HttpParameterProperties, { kind: "query" }>,
 ): Value | undefined {
-  const style = getParameterStyle(program, property.property) ?? "form";
+  const style =
+    property.options.style === "deepObject"
+      ? property.options.style
+      : (getParameterStyle(program, property.property) ?? property.options.style);
 
   switch (style) {
     case "form":
@@ -399,7 +402,27 @@ function getQueryParameterValue(
       return getParameterDelimitedValue(program, originalValue, property, ",");
     case "newlineDelimited":
       return getParameterDelimitedValue(program, originalValue, property, "\n");
+    case "deepObject":
+      return getParameterDeepObjectValue(program, originalValue, property);
   }
+}
+
+function getParameterDeepObjectValue(
+  program: Program,
+  originalValue: Value,
+  property: Extract<HttpParameterProperties, { kind: "query" }>,
+): Value | undefined {
+  if (!property.options.explode) return undefined;
+
+  const tk = $(program);
+  if (!tk.value.isObject(originalValue)) return undefined;
+
+  const pairs: string[] = [];
+  for (const [key, { value }] of originalValue.properties) {
+    if (!isSerializableScalarValue(value)) continue;
+    pairs.push(`${property.options.name}[${key}]=${value.value}`);
+  }
+  return tk.value.createString(pairs.join("&"));
 }
 
 function getHeaderParameterValue(

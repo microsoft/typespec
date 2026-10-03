@@ -94,6 +94,25 @@ describe("Operation parameters", async () => {
     expect(createFooCanonical.requestParameters.properties.length).toBe(2);
   });
 
+  it("preserves query parameter style", async () => {
+    const { list, program } = await runner.compile(t.code`
+      @route("/items")
+      @get
+      op ${t.op("list")}(
+        @query(#{ style: "deepObject" }) filter: Record<string>
+      ): void;
+    `);
+
+    const canonicalizer = new HttpCanonicalizer($(program));
+    const listCanonical = canonicalizer.canonicalize(list);
+    const filter = listCanonical.queryParameters[0];
+    expect(filter.options).toEqual({
+      name: "filter",
+      explode: true,
+      style: "deepObject",
+    });
+  });
+
   it("works with merge patch", async () => {
     const { updateFoo, program } = await runner.compile(t.code`
       model ${t.model("Foo")} {

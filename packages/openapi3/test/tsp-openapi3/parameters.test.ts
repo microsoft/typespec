@@ -656,6 +656,37 @@ describe("query", () => {
     );
   });
 
+  describe("deepObject style", () => {
+    it.each([
+      { explode: undefined, expected: { style: "deepObject", explode: false } },
+      { explode: false, expected: { style: "deepObject", explode: false } },
+      { explode: true, expected: { style: "deepObject" } },
+    ])("preserves explode: $explode", async ({ explode, expected }) => {
+      const serviceNamespace = await tspForOpenAPI3({
+        parameters: {
+          Filter: {
+            name: "filter",
+            in: "query",
+            schema: {
+              type: "object",
+              additionalProperties: { type: "string" },
+            },
+            style: "deepObject",
+            ...(explode === undefined ? {} : { explode }),
+          },
+        },
+      });
+
+      const parametersNamespace = serviceNamespace.namespaces.get("Parameters");
+      assert(parametersNamespace, "Parameters namespace not found");
+      const Filter = parametersNamespace.models.get("Filter");
+      assert(Filter, "Filter model not found");
+      const filterProperty = Filter.properties.get("filter");
+      assert(filterProperty, "filter property not found");
+      expectDecorators(filterProperty.decorators, [{ name: "query", args: [expected] }]);
+    });
+  });
+
   describe("x-ms-list-page-index extension", () => {
     it("adds @pageIndex decorator when x-ms-list-page-index is true", async () => {
       const { namespace: serviceNamespace } = await compileForOpenAPI3({
