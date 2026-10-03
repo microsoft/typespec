@@ -55,8 +55,9 @@
   },
   "scripts": {
     "clean": "rimraf ./dist ./dist-dev ./temp ./typespecContents.json",
-    "build": "vite build",
-    "watch": "vite build --watch",
+    "build": "vite build && pnpm build:types",
+    "build:types": "tsc -p tsconfig.declaration.json",
+    "watch": "concurrently --kill-others \"vite build --watch --emptyOutDir false\" \"pnpm build:types --watch\"",
     "storybook": "storybook dev",
     "build:storybook": "storybook build",
     "preview": "pnpm build && vite preview",
@@ -110,6 +111,7 @@
     "@typespec/bundler": "workspace:^",
     "@typespec/react-components": "workspace:^",
     "@vitejs/plugin-react": "catalog:",
+    "concurrently": "catalog:",
     "cross-env": "catalog:",
     "es-module-shims": "catalog:",
     "rimraf": "catalog:",
@@ -117,7 +119,6 @@
     "typescript": "catalog:",
     "vite": "catalog:",
     "vite-plugin-checker": "catalog:",
-    "vite-plugin-dts": "catalog:",
     "vitest": "catalog:"
   }
 }

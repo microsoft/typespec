@@ -66,6 +66,7 @@
     "rimraf": "catalog:",
     "turbo": "catalog:",
     "typescript": "catalog:",
+    "typescript-native": "catalog:",
     "vitest": "catalog:",
     "yaml": "catalog:"
   }
