@@ -183,16 +183,15 @@ public final class DiscriminatorEdgeCasesClientImpl {
     /**
      * The getChildRequiredDiscrim operation.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     discriminator: String (Required)
      *     aProperty: String (Required)
      *     anotherProperty: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -211,16 +210,15 @@ public final class DiscriminatorEdgeCasesClientImpl {
     /**
      * The getChildRequiredDiscrim operation.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     discriminator: String (Required)
      *     aProperty: String (Required)
      *     anotherProperty: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -238,17 +236,16 @@ public final class DiscriminatorEdgeCasesClientImpl {
     /**
      * The getChildNewDiscrim operation.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     discriminator: String (Required)
      *     aProperty: String (Required)
      *     differentDiscriminator: String (Required)
      *     yetAnotherProperty: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -267,17 +264,16 @@ public final class DiscriminatorEdgeCasesClientImpl {
     /**
      * The getChildNewDiscrim operation.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     discriminator: String (Required)
      *     aProperty: String (Required)
      *     differentDiscriminator: String (Required)
      *     yetAnotherProperty: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -295,15 +291,14 @@ public final class DiscriminatorEdgeCasesClientImpl {
     /**
      * The getNoSubtypes operation.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     kind: String (Required)
      *     name: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -322,15 +317,14 @@ public final class DiscriminatorEdgeCasesClientImpl {
     /**
      * The getNoSubtypes operation.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     kind: String (Required)
      *     name: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.

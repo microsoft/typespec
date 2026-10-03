@@ -52,24 +52,26 @@ public class FluentNamer extends Preprocessor {
 
         try {
 
-            Path codeModelFolder;
-            try {
-                codeModelFolder = FileUtils.createTempDirectory("code-model" + UUID.randomUUID());
-                logger.info("Created temp directory for code model: {}", codeModelFolder);
-            } catch (IOException ex) {
-                logger.error("Failed to create temp directory for code model.", ex);
-                throw new RuntimeException("Failed to create temp directory for code model.", ex);
+            Path codeModelFolder = null;
+            if (getBooleanValue("debug", false) || getBooleanValue("debugger", false)) {
+                try {
+                    codeModelFolder = FileUtils.createTempDirectory("code-model" + UUID.randomUUID());
+                    logger.info("Created temp directory for code model: {}", codeModelFolder);
+                } catch (IOException ex) {
+                    logger.error("Failed to create temp directory for code model.", ex);
+                    throw new RuntimeException("Failed to create temp directory for code model.", ex);
+                }
             }
 
             CodeModel codeModel = getCodeModelAndWriteToTargetFolder(codeModelFolder);
             // Do necessary transformation
             codeModel = transform(codeModel);
             // Write to local file (for debugging)
-            Yaml newYaml = createYaml();
-            String output = newYaml.dump(codeModel);
-
-            // Output updated code model
-            Files.writeString(codeModelFolder.resolve("code-model-fluentnamer-no-tags.yaml"), output);
+            if (codeModelFolder != null) {
+                Yaml newYaml = createYaml();
+                String output = newYaml.dump(codeModel);
+                Files.writeString(codeModelFolder.resolve("code-model-fluentnamer-no-tags.yaml"), output);
+            }
 
             return codeModel;
         } catch (Exception e) {
@@ -87,7 +89,9 @@ public class FluentNamer extends Preprocessor {
         // Read input file
         String file = readFile(files.get(0));
         // Write the input code model file to a local code model file to help debugging
-        Files.writeString(codeModelFolder.resolve("code-model.yaml"), file);
+        if (codeModelFolder != null) {
+            Files.writeString(codeModelFolder.resolve("code-model.yaml"), file);
+        }
         // Deserialize the input code model string to CodeModel object
         return loadCodeModel(file);
     }

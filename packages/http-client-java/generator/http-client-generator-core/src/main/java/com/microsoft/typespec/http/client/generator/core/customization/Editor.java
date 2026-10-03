@@ -3,11 +3,15 @@
 
 package com.microsoft.typespec.http.client.generator.core.customization;
 
+import com.github.javaparser.StaticJavaParser;
+import com.github.javaparser.ast.CompilationUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
@@ -16,6 +20,7 @@ import java.util.stream.Collectors;
 public final class Editor {
     private final Map<String, String> contents;
     private final Map<String, List<String>> lines;
+    private final Map<String, ParsedFile> parsedFiles = new HashMap<>();
 
     /**
      * Creates an editor instance with the file contents and the root directory path.
@@ -23,11 +28,8 @@ public final class Editor {
      * @param contents the map from file relative paths (starting with "src/main/java") and file contents
      */
     public Editor(Map<String, String> contents) {
-        this.contents = new HashMap<>(contents);
+        this.contents = new LinkedHashMap<>(contents);
         this.lines = new HashMap<>();
-        for (Map.Entry<String, String> entry : contents.entrySet()) {
-            lines.put(entry.getKey(), splitContentIntoLines(entry.getValue()));
-        }
     }
 
     /**
@@ -79,6 +81,81 @@ public final class Editor {
     }
 
     /**
+     * Gets the shared AST for the current file content. Text replacements invalidate the cached parse.
+     * Commit AST changes with {@link #setCompilationUnit(String, CompilationUnit)} before reading the file as text.
+     *
+     * @param name the relative file path
+     * @return the parsed compilation unit
+     */
+    public CompilationUnit getCompilationUnit(String name) {
+        String content = contents.get(name);
+        ParsedFile parsedFile = parsedFiles.get(name);
+        if (parsedFile == null || !parsedFile.content.equals(content)) {
+            parsedFile = new ParsedFile(content, StaticJavaParser.parse(content), false);
+            parsedFiles.put(name, parsedFile);
+        }
+        return parsedFile.compilationUnit;
+    }
+
+    /**
+     * Gets an existing AST without parsing a file that has not needed AST processing.
+     *
+     * @param name the relative file path
+     * @return the cached compilation unit, or null if the current text has not been parsed
+     */
+    public CompilationUnit getCachedCompilationUnit(String name) {
+        ParsedFile parsedFile = parsedFiles.get(name);
+        return parsedFile != null && parsedFile.content.equals(contents.get(name)) ? parsedFile.compilationUnit : null;
+    }
+
+    /**
+     * Indicates whether AST edits have made the original source positions unsuitable for text replacements.
+     *
+     * @param name the relative file path
+     * @return whether the current AST has been edited
+     */
+    public boolean isCompilationUnitModified(String name) {
+        ParsedFile parsedFile = parsedFiles.get(name);
+        return parsedFile != null && parsedFile.modified && parsedFile.content.equals(contents.get(name));
+    }
+
+    /**
+     * Releases a cached AST after its final use without discarding the file content.
+     *
+     * @param name the relative file path
+     */
+    public void releaseCompilationUnit(String name) {
+        parsedFiles.remove(name);
+    }
+
+    /**
+     * Updates the file content while retaining the edited AST for subsequent processing.
+     *
+     * @param name the relative file path
+     * @param compilationUnit the edited compilation unit
+     */
+    public void setCompilationUnit(String name, CompilationUnit compilationUnit) {
+        String content = compilationUnit.toString();
+        if (compilationUnit.getModule().isPresent()) {
+            content = compilationUnit.getOrphanComments().stream().map(Object::toString).collect(Collectors.joining())
+                + "\n" + content;
+        }
+        replaceFile(name, content);
+        parsedFiles.put(name, new ParsedFile(content, compilationUnit, true));
+    }
+
+    void customizeAst(String name, Consumer<CompilationUnit> customization) {
+        CompilationUnit compilationUnit = getCompilationUnit(name);
+        try {
+            customization.accept(compilationUnit);
+            setCompilationUnit(name, compilationUnit);
+        } catch (RuntimeException | Error exception) {
+            parsedFiles.remove(name);
+            throw exception;
+        }
+    }
+
+    /**
      * Adds a new file.
      *
      * @param name the relative path of the file, starting with "src/main/java"
@@ -101,7 +178,8 @@ public final class Editor {
     private void addOrReplaceFile(String name, String content, boolean isReplace) {
         if (isReplace || !contents.containsKey(name)) {
             contents.put(name, content);
-            lines.put(name, splitContentIntoLines(content));
+            lines.remove(name);
+            parsedFiles.remove(name);
         }
     }
 
@@ -113,6 +191,7 @@ public final class Editor {
     public void removeFile(String name) {
         contents.remove(name);
         lines.remove(name);
+        parsedFiles.remove(name);
     }
 
     /**
@@ -132,7 +211,9 @@ public final class Editor {
      * @return the file content split into lines
      */
     public List<String> getFileLines(String name) {
-        return lines.get(name);
+        return contents.containsKey(name)
+            ? lines.computeIfAbsent(name, fileName -> splitContentIntoLines(contents.get(fileName)))
+            : null;
     }
 
     /**
@@ -143,7 +224,7 @@ public final class Editor {
      * @return the file content in this line
      */
     public String getFileLine(String name, int line) {
-        return lines.get(name).get(line);
+        return getFileLines(name).get(line);
     }
 
     private static List<String> splitContentIntoLines(String content) {
@@ -156,6 +237,18 @@ public final class Editor {
             res.add("");
         }
         return res;
+    }
+
+    private static final class ParsedFile {
+        private final String content;
+        private final CompilationUnit compilationUnit;
+        private final boolean modified;
+
+        private ParsedFile(String content, CompilationUnit compilationUnit, boolean modified) {
+            this.content = content;
+            this.compilationUnit = compilationUnit;
+            this.modified = modified;
+        }
     }
 
 }

@@ -39,16 +39,15 @@ public final class BodyRootClient {
     /**
      * The nested operation.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     category: String (Optional)
      *     linkType: String (Optional)
      *     wasSuccessful: Boolean (Optional)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param bodyRootParameters The bodyRootParameters parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.

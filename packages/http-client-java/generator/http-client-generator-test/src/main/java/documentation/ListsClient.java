@@ -68,16 +68,15 @@ public final class ListsClient {
     /**
      * The bulletPointsModel operation.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     input (Required): {
      *         prop: String(Simple/Bold/Italic) (Required)
      *     }
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param bulletPointsModelRequest The bulletPointsModelRequest parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.

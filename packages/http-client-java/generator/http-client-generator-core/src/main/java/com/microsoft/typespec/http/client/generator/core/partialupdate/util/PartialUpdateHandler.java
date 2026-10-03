@@ -17,6 +17,7 @@ import com.github.javaparser.ast.body.TypeDeclaration;
 import com.github.javaparser.ast.comments.Comment;
 import com.github.javaparser.ast.comments.JavadocComment;
 import com.github.javaparser.ast.comments.LineComment;
+import com.github.javaparser.ast.comments.TraditionalJavadocComment;
 import com.github.javaparser.ast.expr.SimpleName;
 import com.github.javaparser.ast.modules.ModuleDeclaration;
 import com.github.javaparser.ast.modules.ModuleDirective;
@@ -24,11 +25,14 @@ import com.github.javaparser.ast.nodeTypes.NodeWithSimpleName;
 import com.github.javaparser.ast.visitor.GenericVisitor;
 import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.github.javaparser.printer.DefaultPrettyPrinterVisitor;
+import com.microsoft.typespec.http.client.generator.core.customization.Editor;
 import java.io.BufferedReader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -101,31 +105,42 @@ public class PartialUpdateHandler {
      * @return the file content after handling partial update
      */
     public static String handlePartialUpdateForFile(String generatedFileContent, String existingFileContent) {
-        // 1. Parse existing file content and generated file content using JavaParser
-        CompilationUnit compilationUnitForGeneratedFile = StaticJavaParser.parse(generatedFileContent);
-        CompilationUnit compilationUnitForExistingFile = StaticJavaParser.parse(existingFileContent);
+        Editor editor = new Editor(Map.of("generated", generatedFileContent));
+        mergeCompilationUnits(editor.getCompilationUnit("generated"), StaticJavaParser.parse(existingFileContent))
+            .ifPresent(compilationUnit -> editor.setCompilationUnit("generated", compilationUnit));
+        return editor.getFileContent("generated");
+    }
 
+    /**
+     * Merges existing manual changes into an already customized generated AST without reparsing either input.
+     *
+     * @param compilationUnitForGeneratedFile the customized generated AST
+     * @param compilationUnitForExistingFile the existing file AST
+     * @return the merged AST, or empty when the file is outside the scope of partial update
+     */
+    public static Optional<CompilationUnit> mergeCompilationUnits(CompilationUnit compilationUnitForGeneratedFile,
+        CompilationUnit compilationUnitForExistingFile) {
         // 2. If it's module-info.java file, then go to handlePartialUpdateForModuleInfoFile
         if (compilationUnitForExistingFile.getModule().isPresent()
             && compilationUnitForGeneratedFile.getModule().isPresent()) {
-            return handlePartialUpdateForModuleInfoFile(compilationUnitForGeneratedFile,
-                compilationUnitForExistingFile);
+            return Optional.of(
+                handlePartialUpdateForModuleInfoFile(compilationUnitForGeneratedFile, compilationUnitForExistingFile));
         }
 
         // 3. If it's package-info.java file, then go to handlePartialUpdateForPackageInfoFile
         if (isPackageInfoFile(compilationUnitForExistingFile) && isPackageInfoFile(compilationUnitForGeneratedFile)) {
-            return handlePartialUpdateForPackageInfoFile(compilationUnitForGeneratedFile,
-                compilationUnitForExistingFile);
+            return Optional.of(
+                handlePartialUpdateForPackageInfoFile(compilationUnitForGeneratedFile, compilationUnitForExistingFile));
         }
 
         // 4. If it's class or interface file, handle partial update for class or interface file
         if (isClassOrInterfaceFile(compilationUnitForExistingFile)
             && isClassOrInterfaceFile(compilationUnitForGeneratedFile)) {
-            return handlePartialUpdateForClassOrInterfaceFile(compilationUnitForGeneratedFile, generatedFileContent,
+            return handlePartialUpdateForClassOrInterfaceFile(compilationUnitForGeneratedFile,
                 compilationUnitForExistingFile);
         }
 
-        return generatedFileContent;
+        return Optional.empty();
     }
 
     /**
@@ -146,12 +161,11 @@ public class PartialUpdateHandler {
      * </ul>
      *
      * @param compilationUnitForGeneratedFile the newly generated file content
-     * @param generatedFileContent the newly generated file content
      * @param compilationUnitForExistingFile the existing file content that contains user's manual update code
      * @return the file content after handling partial update
      */
-    private static String handlePartialUpdateForClassOrInterfaceFile(CompilationUnit compilationUnitForGeneratedFile,
-        String generatedFileContent, CompilationUnit compilationUnitForExistingFile) {
+    private static Optional<CompilationUnit> handlePartialUpdateForClassOrInterfaceFile(
+        CompilationUnit compilationUnitForGeneratedFile, CompilationUnit compilationUnitForExistingFile) {
         // 1. Parse existing file content and generated file content using JavaParser
         ClassOrInterfaceDeclaration generatedClazz = getClassOrInterfaceDeclaration(compilationUnitForGeneratedFile);
         ClassOrInterfaceDeclaration existingClazz = getClassOrInterfaceDeclaration(compilationUnitForExistingFile);
@@ -176,7 +190,7 @@ public class PartialUpdateHandler {
             = generatedFileMembers.stream().anyMatch(PartialUpdateHandler::hasGeneratedAnnotation);
 
         if (!hasGeneratedAnnotations) {
-            return generatedFileContent;
+            return Optional.empty();
         }
 
         // TODO (weidxu): for now, formatter:on/off is not added by codegen -- hence the commented out block
@@ -245,7 +259,7 @@ public class PartialUpdateHandler {
         // 8. Update imports
         compilationUnitForGeneratedFile.getImports().addAll(compilationUnitForExistingFile.getImports());
 
-        return compilationUnitForGeneratedFile.toString();
+        return Optional.of(compilationUnitForGeneratedFile);
     }
 
     /**
@@ -348,7 +362,7 @@ public class PartialUpdateHandler {
      * @param compilationUnitForExistingFile the existing file content that contains user's manual update code
      * @return the content after handling partial update
      */
-    private static String handlePartialUpdateForModuleInfoFile(CompilationUnit compilationUnitForGeneratedFile,
+    private static CompilationUnit handlePartialUpdateForModuleInfoFile(CompilationUnit compilationUnitForGeneratedFile,
         CompilationUnit compilationUnitForExistingFile) {
         return mergeModuleFileContent(compilationUnitForGeneratedFile, compilationUnitForExistingFile);
     }
@@ -363,7 +377,7 @@ public class PartialUpdateHandler {
      * @param compilationUnitForExistingFile the existing file content that contains user's manual update code
      * @return merged module-info.java file content
      */
-    private static String mergeModuleFileContent(CompilationUnit compilationUnitForGeneratedFile,
+    private static CompilationUnit mergeModuleFileContent(CompilationUnit compilationUnitForGeneratedFile,
         CompilationUnit compilationUnitForExistingFile) {
         if (!compilationUnitForExistingFile.getModule().isPresent()
             || !compilationUnitForGeneratedFile.getModule().isPresent()) {
@@ -423,13 +437,7 @@ public class PartialUpdateHandler {
 
         compilationUnitForGeneratedFile.setModule(moduleDeclaration);
 
-        // add comments as compilationUnitForGeneratedFile.toString() does not include comments
-        StringBuilder comments = new StringBuilder();
-        for (Comment comment : compilationUnitForGeneratedFile.getOrphanComments()) {
-            comments.append(comment.toString());
-        }
-
-        return comments + "\n" + compilationUnitForGeneratedFile;
+        return compilationUnitForGeneratedFile;
     }
 
     /**
@@ -439,8 +447,8 @@ public class PartialUpdateHandler {
      * @param compilationUnitForExistingFile the existing file content that contains user's manual update code
      * @return the content after handling partial update
      */
-    private static String handlePartialUpdateForPackageInfoFile(CompilationUnit compilationUnitForGeneratedFile,
-        CompilationUnit compilationUnitForExistingFile) {
+    private static CompilationUnit handlePartialUpdateForPackageInfoFile(
+        CompilationUnit compilationUnitForGeneratedFile, CompilationUnit compilationUnitForExistingFile) {
         if (!isPackageInfoFile(compilationUnitForExistingFile) || !isPackageInfoFile(compilationUnitForGeneratedFile)) {
             throw new RuntimeException("Generated file or existing file is not package-info file");
         }
@@ -457,7 +465,7 @@ public class PartialUpdateHandler {
 
         // If the existing file has no Javadocs just return the generated file.
         if (existingJavadoc == null) {
-            return compilationUnitForGeneratedFile.toString();
+            return compilationUnitForGeneratedFile;
         }
 
         // Use JavadocComment.parse and get the description text as this doesn't contain the leading '*' character.
@@ -470,7 +478,7 @@ public class PartialUpdateHandler {
         if (existingGeneratedDocStartPosition == -1 && existingGeneratedDocEndPosition == -1) {
             // If the existing file has no generated doc, just return the existing file.
             compilationUnitForGeneratedFile.getPackageDeclaration().get().setComment(existingJavadoc);
-            return compilationUnitForExistingFile.toString();
+            return compilationUnitForExistingFile;
         }
 
         if (existingGeneratedDocEndPosition == -1) {
@@ -543,16 +551,18 @@ public class PartialUpdateHandler {
             .collect(Collectors.toList());
 
         if (lines.isEmpty()) {
-            compilationUnitForGeneratedFile.getPackageDeclaration().get().setComment(new JavadocComment());
+            compilationUnitForGeneratedFile.getPackageDeclaration().get().setComment(new TraditionalJavadocComment());
         } else if (lines.size() == 1) {
-            compilationUnitForGeneratedFile.getPackageDeclaration().get().setComment(new JavadocComment(lines.get(0)));
+            compilationUnitForGeneratedFile.getPackageDeclaration()
+                .get()
+                .setComment(new TraditionalJavadocComment(lines.get(0)));
         } else {
             compilationUnitForGeneratedFile.getPackageDeclaration()
                 .get()
-                .setComment(new JavadocComment(String.join(lineEnding, lines)));
+                .setComment(new TraditionalJavadocComment(String.join(lineEnding, lines)));
         }
 
-        return compilationUnitForGeneratedFile.toString();
+        return compilationUnitForGeneratedFile;
     }
 
     /**

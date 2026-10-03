@@ -139,9 +139,8 @@ public final class ExternalTypesImpl {
     /**
      * The getModel operation.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     type: String (Required)
      *     geometry (Required): {
@@ -155,8 +154,8 @@ public final class ExternalTypesImpl {
      *     }
      *     id: BinaryData (Optional)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -175,9 +174,8 @@ public final class ExternalTypesImpl {
     /**
      * The getModel operation.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     type: String (Required)
      *     geometry (Required): {
@@ -191,8 +189,8 @@ public final class ExternalTypesImpl {
      *     }
      *     id: BinaryData (Optional)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -210,9 +208,8 @@ public final class ExternalTypesImpl {
     /**
      * The putModel operation.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     type: String (Required)
      *     geometry (Required): {
@@ -226,8 +223,8 @@ public final class ExternalTypesImpl {
      *     }
      *     id: BinaryData (Optional)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param body The body parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -247,9 +244,8 @@ public final class ExternalTypesImpl {
     /**
      * The putModel operation.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     type: String (Required)
      *     geometry (Required): {
@@ -263,8 +259,8 @@ public final class ExternalTypesImpl {
      *     }
      *     id: BinaryData (Optional)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param body The body parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -283,9 +279,8 @@ public final class ExternalTypesImpl {
     /**
      * The getProperty operation.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     feature (Required): {
      *         type: String (Required)
@@ -302,8 +297,8 @@ public final class ExternalTypesImpl {
      *     }
      *     additionalProperty: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -322,9 +317,8 @@ public final class ExternalTypesImpl {
     /**
      * The getProperty operation.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     feature (Required): {
      *         type: String (Required)
@@ -341,8 +335,8 @@ public final class ExternalTypesImpl {
      *     }
      *     additionalProperty: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -360,9 +354,8 @@ public final class ExternalTypesImpl {
     /**
      * The putProperty operation.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     feature (Required): {
      *         type: String (Required)
@@ -379,8 +372,8 @@ public final class ExternalTypesImpl {
      *     }
      *     additionalProperty: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param body The body parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -400,9 +393,8 @@ public final class ExternalTypesImpl {
     /**
      * The putProperty operation.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     feature (Required): {
      *         type: String (Required)
@@ -419,8 +411,8 @@ public final class ExternalTypesImpl {
      *     }
      *     additionalProperty: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param body The body parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.

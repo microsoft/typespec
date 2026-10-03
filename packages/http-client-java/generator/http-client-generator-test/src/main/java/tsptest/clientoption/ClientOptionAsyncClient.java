@@ -41,15 +41,14 @@ public final class ClientOptionAsyncClient {
     /**
      * The post operation.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     name: String (Required)
      *     timespan: Duration (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param filter The filter parameter.
      * @param body The body parameter.

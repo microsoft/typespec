@@ -85,16 +85,15 @@ public final class NamespaceUsagesImpl {
      * Expected body parameter:
      * ```json
      * {
-     * "name": "test"
+     *   "name": "test"
      * }
      * ```.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * BinaryData
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param body The body parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -118,16 +117,15 @@ public final class NamespaceUsagesImpl {
      * Expected body parameter:
      * ```json
      * {
-     * "name": "test"
+     *   "name": "test"
      * }
      * ```.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * BinaryData
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param body The body parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.

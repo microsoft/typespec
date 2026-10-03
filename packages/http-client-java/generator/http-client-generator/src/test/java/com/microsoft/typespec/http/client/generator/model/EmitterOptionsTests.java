@@ -12,6 +12,23 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 public final class EmitterOptionsTests {
 
+    @ParameterizedTest
+    @ValueSource(booleans = { false, true })
+    public void testDebugOptions(boolean debug) throws IOException {
+        try (JsonReader reader
+            = JsonReader.fromString("{\"dev-options\":{\"unknown\":{\"value\":1},\"debug\":" + debug + "}}")) {
+            EmitterOptions options = EmitterOptions.fromJson(reader);
+            Assertions.assertEquals(debug, options.getDevOptions().isDebug());
+        }
+    }
+
+    @Test
+    public void testDebugDisabledByDefault() throws IOException {
+        try (JsonReader reader = JsonReader.fromString("{\"dev-options\":{}}")) {
+            Assertions.assertFalse(EmitterOptions.fromJson(reader).getDevOptions().isDebug());
+        }
+    }
+
     @Test
     public void testMaxOverload() throws IOException {
         EmitterOptions options = EmitterOptions.fromJson(JsonReader.fromString("{\"max-overload\":\"model\"}"));

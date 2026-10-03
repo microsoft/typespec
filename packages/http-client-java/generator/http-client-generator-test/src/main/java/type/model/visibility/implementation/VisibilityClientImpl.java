@@ -276,9 +276,8 @@ public final class VisibilityClientImpl {
     /**
      * The getModel operation.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     readProp: String (Required)
      *     createProp (Required): [
@@ -289,13 +288,11 @@ public final class VisibilityClientImpl {
      *     ]
      *     deleteProp: Boolean (Required)
      * }
-     * }
-     * </pre>
-     * 
+     * }</pre>
+     * <!-- @formatter:on -->
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     readProp: String (Required)
      *     createProp (Required): [
@@ -306,8 +303,8 @@ public final class VisibilityClientImpl {
      *     ]
      *     deleteProp: Boolean (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param queryProp Required int32, illustrating a query property.
      * @param input The input parameter.
@@ -316,8 +313,7 @@ public final class VisibilityClientImpl {
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return output model with visibility properties along with {@link Response} on successful completion of
-     * {@link Mono}.
+     * @return output model with visibility properties along with {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<BinaryData>> getModelWithResponseAsync(int queryProp, BinaryData input,
@@ -331,9 +327,8 @@ public final class VisibilityClientImpl {
     /**
      * The getModel operation.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     readProp: String (Required)
      *     createProp (Required): [
@@ -344,13 +339,11 @@ public final class VisibilityClientImpl {
      *     ]
      *     deleteProp: Boolean (Required)
      * }
-     * }
-     * </pre>
-     * 
+     * }</pre>
+     * <!-- @formatter:on -->
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     readProp: String (Required)
      *     createProp (Required): [
@@ -361,8 +354,8 @@ public final class VisibilityClientImpl {
      *     ]
      *     deleteProp: Boolean (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param queryProp Required int32, illustrating a query property.
      * @param input The input parameter.
@@ -384,9 +377,8 @@ public final class VisibilityClientImpl {
     /**
      * The headModel operation.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     readProp: String (Required)
      *     createProp (Required): [
@@ -397,8 +389,8 @@ public final class VisibilityClientImpl {
      *     ]
      *     deleteProp: Boolean (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param queryProp Required int32, illustrating a query property.
      * @param input The input parameter.
@@ -420,9 +412,8 @@ public final class VisibilityClientImpl {
     /**
      * The headModel operation.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     readProp: String (Required)
      *     createProp (Required): [
@@ -433,8 +424,8 @@ public final class VisibilityClientImpl {
      *     ]
      *     deleteProp: Boolean (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param queryProp Required int32, illustrating a query property.
      * @param input The input parameter.
@@ -454,9 +445,8 @@ public final class VisibilityClientImpl {
     /**
      * The putModel operation.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     readProp: String (Required)
      *     createProp (Required): [
@@ -467,8 +457,8 @@ public final class VisibilityClientImpl {
      *     ]
      *     deleteProp: Boolean (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param input The input parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -488,9 +478,8 @@ public final class VisibilityClientImpl {
     /**
      * The putModel operation.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     readProp: String (Required)
      *     createProp (Required): [
@@ -501,8 +490,8 @@ public final class VisibilityClientImpl {
      *     ]
      *     deleteProp: Boolean (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param input The input parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -521,9 +510,8 @@ public final class VisibilityClientImpl {
     /**
      * The patchModel operation.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     readProp: String (Required)
      *     createProp (Required): [
@@ -534,8 +522,8 @@ public final class VisibilityClientImpl {
      *     ]
      *     deleteProp: Boolean (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param input The input parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -555,9 +543,8 @@ public final class VisibilityClientImpl {
     /**
      * The patchModel operation.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     readProp: String (Required)
      *     createProp (Required): [
@@ -568,8 +555,8 @@ public final class VisibilityClientImpl {
      *     ]
      *     deleteProp: Boolean (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param input The input parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -588,9 +575,8 @@ public final class VisibilityClientImpl {
     /**
      * The postModel operation.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     readProp: String (Required)
      *     createProp (Required): [
@@ -601,8 +587,8 @@ public final class VisibilityClientImpl {
      *     ]
      *     deleteProp: Boolean (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param input The input parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -622,9 +608,8 @@ public final class VisibilityClientImpl {
     /**
      * The postModel operation.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     readProp: String (Required)
      *     createProp (Required): [
@@ -635,8 +620,8 @@ public final class VisibilityClientImpl {
      *     ]
      *     deleteProp: Boolean (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param input The input parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -655,9 +640,8 @@ public final class VisibilityClientImpl {
     /**
      * The deleteModel operation.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     readProp: String (Required)
      *     createProp (Required): [
@@ -668,8 +652,8 @@ public final class VisibilityClientImpl {
      *     ]
      *     deleteProp: Boolean (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param input The input parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -689,9 +673,8 @@ public final class VisibilityClientImpl {
     /**
      * The deleteModel operation.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     readProp: String (Required)
      *     createProp (Required): [
@@ -702,8 +685,8 @@ public final class VisibilityClientImpl {
      *     ]
      *     deleteProp: Boolean (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param input The input parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -722,9 +705,8 @@ public final class VisibilityClientImpl {
     /**
      * The putReadOnlyModel operation.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     optionalNullableIntList (Optional): [
      *         int (Optional)
@@ -733,13 +715,11 @@ public final class VisibilityClientImpl {
      *         String: String (Required)
      *     }
      * }
-     * }
-     * </pre>
-     * 
+     * }</pre>
+     * <!-- @formatter:on -->
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     optionalNullableIntList (Optional): [
      *         int (Optional)
@@ -748,8 +728,8 @@ public final class VisibilityClientImpl {
      *         String: String (Required)
      *     }
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param input The input parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -757,8 +737,7 @@ public final class VisibilityClientImpl {
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return roundTrip model with readonly optional properties along with {@link Response} on successful completion of
-     * {@link Mono}.
+     * @return roundTrip model with readonly optional properties along with {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<BinaryData>> putReadOnlyModelWithResponseAsync(BinaryData input,
@@ -772,9 +751,8 @@ public final class VisibilityClientImpl {
     /**
      * The putReadOnlyModel operation.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     optionalNullableIntList (Optional): [
      *         int (Optional)
@@ -783,13 +761,11 @@ public final class VisibilityClientImpl {
      *         String: String (Required)
      *     }
      * }
-     * }
-     * </pre>
-     * 
+     * }</pre>
+     * <!-- @formatter:on -->
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     optionalNullableIntList (Optional): [
      *         int (Optional)
@@ -798,8 +774,8 @@ public final class VisibilityClientImpl {
      *         String: String (Required)
      *     }
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param input The input parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.

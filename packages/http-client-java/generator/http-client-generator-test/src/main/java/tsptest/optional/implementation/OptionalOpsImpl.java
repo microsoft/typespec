@@ -92,26 +92,24 @@ public final class OptionalOpsImpl {
      * The put operation.
      * <p><strong>Query Parameters</strong></p>
      * <table border="1">
-     * <caption>Query Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>booleanNullable</td><td>Boolean</td><td>No</td><td>The booleanNullable parameter</td></tr>
-     * <tr><td>string</td><td>String</td><td>No</td><td>The string parameter</td></tr>
-     * <tr><td>stringNullable</td><td>String</td><td>No</td><td>The stringNullable parameter</td></tr>
+     *     <caption>Query Parameters</caption>
+     *     <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     *     <tr><td>booleanNullable</td><td>Boolean</td><td>No</td><td>The booleanNullable parameter</td></tr>
+     *     <tr><td>string</td><td>String</td><td>No</td><td>The string parameter</td></tr>
+     *     <tr><td>stringNullable</td><td>String</td><td>No</td><td>The stringNullable parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
      * <p><strong>Header Parameters</strong></p>
      * <table border="1">
-     * <caption>Header Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>Content-Type</td><td>String</td><td>No</td><td>The content type. Allowed values:
-     * "application/json".</td></tr>
-     * <tr><td>request-header-optional</td><td>String</td><td>No</td><td>The requestHeaderOptional parameter</td></tr>
+     *     <caption>Header Parameters</caption>
+     *     <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     *     <tr><td>Content-Type</td><td>String</td><td>No</td><td>The content type. Allowed values: "application/json".</td></tr>
+     *     <tr><td>request-header-optional</td><td>String</td><td>No</td><td>The requestHeaderOptional parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addHeader}
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     boolean: Boolean (Optional)
      *     booleanNullable: Boolean (Optional)
@@ -137,13 +135,11 @@ public final class OptionalOpsImpl {
      *     epochDateTimeRequiredNullable: Long (Required)
      *     epochDateTimeNullable: Long (Optional)
      * }
-     * }
-     * </pre>
-     * 
+     * }</pre>
+     * <!-- @formatter:on -->
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     boolean: Boolean (Optional)
      *     booleanNullable: Boolean (Optional)
@@ -173,15 +169,14 @@ public final class OptionalOpsImpl {
      *         stringReadOnlyOptional: String (Optional)
      *     }
      * }
-     * }
-     * </pre>
-     * 
+     * }</pre>
+     * <!-- @formatter:on -->
      * <p><strong>Response Headers</strong></p>
      * <table border="1">
-     * <caption>Response Headers</caption>
-     * <tr><th>Name</th><th>Type</th><th>Description</th></tr>
-     * <tr><td>header-required</td><td>String</td><td>The header-required response header.</td></tr>
-     * <tr><td>header-optional</td><td>String</td><td>The header-optional response header.</td></tr>
+     *     <caption>Response Headers</caption>
+     *     <tr><th>Name</th><th>Type</th><th>Description</th></tr>
+     *     <tr><td>header-required</td><td>String</td><td>The header-required response header.</td></tr>
+     *     <tr><td>header-optional</td><td>String</td><td>The header-optional response header.</td></tr>
      * </table>
      * 
      * @param requestHeaderRequired The requestHeaderRequired parameter.
@@ -216,26 +211,24 @@ public final class OptionalOpsImpl {
      * The put operation.
      * <p><strong>Query Parameters</strong></p>
      * <table border="1">
-     * <caption>Query Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>booleanNullable</td><td>Boolean</td><td>No</td><td>The booleanNullable parameter</td></tr>
-     * <tr><td>string</td><td>String</td><td>No</td><td>The string parameter</td></tr>
-     * <tr><td>stringNullable</td><td>String</td><td>No</td><td>The stringNullable parameter</td></tr>
+     *     <caption>Query Parameters</caption>
+     *     <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     *     <tr><td>booleanNullable</td><td>Boolean</td><td>No</td><td>The booleanNullable parameter</td></tr>
+     *     <tr><td>string</td><td>String</td><td>No</td><td>The string parameter</td></tr>
+     *     <tr><td>stringNullable</td><td>String</td><td>No</td><td>The stringNullable parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
      * <p><strong>Header Parameters</strong></p>
      * <table border="1">
-     * <caption>Header Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>Content-Type</td><td>String</td><td>No</td><td>The content type. Allowed values:
-     * "application/json".</td></tr>
-     * <tr><td>request-header-optional</td><td>String</td><td>No</td><td>The requestHeaderOptional parameter</td></tr>
+     *     <caption>Header Parameters</caption>
+     *     <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     *     <tr><td>Content-Type</td><td>String</td><td>No</td><td>The content type. Allowed values: "application/json".</td></tr>
+     *     <tr><td>request-header-optional</td><td>String</td><td>No</td><td>The requestHeaderOptional parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addHeader}
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     boolean: Boolean (Optional)
      *     booleanNullable: Boolean (Optional)
@@ -261,13 +254,11 @@ public final class OptionalOpsImpl {
      *     epochDateTimeRequiredNullable: Long (Required)
      *     epochDateTimeNullable: Long (Optional)
      * }
-     * }
-     * </pre>
-     * 
+     * }</pre>
+     * <!-- @formatter:on -->
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     boolean: Boolean (Optional)
      *     booleanNullable: Boolean (Optional)
@@ -297,15 +288,14 @@ public final class OptionalOpsImpl {
      *         stringReadOnlyOptional: String (Optional)
      *     }
      * }
-     * }
-     * </pre>
-     * 
+     * }</pre>
+     * <!-- @formatter:on -->
      * <p><strong>Response Headers</strong></p>
      * <table border="1">
-     * <caption>Response Headers</caption>
-     * <tr><th>Name</th><th>Type</th><th>Description</th></tr>
-     * <tr><td>header-required</td><td>String</td><td>The header-required response header.</td></tr>
-     * <tr><td>header-optional</td><td>String</td><td>The header-optional response header.</td></tr>
+     *     <caption>Response Headers</caption>
+     *     <tr><th>Name</th><th>Type</th><th>Description</th></tr>
+     *     <tr><td>header-required</td><td>String</td><td>The header-required response header.</td></tr>
+     *     <tr><td>header-optional</td><td>String</td><td>The header-optional response header.</td></tr>
      * </table>
      * 
      * @param requestHeaderRequired The requestHeaderRequired parameter.

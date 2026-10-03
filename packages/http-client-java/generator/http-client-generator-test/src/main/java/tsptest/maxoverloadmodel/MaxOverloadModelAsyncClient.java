@@ -58,31 +58,28 @@ public final class MaxOverloadModelAsyncClient {
      * The create operation.
      * <p><strong>Query Parameters</strong></p>
      * <table border="1">
-     * <caption>Query Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>optional</td><td>String</td><td>No</td><td>The optional parameter</td></tr>
-     * <tr><td>added</td><td>String</td><td>No</td><td>The added parameter</td></tr>
+     *     <caption>Query Parameters</caption>
+     *     <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     *     <tr><td>optional</td><td>String</td><td>No</td><td>The optional parameter</td></tr>
+     *     <tr><td>added</td><td>String</td><td>No</td><td>The added parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     name: String (Required)
      * }
-     * }
-     * </pre>
-     * 
+     * }</pre>
+     * <!-- @formatter:on -->
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     name: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param id The id parameter.
      * @param body The body parameter.
@@ -102,21 +99,19 @@ public final class MaxOverloadModelAsyncClient {
     /**
      * The getWithHeaders operation.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     name: String (Required)
      * }
-     * }
-     * </pre>
-     * 
+     * }</pre>
+     * <!-- @formatter:on -->
      * <p><strong>Response Headers</strong></p>
      * <table border="1">
-     * <caption>Response Headers</caption>
-     * <tr><th>Name</th><th>Type</th><th>Description</th></tr>
-     * <tr><td>x-request-id</td><td>String</td><td>The x-request-id response header.</td></tr>
-     * <tr><td>x-request-status</td><td>String</td><td>The x-request-status response header.</td></tr>
+     *     <caption>Response Headers</caption>
+     *     <tr><th>Name</th><th>Type</th><th>Description</th></tr>
+     *     <tr><td>x-request-id</td><td>String</td><td>The x-request-id response header.</td></tr>
+     *     <tr><td>x-request-status</td><td>String</td><td>The x-request-status response header.</td></tr>
      * </table>
      * 
      * @param id The id parameter.
@@ -136,26 +131,23 @@ public final class MaxOverloadModelAsyncClient {
     /**
      * Long-running resource create or replace operation template.
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: String (Required)
      *     name: String (Required)
      * }
-     * }
-     * </pre>
-     * 
+     * }</pre>
+     * <!-- @formatter:on -->
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: String (Required)
      *     name: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param name The name parameter.
      * @param resource The resource instance.
@@ -177,16 +169,15 @@ public final class MaxOverloadModelAsyncClient {
      * Long-running resource action operation template.
      * <p><strong>Query Parameters</strong></p>
      * <table border="1">
-     * <caption>Query Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>optional</td><td>String</td><td>No</td><td>The optional parameter</td></tr>
-     * <tr><td>added</td><td>String</td><td>No</td><td>The added parameter</td></tr>
+     *     <caption>Query Parameters</caption>
+     *     <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     *     <tr><td>optional</td><td>String</td><td>No</td><td>The optional parameter</td></tr>
+     *     <tr><td>added</td><td>String</td><td>No</td><td>The added parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: String (Required)
      *     status: String(NotStarted/Running/Succeeded/Failed/Canceled) (Required)
@@ -207,8 +198,8 @@ public final class MaxOverloadModelAsyncClient {
      *         name: String (Required)
      *     }
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param name The name parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -227,9 +218,8 @@ public final class MaxOverloadModelAsyncClient {
     /**
      * Long-running resource action operation template.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: String (Required)
      *     status: String(NotStarted/Running/Succeeded/Failed/Canceled) (Required)
@@ -250,8 +240,8 @@ public final class MaxOverloadModelAsyncClient {
      *         name: String (Required)
      *     }
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param name The name parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -271,22 +261,21 @@ public final class MaxOverloadModelAsyncClient {
      * Resource list operation template.
      * <p><strong>Query Parameters</strong></p>
      * <table border="1">
-     * <caption>Query Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>filter</td><td>String</td><td>No</td><td>The filter parameter</td></tr>
-     * <tr><td>added</td><td>String</td><td>No</td><td>The added parameter</td></tr>
+     *     <caption>Query Parameters</caption>
+     *     <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     *     <tr><td>filter</td><td>String</td><td>No</td><td>The filter parameter</td></tr>
+     *     <tr><td>added</td><td>String</td><td>No</td><td>The added parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: String (Required)
      *     name: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -304,15 +293,14 @@ public final class MaxOverloadModelAsyncClient {
     /**
      * Resource list operation template.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: String (Required)
      *     name: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -353,21 +341,19 @@ public final class MaxOverloadModelAsyncClient {
     /**
      * The getInternalHeaders operation.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     name: String (Required)
      * }
-     * }
-     * </pre>
-     * 
+     * }</pre>
+     * <!-- @formatter:on -->
      * <p><strong>Response Headers</strong></p>
      * <table border="1">
-     * <caption>Response Headers</caption>
-     * <tr><th>Name</th><th>Type</th><th>Description</th></tr>
-     * <tr><td>x-request-id</td><td>String</td><td>The x-request-id response header.</td></tr>
-     * <tr><td>x-request-status</td><td>String</td><td>The x-request-status response header.</td></tr>
+     *     <caption>Response Headers</caption>
+     *     <tr><th>Name</th><th>Type</th><th>Description</th></tr>
+     *     <tr><td>x-request-id</td><td>String</td><td>The x-request-id response header.</td></tr>
+     *     <tr><td>x-request-status</td><td>String</td><td>The x-request-status response header.</td></tr>
      * </table>
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.

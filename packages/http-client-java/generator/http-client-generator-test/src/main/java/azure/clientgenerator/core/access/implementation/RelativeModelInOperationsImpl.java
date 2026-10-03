@@ -101,25 +101,24 @@ public final class RelativeModelInOperationsImpl {
      * Expected response body:
      * ```json
      * {
-     * "name": "Madge",
-     * "inner":
-     * {
-     * "name": "Madge"
-     * }
+     *   "name": "Madge",
+     *   "inner":
+     *   {
+     *     "name": "Madge"
+     *   }
      * }
      * ```.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     name: String (Required)
      *     inner (Required): {
      *         name: String (Required)
      *     }
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param name The name parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -127,8 +126,7 @@ public final class RelativeModelInOperationsImpl {
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return used in internal operations, should be generated but not exported along with {@link Response} on
-     * successful completion of {@link Mono}.
+     * @return used in internal operations, should be generated but not exported along with {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<BinaryData>> operationWithResponseAsync(String name, RequestOptions requestOptions) {
@@ -142,25 +140,24 @@ public final class RelativeModelInOperationsImpl {
      * Expected response body:
      * ```json
      * {
-     * "name": "Madge",
-     * "inner":
-     * {
-     * "name": "Madge"
-     * }
+     *   "name": "Madge",
+     *   "inner":
+     *   {
+     *     "name": "Madge"
+     *   }
      * }
      * ```.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     name: String (Required)
      *     inner (Required): {
      *         name: String (Required)
      *     }
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param name The name parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -181,20 +178,19 @@ public final class RelativeModelInOperationsImpl {
      * Expected response body:
      * ```json
      * {
-     * "name": "Madge",
-     * "kind": "real"
+     *   "name": "Madge",
+     *   "kind": "real"
      * }
      * ```.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     kind: String (Required)
      *     name: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param kind The kind parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -202,8 +198,7 @@ public final class RelativeModelInOperationsImpl {
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return used in internal operations, should be generated but not exported along with {@link Response} on
-     * successful completion of {@link Mono}.
+     * @return used in internal operations, should be generated but not exported along with {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<BinaryData>> discriminatorWithResponseAsync(String kind, RequestOptions requestOptions) {
@@ -217,20 +212,19 @@ public final class RelativeModelInOperationsImpl {
      * Expected response body:
      * ```json
      * {
-     * "name": "Madge",
-     * "kind": "real"
+     *   "name": "Madge",
+     *   "kind": "real"
      * }
      * ```.
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     kind: String (Required)
      *     name: String (Required)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param kind The kind parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.

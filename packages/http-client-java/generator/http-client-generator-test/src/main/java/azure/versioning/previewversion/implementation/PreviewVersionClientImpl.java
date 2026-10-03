@@ -211,24 +211,22 @@ public final class PreviewVersionClientImpl {
     /**
      * Get widget by id (available in all versions).
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: String (Required)
      *     name: String (Required)
      *     color: String (Optional)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param id The id parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @return widget by id (available in all versions) along with {@link Response} on successful completion of
-     * {@link Mono}.
+     * @return widget by id (available in all versions) along with {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<BinaryData>> getWidgetWithResponseAsync(String id, RequestOptions requestOptions) {
@@ -240,16 +238,15 @@ public final class PreviewVersionClientImpl {
     /**
      * Get widget by id (available in all versions).
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: String (Required)
      *     name: String (Required)
      *     color: String (Optional)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param id The id parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
@@ -268,26 +265,23 @@ public final class PreviewVersionClientImpl {
     /**
      * Update widget color (preview only).
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     color: String (Optional, Required on create)
      * }
-     * }
-     * </pre>
-     * 
+     * }</pre>
+     * <!-- @formatter:on -->
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: String (Required)
      *     name: String (Required)
      *     color: String (Optional)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param id The id parameter.
      * @param colorUpdate The colorUpdate parameter.
@@ -309,26 +303,23 @@ public final class PreviewVersionClientImpl {
     /**
      * Update widget color (preview only).
      * <p><strong>Request Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     color: String (Optional, Required on create)
      * }
-     * }
-     * </pre>
-     * 
+     * }</pre>
+     * <!-- @formatter:on -->
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     id: String (Required)
      *     name: String (Required)
      *     color: String (Optional)
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param id The id parameter.
      * @param colorUpdate The colorUpdate parameter.
@@ -351,16 +342,15 @@ public final class PreviewVersionClientImpl {
      * List widgets with optional color filtering.
      * <p><strong>Query Parameters</strong></p>
      * <table border="1">
-     * <caption>Query Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>name</td><td>String</td><td>No</td><td>The name parameter</td></tr>
-     * <tr><td>color</td><td>String</td><td>No</td><td>The color parameter</td></tr>
+     *     <caption>Query Parameters</caption>
+     *     <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     *     <tr><td>name</td><td>String</td><td>No</td><td>The name parameter</td></tr>
+     *     <tr><td>color</td><td>String</td><td>No</td><td>The color parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     widgets (Required): [
      *          (Required){
@@ -370,8 +360,8 @@ public final class PreviewVersionClientImpl {
      *         }
      *     ]
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
@@ -391,16 +381,15 @@ public final class PreviewVersionClientImpl {
      * List widgets with optional color filtering.
      * <p><strong>Query Parameters</strong></p>
      * <table border="1">
-     * <caption>Query Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>name</td><td>String</td><td>No</td><td>The name parameter</td></tr>
-     * <tr><td>color</td><td>String</td><td>No</td><td>The color parameter</td></tr>
+     *     <caption>Query Parameters</caption>
+     *     <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     *     <tr><td>name</td><td>String</td><td>No</td><td>The name parameter</td></tr>
+     *     <tr><td>color</td><td>String</td><td>No</td><td>The color parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
      * <p><strong>Response Body Schema</strong></p>
-     * 
-     * <pre>
-     * {@code
+     * <!-- @formatter:off -->
+     * <pre>{@code
      * {
      *     widgets (Required): [
      *          (Required){
@@ -410,8 +399,8 @@ public final class PreviewVersionClientImpl {
      *         }
      *     ]
      * }
-     * }
-     * </pre>
+     * }</pre>
+     * <!-- @formatter:on -->
      * 
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
