@@ -1,0 +1,4 @@
+extends: ./typespec-base.yaml
+linter:
+  disable:
+    test/child-rule: Child exemption

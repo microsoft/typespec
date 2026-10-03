@@ -1,5 +1,53 @@
-import { expect, it } from "vitest";
-import { formatCompilerFeatures } from "../../../../src/core/cli/actions/info.js";
+import { expect, it, vi } from "vitest";
+import {
+  formatCompilerFeatures,
+  getPrintableConfig,
+  printInfoAction,
+} from "../../../../src/core/cli/actions/info.js";
+import { createTestHost, resolveVirtualPath } from "../../../../src/testing/index.js";
+
+it("omits internal linter source metadata from printInfoAction output", async () => {
+  const host = await createTestHost();
+  host.addTypeSpecFile(
+    "project/tspconfig.yaml",
+    `linter:
+  extends:
+    - test/all
+`,
+  );
+
+  const cwd = vi.spyOn(process, "cwd").mockReturnValue(resolveVirtualPath("project"));
+  const consoleLog = vi.spyOn(console, "log").mockImplementation(() => {});
+  try {
+    const diagnostics = await printInfoAction(host.compilerHost, {});
+    expect(diagnostics).toEqual([]);
+
+    const output = consoleLog.mock.calls.map(([value]) => String(value)).join("\n");
+    expect(output).toContain("linter:");
+    expect(output).toContain("- test/all");
+    expect(output).not.toContain("linterSource");
+    expect(output).not.toContain("diagnostics:");
+  } finally {
+    consoleLog.mockRestore();
+    cwd.mockRestore();
+  }
+});
+
+it("omits internal linter source metadata from printable config", () => {
+  const config = getPrintableConfig({
+    diagnostics: [],
+    outputDir: "{cwd}/tsp-output",
+    projectRoot: "/project",
+    filename: "/project/tspconfig.yaml",
+    linter: { extends: ["test/all"] },
+    linterSource: { extends: "/base/tspconfig.yaml" },
+  });
+
+  expect(config).not.toHaveProperty("linterSource");
+  expect(config).not.toHaveProperty("diagnostics");
+  expect(config).not.toHaveProperty("file");
+  expect(config.linter).toEqual({ extends: ["test/all"] });
+});
 
 function stripAnsi(str: string): string {
   // eslint-disable-next-line no-control-regex
