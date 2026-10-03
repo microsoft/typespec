@@ -81,6 +81,22 @@ describe("@example", () => {
       expect(serializeValueAsJson(program, examples[0].value, target)).toEqual(1);
     });
 
+    it("accepts int64 example above Number.MAX_SAFE_INTEGER without ICE", async () => {
+      // @example takes valueof unknown; marshalling must not assert when the
+      // literal cannot be a JS number (fixes microsoft/typespec#12067).
+      const { examples } = await getExamplesFor(`
+      model TestModel {
+        @example(123456789123456789)
+        /*test*/test: int64;
+      }
+    `);
+      expect(examples).toHaveLength(1);
+      expect(examples[0].value.valueKind).toBe("NumericValue");
+      expect((examples[0].value as { value: { toString(): string } }).value.toString()).toBe(
+        "123456789123456789",
+      );
+    });
+
     it("emit diagnostic for unassignable value", async () => {
       const diagnostics = await Tester.diagnose(`
         model TestModel {
