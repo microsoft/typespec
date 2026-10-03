@@ -24,6 +24,7 @@ import {
   getUseDependencies,
 } from "./decorators.js";
 import { reportDiagnostic } from "./lib.js";
+import { hasChangedOptionality } from "./optionality.js";
 import type { Version } from "./types.js";
 import { getVersionAdditionCodefixes, getVersionRemovalCodeFixes } from "./validate.codefix.js";
 import {
@@ -480,7 +481,7 @@ function validateVersionedPropertyNames(program: Program, source: Type) {
 }
 
 function validateMadeOptional(program: Program, target: Type) {
-  if (target.kind === "ModelProperty") {
+  if (target.kind === "ModelProperty" && !hasChangedOptionality(target)) {
     const madeOptionalOn = getMadeOptionalOn(program, target);
     if (!madeOptionalOn) {
       return;
@@ -500,7 +501,7 @@ function validateMadeOptional(program: Program, target: Type) {
 }
 
 function validateMadeRequired(program: Program, target: Type) {
-  if (target.kind === "ModelProperty") {
+  if (target.kind === "ModelProperty" && !hasChangedOptionality(target)) {
     const madeRequiredOn = getMadeRequiredOn(program, target);
     if (!madeRequiredOn) {
       return;
