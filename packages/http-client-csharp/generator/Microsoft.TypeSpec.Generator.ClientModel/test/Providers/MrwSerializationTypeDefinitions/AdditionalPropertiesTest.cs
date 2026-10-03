@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
+using Microsoft.TypeSpec.Generator.Snippets;
+using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
 
@@ -15,6 +17,93 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
 {
     internal class AdditionalPropertiesTest
     {
+        [TestCaseSource(nameof(NullableAdditionalPropertiesTestCases))]
+        public void NullableAdditionalPropertiesDeserializeNull(InputType valueType, bool isNullable)
+        {
+            var inputModel = InputFactory.Model("TestModel",
+                additionalProperties: isNullable ? new InputNullableType(valueType) : valueType);
+            MockHelpers.LoadMockGenerator(inputModels: () => [inputModel]);
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
+            var serialization = (MrwSerializationTypeDefinition)model.SerializationProviders.Single();
+            var loop = serialization.BuildDeserializationMethod().BodyStatements!.OfType<ForEachStatement>().Single();
+            var valueKindSwitch = loop.Body.SelectMany(statement => statement).OfType<SwitchStatement>().Single();
+            var nullCases = valueKindSwitch.Cases.Where(c =>
+                c.Matches.Any(m => m.ToDisplayString() == JsonValueKindSnippets.Null.ToDisplayString())).ToArray();
+
+            Assert.That(nullCases, Has.Length.EqualTo(isNullable ? 1 : 0));
+            if (isNullable)
+            {
+                Assert.That(nullCases[0].Statement.ToDisplayString(),
+                    Is.EqualTo(Helpers.GetExpectedFromFile().ReplaceLineEndings("\n")));
+            }
+        }
+
+        public static IEnumerable<TestCaseData> NullableAdditionalPropertiesTestCases
+        {
+            get
+            {
+                InputType[] types =
+                [
+                    InputPrimitiveType.String,
+                    InputPrimitiveType.Int32,
+                    InputPrimitiveType.Boolean,
+                    InputFactory.Array(InputPrimitiveType.String),
+                    InputFactory.Dictionary(InputPrimitiveType.String),
+                    InputFactory.Array(new InputNullableType(InputPrimitiveType.String))
+                ];
+                foreach (var type in types)
+                {
+                    yield return new TestCaseData(type, false);
+                    yield return new TestCaseData(type, true);
+                }
+            }
+        }
+
+        [TestCaseSource(nameof(NullableAdditionalPropertiesTestCases))]
+        public void NullableAdditionalPropertiesSerializeNull(InputType valueType, bool isNullable)
+        {
+            var inputModel = InputFactory.Model("TestModel",
+                additionalProperties: isNullable ? new InputNullableType(valueType) : valueType);
+            MockHelpers.LoadMockGenerator(inputModels: () => [inputModel]);
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
+            var serialization = (MrwSerializationTypeDefinition)model.SerializationProviders.Single();
+            var loop = serialization.BuildJsonModelWriteCoreMethod().BodyStatements!.OfType<ForEachStatement>().Single();
+            var nullCheck = loop.Body.SelectMany(statement => statement).OfType<IfStatement>().SingleOrDefault();
+
+            if (isNullable)
+            {
+                Assert.That(nullCheck, Is.Not.Null);
+                Assert.That(nullCheck!.ToDisplayString(),
+                    Is.EqualTo(Helpers.GetExpectedFromFile().ReplaceLineEndings("\n")));
+            }
+            else
+            {
+                Assert.That(nullCheck, Is.Null);
+            }
+        }
+
+        [Test]
+        public void NullableAdditionalPropertiesUnionUsesFirstNullableDictionary([Values(false, true)] bool nonNullableFirst)
+        {
+            var inputModel = InputFactory.Model("TestModel",
+                additionalProperties: new InputUnionType("union",
+                [
+                    nonNullableFirst ? InputPrimitiveType.String : new InputNullableType(InputPrimitiveType.String),
+                    new InputNullableType(InputPrimitiveType.Int32),
+                    new InputNullableType(InputPrimitiveType.Boolean)
+                ]));
+            MockHelpers.LoadMockGenerator(inputModels: () => [inputModel]);
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
+            var serialization = (MrwSerializationTypeDefinition)model.SerializationProviders.Single();
+            var loop = serialization.BuildDeserializationMethod().BodyStatements!.OfType<ForEachStatement>().Single();
+            var valueKindSwitch = loop.Body.SelectMany(statement => statement).OfType<SwitchStatement>().Single();
+            var nullCase = valueKindSwitch.Cases.Single(c =>
+                c.Matches.Any(m => m.ToDisplayString() == JsonValueKindSnippets.Null.ToDisplayString()));
+
+            Assert.That(nullCase.Statement.ToDisplayString(),
+                Is.EqualTo(Helpers.GetExpectedFromFile(nonNullableFirst.ToString()).ReplaceLineEndings("\n")));
+        }
+
         [TestCaseSource(nameof(TestBuildDeserializationMethodTestCases))]
         public void TestBuildDeserializationMethod(
             InputType additionalPropsValueType,

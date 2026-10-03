@@ -25,6 +25,12 @@ namespace SampleTypeSpec
     [ModelReaderWriterBuildable(typeof(ModelWithEmbeddedNonBodyParameters))]
     [ModelReaderWriterBuildable(typeof(ModelWithRequiredNullableProperties))]
     [ModelReaderWriterBuildable(typeof(NullableDynamicModel))]
+    [ModelReaderWriterBuildable(typeof(OptionalNullableBase))]
+    [ModelReaderWriterBuildable(typeof(OptionalNullableChild))]
+    [ModelReaderWriterBuildable(typeof(OptionalNullableContainer))]
+    [ModelReaderWriterBuildable(typeof(OptionalNullableDynamicProperties))]
+    [ModelReaderWriterBuildable(typeof(OptionalNullableFieldNames))]
+    [ModelReaderWriterBuildable(typeof(OptionalNullableProperties))]
     [ModelReaderWriterBuildable(typeof(Pet))]
     [ModelReaderWriterBuildable(typeof(Plant))]
 #pragma warning disable SAMPLE0003 // global::SampleTypeSpec.PreviewDetails is experimental and may change in future versions.

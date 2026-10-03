@@ -18,6 +18,8 @@ namespace SampleTypeSpec
     {
         [Experimental("SCME0001")]
         private JsonPatch _patch;
+        private AnotherDynamicModel _modelValue;
+        internal bool _modelValueIsDefined;
 
         /// <summary> Initializes a new instance of <see cref="NullableDynamicModel"/>. </summary>
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
@@ -45,7 +47,7 @@ namespace SampleTypeSpec
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
         internal NullableDynamicModel(AnotherDynamicModel modelValue, IList<AnotherDynamicModel> children, IDictionary<string, AnotherDynamicModel> childDictionary, IList<IList<AnotherDynamicModel>> nestedChildren, IDictionary<string, IDictionary<string, AnotherDynamicModel>> nestedChildDictionary, IDictionary<string, IList<AnotherDynamicModel>> dictionaryChildren, IList<IDictionary<string, AnotherDynamicModel>> listOfDictionaries, in JsonPatch patch)
         {
-            ModelValue = modelValue;
+            _modelValue = modelValue;
             Children = children;
             ChildDictionary = childDictionary;
             NestedChildren = nestedChildren;
@@ -64,7 +66,18 @@ namespace SampleTypeSpec
         public ref JsonPatch Patch => ref _patch;
 
         /// <summary> Gets or sets the ModelValue. </summary>
-        public AnotherDynamicModel ModelValue { get; set; }
+        public AnotherDynamicModel ModelValue
+        {
+            get
+            {
+                return _modelValue;
+            }
+            set
+            {
+                _modelValue = value;
+                _modelValueIsDefined = true;
+            }
+        }
 
         /// <summary> Gets or sets the Children. </summary>
         public IList<AnotherDynamicModel> Children { get; set; }
