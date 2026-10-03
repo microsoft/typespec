@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-declaration-merging */
-import type { Extensions, Languages } from "@autorest/codemodel";
-import { Schema, SchemaType } from "@autorest/codemodel";
-import type { DeepPartial } from "@azure-tools/codegen";
-import { Initializer } from "@azure-tools/codegen";
+import type { DeepPartial } from "../codemodel-helpers.js";
+import { Initializer } from "../codemodel-helpers.js";
+import type { Extensions, Languages } from "../codemodel.js";
+import { Schema, SchemaType } from "../codemodel.js";
 import type { SchemaUsage } from "./usage.js";
 
 /** a container for the actual constant value */
