@@ -169,6 +169,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private CSharpType GetRootModelType()
         {
+            // Preserve the shipped create-core return type when back compatibility restores a mapped
+            // base. The prior contract may have used a covariant model return rather than the mapped
+            // framework root type.
+            if (_model.BaseModelProvider is SystemObjectModelProvider &&
+                GetLastContractCreateCoreReturnType() is { } lastContractReturnType)
+            {
+                return lastContractReturnType;
+            }
+
             // We need to explicitly use the BaseModelProvider when looking up the root type
             // to account for any customizations that may have changed the base model.
             var returnType = _model.BaseModelProvider?.Type ??
@@ -182,6 +191,111 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             return returnType;
         }
+
+        private CSharpType? GetLastContractCreateCoreReturnType()
+        {
+            var returnTypes = new List<CSharpType>();
+            var seenMethods = new HashSet<string>(StringComparer.Ordinal);
+            var visited = new HashSet<string>(StringComparer.Ordinal);
+            var provider = _model.LastContractView;
+            while (provider is not null && visited.Add(provider.Type.FullyQualifiedName))
+            {
+                foreach (var method in provider.Methods.Where(method => IsCreateCoreMethod(method.Signature)))
+                {
+                    // An override on a nearer type supersedes the inherited create-core method.
+                    if (!seenMethods.Add(method.Signature.Name))
+                    {
+                        continue;
+                    }
+                    if (method.Signature.ReturnType is not { } returnType ||
+                        !IsLastContractModelType(returnType))
+                    {
+                        // A partial match cannot supply a common historical model return type.
+                        return null;
+                    }
+                    returnTypes.Add(returnType);
+                }
+
+                if (seenMethods.Count == s_createCoreMethodNames.Count)
+                {
+                    break;
+                }
+
+                var baseType = provider.BaseType;
+                if (baseType is null || baseType.IsGenericType)
+                {
+                    break;
+                }
+
+                provider = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInLastContract(
+                    baseType.Namespace, baseType.Name, baseType.DeclaringType?.Name);
+            }
+
+            var distinctReturnTypes = returnTypes.Distinct(CSharpType.IgnoreNullableComparer).ToArray();
+            return distinctReturnTypes.Length == 1 ? distinctReturnTypes[0] : null;
+        }
+
+        private bool IsLastContractModelType(CSharpType candidate)
+        {
+            var visited = new HashSet<string>(StringComparer.Ordinal);
+            for (var type = _model.LastContractView?.Type;
+                type is not null && visited.Add(type.FullyQualifiedName);
+                type = type.BaseType)
+            {
+                if (type.AreNamesEqual(candidate))
+                {
+                    return IsAvailableInCurrentContract(candidate);
+                }
+            }
+            return false;
+        }
+
+        private bool IsAvailableInCurrentContract(CSharpType candidate)
+        {
+            var visited = new HashSet<string>(StringComparer.Ordinal);
+            for (CSharpType? type = _model.Type;
+                type is not null && visited.Add(type.FullyQualifiedName);
+                type = type.BaseType)
+            {
+                if (type.AreNamesEqual(candidate))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        internal static bool IsCreateCoreMethod(MethodSignature signature)
+        {
+            var expectedModifiers = signature.Modifiers.HasFlag(MethodSignatureModifiers.Override)
+                ? MethodSignatureModifiers.Protected | MethodSignatureModifiers.Override
+                : MethodSignatureModifiers.Protected | MethodSignatureModifiers.Virtual;
+            if (HasUnsupportedSignature(signature) ||
+                signature.Parameters.Count != 2 ||
+                signature.GenericArguments is { Count: > 0 } ||
+                signature.ExplicitInterface is not null ||
+                signature.Modifiers != expectedModifiers ||
+                !IsParameter(signature.Parameters[1], typeof(ModelReaderWriterOptions)))
+            {
+                return false;
+            }
+
+            return signature.Name switch
+            {
+                JsonModelCreateCoreMethodName =>
+                    IsParameter(signature.Parameters[0], typeof(Utf8JsonReader), isRef: true),
+                PersistableModelCreateCoreMethodName =>
+                    IsParameter(signature.Parameters[0], typeof(BinaryData)),
+                _ => false
+            };
+        }
+
+        private static bool IsParameter(ParameterProvider parameter, Type type, bool isRef = false)
+            => CSharpType.IgnoreNullableComparer.Equals(parameter.Type, new CSharpType(type)) &&
+                parameter.IsRef == isRef &&
+                !parameter.IsOut &&
+                !parameter.IsIn &&
+                !parameter.IsParams;
 
         private static bool IsModelType(CSharpType type)
             => ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(type, out var baseProvider) &&

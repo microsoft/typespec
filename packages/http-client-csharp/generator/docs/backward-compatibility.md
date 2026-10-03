@@ -20,6 +20,7 @@
     - [Removed Extensible Enum Member Re-added](#scenario-removed-extensible-enum-member-re-added)
   - [API Version Enum](#api-version-enum)
   - [Non-abstract Base Models](#non-abstract-base-models)
+  - [Model Base Types](#model-base-types)
   - [Model Constructors](#model-constructors)
     - [Required Property Becomes Optional](#scenario-required-property-becomes-optional)
     - [Parameterless Constructor Becomes Parameterized](#scenario-parameterless-constructor-becomes-parameterized)
@@ -1090,6 +1091,16 @@ public virtual ClientResult UpdateSkillDefaultVersion(string skillId, string con
     // contentType stays before content for backward compatibility
 }
 ```
+
+### Model Base Types
+
+The generator can preserve a previously shipped model base when the current TypeSpec hierarchy no longer contains it. Automatic restoration is intentionally limited to compatible generated root models and mapped `SystemObjectModelProvider` bases. For ordinary generated bases, both the derived model and displaced current base must be memberless. Mapped restoration requires a current input base, which remains the authoritative wire contract while the shipped CLR property and constructor surface is restored.
+
+When no current provider represents the shipped CLR base, a downstream generator can override `TypeFactory.CreateLastContractModelBaseCore` to supply a mapping for its known inheritable framework types. The returned type is still subject to the standard mapped-base compatibility checks and remains local to the model being restored. A mapped base is not reconstructed when the current model has become a root because there is no separate current-base contract to reconcile safely.
+
+The current base is retained when broader reconciliation would be required, including a conflicting custom base declaration, structs, polymorphic or derived hierarchies, arbitrary referenced types, and constructed generic bases. Unrelated custom members are permitted only for mapped-base restoration; generated-base restoration with custom code remains unsupported.
+
+Restoration checks the shipped property/accessor and method contracts, including nullable value types, parameter names, ref modifiers, `params`, optional defaults, and interface assignability. The default mapped input/property check requires matching value-type nullability; intentional downstream shape changes remain explicit compatibility-hook overrides. A selected historical constructor must also match its bound properties' value-type nullability. When a current property visitor removes a property, symbol-backed restoration does not reintroduce its historical declaration and the one-to-one checks reject restoration. Both full and initialization constructor calls must be provably callable on the mapped target; ambiguous overloads and changed omitted defaults are rejected. Generated-base constructors must remain property-backed. Historical generic methods, constants, by-ref returns, indexers, required-member properties, and defaults that cannot be represented losslessly are rejected rather than reconciled. Public or protected historical nested type declarations are also rejected for generated-base and symbol-backed mapped-base restoration; nested type emission and CLR nested-type reconciliation are not supported. These checks do not rediscover the complete CLR surface of an ordinary downstream mapping whose input omits members.
 
 ### Client Methods
 
