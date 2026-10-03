@@ -66,6 +66,7 @@ import {
   update,
   type UpdateOptions,
 } from "./api/widgetsClient/widgetsClientOperations.js";
+import type { Widget } from "./models/models.js";
 
 export class DemoServiceClient {
   #context: DemoServiceClientContext;
@@ -80,22 +81,31 @@ export class WidgetsClient {
   constructor(endpoint: string, options?: WidgetsClientOptions) {
     this.#context = createWidgetsClientContext(endpoint, options);
   }
-  async list(options?: ListOptions) {
+  async list(options?: ListOptions): Promise<Array<Widget>> {
     return list(this.#context, options);
   }
-  async read(id: string, options?: ReadOptions) {
+  async read(id: string, options?: ReadOptions): Promise<Widget> {
     return read(this.#context, id, options);
   }
-  async create(weight: number, color: "red" | "blue", options?: CreateOptions) {
+  async create(
+    weight: number,
+    color: "red" | "blue",
+    options?: CreateOptions,
+  ): Promise<Widget> {
     return create(this.#context, weight, color, options);
   }
-  async update(id: string, weight: number, color: "red" | "blue", options?: UpdateOptions) {
+  async update(
+    id: string,
+    weight: number,
+    color: "red" | "blue",
+    options?: UpdateOptions,
+  ): Promise<Widget> {
     return update(this.#context, id, weight, color, options);
   }
-  async delete_(id: string, options?: DeleteOptions) {
+  async delete_(id: string, options?: DeleteOptions): Promise<void> {
     return delete_(this.#context, id, options);
   }
-  async analyze(id: string, options?: AnalyzeOptions) {
+  async analyze(id: string, options?: AnalyzeOptions): Promise<string> {
     return analyze(this.#context, id, options);
   }
 }
