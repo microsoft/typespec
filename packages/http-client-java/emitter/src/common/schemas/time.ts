@@ -1,9 +1,8 @@
-/* eslint-disable @typescript-eslint/no-unsafe-declaration-merging */
-import { PrimitiveSchema, SchemaType } from "@autorest/codemodel";
-import type { DeepPartial } from "@azure-tools/codegen";
+import type { BaseSchema, ModelOptions } from "../model.js";
+import { createSchema, initializeMetadata, SchemaType } from "../model.js";
 
 /** a schema that represents a Duration value */
-export interface DurationSchema extends PrimitiveSchema {
+export interface DurationSchema extends BaseSchema {
   /** the schema type  */
   type: SchemaType.Duration;
 
@@ -15,65 +14,20 @@ export interface DurationSchema extends PrimitiveSchema {
     | "milliseconds-number";
 }
 
-export class DurationSchema extends PrimitiveSchema implements DurationSchema {
-  constructor(name: string, description: string, objectInitializer?: DeepPartial<DurationSchema>) {
-    super(name, description, SchemaType.Duration);
-    this.format = "duration-rfc3339";
-    this.apply(objectInitializer);
-  }
-}
-
-/** a schema that represents a DateTime value */
-export interface DateTimeSchema extends PrimitiveSchema {
-  /** the schema type  */
-  type: SchemaType.DateTime;
-
-  /** date-time format  */
-  format: "date-time-rfc1123" | "date-time";
-}
-
-export class DateTimeSchema extends PrimitiveSchema implements DateTimeSchema {
-  constructor(name: string, description: string, objectInitializer?: DeepPartial<DateTimeSchema>) {
-    super(name, description, SchemaType.DateTime);
-    this.apply(objectInitializer);
-  }
-}
-
-/** a schema that represents a Date value */
-export interface DateSchema extends PrimitiveSchema {
-  /** the schema type  */
-  type: SchemaType.Date;
-}
-
-export class DateSchema extends PrimitiveSchema implements DateSchema {
-  constructor(name: string, description: string, objectInitializer?: DeepPartial<DateSchema>) {
-    super(name, description, SchemaType.Date);
-    this.apply(objectInitializer);
-  }
-}
-
-/** a schema that represents a Date value */
-export interface TimeSchema extends PrimitiveSchema {
-  /** the schema type  */
-  type: SchemaType.Time;
-}
-
-export class TimeSchema extends PrimitiveSchema implements TimeSchema {
-  constructor(name: string, description: string, objectInitializer?: DeepPartial<TimeSchema>) {
-    super(name, description, SchemaType.Time);
-    this.apply(objectInitializer);
-  }
-}
-
-/** a schema that represents a UnixTime value */
-export interface UnixTimeSchema extends PrimitiveSchema {
-  /** the schema type  */
-  type: SchemaType.UnixTime;
-}
-
-export class UnixTimeSchema extends PrimitiveSchema implements UnixTimeSchema {
-  constructor(name: string, description: string, objectInitializer?: DeepPartial<UnixTimeSchema>) {
-    super(name, description, SchemaType.UnixTime);
-    this.apply(objectInitializer);
-  }
+export function createDurationSchema(
+  name: string,
+  description: string,
+  options?: ModelOptions<DurationSchema>,
+): DurationSchema {
+  return initializeMetadata(
+    {
+      ...createSchema(
+        name.includes("\u00b7") ? SchemaType.Duration : name,
+        description,
+        SchemaType.Duration,
+      ),
+      format: "duration-rfc3339",
+    },
+    options,
+  );
 }

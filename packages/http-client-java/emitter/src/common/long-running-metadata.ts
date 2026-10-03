@@ -1,23 +1,25 @@
-import type { Metadata, Schema } from "@autorest/codemodel";
+import type { Metadata, Schema } from "./model.js";
 
-export class LongRunningMetadata {
-  longRunning: boolean = false;
+export interface LongRunningMetadata {
+  longRunning: boolean;
   pollResultType?: Schema;
   finalResultType?: Schema;
   pollingStrategy?: Metadata;
   finalResultPropertySerializedName?: string;
+}
 
-  constructor(
-    longRunning: boolean,
-    pollResultType?: Schema,
-    finalResultType?: Schema,
-    pollingStrategy?: Metadata,
-    finalResultPropertySerializedName?: string,
-  ) {
-    this.longRunning = longRunning;
-    this.pollResultType = pollResultType;
-    this.finalResultType = finalResultType;
-    this.pollingStrategy = pollingStrategy;
-    this.finalResultPropertySerializedName = finalResultPropertySerializedName;
-  }
+export function createLongRunningMetadata(
+  longRunning: boolean,
+  pollResultType?: Schema,
+  finalResultType?: Schema,
+  pollingStrategy?: Metadata,
+  finalResultPropertySerializedName?: string,
+): LongRunningMetadata {
+  return {
+    longRunning,
+    pollResultType,
+    finalResultType,
+    pollingStrategy,
+    finalResultPropertySerializedName,
+  };
 }

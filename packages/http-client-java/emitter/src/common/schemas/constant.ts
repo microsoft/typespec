@@ -1,32 +1,25 @@
-/* eslint-disable @typescript-eslint/no-unsafe-declaration-merging */
-import type { Extensions, Languages } from "@autorest/codemodel";
-import { Schema, SchemaType } from "@autorest/codemodel";
-import type { DeepPartial } from "@azure-tools/codegen";
-import { Initializer } from "@azure-tools/codegen";
-import type { SchemaUsage } from "./usage.js";
+import type { BaseSchema, Extensions, Languages, ModelOptions, Schema } from "../model.js";
+import { createSchema, initializeMetadata, SchemaType } from "../model.js";
 
 /** a container for the actual constant value */
 export interface ConstantValue extends Extensions {
   /** per-language information for this value */
   language?: Languages;
-
   /** the actual constant value to use */
-  value: any;
+  value: string | number | boolean;
 }
 
-export class ConstantValue extends Initializer implements ConstantValue {
-  constructor(value: any, objectInitializer?: DeepPartial<ConstantValue>) {
-    super();
-    this.value = value;
-    this.apply(objectInitializer);
-  }
+export function createConstantValue(
+  value: ConstantValue["value"],
+  options?: Partial<ConstantValue>,
+): ConstantValue {
+  return { value, ...options };
 }
 
 /** a schema that represents a constant value */
-export interface ConstantSchema<ConstantType extends Schema = Schema> extends Schema, SchemaUsage {
+export interface ConstantSchema<ConstantType extends Schema = Schema> extends BaseSchema {
   /** the schema type  */
   type: SchemaType.Constant;
-
   /** the schema type of the constant value (ie, StringSchema, NumberSchema, etc) */
   valueType: ConstantType;
 
@@ -34,16 +27,17 @@ export interface ConstantSchema<ConstantType extends Schema = Schema> extends Sc
   value: ConstantValue;
 }
 
-export class ConstantSchema<ConstantType extends Schema = Schema>
-  extends Schema
-  implements ConstantSchema<ConstantType>
-{
-  constructor(
-    name: string,
-    description: string,
-    objectInitializer?: DeepPartial<ConstantSchema<ConstantType>>,
-  ) {
-    super(name, description, SchemaType.Constant);
-    this.apply(objectInitializer);
-  }
+export function createConstantSchema(
+  name: string,
+  description: string,
+  options: ModelOptions<ConstantSchema> & Pick<ConstantSchema, "valueType" | "value">,
+): ConstantSchema {
+  return initializeMetadata(
+    {
+      ...createSchema(name, description, SchemaType.Constant),
+      valueType: options.valueType,
+      value: options.value,
+    },
+    options,
+  );
 }
