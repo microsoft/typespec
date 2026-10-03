@@ -409,29 +409,25 @@ namespace Microsoft.TypeSpec.Generator
 
         private static bool HasPublicApiPredecessor(
             string name,
-            IReadOnlyDictionary<string, HashSet<string>> predecessors,
+            IReadOnlyDictionary<string, HashSet<string>> references,
             HashSet<string> publicReachable,
             HashSet<string> generatedImplementationInternalDeclarations)
-            => HasPublicApiPredecessor(name, predecessors, publicReachable, excludedPredecessors: null, generatedImplementationInternalDeclarations);
+            => HasPublicApiPredecessor(name, references, publicReachable, excludedPredecessors: null, generatedImplementationInternalDeclarations);
 
         private static bool HasPublicApiPredecessor(
             string name,
-            IReadOnlyDictionary<string, HashSet<string>> predecessors,
+            IReadOnlyDictionary<string, HashSet<string>> references,
             HashSet<string> publicReachable,
             HashSet<string>? excludedPredecessors,
             HashSet<string> generatedImplementationInternalDeclarations)
         {
-            if (!predecessors.TryGetValue(name, out var owners))
-            {
-                return false;
-            }
-
-            foreach (var owner in owners)
+            foreach (var (owner, children) in references)
             {
                 if (!publicReachable.Contains(owner) ||
                     string.Equals(owner, name, StringComparison.Ordinal) ||
                     excludedPredecessors?.Contains(owner) == true ||
-                    generatedImplementationInternalDeclarations.Contains(owner))
+                    generatedImplementationInternalDeclarations.Contains(owner) ||
+                    !children.Contains(name))
                 {
                     continue;
                 }
