@@ -171,7 +171,8 @@ catalog:
   turbo: ^2.10.11
   typedoc: ^0.28.20
   typedoc-plugin-markdown: ^4.12.0
-  typescript: ~7.0.2
+  typescript: npm:@typescript/typescript6@~6.0.2
+  typescript-native: npm:typescript@~7.0.2
   uri-template: ^2.0.0
   vite: ^8.2.2
   vite-plugin-checker: ^0.14.5
@@ -191,7 +192,11 @@ ignoredBuiltDependencies:
 
 minimumReleaseAge: 10080 # 7 days
 
-pnpmfile: ./eng/common/scripts/pnpmfile.ts
+packageExtensions:
+  "@alloy-js/cli@0.25.0":
+    dependencies:
+      # Alloy resolves typescript/bin/tsc directly instead of using the workspace PATH.
+      typescript: ~7.0.2
 
 overrides:
   "@pinterest/alloy-graphql@1.1.1>@alloy-js/core": ^0.25.0

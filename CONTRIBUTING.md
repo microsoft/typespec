@@ -71,10 +71,15 @@ The package-level library watchers run Vite and declaration emit together, with
 Vite's output cleanup disabled so rebuilds do not delete declarations. The
 `playground-website` watcher remains the website development server.
 
-Workspace compilation uses TypeScript 7. TypeDoc and Astro's checker still require
-the JavaScript compiler API, so a scoped pnpm hook gives those documentation tools
-private TypeScript 6 dependencies; this does not change the compiler used by
-package build scripts.
+Workspace compilation uses native TypeScript 7 through the root
+`typescript-native` dependency, which provides `tsc` to package scripts.
+The `typescript` catalog entry aliases `@typescript/typescript6`, providing
+the JavaScript compiler API for tools such as TypeDoc and Astro's checker,
+and the separate `tsc6` command. Existing package manifests keep using
+`"typescript": "catalog:"`; no pnpm hook is needed. Tools and editor integrations
+that load the `typescript` package see TypeScript 6, not the native compiler.
+Alloy's CLI resolves `typescript/bin/tsc` directly, so a workspace package extension
+gives it a native TypeScript dependency as well.
 
 ## Using command line
 

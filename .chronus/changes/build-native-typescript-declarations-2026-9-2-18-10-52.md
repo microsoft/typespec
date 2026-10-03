@@ -8,4 +8,4 @@ packages:
   - "@typespec/spec-dashboard"
 ---
 
-Generate Vite library declarations with the TypeScript CLI instead of the JavaScript compiler API, allowing builds to use TypeScript 7 without a compatibility package.
+Generate Vite library declarations with the native TypeScript 7 CLI instead of a plugin using the JavaScript compiler API.

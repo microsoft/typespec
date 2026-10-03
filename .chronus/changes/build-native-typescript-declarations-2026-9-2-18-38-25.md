@@ -6,4 +6,4 @@ packages:
   - "@typespec/website"
 ---
 
-Use TypeScript 7 for workspace compilation while keeping TypeScript 6 private to TypeDoc and Astro's checker, which still require the JavaScript compiler API.
+Use native TypeScript 7 for workspace compilation while providing the TypeScript 6 JavaScript compiler API through the `@typescript/typescript6` compatibility alias for documentation tooling.
