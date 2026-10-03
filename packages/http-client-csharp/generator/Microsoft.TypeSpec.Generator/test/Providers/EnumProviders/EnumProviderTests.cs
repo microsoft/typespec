@@ -1378,6 +1378,227 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual("api_key", enumProvider.EnumValues.Single().Name);
         }
 
+        private static readonly (string Input, string Expected)[] AcronymMemberNames =
+        [
+            ("Ip", "IP"), ("Db", "DB"), ("Os", "OS"),
+            ("Ipv4", "IPv4"), ("IpV4", "IPv4"), ("Ipv6", "IPv6"), ("IpV6", "IPv6"),
+            ("IP", "IP"), ("DB", "DB"), ("OS", "OS"), ("IPv4", "IPv4"), ("IPv6", "IPv6"),
+            ("IPV4", "IPV4"), ("IPV6", "IPV6"),
+            ("Oslo", "Oslo"), ("Ipsum", "Ipsum"), ("Osmosis", "Osmosis"), ("dbz", "Dbz"),
+            ("IpIpDbDbOsOs", "IPIPDBDBOSOS"),
+            ("Ipv4IpV4Ipv6IpV6", "IPv4IPv4IPv6IPv6"),
+            ("PublicIpAddress", "PublicIPAddress"), ("Ip2DbzOslo", "Ip2DbzOslo"),
+            ("IpUrl", "IPUri")
+        ];
+
+        [Test]
+        public void BuildEnumType_NormalizesMemberAcronyms(
+            [Values(false, true)] bool isExtensible,
+            [Values(false, true)] bool isNumeric,
+            [Values(false, true)] bool isExactName,
+            [ValueSource(nameof(AcronymMemberNames))] (string Input, string Expected) name)
+        {
+            MockHelpers.LoadMockGenerator(createCSharpTypeCore: _ => isNumeric ? typeof(int) : typeof(string));
+            var values = new List<InputEnumTypeValue>();
+            var input = InputFactory.Enum("mockInputEnum",
+                isNumeric ? InputPrimitiveType.Int32 : InputPrimitiveType.String,
+                values, isExtensible: isExtensible);
+            values.Add(isNumeric
+                ? InputFactory.EnumMember.Int32(name.Input, 42, input, isExactName: isExactName)
+                : InputFactory.EnumMember.String(name.Input, "wire-" + name.Input, input, isExactName: isExactName));
+            var provider = EnumProvider.Create(input);
+            provider.EnsureBuilt();
+            provider.ProcessTypeForBackCompatibility();
+
+            var expectedName = isExactName ? name.Input : name.Expected;
+            var member = provider.EnumValues.Single();
+            Assert.AreEqual(expectedName, member.Name);
+            Assert.AreEqual(isNumeric ? (object)42 : "wire-" + name.Input, member.Value);
+            Assert.AreEqual(expectedName + (isExtensible ? "Value" : ""), member.Field.Name);
+            if (isNumeric || isExtensible)
+            {
+                Assert.AreEqual(member.Value, ((LiteralExpression)member.Field.InitializationValue!).Literal);
+            }
+            if (isExtensible)
+            {
+                var property = provider.Properties.Single();
+                Assert.AreEqual(expectedName, property.Name);
+                StringAssert.Contains(member.Field.Name, ((AutoPropertyBody)property.Body).InitializationExpression!.ToDisplayString());
+            }
+        }
+
+        [TestCase(false, "Fixed", false)]
+        [TestCase(false, "Fixed", true)]
+        [TestCase(true, "Extensible", false)]
+        [TestCase(true, "Extensible", true)]
+        public async Task BuildEnumType_PreservesPublishedMemberAcronyms(bool isExtensible, string testData, bool alternateSpelling)
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                createCSharpTypeCore: _ => typeof(int),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: testData));
+            var input = InputFactory.Int32Enum("mockInputEnum",
+            [
+                ("Ip", 1), ("Db", 2), ("Os", 3),
+                (alternateSpelling ? "IpV4" : "Ipv4", 4),
+                (alternateSpelling ? "Ipv6" : "IpV6", 6),
+                ("IpUrl", 7), ("NewIp", 8)
+            ], isExtensible: isExtensible);
+            var provider = EnumProvider.Create(input);
+            provider.EnsureBuilt();
+            provider.ProcessTypeForBackCompatibility();
+
+            CollectionAssert.AreEqual(new[] { "Ip", "Db", "Os", "Ipv4", "IpV6", "IpUri", "NewIP" },
+                provider.EnumValues.Select(v => v.Name));
+            CollectionAssert.AreEqual(new[] { 1, 2, 3, 4, 6, 7, 8 }, provider.EnumValues.Select(v => v.Value));
+            if (isExtensible)
+            {
+                CollectionAssert.AreEqual(provider.EnumValues.Select(v => v.Name), provider.Properties.Select(p => p.Name));
+                CollectionAssert.AreEqual(provider.EnumValues.Select(v => v.Name + "Value"), provider.Fields.Skip(1).Select(f => f.Name));
+            }
+            else
+            {
+                CollectionAssert.AreEqual(provider.EnumValues.Select(v => v.Name), provider.Fields.Select(f => f.Name));
+            }
+        }
+
+        [TestCase(false, "Fixed", false)]
+        [TestCase(false, "Fixed", true)]
+        [TestCase(true, "Extensible", false)]
+        [TestCase(true, "Extensible", true)]
+        public async Task BuildEnumType_PreservesAcronymCustomizations(bool isExtensible, string testData, bool hasLastContract)
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                createCSharpTypeCore: _ => typeof(int),
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: testData),
+                lastContractCompilation: hasLastContract
+                    ? async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: testData, method: nameof(BuildEnumType_PreservesPublishedMemberAcronyms))
+                    : null);
+            var input = InputFactory.Int32Enum("mockInputEnum",
+            [
+                ("Ip", 1), ("Db", 2), ("Os", 3), ("Ipv4", 4), ("IpV6", 6), ("IpUrl", 7), ("NewIp", 8),
+                ("PrivateIp", 9)
+            ], isExtensible: isExtensible);
+            var provider = EnumProvider.Create(input);
+            provider.EnsureBuilt();
+            provider.Update(provider.Methods, provider.Constructors, provider.Properties, provider.Fields);
+            provider.ProcessTypeForBackCompatibility();
+
+            Assert.IsNotNull(provider.CustomCodeView);
+            var ipv4Name = hasLastContract || isExtensible ? "Ipv4" : "IPv4";
+            var ipv6Name = hasLastContract ? "IpV6" : "IPv6";
+            var uriName = hasLastContract ? "IpUri" : "IPUri";
+            if (isExtensible)
+            {
+                CollectionAssert.AreEqual(new[] { ipv4Name, ipv6Name, uriName, "NewIP" }, provider.Properties.Select(p => p.Name));
+                CollectionAssert.AreEqual(new[] { "_value", "IpValue", "DbValue", "OsValue", ipv6Name + "Value", uriName + "Value", "NewIPValue", "PrivateIpValue" },
+                    provider.Fields.Select(f => f.Name));
+            }
+            else
+            {
+                CollectionAssert.AreEqual(new[] { ipv4Name, ipv6Name, uriName, "NewIP" }, provider.Fields.Select(f => f.Name));
+            }
+        }
+
+        [Test]
+        public void BuildEnumType_AcronymNormalizationDoesNotMergeMembers(
+            [Values(false, true)] bool isExtensible,
+            [Values(false, true)] bool reverseOrder,
+            [Values("IP", "IpV4")] string otherName)
+        {
+            MockHelpers.LoadMockGenerator(createCSharpTypeCore: _ => typeof(int));
+            var firstName = otherName == "IP" ? "Ip" : "Ipv4";
+            var values = new[] { (firstName, 1), (otherName, 2) };
+            var input = InputFactory.Int32Enum("mockInputEnum",
+                reverseOrder ? values.Reverse() : values, isExtensible: isExtensible);
+            var provider = EnumProvider.Create(input);
+
+            CollectionAssert.AreEquivalent(new[] { firstName, otherName }, provider.EnumValues.Select(v => v.Name));
+            Assert.AreEqual(1, provider.EnumValues.Single(v => v.Name == firstName).Value);
+            Assert.AreEqual(2, provider.EnumValues.Single(v => v.Name == otherName).Value);
+        }
+
+        [Test]
+        public void BuildEnumType_AcronymNormalizationDoesNotCollideWithExactMember(
+            [Values(false, true)] bool isExtensible)
+        {
+            MockHelpers.LoadMockGenerator(createCSharpTypeCore: _ => typeof(int));
+            var values = new List<InputEnumTypeValue>();
+            var input = InputFactory.Enum("mockInputEnum", InputPrimitiveType.Int32, values, isExtensible: isExtensible);
+            values.Add(InputFactory.EnumMember.Int32("Ipv4", 1, input));
+            values.Add(InputFactory.EnumMember.Int32("IPv4", 2, input, isExactName: true));
+            var provider = EnumProvider.Create(input);
+
+            CollectionAssert.AreEqual(new[] { "Ipv4", "IPv4" }, provider.EnumValues.Select(v => v.Name));
+        }
+
+        [Test]
+        public void BuildEnumType_AcronymNormalizationDoesNotCollideWithType(
+            [Values(false, true)] bool isExtensible)
+        {
+            MockHelpers.LoadMockGenerator(createCSharpTypeCore: _ => typeof(int));
+            var input = InputFactory.Int32Enum("IP", [("Ip", 1)], isExtensible: isExtensible);
+            var provider = EnumProvider.Create(input);
+
+            Assert.AreEqual("IP", provider.Name);
+            Assert.AreEqual("Ip", provider.EnumValues.Single().Name);
+        }
+
+        [TestCase("Ip", "IPValue")]
+        [TestCase("IpValue", "IP")]
+        public void BuildEnumType_AcronymNormalizationDoesNotCollideWithBackingField(string firstName, string secondName)
+        {
+            MockHelpers.LoadMockGenerator(createCSharpTypeCore: _ => typeof(int));
+            var input = InputFactory.Int32Enum("mockInputEnum", [(firstName, 1), (secondName, 2)], isExtensible: true);
+            var provider = EnumProvider.Create(input);
+
+            CollectionAssert.AreEqual(new[] { firstName, secondName }, provider.Properties.Select(p => p.Name));
+        }
+
+        [TestCase(false, "Fixed")]
+        [TestCase(true, "Extensible")]
+        public async Task BuildEnumType_AcronymNormalizationDoesNotCollideWithCustomizedMember(bool isExtensible, string testData)
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                createCSharpTypeCore: _ => typeof(int),
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: testData));
+            var input = InputFactory.Int32Enum("mockInputEnum", [("Ip", 1), ("Db", 2)], isExtensible: isExtensible);
+            var provider = EnumProvider.Create(input);
+            provider.EnsureBuilt();
+            provider.Update(provider.Methods, provider.Constructors, provider.Properties, provider.Fields);
+            provider.ProcessTypeForBackCompatibility();
+
+            CollectionAssert.AreEqual(new[] { "Ip" },
+                isExtensible ? provider.Properties.Select(p => p.Name) : provider.Fields.Select(f => f.Name));
+            Assert.AreEqual(1, provider.EnumValues.Single(v => v.Name == "Ip").Value);
+        }
+
+        [TestCase(false, "Fixed")]
+        [TestCase(true, "Extensible")]
+        public async Task BuildEnumType_AcronymCustomizationTakesPrecedenceOverPublishedCasing(bool isExtensible, string testData)
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                createCSharpTypeCore: _ => typeof(int),
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: testData),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    parameters: testData, method: nameof(BuildEnumType_PreservesPublishedMemberAcronyms)));
+            var input = InputFactory.Int32Enum("mockInputEnum",
+            [
+                ("Ip", 1), ("Db", 2), ("Os", 3), ("IpV4", 4), ("IpV6", 6), ("IpUrl", 7)
+            ], isExtensible: isExtensible);
+            var provider = EnumProvider.Create(input);
+            provider.EnsureBuilt();
+            provider.Update(provider.Methods, provider.Constructors, provider.Properties, provider.Fields);
+            provider.ProcessTypeForBackCompatibility();
+
+            CollectionAssert.AreEqual(new[] { "Db", "Os", "IpV6", "IpUri" },
+                isExtensible ? provider.Properties.Select(p => p.Name) : provider.Fields.Select(f => f.Name));
+            if (isExtensible)
+            {
+                CollectionAssert.AreEqual(new[] { "_value", "IPValue", "DbValue", "OsValue", "IpV4Value", "IpV6Value", "IpUriValue" },
+                    provider.Fields.Select(f => f.Name));
+            }
+        }
+
         private static void ValidateGetHashCodeMethod(EnumProvider enumType)
         {
             var getHashCodeMethod = enumType.Methods.Single(m => m.Signature.Name == "GetHashCode");

@@ -227,6 +227,71 @@
           },
           "decorators": [],
           "isExactName": false
+        },
+        {
+          "kind": "enumvalue",
+          "name": "Ip",
+          "value": "ip",
+          "valueType": {
+            "$ref": "18"
+          },
+          "enumType": {
+            "$ref": "17"
+          },
+          "decorators": [],
+          "isExactName": false
+        },
+        {
+          "kind": "enumvalue",
+          "name": "Db",
+          "value": "db",
+          "valueType": {
+            "$ref": "18"
+          },
+          "enumType": {
+            "$ref": "17"
+          },
+          "decorators": [],
+          "isExactName": false
+        },
+        {
+          "kind": "enumvalue",
+          "name": "Os",
+          "value": "os",
+          "valueType": {
+            "$ref": "18"
+          },
+          "enumType": {
+            "$ref": "17"
+          },
+          "decorators": [],
+          "isExactName": false
+        },
+        {
+          "kind": "enumvalue",
+          "name": "IpV4",
+          "value": "ipv4",
+          "valueType": {
+            "$ref": "18"
+          },
+          "enumType": {
+            "$ref": "17"
+          },
+          "decorators": [],
+          "isExactName": false
+        },
+        {
+          "kind": "enumvalue",
+          "name": "Ipv6",
+          "value": "ipv6",
+          "valueType": {
+            "$ref": "18"
+          },
+          "enumType": {
+            "$ref": "17"
+          },
+          "decorators": [],
+          "isExactName": false
         }
       ],
       "namespace": "SampleTypeSpec",
@@ -287,6 +352,71 @@
           "kind": "enumvalue",
           "name": "Four",
           "value": "4",
+          "valueType": {
+            "$ref": "23"
+          },
+          "enumType": {
+            "$ref": "22"
+          },
+          "decorators": [],
+          "isExactName": false
+        },
+        {
+          "kind": "enumvalue",
+          "name": "Ip",
+          "value": "ip",
+          "valueType": {
+            "$ref": "23"
+          },
+          "enumType": {
+            "$ref": "22"
+          },
+          "decorators": [],
+          "isExactName": false
+        },
+        {
+          "kind": "enumvalue",
+          "name": "Db",
+          "value": "db",
+          "valueType": {
+            "$ref": "23"
+          },
+          "enumType": {
+            "$ref": "22"
+          },
+          "decorators": [],
+          "isExactName": false
+        },
+        {
+          "kind": "enumvalue",
+          "name": "Os",
+          "value": "os",
+          "valueType": {
+            "$ref": "23"
+          },
+          "enumType": {
+            "$ref": "22"
+          },
+          "decorators": [],
+          "isExactName": false
+        },
+        {
+          "kind": "enumvalue",
+          "name": "Ipv4",
+          "value": "ipv4",
+          "valueType": {
+            "$ref": "23"
+          },
+          "enumType": {
+            "$ref": "22"
+          },
+          "decorators": [],
+          "isExactName": false
+        },
+        {
+          "kind": "enumvalue",
+          "name": "IpV6",
+          "value": "ipv6",
           "valueType": {
             "$ref": "23"
           },
@@ -703,6 +833,71 @@
           },
           "decorators": [],
           "isExactName": false
+        },
+        {
+          "kind": "enumvalue",
+          "name": "Ip",
+          "value": 10,
+          "valueType": {
+            "$ref": "53"
+          },
+          "enumType": {
+            "$ref": "52"
+          },
+          "decorators": [],
+          "isExactName": false
+        },
+        {
+          "kind": "enumvalue",
+          "name": "Db",
+          "value": 20,
+          "valueType": {
+            "$ref": "53"
+          },
+          "enumType": {
+            "$ref": "52"
+          },
+          "decorators": [],
+          "isExactName": false
+        },
+        {
+          "kind": "enumvalue",
+          "name": "Os",
+          "value": 30,
+          "valueType": {
+            "$ref": "53"
+          },
+          "enumType": {
+            "$ref": "52"
+          },
+          "decorators": [],
+          "isExactName": false
+        },
+        {
+          "kind": "enumvalue",
+          "name": "Ipv4",
+          "value": 40,
+          "valueType": {
+            "$ref": "53"
+          },
+          "enumType": {
+            "$ref": "52"
+          },
+          "decorators": [],
+          "isExactName": false
+        },
+        {
+          "kind": "enumvalue",
+          "name": "IpV6",
+          "value": 60,
+          "valueType": {
+            "$ref": "53"
+          },
+          "enumType": {
+            "$ref": "52"
+          },
+          "decorators": [],
+          "isExactName": false
         }
       ],
       "namespace": "SampleTypeSpec",
@@ -710,6 +905,92 @@
       "isFixed": true,
       "isFlags": false,
       "usage": "Input,Output,Json,Xml",
+      "decorators": [],
+      "isExactName": false
+    },
+    {
+      "$id": "acronym-union",
+      "kind": "enum",
+      "name": "StringFixedUnion",
+      "apiVersions": [
+        "2024-07-16-preview",
+        "2024-08-16-preview"
+      ],
+      "crossLanguageDefinitionId": "SampleTypeSpec.StringFixedUnion",
+      "valueType": {
+        "$ref": "18"
+      },
+      "values": [
+        {
+          "kind": "enumvalue",
+          "name": "Ip",
+          "value": "ip",
+          "valueType": {
+            "$ref": "18"
+          },
+          "enumType": {
+            "$ref": "acronym-union"
+          },
+          "decorators": [],
+          "isExactName": false
+        },
+        {
+          "kind": "enumvalue",
+          "name": "Db",
+          "value": "db",
+          "valueType": {
+            "$ref": "18"
+          },
+          "enumType": {
+            "$ref": "acronym-union"
+          },
+          "decorators": [],
+          "isExactName": false
+        },
+        {
+          "kind": "enumvalue",
+          "name": "Os",
+          "value": "os",
+          "valueType": {
+            "$ref": "18"
+          },
+          "enumType": {
+            "$ref": "acronym-union"
+          },
+          "decorators": [],
+          "isExactName": false
+        },
+        {
+          "kind": "enumvalue",
+          "name": "IpV4",
+          "value": "ipv4",
+          "valueType": {
+            "$ref": "18"
+          },
+          "enumType": {
+            "$ref": "acronym-union"
+          },
+          "decorators": [],
+          "isExactName": false
+        },
+        {
+          "kind": "enumvalue",
+          "name": "Ipv6",
+          "value": "ipv6",
+          "valueType": {
+            "$ref": "18"
+          },
+          "enumType": {
+            "$ref": "acronym-union"
+          },
+          "decorators": [],
+          "isExactName": false
+        }
+      ],
+      "namespace": "SampleTypeSpec",
+      "isFixed": true,
+      "isFlags": false,
+      "usage": "Input,Output,Json",
       "decorators": [],
       "isExactName": false
     },
@@ -4059,6 +4340,58 @@
                 "serializationOptions": {
                   "json": {
                     "name": "requiredFixedEnum"
+                  }
+                },
+                "isHttpMetadata": false,
+                "isExactName": false
+              },
+              {
+                "$id": "acronym-union-property",
+                "kind": "property",
+                "name": "fixedUnion",
+                "apiVersions": [
+                  "2024-07-16-preview",
+                  "2024-08-16-preview"
+                ],
+                "serializedName": "fixedUnion",
+                "type": {
+                  "$ref": "acronym-union"
+                },
+                "optional": true,
+                "readOnly": false,
+                "discriminator": false,
+                "flatten": false,
+                "decorators": [],
+                "crossLanguageDefinitionId": "SampleTypeSpec.ModelWithRequiredNullableProperties.fixedUnion",
+                "serializationOptions": {
+                  "json": {
+                    "name": "fixedUnion"
+                  }
+                },
+                "isHttpMetadata": false,
+                "isExactName": false
+              },
+              {
+                "$id": "acronym-numeric-property",
+                "kind": "property",
+                "name": "numericEnum",
+                "apiVersions": [
+                  "2024-07-16-preview",
+                  "2024-08-16-preview"
+                ],
+                "serializedName": "numericEnum",
+                "type": {
+                  "$ref": "52"
+                },
+                "optional": true,
+                "readOnly": false,
+                "discriminator": false,
+                "flatten": false,
+                "decorators": [],
+                "crossLanguageDefinitionId": "SampleTypeSpec.ModelWithRequiredNullableProperties.numericEnum",
+                "serializationOptions": {
+                  "json": {
+                    "name": "numericEnum"
                   }
                 },
                 "isHttpMetadata": false,

@@ -108,7 +108,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return generatedName;
             }
 
-            if (lastContractNames.Any(n => n.Equals(generatedName, StringComparison.OrdinalIgnoreCase)))
+            if (lastContractNames.Contains(generatedName, StringComparer.Ordinal))
+            {
+                return generatedName;
+            }
+
+            if (IsCustomizedValueName(generatedName) &&
+                lastContractNames.Contains(generatedName, StringComparer.OrdinalIgnoreCase))
             {
                 return generatedName;
             }
@@ -142,7 +148,71 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return backCompatName;
         }
 
-        private protected static string GetGeneratedValueName(
+        private protected string[] GetGeneratedValueNames(
+            IReadOnlyList<InputEnumTypeValue> inputValues,
+            IReadOnlyList<string> lastContractNames)
+        {
+            var previousNames = inputValues.Select(v => GetGeneratedValueName(v, lastContractNames)).ToArray();
+            var normalizedNames = previousNames.Select((name, i) =>
+            {
+                if (inputValues[i].IsExactName || IsCustomizedValueName(name))
+                {
+                    return name;
+                }
+
+                var normalizedName = name.NormalizeCSharpAcronyms();
+                return lastContractNames.Contains(name, StringComparer.Ordinal) && !IsCustomizedValueName(normalizedName)
+                    ? name
+                    : normalizedName;
+            }).ToArray();
+            var previousNameSet = new HashSet<string>(GetDeclarationNames(previousNames), StringComparer.Ordinal);
+            var nameCounts = GetDeclarationNames(normalizedNames).CountBy(n => n, StringComparer.Ordinal).ToDictionary();
+
+            for (int i = 0; i < normalizedNames.Length; i++)
+            {
+                var name = normalizedNames[i];
+                // Include backing fields and custom renames when checking for new declaration collisions.
+                if (name != previousNames[i] &&
+                    (HasCollision(name) || (IsExtensible && HasCollision(name + "Value")) ||
+                    HasCustomNameCollision(name, previousNames[i])))
+                {
+                    normalizedNames[i] = previousNames[i];
+                }
+            }
+
+            return normalizedNames;
+
+            bool HasCollision(string name) => previousNameSet.Contains(name) || nameCounts[name] > 1 || name == Name;
+        }
+
+        private IEnumerable<string> GetDeclarationNames(IEnumerable<string> names) =>
+            IsExtensible ? names.SelectMany(n => new[] { n, n + "Value" }) : names;
+
+        private bool HasCustomNameCollision(string name, string previousName) => IsExtensible
+            ? CustomCodeView?.Properties.Any(p => p.Name == name + "Value" || (p.Name == name && p.OriginalName != null &&
+                p.OriginalName != name && p.OriginalName != previousName)) == true ||
+                CustomCodeView?.Fields.Any(f => f.Name == name || (f.Name == name + "Value" &&
+                    f.OriginalName != null && f.OriginalName != name + "Value" && f.OriginalName != previousName + "Value")) == true
+            : CustomCodeView?.Fields.Any(f => f.Name == name && f.OriginalName != null &&
+                f.OriginalName != name && f.OriginalName != previousName) == true;
+
+        private bool IsCustomizedValueName(string name)
+        {
+            if (GetMemberSuppressionAttributes().Any(a =>
+                a.ConstructorArguments.Length > 0 &&
+                a.ConstructorArguments[0].Value is string memberName &&
+                (memberName == name || (IsExtensible && memberName == name + "Value"))))
+            {
+                return true;
+            }
+
+            return IsExtensible
+                ? CustomCodeView?.Properties.Any(p => p.Name == name || p.OriginalName == name) == true ||
+                    CustomCodeView?.Fields.Any(f => f.Name == name + "Value" || f.OriginalName == name + "Value") == true
+                : CustomCodeView?.Fields.Any(f => f.Name == name || f.OriginalName == name) == true;
+        }
+
+        private static string GetGeneratedValueName(
             InputEnumTypeValue inputValue,
             IReadOnlyList<string> lastContractNames)
         {

@@ -7,24 +7,18 @@
 
 namespace SampleTypeSpec
 {
-    /// <summary> int fixed enum. </summary>
-    public enum IntFixedEnum
+    /// <summary></summary>
+    public enum StringFixedUnion
     {
-        /// <summary> One. </summary>
-        One = 1,
-        /// <summary> Two. </summary>
-        Two = 2,
-        /// <summary> Four. </summary>
-        Four = 4,
         /// <summary> IP. </summary>
-        IP = 10,
+        IP,
         /// <summary> DB. </summary>
-        DB = 20,
+        DB,
         /// <summary> OS. </summary>
-        OS = 30,
+        OS,
         /// <summary> IPv4. </summary>
-        IPv4 = 40,
+        IPv4,
         /// <summary> IPv6. </summary>
-        IPv6 = 60
+        IPv6
     }
 }
