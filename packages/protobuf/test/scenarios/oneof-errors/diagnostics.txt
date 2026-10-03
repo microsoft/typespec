@@ -1,0 +1,10 @@
+/test/main.tsp:49:3 - error @typespec/protobuf/invalid-oneof: property 'payment' must be optional to be emitted as a oneof, because a oneof may have no member set (add '?' to the property, or add '@field' to emit a wrapper message instead)
+/test/main.tsp:54:3 - error @typespec/protobuf/unsupported-field-type: a message field's type may not be an anonymous union (declare a named union with '@field' on each variant)
+/test/main.tsp:59:23 - error @typespec/protobuf/unsupported-field-type: a message field's type may not be an anonymous union (declare a named union with '@field' on each variant)
+/test/main.tsp:22:3 - error @typespec/protobuf/invalid-oneof: every variant of a union emitted as a oneof must be named
+/test/main.tsp:23:3 - error @typespec/protobuf/invalid-oneof: every variant of a union emitted as a oneof must be named
+/test/main.tsp:28:3 - error @typespec/protobuf/field-index: field b does not have a field index, but one is required (try using the '@field' decorator)
+/test/main.tsp:32:13 - error @typespec/protobuf/invalid-oneof: oneof member 'a' cannot be an array, because Protobuf does not allow repeated fields in a oneof
+/test/main.tsp:37:13 - error @typespec/protobuf/invalid-oneof: oneof member 'a' cannot be a map, because Protobuf does not allow map fields in a oneof
+/test/main.tsp:41:7 - error @typespec/protobuf/invalid-oneof: union Empty must have at least one variant to be emitted as a oneof
+/test/main.tsp:44:13 - error @typespec/protobuf/field-name: name 'value' is already used by another field or oneof in this message
