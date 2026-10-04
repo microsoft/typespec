@@ -303,7 +303,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected virtual CSharpType? BuildBaseType() => null;
 
         private IReadOnlyList<SuppressionStatement>? _disabledFileWarnings;
-        public IReadOnlyList<SuppressionStatement> DisabledFileWarnings => _disabledFileWarnings ??= BuildDisabledFileWarnings();
+        public IReadOnlyList<SuppressionStatement> DisabledFileWarnings => _disabledFileWarnings ??=
+            ExperimentalApiHelpers.MergeSuppressions(
+                BuildDisabledFileWarnings(),
+                ExperimentalApiHelpers.GetTypeSuppressions(_inputType ?? SerializationProviderOwner?._inputType));
 
         private protected virtual bool FilterCustomizedMembers => true;
 
@@ -737,7 +740,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected virtual CSharpType BuildEnumUnderlyingType() => throw new InvalidOperationException("Not an EnumProvider type");
 
-        protected virtual IReadOnlyList<MethodBodyStatement> BuildAttributes() => [];
+        protected virtual IReadOnlyList<MethodBodyStatement> BuildAttributes()
+        {
+            var attribute = ExperimentalApiHelpers.BuildAttribute(_inputType?.Experimental);
+            return attribute is null || CustomCodeView?.Attributes.Any(ExperimentalApiHelpers.IsExperimentalAttribute) == true
+                ? []
+                : [attribute];
+        }
 
         private CSharpType? _enumUnderlyingType;
 

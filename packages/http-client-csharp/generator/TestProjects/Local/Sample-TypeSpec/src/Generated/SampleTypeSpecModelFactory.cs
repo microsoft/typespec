@@ -438,6 +438,30 @@ namespace SampleTypeSpec
             return new StreamingItem(message, additionalBinaryDataProperties: null);
         }
 
+        /// <summary> The PreviewDetails. </summary>
+        /// <param name="choice"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.PreviewDetails"/> instance for mocking. </returns>
+#pragma warning disable SAMPLE0004 // This generated code depends on experimental functionality.
+        [Experimental("SAMPLE0003")]
+        public static PreviewDetails PreviewDetails(PreviewChoice choice = default)
+        {
+            return new PreviewDetails(choice, additionalBinaryDataProperties: null);
+        }
+#pragma warning restore SAMPLE0004 // This generated code depends on experimental functionality.
+
+        /// <summary> The LifecycleModel. </summary>
+        /// <param name="preview"></param>
+        /// <param name="choice"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.LifecycleModel"/> instance for mocking. </returns>
+#pragma warning disable SAMPLE0003 // This generated code depends on experimental functionality.
+#pragma warning disable SAMPLE0005 // This generated code depends on experimental functionality.
+        public static LifecycleModel LifecycleModel(PreviewDetails preview = default, PreviewExtensibleChoice choice = default)
+        {
+            return new LifecycleModel(preview, choice, additionalBinaryDataProperties: null);
+        }
+#pragma warning restore SAMPLE0003 // This generated code depends on experimental functionality.
+#pragma warning restore SAMPLE0005 // This generated code depends on experimental functionality.
+
         /// <summary>
         /// Base animal with discriminator
         /// Please note this is the abstract base class. The derived classes available for instantiation are: <see cref="SampleTypeSpec.Dog"/> and <see cref="SampleTypeSpec.Pet"/>.

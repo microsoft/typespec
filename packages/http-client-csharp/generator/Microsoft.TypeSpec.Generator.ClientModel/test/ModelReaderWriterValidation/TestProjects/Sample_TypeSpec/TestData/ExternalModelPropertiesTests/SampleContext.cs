@@ -9,7 +9,7 @@ namespace Sample
 {
     [ModelReaderWriterBuildable(typeof(ExternalModelProperties))]
     [ModelReaderWriterBuildable(typeof(PersistableExternalModel))]
-    public partial class SampleContext : ModelReaderWriterContext
+    internal partial class SampleContext : ModelReaderWriterContext
     {
     }
 }
