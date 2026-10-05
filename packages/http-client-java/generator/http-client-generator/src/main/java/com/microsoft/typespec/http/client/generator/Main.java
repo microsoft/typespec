@@ -70,6 +70,7 @@ public class Main {
             CodeModel codeModel = loadCodeModel(inputYamlFileName);
 
             EmitterOptions emitterOptions = loadEmitterOptions(codeModel);
+            validateProtocolImplementationOptions(emitterOptions);
 
             boolean sdkIntegration = true;
             String outputDir = emitterOptions.getOutputDir();
@@ -102,6 +103,14 @@ public class Main {
         } catch (Throwable e) {
             LOGGER.error("Unhandled error.", e);
             System.exit(1);
+        }
+    }
+
+    static void validateProtocolImplementationOptions(EmitterOptions options) {
+        if (options.getDevOptions() != null && options.getDevOptions().isGenerateProtocolImplementation()
+            && (Boolean.TRUE.equals(options.getArm()) || !"azure".equalsIgnoreCase(options.getFlavor()))) {
+            throw new IllegalStateException("generate-protocol-implementation currently supports Azure Core V1 "
+                + "data-plane clients only. Disable the experimental flag for this client.");
         }
     }
 

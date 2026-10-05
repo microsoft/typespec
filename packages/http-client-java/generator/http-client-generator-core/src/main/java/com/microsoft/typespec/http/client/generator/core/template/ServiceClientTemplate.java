@@ -380,7 +380,10 @@ public class ServiceClientTemplate implements IJavaTemplate<ServiceClient, JavaF
         }
 
         if (serviceClient.getProxy() != null) {
-            if (!JavaSettings.getInstance().isAzureV1()) {
+            if (JavaSettings.getInstance().isGenerateProtocolImplementation()) {
+                constructorBlock.line("this.service = new %s(this.httpPipeline, %s);",
+                    serviceClient.getProxy().getName(), this.getSerializerPhrase());
+            } else if (!JavaSettings.getInstance().isAzureV1()) {
                 constructorBlock.line("this.service = %s.create(%s.class, this.httpPipeline);",
                     ClassType.REST_PROXY.getName(), serviceClient.getProxy().getName());
             } else {

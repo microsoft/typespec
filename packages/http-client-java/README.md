@@ -63,3 +63,27 @@ License information for the generated client code.
 **Type:** `object`
 
 Developer options for http-client-java emitter.
+
+#### `generate-protocol-implementation`
+
+**Type:** `boolean`
+
+**Default:** `false`
+
+Experimental option for Azure Core V1 data-plane generation. Add this setting to `dev-options`
+in an existing Azure emitter configuration to generate concrete HTTP protocol implementations
+instead of runtime `RestProxy` dispatch:
+
+```yaml
+dev-options:
+  generate-protocol-implementation: true
+```
+
+Generated clients require Azure Core `1.61.0-beta.1` or later containing
+`com.azure.core.util.GeneratedCodeUtils`. These runtime APIs are currently under development;
+use a local runtime build until they are released.
+
+The initial implementation supports buffered synchronous and asynchronous protocol responses.
+Streaming responses, ARM clients, and ClientCore/Azure Core V2 are not yet supported with this
+option and produce a generation error. Leave the option unset or set it to `false` to retain
+the existing generation behavior.

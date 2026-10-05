@@ -10,12 +10,25 @@ import io.clientcore.core.serialization.json.JsonWriter;
 import java.io.IOException;
 
 public class DevOptions implements JsonSerializable<DevOptions> {
+    private boolean generateProtocolImplementation;
+
+    public boolean isGenerateProtocolImplementation() {
+        return generateProtocolImplementation;
+    }
+
     @Override
     public JsonWriter toJson(JsonWriter jsonWriter) throws IOException {
         return jsonWriter.writeStartObject().writeEndObject();
     }
 
     public static DevOptions fromJson(JsonReader jsonReader) throws IOException {
-        return JsonUtils.readEmptyObject(jsonReader, DevOptions::new);
+        return JsonUtils.readObject(jsonReader, DevOptions::new, (options, fieldName, reader) -> {
+            if ("generate-protocol-implementation".equals(fieldName)) {
+                options.generateProtocolImplementation
+                    = Boolean.TRUE.equals(reader.getNullable(JsonReader::getBoolean));
+            } else {
+                reader.skipChildren();
+            }
+        });
     }
 }

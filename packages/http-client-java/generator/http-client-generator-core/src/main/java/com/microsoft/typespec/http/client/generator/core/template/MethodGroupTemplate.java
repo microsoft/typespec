@@ -131,7 +131,10 @@ public class MethodGroupTemplate implements IJavaTemplate<MethodGroupClient, Jav
 
     protected void writeServiceProxyConstruction(JavaBlock constructor, MethodGroupClient methodGroupClient) {
         ClassType proxyType = ClassType.REST_PROXY;
-        if (JavaSettings.getInstance().isAzureV1()) {
+        if (JavaSettings.getInstance().isGenerateProtocolImplementation()) {
+            constructor.line("this.service = new %s(client.getHttpPipeline(), client.getSerializerAdapter());",
+                methodGroupClient.getProxy().getName());
+        } else if (JavaSettings.getInstance().isAzureV1()) {
             constructor.line(String.format(
                 "this.service = %1$s.create(%2$s.class, client.getHttpPipeline(), client.getSerializerAdapter());",
                 proxyType.getName(), methodGroupClient.getProxy().getName()));

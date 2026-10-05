@@ -37,6 +37,10 @@ public class ProxyTemplate implements IJavaTemplate<Proxy, JavaClass> {
     public final void write(Proxy restAPI, JavaClass classBlock) {
         JavaSettings settings = JavaSettings.getInstance();
         if (restAPI != null) {
+            if (settings.isGenerateProtocolImplementation()) {
+                ProtocolImplementationTemplate.write(restAPI, classBlock);
+                return;
+            }
             classBlock.javadocComment(comment -> comment.description(String.format(
                 "The interface defining all the services for %1$s to be used by the proxy service to perform REST calls.",
                 restAPI.getClientTypeName())));

@@ -251,6 +251,8 @@ public class TypeSpecPlugin extends Javagen {
         if (options.getUseRestProxy() != null) {
             SETTINGS_MAP.put("use-rest-proxy", emitterOptions.getUseRestProxy());
         }
+        SETTINGS_MAP.put("generate-protocol-implementation",
+            options.getDevOptions() != null && options.getDevOptions().isGenerateProtocolImplementation());
 
         SETTINGS_MAP.put("sdk-integration", sdkIntegration);
         SETTINGS_MAP.put("regenerate-pom", sdkIntegration);

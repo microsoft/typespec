@@ -4,7 +4,22 @@ import {
   DIAGNOSTIC_DOCS_BASE_PATH,
   DIAGNOSTIC_DOCS_BASE_URL,
   DIAGNOSTIC_DOCS_EXCLUDED,
+  EmitterOptionsSchema,
 } from "../src/options.js";
+
+describe("emitter feature flags", () => {
+  it("leaves generated protocol implementations disabled by default", () => {
+    expect(EmitterOptionsSchema).toMatchObject({
+      properties: {
+        "dev-options": {
+          properties: {
+            "generate-protocol-implementation": { type: "boolean", default: false },
+          },
+        },
+      },
+    });
+  });
+});
 
 describe("diagnostic documentation", () => {
   it("links documented diagnostics to their documentation", () => {

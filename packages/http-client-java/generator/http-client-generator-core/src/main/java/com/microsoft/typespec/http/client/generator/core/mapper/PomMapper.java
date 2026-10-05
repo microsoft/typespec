@@ -6,6 +6,7 @@ package com.microsoft.typespec.http.client.generator.core.mapper;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Pom;
 import com.microsoft.typespec.http.client.generator.core.model.projectmodel.Project;
+import java.lang.module.ModuleDescriptor.Version;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -103,6 +104,12 @@ public class PomMapper implements IMapper<Project, Pom> {
     protected static void addDependencyIdentifier(List<String> dependencyIdentifiers, Set<String> prefixes,
         Project.Dependency dependency, boolean isTestScope) {
         prefixes.add(dependency.getGroupId() + ":" + dependency.getArtifactId() + ":");
-        dependencyIdentifiers.add(dependency.getDependencyIdentifier() + (isTestScope ? TEST_SUFFIX : ""));
+        String identifier = dependency.getDependencyIdentifier();
+        if (dependency == Project.Dependency.AZURE_CORE
+            && JavaSettings.getInstance().isGenerateProtocolImplementation()
+            && Version.parse(dependency.getVersion()).compareTo(Version.parse("1.61.0-beta.1")) < 0) {
+            identifier = dependency.getGroupId() + ":" + dependency.getArtifactId() + ":1.61.0-beta.1";
+        }
+        dependencyIdentifiers.add(identifier + (isTestScope ? TEST_SUFFIX : ""));
     }
 }

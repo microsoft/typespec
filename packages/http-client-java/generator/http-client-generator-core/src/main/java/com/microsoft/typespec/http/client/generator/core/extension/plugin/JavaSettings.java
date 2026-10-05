@@ -41,6 +41,7 @@ public class JavaSettings {
     private final boolean noCustomHeaders;
     private final boolean disableTypedHeadersMethods;
     private final boolean useRestProxy;
+    private final boolean generateProtocolImplementation;
 
     static void setHeader(String value) {
         if ("MICROSOFT_MIT".equals(value)) {
@@ -273,6 +274,7 @@ public class JavaSettings {
         this.generateTests = getBooleanValue(host, "generate-tests", false);
 
         this.useRestProxy = getBooleanValue(host, "use-rest-proxy", false);
+        this.generateProtocolImplementation = getBooleanValue(host, "generate-protocol-implementation", false);
 
         // Whether to generate the send request method.
         this.generateSendRequestMethod = false;
@@ -420,6 +422,10 @@ public class JavaSettings {
 
     public boolean useRestProxy() {
         return this.useRestProxy;
+    }
+
+    public boolean isGenerateProtocolImplementation() {
+        return generateProtocolImplementation;
     }
 
     private final String keyCredentialHeaderName;

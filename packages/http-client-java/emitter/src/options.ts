@@ -15,6 +15,7 @@ export const DIAGNOSTIC_DOCS_EXCLUDED = new Set([
 
 export interface DevOptions {
   "generate-code-model"?: boolean;
+  "generate-protocol-implementation"?: boolean;
   debug?: boolean;
   loglevel?: "off" | "debug" | "info" | "warn" | "error";
   "java-temp-dir"?: string; // working directory for java codegen, e.g. transformed code-model file
@@ -45,6 +46,13 @@ export const EmitterOptionsSchema: JSONSchemaType<EmitterOptions> = {
         "generate-code-model": {
           type: "boolean",
           description: "Generate intermittent 'code-model.yaml' file in output directory.",
+          nullable: true,
+        },
+        "generate-protocol-implementation": {
+          type: "boolean",
+          description:
+            "Generate experimental Azure Core V1 HTTP protocol implementations instead of using RestProxy.",
+          default: false,
           nullable: true,
         },
         debug: {
