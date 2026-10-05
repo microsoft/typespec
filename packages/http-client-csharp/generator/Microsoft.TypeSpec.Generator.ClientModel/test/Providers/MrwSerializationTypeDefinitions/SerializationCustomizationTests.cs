@@ -83,6 +83,27 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         }
 
         [Test]
+        public async Task ConcreteOptionalNullableCollectionsStartUndefined()
+        {
+            var inputModel = InputFactory.Model("Model", properties: [
+                    InputFactory.Property("concreteNames", new InputNullableType(InputFactory.Array(InputPrimitiveType.String))),
+                    InputFactory.Property("concreteLabels", new InputNullableType(InputFactory.Dictionary(InputPrimitiveType.String))),
+                    InputFactory.Property("trackedNames", new InputNullableType(InputFactory.Array(InputPrimitiveType.String))),
+                    InputFactory.Property("trackedLabels", new InputNullableType(InputFactory.Dictionary(InputPrimitiveType.String)))
+                ],
+                usage: InputModelTypeUsage.Json);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider);
+            var serializationProvider = (MrwSerializationTypeDefinition)modelProvider.SerializationProviders.Single();
+            var content = serializationProvider.BuildDeserializationMethod().BodyStatements!.ToDisplayString();
+
+            StringAssert.Contains(Helpers.GetExpectedFromFile().ReplaceLineEndings("\n"), content);
+        }
+
+        [Test]
         public async Task CanCustomizeSerializationMethod()
         {
             var inputModel = InputFactory.Model("mockInputModel", properties: [

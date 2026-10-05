@@ -1060,7 +1060,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         {
                             defaultValue = New.List(property.Type.ElementType);
                         }
-                        else if (preserveJsonPresence && IsOptionalNullableCollection(property))
+                        else if (preserveJsonPresence &&
+                            IsOptionalNullableCollection(property) &&
+                            !OptionalSnippets.IsConcreteCollection(property.Type))
                         {
                             defaultValue = New.Instance(property.Type.PropertyInitializationType);
                         }
