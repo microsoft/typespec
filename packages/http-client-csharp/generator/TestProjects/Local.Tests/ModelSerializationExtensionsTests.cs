@@ -602,6 +602,14 @@ namespace TestProjects.Local.Tests
                 case JsonValueKind.Number:
                     Assert.That(actual.GetDecimal(), Is.EqualTo(expected.GetDecimal()));
                     break;
+                case JsonValueKind.True:
+                case JsonValueKind.False:
+                case JsonValueKind.Null:
+                    // ValueKind alone fully captures the value for these kinds; the check above already covers them.
+                    break;
+                default:
+                    Assert.That(actual.GetRawText(), Is.EqualTo(expected.GetRawText()));
+                    break;
             }
         }
 
