@@ -4,6 +4,7 @@
 import type {
   DiagnosticTarget,
   Enum,
+  EnumMember,
   Interface,
   IntrinsicType,
   Model,
@@ -30,6 +31,7 @@ import {
 } from "@typespec/compiler";
 import { SyntaxKind } from "@typespec/compiler/ast";
 import { capitalize } from "@typespec/compiler/casing";
+import { constantCase } from "change-case";
 import type {
   ProtoEnumDeclaration,
   ProtoEnumVariantDeclaration,
@@ -103,6 +105,8 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
   const declarationMap = new Map<Namespace, ProtoTopLevelDeclaration[]>(
     [...packages].map((p) => [p, []]),
   );
+
+  const enumMemberSources = new WeakMap<ProtoEnumVariantDeclaration, EnumMember>();
 
   const visitedTypes = new Set<Type>();
 
@@ -217,6 +221,12 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
   });
 
   checkForNamespaceCollisions(files);
+
+  if (emitterOptions["enum-value-prefix"] === "enum-name") {
+    for (const file of files) {
+      checkForEnumValueNameCollisions(file);
+    }
+  }
 
   return files;
 
@@ -689,6 +699,39 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
     }
   }
 
+  function checkForEnumValueNameCollisions(file: ProtoFile) {
+    const declarations = [...file.declarations];
+    const names = new Map<
+      string,
+      { kind: ProtoTopLevelDeclaration["kind"] | "enum value"; owner: string }
+    >();
+
+    for (const declaration of declarations) {
+      if (!names.has(declaration.name)) {
+        names.set(declaration.name, { kind: declaration.kind, owner: declaration.name });
+      }
+    }
+
+    for (const declaration of declarations) {
+      if (declaration.kind !== "enum") continue;
+
+      for (const variant of declaration.variants) {
+        const member = enumMemberSources.get(variant);
+        compilerAssert(member, "Missing TypeSpec source for emitted enum value.");
+        const existing = names.get(variant.name);
+        if (existing) {
+          reportDiagnostic(program, {
+            target: member,
+            code: "enum-value-name-collision",
+            format: { name: variant.name, kind: existing.kind, owner: existing.owner },
+          });
+        } else {
+          names.set(variant.name, { kind: "enum value", owner: getTypeName(member) });
+        }
+      }
+    }
+  }
+
   /**
    * @param model - the Model to convert
    * @returns a corresponding message declaration
@@ -879,17 +922,33 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
    */
   function toEnum(e: Enum): ProtoEnumDeclaration {
     const needsAlias = new Set([...e.members.values()].map((v) => v.value)).size !== e.members.size;
-
+    const prefix =
+      emitterOptions["enum-value-prefix"] === "enum-name"
+        ? constantCase(e.name, { prefixCharacters: "_" }) + "_"
+        : undefined;
     return {
       kind: "enum",
       name: e.name,
       allowAlias: needsAlias,
-      variants: [...e.members.values()].map((variant): ProtoEnumVariantDeclaration => ({
-        kind: "variant",
-        name: variant.name,
-        value: variant.value as number,
-        doc: getDoc(program, variant),
-      })),
+      variants: [...e.members.values()].map((variant): ProtoEnumVariantDeclaration => {
+        let name = variant.name;
+        if (prefix !== undefined) {
+          if (!name.startsWith(prefix)) {
+            name = constantCase(name, { prefixCharacters: "_" });
+            if (!name.startsWith(prefix)) {
+              name = prefix + name;
+            }
+          }
+        }
+        const declaration: ProtoEnumVariantDeclaration = {
+          kind: "variant",
+          name,
+          value: variant.value as number,
+          doc: getDoc(program, variant),
+        };
+        enumMemberSources.set(declaration, variant);
+        return declaration;
+      }),
       doc: getDoc(program, e),
     };
   }

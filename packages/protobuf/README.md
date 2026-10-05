@@ -54,6 +54,14 @@ If set to `true`, this emitter will not write any files. It will still validate 
 
 By default, the emitter will create `message` declarations for any models in a namespace decorated with `@package` that have an `@field` decorator on every property. If this option is set to true, this behavior will be disabled, and only messages that are explicitly decorated with `@message` or that are reachable from a service operation will be emitted.
 
+### `enum-value-prefix`
+
+**Type:** `"none" | "enum-name"`
+
+**Default:** `"none"`
+
+When set to `enum-name`, enum values are prefixed with the enum name in UPPER_SNAKE_CASE. Already-prefixed names are preserved. By default (`none`), member names are emitted unchanged. This option only changes names; explicit integer values and a first member set to zero are still required.
+
 ## Decorators
 
 ### TypeSpec.Protobuf

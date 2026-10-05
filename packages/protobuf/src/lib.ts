@@ -21,6 +21,14 @@ export interface ProtobufEmitterOptions {
    * in an interface decoarated with `@service` will be emitted.
    */
   "omit-unreachable-types"?: boolean;
+
+  /**
+   * Prefix enum values with the enum name in UPPER_SNAKE_CASE.
+   *
+   * By default, member names are emitted unchanged. This option only changes names;
+   * explicit integer values and a first member set to zero are still required.
+   */
+  "enum-value-prefix"?: "none" | "enum-name";
 }
 
 const EmitterOptionsSchema: JSONSchemaType<ProtobufEmitterOptions> = {
@@ -38,6 +46,14 @@ const EmitterOptionsSchema: JSONSchemaType<ProtobufEmitterOptions> = {
       nullable: true,
       description:
         "By default, the emitter will create `message` declarations for any models in a namespace decorated with `@package` that have an `@field` decorator on every property. If this option is set to true, this behavior will be disabled, and only messages that are explicitly decorated with `@message` or that are reachable from a service operation will be emitted.",
+    },
+    "enum-value-prefix": {
+      type: "string",
+      enum: ["none", "enum-name"],
+      nullable: true,
+      default: "none",
+      description:
+        "When set to `enum-name`, enum values are prefixed with the enum name in UPPER_SNAKE_CASE. Already-prefixed names are preserved. By default (`none`), member names are emitted unchanged. This option only changes names; explicit integer values and a first member set to zero are still required.",
     },
   },
   required: [],
@@ -134,6 +150,12 @@ export const TypeSpecProtobufLibrary = createTypeSpecLibrary({
           "enums must explicitly assign exactly one integer to each member to be used in a Protobuf message",
         "no-zero-first":
           "the first variant of an enum must be set to zero to be used in a Protobuf message",
+      },
+    },
+    "enum-value-name-collision": {
+      severity: "error",
+      messages: {
+        default: paramMessage`enum value name '${"name"}' collides with ${"kind"} '${"owner"}' in this Protobuf package`,
       },
     },
     "nested-array": {
