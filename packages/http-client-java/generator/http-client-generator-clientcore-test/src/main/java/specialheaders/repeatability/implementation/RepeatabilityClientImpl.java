@@ -1,20 +1,14 @@
 package specialheaders.repeatability.implementation;
 
 import io.clientcore.core.annotations.ReturnType;
-import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.annotations.HeaderParam;
-import io.clientcore.core.http.annotations.HostParam;
-import io.clientcore.core.http.annotations.HttpRequestInformation;
-import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
-import io.clientcore.core.http.models.HttpMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.instrumentation.Instrumentation;
+import io.clientcore.core.instrumentation.logging.ClientLogger;
 import io.clientcore.core.utils.DateTimeRfc1123;
-import java.lang.reflect.InvocationTargetException;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
@@ -83,33 +77,66 @@ public final class RepeatabilityClientImpl {
         this.service = RepeatabilityClientService.getNewInstance(this.httpPipeline);
     }
 
-    /**
-     * The interface defining all the services for RepeatabilityClient to be used by the proxy service to perform REST
-     * calls.
-     */
-    @ServiceInterface(name = "RepeatabilityClient", host = "{endpoint}")
     public interface RepeatabilityClientService {
-        static RepeatabilityClientService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz
-                    = Class.forName("specialheaders.repeatability.implementation.RepeatabilityClientServiceImpl");
-                return (RepeatabilityClientService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
+        static RepeatabilityClientService getNewInstance(io.clientcore.core.http.pipeline.HttpPipeline pipeline) {
+            return new RepeatabilityClientServiceImpl(pipeline);
         }
 
-        @HttpRequestInformation(
-            method = HttpMethod.POST,
-            path = "/special-headers/repeatability/immediateSuccess",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> immediateSuccess(@HostParam("endpoint") String endpoint,
-            @HeaderParam("repeatability-request-id") String repeatabilityRequestId,
-            @HeaderParam("repeatability-first-sent") String repeatabilityFirstSent, RequestContext requestContext);
+        Response<Void> immediateSuccess(String endpoint, String repeatabilityRequestId, String repeatabilityFirstSent,
+            RequestContext requestContext);
+    }
+
+    private static final class RepeatabilityClientServiceImpl implements RepeatabilityClientService {
+        private static final io.clientcore.core.instrumentation.logging.ClientLogger LOGGER
+            = new io.clientcore.core.instrumentation.logging.ClientLogger(RepeatabilityClientServiceImpl.class);
+
+        private final io.clientcore.core.http.pipeline.HttpPipeline httpPipeline;
+
+        private final io.clientcore.core.serialization.json.JsonSerializer jsonSerializer
+            = io.clientcore.core.serialization.json.JsonSerializer.getInstance();
+
+        private final io.clientcore.core.serialization.xml.XmlSerializer xmlSerializer
+            = io.clientcore.core.serialization.xml.XmlSerializer.getInstance();
+
+        private RepeatabilityClientServiceImpl(io.clientcore.core.http.pipeline.HttpPipeline pipeline) {
+            this.httpPipeline = pipeline;
+        }
+
+        @Override
+        public Response<Void> immediateSuccess(String endpoint, String repeatabilityRequestId,
+            String repeatabilityFirstSent, RequestContext requestContext) {
+            io.clientcore.core.utils.UriBuilder uriBuilder = io.clientcore.core.utils.UriBuilder
+                .parse(endpoint + "/special-headers/repeatability/immediateSuccess");
+            io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
+                .setMethod(io.clientcore.core.http.models.HttpMethod.POST)
+                .setUri(uriBuilder.toString());
+            if (repeatabilityRequestId != null) {
+                httpRequest.getHeaders()
+                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("repeatability-request-id"),
+                        repeatabilityRequestId);
+            }
+            if (repeatabilityFirstSent != null) {
+                httpRequest.getHeaders()
+                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("repeatability-first-sent"),
+                        repeatabilityFirstSent);
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            io.clientcore.core.http.models.Response<io.clientcore.core.models.binarydata.BinaryData> networkResponse
+                = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 204)) {
+                io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
+                    this.jsonSerializer, this.xmlSerializer, null, null, RepeatabilityClientServiceImpl.LOGGER);
+            }
+            try {
+                return;
+            } finally {
+                networkResponse.close();
+            }
+        }
     }
 
     /**
@@ -129,4 +156,6 @@ public final class RepeatabilityClientImpl {
                     DateTimeRfc1123.toRfc1123String(OffsetDateTime.now()), updatedContext);
             });
     }
+
+    private static final ClientLogger LOGGER = new ClientLogger(RepeatabilityClientImpl.class);
 }
