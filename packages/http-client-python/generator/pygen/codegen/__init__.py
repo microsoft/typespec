@@ -65,9 +65,10 @@ class CodeGenerator(Plugin):
             return yaml.safe_load(fd.read())
 
     def get_serializer(self, code_model: CodeModel):
-        return JinjaSerializer(code_model, output_folder=self.output_folder)
+        return JinjaSerializer(code_model, output_folder=self.output_folder, written_files=self.written_files)
 
     def process(self) -> bool:
+        self.written_files.clear()
         # List the input file, should be only one
         yaml_data = self.get_yaml()
 
