@@ -229,6 +229,13 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
     addDeclarationsOfPackage(packageNs);
   }
 
+  // `addDeclarationsOfPackage` only visits `@message` unions inside a package, so report the rest here.
+  for (const union of declaredUnions) {
+    if (!getPackageOfType(program, union)) {
+      visitUnion(union, union);
+    }
+  }
+
   // Emit a file per package.
   const files = [...packages].map((namespace) => {
     const details = program.stateMap(state.package).get(namespace) as Model | undefined;
