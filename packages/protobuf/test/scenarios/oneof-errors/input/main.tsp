@@ -38,6 +38,13 @@ union WithMap {
   @field(2) b: B,
 }
 
+model Strings is string[];
+
+union WithNamedArray {
+  @field(1) items: Strings,
+  @field(2) b: B,
+}
+
 union Empty {}
 
 union ValueVariant {
@@ -84,9 +91,11 @@ model EmptyOneOf {
   payment?: Empty;
 }
 
+// A union is validated only once, so this uses a union that no other model references to check that the wrapper form is
+// validated on its own. Its variant is a named array model, which must be rejected like `A[]`.
 @message
 model WrapperArrayVariant {
-  @field(1) payment: WithArray;
+  @field(1) payment: WithNamedArray;
 }
 
 @message

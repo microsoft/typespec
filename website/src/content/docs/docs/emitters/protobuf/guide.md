@@ -160,6 +160,12 @@ message Order {
 }
 ```
 
+:::caution
+Switching a property between the inline and wrapper forms (by adding or removing `@field` on the property) changes the wire format. Inline members are encoded directly in the containing message, while the wrapper form encodes a nested message under the property's field index, so existing clients and servers cannot read data written using the other form.
+:::
+
+Neither form guarantees that exactly one member is set. A `oneof` holds _at most_ one member, and a wrapper message behaves like any other message-typed field: it can be absent, or present with no member selected, even when the TypeSpec property is required. Applications that need exactly one member must validate it themselves.
+
 The following rules apply:
 
 - Anonymous unions (such as `CardPayment | BankTransfer`) and unnamed variants are not supported, because every `oneof` member needs a name.

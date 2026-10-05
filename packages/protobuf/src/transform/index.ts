@@ -25,6 +25,7 @@ import {
   getEffectiveModelType,
   getFriendlyName,
   getTypeName,
+  isArrayModelType,
   isDeclaredInNamespace,
   isTemplateInstance,
   isType,
@@ -1141,11 +1142,13 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
         });
       }
 
-      if (isArray(variant.type) || isMap(program, variant.type)) {
+      // `isArrayModelType` also matches named array models such as `model Strings is string[]`.
+      const isArrayVariant = variant.type.kind === "Model" && isArrayModelType(variant.type);
+      if (isArrayVariant || isMap(program, variant.type)) {
         if (report) {
           reportDiagnostic(program, {
             code: "invalid-oneof",
-            messageId: isArray(variant.type) ? "repeated-variant" : "map-variant",
+            messageId: isArrayVariant ? "repeated-variant" : "map-variant",
             format: { name: variant.name },
             target: variant,
           });
