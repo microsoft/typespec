@@ -25,6 +25,7 @@ using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.SourceInput;
 using Microsoft.TypeSpec.Generator.Statements;
+using Microsoft.TypeSpec.Generator.Utilities;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 #pragma warning disable SCME0004 // FileBinaryContent is evaluation-only.
@@ -396,6 +397,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
             }
 
+            foreach (var method in methods.Where(method => method.Signature.Name.StartsWith(DeserializationMethodNamePrefix, StringComparison.Ordinal)))
+            {
+                method.Update(suppressions: ExperimentalApiHelpers.MergeSuppressions(
+                    method.Suppressions,
+                    SerializationConstructor.Signature.Parameters.SelectMany(parameter => ExperimentalApiHelpers.GetReferenceSuppressions(parameter.Type)),
+                    _inputModel.Properties.SelectMany(property => ExperimentalApiHelpers.GetReferenceSuppressions(property.Type)),
+                    ExperimentalApiHelpers.GetReferenceSuppressions(_inputModel.AdditionalProperties),
+                    _inputModel.DiscriminatedSubtypes.Values.SelectMany(type => ExperimentalApiHelpers.GetReferenceSuppressions(type))));
+            }
             return [.. methods];
         }
 
@@ -1177,6 +1187,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private static ValueExpression GetValueForSerializationConstructor(PropertyProvider propertyProvider)
         {
             var isRequired = propertyProvider.WireInfo?.IsRequired ?? false;
+            var isNullable = propertyProvider.WireInfo?.IsNullable ?? propertyProvider.Type.IsNullable;
+            var shouldFallBack = OptionalSnippets.IsConcreteCollection(propertyProvider.Type)
+                ? isRequired && !isNullable
+                : !isRequired || !isNullable;
 
             if (!propertyProvider.Type.IsFrameworkType || propertyProvider.IsAdditionalProperties)
             {
@@ -1184,7 +1198,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     ? New.ReadOnlyDictionary(propertyProvider.Type.Arguments[0], propertyProvider.Type.ElementType, propertyProvider.AsVariableExpression)
                     : propertyProvider.AsVariableExpression;
             }
-            else if (!isRequired)
+            else if (shouldFallBack)
             {
                 return OptionalSnippets.FallBackToChangeTrackingCollection(propertyProvider.AsVariableExpression, propertyProvider.Type);
             }
@@ -1644,9 +1658,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
                 if (propertyIsRequired && !serializedType.IsValueType)
                 {
+                    ValueExpression fallbackValue = OptionalSnippets.IsConcreteCollection(serializedType)
+                        ? Null
+                        : New.Instance(serializedType.PropertyInitializationType);
                     return new IfStatement(checkEmptyProperty)
                     {
-                        propertyVarRef.Assign(New.Instance(serializedType.PropertyInitializationType)).Terminate(),
+                        propertyVarRef.Assign(fallbackValue).Terminate(),
                         Continue
                     };
                 }
@@ -1879,7 +1896,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             continue;
                         }
 
-                        propertyStatements.Add(CreateWritePropertyStatement(property.WireInfo, property.Type, property.Name, property, property.WireInfo?.SerializationFormat));
+                        propertyStatements.Add(ExperimentalApiHelpers.Suppress(
+                            CreateWritePropertyStatement(property.WireInfo, property.Type, property.Name, property, property.WireInfo?.SerializationFormat),
+                            ExperimentalApiHelpers.GetMemberSuppressions(property)));
                     }
 
                     foreach (var field in baseModelProvider.CanonicalView.Fields)
@@ -1889,7 +1908,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             continue;
                         }
 
-                        propertyStatements.Add(CreateWritePropertyStatement(field.WireInfo, field.Type, field.Name, field, field.WireInfo?.SerializationFormat));
+                        propertyStatements.Add(ExperimentalApiHelpers.Suppress(
+                            CreateWritePropertyStatement(field.WireInfo, field.Type, field.Name, field, field.WireInfo?.SerializationFormat),
+                            ExperimentalApiHelpers.GetMemberSuppressions(field)));
                     }
                 }
             }
@@ -1903,7 +1924,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     continue;
                 }
 
-                propertyStatements.Add(CreateWritePropertyStatement(property.WireInfo, property.Type, property.Name, property, property.WireInfo.SerializationFormat));
+                propertyStatements.Add(ExperimentalApiHelpers.Suppress(
+                    CreateWritePropertyStatement(property.WireInfo, property.Type, property.Name, property, property.WireInfo.SerializationFormat),
+                    ExperimentalApiHelpers.GetMemberSuppressions(property)));
             }
 
             foreach (var field in _model.CanonicalView.Fields)
@@ -1913,7 +1936,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     continue;
                 }
 
-                propertyStatements.Add(CreateWritePropertyStatement(field.WireInfo, field.Type, field.Name, field, field.WireInfo?.SerializationFormat));
+                propertyStatements.Add(ExperimentalApiHelpers.Suppress(
+                    CreateWritePropertyStatement(field.WireInfo, field.Type, field.Name, field, field.WireInfo?.SerializationFormat),
+                    ExperimentalApiHelpers.GetMemberSuppressions(field)));
             }
 
             return [.. propertyStatements];
@@ -2626,7 +2651,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             var isDefinedCondition = propertyType is { IsCollection: true, IsReadOnlyMemory: false }
-                ? OptionalSnippets.IsCollectionDefined(propertyMemberExpression)
+                ? OptionalSnippets.IsCollectionDefined(propertyMemberExpression, propertyType)
                 : OptionalSnippets.IsDefined(propertyMemberExpression);
 
             if (patchCheck != null && !shouldCheckJsonPath)
@@ -2709,7 +2734,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     _utf8JsonWriterSnippet.WritePropertyName(item.Key),
                     CreateSerializationStatement(additionalPropertiesProperty.Type.Arguments[1], item.Value, SerializationFormat.Default, additionalPropertiesProperty.WireInfo?.SerializedName ?? additionalPropertiesProperty.Name),
                 };
-                statements[i] = forEachStatement;
+                statements[i] = ExperimentalApiHelpers.Suppress(forEachStatement,
+                    ExperimentalApiHelpers.GetMemberSuppressions(additionalPropertiesProperty));
             }
 
             return statements;
