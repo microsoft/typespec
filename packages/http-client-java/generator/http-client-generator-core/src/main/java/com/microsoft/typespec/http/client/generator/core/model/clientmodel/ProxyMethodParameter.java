@@ -235,15 +235,13 @@ public class ProxyMethodParameter extends MethodParameter {
      * implementations.
      */
     public void addImportsTo(Set<String> imports, boolean includeImplementationImports, JavaSettings settings) {
-        if (getRequestParameterLocation()
-            != RequestParameterLocation.NONE/* && getRequestParameterLocation() != RequestParameterLocation.FormData */) {
-            if (settings.isAzureV1()) {
-                imports.add(String.format("%1$s.annotation.%2$sParam", ExternalPackage.CORE.getPackageName(),
-                    CodeNamer.toPascalCase(getRequestParameterLocation().toString())));
-            } else {
-                imports.add(String.format("%1$s.http.annotations.%2$sParam", ExternalPackage.CORE.getPackageName(),
-                    CodeNamer.toPascalCase(getRequestParameterLocation().toString())));
-            }
+        if (getRequestParameterLocation() != RequestParameterLocation.NONE/*
+                                                                           * && getRequestParameterLocation() !=
+                                                                           * RequestParameterLocation.FormData
+                                                                           */
+            && settings.isAzureV1()) {
+            imports.add(String.format("%1$s.annotation.%2$sParam", ExternalPackage.CORE.getPackageName(),
+                CodeNamer.toPascalCase(getRequestParameterLocation().toString())));
         }
         if (getRequestParameterLocation() != RequestParameterLocation.BODY) {
             if (getClientType() == ArrayType.BYTE_ARRAY) {
