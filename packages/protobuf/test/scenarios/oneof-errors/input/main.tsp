@@ -102,3 +102,18 @@ model WrapperArrayVariant {
 model WrapperValueVariant {
   @field(1) payment: ValueVariant;
 }
+
+union QuotedVariant {
+  @field(1) `card payment`: A,
+  @field(2) bank: B,
+}
+
+@message
+model QuotedOneOfName {
+  `payment-method`?: Valid;
+}
+
+@message
+model QuotedVariantName {
+  payment?: QuotedVariant;
+}

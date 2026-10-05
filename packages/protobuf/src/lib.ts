@@ -95,6 +95,8 @@ export const TypeSpecProtobufLibrary = createTypeSpecLibrary({
         "unnamed-variant": "every variant of a union emitted as a oneof must be named",
         "repeated-variant": paramMessage`oneof member '${"name"}' cannot be an array, because Protobuf does not allow repeated fields in a oneof`,
         "map-variant": paramMessage`oneof member '${"name"}' cannot be a map, because Protobuf does not allow map fields in a oneof`,
+        "invalid-name": paramMessage`oneof name '${"name"}' is not a valid Protobuf identifier (it must start with a letter or '_' and contain only letters, digits, and '_')`,
+        "invalid-member-name": paramMessage`oneof member name '${"name"}' is not a valid Protobuf identifier (it must start with a letter or '_' and contain only letters, digits, and '_')`,
       },
     },
     "root-operation": {

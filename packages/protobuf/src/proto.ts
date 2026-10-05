@@ -56,6 +56,11 @@ const IMPLEMENTATION_RESERVED_RANGE = [19000, 19999] as const;
 export const PROTO_FULL_IDENT = /^[a-zA-Z_][a-zA-Z0-9_]*(?:\.[a-zA-Z_][a-zA-Z0-9_]*)*$/;
 
 /**
+ * A single Protobuf `ident`, such as a field or `oneof` name. See {@link PROTO_FULL_IDENT}.
+ */
+export const PROTO_IDENT = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
+
+/**
  * Decorate an interface as a service, indicating that it represents a Protobuf `service` declaration.
  *
  * @param ctx - decorator context

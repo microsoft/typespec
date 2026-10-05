@@ -9,3 +9,5 @@
 /test/main.tsp:48:7 - error @typespec/protobuf/invalid-oneof: union Empty must have at least one variant to be emitted as a oneof
 /test/main.tsp:44:13 - error @typespec/protobuf/invalid-oneof: oneof member 'items' cannot be an array, because Protobuf does not allow repeated fields in a oneof
 /test/main.tsp:51:13 - error @typespec/protobuf/field-name: name 'value' is already used by another field or oneof in this message
+/test/main.tsp:113:3 - error @typespec/protobuf/invalid-oneof: oneof name 'payment-method' is not a valid Protobuf identifier (it must start with a letter or '_' and contain only letters, digits, and '_')
+/test/main.tsp:107:13 - error @typespec/protobuf/invalid-oneof: oneof member name 'card payment' is not a valid Protobuf identifier (it must start with a letter or '_' and contain only letters, digits, and '_')

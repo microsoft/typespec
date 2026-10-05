@@ -54,7 +54,7 @@ import { map, matchType, ref, scalar, StreamingMode, unreachable } from "../ast.
 import type { ProtobufEmitterOptions } from "../lib.js";
 import { reportDiagnostic, state } from "../lib.js";
 import type { Reservation } from "../proto.js";
-import { $field, isMap } from "../proto.js";
+import { $field, isMap, PROTO_IDENT } from "../proto.js";
 import { writeProtoFile } from "../write.js";
 
 // Cache for scalar -> ProtoScalar map
@@ -1085,6 +1085,15 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
       });
     }
 
+    if (!PROTO_IDENT.test(property.name)) {
+      reportDiagnostic(program, {
+        code: "invalid-oneof",
+        messageId: "invalid-name",
+        format: { name: property.name },
+        target: getPropertyNameSyntaxTarget(property),
+      });
+    }
+
     scope.declareOneOf(property.name, getPropertyNameSyntaxTarget(property));
 
     return {
@@ -1139,6 +1148,15 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
       }
 
       const index = program.stateMap(state.fieldIndex).get(variant) as number | undefined;
+
+      if (report && !PROTO_IDENT.test(variant.name)) {
+        reportDiagnostic(program, {
+          code: "invalid-oneof",
+          messageId: "invalid-member-name",
+          format: { name: variant.name },
+          target: variant,
+        });
+      }
 
       if (report && index === undefined) {
         reportDiagnostic(program, {

@@ -169,6 +169,7 @@ Neither form guarantees that exactly one member is set. A `oneof` holds _at most
 The following rules apply:
 
 - Anonymous unions (such as `CardPayment | BankTransfer`) and unnamed variants are not supported, because every `oneof` member needs a name.
+- The names of an inline `oneof` (the property name) and of its members (the variant names) must be valid Protobuf identifiers, so quoted names such as `"payment-method"` are rejected.
 - A property emitted as an inline `oneof` must be optional, because a `oneof` may have no member set.
 - Variants cannot be arrays or maps, because Protobuf does not allow `repeated` or `map` fields in a `oneof`.
 - Field indices and names of `oneof` members must not collide with other fields of the same message (including members of other `oneof`s) or with the message's `@reserve` declarations. A union used inline by several models is validated separately for each of them.
