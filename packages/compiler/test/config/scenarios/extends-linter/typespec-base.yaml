@@ -1,0 +1,7 @@
+linter:
+  extends:
+    - test/all
+  enable:
+    test/base-rule: true
+  disable:
+    test/replaced-rule: Base exemption
