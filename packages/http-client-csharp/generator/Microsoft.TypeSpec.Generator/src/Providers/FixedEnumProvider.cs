@@ -38,8 +38,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         internal IReadOnlyList<InputEnumTypeValue> AllowedValues { get; }
 
-        private protected override bool IsCustomizedValueName(string name, EnumCustomization customization) =>
-            customization.SuppressedNames.Contains(name) || customization.ContainsName(name, isField: true);
+        private protected override bool IsCustomizedValueName(string name) =>
+            base.IsCustomizedValueName(name) ||
+            CustomCodeView?.Fields.Any(f => f.Name == name || f.OriginalName == name) == true;
 
         protected override TypeProvider? BuildDeclaringTypeProvider() => _declaringTypeProvider;
         private readonly TypeProvider? _declaringTypeProvider;
@@ -79,8 +80,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var customMembers = new HashSet<FieldProvider>(CustomCodeView?.Fields ?? []);
             var lastContractFields = LastContractView?.Fields ?? [];
             var lastContractNames = lastContractFields.Select(f => f.Name).ToArray();
-            var customization = new EnumCustomization(this);
-            var generatedNames = GetGeneratedValueNames(AllowedValues, lastContractNames, customization);
+            var generatedNames = GetGeneratedValueNames(AllowedValues, lastContractNames);
 
             var values = new EnumTypeMember[AllowedValues.Count];
 
@@ -89,7 +89,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 var inputValue = AllowedValues[i];
                 var modifiers = FieldModifiers.Public | FieldModifiers.Static;
                 // the fields for fixed enums are just its members (we use fields to represent the values in a system `enum` type), we just use the name for this field
-                var name = GetBackCompatibleName(generatedNames[i], generatedNames, lastContractNames, inputValue.IsExactName, customization);
+                var name = GetBackCompatibleName(generatedNames[i], generatedNames, lastContractNames, inputValue.IsExactName);
 
                 // check if the enum member was renamed in custom code
                 string? customMemberName = null;
@@ -213,8 +213,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     .Select(f => f.OriginalName!) ?? [],
                 StringComparer.Ordinal);
             var lastContractNames = lastContractFields.Select(f => f.Name).ToArray();
-            var customization = new EnumCustomization(this);
-            var generatedNames = GetGeneratedValueNames(AllowedValues, lastContractNames, customization);
+            var generatedNames = GetGeneratedValueNames(AllowedValues, lastContractNames);
             var customMemberLastContractNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
             for (int i = 0; i < generatedNames.Length; i++)
@@ -222,7 +221,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 if (customOriginalNames.Contains(generatedNames[i]))
                 {
                     customMemberLastContractNames.Add(
-                        GetBackCompatibleName(generatedNames[i], generatedNames, lastContractNames, AllowedValues[i].IsExactName, customization));
+                        GetBackCompatibleName(generatedNames[i], generatedNames, lastContractNames, AllowedValues[i].IsExactName));
                 }
             }
 
