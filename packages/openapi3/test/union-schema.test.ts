@@ -294,6 +294,44 @@ worksFor(supportedVersions, ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) =
       }
     });
 
+    it("default variant with an enum member discriminator encoded as an empty string is mapped", async () => {
+      const res = await openApiFor(
+        `
+        @discriminated(#{discriminatorPropertyName: "taxonomic_family", envelope: "none"})
+        union Animal {
+          Dog,
+          felidae: Cat,
+        }
+
+        enum Family {
+          @encodedName("application/json", "")
+          unclassified,
+        }
+
+        model Dog {
+          taxonomic_family: Family.unclassified;
+        }
+
+        model Cat {
+          taxonomic_family: "felidae";
+        }
+
+        op read(): { @body body: Animal };
+        `,
+      );
+
+      if (res.openapi === "3.0.0" || res.openapi === "3.1.0") {
+        deepStrictEqual(res.components.schemas.Animal.discriminator.mapping, {
+          felidae: "#/components/schemas/Cat",
+          "": "#/components/schemas/Dog",
+        });
+      } else {
+        deepStrictEqual(res.components.schemas.Animal.discriminator.mapping, {
+          felidae: "#/components/schemas/Cat",
+        });
+      }
+    });
+
     it("default variant with an enum member discriminator value uses its encoded name", async () => {
       const res = await openApiFor(
         `

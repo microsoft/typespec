@@ -109,3 +109,21 @@ it("uses the json encoded name as the value of a member without a value", async 
   assert.deepStrictEqual(Bar.properties.b, { type: "string", const: "off" });
   assert.strictEqual(Bar.properties.withDefault.default, "on");
 });
+
+it("uses the json encoded name for a reference to a numeric member", async () => {
+  const schemas = await emitSchema(`
+    enum Foo {
+      @encodedName("application/json", "ready")
+      statusReady: 2,
+      plain: 3,
+    }
+
+    model Bar {
+      ready: Foo.statusReady;
+      plain: Foo.plain;
+    }
+  `);
+  const Bar = schemas["Bar.json"];
+  assert.deepStrictEqual(Bar.properties.ready, { type: "string", const: "ready" });
+  assert.deepStrictEqual(Bar.properties.plain, { type: "number", const: 3 });
+});

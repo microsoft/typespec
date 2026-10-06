@@ -105,6 +105,26 @@ worksFor(supportedVersions, ({ diagnoseOpenApiFor, oapiForModel }) => {
       deepStrictEqual(res.schemas.Foo.properties.status, { type: "string", enum: ["on"] });
     });
 
+    it("uses the encoded name for a property typed as a numeric member", async () => {
+      const res = await oapiForModel(
+        "Foo",
+        `
+        model Foo {
+          ready: Status.statusReady;
+          plain: Status.plain;
+        }
+        enum Status {
+          @encodedName("application/json", "ready")
+          statusReady: 2,
+          @encodedName("application/json", "basic")
+          plain: 3,
+        }
+        `,
+      );
+      deepStrictEqual(res.schemas.Foo.properties.ready, { type: "string", enum: ["ready"] });
+      deepStrictEqual(res.schemas.Foo.properties.plain, { type: "string", enum: ["basic"] });
+    });
+
     it("uses the encoded name for a default value", async () => {
       const res = await oapiForModel(
         "Foo",
