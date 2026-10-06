@@ -46,6 +46,9 @@
     "lint:fix": "oxlint . --fix",
     "regen-docs": "tspd doc .  --enable-experimental --llmstxt --output-dir ../../website/src/content/docs/docs/emitters/protobuf/reference"
   },
+  "dependencies": {
+    "change-case": "catalog:"
+  },
   "peerDependencies": {
     "@typespec/compiler": "workspace:^"
   },

@@ -255,6 +255,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     name: fieldName,
                     enclosingType: this,
                     initializationValue: Static(enumProvider.Type).Property(enumProvider.EnumValues[^1].Name));
+                field.Update(suppressions: ExperimentalApiHelpers.GetMemberSuppressions(enumProvider.EnumValues[^1].Field));
 
                 latestVersionFields.Add(field, enumProvider);
             }
@@ -387,7 +388,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
 
                 switchCases.Add(SwitchCaseExpression.Default(ThrowExpression(New.NotSupportedException(ValueExpression.Empty))));
-                constructorBody.Add(versionProperty.Assign(new SwitchExpression(versionParam, [.. switchCases])).Terminate());
+                constructorBody.Add(ExperimentalApiHelpers.Suppress(
+                    versionProperty.Assign(new SwitchExpression(versionParam, [.. switchCases])).Terminate(),
+                    enumValues.SelectMany(member => ExperimentalApiHelpers.GetMemberSuppressions(member.Field))));
             }
 
             var constructor = new ConstructorProvider(
@@ -460,7 +463,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     sectionParam,
                     property.Name,
                     property.Name.ToVariableName(),
-                    property.Type);
+                    property.Type,
+                    suppressions: property.Suppressions);
             }
 
             // Also bind custom code properties (e.g., hand-written properties added via partial classes)
@@ -530,7 +534,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         type,
                         p.Name.ToIdentifierName(),
                         new AutoPropertyBody(true),
-                        this));
+                        this,
+                        suppressions: ExperimentalApiHelpers.GetReferenceSuppressions(p.Type)));
                 }
             }
 

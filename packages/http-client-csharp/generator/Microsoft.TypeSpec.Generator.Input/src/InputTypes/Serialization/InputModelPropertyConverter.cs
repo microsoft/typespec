@@ -68,6 +68,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             string? encodeString = null;
             bool isExactName = false;
             IReadOnlyList<string>? apiVersions = null;
+            InputExperimentalDetails? experimental = null;
 
             while (reader.TokenType != JsonTokenType.EndObject)
             {
@@ -84,6 +85,7 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadString("access", ref access)
                     || reader.TryReadBoolean("discriminator", ref isDiscriminator)
                     || reader.TryReadComplexType("decorators", options, ref decorators)
+                    || reader.TryReadComplexType("experimental", options, ref experimental)
                     || reader.TryReadString("serializedName", ref serializedName)
                     || reader.TryReadBoolean("isApiVersion", ref isApiVersion)
                     || reader.TryReadComplexType("defaultValue", options, ref defaultValue)
@@ -114,6 +116,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             property.Encode = Enum.TryParse<ArrayKnownEncoding>(encodeString, ignoreCase: true, out var encode) ? encode : null;
             property.IsExactName = isExactName;
             property.ApiVersions = apiVersions ?? [];
+            property.Experimental = experimental;
 
             return property;
         }
