@@ -153,18 +153,21 @@ namespace Microsoft.TypeSpec.Generator.Providers
             IReadOnlyList<string> lastContractNames)
         {
             var previousNames = inputValues.Select(v => GetGeneratedValueName(v, lastContractNames)).ToArray();
-            var normalizedNames = previousNames.Select((name, i) =>
+            var normalizedNames = new string[previousNames.Length];
+            for (int i = 0; i < previousNames.Length; i++)
             {
+                var name = previousNames[i];
                 if (inputValues[i].IsExactName || IsCustomizedValueName(name))
                 {
-                    return name;
+                    normalizedNames[i] = name;
+                    continue;
                 }
 
                 var normalizedName = name.NormalizeCSharpAcronyms();
-                return lastContractNames.Contains(name, StringComparer.Ordinal) && !IsCustomizedValueName(normalizedName)
+                normalizedNames[i] = lastContractNames.Contains(name, StringComparer.Ordinal) && !IsCustomizedValueName(normalizedName)
                     ? name
                     : normalizedName;
-            }).ToArray();
+            }
             var previousNameSet = new HashSet<string>(
                 IsExtensible ? previousNames.SelectMany(n => new[] { n, n + "Value" }) : previousNames,
                 StringComparer.Ordinal);
