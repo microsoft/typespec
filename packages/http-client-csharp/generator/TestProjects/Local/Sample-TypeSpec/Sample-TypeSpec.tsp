@@ -201,7 +201,6 @@ model ModelWithRequiredNullableProperties {
   requiredFixedEnum: StringFixedEnum | null;
 
   fixedUnion?: StringFixedUnion;
-
   numericEnum?: IntFixedEnum;
 }
 
