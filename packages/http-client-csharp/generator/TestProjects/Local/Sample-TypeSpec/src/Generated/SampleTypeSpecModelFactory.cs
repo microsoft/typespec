@@ -656,5 +656,19 @@ namespace SampleTypeSpec
 
             return new OptionalNullableFieldNames(additionalStringProperties, additionalStringPropertiesIsDefined, additionalProperties, additionalBinaryDataProperties: null);
         }
+
+        /// <summary> The UnionAdditionalProperties. </summary>
+        /// <param name="additionalProperties"></param>
+        /// <param name="additionalInt32Properties"></param>
+        /// <param name="additionalBooleanProperties"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.UnionAdditionalProperties"/> instance for mocking. </returns>
+        public static UnionAdditionalProperties UnionAdditionalProperties(IDictionary<string, string> additionalProperties = default, IDictionary<string, int> additionalInt32Properties = default, IDictionary<string, bool> additionalBooleanProperties = default)
+        {
+            additionalProperties ??= new ChangeTrackingDictionary<string, string>();
+            additionalInt32Properties ??= new ChangeTrackingDictionary<string, int>();
+            additionalBooleanProperties ??= new ChangeTrackingDictionary<string, bool>();
+
+            return new UnionAdditionalProperties(additionalProperties, additionalInt32Properties, additionalBooleanProperties, additionalBinaryDataProperties: null);
+        }
     }
 }

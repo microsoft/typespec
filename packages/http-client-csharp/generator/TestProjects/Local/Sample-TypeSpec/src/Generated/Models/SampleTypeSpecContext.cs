@@ -42,6 +42,7 @@ namespace SampleTypeSpec
     [ModelReaderWriterBuildable(typeof(StreamingItem))]
     [ModelReaderWriterBuildable(typeof(Thing))]
     [ModelReaderWriterBuildable(typeof(Tree))]
+    [ModelReaderWriterBuildable(typeof(UnionAdditionalProperties))]
     [ModelReaderWriterBuildable(typeof(Wrapper))]
     [ModelReaderWriterBuildable(typeof(XmlAdvancedModel))]
     [ModelReaderWriterBuildable(typeof(XmlItem))]

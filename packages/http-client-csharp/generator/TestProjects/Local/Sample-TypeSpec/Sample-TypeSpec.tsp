@@ -451,6 +451,10 @@ model OptionalNullableFieldNames extends Record<string | null> {
   additionalStringPropertiesIsDefined?: string | null;
 }
 
+@usage(Usage.input | Usage.output | Usage.json)
+@access(Access.public)
+model UnionAdditionalProperties extends Record<string | int32 | boolean | null> {}
+
 @nsDeclarations
 enum XmlNamespaces {
   ns1: "https://example.com/ns1",

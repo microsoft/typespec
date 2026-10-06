@@ -75,6 +75,32 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             StringAssert.DoesNotContain(".Add(prop.Name", valueKindCode);
         }
 
+        [Test]
+        public void TypedAdditionalPropertiesUnionKeepsKeysInSingleDictionary()
+        {
+            var inputModel = InputFactory.Model("TestModel",
+                additionalProperties: new InputUnionType("union",
+                [
+                    InputPrimitiveType.String,
+                    new InputNullableType(InputPrimitiveType.Int32),
+                    new InputNullableType(InputPrimitiveType.Boolean)
+                ]));
+            MockHelpers.LoadMockGenerator(inputModels: () => [inputModel]);
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
+            var serialization = (MrwSerializationTypeDefinition)model.SerializationProviders.Single();
+            var loop = serialization.BuildDeserializationMethod().BodyStatements!.OfType<ForEachStatement>().Single();
+            var valueKindSwitch = loop.Body.SelectMany(statement => statement).OfType<SwitchStatement>().Single();
+
+            Assert.That(valueKindSwitch.Cases, Has.Count.EqualTo(4));
+            foreach (var @case in valueKindSwitch.Cases)
+            {
+                var caseCode = @case.Statement.ToDisplayString();
+                Assert.That(caseCode.Split(".Remove(prop.Name);").Length - 1, Is.EqualTo(2), caseCode);
+                Assert.That(caseCode.IndexOf(".Remove(prop.Name);", StringComparison.Ordinal),
+                    Is.LessThan(caseCode.IndexOf("[prop.Name] =", StringComparison.Ordinal)), caseCode);
+            }
+        }
+
         [TestCaseSource(nameof(NullableAdditionalPropertiesTestCases))]
         public void NullableAdditionalPropertiesSerializeNull(InputType valueType, bool isNullable)
         {

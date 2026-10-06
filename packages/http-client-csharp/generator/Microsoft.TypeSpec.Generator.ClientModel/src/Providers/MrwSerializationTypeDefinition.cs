@@ -1245,6 +1245,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             List<MethodBodyStatement> propertyDeserializationStatements = [];
             Dictionary<JsonValueKind, List<MethodBodyStatement>> additionalPropsValueKindBodyStatements = [];
             var parameters = SerializationConstructor.Signature.Parameters;
+            var typedAdditionalProperties = new List<PropertyProvider>();
+            foreach (var parameter in parameters)
+            {
+                if (parameter.Property is { IsAdditionalProperties: true } property &&
+                    property != _additionalBinaryDataProperty.Value)
+                {
+                    typedAdditionalProperties.Add(property);
+                }
+            }
 
             // Get the custom serialization attributes
             var serializationAttributes = GetSerializationAttributes();
@@ -1258,7 +1267,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     // handle additional properties
                     if (parameter.Property != null && parameter.Property != _additionalBinaryDataProperty.Value && parameter.Property.IsAdditionalProperties)
                     {
-                        AddAdditionalPropertiesValueKindStatements(additionalPropsValueKindBodyStatements, parameter.Property, jsonProperty);
+                        AddAdditionalPropertiesValueKindStatements(
+                            additionalPropsValueKindBodyStatements,
+                            parameter.Property,
+                            typedAdditionalProperties,
+                            jsonProperty);
                         continue;
                     }
 
@@ -1345,6 +1358,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private void AddAdditionalPropertiesValueKindStatements(
             Dictionary<JsonValueKind, List<MethodBodyStatement>> additionalPropsValueKindBodyStatements,
             PropertyProvider additionalPropertiesProperty,
+            IReadOnlyList<PropertyProvider> typedAdditionalProperties,
             ScopedApi<JsonProperty> jsonProperty)
         {
             DictionaryExpression additionalPropsDict = additionalPropertiesProperty.AsVariableExpression.AsDictionary(additionalPropertiesProperty.Type);
@@ -1563,7 +1577,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             MethodBodyStatement AssignValue(ValueExpression value)
-                => additionalPropsDict[jsonProperty.Name()].Assign(value).Terminate();
+            {
+                var statements = new List<MethodBodyStatement>(typedAdditionalProperties.Count);
+                foreach (var property in typedAdditionalProperties)
+                {
+                    if (!ReferenceEquals(property, additionalPropertiesProperty))
+                    {
+                        statements.Add(property.AsVariableExpression
+                            .AsDictionary(property.Type)
+                            .Invoke(nameof(Dictionary<object, object>.Remove), jsonProperty.Name())
+                            .Terminate());
+                    }
+                }
+                statements.Add(additionalPropsDict[jsonProperty.Name()].Assign(value).Terminate());
+                return statements;
+            }
         }
 
         private static SwitchStatement CreateDeserializeAdditionalPropsValueKindCheck(

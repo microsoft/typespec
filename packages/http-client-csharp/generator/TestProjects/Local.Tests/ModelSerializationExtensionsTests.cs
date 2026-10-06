@@ -180,6 +180,57 @@ namespace TestProjects.Local.Tests
             }
         }
 
+        [TestCaseSource(nameof(DuplicateUnionAdditionalPropertiesTestCases))]
+        public void UnionAdditionalProperties_DuplicatePropertiesUseLastValue(
+            string json,
+            string expectedJson,
+            JsonValueKind expectedKind,
+            string readFormat,
+            string writeFormat,
+            JsonTokenType? readerToken)
+        {
+            var model = ReadJsonModel(json, readFormat, readerToken, new UnionAdditionalProperties());
+
+            Assert.That(
+                model.AdditionalProperties.Count +
+                model.AdditionalInt32Properties.Count +
+                model.AdditionalBooleanProperties.Count,
+                Is.EqualTo(1));
+            Assert.That(model.AdditionalProperties.ContainsKey("extra"), Is.EqualTo(expectedKind == JsonValueKind.String));
+            Assert.That(model.AdditionalInt32Properties.ContainsKey("extra"), Is.EqualTo(expectedKind == JsonValueKind.Number));
+            Assert.That(model.AdditionalBooleanProperties.ContainsKey("extra"), Is.EqualTo(expectedKind is JsonValueKind.True or JsonValueKind.False));
+            AssertModelJson(model, expectedJson, writeFormat);
+        }
+
+        private static IEnumerable<TestCaseData> DuplicateUnionAdditionalPropertiesTestCases
+        {
+            get
+            {
+                (string Json, string ExpectedJson, JsonValueKind ExpectedKind)[] duplicateCases =
+                [
+                    ("""{"extra":"first","extra":1}""", """{"extra":1}""", JsonValueKind.Number),
+                    ("""{"extra":1,"extra":"last"}""", """{"extra":"last"}""", JsonValueKind.String),
+                    ("""{"extra":"first","extra":true}""", """{"extra":true}""", JsonValueKind.True),
+                    ("""{"extra":true,"extra":"last"}""", """{"extra":"last"}""", JsonValueKind.String),
+                    ("""{"extra":1,"extra":false}""", """{"extra":false}""", JsonValueKind.False),
+                    ("""{"extra":false,"extra":1}""", """{"extra":1}""", JsonValueKind.Number)
+                ];
+                foreach (var (json, expectedJson, expectedKind) in duplicateCases)
+                {
+                    foreach (var readFormat in new[] { "W", "J" })
+                    {
+                        foreach (var writeFormat in new[] { "W", "J" })
+                        {
+                            foreach (var readerToken in new JsonTokenType?[] { null, JsonTokenType.None, JsonTokenType.StartObject })
+                            {
+                                yield return new TestCaseData(json, expectedJson, expectedKind, readFormat, writeFormat, readerToken);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         [Test]
         public void OptionalNullableProperties_PublicPropertyTypesAreUnchanged()
         {
@@ -573,12 +624,20 @@ namespace TestProjects.Local.Tests
             string json,
             string format,
             JsonTokenType? readerToken)
+            => ReadJsonModel(json, format, readerToken, new OptionalNullableFieldNames());
+
+        private static T ReadJsonModel<T>(
+            string json,
+            string format,
+            JsonTokenType? readerToken,
+            T model)
+            where T : IJsonModel<T>
         {
             var data = BinaryData.FromString(json);
             var options = new ModelReaderWriterOptions(format);
             if (readerToken is not { } token)
             {
-                return ModelReaderWriter.Read<OptionalNullableFieldNames>(data, options, SampleTypeSpecContext.Default)!;
+                return ModelReaderWriter.Read<T>(data, options, SampleTypeSpecContext.Default)!;
             }
 
             var reader = new Utf8JsonReader(data.ToMemory().Span);
@@ -587,7 +646,7 @@ namespace TestProjects.Local.Tests
                 Assert.That(reader.Read(), Is.True);
             }
             Assert.That(reader.TokenType, Is.EqualTo(token));
-            var model = ((IJsonModel<OptionalNullableFieldNames>)new OptionalNullableFieldNames()).Create(ref reader, options)!;
+            model = model.Create(ref reader, options)!;
             Assert.That(reader.TokenType, Is.EqualTo(JsonTokenType.EndObject));
             Assert.That(reader.BytesConsumed, Is.EqualTo(data.ToMemory().Length));
             Assert.That(reader.Read(), Is.False);
