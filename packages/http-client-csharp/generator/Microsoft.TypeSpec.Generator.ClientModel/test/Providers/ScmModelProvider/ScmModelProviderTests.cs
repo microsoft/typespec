@@ -317,6 +317,33 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
             Assert.That(ScmModel.GetNullablePropertyPresence(property)!.Name, Is.EqualTo("_textIsDefined3"));
         }
 
+        [Test]
+        public async Task OptionalNullableFieldsDoNotCollideWithCustomProperties()
+        {
+            var baseModel = InputFactory.Model("baseModel");
+            var middleModel = InputFactory.Model("middleModel", baseModel: baseModel);
+            var derivedModel = InputFactory.Model("model", baseModel: middleModel, properties:
+                [InputFactory.Property("text", new InputNullableType(InputPrimitiveType.String))]);
+            var customCompilation = await Helpers.GetCompilationFromDirectoryAsync();
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [baseModel, middleModel, derivedModel],
+                compilation: () => Task.FromResult(customCompilation));
+            var generator = ScmCodeModelGenerator.Instance;
+            var model = (ScmModel)generator.TypeFactory.CreateModel(derivedModel)!;
+            var generatedTrees = new[] { baseModel, middleModel, derivedModel }
+                .Select(input => generator.TypeFactory.CreateModel(input)!)
+                .Select(provider => CSharpSyntaxTree.ParseText(new TypeProviderWriter(provider).Write().Content))
+                .ToArray();
+            var compilation = customCompilation.AddSyntaxTrees(generatedTrees);
+
+            Assert.That(compilation.GetDiagnostics().Where(diagnostic =>
+                diagnostic.Severity == DiagnosticSeverity.Error &&
+                generatedTrees.Contains(diagnostic.Location.SourceTree)), Is.Empty);
+            var property = model.Properties.Single();
+            Assert.That(property.BackingField!.Name, Is.EqualTo("_text2"));
+            Assert.That(ScmModel.GetNullablePropertyPresence(property)!.Name, Is.EqualTo("_textIsDefined2"));
+        }
+
         [TestCase("URL", "_url", "_urlIsDefined")]
         [TestCase("IPAddress", "_ipAddress", "_ipAddressIsDefined")]
         [TestCase("class", "_class", "_classIsDefined")]

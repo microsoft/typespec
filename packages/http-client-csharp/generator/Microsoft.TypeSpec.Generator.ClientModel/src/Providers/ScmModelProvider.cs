@@ -215,10 +215,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private (Dictionary<PropertyProvider, FieldProvider> BackingFields, HashSet<string> ReservedNames) BuildNullablePropertyFields(PropertyProvider[] properties)
         {
             var baseFields = base.BuildFields();
+            var baseModels = GetPresenceBaseModels();
             var reservedNames = new HashSet<string>(properties.Select(p => p.Name));
             reservedNames.UnionWith(baseFields.Select(f => f.Name));
             reservedNames.UnionWith(CustomCodeView?.Fields.Select(f => f.Name) ?? []);
-            reservedNames.UnionWith(GetPresenceBaseModels().SelectMany(m => m.CanonicalView.Fields.Select(f => f.Name)));
+            reservedNames.UnionWith(CustomCodeView?.Properties.Select(p => p.Name) ?? []);
+            reservedNames.UnionWith(baseModels.SelectMany(m => m.CanonicalView.Fields.Select(f => f.Name)));
+            reservedNames.UnionWith(baseModels.SelectMany(m => m.CustomCodeView?.Properties.Select(p => p.Name) ?? []));
             if (JsonPatchField != null)
             {
                 reservedNames.Add(JsonPatchField.Name);
