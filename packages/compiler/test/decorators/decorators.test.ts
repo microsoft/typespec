@@ -15,6 +15,7 @@ import {
   getPatternData,
   getReturnsDoc,
   isErrorModel,
+  resolveEncodedEnumMemberValue,
   resolveEncodedName,
   setMediaTypeHint,
 } from "../../src/lib/decorators.js";
@@ -1454,6 +1455,59 @@ describe("@encodedName", () => {
     const active = Extended.members.get("active")!;
     strictEqual(active.enum, Extended);
     strictEqual(resolveEncodedName(program, active, "application/json"), "on");
+  });
+});
+
+describe("resolveEncodedEnumMemberValue", () => {
+  it("prefers the encoded name over an explicit value", async () => {
+    const { statusReady, program } = await Tester.compile(t.code`
+        enum Status {
+          @encodedName("application/json", "ready")
+          ${t.enumMember("statusReady")}: 2,
+        }
+      `);
+    strictEqual(resolveEncodedEnumMemberValue(program, statusReady, "application/json"), "ready");
+  });
+
+  it("falls back to the json encoded name for a json-based mime type", async () => {
+    const { statusReady, program } = await Tester.compile(t.code`
+        enum Status {
+          @encodedName("application/json", "ready")
+          ${t.enumMember("statusReady")}: 2,
+        }
+      `);
+    strictEqual(
+      resolveEncodedEnumMemberValue(program, statusReady, "application/merge-patch+json"),
+      "ready",
+    );
+  });
+
+  it("keeps the explicit value when no encoded name applies to the mime type", async () => {
+    const { statusReady, program } = await Tester.compile(t.code`
+        enum Status {
+          @encodedName("application/json", "ready")
+          ${t.enumMember("statusReady")}: 2,
+        }
+      `);
+    strictEqual(resolveEncodedEnumMemberValue(program, statusReady, "application/xml"), 2);
+  });
+
+  it("keeps an explicit zero value", async () => {
+    const { none, program } = await Tester.compile(t.code`
+        enum Status {
+          ${t.enumMember("none")}: 0,
+        }
+      `);
+    strictEqual(resolveEncodedEnumMemberValue(program, none, "application/json"), 0);
+  });
+
+  it("falls back to the member name", async () => {
+    const { active, program } = await Tester.compile(t.code`
+        enum Status {
+          ${t.enumMember("active")},
+        }
+      `);
+    strictEqual(resolveEncodedEnumMemberValue(program, active, "application/json"), "active");
   });
 });
 

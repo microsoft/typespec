@@ -741,6 +741,32 @@ it("handles non-integer numeric enums", async () => {
   );
 });
 
+it("types a non-integer enum whose members are all encoded as the enum", async () => {
+  await compileAndValidateMultiple(
+    tester,
+    `
+      /** A ratio */
+      enum Ratio {
+        /** half */
+        @encodedName("application/json", "half")
+        Half: 0.5,
+        /** quarter */
+        @encodedName("application/json", "quarter")
+        Quarter: 0.25,
+      }
+      /** A simple test model*/
+      model Foo {
+        /** enum */
+        ratioProp: Ratio;
+      }
+      `,
+    [
+      ["Foo.cs", ["public partial class Foo", `public Ratio RatioProp { get; set; }`]],
+      ["Ratio.cs", [`[JsonStringEnumMemberName("half")]`, `[JsonStringEnumMemberName("quarter")]`]],
+    ],
+  );
+});
+
 it("handles extensible enums and discriminators for inheritance", async () => {
   await compileAndValidateMultiple(
     tester,

@@ -278,14 +278,13 @@ describe("Enum Type Detection", () => {
     const output = getOutput(program, [<EnumDeclaration type={Mixed} />]);
 
     expect(output).toRenderTo(d`
-      from enum import auto
       from enum import Enum
 
 
       class Mixed(Enum):
           STRING_VALUE = "hello"
           NUMERIC_VALUE = 42
-          AUTO_VALUE = auto()
+          AUTO_VALUE = "autoValue"
       
       
     `);
@@ -302,16 +301,60 @@ describe("Enum Type Detection", () => {
     const output = getOutput(program, [<EnumDeclaration type={EnumWithoutValues} />]);
 
     expect(output).toRenderTo(d`
-      from enum import auto
-      from enum import Enum
+      from enum import StrEnum
 
 
-      class EnumWithoutValues(Enum):
-          SOME_VALUE = auto()
-          ANOTHER_VALUE = auto()
-          YET_ANOTHER_VALUE = auto()
+      class EnumWithoutValues(StrEnum):
+          SOME_VALUE = "someValue"
+          ANOTHER_VALUE = "anotherValue"
+          YET_ANOTHER_VALUE = "yetAnotherValue"
       
       
+    `);
+  });
+
+  it("uses the json encoded name as the member value", async () => {
+    const { program, Status } = await Tester.compile(t.code`
+      enum ${t.enum("Status")} {
+        @encodedName("application/json", "ready")
+        statusReady: 2,
+        @encodedName("application/json", "done")
+        statusDone: 3,
+      }
+    `);
+    const output = getOutput(program, [<EnumDeclaration type={Status} />]);
+
+    expect(output).toRenderTo(d`
+      from enum import StrEnum
+
+
+      class Status(StrEnum):
+          STATUS_READY = "ready"
+          STATUS_DONE = "done"
+
+
+    `);
+  });
+
+  it("gives every member its json value once one member has an encoded name", async () => {
+    const { program, Status } = await Tester.compile(t.code`
+      enum ${t.enum("Status")} {
+        @encodedName("application/json", "on")
+        active,
+        inactive,
+      }
+    `);
+    const output = getOutput(program, [<EnumDeclaration type={Status} />]);
+
+    expect(output).toRenderTo(d`
+      from enum import StrEnum
+
+
+      class Status(StrEnum):
+          ACTIVE = "on"
+          INACTIVE = "inactive"
+
+
     `);
   });
 });

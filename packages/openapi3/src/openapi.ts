@@ -40,6 +40,7 @@ import {
   listServices,
   navigateTypesInNamespace,
   NoTarget,
+  resolveEncodedEnumMemberValue,
   resolvePath,
   sanitizePathSegment,
 } from "@typespec/compiler";
@@ -490,7 +491,8 @@ function createOAPIEmitter(
         return tk.type.isAssignableTo(type, tk.builtin.string, type);
       case "Enum":
         for (const member of type.members.values()) {
-          if (member.value && typeof member.value !== "string") {
+          const value = resolveEncodedEnumMemberValue(program, member, "application/json");
+          if (typeof value !== "string") {
             return false;
           }
         }

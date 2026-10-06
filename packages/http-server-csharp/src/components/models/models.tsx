@@ -1,7 +1,5 @@
 import { code, For, type Children } from "@alloy-js/core";
 import * as cs from "@alloy-js/csharp";
-import { Attribute } from "@alloy-js/csharp";
-import { Serialization } from "@alloy-js/csharp/global/System/Text/Json";
 import {
   isErrorModel,
   isVoidType,
@@ -14,7 +12,7 @@ import { getDocComments, getNullableUnionInnerType } from "@typespec/emitter-fra
 import { isStatusCode } from "@typespec/http";
 import { getUniqueItems } from "@typespec/json-schema";
 import { useEmitterOptions } from "../../context/emitter-options-context.js";
-import { getPropertyAttributes } from "../../utils/attributes.jsx";
+import { getJsonPropertyNameAttribute, getPropertyAttributes } from "../../utils/attributes.jsx";
 import { getSubNamespaceParts } from "../../utils/namespace-utils.js";
 import { CSharpFile } from "../csharp-file.jsx";
 import {
@@ -197,13 +195,10 @@ function ServerProperty(props: ServerPropertyProps): Children {
     }
   }
 
-  // Add JsonPropertyName if the C# name differs from the original TypeSpec name
+  // Add JsonPropertyName if the C# name differs from the json name
   const csharpName = namePolicy.getName(propName, "class-property");
-  if (csharpName !== props.type.name) {
-    attrs.unshift(
-      <Attribute name={Serialization.JsonPropertyNameAttribute} args={[`"${props.type.name}"`]} />,
-    );
-  }
+  const jsonNameAttr = getJsonPropertyNameAttribute($.program, props.type, csharpName);
+  if (jsonNameAttr) attrs.unshift(jsonNameAttr);
 
   // Check if this property overrides a base model property (discriminator pattern)
   const isOverride = props.baseModel ? hasPropertyInChain(props.baseModel, props.type.name) : false;
@@ -232,8 +227,7 @@ function ServerProperty(props: ServerPropertyProps): Children {
   const isLiteralOnly = literalInfo !== undefined && defaultValue === undefined;
 
   // Check if the property type is a non-integer enum (C# enums can only be integers)
-  const isFloatEnum =
-    $.enum.is(propType) && hasNonIntegerValues(propType as import("@typespec/compiler").Enum);
+  const isFloatEnum = $.enum.is(propType) && hasNonIntegerValues($.program, propType);
 
   // For error model properties with literal types, use the scalar base type
   // But not for union variant types — those should resolve to the enum type

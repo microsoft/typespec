@@ -1,6 +1,10 @@
+import { useTsp } from "#core/context/index.js";
 import { type Children, type Refkey } from "@alloy-js/core";
 import * as py from "@alloy-js/python";
-import type { EnumMember as TspEnumMember } from "@typespec/compiler";
+import {
+  resolveEncodedEnumMemberValue,
+  type EnumMember as TspEnumMember,
+} from "@typespec/compiler";
 
 export interface EnumMemberProps {
   type: TspEnumMember;
@@ -9,13 +13,13 @@ export interface EnumMemberProps {
 }
 
 export function EnumMember(props: EnumMemberProps) {
+  const { $ } = useTsp();
   return (
     <py.EnumMember
       doc={props.doc}
       name={props.type.name}
-      jsValue={props.type.value}
+      jsValue={resolveEncodedEnumMemberValue($.program, props.type, "application/json")}
       refkey={props.refkey}
-      auto={props.type.value === undefined}
     />
   );
 }

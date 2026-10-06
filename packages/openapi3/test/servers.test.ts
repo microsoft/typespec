@@ -72,6 +72,43 @@ worksFor(supportedVersions, ({ diagnoseOpenApiFor, openApiFor }) => {
     });
   });
 
+  it("accepts an enum whose numeric members are all encoded as strings", async () => {
+    const res = await openApiFor(
+      `
+      @service(#{title: "My service"})
+      @server("https://{region}.example.com", "Regional account endpoint", {region: Region})
+      namespace MyService {}
+
+      enum Region {
+        @encodedName("application/json", "westus")
+        westUs: 1,
+        @encodedName("application/json", "eastus")
+        eastUs: 2,
+      }
+      `,
+    );
+    deepStrictEqual(res.servers[0].variables.region.enum, ["westus", "eastus"]);
+  });
+
+  it("emit diagnostic when an enum member left unencoded has the value 0", async () => {
+    const diagnostics = await diagnoseOpenApiFor(
+      `
+      @service(#{title: "My service"})
+      @server("https://{region}.example.com", "Regional account endpoint", {region: Region})
+      namespace MyService {}
+
+      enum Region {
+        @encodedName("application/json", "westus")
+        westUs: 1,
+        eastUs: 0,
+      }
+      `,
+    );
+    expectDiagnostics(diagnostics, {
+      code: "@typespec/openapi3/invalid-server-variable",
+    });
+  });
+
   it("emit diagnostic when parameter is a union of non string types", async () => {
     const diagnostics = await diagnoseOpenApiFor(
       `

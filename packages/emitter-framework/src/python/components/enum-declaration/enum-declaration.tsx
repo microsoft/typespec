@@ -1,7 +1,13 @@
 import { useTsp } from "#core/context/index.js";
 import { For, Prose } from "@alloy-js/core";
 import * as py from "@alloy-js/python";
-import type { Enum, EnumMember as TspEnumMember, Union } from "@typespec/compiler";
+import {
+  resolveEncodedEnumMemberValue,
+  type Enum,
+  type Program,
+  type EnumMember as TspEnumMember,
+  type Union,
+} from "@typespec/compiler";
 import { reportDiagnostic } from "../../../lib.js";
 import { declarationRefkeys, efRefkey } from "../../utils/refkey.js";
 import { EnumMember } from "./enum-member.js";
@@ -13,17 +19,14 @@ export interface EnumDeclarationProps extends Omit<py.BaseDeclarationProps, "nam
 
 // Determine the appropriate enum type based on the member values
 function determineEnumType(
+  program: Program,
   members: Array<[string, TspEnumMember]>,
 ): "IntEnum" | "StrEnum" | "Enum" {
-  const allInteger = members.every(([, member]) => {
-    const value = member.value;
-    return typeof value === "number" && Number.isInteger(value);
-  });
-
-  const allString = members.every(([, member]) => {
-    const value = member.value;
-    return typeof value === "string";
-  });
+  const values = members.map(([, member]) =>
+    resolveEncodedEnumMemberValue(program, member, "application/json"),
+  );
+  const allInteger = values.every((value) => typeof value === "number" && Number.isInteger(value));
+  const allString = values.every((value) => typeof value === "string");
 
   if (allInteger) {
     return "IntEnum";
@@ -54,7 +57,7 @@ export function EnumDeclaration(props: EnumDeclarationProps) {
   const members = Array.from(type.members.entries());
   const doc = props.doc ?? $.type.getDoc(type);
   const docElement = doc ? <py.ClassDoc description={[<Prose>{doc}</Prose>]} /> : undefined;
-  const enumType = determineEnumType(members);
+  const enumType = determineEnumType($.program, members);
 
   return (
     <py.ClassEnumDeclaration doc={docElement} name={name} refkey={refkeys} baseType={enumType}>

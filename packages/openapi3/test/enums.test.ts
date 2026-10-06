@@ -120,6 +120,23 @@ worksFor(supportedVersions, ({ diagnoseOpenApiFor, oapiForModel }) => {
       );
       strictEqual(res.schemas.Foo.properties.status.default, "on");
     });
+
+    it("uses the encoded name for the default of a nullable property", async () => {
+      const res = await oapiForModel(
+        "Foo",
+        `
+        model Foo {
+          status?: Status | null = Status.active;
+        }
+        enum Status {
+          @encodedName("application/json", "on")
+          active,
+        }
+        `,
+      );
+      strictEqual(res.schemas.Foo.properties.status.default, "on");
+      deepStrictEqual(res.schemas.Status, { type: "string", enum: ["on"] });
+    });
   });
 });
 
