@@ -206,15 +206,32 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 StringComparer.Ordinal);
             var nameCounts = (IsExtensible ? normalizedNames.SelectMany(n => new[] { n, n + "Value" }) : normalizedNames)
                 .CountBy(n => n, StringComparer.Ordinal).ToDictionary();
+            var lastContractDeclarations = (IsExtensible
+                ? lastContractNames.SelectMany(n => new[] { (Declaration: n, Member: n), (Declaration: n + "Value", Member: n) })
+                : lastContractNames.Select(n => (Declaration: n, Member: n)))
+                .ToLookup(n => n.Declaration, n => n.Member, StringComparer.Ordinal);
 
             for (int i = 0; i < normalizedNames.Length; i++)
             {
                 var name = normalizedNames[i];
+                if (name == previousNames[i])
+                {
+                    continue;
+                }
+
+                var hasLastContractCollision = false;
+                if (lastContractDeclarations.Contains(name) || (IsExtensible && lastContractDeclarations.Contains(name + "Value")))
+                {
+                    var preservedName = GetBackCompatibleName(name, normalizedNames, lastContractNames, inputValues[i].IsExactName);
+                    hasLastContractCollision = lastContractDeclarations[name].Any(n => n != preservedName) ||
+                        (IsExtensible && lastContractDeclarations[name + "Value"].Any(n => n != preservedName));
+                }
+
                 // Include backing fields and custom renames when checking for new declaration collisions.
-                if (name != previousNames[i] &&
-                    (HasDeclarationCollision(name, previousNameSet, nameCounts) ||
+                if (hasLastContractCollision ||
+                    HasDeclarationCollision(name, previousNameSet, nameCounts) ||
                     (IsExtensible && HasDeclarationCollision(name + "Value", previousNameSet, nameCounts)) ||
-                    HasCustomNameCollision(name, previousNames[i])))
+                    HasCustomNameCollision(name, previousNames[i]))
                 {
                     normalizedNames[i] = previousNames[i];
                 }

@@ -1341,7 +1341,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             ("IP", "IP"), ("DB", "DB"), ("OS", "OS"), ("IPv4", "IPv4"), ("IPv6", "IPv6"),
             ("IPV4", "IPV4"), ("IPV6", "IPV6"),
             ("Oslo", "Oslo"), ("Ipsum", "Ipsum"), ("Osmosis", "Osmosis"), ("dbz", "Dbz"),
-            ("IpIpDbDbOsOs", "IPIPDBDBOSOS"),
+            ("IpIpDbDbOsOs", "IPIPDBDBOSOS"), // cspell:ignore IPIPDBDBOSOS
             ("Ipv4IpV4Ipv6IpV6", "IPv4IPv4IPv6IPv6"),
             ("PublicIpAddress", "PublicIPAddress"), ("Ip2DbzOslo", "Ip2DbzOslo"),
             ("IpUrl", "IPUri")
@@ -1508,6 +1508,33 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             var provider = EnumProvider.Create(input);
 
             CollectionAssert.AreEqual(new[] { firstName, secondName }, provider.Properties.Select(p => p.Name));
+        }
+
+        [TestCase(false, "String")]
+        [TestCase(true, "Numeric")]
+        public async Task BuildEnumType_AcronymNormalizationDoesNotCollideWithRestoredMembers(bool isNumeric, string testData)
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                createCSharpTypeCore: _ => isNumeric ? typeof(int) : typeof(string),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: testData));
+            var input = isNumeric
+                ? InputFactory.Int32Enum("mockInputEnum",
+                    [("IpValue", 10), ("Db", 20), ("Os", 30), ("NewIp", 40)], isExtensible: true)
+                : InputFactory.StringEnum("mockInputEnum",
+                    [("IpValue", "new-ip-value"), ("Db", "new-db"), ("Os", "os"), ("NewIp", "new-ip")], isExtensible: true);
+            var provider = EnumProvider.Create(input);
+            provider.EnsureBuilt();
+            provider.ProcessTypeForBackCompatibility();
+
+            CollectionAssert.AreEqual(new[] { "IpValue", "Db", "OS", "NewIP", "IP", "DBValue" },
+                provider.EnumValues.Select(v => v.Name));
+            CollectionAssert.AreEqual(
+                isNumeric ? new object[] { 10, 20, 30, 40, 1, 2 } : new object[] { "new-ip-value", "new-db", "os", "new-ip", "published-ip", "published-db-value" },
+                provider.EnumValues.Select(v => v.Value));
+            CollectionAssert.AreEqual(provider.EnumValues.Select(v => v.Name), provider.Properties.Select(p => p.Name));
+            CollectionAssert.AreEqual(provider.EnumValues.Select(v => v.Name + "Value"), provider.Fields.Skip(1).Select(f => f.Name));
+            var declarations = provider.Properties.Select(p => p.Name).Concat(provider.Fields.Select(f => f.Name)).ToArray();
+            Assert.AreEqual(declarations.Length, declarations.Distinct(StringComparer.Ordinal).Count());
         }
 
         [TestCase(false, "Fixed", "Ip")]
