@@ -1532,6 +1532,25 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
 
         [TestCase(false, "Fixed")]
         [TestCase(true, "Extensible")]
+        public async Task BuildEnumType_CustomizationCachesFollowIdentityChanges(bool isExtensible, string testData)
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                createCSharpTypeCore: _ => typeof(int),
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: testData));
+            var input = InputFactory.Int32Enum("mockInputEnum",
+                [("Ip", 1), ("Os", 3), ("Ipv4", 4)], isExtensible: isExtensible);
+            var provider = EnumProvider.Create(input);
+
+            CollectionAssert.AreEqual(new[] { "IP", "OS", "IPv4" }, provider.EnumValues.Select(v => v.Name));
+
+            provider.Update(name: "Renamed", reset: true);
+
+            Assert.IsNotNull(provider.CustomCodeView);
+            CollectionAssert.AreEqual(new[] { "Ip", "Os", "Ipv4" }, provider.EnumValues.Select(v => v.Name));
+        }
+
+        [TestCase(false, "Fixed")]
+        [TestCase(true, "Extensible")]
         public async Task BuildEnumType_AcronymCustomizationTakesPrecedenceOverPublishedCasing(bool isExtensible, string testData)
         {
             await MockHelpers.LoadMockGeneratorAsync(

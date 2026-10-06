@@ -80,12 +80,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
             GetCustomMemberNames(),
             StringComparer.OrdinalIgnoreCase);
 
+        private TypeProvider? _customizationCacheView;
         private ILookup<string, FieldProvider>? _customFieldsByName;
-        private protected ILookup<string, FieldProvider> CustomFieldsByName =>
+        private ILookup<string, FieldProvider> CustomFieldsByName =>
             _customFieldsByName ??= (CustomCodeView?.Fields ?? []).ToLookup(f => f.Name, StringComparer.Ordinal);
 
         private ILookup<string, PropertyProvider>? _customPropertiesByName;
-        private protected ILookup<string, PropertyProvider> CustomPropertiesByName =>
+        private ILookup<string, PropertyProvider> CustomPropertiesByName =>
             _customPropertiesByName ??= (CustomCodeView?.Properties ?? []).ToLookup(p => p.Name, StringComparer.Ordinal);
 
         private HashSet<string>? _customizedFieldNames;
@@ -177,6 +178,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
             IReadOnlyList<InputEnumTypeValue> inputValues,
             IReadOnlyList<string> lastContractNames)
         {
+            if (!ReferenceEquals(_customizationCacheView, CustomCodeView))
+            {
+                _customizationCacheView = CustomCodeView;
+                _customFieldsByName = null;
+                _customPropertiesByName = null;
+                _customizedFieldNames = null;
+                _customizedPropertyNames = null;
+                _suppressedMemberNames = null;
+            }
+
             var previousNames = inputValues.Select(v => GetGeneratedValueName(v, lastContractNames)).ToArray();
             var normalizedNames = previousNames.Select((name, i) =>
             {
