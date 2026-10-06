@@ -1,5 +1,6 @@
 import { parseDirective } from "../core/directives.js";
 import { visitChildren } from "../core/parser.js";
+import type { Program } from "../core/program.js";
 import type {
   DirectiveExpressionNode,
   Node,
@@ -32,6 +33,33 @@ export interface Suppression {
    * This is not a semantic scope or a guarantee of a unique declaration identity.
    */
   readonly scope: readonly SuppressionScope[];
+}
+
+/** A project suppression with its observed usage in a compilation. */
+export interface ProgramSuppression extends Suppression {
+  /**
+   * Whether the directive matched a diagnostic so far in this compilation.
+   * Includes rejected attempts to suppress errors; `true` does not guarantee a diagnostic was hidden.
+   * `false` means no match was observed, including when a rule is disabled, a diagnostic source
+   * is unavailable, an emitter is skipped, or errors prevent later compilation stages from running.
+   * It does not establish that the suppression can be removed under other configurations.
+   */
+  readonly used: boolean;
+}
+
+/**
+ * Get project suppressions and their usage from the compiler's existing tracker.
+ *
+ * Returns a snapshot of usage at the time of the call, preserving written codes and
+ * including unmatched directives even when their diagnostic source is unavailable.
+ * Libraries' suppressions are excluded. Results may change as validators, linter rules,
+ * emitters, or other callers report diagnostics; query after compilation to include all
+ * stages that ran. If compilation stopped before tracking was initialized, returns an empty list.
+ *
+ * @param program Program whose suppressions are being inspected.
+ */
+export function getSuppressions(program: Program): readonly ProgramSuppression[] {
+  return program.suppressionTracker?.getSuppressions() ?? [];
 }
 
 /**

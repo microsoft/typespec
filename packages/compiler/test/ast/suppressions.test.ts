@@ -1,5 +1,5 @@
 import { expect, it } from "vitest";
-import { collectSuppressions, parse, SyntaxKind } from "../../src/ast/index.js";
+import { collectSuppressions, getSuppressions, parse, SyntaxKind } from "../../src/ast/index.js";
 import { createSourceFile } from "../../src/index.js";
 import { expectDiagnosticEmpty } from "../../src/testing/index.js";
 import { Tester } from "../tester.js";
@@ -98,8 +98,65 @@ it("preserves the AST and shares directive identities with the compiler tracker"
   const boundScript = [...program.sourceFiles.values()].find((file) => file.file.text === text)!;
   const [bound] = collectSuppressions(boundScript);
   expect(bound.scope.map(({ name }) => name)).toEqual(unbound[0].scope.map(({ name }) => name));
-  const tracker = program.suppressionTracker!;
-  expect(tracker.getUnusedSuppressions()[0].directive.node).toBe(bound.directive.node);
-  tracker.markUsed(bound.directive.node);
-  expect(tracker.getUnusedSuppressions()).toEqual([]);
+  const [beforeReporting] = getSuppressions(program);
+  expect(beforeReporting.directive.node).toBe(bound.directive.node);
+  expect(beforeReporting.used).toBe(false);
+  program.reportDiagnostic({
+    code: "deprecated",
+    severity: "warning",
+    message: "matched after compilation",
+    target: bound.target,
+  });
+  expect(getSuppressions(program)[0].used).toBe(true);
+  expect(beforeReporting.used).toBe(false);
+});
+
+it("reports project suppressions, including unmatched and unavailable diagnostic sources", async () => {
+  const { program } = await Tester.files({
+    "node_modules/example/package.json": JSON.stringify({
+      name: "example",
+      version: "1.0.0",
+      tspMain: "main.tsp",
+    }),
+    "node_modules/example/main.tsp": '#suppress "deprecated"\nmodel LibraryModel {}',
+  }).compile(`
+    import "example";
+    #deprecated "old"
+    model Old {}
+    namespace Example {
+      model M {
+        #suppress "deprecated" "intentional"
+        p: Old;
+      }
+      #suppress "deprecated" "not needed"
+      #suppress "not-loaded/rule" "another configuration"
+      model N {}
+    }
+  `);
+  const suppressions = getSuppressions(program);
+  expect(suppressions.map(({ directive, used }) => [directive.code, used])).toEqual([
+    ["deprecated", true],
+    ["deprecated", false],
+    ["not-loaded/rule", false],
+  ]);
+  expect(suppressions[0].scope.map(({ name }) => name)).toEqual(["Example", "M", "p"]);
+});
+
+it.each([false, true])("reflects whether the linter rule is enabled (%s)", async (enabled) => {
+  const code = "@typespec/compiler/unused-template-parameter";
+  const { program } = await Tester.compile(
+    `#suppress "${code}" "kept for compatibility"\nmodel M<T> { value: string; }`,
+    { compilerOptions: { linterRuleSet: { enable: { [code]: enabled } } } },
+  );
+  expect(getSuppressions(program)[0].used).toBe(enabled);
+});
+
+it("reports unmatched when checking errors prevent linting", async () => {
+  const code = "@typespec/compiler/unused-template-parameter";
+  const [{ program }, diagnostics] = await Tester.compileAndDiagnose(
+    `#suppress "${code}" "kept for compatibility"\nmodel M<T> { value: Unknown; }`,
+    { compilerOptions: { linterRuleSet: { enable: { [code]: true } } } },
+  );
+  expect(diagnostics.map(({ code }) => code)).toEqual(["invalid-ref"]);
+  expect(getSuppressions(program)[0].used).toBe(false);
 });

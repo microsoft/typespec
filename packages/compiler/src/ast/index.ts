@@ -11,7 +11,13 @@
 
 export { NodeFlags, SyntaxKind } from "../core/types.js";
 export type { SuppressDirective } from "../core/types.js";
-export { collectSuppressions, type Suppression, type SuppressionScope } from "./suppressions.js";
+export {
+  collectSuppressions,
+  getSuppressions,
+  type ProgramSuppression,
+  type Suppression,
+  type SuppressionScope,
+} from "./suppressions.js";
 
 export { getNodeForTarget } from "../core/diagnostics.js";
 export { printTypeSpecNode } from "../core/formatter.js";
