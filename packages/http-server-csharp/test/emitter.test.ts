@@ -175,6 +175,26 @@ it("writes one JsonPropertyName for a property, carrying its encoded name", asyn
   expect(item).toContain(`[JsonPropertyName("nickName")]`);
 });
 
+it("writes JsonPropertyName for an encoded name that matches the C# property name", async () => {
+  const [result] = await compileAndDiagnose(
+    tester,
+    getStandardService(`
+      model Item {
+        @encodedName("application/json", "FullName")
+        fullName: string;
+      }
+
+      op read(): Item;
+    `),
+    { "skip-format": true },
+  );
+  const item = [...result.fs.fs.entries()].find(([path]) =>
+    path.endsWith("/generated/models/Item.cs"),
+  )?.[1];
+
+  expect(item).toContain(`[JsonPropertyName("FullName")]`);
+});
+
 it("uses the encoded name for a property of an anonymous request body", async () => {
   const [result] = await compileAndDiagnose(
     tester,

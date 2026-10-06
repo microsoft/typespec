@@ -195,10 +195,7 @@ function ServerProperty(props: ServerPropertyProps): Children {
     }
   }
 
-  // Add JsonPropertyName if the C# name differs from the json name
-  const csharpName = namePolicy.getName(propName, "class-property");
-  const jsonNameAttr = getJsonPropertyNameAttribute($.program, props.type, csharpName);
-  if (jsonNameAttr) attrs.unshift(jsonNameAttr);
+  attrs.unshift(getJsonPropertyNameAttribute($.program, props.type));
 
   // Check if this property overrides a base model property (discriminator pattern)
   const isOverride = props.baseModel ? hasPropertyInChain(props.baseModel, props.type.name) : false;

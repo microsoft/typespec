@@ -67,8 +67,6 @@ function RequestModelClass(props: RequestModelClassProps): Children {
       <For each={props.properties} doubleHardline>
         {([_, property]) => {
           const propName = namePolicy.getName(property.name, "class-property");
-          const jsonNameAttr = getJsonPropertyNameAttribute($.program, property, propName);
-          const attrs: Children[] = jsonNameAttr ? [jsonNameAttr] : [];
           return (
             <cs.Property
               name={propName}
@@ -77,7 +75,7 @@ function RequestModelClass(props: RequestModelClassProps): Children {
               get
               set
               doc={getDocComments($, property)}
-              attributes={attrs.length > 0 ? attrs : undefined}
+              attributes={[getJsonPropertyNameAttribute($.program, property)]}
             />
           );
         }}

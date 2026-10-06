@@ -83,16 +83,13 @@ function getScalarEncoding(
 }
 
 /**
- * `[JsonPropertyName]` for a property whose C# name differs from its json name, which is its
- * `application/json` encoded name when it has one.
+ * `[JsonPropertyName]` with a property's json name, which is its `application/json` encoded name when
+ * it has one. Written for every property, as the emitter-framework C# `Property` does, so the name
+ * does not depend on the serializer's naming policy (camelCase in the generated
+ * `JsonSerializationProvider`).
  */
-export function getJsonPropertyNameAttribute(
-  program: Program,
-  property: ModelProperty,
-  csharpName: string,
-): Children | undefined {
+export function getJsonPropertyNameAttribute(program: Program, property: ModelProperty): Children {
   const jsonName = resolveEncodedName(program, property, "application/json");
-  if (csharpName === jsonName) return undefined;
   return (
     <Attribute
       name={Serialization.JsonPropertyNameAttribute}
