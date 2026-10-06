@@ -47,7 +47,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             var fieldName = name + "Value";
             return customization.SuppressedNames.Contains(name) || customization.SuppressedNames.Contains(fieldName) ||
-                customization.Properties.ContainsKey(name) || customization.Fields.ContainsKey(fieldName);
+                customization.ContainsName(name, isField: false) || customization.ContainsName(fieldName, isField: true);
         }
 
         protected override TypeProvider? BuildDeclaringTypeProvider() => _declaringType;

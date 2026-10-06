@@ -82,19 +82,18 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private protected sealed class EnumCustomization
         {
-            public Dictionary<string, List<FieldProvider>> Fields { get; } = new(StringComparer.Ordinal);
-            public Dictionary<string, List<PropertyProvider>> Properties { get; } = new(StringComparer.Ordinal);
+            private readonly Dictionary<string, List<CustomMember>> _members = new(StringComparer.Ordinal);
             public HashSet<string> SuppressedNames { get; } = new(StringComparer.Ordinal);
 
             public EnumCustomization(EnumProvider provider)
             {
                 foreach (var field in provider.CustomCodeView?.Fields ?? [])
                 {
-                    AddMember(Fields, field.Name, field.OriginalName, field);
+                    AddMember(new CustomMember(field.Name, field.OriginalName, IsField: true));
                 }
                 foreach (var property in provider.CustomCodeView?.Properties ?? [])
                 {
-                    AddMember(Properties, property.Name, property.OriginalName, property);
+                    AddMember(new CustomMember(property.Name, property.OriginalName, IsField: false));
                 }
                 foreach (var attribute in provider.GetMemberSuppressionAttributes())
                 {
@@ -106,18 +105,28 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
             }
 
-            private static void AddMember<T>(Dictionary<string, List<T>> members, string name, string? originalName, T member)
+            public bool ContainsName(string name, bool isField) =>
+                _members.TryGetValue(name, out var members) && members.Any(m => m.IsField == isField);
+
+            public bool HasDeclarationCollision(string name, string previousName, bool isField, bool allowReplacement) =>
+                _members.TryGetValue(name, out var members) &&
+                members.Any(m => m.IsField == isField && m.Name == name &&
+                    (!allowReplacement || (m.OriginalName != null && m.OriginalName != name && m.OriginalName != previousName)));
+
+            private void AddMember(CustomMember member)
             {
-                foreach (var key in new[] { name, originalName }.OfType<string>().Distinct(StringComparer.Ordinal))
+                foreach (var key in new[] { member.Name, member.OriginalName }.OfType<string>().Distinct(StringComparer.Ordinal))
                 {
-                    if (!members.TryGetValue(key, out var matches))
+                    if (!_members.TryGetValue(key, out var matches))
                     {
                         matches = [];
-                        members.Add(key, matches);
+                        _members.Add(key, matches);
                     }
                     matches.Add(member);
                 }
             }
+
+            private readonly record struct CustomMember(string Name, string? OriginalName, bool IsField);
         }
 
         private IEnumerable<string> GetCustomMemberNames()
@@ -262,9 +271,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private bool HasCustomNameCollision(string name, string previousName, EnumCustomization customization)
         {
-            if (customization.Fields.TryGetValue(name, out var fields) &&
-                fields.Any(f => f.Name == name && (IsExtensible ||
-                    (f.OriginalName != null && f.OriginalName != name && f.OriginalName != previousName))))
+            if (customization.HasDeclarationCollision(name, previousName, isField: true, allowReplacement: !IsExtensible))
             {
                 return true;
             }
@@ -276,12 +283,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             var fieldName = name + "Value";
             var previousFieldName = previousName + "Value";
-            return (customization.Properties.TryGetValue(fieldName, out var fieldProperties) &&
-                    fieldProperties.Any(p => p.Name == fieldName)) ||
-                (customization.Properties.TryGetValue(name, out var properties) &&
-                    properties.Any(p => p.Name == name && p.OriginalName != null && p.OriginalName != name && p.OriginalName != previousName)) ||
-                (customization.Fields.TryGetValue(fieldName, out var valueFields) &&
-                    valueFields.Any(f => f.Name == fieldName && f.OriginalName != null && f.OriginalName != fieldName && f.OriginalName != previousFieldName));
+            return customization.HasDeclarationCollision(fieldName, previousFieldName, isField: false, allowReplacement: false) ||
+                customization.HasDeclarationCollision(name, previousName, isField: false, allowReplacement: true) ||
+                customization.HasDeclarationCollision(fieldName, previousFieldName, isField: true, allowReplacement: true);
         }
 
         private protected virtual bool IsCustomizedValueName(string name, EnumCustomization customization) => false;
