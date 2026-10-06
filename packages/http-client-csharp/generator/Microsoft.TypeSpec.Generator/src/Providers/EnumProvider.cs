@@ -80,31 +80,45 @@ namespace Microsoft.TypeSpec.Generator.Providers
             GetCustomMemberNames(),
             StringComparer.OrdinalIgnoreCase);
 
-        private TypeProvider? _customizationCacheView;
-        private ILookup<string, FieldProvider>? _customFieldsByName;
-        private ILookup<string, FieldProvider> CustomFieldsByName =>
-            _customFieldsByName ??= (CustomCodeView?.Fields ?? []).ToLookup(f => f.Name, StringComparer.Ordinal);
+        private protected sealed class EnumCustomization
+        {
+            public Dictionary<string, List<FieldProvider>> Fields { get; } = new(StringComparer.Ordinal);
+            public Dictionary<string, List<PropertyProvider>> Properties { get; } = new(StringComparer.Ordinal);
+            public HashSet<string> SuppressedNames { get; } = new(StringComparer.Ordinal);
 
-        private ILookup<string, PropertyProvider>? _customPropertiesByName;
-        private ILookup<string, PropertyProvider> CustomPropertiesByName =>
-            _customPropertiesByName ??= (CustomCodeView?.Properties ?? []).ToLookup(p => p.Name, StringComparer.Ordinal);
+            public EnumCustomization(EnumProvider provider)
+            {
+                foreach (var field in provider.CustomCodeView?.Fields ?? [])
+                {
+                    AddMember(Fields, field.Name, field.OriginalName, field);
+                }
+                foreach (var property in provider.CustomCodeView?.Properties ?? [])
+                {
+                    AddMember(Properties, property.Name, property.OriginalName, property);
+                }
+                foreach (var attribute in provider.GetMemberSuppressionAttributes())
+                {
+                    if (attribute.ConstructorArguments.Length > 0 &&
+                        attribute.ConstructorArguments[0].Value is string name)
+                    {
+                        SuppressedNames.Add(name);
+                    }
+                }
+            }
 
-        private HashSet<string>? _customizedFieldNames;
-        private protected HashSet<string> CustomizedFieldNames => _customizedFieldNames ??= new HashSet<string>(
-            CustomFieldsByName.SelectMany(g => g).SelectMany(f => new[] { f.Name, f.OriginalName }).OfType<string>(),
-            StringComparer.Ordinal);
-
-        private HashSet<string>? _customizedPropertyNames;
-        private protected HashSet<string> CustomizedPropertyNames => _customizedPropertyNames ??= new HashSet<string>(
-            CustomPropertiesByName.SelectMany(g => g).SelectMany(p => new[] { p.Name, p.OriginalName }).OfType<string>(),
-            StringComparer.Ordinal);
-
-        private HashSet<string>? _suppressedMemberNames;
-        private protected HashSet<string> SuppressedMemberNames => _suppressedMemberNames ??= new HashSet<string>(
-            GetMemberSuppressionAttributes()
-                .Where(a => a.ConstructorArguments.Length > 0)
-                .Select(a => a.ConstructorArguments[0].Value).OfType<string>(),
-            StringComparer.Ordinal);
+            private static void AddMember<T>(Dictionary<string, List<T>> members, string name, string? originalName, T member)
+            {
+                foreach (var key in new[] { name, originalName }.OfType<string>().Distinct(StringComparer.Ordinal))
+                {
+                    if (!members.TryGetValue(key, out var matches))
+                    {
+                        matches = [];
+                        members.Add(key, matches);
+                    }
+                    matches.Add(member);
+                }
+            }
+        }
 
         private IEnumerable<string> GetCustomMemberNames()
         {
@@ -122,7 +136,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             string generatedName,
             IReadOnlyList<string> generatedNames,
             IReadOnlyList<string> lastContractNames,
-            bool isExactName)
+            bool isExactName,
+            EnumCustomization customization)
         {
             if (isExactName)
             {
@@ -139,7 +154,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return generatedName;
             }
 
-            if (IsCustomizedValueName(generatedName) &&
+            if (IsCustomizedValueName(generatedName, customization) &&
                 lastContractNames.Contains(generatedName, StringComparer.OrdinalIgnoreCase))
             {
                 return generatedName;
@@ -176,28 +191,19 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private protected string[] GetGeneratedValueNames(
             IReadOnlyList<InputEnumTypeValue> inputValues,
-            IReadOnlyList<string> lastContractNames)
+            IReadOnlyList<string> lastContractNames,
+            EnumCustomization customization)
         {
-            if (!ReferenceEquals(_customizationCacheView, CustomCodeView))
-            {
-                _customizationCacheView = CustomCodeView;
-                _customFieldsByName = null;
-                _customPropertiesByName = null;
-                _customizedFieldNames = null;
-                _customizedPropertyNames = null;
-                _suppressedMemberNames = null;
-            }
-
             var previousNames = inputValues.Select(v => GetGeneratedValueName(v, lastContractNames)).ToArray();
             var normalizedNames = previousNames.Select((name, i) =>
             {
-                if (inputValues[i].IsExactName || IsCustomizedValueName(name))
+                if (inputValues[i].IsExactName || IsCustomizedValueName(name, customization))
                 {
                     return name;
                 }
 
                 var normalizedName = name.NormalizeCSharpAcronyms();
-                return lastContractNames.Contains(name, StringComparer.Ordinal) && !IsCustomizedValueName(normalizedName)
+                return lastContractNames.Contains(name, StringComparer.Ordinal) && !IsCustomizedValueName(normalizedName, customization)
                     ? name
                     : normalizedName;
             }).ToArray();
@@ -206,10 +212,19 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 StringComparer.Ordinal);
             var nameCounts = (IsExtensible ? normalizedNames.SelectMany(n => new[] { n, n + "Value" }) : normalizedNames)
                 .CountBy(n => n, StringComparer.Ordinal).ToDictionary();
-            var lastContractDeclarations = (IsExtensible
-                ? lastContractNames.SelectMany(n => new[] { (Declaration: n, Member: n), (Declaration: n + "Value", Member: n) })
-                : lastContractNames.Select(n => (Declaration: n, Member: n)))
-                .ToLookup(n => n.Declaration, n => n.Member, StringComparer.Ordinal);
+            var lastContractDeclarations = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
+            foreach (var member in lastContractNames)
+            {
+                foreach (var declaration in IsExtensible ? new[] { member, member + "Value" } : new[] { member })
+                {
+                    if (!lastContractDeclarations.TryGetValue(declaration, out var owners))
+                    {
+                        owners = new HashSet<string>(StringComparer.Ordinal);
+                        lastContractDeclarations.Add(declaration, owners);
+                    }
+                    owners.Add(member);
+                }
+            }
 
             for (int i = 0; i < normalizedNames.Length; i++)
             {
@@ -220,18 +235,20 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
 
                 var hasLastContractCollision = false;
-                if (lastContractDeclarations.Contains(name) || (IsExtensible && lastContractDeclarations.Contains(name + "Value")))
+                lastContractDeclarations.TryGetValue(name, out var memberOwners);
+                var fieldOwners = IsExtensible ? lastContractDeclarations.GetValueOrDefault(name + "Value") : null;
+                if (memberOwners != null || fieldOwners != null)
                 {
-                    var preservedName = GetBackCompatibleName(name, normalizedNames, lastContractNames, inputValues[i].IsExactName);
-                    hasLastContractCollision = lastContractDeclarations[name].Any(n => n != preservedName) ||
-                        (IsExtensible && lastContractDeclarations[name + "Value"].Any(n => n != preservedName));
+                    var preservedName = GetBackCompatibleName(name, normalizedNames, lastContractNames, inputValues[i].IsExactName, customization);
+                    hasLastContractCollision = memberOwners?.Any(n => n != preservedName) == true ||
+                        fieldOwners?.Any(n => n != preservedName) == true;
                 }
 
                 // Include backing fields and custom renames when checking for new declaration collisions.
                 if (hasLastContractCollision ||
                     HasDeclarationCollision(name, previousNameSet, nameCounts) ||
                     (IsExtensible && HasDeclarationCollision(name + "Value", previousNameSet, nameCounts)) ||
-                    HasCustomNameCollision(name, previousNames[i]))
+                    HasCustomNameCollision(name, previousNames[i], customization))
                 {
                     normalizedNames[i] = previousNames[i];
                 }
@@ -243,10 +260,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private bool HasDeclarationCollision(string name, HashSet<string> previousNames, Dictionary<string, int> nameCounts) =>
             previousNames.Contains(name) || nameCounts[name] > 1 || name == Name;
 
-        private bool HasCustomNameCollision(string name, string previousName)
+        private bool HasCustomNameCollision(string name, string previousName, EnumCustomization customization)
         {
-            if (CustomFieldsByName[name].Any(f => IsExtensible ||
-                (f.OriginalName != null && f.OriginalName != name && f.OriginalName != previousName)))
+            if (customization.Fields.TryGetValue(name, out var fields) &&
+                fields.Any(f => f.Name == name && (IsExtensible ||
+                    (f.OriginalName != null && f.OriginalName != name && f.OriginalName != previousName))))
             {
                 return true;
             }
@@ -258,14 +276,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             var fieldName = name + "Value";
             var previousFieldName = previousName + "Value";
-            return CustomPropertiesByName[fieldName].Any() ||
-                CustomPropertiesByName[name].Any(p =>
-                    p.OriginalName != null && p.OriginalName != name && p.OriginalName != previousName) ||
-                CustomFieldsByName[fieldName].Any(f =>
-                    f.OriginalName != null && f.OriginalName != fieldName && f.OriginalName != previousFieldName);
+            return (customization.Properties.TryGetValue(fieldName, out var fieldProperties) &&
+                    fieldProperties.Any(p => p.Name == fieldName)) ||
+                (customization.Properties.TryGetValue(name, out var properties) &&
+                    properties.Any(p => p.Name == name && p.OriginalName != null && p.OriginalName != name && p.OriginalName != previousName)) ||
+                (customization.Fields.TryGetValue(fieldName, out var valueFields) &&
+                    valueFields.Any(f => f.Name == fieldName && f.OriginalName != null && f.OriginalName != fieldName && f.OriginalName != previousFieldName));
         }
 
-        private protected virtual bool IsCustomizedValueName(string name) => false;
+        private protected virtual bool IsCustomizedValueName(string name, EnumCustomization customization) => false;
 
         private static string GetGeneratedValueName(
             InputEnumTypeValue inputValue,

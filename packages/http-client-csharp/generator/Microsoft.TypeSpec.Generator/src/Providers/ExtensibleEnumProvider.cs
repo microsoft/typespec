@@ -43,11 +43,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private readonly FieldProvider _valueField;
 
-        private protected override bool IsCustomizedValueName(string name)
+        private protected override bool IsCustomizedValueName(string name, EnumCustomization customization)
         {
             var fieldName = name + "Value";
-            return SuppressedMemberNames.Contains(name) || SuppressedMemberNames.Contains(fieldName) ||
-                CustomizedPropertyNames.Contains(name) || CustomizedFieldNames.Contains(fieldName);
+            return customization.SuppressedNames.Contains(name) || customization.SuppressedNames.Contains(fieldName) ||
+                customization.Properties.ContainsKey(name) || customization.Fields.ContainsKey(fieldName);
         }
 
         protected override TypeProvider? BuildDeclaringTypeProvider() => _declaringType;
@@ -58,7 +58,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected override IReadOnlyList<EnumTypeMember> BuildEnumValues()
         {
             var lastContractNames = LastContractView?.Properties.Select(p => p.Name).ToArray() ?? [];
-            var generatedNames = GetGeneratedValueNames(_allowedValues, lastContractNames);
+            var customization = new EnumCustomization(this);
+            var generatedNames = GetGeneratedValueNames(_allowedValues, lastContractNames, customization);
             var values = new EnumTypeMember[_allowedValues.Count];
 
             for (int i = 0; i < _allowedValues.Count; i++)
@@ -67,7 +68,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 // build the field
                 var modifiers = FieldModifiers.Private | FieldModifiers.Const;
                 // the fields for extensible enums are private and const, storing the underlying values, therefore we need to append the word `Value` to the name
-                var valueName = GetBackCompatibleName(generatedNames[i], generatedNames, lastContractNames, inputValue.IsExactName);
+                var valueName = GetBackCompatibleName(generatedNames[i], generatedNames, lastContractNames, inputValue.IsExactName, customization);
                 var name = $"{valueName}Value";
                 // for initializationValue, if the enum is extensible, we always need it
                 var initializationValue = Literal(inputValue.Value);
