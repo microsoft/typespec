@@ -1,2 +1,2 @@
-additionalProperties.Add(prop.Name, null);
+additionalProperties[prop.Name] = null;
 continue;

@@ -1,2 +1,2 @@
-additionalInt32Properties.Add(prop.Name, null);
+additionalInt32Properties[prop.Name] = null;
 continue;

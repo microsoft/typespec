@@ -60,6 +60,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         }
 
         [TestCaseSource(nameof(NullableAdditionalPropertiesTestCases))]
+        public void TypedAdditionalPropertiesOverwriteDuplicateKeys(InputType valueType, bool isNullable)
+        {
+            var inputModel = InputFactory.Model("TestModel",
+                additionalProperties: isNullable ? new InputNullableType(valueType) : valueType);
+            MockHelpers.LoadMockGenerator(inputModels: () => [inputModel]);
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
+            var serialization = (MrwSerializationTypeDefinition)model.SerializationProviders.Single();
+            var loop = serialization.BuildDeserializationMethod().BodyStatements!.OfType<ForEachStatement>().Single();
+            var valueKindSwitch = loop.Body.SelectMany(statement => statement).OfType<SwitchStatement>().Single();
+            var valueKindCode = valueKindSwitch.ToDisplayString();
+
+            StringAssert.Contains("[prop.Name] =", valueKindCode);
+            StringAssert.DoesNotContain(".Add(prop.Name", valueKindCode);
+        }
+
+        [TestCaseSource(nameof(NullableAdditionalPropertiesTestCases))]
         public void NullableAdditionalPropertiesSerializeNull(InputType valueType, bool isNullable)
         {
             var inputModel = InputFactory.Model("TestModel",
@@ -200,7 +216,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 yield return new TestCaseData(
                     InputPrimitiveType.String,
                     new string[] { "string" },
-                    new string[] { "case global::System.Text.Json.JsonValueKind.String:", "additionalProperties.Add(prop.Name, prop.Value.GetString());" });
+                    new string[] { "case global::System.Text.Json.JsonValueKind.String:", "additionalProperties[prop.Name] = prop.Value.GetString();" });
                 // bool additional properties
                 yield return new TestCaseData(
                     InputPrimitiveType.Boolean,
@@ -208,7 +224,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                     new string[]
                     {
                         "case (global::System.Text.Json.JsonValueKind.True or global::System.Text.Json.JsonValueKind.False):",
-                        "additionalProperties.Add(prop.Name, prop.Value.GetBoolean());"
+                        "additionalProperties[prop.Name] = prop.Value.GetBoolean();"
                     });
                 // float additional properties
                 yield return new TestCaseData(
@@ -218,7 +234,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                     {
                         "case global::System.Text.Json.JsonValueKind.Number:",
                         "if (prop.Value.TryGetSingle(out float floatValue))",
-                        "additionalProperties.Add(prop.Name, floatValue);"
+                        "additionalProperties[prop.Name] = floatValue;"
                     });
                 // union additional properties
                 yield return new TestCaseData(
@@ -227,10 +243,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                     new string[]
                     {
                         "case global::System.Text.Json.JsonValueKind.String:",
-                        "additionalProperties.Add(prop.Name, prop.Value.GetString());",
+                        "additionalProperties[prop.Name] = prop.Value.GetString();",
                         "case global::System.Text.Json.JsonValueKind.Number:",
                         "if (prop.Value.TryGetDouble(out double doubleValue))",
-                        "additionalDoubleProperties.Add(prop.Name, doubleValue);"
+                        "additionalDoubleProperties[prop.Name] = doubleValue;"
                     });
             }
         }

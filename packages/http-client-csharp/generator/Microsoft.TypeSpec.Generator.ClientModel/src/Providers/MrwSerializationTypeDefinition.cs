@@ -1355,7 +1355,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 AddStatements(JsonValueKind.Null,
                 [
-                    additionalPropsDict.Add(jsonProperty.Name(), Null),
+                    AssignValue(Null),
                     Continue
                 ]);
             }
@@ -1369,7 +1369,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         AddStatements(JsonValueKind.String,
                         [
                             DeserializeValue(valueType, jsonProperty.Value(), SerializationFormat.Default, out ValueExpression stringValue),
-                            additionalPropsDict.Add(jsonProperty.Name(), stringValue),
+                            AssignValue(stringValue),
                             Continue
                         ]);
                         break;
@@ -1377,7 +1377,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         AddStatements(JsonValueKind.True,
                         [
                             DeserializeValue(valueType, jsonProperty.Value(), SerializationFormat.Default, out ValueExpression boolValue),
-                            additionalPropsDict.Add(jsonProperty.Name(), boolValue),
+                            AssignValue(boolValue),
                             Continue
                         ]);
                         break;
@@ -1386,7 +1386,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         [
                             new IfStatement(jsonProperty.Value().TryGetSingle(out ScopedApi<float> floatValue))
                             {
-                                additionalPropsDict.Add(jsonProperty.Name(), floatValue),
+                                AssignValue(floatValue),
                                 Continue
                             },
                         ]);
@@ -1396,7 +1396,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         [
                             new IfStatement(jsonProperty.Value().TryGetByte(out ScopedApi<byte> byteValue))
                             {
-                                additionalPropsDict.Add(jsonProperty.Name(), byteValue),
+                                AssignValue(byteValue),
                                 Continue
                             },
                         ]);
@@ -1406,7 +1406,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         [
                             new IfStatement(jsonProperty.Value().TryGetBytesFromBase64(out ScopedApi<byte[]> byteArray))
                             {
-                                additionalPropsDict.Add(jsonProperty.Name(), byteArray),
+                                AssignValue(byteArray),
                                 Continue
                             },
                         ]);
@@ -1416,7 +1416,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         [
                             new IfStatement(jsonProperty.Value().TryGetSByte(out ScopedApi<sbyte> sbyteValue))
                             {
-                                additionalPropsDict.Add(jsonProperty.Name(), sbyteValue),
+                                AssignValue(sbyteValue),
                                 Continue
                             },
                         ]);
@@ -1426,7 +1426,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         [
                             new IfStatement(jsonProperty.Value().TryGetDateTime(out ScopedApi<DateTime> dateTimeValue))
                             {
-                                additionalPropsDict.Add(jsonProperty.Name(), dateTimeValue),
+                                AssignValue(dateTimeValue),
                                 Continue
                             },
                         ]);
@@ -1436,7 +1436,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         [
                             new IfStatement(jsonProperty.Value().TryGetDateTimeOffset(out ScopedApi<DateTimeOffset> dateTimeOffsetValue))
                             {
-                                additionalPropsDict.Add(jsonProperty.Name(), dateTimeOffsetValue),
+                                AssignValue(dateTimeOffsetValue),
                                 Continue
                             },
                         ]);
@@ -1446,7 +1446,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         [
                             new IfStatement(jsonProperty.Value().TryGetGuid(out ScopedApi<Guid> guidValue))
                             {
-                                additionalPropsDict.Add(jsonProperty.Name(), guidValue),
+                                AssignValue(guidValue),
                                 Continue
                             },
                         ]);
@@ -1456,7 +1456,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         [
                             new IfStatement(jsonProperty.Value().TryGetDecimal(out ScopedApi<decimal> decimalValue))
                             {
-                                additionalPropsDict.Add(jsonProperty.Name(), decimalValue),
+                                AssignValue(decimalValue),
                                 Continue
                             },
                         ]);
@@ -1466,7 +1466,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         [
                             new IfStatement(jsonProperty.Value().TryGetDouble( out ScopedApi<double> doubleValue))
                             {
-                                additionalPropsDict.Add(jsonProperty.Name(), doubleValue),
+                                AssignValue(doubleValue),
                                 Continue
                             },
                         ]);
@@ -1476,7 +1476,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         [
                             new IfStatement(jsonProperty.Value().TryGetInt16(out ScopedApi<short> shortValue))
                             {
-                                additionalPropsDict.Add(jsonProperty.Name(), shortValue),
+                                AssignValue(shortValue),
                                 Continue
                             },
                         ]);
@@ -1486,7 +1486,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         [
                             new IfStatement(jsonProperty.Value().TryGetInt32(out ScopedApi<int> intValue))
                             {
-                                additionalPropsDict.Add(jsonProperty.Name(), intValue),
+                                AssignValue(intValue),
                                 Continue
                             },
                         ]);
@@ -1496,7 +1496,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         [
                             new IfStatement(jsonProperty.Value().TryGetInt64(out ScopedApi<long> longValue))
                             {
-                                additionalPropsDict.Add(jsonProperty.Name(), longValue),
+                                AssignValue(longValue),
                                 Continue
                             },
                         ]);
@@ -1506,7 +1506,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         [
                             new IfStatement(jsonProperty.Value().TryGetUInt16(out ScopedApi<ushort> ushortValue))
                             {
-                                additionalPropsDict.Add(jsonProperty.Name(), ushortValue),
+                                AssignValue(ushortValue),
                                 Continue
                             },
                         ]);
@@ -1516,7 +1516,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         [
                             new IfStatement(jsonProperty.Value().TryGetUInt32(out ScopedApi<uint> uintValue))
                             {
-                                additionalPropsDict.Add(jsonProperty.Name(), uintValue),
+                                AssignValue(uintValue),
                                 Continue
                             },
                         ]);
@@ -1526,7 +1526,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         [
                             new IfStatement(jsonProperty.Value().TryGetUInt64(out ScopedApi<ulong> ulongValue))
                             {
-                                additionalPropsDict.Add(jsonProperty.Name(), ulongValue),
+                                AssignValue(ulongValue),
                                 Continue
                             },
                         ]);
@@ -1544,7 +1544,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 AddStatements(valueKind,
                 [
                     DeserializeValue(valueType, jsonProperty.Value(), SerializationFormat.Default, out ValueExpression value),
-                    additionalPropsDict.Add(jsonProperty.Name(), value),
+                    AssignValue(value),
                     Continue
                 ]);
 
@@ -1561,6 +1561,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
                 checks.AddRange(statements);
             }
+
+            MethodBodyStatement AssignValue(ValueExpression value)
+                => additionalPropsDict[jsonProperty.Name()].Assign(value).Terminate();
         }
 
         private static SwitchStatement CreateDeserializeAdditionalPropsValueKindCheck(

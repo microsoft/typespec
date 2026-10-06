@@ -182,10 +182,10 @@ namespace SampleTypeSpec
                 switch (prop.Value.ValueKind)
                 {
                     case JsonValueKind.Null:
-                        additionalProperties.Add(prop.Name, null);
+                        additionalProperties[prop.Name] = null;
                         continue;
                     case JsonValueKind.String:
-                        additionalProperties.Add(prop.Name, prop.Value.GetString());
+                        additionalProperties[prop.Name] = prop.Value.GetString();
                         continue;
                 }
                 if (options.Format != "W")

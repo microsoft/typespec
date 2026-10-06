@@ -125,26 +125,7 @@ namespace TestProjects.Local.Tests
             [Values("W", "J")] string writeFormat,
             [Values(null, JsonTokenType.None, JsonTokenType.StartObject)] JsonTokenType? readerToken)
         {
-            var data = BinaryData.FromString(json);
-            var options = new ModelReaderWriterOptions(readFormat);
-            OptionalNullableFieldNames model;
-            if (readerToken is { } token)
-            {
-                var reader = new Utf8JsonReader(data.ToMemory().Span);
-                if (token == JsonTokenType.StartObject)
-                {
-                    Assert.That(reader.Read(), Is.True);
-                }
-                Assert.That(reader.TokenType, Is.EqualTo(token));
-                model = ((IJsonModel<OptionalNullableFieldNames>)new OptionalNullableFieldNames()).Create(ref reader, options)!;
-                Assert.That(reader.TokenType, Is.EqualTo(JsonTokenType.EndObject));
-                Assert.That(reader.BytesConsumed, Is.EqualTo(data.ToMemory().Length));
-                Assert.That(reader.Read(), Is.False);
-            }
-            else
-            {
-                model = ModelReaderWriter.Read<OptionalNullableFieldNames>(data, options, SampleTypeSpecContext.Default)!;
-            }
+            var model = ReadOptionalNullableFieldNames(json, readFormat, readerToken);
 
             using var expected = JsonDocument.Parse(json);
             var additionalProperties = expected.RootElement.EnumerateObject()
@@ -156,6 +137,47 @@ namespace TestProjects.Local.Tests
             }
 
             AssertModelJson(model, json, writeFormat);
+        }
+
+        [TestCaseSource(nameof(DuplicateAdditionalPropertiesTestCases))]
+        public void OptionalNullableFieldNames_DuplicateAdditionalPropertiesUseLastValue(
+            string json,
+            string? expectedValue,
+            string expectedJson,
+            string readFormat,
+            string writeFormat,
+            JsonTokenType? readerToken)
+        {
+            var model = ReadOptionalNullableFieldNames(json, readFormat, readerToken);
+
+            Assert.That(model.AdditionalProperties, Has.Count.EqualTo(1));
+            Assert.That(model.AdditionalProperties["extra"], Is.EqualTo(expectedValue));
+            AssertModelJson(model, expectedJson, writeFormat);
+        }
+
+        private static IEnumerable<TestCaseData> DuplicateAdditionalPropertiesTestCases
+        {
+            get
+            {
+                (string Json, string? ExpectedValue, string ExpectedJson)[] duplicateCases =
+                [
+                    ("""{"extra":null,"extra":"last"}""", "last", """{"extra":"last"}"""),
+                    ("""{"extra":"first","extra":null}""", null, """{"extra":null}""")
+                ];
+                foreach (var (json, expectedValue, expectedJson) in duplicateCases)
+                {
+                    foreach (var readFormat in new[] { "W", "J" })
+                    {
+                        foreach (var writeFormat in new[] { "W", "J" })
+                        {
+                            foreach (var readerToken in new JsonTokenType?[] { null, JsonTokenType.None, JsonTokenType.StartObject })
+                            {
+                                yield return new TestCaseData(json, expectedValue, expectedJson, readFormat, writeFormat, readerToken);
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         [Test]
@@ -546,6 +568,31 @@ namespace TestProjects.Local.Tests
 
         private static string OptionalNullableJson(string propertyName, string value) =>
             $"{{\"requiredNullable\":null,\"{propertyName}\":{value}}}";
+
+        private static OptionalNullableFieldNames ReadOptionalNullableFieldNames(
+            string json,
+            string format,
+            JsonTokenType? readerToken)
+        {
+            var data = BinaryData.FromString(json);
+            var options = new ModelReaderWriterOptions(format);
+            if (readerToken is not { } token)
+            {
+                return ModelReaderWriter.Read<OptionalNullableFieldNames>(data, options, SampleTypeSpecContext.Default)!;
+            }
+
+            var reader = new Utf8JsonReader(data.ToMemory().Span);
+            if (token == JsonTokenType.StartObject)
+            {
+                Assert.That(reader.Read(), Is.True);
+            }
+            Assert.That(reader.TokenType, Is.EqualTo(token));
+            var model = ((IJsonModel<OptionalNullableFieldNames>)new OptionalNullableFieldNames()).Create(ref reader, options)!;
+            Assert.That(reader.TokenType, Is.EqualTo(JsonTokenType.EndObject));
+            Assert.That(reader.BytesConsumed, Is.EqualTo(data.ToMemory().Length));
+            Assert.That(reader.Read(), Is.False);
+            return model;
+        }
 
         private static OptionalNullableProperties ReadOptionalNullableProperties(string json, string format, bool useJsonModel = false)
         {
