@@ -79,12 +79,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         public void TypedAdditionalPropertiesUnionKeepsKeysInSingleDictionary()
         {
             var inputModel = InputFactory.Model("TestModel",
-                additionalProperties: new InputUnionType("union",
-                [
-                    InputPrimitiveType.String,
-                    new InputNullableType(InputPrimitiveType.Int32),
-                    new InputNullableType(InputPrimitiveType.Boolean)
-                ]));
+                additionalProperties: new InputNullableType(
+                    new InputUnionType("union",
+                    [
+                        InputPrimitiveType.String,
+                        InputPrimitiveType.Int32,
+                        InputPrimitiveType.Boolean
+                    ])));
             MockHelpers.LoadMockGenerator(inputModels: () => [inputModel]);
             var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
             var serialization = (MrwSerializationTypeDefinition)model.SerializationProviders.Single();

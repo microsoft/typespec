@@ -196,7 +196,7 @@ namespace TestProjects.Local.Tests
                 model.AdditionalInt32Properties.Count +
                 model.AdditionalBooleanProperties.Count,
                 Is.EqualTo(1));
-            Assert.That(model.AdditionalProperties.ContainsKey("extra"), Is.EqualTo(expectedKind == JsonValueKind.String));
+            Assert.That(model.AdditionalProperties.ContainsKey("extra"), Is.EqualTo(expectedKind is JsonValueKind.String or JsonValueKind.Null));
             Assert.That(model.AdditionalInt32Properties.ContainsKey("extra"), Is.EqualTo(expectedKind == JsonValueKind.Number));
             Assert.That(model.AdditionalBooleanProperties.ContainsKey("extra"), Is.EqualTo(expectedKind is JsonValueKind.True or JsonValueKind.False));
             AssertModelJson(model, expectedJson, writeFormat);
@@ -213,7 +213,13 @@ namespace TestProjects.Local.Tests
                     ("""{"extra":"first","extra":true}""", """{"extra":true}""", JsonValueKind.True),
                     ("""{"extra":true,"extra":"last"}""", """{"extra":"last"}""", JsonValueKind.String),
                     ("""{"extra":1,"extra":false}""", """{"extra":false}""", JsonValueKind.False),
-                    ("""{"extra":false,"extra":1}""", """{"extra":1}""", JsonValueKind.Number)
+                    ("""{"extra":false,"extra":1}""", """{"extra":1}""", JsonValueKind.Number),
+                    ("""{"extra":"first","extra":null}""", """{"extra":null}""", JsonValueKind.Null),
+                    ("""{"extra":null,"extra":"last"}""", """{"extra":"last"}""", JsonValueKind.String),
+                    ("""{"extra":1,"extra":null}""", """{"extra":null}""", JsonValueKind.Null),
+                    ("""{"extra":null,"extra":1}""", """{"extra":1}""", JsonValueKind.Number),
+                    ("""{"extra":true,"extra":null}""", """{"extra":null}""", JsonValueKind.Null),
+                    ("""{"extra":null,"extra":false}""", """{"extra":false}""", JsonValueKind.False)
                 ];
                 foreach (var (json, expectedJson, expectedKind) in duplicateCases)
                 {

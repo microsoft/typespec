@@ -76,6 +76,11 @@ namespace SampleTypeSpec
             foreach (var item in AdditionalProperties)
             {
                 writer.WritePropertyName(item.Key);
+                if (item.Value == null)
+                {
+                    writer.WriteNullValue();
+                    continue;
+                }
                 writer.WriteStringValue(item.Value);
             }
             foreach (var item in AdditionalInt32Properties)
@@ -138,6 +143,11 @@ namespace SampleTypeSpec
             {
                 switch (prop.Value.ValueKind)
                 {
+                    case JsonValueKind.Null:
+                        additionalInt32Properties.Remove(prop.Name);
+                        additionalBooleanProperties.Remove(prop.Name);
+                        additionalProperties[prop.Name] = null;
+                        continue;
                     case JsonValueKind.String:
                         additionalInt32Properties.Remove(prop.Name);
                         additionalBooleanProperties.Remove(prop.Name);
