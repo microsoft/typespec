@@ -43,6 +43,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private readonly FieldProvider _valueField;
 
+        private protected override bool IsCustomizedValueName(string name)
+        {
+            var fieldName = name + "Value";
+            return SuppressedMemberNames.Contains(name) || SuppressedMemberNames.Contains(fieldName) ||
+                CustomizedPropertyNames.Contains(name) || CustomizedFieldNames.Contains(fieldName);
+        }
+
         protected override TypeProvider? BuildDeclaringTypeProvider() => _declaringType;
         private readonly TypeProvider? _declaringType;
 

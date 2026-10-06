@@ -80,6 +80,31 @@ namespace Microsoft.TypeSpec.Generator.Providers
             GetCustomMemberNames(),
             StringComparer.OrdinalIgnoreCase);
 
+        private ILookup<string, FieldProvider>? _customFieldsByName;
+        private protected ILookup<string, FieldProvider> CustomFieldsByName =>
+            _customFieldsByName ??= (CustomCodeView?.Fields ?? []).ToLookup(f => f.Name, StringComparer.Ordinal);
+
+        private ILookup<string, PropertyProvider>? _customPropertiesByName;
+        private protected ILookup<string, PropertyProvider> CustomPropertiesByName =>
+            _customPropertiesByName ??= (CustomCodeView?.Properties ?? []).ToLookup(p => p.Name, StringComparer.Ordinal);
+
+        private HashSet<string>? _customizedFieldNames;
+        private protected HashSet<string> CustomizedFieldNames => _customizedFieldNames ??= new HashSet<string>(
+            CustomFieldsByName.SelectMany(g => g).SelectMany(f => new[] { f.Name, f.OriginalName }).OfType<string>(),
+            StringComparer.Ordinal);
+
+        private HashSet<string>? _customizedPropertyNames;
+        private protected HashSet<string> CustomizedPropertyNames => _customizedPropertyNames ??= new HashSet<string>(
+            CustomPropertiesByName.SelectMany(g => g).SelectMany(p => new[] { p.Name, p.OriginalName }).OfType<string>(),
+            StringComparer.Ordinal);
+
+        private HashSet<string>? _suppressedMemberNames;
+        private protected HashSet<string> SuppressedMemberNames => _suppressedMemberNames ??= new HashSet<string>(
+            GetMemberSuppressionAttributes()
+                .Where(a => a.ConstructorArguments.Length > 0)
+                .Select(a => a.ConstructorArguments[0].Value).OfType<string>(),
+            StringComparer.Ordinal);
+
         private IEnumerable<string> GetCustomMemberNames()
         {
             if (CustomCodeView is null)
@@ -165,15 +190,19 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     ? name
                     : normalizedName;
             }).ToArray();
-            var previousNameSet = new HashSet<string>(GetDeclarationNames(previousNames), StringComparer.Ordinal);
-            var nameCounts = GetDeclarationNames(normalizedNames).CountBy(n => n, StringComparer.Ordinal).ToDictionary();
+            var previousNameSet = new HashSet<string>(
+                IsExtensible ? previousNames.SelectMany(n => new[] { n, n + "Value" }) : previousNames,
+                StringComparer.Ordinal);
+            var nameCounts = (IsExtensible ? normalizedNames.SelectMany(n => new[] { n, n + "Value" }) : normalizedNames)
+                .CountBy(n => n, StringComparer.Ordinal).ToDictionary();
 
             for (int i = 0; i < normalizedNames.Length; i++)
             {
                 var name = normalizedNames[i];
                 // Include backing fields and custom renames when checking for new declaration collisions.
                 if (name != previousNames[i] &&
-                    (HasCollision(name) || (IsExtensible && HasCollision(name + "Value")) ||
+                    (HasDeclarationCollision(name, previousNameSet, nameCounts) ||
+                    (IsExtensible && HasDeclarationCollision(name + "Value", previousNameSet, nameCounts)) ||
                     HasCustomNameCollision(name, previousNames[i])))
                 {
                     normalizedNames[i] = previousNames[i];
@@ -181,36 +210,34 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             return normalizedNames;
-
-            bool HasCollision(string name) => previousNameSet.Contains(name) || nameCounts[name] > 1 || name == Name;
         }
 
-        private IEnumerable<string> GetDeclarationNames(IEnumerable<string> names) =>
-            IsExtensible ? names.SelectMany(n => new[] { n, n + "Value" }) : names;
+        private bool HasDeclarationCollision(string name, HashSet<string> previousNames, Dictionary<string, int> nameCounts) =>
+            previousNames.Contains(name) || nameCounts[name] > 1 || name == Name;
 
-        private bool HasCustomNameCollision(string name, string previousName) => IsExtensible
-            ? CustomCodeView?.Properties.Any(p => p.Name == name + "Value" || (p.Name == name && p.OriginalName != null &&
-                p.OriginalName != name && p.OriginalName != previousName)) == true ||
-                CustomCodeView?.Fields.Any(f => f.Name == name || (f.Name == name + "Value" &&
-                    f.OriginalName != null && f.OriginalName != name + "Value" && f.OriginalName != previousName + "Value")) == true
-            : CustomCodeView?.Fields.Any(f => f.Name == name && f.OriginalName != null &&
-                f.OriginalName != name && f.OriginalName != previousName) == true;
-
-        private bool IsCustomizedValueName(string name)
+        private bool HasCustomNameCollision(string name, string previousName)
         {
-            if (GetMemberSuppressionAttributes().Any(a =>
-                a.ConstructorArguments.Length > 0 &&
-                a.ConstructorArguments[0].Value is string memberName &&
-                (memberName == name || (IsExtensible && memberName == name + "Value"))))
+            if (CustomFieldsByName[name].Any(f => IsExtensible ||
+                (f.OriginalName != null && f.OriginalName != name && f.OriginalName != previousName)))
             {
                 return true;
             }
 
-            return IsExtensible
-                ? CustomCodeView?.Properties.Any(p => p.Name == name || p.OriginalName == name) == true ||
-                    CustomCodeView?.Fields.Any(f => f.Name == name + "Value" || f.OriginalName == name + "Value") == true
-                : CustomCodeView?.Fields.Any(f => f.Name == name || f.OriginalName == name) == true;
+            if (!IsExtensible)
+            {
+                return false;
+            }
+
+            var fieldName = name + "Value";
+            var previousFieldName = previousName + "Value";
+            return CustomPropertiesByName[fieldName].Any() ||
+                CustomPropertiesByName[name].Any(p =>
+                    p.OriginalName != null && p.OriginalName != name && p.OriginalName != previousName) ||
+                CustomFieldsByName[fieldName].Any(f =>
+                    f.OriginalName != null && f.OriginalName != fieldName && f.OriginalName != previousFieldName);
         }
+
+        private protected virtual bool IsCustomizedValueName(string name) => false;
 
         private static string GetGeneratedValueName(
             InputEnumTypeValue inputValue,

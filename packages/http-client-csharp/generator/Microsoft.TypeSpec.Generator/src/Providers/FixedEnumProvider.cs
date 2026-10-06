@@ -37,6 +37,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         internal IReadOnlyList<InputEnumTypeValue> AllowedValues { get; }
+
+        private protected override bool IsCustomizedValueName(string name) =>
+            SuppressedMemberNames.Contains(name) || CustomizedFieldNames.Contains(name);
+
         protected override TypeProvider? BuildDeclaringTypeProvider() => _declaringTypeProvider;
         private readonly TypeProvider? _declaringTypeProvider;
 

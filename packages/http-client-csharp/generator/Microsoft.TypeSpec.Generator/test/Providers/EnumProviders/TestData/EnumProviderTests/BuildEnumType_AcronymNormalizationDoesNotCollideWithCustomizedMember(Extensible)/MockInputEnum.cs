@@ -9,5 +9,9 @@ namespace Sample.Models
     {
         [CodeGenMember("Db")]
         public static MockInputEnum IP { get; } = new MockInputEnum(DbValue);
+        [CodeGenMember("Other")]
+        private const int OS = 3;
+        [CodeGenMember("Another")]
+        public static MockInputEnum IPv4Value { get; } = new MockInputEnum(4);
     }
 }

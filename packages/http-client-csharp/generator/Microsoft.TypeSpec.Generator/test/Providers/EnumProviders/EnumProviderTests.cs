@@ -1510,22 +1510,24 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             CollectionAssert.AreEqual(new[] { firstName, secondName }, provider.Properties.Select(p => p.Name));
         }
 
-        [TestCase(false, "Fixed")]
-        [TestCase(true, "Extensible")]
-        public async Task BuildEnumType_AcronymNormalizationDoesNotCollideWithCustomizedMember(bool isExtensible, string testData)
+        [TestCase(false, "Fixed", "Ip")]
+        [TestCase(true, "Extensible", "Ip")]
+        [TestCase(true, "Extensible", "Os")]
+        [TestCase(true, "Extensible", "Ipv4")]
+        public async Task BuildEnumType_AcronymNormalizationDoesNotCollideWithCustomizedMember(bool isExtensible, string testData, string memberName)
         {
             await MockHelpers.LoadMockGeneratorAsync(
                 createCSharpTypeCore: _ => typeof(int),
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: testData));
-            var input = InputFactory.Int32Enum("mockInputEnum", [("Ip", 1), ("Db", 2)], isExtensible: isExtensible);
+            var input = InputFactory.Int32Enum("mockInputEnum", [(memberName, 1), ("Db", 2)], isExtensible: isExtensible);
             var provider = EnumProvider.Create(input);
             provider.EnsureBuilt();
             provider.Update(provider.Methods, provider.Constructors, provider.Properties, provider.Fields);
             provider.ProcessTypeForBackCompatibility();
 
-            CollectionAssert.AreEqual(new[] { "Ip" },
+            CollectionAssert.AreEqual(new[] { memberName },
                 isExtensible ? provider.Properties.Select(p => p.Name) : provider.Fields.Select(f => f.Name));
-            Assert.AreEqual(1, provider.EnumValues.Single(v => v.Name == "Ip").Value);
+            Assert.AreEqual(1, provider.EnumValues.Single(v => v.Name == memberName).Value);
         }
 
         [TestCase(false, "Fixed")]
