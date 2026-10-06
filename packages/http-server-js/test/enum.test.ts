@@ -1,3 +1,4 @@
+import { runInNewContext } from "node:vm";
 import { expect, it } from "vitest";
 import { HttpServerEmitterTester } from "./tester.js";
 
@@ -78,4 +79,33 @@ it("uses the json encoded name to differentiate union variants", async () => {
   const serverRaw = outputs["src/generated/http/operations/server-raw.ts"];
   expect(serverRaw).toMatch(/\.kind === "feline"/);
   expect(serverRaw).not.toMatch(/\.kind === "cat"/);
+});
+
+it("emits encoded values as string literals that decode to the encoded value", async () => {
+  const values = ['a"b', "c\\d", "e\u2028f", "</g>"];
+  const outputs = await emitExample(`
+    enum Status {
+      @encodedName("application/json", ${JSON.stringify(values[0])})
+      quoted,
+      @encodedName("application/json", ${JSON.stringify(values[1])})
+      backslashed,
+      @encodedName("application/json", ${JSON.stringify(values[2])})
+      separated,
+      @encodedName("application/json", ${JSON.stringify(values[3])})
+      tagged,
+    }
+
+    model Cat {
+      kind: Status.quoted;
+    }
+
+    @get op read(): Cat;
+  `);
+  const source = outputs["src/generated/models/all/example.ts"];
+
+  const members = [...source.matchAll(/^ {2}(?:Quoted|Backslashed|Separated|Tagged) = (.*),$/gm)];
+  expect(members.map(([, literal]) => runInNewContext(literal))).toEqual(values);
+  const kind = /^ {2}kind: (.*);$/m.exec(source)![1];
+  expect(runInNewContext(kind)).toBe(values[0]);
+  expect(source).not.toMatch(/[\u2028\u2029]/);
 });
