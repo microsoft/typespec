@@ -168,16 +168,26 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     ? name
                     : normalizedName;
             }
-            var previousNameSet = new HashSet<string>(
-                IsExtensible ? previousNames.SelectMany(n => new[] { n, n + "Value" }) : previousNames,
-                StringComparer.Ordinal);
-            var nameCounts = (IsExtensible ? normalizedNames.SelectMany(n => new[] { n, n + "Value" }) : normalizedNames)
+            return RemoveValueNameCollisions(inputValues, lastContractNames, previousNames, normalizedNames,
+                IsExtensible ? ["", "Value"] : [""]);
+        }
+
+        private string[] RemoveValueNameCollisions(
+            IReadOnlyList<InputEnumTypeValue> inputValues,
+            IReadOnlyList<string> lastContractNames,
+            string[] previousNames,
+            string[] normalizedNames,
+            string[] declarationSuffixes)
+        {
+            var previousNameSet = new HashSet<string>(previousNames.SelectMany(n => declarationSuffixes.Select(s => n + s)), StringComparer.Ordinal);
+            var nameCounts = normalizedNames.SelectMany(n => declarationSuffixes.Select(s => n + s))
                 .CountBy(n => n, StringComparer.Ordinal).ToDictionary();
             var lastContractDeclarations = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
             foreach (var member in lastContractNames)
             {
-                foreach (var declaration in IsExtensible ? new[] { member, member + "Value" } : new[] { member })
+                foreach (var suffix in declarationSuffixes)
                 {
+                    var declaration = member + suffix;
                     if (!lastContractDeclarations.TryGetValue(declaration, out var owners))
                     {
                         owners = new HashSet<string>(StringComparer.Ordinal);
@@ -196,18 +206,23 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
 
                 var hasLastContractCollision = false;
-                lastContractDeclarations.TryGetValue(name, out var memberOwners);
-                var fieldOwners = IsExtensible ? lastContractDeclarations.GetValueOrDefault(name + "Value") : null;
-                if (memberOwners != null || fieldOwners != null)
+                string? preservedName = null;
+                foreach (var suffix in declarationSuffixes)
                 {
-                    var preservedName = GetBackCompatibleName(name, normalizedNames, lastContractNames, inputValues[i].IsExactName);
-                    hasLastContractCollision = memberOwners?.Any(n => n != preservedName) == true ||
-                        fieldOwners?.Any(n => n != preservedName) == true;
+                    if (lastContractDeclarations.TryGetValue(name + suffix, out var owners))
+                    {
+                        preservedName ??= GetBackCompatibleName(name, normalizedNames, lastContractNames, inputValues[i].IsExactName);
+                        if (owners.Any(n => n != preservedName))
+                        {
+                            hasLastContractCollision = true;
+                            break;
+                        }
+                    }
                 }
 
                 // Include backing fields and custom renames when checking for new declaration collisions.
                 if (hasLastContractCollision ||
-                    HasDeclarationCollision(name, previousNames[i], previousNameSet, nameCounts))
+                    HasDeclarationCollision(name, previousNames[i], previousNameSet, nameCounts, declarationSuffixes))
                 {
                     normalizedNames[i] = previousNames[i];
                 }
@@ -216,51 +231,26 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return normalizedNames;
         }
 
-        private bool HasDeclarationCollision(string name, string previousName, HashSet<string> previousNames, Dictionary<string, int> nameCounts)
+        private bool HasDeclarationCollision(string name, string previousName, HashSet<string> previousNames, Dictionary<string, int> nameCounts, string[] declarationSuffixes)
         {
-            foreach (var declarationName in IsExtensible ? new[] { name, name + "Value" } : new[] { name })
+            foreach (var suffix in declarationSuffixes)
             {
+                var declarationName = name + suffix;
                 if (previousNames.Contains(declarationName) || nameCounts[declarationName] > 1 || declarationName == Name)
                 {
                     return true;
                 }
 
-                var isBackingField = declarationName != name;
-                var previousDeclarationName = isBackingField ? previousName + "Value" : previousName;
-                foreach (var field in CustomCodeView?.Fields ?? [])
+                if (HasCustomDeclarationCollision(declarationName, previousName + suffix, suffix.Length > 0))
                 {
-                    if (field.Name != declarationName)
-                    {
-                        continue;
-                    }
-
-                    var isRenamed = field.OriginalName != null && field.OriginalName != declarationName && field.OriginalName != previousDeclarationName;
-                    if ((!isBackingField && IsExtensible) || isRenamed)
-                    {
-                        return true;
-                    }
-                }
-
-                if (IsExtensible)
-                {
-                    foreach (var property in CustomCodeView?.Properties ?? [])
-                    {
-                        if (property.Name != declarationName)
-                        {
-                            continue;
-                        }
-
-                        var isRenamed = property.OriginalName != null && property.OriginalName != declarationName && property.OriginalName != previousDeclarationName;
-                        if (isBackingField || isRenamed)
-                        {
-                            return true;
-                        }
-                    }
+                    return true;
                 }
             }
 
             return false;
         }
+
+        private protected virtual bool HasCustomDeclarationCollision(string name, string previousName, bool isBackingField) => false;
 
         private protected virtual bool IsCustomizedValueName(string name) =>
             GetMemberSuppressionAttributes().Any(a => a.ConstructorArguments.Length > 0 &&

@@ -42,6 +42,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             base.IsCustomizedValueName(name) ||
             CustomCodeView?.Fields.Any(f => f.Name == name || f.OriginalName == name) == true;
 
+        private protected override bool HasCustomDeclarationCollision(string name, string previousName, bool isBackingField) =>
+            CustomCodeView?.Fields.Any(f => f.Name == name &&
+                f.OriginalName != null && f.OriginalName != name && f.OriginalName != previousName) == true;
+
         protected override TypeProvider? BuildDeclaringTypeProvider() => _declaringTypeProvider;
         private readonly TypeProvider? _declaringTypeProvider;
 
