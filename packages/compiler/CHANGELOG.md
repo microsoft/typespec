@@ -1,5 +1,72 @@
 # Change Log - @typespec/compiler
 
+## 1.17.0
+
+### Features
+
+- [#11019](https://github.com/microsoft/typespec/pull/11019) Allow `model`, `enum`, `union`, and `scalar` declarations to be used as expressions. A declaration used in expression position has its corresponding type marked with `expression: true` and is not registered in the enclosing namespace. It may be named or anonymous (in which case it has no name).
+  
+  This is an experimental feature that must be opted into by adding `declaration-expressions` to the `features` list in `tspconfig.yaml`; using a declaration expression without it reports a `declaration-expression-disabled` error.
+  
+  They can be used anywhere an expression is expected, including aliases, model properties, decorator arguments, template arguments, function/call arguments, and tuples.
+  
+  `model`, `scalar`, and `union` declaration expressions support the same `extends` clause as their statement form (union `extends` additionally requires the `union-extends` feature).
+  
+  ```tsp
+  alias Foo = enum {
+    a,
+    b,
+  };
+  
+  model Bar {
+    status: enum { active, inactive };
+    unit: scalar extends string;
+    inner: model Inner { x: string };
+  }
+  
+  @Versioning.versioned(enum Versions { v1, v2 })
+  namespace MyService;
+  ```
+- [#11019](https://github.com/microsoft/typespec/pull/11019) Allow decorators to be applied to `model`, `enum`, `union`, and `scalar` declarations used in expression position. Inline decorators can be applied directly, and augment decorators (`@@`) can target them through a navigation reference (such as `::type`).
+  
+  ```tsp
+  model Foo {
+    status: @doc("the current status") enum { active, inactive };
+    inner: @doc("nested model") model Inner { x: string };
+  }
+  
+  @@doc(Foo.status::type, "the current status");
+  ```
+- [#11019](https://github.com/microsoft/typespec/pull/11019) Allow a doc comment to be applied inline to a `model`, `enum`, `union`, or `scalar` declaration expression, just like an inline `@doc` decorator.
+  
+  ```tsp
+  model Foo {
+    status: /** the current status */ enum { active, inactive };
+  }
+  ```
+- [#11019](https://github.com/microsoft/typespec/pull/11019) Improve formatting of declaration expressions (`model`, `enum`, `union`, and `scalar` used in expression position) that carry doc comments and/or decorators. When the inline form would exceed the print width, the doc comments and decorators are now each placed on their own line and the whole block is indented one level instead of overflowing.
+  
+  ```tsp
+  model Foo {
+    status:
+      @summary("a fairly long summary text here")
+      @example("some-default-example-value")
+      enum {
+        active,
+        inactive,
+      };
+  }
+  ```
+- [#11019](https://github.com/microsoft/typespec/pull/11019) `$.enum.create` now produces an enum expression (`expression: true`) when given an empty `name`, mirroring `$.model.create`.
+
+### Bug Fixes
+
+- [#11559](https://github.com/microsoft/typespec/pull/11559) Disallow property and record spreads in array model declarations.
+- [#11960](https://github.com/microsoft/typespec/pull/11960) Prevent TypeSpec-authored paths from escaping template and emitter output directories.
+- [#11998](https://github.com/microsoft/typespec/pull/11998) Fix `tsp compile` failing with `INVALID_MODULE_EXPORT_TARGET` when the project is on a Windows network share (UNC path).
+- [#10613](https://github.com/microsoft/typespec/pull/10613) Fix `Sym.node` type to be `Node | undefined` and update `getSymNode` return type to accurately reflect that it may return `undefined` for symbols created without a node (e.g. the built-in `null` symbol). Update all callers to correctly handle the `undefined` case.
+
+
 ## 1.16.0
 
 ### Features
