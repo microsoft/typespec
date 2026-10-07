@@ -309,7 +309,6 @@ const UNSAFE_CHAR_MAP: { [k: string]: string } = {
   "<": "\\u003C",
   ">": "\\u003E",
   "/": "\\u002F",
-  "\\": "\\\\",
   "\b": "\\b",
   "\f": "\\f",
   "\n": "\\n",
@@ -320,8 +319,12 @@ const UNSAFE_CHAR_MAP: { [k: string]: string } = {
   "\u2029": "\\u2029",
 };
 
+/**
+ * Escapes characters that are unsafe in generated source. Apply it to `JSON.stringify` output: a
+ * backslash there is an escape `JSON.stringify` wrote, so it is left alone.
+ */
 export function escapeUnsafeChars(s: string) {
-  return s.replace(/[<>/\\\b\f\n\r\t\0\u2028\u2029]/g, (x) => UNSAFE_CHAR_MAP[x]);
+  return s.replace(/[<>/\b\f\n\r\t\0\u2028\u2029]/g, (x) => UNSAFE_CHAR_MAP[x]);
 }
 
 export type JsTypeSpecLiteralType = LiteralType | (IntrinsicType & { name: "null" });
