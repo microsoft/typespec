@@ -156,7 +156,7 @@ catalog:
   rollup-plugin-visualizer: 7.1.1
   semver: ^7.8.5
   sharp: ^0.35.5
-  simple-git: ^3.36.0
+  simple-git: ^4.0.1
   storybook: ^10.5.10
   strip-json-comments: ^5.0.3
   swagger-ui-dist: ^5.32.14
