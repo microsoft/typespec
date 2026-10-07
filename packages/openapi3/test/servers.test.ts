@@ -90,7 +90,7 @@ worksFor(supportedVersions, ({ diagnoseOpenApiFor, openApiFor }) => {
     deepStrictEqual(res.servers[0].variables.region.enum, ["westus", "eastus"]);
   });
 
-  it("emit diagnostic when an enum member left unencoded has the value 0", async () => {
+  it("emit diagnostic when a numeric enum member is left unencoded", async () => {
     const diagnostics = await diagnoseOpenApiFor(
       `
       @service(#{title: "My service"})
@@ -100,7 +100,7 @@ worksFor(supportedVersions, ({ diagnoseOpenApiFor, openApiFor }) => {
       enum Region {
         @encodedName("application/json", "westus")
         westUs: 1,
-        eastUs: 0,
+        eastUs: 2,
       }
       `,
     );

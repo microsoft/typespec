@@ -492,7 +492,7 @@ function createOAPIEmitter(
       case "Enum":
         for (const member of type.members.values()) {
           const value = resolveEncodedEnumMemberValue(program, member, "application/json");
-          if (typeof value !== "string") {
+          if (value && typeof value !== "string") {
             return false;
           }
         }
