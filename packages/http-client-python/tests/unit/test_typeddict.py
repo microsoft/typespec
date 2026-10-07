@@ -21,6 +21,7 @@ from pygen.codegen.serializers.types_serializer import (
     _qualify_shadowed_builtins,
 )
 from pygen.codegen.serializers.import_serializer import FileImportSerializer
+from pygen.codegen.serializers.model_serializer import DpgModelSerializer
 from pygen.codegen.serializers.unions_serializer import UnionsSerializer
 
 
@@ -754,6 +755,45 @@ def test_enum_value_dpg_imports_enums_module():
     enum_value = _make_enum_value(code_model)
     modules = _local_import_modules(enum_value.imports())
     assert any("_enums" in module for module in modules)
+
+
+def test_enum_value_docstring_type_references_enum_class():
+    """The ``:vartype`` of a constant enum value (e.g. a discriminator) must reference the enum class.
+
+    The enum member name (``RED``) is not a symbol of the models module, so ``~<ns>.models.RED``
+    is an unresolvable Sphinx cross-reference; ``~<ns>.models.Color`` is the exported enum type.
+    """
+    code_model = _make_code_model(models_mode="dpg")
+    enum_value = _make_enum_value(code_model)
+    namespace = enum_value.enum_type.client_namespace
+    assert enum_value.docstring_type() == f"str or ~{namespace}.models.Color"
+    assert enum_value.docstring_type() == enum_value.enum_type.docstring_type()
+
+
+def test_enum_value_docstring_type_with_generation_subdir():
+    """``generation-subdir`` is still honored when referencing the enum class."""
+    code_model = _make_code_model(models_mode="dpg")
+    code_model.options["generation-subdir"] = "_generated"
+    enum_value = _make_enum_value(code_model)
+    namespace = enum_value.enum_type.client_namespace
+    assert enum_value.docstring_type() == f"str or ~{namespace}._generated.models.Color"
+
+
+def test_discriminator_vartype_references_enum_class():
+    """A discriminator subclass's ``:vartype`` points at the discriminator enum, not the member name."""
+    code_model = _make_code_model(models_mode="dpg")
+    enum_value = _make_enum_value(
+        code_model, enum_name="ActivityRecordType", member_name="MODEL_WEB_SUMMARIZATION", value="modelWebSummarization"
+    )
+    prop = Property(
+        yaml_data={"wireName": "type", "clientName": "type", "optional": False, "isDiscriminator": True},
+        code_model=code_model,
+        type=enum_value,
+    )
+    namespace = enum_value.enum_type.client_namespace
+    vartype = DpgModelSerializer.variable_documentation_string(prop)[-1]
+    assert vartype == f":vartype type: str or ~{namespace}.models.ActivityRecordType"
+    assert "MODEL_WEB_SUMMARIZATION" not in vartype
 
 
 # ---------- builtin-shadowing qualification (Literal-value false positives) ----------
