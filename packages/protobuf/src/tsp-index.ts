@@ -4,6 +4,7 @@ import {
   $_map,
   $externRef,
   $field,
+  $longRunning,
   $message,
   $package,
   $reserve,
@@ -25,5 +26,6 @@ export const $decorators = {
   "TypeSpec.Protobuf.Private": {
     externRef: $externRef,
     _map: $_map,
+    longRunning: $longRunning,
   } satisfies TypeSpecProtobufPrivateDecorators,
 };
