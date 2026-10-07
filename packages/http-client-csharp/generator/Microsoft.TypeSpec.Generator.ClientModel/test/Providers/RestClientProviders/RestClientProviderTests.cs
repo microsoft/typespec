@@ -7,6 +7,8 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
@@ -142,6 +144,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             var client = generator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().Single();
             client.ProcessTypeForBackCompatibility();
 
+            var createRequest = client.RestClient.GetCreateRequestMethod(operation);
+            CollectionAssert.AreEqual(
+                new[] { "version", "sourceIPAddress", "options" },
+                createRequest.Signature.Parameters.Select(parameter => parameter.Name));
+            Assert.IsTrue(createRequest.Signature.Parameters.All(parameter => parameter.DefaultValue is null));
+
+            var requestSyntax = CSharpSyntaxTree.ParseText(createRequest.BodyStatements!.ToDisplayString()).GetRoot();
+            var query = requestSyntax.DescendantNodes().OfType<InvocationExpressionSyntax>().Single(invocation =>
+                invocation.Expression is MemberAccessExpressionSyntax member && member.Name.Identifier.ValueText == "AppendQuery");
+            Assert.AreEqual("sourceIpAddress", ((LiteralExpressionSyntax)query.ArgumentList.Arguments[0].Expression).Token.ValueText);
+            Assert.AreEqual("sourceIPAddress", query.ArgumentList.Arguments[1].Expression.ToString());
+
             var expectedName = signatureSource switch
             {
                 "Published" => "sourceIpAddress",
@@ -152,19 +166,73 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             Assert.AreEqual(2, methods.Length);
             foreach (var method in methods)
             {
+                var protocolMethod = client.Methods.OfType<ScmMethodProvider>().Single(
+                    protocol => protocol.Kind == ScmMethodKind.Protocol && protocol.Signature.Name == method.Signature.Name);
+                var protocolSyntax = CSharpSyntaxTree.ParseText(protocolMethod.BodyStatements!.ToDisplayString()).GetRoot();
+                var requestInvocation = protocolSyntax.DescendantNodes().OfType<InvocationExpressionSyntax>().Single(invocation =>
+                    invocation.Expression is MemberAccessExpressionSyntax member && member.Name.Identifier.ValueText == "CreateSendRequest");
+                CollectionAssert.AreEqual(
+                    new[] { "version", expectedName, "options" },
+                    requestInvocation.ArgumentList.Arguments.Select(argument => argument.Expression.ToString()));
+
                 StringAssert.Contains(
                     $"this.{method.Signature.Name}({expectedName}: {expectedName}, options: cancellationToken.ToRequestOptions())",
                     method.BodyStatements!.ToDisplayString());
                 if (signatureSource == "New")
                 {
-                    var protocolMethod = client.Methods.OfType<ScmMethodProvider>().Single(
-                        protocol => protocol.Kind == ScmMethodKind.Protocol && protocol.Signature.Name == method.Signature.Name);
                     CollectionAssert.AreEqual(
                         new[] { "sourceIPAddress", "version", "options" },
                         protocolMethod.Signature.Parameters.Select(parameter => parameter.Name));
                     Assert.AreEqual(
                         Helpers.GetExpectedFromFile(method.Signature.Name.EndsWith("Async") ? "Async" : "Sync"),
                         method.BodyStatements!.ToDisplayString());
+                }
+            }
+        }
+
+        [Test]
+        public void AcronymArgumentsFollowRequiredParameterOrder()
+        {
+            var operation = InputFactory.Operation(
+                "Send",
+                parameters:
+                [
+                    InputFactory.PathParameter("version", InputPrimitiveType.String, isRequired: false),
+                    InputFactory.QueryParameter("sourceIpAddress", InputPrimitiveType.String, isRequired: true)
+                ],
+                uri: "/things/{version}",
+                responses: [InputFactory.OperationResponse([204])]);
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "Send",
+                operation,
+                parameters:
+                [
+                    InputFactory.MethodParameter("version", InputPrimitiveType.String, location: InputRequestLocation.Path),
+                    InputFactory.MethodParameter("sourceIpAddress", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Query)
+                ]);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+            var methods = client.Methods.OfType<ScmMethodProvider>().ToArray();
+            Assert.AreEqual(4, methods.Length);
+
+            foreach (var method in methods)
+            {
+                var syntax = CSharpSyntaxTree.ParseText(method.BodyStatements!.ToDisplayString()).GetRoot();
+                var targetName = method.Kind == ScmMethodKind.Protocol ? "CreateSendRequest" : method.Signature.Name;
+                var invocation = syntax.DescendantNodes().OfType<InvocationExpressionSyntax>().Single(candidate =>
+                    candidate.Expression is MemberAccessExpressionSyntax member && member.Name.Identifier.ValueText == targetName);
+                Assert.AreEqual(3, invocation.ArgumentList.Arguments.Count);
+                CollectionAssert.AreEqual(
+                    method.Kind == ScmMethodKind.Protocol
+                        ? new[] { "version", "sourceIPAddress" }
+                        : new[] { "sourceIPAddress", "version" },
+                    invocation.ArgumentList.Arguments.Take(2).Select(argument => argument.Expression.ToString()));
+                if (method.Kind == ScmMethodKind.Protocol)
+                {
+                    CollectionAssert.AreEqual(
+                        new[] { "sourceIPAddress", "version", "options" },
+                        method.Signature.Parameters.Select(parameter => parameter.Name));
                 }
             }
         }

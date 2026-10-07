@@ -39,6 +39,42 @@ namespace SampleTypeSpec
             return message;
         }
 
+        internal PipelineMessage CreateGetAcronymParametersRequest(string targetDBName, string sourceIPAddress, string guestOSType, RequestOptions options)
+        {
+            ClientUriBuilder uri = new ClientUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/acronyms/", false);
+            uri.AppendPath(targetDBName, true);
+            if (sourceIPAddress != null)
+            {
+                uri.AppendQuery("sourceIpAddress", sourceIPAddress, true);
+            }
+            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier204);
+            PipelineRequest request = message.Request;
+            if (guestOSType != null)
+            {
+                request.Headers.Set("X-Guest-OS-Type", guestOSType);
+            }
+            message.Apply(options);
+            return message;
+        }
+
+        internal PipelineMessage CreateSetAcronymAddressesRequest(string ipv4Address, string ipv6Address, RequestOptions options)
+        {
+            ClientUriBuilder uri = new ClientUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/acronyms/addresses", false);
+            uri.AppendQuery("ipV4Address", ipv4Address, true);
+            if (ipv6Address != null)
+            {
+                uri.AppendQuery("ipV6Address", ipv6Address, true);
+            }
+            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "POST", PipelineMessageClassifier204);
+            PipelineRequest request = message.Request;
+            message.Apply(options);
+            return message;
+        }
+
         internal PipelineMessage CreateHelloAgainRequest(string p2, string p1, BinaryContent content, RequestOptions options)
         {
             ClientUriBuilder uri = new ClientUriBuilder();

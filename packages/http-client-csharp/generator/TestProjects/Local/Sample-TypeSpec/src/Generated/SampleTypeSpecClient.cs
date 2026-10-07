@@ -190,6 +190,158 @@ namespace SampleTypeSpec
         }
 
         /// <summary>
+        /// [Protocol Method] Send acronym-named path, query, and header parameters.
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="targetDBName"></param>
+        /// <param name="sourceIPAddress"></param>
+        /// <param name="guestOSType"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="targetDBName"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="targetDBName"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult GetAcronymParameters(string targetDBName, string sourceIPAddress, string guestOSType, RequestOptions options)
+        {
+            Argument.AssertNotNullOrEmpty(targetDBName, nameof(targetDBName));
+
+            using PipelineMessage message = CreateGetAcronymParametersRequest(targetDBName, sourceIPAddress, guestOSType, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
+
+        /// <summary>
+        /// [Protocol Method] Send acronym-named path, query, and header parameters.
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="targetDBName"></param>
+        /// <param name="sourceIPAddress"></param>
+        /// <param name="guestOSType"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="targetDBName"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="targetDBName"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> GetAcronymParametersAsync(string targetDBName, string sourceIPAddress, string guestOSType, RequestOptions options)
+        {
+            Argument.AssertNotNullOrEmpty(targetDBName, nameof(targetDBName));
+
+            using PipelineMessage message = CreateGetAcronymParametersRequest(targetDBName, sourceIPAddress, guestOSType, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> Send acronym-named path, query, and header parameters. </summary>
+        /// <param name="targetDBName"></param>
+        /// <param name="sourceIPAddress"></param>
+        /// <param name="guestOSType"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="targetDBName"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="targetDBName"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult GetAcronymParameters(string targetDBName, string sourceIPAddress = default, string guestOSType = default, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNullOrEmpty(targetDBName, nameof(targetDBName));
+
+            return GetAcronymParameters(targetDBName, sourceIPAddress, guestOSType, cancellationToken.ToRequestOptions());
+        }
+
+        /// <summary> Send acronym-named path, query, and header parameters. </summary>
+        /// <param name="targetDBName"></param>
+        /// <param name="sourceIPAddress"></param>
+        /// <param name="guestOSType"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="targetDBName"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="targetDBName"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult> GetAcronymParametersAsync(string targetDBName, string sourceIPAddress = default, string guestOSType = default, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNullOrEmpty(targetDBName, nameof(targetDBName));
+
+            return await GetAcronymParametersAsync(targetDBName, sourceIPAddress, guestOSType, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// [Protocol Method] Send parameters with leading IP version acronyms.
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="ipv4Address"></param>
+        /// <param name="ipv6Address"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="ipv4Address"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="ipv4Address"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult SetAcronymAddresses(string ipv4Address, string ipv6Address, RequestOptions options)
+        {
+            Argument.AssertNotNullOrEmpty(ipv4Address, nameof(ipv4Address));
+
+            using PipelineMessage message = CreateSetAcronymAddressesRequest(ipv4Address, ipv6Address, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
+
+        /// <summary>
+        /// [Protocol Method] Send parameters with leading IP version acronyms.
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="ipv4Address"></param>
+        /// <param name="ipv6Address"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="ipv4Address"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="ipv4Address"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> SetAcronymAddressesAsync(string ipv4Address, string ipv6Address, RequestOptions options)
+        {
+            Argument.AssertNotNullOrEmpty(ipv4Address, nameof(ipv4Address));
+
+            using PipelineMessage message = CreateSetAcronymAddressesRequest(ipv4Address, ipv6Address, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> Send parameters with leading IP version acronyms. </summary>
+        /// <param name="ipv4Address"></param>
+        /// <param name="ipv6Address"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="ipv4Address"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="ipv4Address"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult SetAcronymAddresses(string ipv4Address, string ipv6Address = default, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNullOrEmpty(ipv4Address, nameof(ipv4Address));
+
+            return SetAcronymAddresses(ipv4Address, ipv6Address, cancellationToken.ToRequestOptions());
+        }
+
+        /// <summary> Send parameters with leading IP version acronyms. </summary>
+        /// <param name="ipv4Address"></param>
+        /// <param name="ipv6Address"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="ipv4Address"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="ipv4Address"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult> SetAcronymAddressesAsync(string ipv4Address, string ipv6Address = default, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNullOrEmpty(ipv4Address, nameof(ipv4Address));
+
+            return await SetAcronymAddressesAsync(ipv4Address, ipv6Address, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+        }
+
+        /// <summary>
         /// [Protocol Method] Return hi again
         /// <list type="bullet">
         /// <item>

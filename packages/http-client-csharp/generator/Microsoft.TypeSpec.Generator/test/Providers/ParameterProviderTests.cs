@@ -152,26 +152,47 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
 
         [Test]
-        public void CloneHasIndependentVariableAndPreservesMetadata()
+        public void IndependentlyCreatedParametersPreserveMetadata()
         {
             MockHelpers.LoadMockGenerator();
             var input = InputFactory.MethodParameter("iPv4Address", InputPrimitiveType.String, isExactName: true);
             var parameter = CodeModelGenerator.Instance.TypeFactory.CreateParameter(input)!;
             var variable = parameter.AsVariable();
-            var clone = parameter.Clone();
+            var independentParameter = CodeModelGenerator.Instance.TypeFactory.CreateParameter(input)!;
 
-            Assert.AreEqual(parameter, clone);
-            Assert.AreSame(input, clone.InputParameter);
-            Assert.AreSame(parameter.WireInfo, clone.WireInfo);
-            Assert.AreEqual(parameter.IsExactName, clone.IsExactName);
-            Assert.AreEqual(parameter.DefaultValue, clone.DefaultValue);
-            Assert.AreEqual(parameter.Validation, clone.Validation);
-            Assert.AreNotSame(variable, clone.AsVariable());
+            Assert.AreEqual(parameter, independentParameter);
+            Assert.AreSame(input, independentParameter.InputParameter);
+            Assert.AreEqual(parameter.WireInfo.SerializedName, independentParameter.WireInfo.SerializedName);
+            Assert.AreEqual(parameter.IsExactName, independentParameter.IsExactName);
+            Assert.AreEqual(parameter.DefaultValue, independentParameter.DefaultValue);
+            Assert.AreEqual(parameter.Validation, independentParameter.Validation);
+            Assert.AreNotSame(variable, independentParameter.AsVariable());
 
-            clone.Update(name: "publishedIPv4Address");
-            Assert.AreEqual("publishedIPv4Address", clone.AsVariable().Declaration.RequestedName);
+            independentParameter.Update(name: "publishedIPv4Address");
+            Assert.AreEqual("publishedIPv4Address", independentParameter.AsVariable().Declaration.RequestedName);
             Assert.AreEqual("iPv4Address", parameter.Name);
             Assert.AreEqual("iPv4Address", variable.Declaration.RequestedName);
+        }
+
+        [Test]
+        public void PublicInputVariantPreservesVariableAndMetadata()
+        {
+            MockHelpers.LoadMockGenerator();
+            var input = InputFactory.MethodParameter(
+                "iPv4Addresses", InputFactory.Array(InputPrimitiveType.String), isExactName: true);
+            var parameter = CodeModelGenerator.Instance.TypeFactory.CreateParameter(input)!;
+            var variable = parameter.AsVariable();
+            var inputVariant = parameter.ToPublicInputParameter();
+
+            Assert.AreEqual(parameter.Name, inputVariant.Name);
+            Assert.IsTrue(inputVariant.Type.Equals(typeof(IEnumerable<string>)));
+            Assert.AreSame(variable, inputVariant.AsVariable());
+            Assert.AreSame(input, inputVariant.InputParameter);
+            Assert.AreSame(parameter.WireInfo, inputVariant.WireInfo);
+            Assert.AreEqual(parameter.IsExactName, inputVariant.IsExactName);
+            Assert.AreEqual(parameter.DefaultValue, inputVariant.DefaultValue);
+            Assert.AreEqual(parameter.Validation, inputVariant.Validation);
+            Assert.AreSame(inputVariant, parameter.ToPublicInputParameter());
         }
 
         private static IEnumerable<InputType> ValueInputTypes()

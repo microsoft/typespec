@@ -266,7 +266,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             // Create required components
             var pipelineField = ClientProvider.PipelineProperty.ToApi<ClientPipelineApi>();
-            var options = ScmKnownParameters.RequestOptions;
+            var options = signature.Parameters[^1];
             var operation = serviceMethod.Operation;
             var classifier = GetClassifier(operation);
 

@@ -982,6 +982,45 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         }
 
         [Test]
+        public void MethodSignatureParametersAreIndependent()
+        {
+            var operations = new[] { "Send", "Receive" }.Select(name => InputFactory.Operation(
+                name,
+                parameters: [InputFactory.QueryParameter("sourceIpAddress", InputPrimitiveType.String, isRequired: true)],
+                responses: [InputFactory.OperationResponse([204])])).ToArray();
+            var serviceMethods = operations.Select(operation => InputFactory.BasicServiceMethod(
+                operation.Name,
+                operation,
+                parameters: [InputFactory.MethodParameter("sourceIpAddress", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Query)])).ToArray();
+            var inputClient = InputFactory.Client("TestClient", methods: serviceMethods);
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+            var methods = client.Methods.OfType<ScmMethodProvider>()
+                .Concat(client.RestClient.Methods.OfType<ScmMethodProvider>()).ToArray();
+            Assert.AreEqual(10, methods.Length);
+
+            for (int i = 0; i < methods.Length; i++)
+            {
+                for (int j = i + 1; j < methods.Length; j++)
+                {
+                    Assert.AreNotSame(methods[i].Signature.Parameters[0], methods[j].Signature.Parameters[0]);
+                    Assert.AreNotSame(methods[i].Signature.Parameters[^1], methods[j].Signature.Parameters[^1]);
+                }
+            }
+
+            var protocol = methods.Single(method => method.Kind == ScmMethodKind.Protocol && method.Signature.Name == "Send");
+            protocol.Signature.Parameters[0].Update(name: "publishedIpAddress");
+            protocol.Signature.Parameters[^1].Update(name: "publishedOptions");
+            foreach (var method in methods.Where(method => !ReferenceEquals(method, protocol)))
+            {
+                Assert.AreEqual("sourceIPAddress", method.Signature.Parameters[0].Name);
+                Assert.AreEqual(
+                    method.Kind == ScmMethodKind.Convenience ? "cancellationToken" : "options",
+                    method.Signature.Parameters[^1].Name);
+            }
+        }
+
+        [Test]
         public async Task AcronymOperationParameterNames(
             [Values("sourceIpAddress", "targetDbName", "guestOsType", "IPv4Address", "IPv6Address")] string inputName,
             [Values(InputRequestLocation.Query, InputRequestLocation.Path, InputRequestLocation.Header, InputRequestLocation.Body)] InputRequestLocation location,
