@@ -1424,6 +1424,17 @@ describe("@encodedName", () => {
       expectDiagnosticEmpty(diagnostics);
     });
 
+    it("is ok if an enum member encoded name is its own name", async () => {
+      const diagnostics = await Tester.diagnose(`
+          enum Status {
+            @encodedName("application/json", "active")
+            active,
+          }
+        `);
+
+      expectDiagnosticEmpty(diagnostics);
+    });
+
     it("is ok if 2 different mime type have the same encoded name", async () => {
       const diagnostics = await Tester.diagnose(`
           model Cert {

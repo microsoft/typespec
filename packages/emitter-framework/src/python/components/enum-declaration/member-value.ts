@@ -8,13 +8,14 @@ import {
 /**
  * Value a member is declared with, `undefined` for `auto()`. Once a member of the enum has an
  * `application/json` encoded name, every member gets the value it is serialized as: `auto()` beside
- * a string value fails at import.
+ * a string value fails at import on Python 3.13 and later.
  */
 export function getEnumMemberValue(
   program: Program,
   member: EnumMember,
 ): string | number | undefined {
-  return hasEncodedMember(program, member.enum)
+  // A member from `$.enumMember.create` has no enum until one is built from it.
+  return member.enum && hasEncodedMember(program, member.enum)
     ? resolveEncodedEnumMemberValue(program, member, "application/json")
     : member.value;
 }
