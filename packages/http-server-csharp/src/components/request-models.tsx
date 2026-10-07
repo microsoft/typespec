@@ -6,6 +6,7 @@ import { isVoidType } from "@typespec/compiler";
 import { useTsp } from "@typespec/emitter-framework";
 import { getDocComments } from "@typespec/emitter-framework/csharp";
 import type { OperationHttpCanonicalization } from "@typespec/http-canonicalization";
+import { csharpStringLiteral } from "../utils/csharp-string-literal.js";
 import { CSharpFile } from "./csharp-file.jsx";
 import { TypeExpression } from "./type-expression/type-expression.jsx";
 
@@ -73,7 +74,7 @@ function RequestModelClass(props: RequestModelClassProps): Children {
             attrs.push(
               <Attribute
                 name={Serialization.JsonPropertyNameAttribute}
-                args={[`"${property.name}"`]}
+                args={[csharpStringLiteral(property.name)]}
               />,
             );
           }
