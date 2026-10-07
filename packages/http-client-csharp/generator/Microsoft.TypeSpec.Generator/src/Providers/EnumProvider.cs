@@ -108,13 +108,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return generatedName;
             }
 
-            if (lastContractNames.Contains(generatedName, StringComparer.Ordinal))
-            {
-                return generatedName;
-            }
-
-            if (lastContractNames.Contains(generatedName, StringComparer.OrdinalIgnoreCase) &&
-                IsCustomizedValueName(generatedName))
+            if (lastContractNames.Contains(generatedName, StringComparer.Ordinal) ||
+                (lastContractNames.Contains(generatedName, StringComparer.OrdinalIgnoreCase) &&
+                 IsCustomizedValueName(generatedName)))
             {
                 return generatedName;
             }
