@@ -1,9 +1,11 @@
 import { List, StatementList } from "@alloy-js/core";
 import { d } from "@alloy-js/core/testing";
-import type { Enum, Union } from "@typespec/compiler";
+import type { Enum, Model, Union } from "@typespec/compiler";
 import { expect, it } from "vitest";
 import { TspContext } from "../../../src/core/index.js";
 import { EnumDeclaration } from "../../../src/typescript/components/enum-declaration.js";
+import { TypeTransformDeclaration } from "../../../src/typescript/components/type-transform.js";
+import { TypeDeclaration } from "../../../src/typescript/index.js";
 import { efRefkey } from "../../../src/typescript/utils/refkey.js";
 import { getEmitOutput } from "../../utils.js";
 
@@ -201,7 +203,7 @@ it("can be referenced using union", async () => {
   `);
 });
 
-it("uses the json encoded name as the value of a member without a value", async () => {
+it("uses the json encoded name as the member value", async () => {
   const code = `
     enum Foo {
       @encodedName("application/json", "on")
@@ -227,4 +229,43 @@ it("uses the json encoded name as the value of a member without a value", async 
       pending = "pending"
     }
   `);
+});
+
+it("uses the same json encoded name for enum values and discriminator checks", async () => {
+  const output = await getEmitOutput(
+    `
+      enum PetKind {
+        @encodedName("application/json", "feline")
+        cat,
+      }
+
+      @discriminator("kind")
+      model Pet {
+        kind: PetKind;
+      }
+
+      model Cat extends Pet {
+        kind: PetKind.cat;
+      }
+    `,
+    (program) => {
+      const PetKind = program.resolveTypeReference("PetKind")[0]! as Enum;
+      const Pet = program.resolveTypeReference("Pet")[0]! as Model;
+      const Cat = program.resolveTypeReference("Cat")[0]! as Model;
+      return (
+        <TspContext.Provider value={{ program }}>
+          <List hardline>
+            <EnumDeclaration type={PetKind} />
+            <TypeDeclaration type={Pet} />
+            <TypeDeclaration type={Cat} />
+            <TypeTransformDeclaration type={Pet} target="transport" />
+            <TypeTransformDeclaration type={Cat} target="transport" />
+          </List>
+        </TspContext.Provider>
+      );
+    },
+  );
+
+  expect(output).toContain(`cat = "feline"`);
+  expect(output).toContain(`item.kind === "feline"`);
 });

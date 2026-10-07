@@ -12,7 +12,7 @@ async function emitExample(code: string) {
   return outputs;
 }
 
-it("uses the json encoded name as the value of a member without a value", async () => {
+it("uses the json encoded name as the member value", async () => {
   const outputs = await emitExample(`
     enum Status {
       @encodedName("application/json", "on")
@@ -52,6 +52,23 @@ it("uses the json encoded name for a property typed as a member", async () => {
   `);
 
   expect(outputs["src/generated/models/all/example.ts"]).toContain('  kind: "on";');
+});
+
+it("uses the json encoded name of a numeric member as a string literal", async () => {
+  const outputs = await emitExample(`
+    enum Status {
+      @encodedName("application/json", "ready")
+      statusReady: 2,
+    }
+
+    model Cat {
+      status: Status.statusReady;
+    }
+
+    @get op read(): Cat;
+  `);
+
+  expect(outputs["src/generated/models/all/example.ts"]).toContain('  status: "ready";');
 });
 
 it("uses the json encoded name to differentiate union variants", async () => {

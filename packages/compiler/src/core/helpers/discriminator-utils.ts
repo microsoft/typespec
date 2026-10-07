@@ -287,9 +287,10 @@ function getStringValue(program: Program, type: Type): string | undefined {
   switch (type.kind) {
     case "String":
       return type.value;
-    case "EnumMember":
+    case "EnumMember": {
       const value = resolveEnumMemberValue(program, type);
       return typeof value === "string" ? value : undefined;
+    }
     default:
       return undefined;
   }

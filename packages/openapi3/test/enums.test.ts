@@ -196,6 +196,24 @@ worksFor(["3.1.0"], ({ oapiForModel }) => {
       enum: ["dog", 1],
     });
   });
+
+  it("supports an integer enum with an encoded name on only some members", async () => {
+    const res = await oapiForModel(
+      "Status",
+      `
+      enum Status {
+        @encodedName("application/json", "ready")
+        CONVERSATION_STATUS_READY: 2,
+        CONVERSATION_STATUS_BUSY: 1,
+      }
+      `,
+    );
+
+    deepStrictEqual(res.schemas.Status, {
+      type: ["string", "number"],
+      enum: ["ready", 1],
+    });
+  });
 });
 
 worksFor(["3.1.0", "3.2.0"], ({ oapiForModel }) => {

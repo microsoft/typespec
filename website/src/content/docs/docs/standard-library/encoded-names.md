@@ -96,7 +96,7 @@ updated: 1493938291
 
 ## Enum members
 
-`@encodedName` sets the value an enum member is serialized as. Without it, a member is serialized as its explicit value, or as its name when it has none.
+`@encodedName` sets the value an enum member is serialized as in that mime type. Without it, a member is serialized as its explicit value, or as its name when it has none.
 
 ```typespec
 enum Status {
