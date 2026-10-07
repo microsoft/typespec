@@ -24,11 +24,9 @@ The client structure should be MyApi class with no operations and 2 members, Bar
 
 ```ts src/myApiClient.ts class MyApiClient
 export class MyApiClient {
-  #context: MyApiClientContext;
   fooClient: FooClient;
   barClient: BarClient;
   constructor(endpoint: string, credential: BasicCredential, options?: MyApiClientOptions) {
-    this.#context = createMyApiClientContext(endpoint, credential, options);
     this.fooClient = new FooClient(endpoint, credential, options);
     this.barClient = new BarClient(endpoint, credential, options);
   }

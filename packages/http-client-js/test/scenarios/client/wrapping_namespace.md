@@ -29,11 +29,9 @@ The root client should be FooClient and should have 2 sub clients as members for
 
 ```ts src/fooClient.ts class FooClient
 export class FooClient {
-  #context: FooClientContext;
   barClient: BarClient;
   bazClient: BazClient;
   constructor(endpoint: string, options?: FooClientOptions) {
-    this.#context = createFooClientContext(endpoint, options);
     this.barClient = new BarClient(endpoint, options);
     this.bazClient = new BazClient(endpoint, options);
   }
