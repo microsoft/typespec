@@ -152,7 +152,16 @@ export function validateEncodedNamesConflicts(program: Program) {
     for (const [mimeType, name] of map.entries()) {
       const duplicateTracker = getOrCreateDuplicateTracker(scope.parent, mimeType);
       duplicateTracker.track(name, target);
-      if (scope.members.has(name)) {
+      if (target.kind === "EnumMember") {
+        if (conflictsWithEnumMemberValue(program, target, name, mimeType)) {
+          reportDiagnostic(program, {
+            code: "encoded-name-conflict",
+            messageId: "enumValue",
+            format: { name, mimeType },
+            target: target,
+          });
+        }
+      } else if (scope.members.has(name)) {
         reportDiagnostic(program, {
           code: "encoded-name-conflict",
           format: { name, mimeType },
@@ -176,6 +185,28 @@ export function validateEncodedNamesConflicts(program: Program) {
       }
     }
   }
+}
+
+/**
+ * An encoded name on an enum member is the value it is serialized as, so it conflicts with the value
+ * of another member. Members with their own encoded name are compared by the duplicate tracker.
+ */
+function conflictsWithEnumMemberValue(
+  program: Program,
+  member: EnumMember,
+  name: string,
+  mimeType: string,
+): boolean {
+  for (const other of member.enum.members.values()) {
+    if (
+      other !== member &&
+      getEncodedName(program, other, mimeType) === undefined &&
+      (other.value ?? other.name) === name
+    ) {
+      return true;
+    }
+  }
+  return false;
 }
 
 interface EncodedNameScope {

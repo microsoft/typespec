@@ -1396,6 +1396,34 @@ describe("@encodedName", () => {
       ]);
     });
 
+    it("emit error if an enum member encoded name is the value of another member", async () => {
+      const diagnostics = await Tester.diagnose(`
+          enum Status {
+            @encodedName("application/json", "ready")
+            active,
+            other: "ready",
+          }
+        `);
+
+      expectDiagnostics(diagnostics, {
+        code: "encoded-name-conflict",
+        message:
+          "Encoded name 'ready' conflicts with the value of another member for mime type 'application/json'",
+      });
+    });
+
+    it("is ok if an enum member encoded name is the name of a member with another value", async () => {
+      const diagnostics = await Tester.diagnose(`
+          enum Status {
+            @encodedName("application/json", "ready")
+            active,
+            ready: "is-ready",
+          }
+        `);
+
+      expectDiagnosticEmpty(diagnostics);
+    });
+
     it("is ok if 2 different mime type have the same encoded name", async () => {
       const diagnostics = await Tester.diagnose(`
           model Cert {
@@ -1455,6 +1483,7 @@ describe("@encodedName", () => {
     const active = Extended.members.get("active")!;
     strictEqual(active.enum, Extended);
     strictEqual(resolveEncodedName(program, active, "application/json"), "on");
+    strictEqual(resolveEncodedEnumMemberValue(program, active, "application/json"), "on");
   });
 });
 
