@@ -1,7 +1,5 @@
 import { code, For, type Children } from "@alloy-js/core";
 import * as cs from "@alloy-js/csharp";
-import { Attribute } from "@alloy-js/csharp";
-import { Serialization } from "@alloy-js/csharp/global/System/Text/Json";
 import {
   isErrorModel,
   isVoidType,
@@ -100,7 +98,6 @@ interface ServerClassDeclarationProps {
 /**
  * Server-specific class declaration that matches the old emitter output:
  * - No `required` keyword
- * - No `[JsonPropertyName]` attributes
  * - No nullable `?` suffix on reference types (string, byte[], etc.)
  */
 function ServerClassDeclaration(props: ServerClassDeclarationProps): Children {
@@ -180,7 +177,7 @@ interface ServerPropertyProps {
 
 /**
  * Server-specific property that matches old emitter output.
- * No `required` or `[JsonPropertyName]`. Nullable reference types are limited to error models.
+ * No `required`. Nullable reference types are limited to error models.
  */
 function ServerProperty(props: ServerPropertyProps): Children {
   const { $ } = useTsp();
@@ -195,14 +192,6 @@ function ServerProperty(props: ServerPropertyProps): Children {
     if (csharpPropName === props.errorClassName || isDuplicateExceptionName(csharpPropName)) {
       propName = csharpPropName === "Value" ? "ValueName" : `${csharpPropName}Prop`;
     }
-  }
-
-  // Add JsonPropertyName if the C# name differs from the original TypeSpec name
-  const csharpName = namePolicy.getName(propName, "class-property");
-  if (csharpName !== props.type.name) {
-    attrs.unshift(
-      <Attribute name={Serialization.JsonPropertyNameAttribute} args={[`"${props.type.name}"`]} />,
-    );
   }
 
   // Check if this property overrides a base model property (discriminator pattern)
@@ -274,7 +263,7 @@ function ServerProperty(props: ServerPropertyProps): Children {
       new={isOverride}
       nullable={needsNullable}
       doc={getDocComments($, props.type)}
-      attributes={attrs.length > 0 ? attrs : undefined}
+      attributes={attrs}
       get
       set={!isLiteralOnly}
       initializer={initializer}
