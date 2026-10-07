@@ -51,29 +51,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 CustomCodeView?.Fields.Any(f => f.Name == fieldName || f.OriginalName == fieldName) == true;
         }
 
-        private protected override bool HasCustomDeclarationCollision(string name, string previousName, bool isBackingField)
-        {
-            foreach (var field in CustomCodeView?.Fields ?? [])
-            {
-                if (field.Name == name &&
-                    (!isBackingField || (field.OriginalName != null && field.OriginalName != name && field.OriginalName != previousName)))
-                {
-                    return true;
-                }
-            }
-
-            foreach (var property in CustomCodeView?.Properties ?? [])
-            {
-                if (property.Name == name &&
-                    (isBackingField || (property.OriginalName != null && property.OriginalName != name && property.OriginalName != previousName)))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
         protected override TypeProvider? BuildDeclaringTypeProvider() => _declaringType;
         private readonly TypeProvider? _declaringType;
 

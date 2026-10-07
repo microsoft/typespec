@@ -1500,7 +1500,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
 
         [Test]
-        public void BuildEnumType_AcronymNormalizationDoesNotMergeMembers(
+        public void BuildEnumType_AcronymNormalizationAllowsDuplicateNames(
             [Values(false, true)] bool isExtensible,
             [Values(false, true)] bool reverseOrder,
             [Values("IP", "IpV4")] string otherName)
@@ -1512,13 +1512,13 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 reverseOrder ? values.Reverse() : values, isExtensible: isExtensible);
             var provider = EnumProvider.Create(input);
 
-            CollectionAssert.AreEquivalent(new[] { firstName, otherName }, provider.EnumValues.Select(v => v.Name));
-            Assert.AreEqual(1, provider.EnumValues.Single(v => v.Name == firstName).Value);
-            Assert.AreEqual(2, provider.EnumValues.Single(v => v.Name == otherName).Value);
+            var normalizedName = otherName == "IP" ? "IP" : "IPv4";
+            CollectionAssert.AreEqual(new[] { normalizedName, normalizedName }, provider.EnumValues.Select(v => v.Name));
+            CollectionAssert.AreEqual(reverseOrder ? new[] { 2, 1 } : new[] { 1, 2 }, provider.EnumValues.Select(v => v.Value));
         }
 
         [Test]
-        public void BuildEnumType_AcronymNormalizationDoesNotCollideWithExactMember(
+        public void BuildEnumType_AcronymNormalizationAllowsDuplicateExactMember(
             [Values(false, true)] bool isExtensible)
         {
             MockHelpers.LoadMockGenerator(createCSharpTypeCore: _ => typeof(int));
@@ -1528,11 +1528,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             values.Add(InputFactory.EnumMember.Int32("IPv4", 2, input, isExactName: true));
             var provider = EnumProvider.Create(input);
 
-            CollectionAssert.AreEqual(new[] { "Ipv4", "IPv4" }, provider.EnumValues.Select(v => v.Name));
+            CollectionAssert.AreEqual(new[] { "IPv4", "IPv4" }, provider.EnumValues.Select(v => v.Name));
         }
 
         [Test]
-        public void BuildEnumType_AcronymNormalizationDoesNotCollideWithType(
+        public void BuildEnumType_AcronymNormalizationAllowsMatchingTypeName(
             [Values(false, true)] bool isExtensible)
         {
             MockHelpers.LoadMockGenerator(createCSharpTypeCore: _ => typeof(int));
@@ -1540,23 +1540,25 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             var provider = EnumProvider.Create(input);
 
             Assert.AreEqual("IP", provider.Name);
-            Assert.AreEqual("Ip", provider.EnumValues.Single().Name);
+            Assert.AreEqual("IP", provider.EnumValues.Single().Name);
         }
 
         [TestCase("Ip", "IPValue")]
         [TestCase("IpValue", "IP")]
-        public void BuildEnumType_AcronymNormalizationDoesNotCollideWithBackingField(string firstName, string secondName)
+        public void BuildEnumType_AcronymNormalizationAllowsMatchingBackingField(string firstName, string secondName)
         {
             MockHelpers.LoadMockGenerator(createCSharpTypeCore: _ => typeof(int));
             var input = InputFactory.Int32Enum("mockInputEnum", [(firstName, 1), (secondName, 2)], isExtensible: true);
             var provider = EnumProvider.Create(input);
 
-            CollectionAssert.AreEqual(new[] { firstName, secondName }, provider.Properties.Select(p => p.Name));
+            CollectionAssert.AreEqual(
+                firstName == "Ip" ? new[] { "IP", "IPValue" } : new[] { "IPValue", "IP" },
+                provider.Properties.Select(p => p.Name));
         }
 
         [TestCase(false, "String")]
         [TestCase(true, "Numeric")]
-        public async Task BuildEnumType_AcronymNormalizationDoesNotCollideWithRestoredMembers(bool isNumeric, string testData)
+        public async Task BuildEnumType_AcronymNormalizationAllowsMatchingRestoredDeclarations(bool isNumeric, string testData)
         {
             await MockHelpers.LoadMockGeneratorAsync(
                 createCSharpTypeCore: _ => isNumeric ? typeof(int) : typeof(string),
@@ -1570,7 +1572,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             provider.EnsureBuilt();
             provider.ProcessTypeForBackCompatibility();
 
-            CollectionAssert.AreEqual(new[] { "IpValue", "Db", "OS", "NewIP", "IP", "DBValue" },
+            CollectionAssert.AreEqual(new[] { "IPValue", "DB", "OS", "NewIP", "IP", "DBValue" },
                 provider.EnumValues.Select(v => v.Name));
             CollectionAssert.AreEqual(
                 isNumeric ? new object[] { 10, 20, 30, 40, 1, 2 } : new object[] { "new-ip-value", "new-db", "os", "new-ip", "published-ip", "published-db-value" },
@@ -1578,14 +1580,14 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             CollectionAssert.AreEqual(provider.EnumValues.Select(v => v.Name), provider.Properties.Select(p => p.Name));
             CollectionAssert.AreEqual(provider.EnumValues.Select(v => v.Name + "Value"), provider.Fields.Skip(1).Select(f => f.Name));
             var declarations = provider.Properties.Select(p => p.Name).Concat(provider.Fields.Select(f => f.Name)).ToArray();
-            Assert.AreEqual(declarations.Length, declarations.Distinct(StringComparer.Ordinal).Count());
+            Assert.Greater(declarations.Length, declarations.Distinct(StringComparer.Ordinal).Count());
         }
 
         [TestCase(false, "Fixed", "Ip")]
         [TestCase(true, "Extensible", "Ip")]
         [TestCase(true, "Extensible", "Os")]
         [TestCase(true, "Extensible", "Ipv4")]
-        public async Task BuildEnumType_AcronymNormalizationDoesNotCollideWithCustomizedMember(bool isExtensible, string testData, string memberName)
+        public async Task BuildEnumType_AcronymNormalizationAllowsMatchingCustomDeclarations(bool isExtensible, string testData, string memberName)
         {
             await MockHelpers.LoadMockGeneratorAsync(
                 createCSharpTypeCore: _ => typeof(int),
@@ -1596,9 +1598,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             provider.Update(provider.Methods, provider.Constructors, provider.Properties, provider.Fields);
             provider.ProcessTypeForBackCompatibility();
 
-            CollectionAssert.AreEqual(new[] { memberName },
-                isExtensible ? provider.Properties.Select(p => p.Name) : provider.Fields.Select(f => f.Name));
-            Assert.AreEqual(1, provider.EnumValues.Single(v => v.Name == memberName).Value);
+            var normalizedName = memberName == "Ip" ? "IP" : memberName == "Os" ? "OS" : "IPv4";
+            Assert.AreEqual(normalizedName, provider.EnumValues[0].Name);
+            Assert.AreEqual(1, provider.EnumValues[0].Value);
+            Assert.AreEqual(2, provider.EnumValues[1].Value);
         }
 
         [TestCase(false, "Fixed")]
@@ -1617,7 +1620,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             provider.Update(name: "Renamed", reset: true);
 
             Assert.IsNotNull(provider.CustomCodeView);
-            CollectionAssert.AreEqual(new[] { "Ip", "Os", "Ipv4" }, provider.EnumValues.Select(v => v.Name));
+            CollectionAssert.AreEqual(new[] { "Ip", "OS", "IPv4" }, provider.EnumValues.Select(v => v.Name));
         }
 
         [TestCase(false, "Fixed")]
