@@ -2,8 +2,6 @@
 changeKind: internal
 packages:
   - "@typespec/react-components"
-  - "@typespec/html-program-viewer"
-  - "@typespec/playground"
   - "@typespec/playground-website"
   - "@typespec/spec-dashboard"
 ---

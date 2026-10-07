@@ -1,7 +1,6 @@
 ---
 changeKind: internal
 packages:
-  - "@typespec/tspd"
   - "@typespec/astro-utils"
   - "@typespec/website"
 ---

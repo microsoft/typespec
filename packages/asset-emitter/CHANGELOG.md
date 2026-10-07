@@ -1,5 +1,12 @@
 # Changelog - @typespec/asset-emitter
 
+## 0.79.3
+
+### Bug Fixes
+
+- [#11915](https://github.com/microsoft/typespec/pull/11915) Fix `TypeEmitter.tupleLiteralValues` to emit tuple values as references instead of inline types. Types referenced in tuple values now propagate reference context. Circular references no longer crash.
+
+
 ## 0.79.2
 
 ### Bug Fixes

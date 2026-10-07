@@ -1,5 +1,20 @@
 # Change Log - @typespec/http-server-csharp
 
+## 0.58.0-alpha.33
+
+### Bug Fixes
+
+- [#11905](https://github.com/microsoft/typespec/pull/11905) Handle `void | @error` responses as bodyless success responses in generated C# controllers.
+- [#11902](https://github.com/microsoft/typespec/pull/11902) Use generated property types for error model constructor parameters, including records, arrays, tuples, and nullable unions.
+- [#11907](https://github.com/microsoft/typespec/pull/11907) Honor `output-type: models` by emitting only models and their required support files.
+- [#11895](https://github.com/microsoft/typespec/pull/11895) Emit nullable C# property and constructor parameter types for optional error model properties.
+- [#11903](https://github.com/microsoft/typespec/pull/11903) Align positional controller call arguments with the generated business-interface parameter order.
+- [#11908](https://github.com/microsoft/typespec/pull/11908) Use the namespace declared with `@service` as the generated C# service namespace, even when an imported or unrelated namespace is encountered first.
+- [#11901](https://github.com/microsoft/typespec/pull/11901) Preserve original `@multipartBody` metadata when HTTP canonicalization is unavailable.
+- [#11900](https://github.com/microsoft/typespec/pull/11900) Prevent optional nullable value parameters from emitting duplicate nullable suffixes in generated C# interfaces and mocks.
+- [#11895](https://github.com/microsoft/typespec/pull/11895) Treat operations returning only error union variants as bodyless responses.
+
+
 ## 0.58.0-alpha.32
 
 ### Bug Fixes
