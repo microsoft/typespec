@@ -529,9 +529,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 {
                     if (valueType.IsUnion)
                     {
+                        bool needsNullableBucket = _inputModel.AdditionalProperties is InputNullableType;
                         foreach (var unionType in valueType.UnionItemTypes)
                         {
-                            AddFieldForAdditionalProperties(unionType, fields, true);
+                            var fieldType = needsNullableBucket ? unionType.WithNullable(true) : unionType;
+                            if (AddFieldForAdditionalProperties(fieldType, fields, true))
+                            {
+                                needsNullableBucket = false;
+                            }
                         }
                     }
                     else
@@ -544,7 +549,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return fields;
         }
 
-        private void AddFieldForAdditionalProperties(CSharpType valueType, List<FieldProvider> fields, bool isUnionType)
+        private bool AddFieldForAdditionalProperties(CSharpType valueType, List<FieldProvider> fields, bool isUnionType)
         {
             var originalType = new CSharpType(typeof(IDictionary<,>), typeof(string), valueType);
             var additionalPropsType = ReplaceUnverifiableType(originalType);
@@ -552,7 +557,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if ((isUnionType && additionalPropsType.ContainsBinaryData)
                 || additionalPropsType.Equals(_additionalBinaryDataPropsFieldType))
             {
-                return;
+                return false;
             }
 
             var field = new FieldProvider(
@@ -562,6 +567,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 this);
             field.Update(suppressions: ExperimentalApiHelpers.GetReferenceSuppressions(_inputModel.AdditionalProperties));
             fields.Add(field);
+            return true;
         }
 
         private List<PropertyProvider> BuildAdditionalPropertyProperties()
