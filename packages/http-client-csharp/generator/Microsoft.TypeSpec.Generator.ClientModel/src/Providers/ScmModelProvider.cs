@@ -221,6 +221,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             reservedNames.UnionWith(CustomCodeView?.Fields.Select(f => f.Name) ?? []);
             reservedNames.UnionWith(CustomCodeView?.Properties.Select(p => p.Name) ?? []);
             reservedNames.UnionWith(baseModels.SelectMany(m => m.CanonicalView.Fields.Select(f => f.Name)));
+            reservedNames.UnionWith(baseModels.SelectMany(m => m.CanonicalView.Properties.Select(p => p.Name)));
             reservedNames.UnionWith(baseModels.SelectMany(m => m.CustomCodeView?.Properties.Select(p => p.Name) ?? []));
             if (JsonPatchField != null)
             {

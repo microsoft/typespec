@@ -358,6 +358,52 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
         }
 
         [Test]
+        public void OptionalNullableFieldsDoNotHideInheritedGeneratedProperties(
+            [Values(0, 1, 3)] int intermediateModelCount,
+            [Values(0, 1, 3)] int collisionCount)
+        {
+            var ancestorProperties = Enumerable.Range(0, collisionCount)
+                .SelectMany(index =>
+                {
+                    var suffix = index == 0 ? "" : index.ToString();
+                    return new[]
+                    {
+                        InputFactory.Property($"_text{suffix}", InputPrimitiveType.String, isExactName: true),
+                        InputFactory.Property($"_textIsDefined{suffix}", InputPrimitiveType.String, isExactName: true)
+                    };
+                }).ToArray();
+            var baseModel = InputFactory.Model("baseModel", properties: ancestorProperties);
+            var inputs = new List<InputModelType> { baseModel };
+            var ancestor = baseModel;
+            for (var index = 0; index < intermediateModelCount; index++)
+            {
+                ancestor = InputFactory.Model($"middleModel{index}", baseModel: ancestor, properties: []);
+                inputs.Add(ancestor);
+            }
+            var derivedModel = InputFactory.Model("derivedModel", baseModel: ancestor, properties:
+                [InputFactory.Property("text", new InputNullableType(InputPrimitiveType.String))]);
+            inputs.Add(derivedModel);
+            MockHelpers.LoadMockGenerator(inputModels: () => inputs);
+            var generator = ScmCodeModelGenerator.Instance;
+            var models = inputs.Select(input => generator.TypeFactory.CreateModel(input)!).ToArray();
+            var trees = models.Select(provider =>
+                CSharpSyntaxTree.ParseText(new TypeProviderWriter(provider).Write().Content)).ToArray();
+            var references = AppDomain.CurrentDomain.GetAssemblies()
+                .Where(assembly => !assembly.IsDynamic && !string.IsNullOrEmpty(assembly.Location))
+                .Select(assembly => MetadataReference.CreateFromFile(assembly.Location));
+            var compilation = CSharpCompilation.Create("InheritedGeneratedPropertyCollisions", trees, references,
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, generalDiagnosticOption: ReportDiagnostic.Error));
+
+            Assert.That(compilation.GetDiagnostics().Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error), Is.Empty);
+            Assert.That(models[0].CanonicalView.Properties.Select(property => property.Name),
+                Is.EquivalentTo(ancestorProperties.Select(property => property.Name)));
+            var property = models[^1].Properties.Single();
+            var expectedSuffix = collisionCount == 0 ? "" : collisionCount.ToString();
+            Assert.That(property.BackingField!.Name, Is.EqualTo($"_text{expectedSuffix}"));
+            Assert.That(ScmModel.GetNullablePropertyPresence(property)!.Name, Is.EqualTo($"_textIsDefined{expectedSuffix}"));
+        }
+
+        [Test]
         public void OptionalNullableReadonlyStructDoesNotAddMutableFields()
         {
             var model = new ScmModel(InputFactory.Model("model", modelAsStruct: true, properties:
