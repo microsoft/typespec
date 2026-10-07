@@ -66,6 +66,15 @@ namespace WellKnown {
    * This model references `google.type.LatLng` from `google/type/latlng.proto`.
    */
   model LatLng is Extern<"google/type/latlng.proto", "google.type.LatLng">;
+
+  /**
+   * A long-running operation ([AIP-151](https://google.aip.dev/151)).
+   *
+   * This model references `google.longrunning.Operation` from `google/longrunning/operations.proto`. To declare the
+   * types of a long-running operation's response and metadata, return
+   * [`LongRunningOperation`](./data-types#TypeSpec.Protobuf.LongRunningOperation) instead.
+   */
+  model Operation is Extern<"google/longrunning/operations.proto", "google.longrunning.Operation">;
 }
 
 /**
@@ -139,6 +148,41 @@ alias integral = int32 | int64 | uint32 | uint64 | boolean;
  */
 @Private._map
 model Map<Key extends integral | string, Value> {}
+
+/**
+ * A long-running operation ([AIP-151](https://google.aip.dev/151)) whose `response` is a `Response` and whose
+ * `metadata` is a `Metadata`. Return it from an operation that starts work the client polls until it is done.
+ *
+ * This model references `google.longrunning.Operation` from `google/longrunning/operations.proto`. The emitter writes
+ * both types in the operation's `google.longrunning.operation_info` method option, naming each relative to the
+ * operation's package (or fully qualified when it is declared in another package), and emits and imports them like any
+ * other message the operation refers to.
+ *
+ * @template Response the message in the `response` of a successful operation, such as
+ * [`WellKnown.Empty`](./data-types#TypeSpec.Protobuf.WellKnown.Empty) when there is none
+ * @template Metadata the message in the `metadata` of the operation, describing its progress. AIP-151 asks for a
+ * message of the operation's own, even an empty one, rather than `WellKnown.Empty`
+ *
+ * @example
+ *
+ * ```typespec
+ * op importBooks(...ImportBooksRequest): LongRunningOperation<ImportBooksResponse, ImportBooksMetadata>;
+ * ```
+ *
+ * ```protobuf
+ * rpc ImportBooks(ImportBooksRequest) returns (google.longrunning.Operation) {
+ *   option (google.longrunning.operation_info) = {
+ *     response_type: "ImportBooksResponse"
+ *     metadata_type: "ImportBooksMetadata"
+ *   };
+ * }
+ * ```
+ */
+@Private.longRunning(Response, Metadata)
+model LongRunningOperation<
+  Response extends Reflection.Model,
+  Metadata extends Reflection.Model
+> is Extern<"google/longrunning/operations.proto", "google.longrunning.Operation">;
 
 /**
  * Declares that a model is a Protobuf message.
@@ -347,4 +391,9 @@ extern dec stream(target: TypeSpec.Reflection.Operation, mode: StreamMode);
 namespace Private {
   extern dec externRef(target: Reflection.Model, path: string, name: string);
   extern dec _map(target: Reflection.Model);
+  extern dec longRunning(
+    target: Reflection.Model,
+    response: Reflection.Model,
+    metadata: Reflection.Model
+  );
 }

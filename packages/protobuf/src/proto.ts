@@ -24,7 +24,10 @@ import type {
   ReserveDecorator,
   StreamDecorator,
 } from "../generated-defs/TypeSpec.Protobuf.js";
-import type { ExternRefDecorator } from "../generated-defs/TypeSpec.Protobuf.Private.js";
+import type {
+  ExternRefDecorator,
+  LongRunningDecorator,
+} from "../generated-defs/TypeSpec.Protobuf.Private.js";
 import { StreamingMode } from "./ast.js";
 import type { ProtobufEmitterOptions, TypeSpecProtobufLibrary } from "./lib.js";
 import { reportDiagnostic, state } from "./lib.js";
@@ -141,6 +144,28 @@ export const $stream: StreamDecorator = (ctx: DecoratorContext, target: Operatio
   }[(mode as any).name as string];
 
   ctx.program.stateMap(state.stream).set(target, emitStreamingMode);
+};
+
+/**
+ * The response and metadata types of a long-running operation, the arguments of a `LongRunningOperation` instance.
+ */
+export interface LongRunningInfo {
+  responseType: Model;
+  metadataType: Model;
+}
+
+/**
+ * Binds the response and metadata types of a `LongRunningOperation` instance.
+ * @internal
+ */
+export const $longRunning: LongRunningDecorator = (
+  ctx: DecoratorContext,
+  target: Model,
+  responseType: Model,
+  metadataType: Model,
+) => {
+  const info: LongRunningInfo = { responseType, metadataType };
+  ctx.program.stateMap(state.longRunning).set(target, info);
 };
 
 export type Reservation = string | number | ([number, number] & { type: Type });

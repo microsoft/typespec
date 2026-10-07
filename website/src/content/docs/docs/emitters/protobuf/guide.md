@@ -296,6 +296,45 @@ The Protobuf emitter supports the declaration of an operation's streaming mode u
 
   Example: `rpc Example(stream In) returns (stream Out);`
 
+#### Long-running operations
+
+A long-running operation ([AIP-151](https://google.aip.dev/151)) returns a `google.longrunning.Operation` that the client polls through the standard `google.longrunning.Operations` service until it is done. Return [`LongRunningOperation<Response, Metadata>`][protobuf-long-running] to declare the types of the operation's `response` and `metadata`:
+
+```typespec
+model ImportBooksResponse {
+  @field(1) books: Book[];
+}
+
+model ImportBooksMetadata {
+  @field(1) imported_count: int32;
+}
+
+@Protobuf.service
+interface Library {
+  importBooks(...ImportBooksRequest): LongRunningOperation<
+    ImportBooksResponse,
+    ImportBooksMetadata
+  >;
+}
+```
+
+The emitter writes the types in the method's `google.longrunning.operation_info` option, and emits and imports them like any other message the operation refers to. A type declared in another package is fully qualified.
+
+```protobuf
+import "google/longrunning/operations.proto";
+
+service Library {
+  rpc ImportBooks(ImportBooksRequest) returns (google.longrunning.Operation) {
+    option (google.longrunning.operation_info) = {
+      response_type: "ImportBooksResponse"
+      metadata_type: "ImportBooksMetadata"
+    };
+  }
+}
+```
+
+Use [`WellKnown.Empty`][protobuf-empty] as the response type of an operation that has no response. AIP-151 asks for a metadata message of the operation's own, even an empty one, rather than `WellKnown.Empty`. Code generators need `google/longrunning/operations.proto` and its imports from [googleapis](https://github.com/googleapis/googleapis) on their include path.
+
 [native-service]: ../../../standard-library/built-in-decorators/#@service
 [protobuf-service]: ../reference/decorators/#@TypeSpec.Protobuf.service
 [protobuf-package]: ../reference/decorators/#@TypeSpec.Protobuf.package
@@ -303,3 +342,5 @@ The Protobuf emitter supports the declaration of an operation's streaming mode u
 [protobuf-stream]: ../reference/decorators/#@TypeSpec.Protobuf.stream
 [protobuf-stream-mode]: ../reference/data-types/#TypeSpec.Protobuf.StreamMode
 [protobuf-message]: ../reference/decorators/#@TypeSpec.Protobuf.message
+[protobuf-long-running]: ../reference/data-types/#TypeSpec.Protobuf.LongRunningOperation
+[protobuf-empty]: ../reference/data-types/#TypeSpec.Protobuf.WellKnown.Empty
