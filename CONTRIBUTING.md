@@ -62,6 +62,25 @@ npx playwright install --with-deps chromium
 pnpm run watch
 ```
 
+The Vite libraries (`react-components`, `html-program-viewer`, `playground`,
+`playground-website`, and `spec-dashboard`) emit declarations with TypeScript's
+native `tsc` CLI rather than a plugin that requires the JavaScript compiler API.
+Their library builds run Vite first, then `pnpm build:types`, using
+`tsconfig.declaration.json` to preserve the declaration paths in their package exports.
+The package-level library watchers run Vite and declaration emit together, with
+Vite's output cleanup disabled so rebuilds do not delete declarations. The
+`playground-website` watcher remains the website development server.
+
+Workspace compilation uses native TypeScript 7 through the root
+`typescript-native` dependency, which provides `tsc` to package scripts.
+The `typescript` catalog entry aliases `@typescript/typescript6`, providing
+the JavaScript compiler API for tools such as TypeDoc and Astro's checker,
+and the separate `tsc6` command. Existing package manifests keep using
+`"typescript": "catalog:"`; no pnpm hook is needed. Tools and editor integrations
+that load the `typescript` package see TypeScript 6, not the native compiler.
+Alloy's CLI resolves `typescript/bin/tsc` directly, so a workspace package extension
+gives it a native TypeScript dependency as well.
+
 ## Using command line
 
 **If you are not at the root of the repo you have to use `-w` option to specify you want to run the command for the workspace. `pnpm -w <command>`.**
