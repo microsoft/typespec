@@ -1,19 +1,13 @@
 package response.bodyornocontent.implementation;
 
 import io.clientcore.core.annotations.ReturnType;
-import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.annotations.HeaderParam;
-import io.clientcore.core.http.annotations.HostParam;
-import io.clientcore.core.http.annotations.HttpRequestInformation;
-import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
-import io.clientcore.core.http.models.HttpMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.instrumentation.Instrumentation;
-import java.lang.reflect.InvocationTargetException;
+import io.clientcore.core.instrumentation.logging.ClientLogger;
 import response.bodyornocontent.BlobLayout;
 
 /**
@@ -81,40 +75,123 @@ public final class BodyOrNoContentClientImpl {
         this.service = BodyOrNoContentClientService.getNewInstance(this.httpPipeline);
     }
 
-    /**
-     * The interface defining all the services for BodyOrNoContentClient to be used by the proxy service to perform REST
-     * calls.
-     */
-    @ServiceInterface(name = "BodyOrNoContentClient", host = "{endpoint}")
     public interface BodyOrNoContentClientService {
-        static BodyOrNoContentClientService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz
-                    = Class.forName("response.bodyornocontent.implementation.BodyOrNoContentClientServiceImpl");
-                return (BodyOrNoContentClientService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
+        static BodyOrNoContentClientService getNewInstance(io.clientcore.core.http.pipeline.HttpPipeline pipeline) {
+            return new BodyOrNoContentClientServiceImpl(pipeline);
         }
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/response/body-or-no-content/body",
-            expectedStatusCodes = { 200, 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<BlobLayout> getBody(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
-            RequestContext requestContext);
+        Response<BlobLayout> getBody(String endpoint, String accept, RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/response/body-or-no-content/no-content",
-            expectedStatusCodes = { 200, 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<BlobLayout> getNoContent(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
-            RequestContext requestContext);
+        Response<BlobLayout> getNoContent(String endpoint, String accept, RequestContext requestContext);
+    }
+
+    private static final class BodyOrNoContentClientServiceImpl implements BodyOrNoContentClientService {
+        private static final io.clientcore.core.instrumentation.logging.ClientLogger LOGGER
+            = new io.clientcore.core.instrumentation.logging.ClientLogger(BodyOrNoContentClientServiceImpl.class);
+
+        private final io.clientcore.core.http.pipeline.HttpPipeline httpPipeline;
+
+        private final io.clientcore.core.serialization.json.JsonSerializer jsonSerializer
+            = io.clientcore.core.serialization.json.JsonSerializer.getInstance();
+
+        private final io.clientcore.core.serialization.xml.XmlSerializer xmlSerializer
+            = io.clientcore.core.serialization.xml.XmlSerializer.getInstance();
+
+        private BodyOrNoContentClientServiceImpl(io.clientcore.core.http.pipeline.HttpPipeline pipeline) {
+            this.httpPipeline = pipeline;
+        }
+
+        @Override
+        public Response<BlobLayout> getBody(String endpoint, String accept, RequestContext requestContext) {
+            io.clientcore.core.utils.UriBuilder uriBuilder
+                = io.clientcore.core.utils.UriBuilder.parse(endpoint + "/response/body-or-no-content/body");
+            io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
+                .setMethod(io.clientcore.core.http.models.HttpMethod.GET)
+                .setUri(uriBuilder.toString());
+            if (accept != null) {
+                httpRequest.getHeaders()
+                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Accept"), accept);
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            io.clientcore.core.http.models.Response<io.clientcore.core.models.binarydata.BinaryData> networkResponse
+                = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 200 || responseCode == 204)) {
+                io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
+                    this.jsonSerializer, this.xmlSerializer, null, null, BodyOrNoContentClientServiceImpl.LOGGER);
+            }
+            try {
+                BlobLayout deserializedResult;
+                io.clientcore.core.serialization.SerializationFormat responseSerializationFormat
+                    = io.clientcore.core.utils.CoreUtils
+                        .serializationFormatFromContentType(networkResponse.getHeaders());
+                if (this.jsonSerializer.supportsFormat(responseSerializationFormat)) {
+                    deserializedResult = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(
+                        networkResponse.getValue(), this.jsonSerializer, io.clientcore.core.utils.CoreUtils
+                            .createParameterizedType(io.clientcore.core.http.models.Response.class, BlobLayout.class));
+                } else if (this.xmlSerializer.supportsFormat(responseSerializationFormat)) {
+                    deserializedResult = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(
+                        networkResponse.getValue(), this.xmlSerializer, io.clientcore.core.utils.CoreUtils
+                            .createParameterizedType(io.clientcore.core.http.models.Response.class, BlobLayout.class));
+                } else {
+                    throw new UnsupportedOperationException(
+                        "Unsupported response serialization format: " + responseSerializationFormat);
+                }
+                return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
+                    networkResponse.getHeaders(), deserializedResult);
+            } finally {
+                networkResponse.close();
+            }
+        }
+
+        @Override
+        public Response<BlobLayout> getNoContent(String endpoint, String accept, RequestContext requestContext) {
+            io.clientcore.core.utils.UriBuilder uriBuilder
+                = io.clientcore.core.utils.UriBuilder.parse(endpoint + "/response/body-or-no-content/no-content");
+            io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
+                .setMethod(io.clientcore.core.http.models.HttpMethod.GET)
+                .setUri(uriBuilder.toString());
+            if (accept != null) {
+                httpRequest.getHeaders()
+                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Accept"), accept);
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            io.clientcore.core.http.models.Response<io.clientcore.core.models.binarydata.BinaryData> networkResponse
+                = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 200 || responseCode == 204)) {
+                io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
+                    this.jsonSerializer, this.xmlSerializer, null, null, BodyOrNoContentClientServiceImpl.LOGGER);
+            }
+            try {
+                BlobLayout deserializedResult;
+                io.clientcore.core.serialization.SerializationFormat responseSerializationFormat
+                    = io.clientcore.core.utils.CoreUtils
+                        .serializationFormatFromContentType(networkResponse.getHeaders());
+                if (this.jsonSerializer.supportsFormat(responseSerializationFormat)) {
+                    deserializedResult = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(
+                        networkResponse.getValue(), this.jsonSerializer, io.clientcore.core.utils.CoreUtils
+                            .createParameterizedType(io.clientcore.core.http.models.Response.class, BlobLayout.class));
+                } else if (this.xmlSerializer.supportsFormat(responseSerializationFormat)) {
+                    deserializedResult = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(
+                        networkResponse.getValue(), this.xmlSerializer, io.clientcore.core.utils.CoreUtils
+                            .createParameterizedType(io.clientcore.core.http.models.Response.class, BlobLayout.class));
+                } else {
+                    throw new UnsupportedOperationException(
+                        "Unsupported response serialization format: " + responseSerializationFormat);
+                }
+                return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
+                    networkResponse.getHeaders(), deserializedResult);
+            } finally {
+                networkResponse.close();
+            }
+        }
     }
 
     /**
@@ -152,4 +229,6 @@ public final class BodyOrNoContentClientImpl {
                 return service.getNoContent(this.getEndpoint(), accept, updatedContext);
             });
     }
+
+    private static final ClientLogger LOGGER = new ClientLogger(BodyOrNoContentClientImpl.class);
 }

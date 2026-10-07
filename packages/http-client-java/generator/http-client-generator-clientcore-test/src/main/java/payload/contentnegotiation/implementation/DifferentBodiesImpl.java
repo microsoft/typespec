@@ -1,20 +1,13 @@
 package payload.contentnegotiation.implementation;
 
 import io.clientcore.core.annotations.ReturnType;
-import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.annotations.HeaderParam;
-import io.clientcore.core.http.annotations.HostParam;
-import io.clientcore.core.http.annotations.HttpRequestInformation;
-import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
-import io.clientcore.core.http.models.HttpMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
-import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.instrumentation.Instrumentation;
+import io.clientcore.core.instrumentation.logging.ClientLogger;
 import io.clientcore.core.models.binarydata.BinaryData;
-import java.lang.reflect.InvocationTargetException;
 import payload.contentnegotiation.differentbody.PngImageAsJson;
 
 /**
@@ -47,39 +40,104 @@ public final class DifferentBodiesImpl {
         this.instrumentation = client.getInstrumentation();
     }
 
-    /**
-     * The interface defining all the services for ContentNegotiationClientDifferentBodies to be used by the proxy
-     * service to perform REST calls.
-     */
-    @ServiceInterface(name = "ContentNegotiationClientDifferentBodies", host = "{endpoint}")
     public interface DifferentBodiesService {
-        static DifferentBodiesService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("payload.contentnegotiation.implementation.DifferentBodiesServiceImpl");
-                return (DifferentBodiesService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
+        static DifferentBodiesService getNewInstance(io.clientcore.core.http.pipeline.HttpPipeline pipeline) {
+            return new DifferentBodiesServiceImpl(pipeline);
         }
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/content-negotiation/different-body",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<BinaryData> getAvatarAsPng(@HostParam("endpoint") String endpoint,
-            @HeaderParam("accept") String accept, RequestContext requestContext);
+        Response<BinaryData> getAvatarAsPng(String endpoint, String accept, RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/content-negotiation/different-body",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<PngImageAsJson> getAvatarAsJson(@HostParam("endpoint") String endpoint,
-            @HeaderParam("accept") String accept, RequestContext requestContext);
+        Response<PngImageAsJson> getAvatarAsJson(String endpoint, String accept, RequestContext requestContext);
+    }
+
+    private static final class DifferentBodiesServiceImpl implements DifferentBodiesService {
+        private static final io.clientcore.core.instrumentation.logging.ClientLogger LOGGER
+            = new io.clientcore.core.instrumentation.logging.ClientLogger(DifferentBodiesServiceImpl.class);
+
+        private final io.clientcore.core.http.pipeline.HttpPipeline httpPipeline;
+
+        private final io.clientcore.core.serialization.json.JsonSerializer jsonSerializer
+            = io.clientcore.core.serialization.json.JsonSerializer.getInstance();
+
+        private final io.clientcore.core.serialization.xml.XmlSerializer xmlSerializer
+            = io.clientcore.core.serialization.xml.XmlSerializer.getInstance();
+
+        private DifferentBodiesServiceImpl(io.clientcore.core.http.pipeline.HttpPipeline pipeline) {
+            this.httpPipeline = pipeline;
+        }
+
+        @Override
+        public Response<BinaryData> getAvatarAsPng(String endpoint, String accept, RequestContext requestContext) {
+            io.clientcore.core.utils.UriBuilder uriBuilder
+                = io.clientcore.core.utils.UriBuilder.parse(endpoint + "/content-negotiation/different-body");
+            io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
+                .setMethod(io.clientcore.core.http.models.HttpMethod.GET)
+                .setUri(uriBuilder.toString());
+            if (accept != null) {
+                httpRequest.getHeaders()
+                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("accept"), accept);
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            io.clientcore.core.http.models.Response<io.clientcore.core.models.binarydata.BinaryData> networkResponse
+                = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 200)) {
+                io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
+                    this.jsonSerializer, this.xmlSerializer, null, null, DifferentBodiesServiceImpl.LOGGER);
+            }
+            return networkResponse;
+        }
+
+        @Override
+        public Response<PngImageAsJson> getAvatarAsJson(String endpoint, String accept, RequestContext requestContext) {
+            io.clientcore.core.utils.UriBuilder uriBuilder
+                = io.clientcore.core.utils.UriBuilder.parse(endpoint + "/content-negotiation/different-body");
+            io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
+                .setMethod(io.clientcore.core.http.models.HttpMethod.GET)
+                .setUri(uriBuilder.toString());
+            if (accept != null) {
+                httpRequest.getHeaders()
+                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("accept"), accept);
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            io.clientcore.core.http.models.Response<io.clientcore.core.models.binarydata.BinaryData> networkResponse
+                = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 200)) {
+                io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
+                    this.jsonSerializer, this.xmlSerializer, null, null, DifferentBodiesServiceImpl.LOGGER);
+            }
+            try {
+                PngImageAsJson deserializedResult;
+                io.clientcore.core.serialization.SerializationFormat responseSerializationFormat
+                    = io.clientcore.core.utils.CoreUtils
+                        .serializationFormatFromContentType(networkResponse.getHeaders());
+                if (this.jsonSerializer.supportsFormat(responseSerializationFormat)) {
+                    deserializedResult
+                        = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
+                            this.jsonSerializer, io.clientcore.core.utils.CoreUtils.createParameterizedType(
+                                io.clientcore.core.http.models.Response.class, PngImageAsJson.class));
+                } else if (this.xmlSerializer.supportsFormat(responseSerializationFormat)) {
+                    deserializedResult
+                        = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
+                            this.xmlSerializer, io.clientcore.core.utils.CoreUtils.createParameterizedType(
+                                io.clientcore.core.http.models.Response.class, PngImageAsJson.class));
+                } else {
+                    throw new UnsupportedOperationException(
+                        "Unsupported response serialization format: " + responseSerializationFormat);
+                }
+                return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
+                    networkResponse.getHeaders(), deserializedResult);
+            } finally {
+                networkResponse.close();
+            }
+        }
     }
 
     /**
@@ -117,4 +175,6 @@ public final class DifferentBodiesImpl {
                 return service.getAvatarAsJson(this.client.getEndpoint(), accept, updatedContext);
             });
     }
+
+    private static final ClientLogger LOGGER = new ClientLogger(DifferentBodiesImpl.class);
 }

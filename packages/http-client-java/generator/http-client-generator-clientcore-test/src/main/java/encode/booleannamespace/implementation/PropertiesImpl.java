@@ -2,20 +2,12 @@ package encode.booleannamespace.implementation;
 
 import encode.booleannamespace.property.BoolAsStringProperty;
 import io.clientcore.core.annotations.ReturnType;
-import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.annotations.BodyParam;
-import io.clientcore.core.http.annotations.HeaderParam;
-import io.clientcore.core.http.annotations.HostParam;
-import io.clientcore.core.http.annotations.HttpRequestInformation;
-import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
-import io.clientcore.core.http.models.HttpMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
-import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.instrumentation.Instrumentation;
-import java.lang.reflect.InvocationTargetException;
+import io.clientcore.core.instrumentation.logging.ClientLogger;
 
 /**
  * An instance of this class provides access to all the operations defined in Properties.
@@ -47,58 +39,299 @@ public final class PropertiesImpl {
         this.instrumentation = client.getInstrumentation();
     }
 
-    /**
-     * The interface defining all the services for BooleanClientProperties to be used by the proxy service to perform
-     * REST calls.
-     */
-    @ServiceInterface(name = "BooleanClientProperties", host = "{endpoint}")
     public interface PropertiesService {
-        static PropertiesService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("encode.booleannamespace.implementation.PropertiesServiceImpl");
-                return (PropertiesService) clazz.getMethod("getNewInstance", HttpPipeline.class).invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
+        static PropertiesService getNewInstance(io.clientcore.core.http.pipeline.HttpPipeline pipeline) {
+            return new PropertiesServiceImpl(pipeline);
         }
 
-        @HttpRequestInformation(
-            method = HttpMethod.POST,
-            path = "/encode/boolean/property/true-lower",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<BoolAsStringProperty> trueLower(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
-            @BodyParam("application/json") BoolAsStringProperty value, RequestContext requestContext);
+        Response<BoolAsStringProperty> trueLower(String endpoint, String contentType, String accept,
+            BoolAsStringProperty value, RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.POST,
-            path = "/encode/boolean/property/false-lower",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<BoolAsStringProperty> falseLower(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
-            @BodyParam("application/json") BoolAsStringProperty value, RequestContext requestContext);
+        Response<BoolAsStringProperty> falseLower(String endpoint, String contentType, String accept,
+            BoolAsStringProperty value, RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.POST,
-            path = "/encode/boolean/property/true-upper",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<BoolAsStringProperty> trueUpper(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
-            @BodyParam("application/json") BoolAsStringProperty value, RequestContext requestContext);
+        Response<BoolAsStringProperty> trueUpper(String endpoint, String contentType, String accept,
+            BoolAsStringProperty value, RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.POST,
-            path = "/encode/boolean/property/false-mixed",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<BoolAsStringProperty> falseMixed(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
-            @BodyParam("application/json") BoolAsStringProperty value, RequestContext requestContext);
+        Response<BoolAsStringProperty> falseMixed(String endpoint, String contentType, String accept,
+            BoolAsStringProperty value, RequestContext requestContext);
+    }
+
+    private static final class PropertiesServiceImpl implements PropertiesService {
+        private static final io.clientcore.core.instrumentation.logging.ClientLogger LOGGER
+            = new io.clientcore.core.instrumentation.logging.ClientLogger(PropertiesServiceImpl.class);
+
+        private final io.clientcore.core.http.pipeline.HttpPipeline httpPipeline;
+
+        private final io.clientcore.core.serialization.json.JsonSerializer jsonSerializer
+            = io.clientcore.core.serialization.json.JsonSerializer.getInstance();
+
+        private final io.clientcore.core.serialization.xml.XmlSerializer xmlSerializer
+            = io.clientcore.core.serialization.xml.XmlSerializer.getInstance();
+
+        private PropertiesServiceImpl(io.clientcore.core.http.pipeline.HttpPipeline pipeline) {
+            this.httpPipeline = pipeline;
+        }
+
+        @Override
+        public Response<BoolAsStringProperty> trueLower(String endpoint, String contentType, String accept,
+            BoolAsStringProperty value, RequestContext requestContext) {
+            io.clientcore.core.utils.UriBuilder uriBuilder
+                = io.clientcore.core.utils.UriBuilder.parse(endpoint + "/encode/boolean/property/true-lower");
+            io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
+                .setMethod(io.clientcore.core.http.models.HttpMethod.POST)
+                .setUri(uriBuilder.toString());
+            if (contentType != null) {
+                httpRequest.getHeaders()
+                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Content-Type"), contentType);
+            }
+            if (accept != null) {
+                httpRequest.getHeaders()
+                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Accept"), accept);
+            }
+            if (value != null) {
+                if (httpRequest.getHeaders().get(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE) == null) {
+                    httpRequest.getHeaders()
+                        .set(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE, "application/json");
+                }
+                io.clientcore.core.serialization.SerializationFormat requestSerializationFormat
+                    = io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(httpRequest.getHeaders());
+                httpRequest.setBody(io.clientcore.core.models.binarydata.BinaryData.fromObject(value,
+                    this.xmlSerializer.supportsFormat(requestSerializationFormat)
+                        ? this.xmlSerializer
+                        : this.jsonSerializer));
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            io.clientcore.core.http.models.Response<io.clientcore.core.models.binarydata.BinaryData> networkResponse
+                = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 200)) {
+                io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
+                    this.jsonSerializer, this.xmlSerializer, null, null, PropertiesServiceImpl.LOGGER);
+            }
+            try {
+                BoolAsStringProperty deserializedResult;
+                io.clientcore.core.serialization.SerializationFormat responseSerializationFormat
+                    = io.clientcore.core.utils.CoreUtils
+                        .serializationFormatFromContentType(networkResponse.getHeaders());
+                if (this.jsonSerializer.supportsFormat(responseSerializationFormat)) {
+                    deserializedResult
+                        = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
+                            this.jsonSerializer, io.clientcore.core.utils.CoreUtils.createParameterizedType(
+                                io.clientcore.core.http.models.Response.class, BoolAsStringProperty.class));
+                } else if (this.xmlSerializer.supportsFormat(responseSerializationFormat)) {
+                    deserializedResult
+                        = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
+                            this.xmlSerializer, io.clientcore.core.utils.CoreUtils.createParameterizedType(
+                                io.clientcore.core.http.models.Response.class, BoolAsStringProperty.class));
+                } else {
+                    throw new UnsupportedOperationException(
+                        "Unsupported response serialization format: " + responseSerializationFormat);
+                }
+                return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
+                    networkResponse.getHeaders(), deserializedResult);
+            } finally {
+                networkResponse.close();
+            }
+        }
+
+        @Override
+        public Response<BoolAsStringProperty> falseLower(String endpoint, String contentType, String accept,
+            BoolAsStringProperty value, RequestContext requestContext) {
+            io.clientcore.core.utils.UriBuilder uriBuilder
+                = io.clientcore.core.utils.UriBuilder.parse(endpoint + "/encode/boolean/property/false-lower");
+            io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
+                .setMethod(io.clientcore.core.http.models.HttpMethod.POST)
+                .setUri(uriBuilder.toString());
+            if (contentType != null) {
+                httpRequest.getHeaders()
+                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Content-Type"), contentType);
+            }
+            if (accept != null) {
+                httpRequest.getHeaders()
+                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Accept"), accept);
+            }
+            if (value != null) {
+                if (httpRequest.getHeaders().get(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE) == null) {
+                    httpRequest.getHeaders()
+                        .set(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE, "application/json");
+                }
+                io.clientcore.core.serialization.SerializationFormat requestSerializationFormat
+                    = io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(httpRequest.getHeaders());
+                httpRequest.setBody(io.clientcore.core.models.binarydata.BinaryData.fromObject(value,
+                    this.xmlSerializer.supportsFormat(requestSerializationFormat)
+                        ? this.xmlSerializer
+                        : this.jsonSerializer));
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            io.clientcore.core.http.models.Response<io.clientcore.core.models.binarydata.BinaryData> networkResponse
+                = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 200)) {
+                io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
+                    this.jsonSerializer, this.xmlSerializer, null, null, PropertiesServiceImpl.LOGGER);
+            }
+            try {
+                BoolAsStringProperty deserializedResult;
+                io.clientcore.core.serialization.SerializationFormat responseSerializationFormat
+                    = io.clientcore.core.utils.CoreUtils
+                        .serializationFormatFromContentType(networkResponse.getHeaders());
+                if (this.jsonSerializer.supportsFormat(responseSerializationFormat)) {
+                    deserializedResult
+                        = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
+                            this.jsonSerializer, io.clientcore.core.utils.CoreUtils.createParameterizedType(
+                                io.clientcore.core.http.models.Response.class, BoolAsStringProperty.class));
+                } else if (this.xmlSerializer.supportsFormat(responseSerializationFormat)) {
+                    deserializedResult
+                        = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
+                            this.xmlSerializer, io.clientcore.core.utils.CoreUtils.createParameterizedType(
+                                io.clientcore.core.http.models.Response.class, BoolAsStringProperty.class));
+                } else {
+                    throw new UnsupportedOperationException(
+                        "Unsupported response serialization format: " + responseSerializationFormat);
+                }
+                return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
+                    networkResponse.getHeaders(), deserializedResult);
+            } finally {
+                networkResponse.close();
+            }
+        }
+
+        @Override
+        public Response<BoolAsStringProperty> trueUpper(String endpoint, String contentType, String accept,
+            BoolAsStringProperty value, RequestContext requestContext) {
+            io.clientcore.core.utils.UriBuilder uriBuilder
+                = io.clientcore.core.utils.UriBuilder.parse(endpoint + "/encode/boolean/property/true-upper");
+            io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
+                .setMethod(io.clientcore.core.http.models.HttpMethod.POST)
+                .setUri(uriBuilder.toString());
+            if (contentType != null) {
+                httpRequest.getHeaders()
+                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Content-Type"), contentType);
+            }
+            if (accept != null) {
+                httpRequest.getHeaders()
+                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Accept"), accept);
+            }
+            if (value != null) {
+                if (httpRequest.getHeaders().get(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE) == null) {
+                    httpRequest.getHeaders()
+                        .set(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE, "application/json");
+                }
+                io.clientcore.core.serialization.SerializationFormat requestSerializationFormat
+                    = io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(httpRequest.getHeaders());
+                httpRequest.setBody(io.clientcore.core.models.binarydata.BinaryData.fromObject(value,
+                    this.xmlSerializer.supportsFormat(requestSerializationFormat)
+                        ? this.xmlSerializer
+                        : this.jsonSerializer));
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            io.clientcore.core.http.models.Response<io.clientcore.core.models.binarydata.BinaryData> networkResponse
+                = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 200)) {
+                io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
+                    this.jsonSerializer, this.xmlSerializer, null, null, PropertiesServiceImpl.LOGGER);
+            }
+            try {
+                BoolAsStringProperty deserializedResult;
+                io.clientcore.core.serialization.SerializationFormat responseSerializationFormat
+                    = io.clientcore.core.utils.CoreUtils
+                        .serializationFormatFromContentType(networkResponse.getHeaders());
+                if (this.jsonSerializer.supportsFormat(responseSerializationFormat)) {
+                    deserializedResult
+                        = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
+                            this.jsonSerializer, io.clientcore.core.utils.CoreUtils.createParameterizedType(
+                                io.clientcore.core.http.models.Response.class, BoolAsStringProperty.class));
+                } else if (this.xmlSerializer.supportsFormat(responseSerializationFormat)) {
+                    deserializedResult
+                        = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
+                            this.xmlSerializer, io.clientcore.core.utils.CoreUtils.createParameterizedType(
+                                io.clientcore.core.http.models.Response.class, BoolAsStringProperty.class));
+                } else {
+                    throw new UnsupportedOperationException(
+                        "Unsupported response serialization format: " + responseSerializationFormat);
+                }
+                return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
+                    networkResponse.getHeaders(), deserializedResult);
+            } finally {
+                networkResponse.close();
+            }
+        }
+
+        @Override
+        public Response<BoolAsStringProperty> falseMixed(String endpoint, String contentType, String accept,
+            BoolAsStringProperty value, RequestContext requestContext) {
+            io.clientcore.core.utils.UriBuilder uriBuilder
+                = io.clientcore.core.utils.UriBuilder.parse(endpoint + "/encode/boolean/property/false-mixed");
+            io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
+                .setMethod(io.clientcore.core.http.models.HttpMethod.POST)
+                .setUri(uriBuilder.toString());
+            if (contentType != null) {
+                httpRequest.getHeaders()
+                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Content-Type"), contentType);
+            }
+            if (accept != null) {
+                httpRequest.getHeaders()
+                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Accept"), accept);
+            }
+            if (value != null) {
+                if (httpRequest.getHeaders().get(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE) == null) {
+                    httpRequest.getHeaders()
+                        .set(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE, "application/json");
+                }
+                io.clientcore.core.serialization.SerializationFormat requestSerializationFormat
+                    = io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(httpRequest.getHeaders());
+                httpRequest.setBody(io.clientcore.core.models.binarydata.BinaryData.fromObject(value,
+                    this.xmlSerializer.supportsFormat(requestSerializationFormat)
+                        ? this.xmlSerializer
+                        : this.jsonSerializer));
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            io.clientcore.core.http.models.Response<io.clientcore.core.models.binarydata.BinaryData> networkResponse
+                = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 200)) {
+                io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
+                    this.jsonSerializer, this.xmlSerializer, null, null, PropertiesServiceImpl.LOGGER);
+            }
+            try {
+                BoolAsStringProperty deserializedResult;
+                io.clientcore.core.serialization.SerializationFormat responseSerializationFormat
+                    = io.clientcore.core.utils.CoreUtils
+                        .serializationFormatFromContentType(networkResponse.getHeaders());
+                if (this.jsonSerializer.supportsFormat(responseSerializationFormat)) {
+                    deserializedResult
+                        = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
+                            this.jsonSerializer, io.clientcore.core.utils.CoreUtils.createParameterizedType(
+                                io.clientcore.core.http.models.Response.class, BoolAsStringProperty.class));
+                } else if (this.xmlSerializer.supportsFormat(responseSerializationFormat)) {
+                    deserializedResult
+                        = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
+                            this.xmlSerializer, io.clientcore.core.utils.CoreUtils.createParameterizedType(
+                                io.clientcore.core.http.models.Response.class, BoolAsStringProperty.class));
+                } else {
+                    throw new UnsupportedOperationException(
+                        "Unsupported response serialization format: " + responseSerializationFormat);
+                }
+                return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
+                    networkResponse.getHeaders(), deserializedResult);
+            } finally {
+                networkResponse.close();
+            }
+        }
     }
 
     /**
@@ -184,4 +417,6 @@ public final class PropertiesImpl {
                 return service.falseMixed(this.client.getEndpoint(), contentType, accept, value, updatedContext);
             });
     }
+
+    private static final ClientLogger LOGGER = new ClientLogger(PropertiesImpl.class);
 }

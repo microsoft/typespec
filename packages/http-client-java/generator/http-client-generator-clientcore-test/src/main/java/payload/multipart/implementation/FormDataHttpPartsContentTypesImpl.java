@@ -1,20 +1,12 @@
 package payload.multipart.implementation;
 
 import io.clientcore.core.annotations.ReturnType;
-import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.annotations.BodyParam;
-import io.clientcore.core.http.annotations.HeaderParam;
-import io.clientcore.core.http.annotations.HostParam;
-import io.clientcore.core.http.annotations.HttpRequestInformation;
-import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
-import io.clientcore.core.http.models.HttpMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
-import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.instrumentation.Instrumentation;
-import java.lang.reflect.InvocationTargetException;
+import io.clientcore.core.instrumentation.logging.ClientLogger;
 import payload.multipart.FileWithHttpPartOptionalContentTypeRequest;
 import payload.multipart.FileWithHttpPartRequiredContentTypeRequest;
 import payload.multipart.FileWithHttpPartSpecificContentTypeRequest;
@@ -49,57 +41,171 @@ public final class FormDataHttpPartsContentTypesImpl {
         this.instrumentation = client.getInstrumentation();
     }
 
-    /**
-     * The interface defining all the services for MultiPartClientFormDataHttpPartsContentTypes to be used by the proxy
-     * service to perform REST calls.
-     */
-    @ServiceInterface(name = "MultiPartClientFormDataHttpPartsContentTypes", host = "{endpoint}")
     public interface FormDataHttpPartsContentTypesService {
-        static FormDataHttpPartsContentTypesService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz
-                    = Class.forName("payload.multipart.implementation.FormDataHttpPartsContentTypesServiceImpl");
-                return (FormDataHttpPartsContentTypesService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
+        static FormDataHttpPartsContentTypesService
+            getNewInstance(io.clientcore.core.http.pipeline.HttpPipeline pipeline) {
+            return new FormDataHttpPartsContentTypesServiceImpl(pipeline);
         }
 
-        // @Multipart not supported by RestProxy
-        @HttpRequestInformation(
-            method = HttpMethod.POST,
-            path = "/multipart/form-data/check-filename-and-specific-content-type-with-httppart",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> imageJpegContentType(@HostParam("endpoint") String endpoint,
-            @HeaderParam("content-type") String contentType,
-            @BodyParam("multipart/form-data") FileWithHttpPartSpecificContentTypeRequest body,
-            RequestContext requestContext);
+        Response<Void> imageJpegContentType(String endpoint, String contentType,
+            FileWithHttpPartSpecificContentTypeRequest body, RequestContext requestContext);
 
-        // @Multipart not supported by RestProxy
-        @HttpRequestInformation(
-            method = HttpMethod.POST,
-            path = "/multipart/form-data/check-filename-and-required-content-type-with-httppart",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> requiredContentType(@HostParam("endpoint") String endpoint,
-            @HeaderParam("content-type") String contentType,
-            @BodyParam("multipart/form-data") FileWithHttpPartRequiredContentTypeRequest body,
-            RequestContext requestContext);
+        Response<Void> requiredContentType(String endpoint, String contentType,
+            FileWithHttpPartRequiredContentTypeRequest body, RequestContext requestContext);
 
-        // @Multipart not supported by RestProxy
-        @HttpRequestInformation(
-            method = HttpMethod.POST,
-            path = "/multipart/form-data/file-with-http-part-optional-content-type",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> optionalContentType(@HostParam("endpoint") String endpoint,
-            @HeaderParam("content-type") String contentType,
-            @BodyParam("multipart/form-data") FileWithHttpPartOptionalContentTypeRequest body,
-            RequestContext requestContext);
+        Response<Void> optionalContentType(String endpoint, String contentType,
+            FileWithHttpPartOptionalContentTypeRequest body, RequestContext requestContext);
+    }
+
+    private static final class FormDataHttpPartsContentTypesServiceImpl
+        implements FormDataHttpPartsContentTypesService {
+        private static final io.clientcore.core.instrumentation.logging.ClientLogger LOGGER
+            = new io.clientcore.core.instrumentation.logging.ClientLogger(
+                FormDataHttpPartsContentTypesServiceImpl.class);
+
+        private final io.clientcore.core.http.pipeline.HttpPipeline httpPipeline;
+
+        private final io.clientcore.core.serialization.json.JsonSerializer jsonSerializer
+            = io.clientcore.core.serialization.json.JsonSerializer.getInstance();
+
+        private final io.clientcore.core.serialization.xml.XmlSerializer xmlSerializer
+            = io.clientcore.core.serialization.xml.XmlSerializer.getInstance();
+
+        private FormDataHttpPartsContentTypesServiceImpl(io.clientcore.core.http.pipeline.HttpPipeline pipeline) {
+            this.httpPipeline = pipeline;
+        }
+
+        @Override
+        public Response<Void> imageJpegContentType(String endpoint, String contentType,
+            FileWithHttpPartSpecificContentTypeRequest body, RequestContext requestContext) {
+            io.clientcore.core.utils.UriBuilder uriBuilder = io.clientcore.core.utils.UriBuilder
+                .parse(endpoint + "/multipart/form-data/check-filename-and-specific-content-type-with-httppart");
+            io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
+                .setMethod(io.clientcore.core.http.models.HttpMethod.POST)
+                .setUri(uriBuilder.toString());
+            if (contentType != null) {
+                httpRequest.getHeaders()
+                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("content-type"), contentType);
+            }
+            if (body != null) {
+                if (httpRequest.getHeaders().get(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE) == null) {
+                    httpRequest.getHeaders()
+                        .set(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE, "multipart/form-data");
+                }
+                io.clientcore.core.serialization.SerializationFormat requestSerializationFormat
+                    = io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(httpRequest.getHeaders());
+                httpRequest.setBody(io.clientcore.core.models.binarydata.BinaryData.fromObject(body,
+                    this.xmlSerializer.supportsFormat(requestSerializationFormat)
+                        ? this.xmlSerializer
+                        : this.jsonSerializer));
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            io.clientcore.core.http.models.Response<io.clientcore.core.models.binarydata.BinaryData> networkResponse
+                = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 204)) {
+                io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
+                    this.jsonSerializer, this.xmlSerializer, null, null,
+                    FormDataHttpPartsContentTypesServiceImpl.LOGGER);
+            }
+            try {
+                return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
+                    networkResponse.getHeaders(), null);
+            } finally {
+                networkResponse.close();
+            }
+        }
+
+        @Override
+        public Response<Void> requiredContentType(String endpoint, String contentType,
+            FileWithHttpPartRequiredContentTypeRequest body, RequestContext requestContext) {
+            io.clientcore.core.utils.UriBuilder uriBuilder = io.clientcore.core.utils.UriBuilder
+                .parse(endpoint + "/multipart/form-data/check-filename-and-required-content-type-with-httppart");
+            io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
+                .setMethod(io.clientcore.core.http.models.HttpMethod.POST)
+                .setUri(uriBuilder.toString());
+            if (contentType != null) {
+                httpRequest.getHeaders()
+                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("content-type"), contentType);
+            }
+            if (body != null) {
+                if (httpRequest.getHeaders().get(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE) == null) {
+                    httpRequest.getHeaders()
+                        .set(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE, "multipart/form-data");
+                }
+                io.clientcore.core.serialization.SerializationFormat requestSerializationFormat
+                    = io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(httpRequest.getHeaders());
+                httpRequest.setBody(io.clientcore.core.models.binarydata.BinaryData.fromObject(body,
+                    this.xmlSerializer.supportsFormat(requestSerializationFormat)
+                        ? this.xmlSerializer
+                        : this.jsonSerializer));
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            io.clientcore.core.http.models.Response<io.clientcore.core.models.binarydata.BinaryData> networkResponse
+                = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 204)) {
+                io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
+                    this.jsonSerializer, this.xmlSerializer, null, null,
+                    FormDataHttpPartsContentTypesServiceImpl.LOGGER);
+            }
+            try {
+                return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
+                    networkResponse.getHeaders(), null);
+            } finally {
+                networkResponse.close();
+            }
+        }
+
+        @Override
+        public Response<Void> optionalContentType(String endpoint, String contentType,
+            FileWithHttpPartOptionalContentTypeRequest body, RequestContext requestContext) {
+            io.clientcore.core.utils.UriBuilder uriBuilder = io.clientcore.core.utils.UriBuilder
+                .parse(endpoint + "/multipart/form-data/file-with-http-part-optional-content-type");
+            io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
+                .setMethod(io.clientcore.core.http.models.HttpMethod.POST)
+                .setUri(uriBuilder.toString());
+            if (contentType != null) {
+                httpRequest.getHeaders()
+                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("content-type"), contentType);
+            }
+            if (body != null) {
+                if (httpRequest.getHeaders().get(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE) == null) {
+                    httpRequest.getHeaders()
+                        .set(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE, "multipart/form-data");
+                }
+                io.clientcore.core.serialization.SerializationFormat requestSerializationFormat
+                    = io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(httpRequest.getHeaders());
+                httpRequest.setBody(io.clientcore.core.models.binarydata.BinaryData.fromObject(body,
+                    this.xmlSerializer.supportsFormat(requestSerializationFormat)
+                        ? this.xmlSerializer
+                        : this.jsonSerializer));
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            io.clientcore.core.http.models.Response<io.clientcore.core.models.binarydata.BinaryData> networkResponse
+                = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 204)) {
+                io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
+                    this.jsonSerializer, this.xmlSerializer, null, null,
+                    FormDataHttpPartsContentTypesServiceImpl.LOGGER);
+            }
+            try {
+                return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
+                    networkResponse.getHeaders(), null);
+            } finally {
+                networkResponse.close();
+            }
+        }
     }
 
     /**
@@ -161,4 +267,6 @@ public final class FormDataHttpPartsContentTypesImpl {
                 return service.optionalContentType(this.client.getEndpoint(), contentType, body, updatedContext);
             });
     }
+
+    private static final ClientLogger LOGGER = new ClientLogger(FormDataHttpPartsContentTypesImpl.class);
 }

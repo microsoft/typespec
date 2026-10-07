@@ -1,18 +1,13 @@
 package server.path.single.implementation;
 
 import io.clientcore.core.annotations.ReturnType;
-import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.annotations.HostParam;
-import io.clientcore.core.http.annotations.HttpRequestInformation;
-import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
-import io.clientcore.core.http.models.HttpMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.instrumentation.Instrumentation;
-import java.lang.reflect.InvocationTargetException;
+import io.clientcore.core.instrumentation.logging.ClientLogger;
 
 /**
  * Initializes a new instance of the SingleClient type.
@@ -79,29 +74,55 @@ public final class SingleClientImpl {
         this.service = SingleClientService.getNewInstance(this.httpPipeline);
     }
 
-    /**
-     * The interface defining all the services for SingleClient to be used by the proxy service to perform REST calls.
-     */
-    @ServiceInterface(name = "SingleClient", host = "{endpoint}")
     public interface SingleClientService {
-        static SingleClientService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("server.path.single.implementation.SingleClientServiceImpl");
-                return (SingleClientService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
+        static SingleClientService getNewInstance(io.clientcore.core.http.pipeline.HttpPipeline pipeline) {
+            return new SingleClientServiceImpl(pipeline);
         }
 
-        @HttpRequestInformation(
-            method = HttpMethod.HEAD,
-            path = "/server/path/single/myOp",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> myOp(@HostParam("endpoint") String endpoint, RequestContext requestContext);
+        Response<Void> myOp(String endpoint, RequestContext requestContext);
+    }
+
+    private static final class SingleClientServiceImpl implements SingleClientService {
+        private static final io.clientcore.core.instrumentation.logging.ClientLogger LOGGER
+            = new io.clientcore.core.instrumentation.logging.ClientLogger(SingleClientServiceImpl.class);
+
+        private final io.clientcore.core.http.pipeline.HttpPipeline httpPipeline;
+
+        private final io.clientcore.core.serialization.json.JsonSerializer jsonSerializer
+            = io.clientcore.core.serialization.json.JsonSerializer.getInstance();
+
+        private final io.clientcore.core.serialization.xml.XmlSerializer xmlSerializer
+            = io.clientcore.core.serialization.xml.XmlSerializer.getInstance();
+
+        private SingleClientServiceImpl(io.clientcore.core.http.pipeline.HttpPipeline pipeline) {
+            this.httpPipeline = pipeline;
+        }
+
+        @Override
+        public Response<Void> myOp(String endpoint, RequestContext requestContext) {
+            io.clientcore.core.utils.UriBuilder uriBuilder
+                = io.clientcore.core.utils.UriBuilder.parse(endpoint + "/server/path/single/myOp");
+            io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
+                .setMethod(io.clientcore.core.http.models.HttpMethod.HEAD)
+                .setUri(uriBuilder.toString());
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            io.clientcore.core.http.models.Response<io.clientcore.core.models.binarydata.BinaryData> networkResponse
+                = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 200)) {
+                io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
+                    this.jsonSerializer, this.xmlSerializer, null, null, SingleClientServiceImpl.LOGGER);
+            }
+            try {
+                return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
+                    networkResponse.getHeaders(), null);
+            } finally {
+                networkResponse.close();
+            }
+        }
     }
 
     /**
@@ -120,4 +141,6 @@ public final class SingleClientImpl {
                 return service.myOp(this.getEndpoint(), updatedContext);
             });
     }
+
+    private static final ClientLogger LOGGER = new ClientLogger(SingleClientImpl.class);
 }

@@ -1,21 +1,12 @@
 package parameters.spread.implementation;
 
 import io.clientcore.core.annotations.ReturnType;
-import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.annotations.BodyParam;
-import io.clientcore.core.http.annotations.HeaderParam;
-import io.clientcore.core.http.annotations.HostParam;
-import io.clientcore.core.http.annotations.HttpRequestInformation;
-import io.clientcore.core.http.annotations.PathParam;
-import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
-import io.clientcore.core.http.models.HttpMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
-import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.instrumentation.Instrumentation;
-import java.lang.reflect.InvocationTargetException;
+import io.clientcore.core.instrumentation.logging.ClientLogger;
 import parameters.spread.model.BodyParameter;
 
 /**
@@ -48,68 +39,258 @@ public final class ModelsImpl {
         this.instrumentation = client.getInstrumentation();
     }
 
-    /**
-     * The interface defining all the services for SpreadClientModels to be used by the proxy service to perform REST
-     * calls.
-     */
-    @ServiceInterface(name = "SpreadClientModels", host = "{endpoint}")
     public interface ModelsService {
-        static ModelsService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("parameters.spread.implementation.ModelsServiceImpl");
-                return (ModelsService) clazz.getMethod("getNewInstance", HttpPipeline.class).invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
+        static ModelsService getNewInstance(io.clientcore.core.http.pipeline.HttpPipeline pipeline) {
+            return new ModelsServiceImpl(pipeline);
         }
 
-        @HttpRequestInformation(
-            method = HttpMethod.PUT,
-            path = "/parameters/spread/model/request-body",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> spreadAsRequestBody(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") BodyParameter bodyParameter,
+        Response<Void> spreadAsRequestBody(String endpoint, String contentType, BodyParameter bodyParameter,
             RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.PUT,
-            path = "/parameters/spread/model/composite-request-only-with-body",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> spreadCompositeRequestOnlyWithBody(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") BodyParameter body,
+        Response<Void> spreadCompositeRequestOnlyWithBody(String endpoint, String contentType, BodyParameter body,
             RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.PUT,
-            path = "/parameters/spread/model/composite-request-without-body/{name}",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> spreadCompositeRequestWithoutBody(@HostParam("endpoint") String endpoint,
-            @PathParam("name") String name, @HeaderParam("test-header") String testHeader,
+        Response<Void> spreadCompositeRequestWithoutBody(String endpoint, String name, String testHeader,
             RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.PUT,
-            path = "/parameters/spread/model/composite-request/{name}",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> spreadCompositeRequest(@HostParam("endpoint") String endpoint, @PathParam("name") String name,
-            @HeaderParam("test-header") String testHeader, @HeaderParam("Content-Type") String contentType,
-            @BodyParam("application/json") BodyParameter body, RequestContext requestContext);
+        Response<Void> spreadCompositeRequest(String endpoint, String name, String testHeader, String contentType,
+            BodyParameter body, RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.PUT,
-            path = "/parameters/spread/model/composite-request-mix/{name}",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> spreadCompositeRequestMix(@HostParam("endpoint") String endpoint, @PathParam("name") String name,
-            @HeaderParam("test-header") String testHeader, @HeaderParam("Content-Type") String contentType,
-            @BodyParam("application/json") SpreadCompositeRequestMixRequest spreadCompositeRequestMixRequest,
-            RequestContext requestContext);
+        Response<Void> spreadCompositeRequestMix(String endpoint, String name, String testHeader, String contentType,
+            SpreadCompositeRequestMixRequest spreadCompositeRequestMixRequest, RequestContext requestContext);
+    }
+
+    private static final class ModelsServiceImpl implements ModelsService {
+        private static final io.clientcore.core.instrumentation.logging.ClientLogger LOGGER
+            = new io.clientcore.core.instrumentation.logging.ClientLogger(ModelsServiceImpl.class);
+
+        private final io.clientcore.core.http.pipeline.HttpPipeline httpPipeline;
+
+        private final io.clientcore.core.serialization.json.JsonSerializer jsonSerializer
+            = io.clientcore.core.serialization.json.JsonSerializer.getInstance();
+
+        private final io.clientcore.core.serialization.xml.XmlSerializer xmlSerializer
+            = io.clientcore.core.serialization.xml.XmlSerializer.getInstance();
+
+        private ModelsServiceImpl(io.clientcore.core.http.pipeline.HttpPipeline pipeline) {
+            this.httpPipeline = pipeline;
+        }
+
+        @Override
+        public Response<Void> spreadAsRequestBody(String endpoint, String contentType, BodyParameter bodyParameter,
+            RequestContext requestContext) {
+            io.clientcore.core.utils.UriBuilder uriBuilder
+                = io.clientcore.core.utils.UriBuilder.parse(endpoint + "/parameters/spread/model/request-body");
+            io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
+                .setMethod(io.clientcore.core.http.models.HttpMethod.PUT)
+                .setUri(uriBuilder.toString());
+            if (contentType != null) {
+                httpRequest.getHeaders()
+                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Content-Type"), contentType);
+            }
+            if (bodyParameter != null) {
+                if (httpRequest.getHeaders().get(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE) == null) {
+                    httpRequest.getHeaders()
+                        .set(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE, "application/json");
+                }
+                io.clientcore.core.serialization.SerializationFormat requestSerializationFormat
+                    = io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(httpRequest.getHeaders());
+                httpRequest.setBody(io.clientcore.core.models.binarydata.BinaryData.fromObject(bodyParameter,
+                    this.xmlSerializer.supportsFormat(requestSerializationFormat)
+                        ? this.xmlSerializer
+                        : this.jsonSerializer));
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            io.clientcore.core.http.models.Response<io.clientcore.core.models.binarydata.BinaryData> networkResponse
+                = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 204)) {
+                io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
+                    this.jsonSerializer, this.xmlSerializer, null, null, ModelsServiceImpl.LOGGER);
+            }
+            try {
+                return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
+                    networkResponse.getHeaders(), null);
+            } finally {
+                networkResponse.close();
+            }
+        }
+
+        @Override
+        public Response<Void> spreadCompositeRequestOnlyWithBody(String endpoint, String contentType,
+            BodyParameter body, RequestContext requestContext) {
+            io.clientcore.core.utils.UriBuilder uriBuilder = io.clientcore.core.utils.UriBuilder
+                .parse(endpoint + "/parameters/spread/model/composite-request-only-with-body");
+            io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
+                .setMethod(io.clientcore.core.http.models.HttpMethod.PUT)
+                .setUri(uriBuilder.toString());
+            if (contentType != null) {
+                httpRequest.getHeaders()
+                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Content-Type"), contentType);
+            }
+            if (body != null) {
+                if (httpRequest.getHeaders().get(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE) == null) {
+                    httpRequest.getHeaders()
+                        .set(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE, "application/json");
+                }
+                io.clientcore.core.serialization.SerializationFormat requestSerializationFormat
+                    = io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(httpRequest.getHeaders());
+                httpRequest.setBody(io.clientcore.core.models.binarydata.BinaryData.fromObject(body,
+                    this.xmlSerializer.supportsFormat(requestSerializationFormat)
+                        ? this.xmlSerializer
+                        : this.jsonSerializer));
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            io.clientcore.core.http.models.Response<io.clientcore.core.models.binarydata.BinaryData> networkResponse
+                = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 204)) {
+                io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
+                    this.jsonSerializer, this.xmlSerializer, null, null, ModelsServiceImpl.LOGGER);
+            }
+            try {
+                return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
+                    networkResponse.getHeaders(), null);
+            } finally {
+                networkResponse.close();
+            }
+        }
+
+        @Override
+        public Response<Void> spreadCompositeRequestWithoutBody(String endpoint, String name, String testHeader,
+            RequestContext requestContext) {
+            io.clientcore.core.utils.UriBuilder uriBuilder = io.clientcore.core.utils.UriBuilder
+                .parse(endpoint + "/parameters/spread/model/composite-request-without-body/"
+                    + io.clientcore.core.implementation.utils.UriEscapers.PATH_ESCAPER.escape(name));
+            io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
+                .setMethod(io.clientcore.core.http.models.HttpMethod.PUT)
+                .setUri(uriBuilder.toString());
+            if (testHeader != null) {
+                httpRequest.getHeaders()
+                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("test-header"), testHeader);
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            io.clientcore.core.http.models.Response<io.clientcore.core.models.binarydata.BinaryData> networkResponse
+                = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 204)) {
+                io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
+                    this.jsonSerializer, this.xmlSerializer, null, null, ModelsServiceImpl.LOGGER);
+            }
+            try {
+                return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
+                    networkResponse.getHeaders(), null);
+            } finally {
+                networkResponse.close();
+            }
+        }
+
+        @Override
+        public Response<Void> spreadCompositeRequest(String endpoint, String name, String testHeader,
+            String contentType, BodyParameter body, RequestContext requestContext) {
+            io.clientcore.core.utils.UriBuilder uriBuilder
+                = io.clientcore.core.utils.UriBuilder.parse(endpoint + "/parameters/spread/model/composite-request/"
+                    + io.clientcore.core.implementation.utils.UriEscapers.PATH_ESCAPER.escape(name));
+            io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
+                .setMethod(io.clientcore.core.http.models.HttpMethod.PUT)
+                .setUri(uriBuilder.toString());
+            if (testHeader != null) {
+                httpRequest.getHeaders()
+                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("test-header"), testHeader);
+            }
+            if (contentType != null) {
+                httpRequest.getHeaders()
+                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Content-Type"), contentType);
+            }
+            if (body != null) {
+                if (httpRequest.getHeaders().get(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE) == null) {
+                    httpRequest.getHeaders()
+                        .set(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE, "application/json");
+                }
+                io.clientcore.core.serialization.SerializationFormat requestSerializationFormat
+                    = io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(httpRequest.getHeaders());
+                httpRequest.setBody(io.clientcore.core.models.binarydata.BinaryData.fromObject(body,
+                    this.xmlSerializer.supportsFormat(requestSerializationFormat)
+                        ? this.xmlSerializer
+                        : this.jsonSerializer));
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            io.clientcore.core.http.models.Response<io.clientcore.core.models.binarydata.BinaryData> networkResponse
+                = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 204)) {
+                io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
+                    this.jsonSerializer, this.xmlSerializer, null, null, ModelsServiceImpl.LOGGER);
+            }
+            try {
+                return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
+                    networkResponse.getHeaders(), null);
+            } finally {
+                networkResponse.close();
+            }
+        }
+
+        @Override
+        public Response<Void> spreadCompositeRequestMix(String endpoint, String name, String testHeader,
+            String contentType, SpreadCompositeRequestMixRequest spreadCompositeRequestMixRequest,
+            RequestContext requestContext) {
+            io.clientcore.core.utils.UriBuilder uriBuilder
+                = io.clientcore.core.utils.UriBuilder.parse(endpoint + "/parameters/spread/model/composite-request-mix/"
+                    + io.clientcore.core.implementation.utils.UriEscapers.PATH_ESCAPER.escape(name));
+            io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
+                .setMethod(io.clientcore.core.http.models.HttpMethod.PUT)
+                .setUri(uriBuilder.toString());
+            if (testHeader != null) {
+                httpRequest.getHeaders()
+                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("test-header"), testHeader);
+            }
+            if (contentType != null) {
+                httpRequest.getHeaders()
+                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Content-Type"), contentType);
+            }
+            if (spreadCompositeRequestMixRequest != null) {
+                if (httpRequest.getHeaders().get(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE) == null) {
+                    httpRequest.getHeaders()
+                        .set(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE, "application/json");
+                }
+                io.clientcore.core.serialization.SerializationFormat requestSerializationFormat
+                    = io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(httpRequest.getHeaders());
+                httpRequest.setBody(
+                    io.clientcore.core.models.binarydata.BinaryData.fromObject(spreadCompositeRequestMixRequest,
+                        this.xmlSerializer.supportsFormat(requestSerializationFormat)
+                            ? this.xmlSerializer
+                            : this.jsonSerializer));
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            io.clientcore.core.http.models.Response<io.clientcore.core.models.binarydata.BinaryData> networkResponse
+                = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 204)) {
+                io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
+                    this.jsonSerializer, this.xmlSerializer, null, null, ModelsServiceImpl.LOGGER);
+            }
+            try {
+                return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
+                    networkResponse.getHeaders(), null);
+            } finally {
+                networkResponse.close();
+            }
+        }
     }
 
     /**
@@ -222,4 +403,6 @@ public final class ModelsImpl {
                     spreadCompositeRequestMixRequest, updatedContext);
             });
     }
+
+    private static final ClientLogger LOGGER = new ClientLogger(ModelsImpl.class);
 }

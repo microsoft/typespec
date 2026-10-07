@@ -1,19 +1,12 @@
 package routes.implementation;
 
 import io.clientcore.core.annotations.ReturnType;
-import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.annotations.HostParam;
-import io.clientcore.core.http.annotations.HttpRequestInformation;
-import io.clientcore.core.http.annotations.PathParam;
-import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
-import io.clientcore.core.http.models.HttpMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
-import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.instrumentation.Instrumentation;
-import java.lang.reflect.InvocationTargetException;
+import io.clientcore.core.instrumentation.logging.ClientLogger;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -49,49 +42,121 @@ public final class PathParametersSimpleExpansionStandardsImpl {
         this.instrumentation = client.getInstrumentation();
     }
 
-    /**
-     * The interface defining all the services for RoutesClientPathParametersSimpleExpansionStandards to be used by the
-     * proxy service to perform REST calls.
-     */
-    @ServiceInterface(name = "RoutesClientPathParametersSimpleExpansionStandards", host = "{endpoint}")
     public interface PathParametersSimpleExpansionStandardsService {
-        static PathParametersSimpleExpansionStandardsService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz
-                    = Class.forName("routes.implementation.PathParametersSimpleExpansionStandardsServiceImpl");
-                return (PathParametersSimpleExpansionStandardsService) clazz
-                    .getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
+        static PathParametersSimpleExpansionStandardsService
+            getNewInstance(io.clientcore.core.http.pipeline.HttpPipeline pipeline) {
+            return new PathParametersSimpleExpansionStandardsServiceImpl(pipeline);
         }
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/routes/path/simple/standard/primitive{param}",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> primitive(@HostParam("endpoint") String endpoint, @PathParam("param") String param,
-            RequestContext requestContext);
+        Response<Void> primitive(String endpoint, String param, RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/routes/path/simple/standard/array{param}",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> array(@HostParam("endpoint") String endpoint, @PathParam("param") String param,
-            RequestContext requestContext);
+        Response<Void> array(String endpoint, String param, RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/routes/path/simple/standard/record{param}",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> record(@HostParam("endpoint") String endpoint, @PathParam("param") Map<String, Integer> param,
-            RequestContext requestContext);
+        Response<Void> record(String endpoint, Map<String, Integer> param, RequestContext requestContext);
+    }
+
+    private static final class PathParametersSimpleExpansionStandardsServiceImpl
+        implements PathParametersSimpleExpansionStandardsService {
+        private static final io.clientcore.core.instrumentation.logging.ClientLogger LOGGER
+            = new io.clientcore.core.instrumentation.logging.ClientLogger(
+                PathParametersSimpleExpansionStandardsServiceImpl.class);
+
+        private final io.clientcore.core.http.pipeline.HttpPipeline httpPipeline;
+
+        private final io.clientcore.core.serialization.json.JsonSerializer jsonSerializer
+            = io.clientcore.core.serialization.json.JsonSerializer.getInstance();
+
+        private final io.clientcore.core.serialization.xml.XmlSerializer xmlSerializer
+            = io.clientcore.core.serialization.xml.XmlSerializer.getInstance();
+
+        private PathParametersSimpleExpansionStandardsServiceImpl(
+            io.clientcore.core.http.pipeline.HttpPipeline pipeline) {
+            this.httpPipeline = pipeline;
+        }
+
+        @Override
+        public Response<Void> primitive(String endpoint, String param, RequestContext requestContext) {
+            io.clientcore.core.utils.UriBuilder uriBuilder
+                = io.clientcore.core.utils.UriBuilder.parse(endpoint + "/routes/path/simple/standard/primitive"
+                    + io.clientcore.core.implementation.utils.UriEscapers.PATH_ESCAPER.escape(param));
+            io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
+                .setMethod(io.clientcore.core.http.models.HttpMethod.GET)
+                .setUri(uriBuilder.toString());
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            io.clientcore.core.http.models.Response<io.clientcore.core.models.binarydata.BinaryData> networkResponse
+                = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 204)) {
+                io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
+                    this.jsonSerializer, this.xmlSerializer, null, null,
+                    PathParametersSimpleExpansionStandardsServiceImpl.LOGGER);
+            }
+            try {
+                return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
+                    networkResponse.getHeaders(), null);
+            } finally {
+                networkResponse.close();
+            }
+        }
+
+        @Override
+        public Response<Void> array(String endpoint, String param, RequestContext requestContext) {
+            io.clientcore.core.utils.UriBuilder uriBuilder
+                = io.clientcore.core.utils.UriBuilder.parse(endpoint + "/routes/path/simple/standard/array"
+                    + io.clientcore.core.implementation.utils.UriEscapers.PATH_ESCAPER.escape(param));
+            io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
+                .setMethod(io.clientcore.core.http.models.HttpMethod.GET)
+                .setUri(uriBuilder.toString());
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            io.clientcore.core.http.models.Response<io.clientcore.core.models.binarydata.BinaryData> networkResponse
+                = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 204)) {
+                io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
+                    this.jsonSerializer, this.xmlSerializer, null, null,
+                    PathParametersSimpleExpansionStandardsServiceImpl.LOGGER);
+            }
+            try {
+                return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
+                    networkResponse.getHeaders(), null);
+            } finally {
+                networkResponse.close();
+            }
+        }
+
+        @Override
+        public Response<Void> record(String endpoint, Map<String, Integer> param, RequestContext requestContext) {
+            io.clientcore.core.utils.UriBuilder uriBuilder
+                = io.clientcore.core.utils.UriBuilder.parse(endpoint + "/routes/path/simple/standard/record"
+                    + io.clientcore.core.implementation.utils.UriEscapers.PATH_ESCAPER.escape(String.valueOf(param)));
+            io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
+                .setMethod(io.clientcore.core.http.models.HttpMethod.GET)
+                .setUri(uriBuilder.toString());
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            io.clientcore.core.http.models.Response<io.clientcore.core.models.binarydata.BinaryData> networkResponse
+                = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 204)) {
+                io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
+                    this.jsonSerializer, this.xmlSerializer, null, null,
+                    PathParametersSimpleExpansionStandardsServiceImpl.LOGGER);
+            }
+            try {
+                return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
+                    networkResponse.getHeaders(), null);
+            } finally {
+                networkResponse.close();
+            }
+        }
     }
 
     /**
@@ -150,4 +215,6 @@ public final class PathParametersSimpleExpansionStandardsImpl {
                 return service.record(this.client.getEndpoint(), param, updatedContext);
             });
     }
+
+    private static final ClientLogger LOGGER = new ClientLogger(PathParametersSimpleExpansionStandardsImpl.class);
 }

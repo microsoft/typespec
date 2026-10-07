@@ -1,20 +1,13 @@
 package type.model.inheritance.enumdiscriminator.implementation;
 
 import io.clientcore.core.annotations.ReturnType;
-import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.annotations.BodyParam;
-import io.clientcore.core.http.annotations.HeaderParam;
-import io.clientcore.core.http.annotations.HostParam;
-import io.clientcore.core.http.annotations.HttpRequestInformation;
-import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
-import io.clientcore.core.http.models.HttpMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.instrumentation.Instrumentation;
-import java.lang.reflect.InvocationTargetException;
+import io.clientcore.core.instrumentation.logging.ClientLogger;
 import type.model.inheritance.enumdiscriminator.Dog;
 import type.model.inheritance.enumdiscriminator.Snake;
 
@@ -83,90 +76,413 @@ public final class EnumDiscriminatorClientImpl {
         this.service = EnumDiscriminatorClientService.getNewInstance(this.httpPipeline);
     }
 
-    /**
-     * The interface defining all the services for EnumDiscriminatorClient to be used by the proxy service to perform
-     * REST calls.
-     */
-    @ServiceInterface(name = "EnumDiscriminatorClient", host = "{endpoint}")
     public interface EnumDiscriminatorClientService {
-        static EnumDiscriminatorClientService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName(
-                    "type.model.inheritance.enumdiscriminator.implementation.EnumDiscriminatorClientServiceImpl");
-                return (EnumDiscriminatorClientService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
+        static EnumDiscriminatorClientService getNewInstance(io.clientcore.core.http.pipeline.HttpPipeline pipeline) {
+            return new EnumDiscriminatorClientServiceImpl(pipeline);
         }
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/type/model/inheritance/enum-discriminator/extensible-enum",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<Dog> getExtensibleModel(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
+        Response<Dog> getExtensibleModel(String endpoint, String accept, RequestContext requestContext);
+
+        Response<Void> putExtensibleModel(String endpoint, String contentType, Dog input,
             RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.PUT,
-            path = "/type/model/inheritance/enum-discriminator/extensible-enum",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> putExtensibleModel(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") Dog input,
+        Response<Dog> getExtensibleModelMissingDiscriminator(String endpoint, String accept,
             RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/type/model/inheritance/enum-discriminator/extensible-enum/missingdiscriminator",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<Dog> getExtensibleModelMissingDiscriminator(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Accept") String accept, RequestContext requestContext);
-
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/type/model/inheritance/enum-discriminator/extensible-enum/wrongdiscriminator",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<Dog> getExtensibleModelWrongDiscriminator(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Accept") String accept, RequestContext requestContext);
-
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/type/model/inheritance/enum-discriminator/fixed-enum",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<Snake> getFixedModel(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
+        Response<Dog> getExtensibleModelWrongDiscriminator(String endpoint, String accept,
             RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.PUT,
-            path = "/type/model/inheritance/enum-discriminator/fixed-enum",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> putFixedModel(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") Snake input,
+        Response<Snake> getFixedModel(String endpoint, String accept, RequestContext requestContext);
+
+        Response<Void> putFixedModel(String endpoint, String contentType, Snake input, RequestContext requestContext);
+
+        Response<Snake> getFixedModelMissingDiscriminator(String endpoint, String accept,
             RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/type/model/inheritance/enum-discriminator/fixed-enum/missingdiscriminator",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<Snake> getFixedModelMissingDiscriminator(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Accept") String accept, RequestContext requestContext);
+        Response<Snake> getFixedModelWrongDiscriminator(String endpoint, String accept, RequestContext requestContext);
+    }
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/type/model/inheritance/enum-discriminator/fixed-enum/wrongdiscriminator",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<Snake> getFixedModelWrongDiscriminator(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Accept") String accept, RequestContext requestContext);
+    private static final class EnumDiscriminatorClientServiceImpl implements EnumDiscriminatorClientService {
+        private static final io.clientcore.core.instrumentation.logging.ClientLogger LOGGER
+            = new io.clientcore.core.instrumentation.logging.ClientLogger(EnumDiscriminatorClientServiceImpl.class);
+
+        private final io.clientcore.core.http.pipeline.HttpPipeline httpPipeline;
+
+        private final io.clientcore.core.serialization.json.JsonSerializer jsonSerializer
+            = io.clientcore.core.serialization.json.JsonSerializer.getInstance();
+
+        private final io.clientcore.core.serialization.xml.XmlSerializer xmlSerializer
+            = io.clientcore.core.serialization.xml.XmlSerializer.getInstance();
+
+        private EnumDiscriminatorClientServiceImpl(io.clientcore.core.http.pipeline.HttpPipeline pipeline) {
+            this.httpPipeline = pipeline;
+        }
+
+        @Override
+        public Response<Dog> getExtensibleModel(String endpoint, String accept, RequestContext requestContext) {
+            io.clientcore.core.utils.UriBuilder uriBuilder = io.clientcore.core.utils.UriBuilder
+                .parse(endpoint + "/type/model/inheritance/enum-discriminator/extensible-enum");
+            io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
+                .setMethod(io.clientcore.core.http.models.HttpMethod.GET)
+                .setUri(uriBuilder.toString());
+            if (accept != null) {
+                httpRequest.getHeaders()
+                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Accept"), accept);
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            io.clientcore.core.http.models.Response<io.clientcore.core.models.binarydata.BinaryData> networkResponse
+                = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 200)) {
+                io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
+                    this.jsonSerializer, this.xmlSerializer, null, null, EnumDiscriminatorClientServiceImpl.LOGGER);
+            }
+            try {
+                Dog deserializedResult;
+                io.clientcore.core.serialization.SerializationFormat responseSerializationFormat
+                    = io.clientcore.core.utils.CoreUtils
+                        .serializationFormatFromContentType(networkResponse.getHeaders());
+                if (this.jsonSerializer.supportsFormat(responseSerializationFormat)) {
+                    deserializedResult = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(
+                        networkResponse.getValue(), this.jsonSerializer, io.clientcore.core.utils.CoreUtils
+                            .createParameterizedType(io.clientcore.core.http.models.Response.class, Dog.class));
+                } else if (this.xmlSerializer.supportsFormat(responseSerializationFormat)) {
+                    deserializedResult = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(
+                        networkResponse.getValue(), this.xmlSerializer, io.clientcore.core.utils.CoreUtils
+                            .createParameterizedType(io.clientcore.core.http.models.Response.class, Dog.class));
+                } else {
+                    throw new UnsupportedOperationException(
+                        "Unsupported response serialization format: " + responseSerializationFormat);
+                }
+                return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
+                    networkResponse.getHeaders(), deserializedResult);
+            } finally {
+                networkResponse.close();
+            }
+        }
+
+        @Override
+        public Response<Void> putExtensibleModel(String endpoint, String contentType, Dog input,
+            RequestContext requestContext) {
+            io.clientcore.core.utils.UriBuilder uriBuilder = io.clientcore.core.utils.UriBuilder
+                .parse(endpoint + "/type/model/inheritance/enum-discriminator/extensible-enum");
+            io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
+                .setMethod(io.clientcore.core.http.models.HttpMethod.PUT)
+                .setUri(uriBuilder.toString());
+            if (contentType != null) {
+                httpRequest.getHeaders()
+                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Content-Type"), contentType);
+            }
+            if (input != null) {
+                if (httpRequest.getHeaders().get(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE) == null) {
+                    httpRequest.getHeaders()
+                        .set(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE, "application/json");
+                }
+                io.clientcore.core.serialization.SerializationFormat requestSerializationFormat
+                    = io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(httpRequest.getHeaders());
+                httpRequest.setBody(io.clientcore.core.models.binarydata.BinaryData.fromObject(input,
+                    this.xmlSerializer.supportsFormat(requestSerializationFormat)
+                        ? this.xmlSerializer
+                        : this.jsonSerializer));
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            io.clientcore.core.http.models.Response<io.clientcore.core.models.binarydata.BinaryData> networkResponse
+                = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 204)) {
+                io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
+                    this.jsonSerializer, this.xmlSerializer, null, null, EnumDiscriminatorClientServiceImpl.LOGGER);
+            }
+            try {
+                return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
+                    networkResponse.getHeaders(), null);
+            } finally {
+                networkResponse.close();
+            }
+        }
+
+        @Override
+        public Response<Dog> getExtensibleModelMissingDiscriminator(String endpoint, String accept,
+            RequestContext requestContext) {
+            io.clientcore.core.utils.UriBuilder uriBuilder = io.clientcore.core.utils.UriBuilder
+                .parse(endpoint + "/type/model/inheritance/enum-discriminator/extensible-enum/missingdiscriminator");
+            io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
+                .setMethod(io.clientcore.core.http.models.HttpMethod.GET)
+                .setUri(uriBuilder.toString());
+            if (accept != null) {
+                httpRequest.getHeaders()
+                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Accept"), accept);
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            io.clientcore.core.http.models.Response<io.clientcore.core.models.binarydata.BinaryData> networkResponse
+                = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 200)) {
+                io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
+                    this.jsonSerializer, this.xmlSerializer, null, null, EnumDiscriminatorClientServiceImpl.LOGGER);
+            }
+            try {
+                Dog deserializedResult;
+                io.clientcore.core.serialization.SerializationFormat responseSerializationFormat
+                    = io.clientcore.core.utils.CoreUtils
+                        .serializationFormatFromContentType(networkResponse.getHeaders());
+                if (this.jsonSerializer.supportsFormat(responseSerializationFormat)) {
+                    deserializedResult = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(
+                        networkResponse.getValue(), this.jsonSerializer, io.clientcore.core.utils.CoreUtils
+                            .createParameterizedType(io.clientcore.core.http.models.Response.class, Dog.class));
+                } else if (this.xmlSerializer.supportsFormat(responseSerializationFormat)) {
+                    deserializedResult = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(
+                        networkResponse.getValue(), this.xmlSerializer, io.clientcore.core.utils.CoreUtils
+                            .createParameterizedType(io.clientcore.core.http.models.Response.class, Dog.class));
+                } else {
+                    throw new UnsupportedOperationException(
+                        "Unsupported response serialization format: " + responseSerializationFormat);
+                }
+                return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
+                    networkResponse.getHeaders(), deserializedResult);
+            } finally {
+                networkResponse.close();
+            }
+        }
+
+        @Override
+        public Response<Dog> getExtensibleModelWrongDiscriminator(String endpoint, String accept,
+            RequestContext requestContext) {
+            io.clientcore.core.utils.UriBuilder uriBuilder = io.clientcore.core.utils.UriBuilder
+                .parse(endpoint + "/type/model/inheritance/enum-discriminator/extensible-enum/wrongdiscriminator");
+            io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
+                .setMethod(io.clientcore.core.http.models.HttpMethod.GET)
+                .setUri(uriBuilder.toString());
+            if (accept != null) {
+                httpRequest.getHeaders()
+                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Accept"), accept);
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            io.clientcore.core.http.models.Response<io.clientcore.core.models.binarydata.BinaryData> networkResponse
+                = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 200)) {
+                io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
+                    this.jsonSerializer, this.xmlSerializer, null, null, EnumDiscriminatorClientServiceImpl.LOGGER);
+            }
+            try {
+                Dog deserializedResult;
+                io.clientcore.core.serialization.SerializationFormat responseSerializationFormat
+                    = io.clientcore.core.utils.CoreUtils
+                        .serializationFormatFromContentType(networkResponse.getHeaders());
+                if (this.jsonSerializer.supportsFormat(responseSerializationFormat)) {
+                    deserializedResult = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(
+                        networkResponse.getValue(), this.jsonSerializer, io.clientcore.core.utils.CoreUtils
+                            .createParameterizedType(io.clientcore.core.http.models.Response.class, Dog.class));
+                } else if (this.xmlSerializer.supportsFormat(responseSerializationFormat)) {
+                    deserializedResult = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(
+                        networkResponse.getValue(), this.xmlSerializer, io.clientcore.core.utils.CoreUtils
+                            .createParameterizedType(io.clientcore.core.http.models.Response.class, Dog.class));
+                } else {
+                    throw new UnsupportedOperationException(
+                        "Unsupported response serialization format: " + responseSerializationFormat);
+                }
+                return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
+                    networkResponse.getHeaders(), deserializedResult);
+            } finally {
+                networkResponse.close();
+            }
+        }
+
+        @Override
+        public Response<Snake> getFixedModel(String endpoint, String accept, RequestContext requestContext) {
+            io.clientcore.core.utils.UriBuilder uriBuilder = io.clientcore.core.utils.UriBuilder
+                .parse(endpoint + "/type/model/inheritance/enum-discriminator/fixed-enum");
+            io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
+                .setMethod(io.clientcore.core.http.models.HttpMethod.GET)
+                .setUri(uriBuilder.toString());
+            if (accept != null) {
+                httpRequest.getHeaders()
+                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Accept"), accept);
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            io.clientcore.core.http.models.Response<io.clientcore.core.models.binarydata.BinaryData> networkResponse
+                = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 200)) {
+                io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
+                    this.jsonSerializer, this.xmlSerializer, null, null, EnumDiscriminatorClientServiceImpl.LOGGER);
+            }
+            try {
+                Snake deserializedResult;
+                io.clientcore.core.serialization.SerializationFormat responseSerializationFormat
+                    = io.clientcore.core.utils.CoreUtils
+                        .serializationFormatFromContentType(networkResponse.getHeaders());
+                if (this.jsonSerializer.supportsFormat(responseSerializationFormat)) {
+                    deserializedResult = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(
+                        networkResponse.getValue(), this.jsonSerializer, io.clientcore.core.utils.CoreUtils
+                            .createParameterizedType(io.clientcore.core.http.models.Response.class, Snake.class));
+                } else if (this.xmlSerializer.supportsFormat(responseSerializationFormat)) {
+                    deserializedResult = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(
+                        networkResponse.getValue(), this.xmlSerializer, io.clientcore.core.utils.CoreUtils
+                            .createParameterizedType(io.clientcore.core.http.models.Response.class, Snake.class));
+                } else {
+                    throw new UnsupportedOperationException(
+                        "Unsupported response serialization format: " + responseSerializationFormat);
+                }
+                return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
+                    networkResponse.getHeaders(), deserializedResult);
+            } finally {
+                networkResponse.close();
+            }
+        }
+
+        @Override
+        public Response<Void> putFixedModel(String endpoint, String contentType, Snake input,
+            RequestContext requestContext) {
+            io.clientcore.core.utils.UriBuilder uriBuilder = io.clientcore.core.utils.UriBuilder
+                .parse(endpoint + "/type/model/inheritance/enum-discriminator/fixed-enum");
+            io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
+                .setMethod(io.clientcore.core.http.models.HttpMethod.PUT)
+                .setUri(uriBuilder.toString());
+            if (contentType != null) {
+                httpRequest.getHeaders()
+                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Content-Type"), contentType);
+            }
+            if (input != null) {
+                if (httpRequest.getHeaders().get(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE) == null) {
+                    httpRequest.getHeaders()
+                        .set(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE, "application/json");
+                }
+                io.clientcore.core.serialization.SerializationFormat requestSerializationFormat
+                    = io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(httpRequest.getHeaders());
+                httpRequest.setBody(io.clientcore.core.models.binarydata.BinaryData.fromObject(input,
+                    this.xmlSerializer.supportsFormat(requestSerializationFormat)
+                        ? this.xmlSerializer
+                        : this.jsonSerializer));
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            io.clientcore.core.http.models.Response<io.clientcore.core.models.binarydata.BinaryData> networkResponse
+                = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 204)) {
+                io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
+                    this.jsonSerializer, this.xmlSerializer, null, null, EnumDiscriminatorClientServiceImpl.LOGGER);
+            }
+            try {
+                return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
+                    networkResponse.getHeaders(), null);
+            } finally {
+                networkResponse.close();
+            }
+        }
+
+        @Override
+        public Response<Snake> getFixedModelMissingDiscriminator(String endpoint, String accept,
+            RequestContext requestContext) {
+            io.clientcore.core.utils.UriBuilder uriBuilder = io.clientcore.core.utils.UriBuilder
+                .parse(endpoint + "/type/model/inheritance/enum-discriminator/fixed-enum/missingdiscriminator");
+            io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
+                .setMethod(io.clientcore.core.http.models.HttpMethod.GET)
+                .setUri(uriBuilder.toString());
+            if (accept != null) {
+                httpRequest.getHeaders()
+                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Accept"), accept);
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            io.clientcore.core.http.models.Response<io.clientcore.core.models.binarydata.BinaryData> networkResponse
+                = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 200)) {
+                io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
+                    this.jsonSerializer, this.xmlSerializer, null, null, EnumDiscriminatorClientServiceImpl.LOGGER);
+            }
+            try {
+                Snake deserializedResult;
+                io.clientcore.core.serialization.SerializationFormat responseSerializationFormat
+                    = io.clientcore.core.utils.CoreUtils
+                        .serializationFormatFromContentType(networkResponse.getHeaders());
+                if (this.jsonSerializer.supportsFormat(responseSerializationFormat)) {
+                    deserializedResult = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(
+                        networkResponse.getValue(), this.jsonSerializer, io.clientcore.core.utils.CoreUtils
+                            .createParameterizedType(io.clientcore.core.http.models.Response.class, Snake.class));
+                } else if (this.xmlSerializer.supportsFormat(responseSerializationFormat)) {
+                    deserializedResult = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(
+                        networkResponse.getValue(), this.xmlSerializer, io.clientcore.core.utils.CoreUtils
+                            .createParameterizedType(io.clientcore.core.http.models.Response.class, Snake.class));
+                } else {
+                    throw new UnsupportedOperationException(
+                        "Unsupported response serialization format: " + responseSerializationFormat);
+                }
+                return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
+                    networkResponse.getHeaders(), deserializedResult);
+            } finally {
+                networkResponse.close();
+            }
+        }
+
+        @Override
+        public Response<Snake> getFixedModelWrongDiscriminator(String endpoint, String accept,
+            RequestContext requestContext) {
+            io.clientcore.core.utils.UriBuilder uriBuilder = io.clientcore.core.utils.UriBuilder
+                .parse(endpoint + "/type/model/inheritance/enum-discriminator/fixed-enum/wrongdiscriminator");
+            io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
+                .setMethod(io.clientcore.core.http.models.HttpMethod.GET)
+                .setUri(uriBuilder.toString());
+            if (accept != null) {
+                httpRequest.getHeaders()
+                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Accept"), accept);
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            io.clientcore.core.http.models.Response<io.clientcore.core.models.binarydata.BinaryData> networkResponse
+                = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 200)) {
+                io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
+                    this.jsonSerializer, this.xmlSerializer, null, null, EnumDiscriminatorClientServiceImpl.LOGGER);
+            }
+            try {
+                Snake deserializedResult;
+                io.clientcore.core.serialization.SerializationFormat responseSerializationFormat
+                    = io.clientcore.core.utils.CoreUtils
+                        .serializationFormatFromContentType(networkResponse.getHeaders());
+                if (this.jsonSerializer.supportsFormat(responseSerializationFormat)) {
+                    deserializedResult = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(
+                        networkResponse.getValue(), this.jsonSerializer, io.clientcore.core.utils.CoreUtils
+                            .createParameterizedType(io.clientcore.core.http.models.Response.class, Snake.class));
+                } else if (this.xmlSerializer.supportsFormat(responseSerializationFormat)) {
+                    deserializedResult = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(
+                        networkResponse.getValue(), this.xmlSerializer, io.clientcore.core.utils.CoreUtils
+                            .createParameterizedType(io.clientcore.core.http.models.Response.class, Snake.class));
+                } else {
+                    throw new UnsupportedOperationException(
+                        "Unsupported response serialization format: " + responseSerializationFormat);
+                }
+                return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
+                    networkResponse.getHeaders(), deserializedResult);
+            } finally {
+                networkResponse.close();
+            }
+        }
     }
 
     /**
@@ -318,4 +634,6 @@ public final class EnumDiscriminatorClientImpl {
                 return service.getFixedModelWrongDiscriminator(this.getEndpoint(), accept, updatedContext);
             });
     }
+
+    private static final ClientLogger LOGGER = new ClientLogger(EnumDiscriminatorClientImpl.class);
 }

@@ -1,20 +1,13 @@
 package versioning.added.implementation;
 
 import io.clientcore.core.annotations.ReturnType;
-import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.annotations.BodyParam;
-import io.clientcore.core.http.annotations.HeaderParam;
-import io.clientcore.core.http.annotations.HostParam;
-import io.clientcore.core.http.annotations.HttpRequestInformation;
-import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
-import io.clientcore.core.http.models.HttpMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.instrumentation.Instrumentation;
-import java.lang.reflect.InvocationTargetException;
+import io.clientcore.core.instrumentation.logging.ClientLogger;
 import versioning.added.AddedServiceVersion;
 import versioning.added.ModelV1;
 import versioning.added.ModelV2;
@@ -116,35 +109,165 @@ public final class AddedClientImpl {
         this.service = AddedClientService.getNewInstance(this.httpPipeline);
     }
 
-    /**
-     * The interface defining all the services for AddedClient to be used by the proxy service to perform REST calls.
-     */
-    @ServiceInterface(name = "AddedClient", host = "{endpoint}/versioning/added/api-version:{version}")
     public interface AddedClientService {
-        static AddedClientService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("versioning.added.implementation.AddedClientServiceImpl");
-                return (AddedClientService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
+        static AddedClientService getNewInstance(io.clientcore.core.http.pipeline.HttpPipeline pipeline) {
+            return new AddedClientServiceImpl(pipeline);
         }
 
-        @HttpRequestInformation(method = HttpMethod.POST, path = "/v1", expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<ModelV1> v1(@HostParam("endpoint") String endpoint, @HostParam("version") String version,
-            @HeaderParam("header-v2") String headerV2, @HeaderParam("Content-Type") String contentType,
-            @HeaderParam("Accept") String accept, @BodyParam("application/json") ModelV1 body,
-            RequestContext requestContext);
+        Response<ModelV1> v1(String endpoint, String version, String headerV2, String contentType, String accept,
+            ModelV1 body, RequestContext requestContext);
 
-        @HttpRequestInformation(method = HttpMethod.POST, path = "/v2", expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<ModelV2> v2(@HostParam("endpoint") String endpoint, @HostParam("version") String version,
-            @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
-            @BodyParam("application/json") ModelV2 body, RequestContext requestContext);
+        Response<ModelV2> v2(String endpoint, String version, String contentType, String accept, ModelV2 body,
+            RequestContext requestContext);
+    }
+
+    private static final class AddedClientServiceImpl implements AddedClientService {
+        private static final io.clientcore.core.instrumentation.logging.ClientLogger LOGGER
+            = new io.clientcore.core.instrumentation.logging.ClientLogger(AddedClientServiceImpl.class);
+
+        private final io.clientcore.core.http.pipeline.HttpPipeline httpPipeline;
+
+        private final io.clientcore.core.serialization.json.JsonSerializer jsonSerializer
+            = io.clientcore.core.serialization.json.JsonSerializer.getInstance();
+
+        private final io.clientcore.core.serialization.xml.XmlSerializer xmlSerializer
+            = io.clientcore.core.serialization.xml.XmlSerializer.getInstance();
+
+        private AddedClientServiceImpl(io.clientcore.core.http.pipeline.HttpPipeline pipeline) {
+            this.httpPipeline = pipeline;
+        }
+
+        @Override
+        public Response<ModelV1> v1(String endpoint, String version, String headerV2, String contentType, String accept,
+            ModelV1 body, RequestContext requestContext) {
+            io.clientcore.core.utils.UriBuilder uriBuilder
+                = io.clientcore.core.utils.UriBuilder.parse(endpoint + "/versioning/added/api-version:"
+                    + io.clientcore.core.implementation.utils.UriEscapers.PATH_ESCAPER.escape(version) + "/v1");
+            io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
+                .setMethod(io.clientcore.core.http.models.HttpMethod.POST)
+                .setUri(uriBuilder.toString());
+            if (headerV2 != null) {
+                httpRequest.getHeaders()
+                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("header-v2"), headerV2);
+            }
+            if (contentType != null) {
+                httpRequest.getHeaders()
+                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Content-Type"), contentType);
+            }
+            if (accept != null) {
+                httpRequest.getHeaders()
+                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Accept"), accept);
+            }
+            if (body != null) {
+                if (httpRequest.getHeaders().get(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE) == null) {
+                    httpRequest.getHeaders()
+                        .set(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE, "application/json");
+                }
+                io.clientcore.core.serialization.SerializationFormat requestSerializationFormat
+                    = io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(httpRequest.getHeaders());
+                httpRequest.setBody(io.clientcore.core.models.binarydata.BinaryData.fromObject(body,
+                    this.xmlSerializer.supportsFormat(requestSerializationFormat)
+                        ? this.xmlSerializer
+                        : this.jsonSerializer));
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            io.clientcore.core.http.models.Response<io.clientcore.core.models.binarydata.BinaryData> networkResponse
+                = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 200)) {
+                io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
+                    this.jsonSerializer, this.xmlSerializer, null, null, AddedClientServiceImpl.LOGGER);
+            }
+            try {
+                ModelV1 deserializedResult;
+                io.clientcore.core.serialization.SerializationFormat responseSerializationFormat
+                    = io.clientcore.core.utils.CoreUtils
+                        .serializationFormatFromContentType(networkResponse.getHeaders());
+                if (this.jsonSerializer.supportsFormat(responseSerializationFormat)) {
+                    deserializedResult = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(
+                        networkResponse.getValue(), this.jsonSerializer, io.clientcore.core.utils.CoreUtils
+                            .createParameterizedType(io.clientcore.core.http.models.Response.class, ModelV1.class));
+                } else if (this.xmlSerializer.supportsFormat(responseSerializationFormat)) {
+                    deserializedResult = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(
+                        networkResponse.getValue(), this.xmlSerializer, io.clientcore.core.utils.CoreUtils
+                            .createParameterizedType(io.clientcore.core.http.models.Response.class, ModelV1.class));
+                } else {
+                    throw new UnsupportedOperationException(
+                        "Unsupported response serialization format: " + responseSerializationFormat);
+                }
+                return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
+                    networkResponse.getHeaders(), deserializedResult);
+            } finally {
+                networkResponse.close();
+            }
+        }
+
+        @Override
+        public Response<ModelV2> v2(String endpoint, String version, String contentType, String accept, ModelV2 body,
+            RequestContext requestContext) {
+            io.clientcore.core.utils.UriBuilder uriBuilder
+                = io.clientcore.core.utils.UriBuilder.parse(endpoint + "/versioning/added/api-version:"
+                    + io.clientcore.core.implementation.utils.UriEscapers.PATH_ESCAPER.escape(version) + "/v2");
+            io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
+                .setMethod(io.clientcore.core.http.models.HttpMethod.POST)
+                .setUri(uriBuilder.toString());
+            if (contentType != null) {
+                httpRequest.getHeaders()
+                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Content-Type"), contentType);
+            }
+            if (accept != null) {
+                httpRequest.getHeaders()
+                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Accept"), accept);
+            }
+            if (body != null) {
+                if (httpRequest.getHeaders().get(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE) == null) {
+                    httpRequest.getHeaders()
+                        .set(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE, "application/json");
+                }
+                io.clientcore.core.serialization.SerializationFormat requestSerializationFormat
+                    = io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(httpRequest.getHeaders());
+                httpRequest.setBody(io.clientcore.core.models.binarydata.BinaryData.fromObject(body,
+                    this.xmlSerializer.supportsFormat(requestSerializationFormat)
+                        ? this.xmlSerializer
+                        : this.jsonSerializer));
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            io.clientcore.core.http.models.Response<io.clientcore.core.models.binarydata.BinaryData> networkResponse
+                = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 200)) {
+                io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
+                    this.jsonSerializer, this.xmlSerializer, null, null, AddedClientServiceImpl.LOGGER);
+            }
+            try {
+                ModelV2 deserializedResult;
+                io.clientcore.core.serialization.SerializationFormat responseSerializationFormat
+                    = io.clientcore.core.utils.CoreUtils
+                        .serializationFormatFromContentType(networkResponse.getHeaders());
+                if (this.jsonSerializer.supportsFormat(responseSerializationFormat)) {
+                    deserializedResult = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(
+                        networkResponse.getValue(), this.jsonSerializer, io.clientcore.core.utils.CoreUtils
+                            .createParameterizedType(io.clientcore.core.http.models.Response.class, ModelV2.class));
+                } else if (this.xmlSerializer.supportsFormat(responseSerializationFormat)) {
+                    deserializedResult = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(
+                        networkResponse.getValue(), this.xmlSerializer, io.clientcore.core.utils.CoreUtils
+                            .createParameterizedType(io.clientcore.core.http.models.Response.class, ModelV2.class));
+                } else {
+                    throw new UnsupportedOperationException(
+                        "Unsupported response serialization format: " + responseSerializationFormat);
+                }
+                return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
+                    networkResponse.getHeaders(), deserializedResult);
+            } finally {
+                networkResponse.close();
+            }
+        }
     }
 
     /**
@@ -187,4 +310,6 @@ public final class AddedClientImpl {
                 updatedContext);
         });
     }
+
+    private static final ClientLogger LOGGER = new ClientLogger(AddedClientImpl.class);
 }

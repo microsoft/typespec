@@ -1,24 +1,15 @@
 package payload.pageable.implementation;
 
 import io.clientcore.core.annotations.ReturnType;
-import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.annotations.HeaderParam;
-import io.clientcore.core.http.annotations.HostParam;
-import io.clientcore.core.http.annotations.HttpRequestInformation;
-import io.clientcore.core.http.annotations.QueryParam;
-import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
 import io.clientcore.core.http.models.HttpHeaderName;
-import io.clientcore.core.http.models.HttpMethod;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.paging.PagedIterable;
 import io.clientcore.core.http.paging.PagedResponse;
-import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.instrumentation.Instrumentation;
 import io.clientcore.core.instrumentation.logging.ClientLogger;
-import java.lang.reflect.InvocationTargetException;
 import payload.pageable.Pet;
 import payload.pageable.serverdrivenpagination.continuationtoken.implementation.RequestHeaderNestedResponseBodyResponse;
 import payload.pageable.serverdrivenpagination.continuationtoken.implementation.RequestHeaderResponseBodyResponse;
@@ -55,79 +46,395 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
         this.instrumentation = client.getInstrumentation();
     }
 
-    /**
-     * The interface defining all the services for PageableClientServerDrivenPaginationContinuationTokens to be used by
-     * the proxy service to perform REST calls.
-     */
-    @ServiceInterface(name = "PageableClientServerDrivenPaginationContinuationTokens", host = "{endpoint}")
     public interface ServerDrivenPaginationContinuationTokensService {
-        static ServerDrivenPaginationContinuationTokensService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class
-                    .forName("payload.pageable.implementation.ServerDrivenPaginationContinuationTokensServiceImpl");
-                return (ServerDrivenPaginationContinuationTokensService) clazz
-                    .getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
+        static ServerDrivenPaginationContinuationTokensService
+            getNewInstance(io.clientcore.core.http.pipeline.HttpPipeline pipeline) {
+            return new ServerDrivenPaginationContinuationTokensServiceImpl(pipeline);
         }
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/payload/pageable/server-driven-pagination/continuationtoken/request-query-response-body",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<RequestQueryResponseBodyResponse> requestQueryResponseBody(@HostParam("endpoint") String endpoint,
-            @QueryParam("token") String token, @HeaderParam("foo") String foo, @QueryParam("bar") String bar,
-            @HeaderParam("Accept") String accept, RequestContext requestContext);
+        Response<RequestQueryResponseBodyResponse> requestQueryResponseBody(String endpoint, String token, String foo,
+            String bar, String accept, RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/payload/pageable/server-driven-pagination/continuationtoken/request-header-response-body",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<RequestHeaderResponseBodyResponse> requestHeaderResponseBody(@HostParam("endpoint") String endpoint,
-            @HeaderParam("token") String token, @HeaderParam("foo") String foo, @QueryParam("bar") String bar,
-            @HeaderParam("Accept") String accept, RequestContext requestContext);
+        Response<RequestHeaderResponseBodyResponse> requestHeaderResponseBody(String endpoint, String token, String foo,
+            String bar, String accept, RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/payload/pageable/server-driven-pagination/continuationtoken/request-query-response-header",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<RequestQueryResponseHeaderResponse> requestQueryResponseHeader(@HostParam("endpoint") String endpoint,
-            @QueryParam("token") String token, @HeaderParam("foo") String foo, @QueryParam("bar") String bar,
-            @HeaderParam("Accept") String accept, RequestContext requestContext);
+        Response<RequestQueryResponseHeaderResponse> requestQueryResponseHeader(String endpoint, String token,
+            String foo, String bar, String accept, RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/payload/pageable/server-driven-pagination/continuationtoken/request-header-response-header",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<RequestHeaderResponseHeaderResponse> requestHeaderResponseHeader(
-            @HostParam("endpoint") String endpoint, @HeaderParam("token") String token, @HeaderParam("foo") String foo,
-            @QueryParam("bar") String bar, @HeaderParam("Accept") String accept, RequestContext requestContext);
+        Response<RequestHeaderResponseHeaderResponse> requestHeaderResponseHeader(String endpoint, String token,
+            String foo, String bar, String accept, RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/payload/pageable/server-driven-pagination/continuationtoken/request-query-nested-response-body",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<RequestQueryNestedResponseBodyResponse> requestQueryNestedResponseBody(
-            @HostParam("endpoint") String endpoint, @QueryParam("token") String token, @HeaderParam("foo") String foo,
-            @QueryParam("bar") String bar, @HeaderParam("Accept") String accept, RequestContext requestContext);
+        Response<RequestQueryNestedResponseBodyResponse> requestQueryNestedResponseBody(String endpoint, String token,
+            String foo, String bar, String accept, RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/payload/pageable/server-driven-pagination/continuationtoken/request-header-nested-response-body",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<RequestHeaderNestedResponseBodyResponse> requestHeaderNestedResponseBody(
-            @HostParam("endpoint") String endpoint, @HeaderParam("token") String token, @HeaderParam("foo") String foo,
-            @QueryParam("bar") String bar, @HeaderParam("Accept") String accept, RequestContext requestContext);
+        Response<RequestHeaderNestedResponseBodyResponse> requestHeaderNestedResponseBody(String endpoint, String token,
+            String foo, String bar, String accept, RequestContext requestContext);
+    }
+
+    private static final class ServerDrivenPaginationContinuationTokensServiceImpl
+        implements ServerDrivenPaginationContinuationTokensService {
+        private static final io.clientcore.core.instrumentation.logging.ClientLogger LOGGER
+            = new io.clientcore.core.instrumentation.logging.ClientLogger(
+                ServerDrivenPaginationContinuationTokensServiceImpl.class);
+
+        private final io.clientcore.core.http.pipeline.HttpPipeline httpPipeline;
+
+        private final io.clientcore.core.serialization.json.JsonSerializer jsonSerializer
+            = io.clientcore.core.serialization.json.JsonSerializer.getInstance();
+
+        private final io.clientcore.core.serialization.xml.XmlSerializer xmlSerializer
+            = io.clientcore.core.serialization.xml.XmlSerializer.getInstance();
+
+        private ServerDrivenPaginationContinuationTokensServiceImpl(
+            io.clientcore.core.http.pipeline.HttpPipeline pipeline) {
+            this.httpPipeline = pipeline;
+        }
+
+        @Override
+        public Response<RequestQueryResponseBodyResponse> requestQueryResponseBody(String endpoint, String token,
+            String foo, String bar, String accept, RequestContext requestContext) {
+            io.clientcore.core.utils.UriBuilder uriBuilder = io.clientcore.core.utils.UriBuilder.parse(
+                endpoint + "/payload/pageable/server-driven-pagination/continuationtoken/request-query-response-body");
+            io.clientcore.core.utils.GeneratedCodeUtils.addQueryParameter(uriBuilder, "token", true, token, true);
+            io.clientcore.core.utils.GeneratedCodeUtils.addQueryParameter(uriBuilder, "bar", true, bar, true);
+            io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
+                .setMethod(io.clientcore.core.http.models.HttpMethod.GET)
+                .setUri(uriBuilder.toString());
+            if (foo != null) {
+                httpRequest.getHeaders().set(io.clientcore.core.http.models.HttpHeaderName.fromString("foo"), foo);
+            }
+            if (accept != null) {
+                httpRequest.getHeaders()
+                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Accept"), accept);
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            io.clientcore.core.http.models.Response<io.clientcore.core.models.binarydata.BinaryData> networkResponse
+                = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 200)) {
+                io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
+                    this.jsonSerializer, this.xmlSerializer, null, null,
+                    ServerDrivenPaginationContinuationTokensServiceImpl.LOGGER);
+            }
+            try {
+                RequestQueryResponseBodyResponse deserializedResult;
+                io.clientcore.core.serialization.SerializationFormat responseSerializationFormat
+                    = io.clientcore.core.utils.CoreUtils
+                        .serializationFormatFromContentType(networkResponse.getHeaders());
+                if (this.jsonSerializer.supportsFormat(responseSerializationFormat)) {
+                    deserializedResult
+                        = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
+                            this.jsonSerializer, io.clientcore.core.utils.CoreUtils.createParameterizedType(
+                                io.clientcore.core.http.models.Response.class, RequestQueryResponseBodyResponse.class));
+                } else if (this.xmlSerializer.supportsFormat(responseSerializationFormat)) {
+                    deserializedResult
+                        = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
+                            this.xmlSerializer, io.clientcore.core.utils.CoreUtils.createParameterizedType(
+                                io.clientcore.core.http.models.Response.class, RequestQueryResponseBodyResponse.class));
+                } else {
+                    throw new UnsupportedOperationException(
+                        "Unsupported response serialization format: " + responseSerializationFormat);
+                }
+                return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
+                    networkResponse.getHeaders(), deserializedResult);
+            } finally {
+                networkResponse.close();
+            }
+        }
+
+        @Override
+        public Response<RequestHeaderResponseBodyResponse> requestHeaderResponseBody(String endpoint, String token,
+            String foo, String bar, String accept, RequestContext requestContext) {
+            io.clientcore.core.utils.UriBuilder uriBuilder = io.clientcore.core.utils.UriBuilder.parse(
+                endpoint + "/payload/pageable/server-driven-pagination/continuationtoken/request-header-response-body");
+            io.clientcore.core.utils.GeneratedCodeUtils.addQueryParameter(uriBuilder, "bar", true, bar, true);
+            io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
+                .setMethod(io.clientcore.core.http.models.HttpMethod.GET)
+                .setUri(uriBuilder.toString());
+            if (token != null) {
+                httpRequest.getHeaders().set(io.clientcore.core.http.models.HttpHeaderName.fromString("token"), token);
+            }
+            if (foo != null) {
+                httpRequest.getHeaders().set(io.clientcore.core.http.models.HttpHeaderName.fromString("foo"), foo);
+            }
+            if (accept != null) {
+                httpRequest.getHeaders()
+                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Accept"), accept);
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            io.clientcore.core.http.models.Response<io.clientcore.core.models.binarydata.BinaryData> networkResponse
+                = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 200)) {
+                io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
+                    this.jsonSerializer, this.xmlSerializer, null, null,
+                    ServerDrivenPaginationContinuationTokensServiceImpl.LOGGER);
+            }
+            try {
+                RequestHeaderResponseBodyResponse deserializedResult;
+                io.clientcore.core.serialization.SerializationFormat responseSerializationFormat
+                    = io.clientcore.core.utils.CoreUtils
+                        .serializationFormatFromContentType(networkResponse.getHeaders());
+                if (this.jsonSerializer.supportsFormat(responseSerializationFormat)) {
+                    deserializedResult = io.clientcore.core.utils.CoreUtils
+                        .decodeNetworkResponse(networkResponse.getValue(), this.jsonSerializer,
+                            io.clientcore.core.utils.CoreUtils.createParameterizedType(
+                                io.clientcore.core.http.models.Response.class,
+                                RequestHeaderResponseBodyResponse.class));
+                } else if (this.xmlSerializer.supportsFormat(responseSerializationFormat)) {
+                    deserializedResult = io.clientcore.core.utils.CoreUtils
+                        .decodeNetworkResponse(networkResponse.getValue(), this.xmlSerializer,
+                            io.clientcore.core.utils.CoreUtils.createParameterizedType(
+                                io.clientcore.core.http.models.Response.class,
+                                RequestHeaderResponseBodyResponse.class));
+                } else {
+                    throw new UnsupportedOperationException(
+                        "Unsupported response serialization format: " + responseSerializationFormat);
+                }
+                return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
+                    networkResponse.getHeaders(), deserializedResult);
+            } finally {
+                networkResponse.close();
+            }
+        }
+
+        @Override
+        public Response<RequestQueryResponseHeaderResponse> requestQueryResponseHeader(String endpoint, String token,
+            String foo, String bar, String accept, RequestContext requestContext) {
+            io.clientcore.core.utils.UriBuilder uriBuilder = io.clientcore.core.utils.UriBuilder.parse(endpoint
+                + "/payload/pageable/server-driven-pagination/continuationtoken/request-query-response-header");
+            io.clientcore.core.utils.GeneratedCodeUtils.addQueryParameter(uriBuilder, "token", true, token, true);
+            io.clientcore.core.utils.GeneratedCodeUtils.addQueryParameter(uriBuilder, "bar", true, bar, true);
+            io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
+                .setMethod(io.clientcore.core.http.models.HttpMethod.GET)
+                .setUri(uriBuilder.toString());
+            if (foo != null) {
+                httpRequest.getHeaders().set(io.clientcore.core.http.models.HttpHeaderName.fromString("foo"), foo);
+            }
+            if (accept != null) {
+                httpRequest.getHeaders()
+                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Accept"), accept);
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            io.clientcore.core.http.models.Response<io.clientcore.core.models.binarydata.BinaryData> networkResponse
+                = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 200)) {
+                io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
+                    this.jsonSerializer, this.xmlSerializer, null, null,
+                    ServerDrivenPaginationContinuationTokensServiceImpl.LOGGER);
+            }
+            try {
+                RequestQueryResponseHeaderResponse deserializedResult;
+                io.clientcore.core.serialization.SerializationFormat responseSerializationFormat
+                    = io.clientcore.core.utils.CoreUtils
+                        .serializationFormatFromContentType(networkResponse.getHeaders());
+                if (this.jsonSerializer.supportsFormat(responseSerializationFormat)) {
+                    deserializedResult = io.clientcore.core.utils.CoreUtils
+                        .decodeNetworkResponse(networkResponse.getValue(), this.jsonSerializer,
+                            io.clientcore.core.utils.CoreUtils.createParameterizedType(
+                                io.clientcore.core.http.models.Response.class,
+                                RequestQueryResponseHeaderResponse.class));
+                } else if (this.xmlSerializer.supportsFormat(responseSerializationFormat)) {
+                    deserializedResult = io.clientcore.core.utils.CoreUtils
+                        .decodeNetworkResponse(networkResponse.getValue(), this.xmlSerializer,
+                            io.clientcore.core.utils.CoreUtils.createParameterizedType(
+                                io.clientcore.core.http.models.Response.class,
+                                RequestQueryResponseHeaderResponse.class));
+                } else {
+                    throw new UnsupportedOperationException(
+                        "Unsupported response serialization format: " + responseSerializationFormat);
+                }
+                return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
+                    networkResponse.getHeaders(), deserializedResult);
+            } finally {
+                networkResponse.close();
+            }
+        }
+
+        @Override
+        public Response<RequestHeaderResponseHeaderResponse> requestHeaderResponseHeader(String endpoint, String token,
+            String foo, String bar, String accept, RequestContext requestContext) {
+            io.clientcore.core.utils.UriBuilder uriBuilder = io.clientcore.core.utils.UriBuilder.parse(endpoint
+                + "/payload/pageable/server-driven-pagination/continuationtoken/request-header-response-header");
+            io.clientcore.core.utils.GeneratedCodeUtils.addQueryParameter(uriBuilder, "bar", true, bar, true);
+            io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
+                .setMethod(io.clientcore.core.http.models.HttpMethod.GET)
+                .setUri(uriBuilder.toString());
+            if (token != null) {
+                httpRequest.getHeaders().set(io.clientcore.core.http.models.HttpHeaderName.fromString("token"), token);
+            }
+            if (foo != null) {
+                httpRequest.getHeaders().set(io.clientcore.core.http.models.HttpHeaderName.fromString("foo"), foo);
+            }
+            if (accept != null) {
+                httpRequest.getHeaders()
+                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Accept"), accept);
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            io.clientcore.core.http.models.Response<io.clientcore.core.models.binarydata.BinaryData> networkResponse
+                = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 200)) {
+                io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
+                    this.jsonSerializer, this.xmlSerializer, null, null,
+                    ServerDrivenPaginationContinuationTokensServiceImpl.LOGGER);
+            }
+            try {
+                RequestHeaderResponseHeaderResponse deserializedResult;
+                io.clientcore.core.serialization.SerializationFormat responseSerializationFormat
+                    = io.clientcore.core.utils.CoreUtils
+                        .serializationFormatFromContentType(networkResponse.getHeaders());
+                if (this.jsonSerializer.supportsFormat(responseSerializationFormat)) {
+                    deserializedResult = io.clientcore.core.utils.CoreUtils
+                        .decodeNetworkResponse(networkResponse.getValue(), this.jsonSerializer,
+                            io.clientcore.core.utils.CoreUtils.createParameterizedType(
+                                io.clientcore.core.http.models.Response.class,
+                                RequestHeaderResponseHeaderResponse.class));
+                } else if (this.xmlSerializer.supportsFormat(responseSerializationFormat)) {
+                    deserializedResult = io.clientcore.core.utils.CoreUtils
+                        .decodeNetworkResponse(networkResponse.getValue(), this.xmlSerializer,
+                            io.clientcore.core.utils.CoreUtils.createParameterizedType(
+                                io.clientcore.core.http.models.Response.class,
+                                RequestHeaderResponseHeaderResponse.class));
+                } else {
+                    throw new UnsupportedOperationException(
+                        "Unsupported response serialization format: " + responseSerializationFormat);
+                }
+                return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
+                    networkResponse.getHeaders(), deserializedResult);
+            } finally {
+                networkResponse.close();
+            }
+        }
+
+        @Override
+        public Response<RequestQueryNestedResponseBodyResponse> requestQueryNestedResponseBody(String endpoint,
+            String token, String foo, String bar, String accept, RequestContext requestContext) {
+            io.clientcore.core.utils.UriBuilder uriBuilder = io.clientcore.core.utils.UriBuilder.parse(endpoint
+                + "/payload/pageable/server-driven-pagination/continuationtoken/request-query-nested-response-body");
+            io.clientcore.core.utils.GeneratedCodeUtils.addQueryParameter(uriBuilder, "token", true, token, true);
+            io.clientcore.core.utils.GeneratedCodeUtils.addQueryParameter(uriBuilder, "bar", true, bar, true);
+            io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
+                .setMethod(io.clientcore.core.http.models.HttpMethod.GET)
+                .setUri(uriBuilder.toString());
+            if (foo != null) {
+                httpRequest.getHeaders().set(io.clientcore.core.http.models.HttpHeaderName.fromString("foo"), foo);
+            }
+            if (accept != null) {
+                httpRequest.getHeaders()
+                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Accept"), accept);
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            io.clientcore.core.http.models.Response<io.clientcore.core.models.binarydata.BinaryData> networkResponse
+                = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 200)) {
+                io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
+                    this.jsonSerializer, this.xmlSerializer, null, null,
+                    ServerDrivenPaginationContinuationTokensServiceImpl.LOGGER);
+            }
+            try {
+                RequestQueryNestedResponseBodyResponse deserializedResult;
+                io.clientcore.core.serialization.SerializationFormat responseSerializationFormat
+                    = io.clientcore.core.utils.CoreUtils
+                        .serializationFormatFromContentType(networkResponse.getHeaders());
+                if (this.jsonSerializer.supportsFormat(responseSerializationFormat)) {
+                    deserializedResult = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(
+                        networkResponse.getValue(), this.jsonSerializer,
+                        io.clientcore.core.utils.CoreUtils.createParameterizedType(
+                            io.clientcore.core.http.models.Response.class,
+                            RequestQueryNestedResponseBodyResponse.class));
+                } else if (this.xmlSerializer.supportsFormat(responseSerializationFormat)) {
+                    deserializedResult = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(
+                        networkResponse.getValue(), this.xmlSerializer,
+                        io.clientcore.core.utils.CoreUtils.createParameterizedType(
+                            io.clientcore.core.http.models.Response.class,
+                            RequestQueryNestedResponseBodyResponse.class));
+                } else {
+                    throw new UnsupportedOperationException(
+                        "Unsupported response serialization format: " + responseSerializationFormat);
+                }
+                return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
+                    networkResponse.getHeaders(), deserializedResult);
+            } finally {
+                networkResponse.close();
+            }
+        }
+
+        @Override
+        public Response<RequestHeaderNestedResponseBodyResponse> requestHeaderNestedResponseBody(String endpoint,
+            String token, String foo, String bar, String accept, RequestContext requestContext) {
+            io.clientcore.core.utils.UriBuilder uriBuilder = io.clientcore.core.utils.UriBuilder.parse(endpoint
+                + "/payload/pageable/server-driven-pagination/continuationtoken/request-header-nested-response-body");
+            io.clientcore.core.utils.GeneratedCodeUtils.addQueryParameter(uriBuilder, "bar", true, bar, true);
+            io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
+                .setMethod(io.clientcore.core.http.models.HttpMethod.GET)
+                .setUri(uriBuilder.toString());
+            if (token != null) {
+                httpRequest.getHeaders().set(io.clientcore.core.http.models.HttpHeaderName.fromString("token"), token);
+            }
+            if (foo != null) {
+                httpRequest.getHeaders().set(io.clientcore.core.http.models.HttpHeaderName.fromString("foo"), foo);
+            }
+            if (accept != null) {
+                httpRequest.getHeaders()
+                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Accept"), accept);
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            io.clientcore.core.http.models.Response<io.clientcore.core.models.binarydata.BinaryData> networkResponse
+                = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 200)) {
+                io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
+                    this.jsonSerializer, this.xmlSerializer, null, null,
+                    ServerDrivenPaginationContinuationTokensServiceImpl.LOGGER);
+            }
+            try {
+                RequestHeaderNestedResponseBodyResponse deserializedResult;
+                io.clientcore.core.serialization.SerializationFormat responseSerializationFormat
+                    = io.clientcore.core.utils.CoreUtils
+                        .serializationFormatFromContentType(networkResponse.getHeaders());
+                if (this.jsonSerializer.supportsFormat(responseSerializationFormat)) {
+                    deserializedResult = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(
+                        networkResponse.getValue(), this.jsonSerializer,
+                        io.clientcore.core.utils.CoreUtils.createParameterizedType(
+                            io.clientcore.core.http.models.Response.class,
+                            RequestHeaderNestedResponseBodyResponse.class));
+                } else if (this.xmlSerializer.supportsFormat(responseSerializationFormat)) {
+                    deserializedResult = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(
+                        networkResponse.getValue(), this.xmlSerializer,
+                        io.clientcore.core.utils.CoreUtils.createParameterizedType(
+                            io.clientcore.core.http.models.Response.class,
+                            RequestHeaderNestedResponseBodyResponse.class));
+                } else {
+                    throw new UnsupportedOperationException(
+                        "Unsupported response serialization format: " + responseSerializationFormat);
+                }
+                return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
+                    networkResponse.getHeaders(), deserializedResult);
+            } finally {
+                networkResponse.close();
+            }
+        }
     }
 
     /**
