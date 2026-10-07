@@ -171,6 +171,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             var methodName = isAsync ? ServiceMethod.Name + "Async" : ServiceMethod.Name;
+            // Sync and async signatures can preserve different published names, so their mutable parameters must be independent.
             ParameterProvider[] signatureParameters = [.. ConvenienceMethodParameters.Select(p => p.Clone()), ScmKnownParameters.CancellationToken.Clone()];
 
             // Detect a partial method declaration in the client's custom code matching this convenience method.

@@ -7,6 +7,7 @@ namespace Microsoft.TypeSpec.Generator.Expressions
 {
     public sealed record PositionalParameterReferenceExpression(string ParameterName, ValueExpression ParameterValue) : ValueExpression
     {
+        // Back-compat restores the callee's name after the caller's arguments have been built.
         private readonly ParameterProvider? _parameter;
 
         internal PositionalParameterReferenceExpression(ParameterProvider parameter) : this(parameter, parameter) { }

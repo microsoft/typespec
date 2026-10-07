@@ -5609,7 +5609,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                         "SyncProtocol" => ["sourceIpAddress", "targetDbName", "guestOsType", "iPv4Address", "iPv6Address"],
                         "AsyncProtocol" => ["sourceIPAddress", "targetDBName", "guestOSType", "ipv4Address", "ipv6Address"],
                         "SyncConvenience" => ["SourceIpAddress", "TargetDbName", "GuestOsType", "IPv4Address", "IPv6Address"],
-                        _ => ["SOURCEIPADDRESS", "TARGETDBNAME", "GUESTOSTYPE", "IPV4ADDRESS", "IPV6ADDRESS"]
+                        _ => ["SOURCEIPADDRESS", "TARGETDbNAME", "GUESTOsTYPE", "IPV4ADDRESS", "IPV6ADDRESS"]
                     };
                 }
                 CollectionAssert.AreEqual(expectedNames, method.Signature.Parameters.Take(inputNames.Length).Select(parameter => parameter.Name));

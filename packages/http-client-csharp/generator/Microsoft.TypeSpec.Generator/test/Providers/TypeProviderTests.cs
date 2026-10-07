@@ -1005,6 +1005,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             // The last contract published Foo(string oldParam); scoped to that method it is found.
             Assert.AreEqual("oldParam", BackCompatHelper.FindPreviousParameterName(lastContractView, "oldParam", "Foo"));
 
+            Assert.AreEqual("oldParam", BackCompatHelper.FindPreviousParameterName(lastContractView, "oldParam", "Foo", typeof(string)));
+            Assert.IsNull(BackCompatHelper.FindPreviousParameterName(lastContractView, "oldParam", "Foo", typeof(int)));
+
             // The exact casing from the contract is returned even when the lookup name differs only in casing.
             Assert.AreEqual("oldParam", BackCompatHelper.FindPreviousParameterName(lastContractView, "oldparam", "Foo"));
 

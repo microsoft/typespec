@@ -131,6 +131,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
         /// <paramref name="methodName"/> is supplied, the search is scoped to last-contract methods
         /// whose name matches it (allowing for a sync/async pair) so a parameter name shared across
         /// methods cannot cross-match. When supplied, <paramref name="parameterType"/> must also match.
+        /// Omit the type for name-only restoration, including existing date/time type changes.
         /// Returns null when no match exists.
         /// </summary>
         public static string? FindPreviousParameterName(
@@ -173,9 +174,16 @@ namespace Microsoft.TypeSpec.Generator.Utilities
 
             foreach (var method in currentMethods)
             {
+                // Custom partial declarations choose their names explicitly and take precedence over the last contract.
+                if (method.IsPartialMethod)
+                {
+                    continue;
+                }
+
                 var modifiers = method.Signature.Modifiers;
-                if (method.IsPartialMethod ||
-                    (!modifiers.HasFlag(MethodSignatureModifiers.Public) && !modifiers.HasFlag(MethodSignatureModifiers.Protected)))
+                var isPublicOrProtected = modifiers.HasFlag(MethodSignatureModifiers.Public)
+                    || modifiers.HasFlag(MethodSignatureModifiers.Protected);
+                if (!isPublicOrProtected)
                 {
                     continue;
                 }
@@ -202,14 +210,19 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                     var inputParameter = parameter.InputParameter;
                     if (inputParameter is not null && !parameter.IsContentParameter)
                     {
-                        // Only the new acronym renames require a matching parameter type. Preserve the
-                        // existing fallback for other renames, including date/time type changes.
-                        var hasAcronymRename = inputParameter.Name != inputParameter.Name.NormalizeCSharpAcronyms(useCamelCase: true);
-                        preservedName = matchingPrevious != null
-                            ? matchingPrevious.Signature.Parameters.FirstOrDefault(p =>
-                                string.Equals(p.Name, inputParameter.OriginalName, StringComparison.OrdinalIgnoreCase))?.Name
-                            : FindPreviousParameterName(lastContractView, inputParameter.OriginalName, method.Signature.Name,
-                                hasAcronymRename ? parameter.Type : null);
+                        if (matchingPrevious != null)
+                        {
+                            preservedName = matchingPrevious.Signature.Parameters.FirstOrDefault(p =>
+                                string.Equals(p.Name, inputParameter.OriginalName, StringComparison.OrdinalIgnoreCase))?.Name;
+                        }
+                        else
+                        {
+                            // Acronym renames require a matching type; existing date/time renames retain their name-only fallback.
+                            var hasAcronymRename = inputParameter.Name != inputParameter.Name.NormalizeCSharpAcronyms(useCamelCase: true);
+                            var typeToMatch = hasAcronymRename ? parameter.Type : null;
+                            preservedName = FindPreviousParameterName(
+                                lastContractView, inputParameter.OriginalName, method.Signature.Name, typeToMatch);
+                        }
                     }
 
                     // Fall back to a positional match for synthesized parameters

@@ -153,19 +153,23 @@ namespace Microsoft.TypeSpec.Generator.Providers
         /// </summary>
         public ParameterProvider ToPublicInputParameter() => _inputParameter ??= BuildInputVariant();
 
-        private ParameterProvider BuildInputVariant() => Clone(Type.InputType, _asVariable);
+        private ParameterProvider BuildInputVariant()
+        {
+            var inputVariant = Clone();
+            inputVariant.Type = Type.InputType;
+            inputVariant._asVariable = _asVariable;
+            return inputVariant;
+        }
 
         /// <summary>
         /// Creates a copy with an independent name and variable expression.
         /// </summary>
-        public ParameterProvider Clone() => Clone(Type);
-
-        private ParameterProvider Clone(CSharpType type, VariableExpression? variable = null)
+        public ParameterProvider Clone()
         {
             return new(
                 Name,
                 Description,
-                type,
+                Type,
                 DefaultValue,
                 IsRef,
                 IsOut,
@@ -179,7 +183,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 wireInfo: WireInfo,
                 validation: Validation)
             {
-                _asVariable = variable,
                 SpreadSource = SpreadSource,
                 InputParameter = InputParameter,
                 IsExactName = IsExactName

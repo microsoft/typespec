@@ -112,13 +112,13 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         [TestCase("iPv6Address", "ipv6Address")]
         [TestCase("sourceIpv4Address", "sourceIPv4Address")]
         [TestCase("sourceIpV6Address", "sourceIPv6Address")]
-        [TestCase("sourceIpIpDbOs", "sourceIPIPDBOS")]
+        [TestCase("sourceIpIpDbOs", "sourceIPIPDBOS")] // cspell:ignore IPIPDBOS
         [TestCase("sourceIPv4Address", "sourceIPv4Address")]
         [TestCase("sourceIPAddress", "sourceIPAddress")]
         [TestCase("targetDBName", "targetDBName")]
         [TestCase("guestOSType", "guestOSType")]
         [TestCase("sourceIpad", "sourceIpad")]
-        [TestCase("targetDbase", "targetDbase")]
+        [TestCase("targetDbase", "targetDbase")] // cspell:ignore Dbase
         [TestCase("guestOstrich", "guestOstrich")]
         [TestCase("sourceIpv4address", "sourceIpv4address")]
         [TestCase("sourceIp2Address", "sourceIp2Address")]
