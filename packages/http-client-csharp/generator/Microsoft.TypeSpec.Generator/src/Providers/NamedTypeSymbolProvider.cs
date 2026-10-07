@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Xml;
@@ -345,6 +346,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     GetNullableCSharpType(methodSymbol.ReturnType),
                     GetSymbolXmlDoc(methodSymbol, "returns"),
                     [.. methodSymbol.Parameters.Select(p => ConvertToParameterProvider(methodSymbol, p))],
+                    Attributes: [.. methodSymbol.GetAttributes()
+                        .Where(a => a.AttributeClass?.ToDisplayString() == typeof(ExperimentalAttribute).FullName)
+                        .Select(a => new AttributeStatement(a))],
                     GenericArguments: methodSymbol.TypeParameters.IsEmpty
                         ? null
                         : [.. methodSymbol.TypeParameters.Select(parameter => parameter.GetCSharpType())],

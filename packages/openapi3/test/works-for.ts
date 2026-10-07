@@ -26,6 +26,13 @@ export type SpecHelper = {
   checkFor: typeof diagnoseOpenApiFor;
   diagnoseOpenApiFor: typeof diagnoseOpenApiFor;
   emitOpenApiWithDiagnostics: typeof emitOpenApiWithDiagnostics;
+  /**
+   * The keyword a schema uses when it has to account for the properties evaluated by the `allOf`
+   * subschema holding the base model, which is why it differs by spec version. That is the case
+   * when a schema is sealed, and when a model with a declared indexer also extends another model.
+   * A declared `Record<T>` indexer on a model that does neither uses `additionalProperties` in
+   * every spec version, and does not use this.
+   */
   objectSchemaIndexer: ObjectSchemaIndexer;
 };
 

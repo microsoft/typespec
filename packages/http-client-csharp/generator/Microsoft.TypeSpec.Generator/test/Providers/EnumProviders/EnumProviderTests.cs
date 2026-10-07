@@ -12,6 +12,7 @@ using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
+using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using Microsoft.TypeSpec.Generator.Utilities;
 using NUnit.Framework;
@@ -21,6 +22,49 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
     public class EnumProviderTests
     {
         internal const string NewLine = "\n";
+
+        [Test]
+        public async Task ExperimentalFixedEnumDependenciesSurviveBackCompatibility(
+            [Values] bool numeric,
+            [Values("none", "dependencies", "public")] string metadata)
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                lastContractCompilation: () => Helpers.GetCompilationFromDirectoryAsync());
+            var input = numeric
+                ? InputFactory.Int32Enum("Choice", [("Preview", 10), ("Stable", 20)])
+                : InputFactory.StringEnum("Choice", [("Preview", "preview"), ("Stable", "stable")], isExtensible: false);
+            if (metadata != "none")
+            {
+                InputFactory.Experimental(input.Values[0], metadata == "public" ? "MEMBER001" : null, "DEP001", "DEP001", "DEP002");
+            }
+            var provider = EnumProvider.Create(input);
+            provider.EnsureBuilt();
+            var original = provider.EnumValues.Single(member => member.Name == "Preview");
+            var visitorSuppression = new SuppressionStatement(null, Snippet.Literal("VISITOR001"), "Visitor dependency.");
+            original.Field.Update(suppressions: [.. original.Field.Suppressions, visitorSuppression]);
+            provider.ProcessTypeForBackCompatibility();
+            var preview = provider.EnumValues.Single(member => member.Name == "Preview");
+            var expectedDependencies = metadata == "none" ? ["VISITOR001"] : new[] { "DEP001", "DEP002", "VISITOR001" };
+
+            Assert.AreNotSame(original.Field, preview.Field);
+            Assert.AreSame(input.Values[0].Experimental, preview.Experimental);
+            CollectionAssert.AreEqual(expectedDependencies.Select(id => Snippet.Literal(id).ToDisplayString()),
+                preview.Field.Suppressions.Select(suppression => suppression.Code.ToDisplayString()));
+            Assert.AreSame(visitorSuppression, preview.Field.Suppressions.Last());
+            Assert.AreEqual(metadata == "public" ? 1 : 0, preview.Field.Attributes.Count);
+            Assert.AreEqual(numeric ? 42 : "preview", preview.Value);
+            Assert.AreEqual(0, provider.EnumValues.Single(member => member.Name == "Stable").Field.Suppressions.Count);
+            Assert.AreEqual(0, provider.DisabledFileWarnings.Count);
+            var expectedReferences = metadata == "public" ? [.. expectedDependencies, "MEMBER001"] : expectedDependencies;
+            CollectionAssert.AreEquivalent(expectedReferences.Select(id => Snippet.Literal(id).ToDisplayString()),
+                ExperimentalApiHelpers.GetMemberSuppressions(preview.Field).Select(suppression => suppression.Code.ToDisplayString()));
+            var code = new TypeProviderWriter(provider).Write().Content;
+            var disable = code.IndexOf("#pragma warning disable VISITOR001", StringComparison.Ordinal);
+            var restore = code.IndexOf("#pragma warning restore VISITOR001", StringComparison.Ordinal);
+            Assert.Greater(disable, code.IndexOf("enum Choice", StringComparison.Ordinal));
+            Assert.Greater(restore, code.IndexOf("Preview", disable, StringComparison.Ordinal));
+            Assert.Less(restore, code.IndexOf("Stable", restore, StringComparison.Ordinal));
+        }
 
         // Validates the int based fixed enum
         [TestCase]

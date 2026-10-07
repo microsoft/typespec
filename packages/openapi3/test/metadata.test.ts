@@ -1148,6 +1148,43 @@ worksFor(supportedVersions, ({ openApiFor }) => {
     });
   });
 
+  it("model instantiation shared with an unreachable derived model is emitted once", async () => {
+    const res = await openApiFor(`
+      model Widget {
+        id: string;
+      }
+
+      @friendlyName("{name}Page", T)
+      model Page<T> {
+        items: T[];
+      }
+
+      @route("/widgets")
+      @get
+      op listWidgets(): Page<Widget>;
+
+      @discriminator("kind")
+      model Event {
+        kind: string;
+      }
+
+      model WidgetsEvent extends Event {
+        kind: "widgets";
+        widgets: Page<Widget>;
+      }
+    `);
+
+    deepStrictEqual(Object.keys(res.components.schemas), [
+      "Event",
+      "Widget",
+      "WidgetPage",
+      "WidgetsEvent",
+    ]);
+    deepStrictEqual(res.components.schemas.WidgetsEvent.properties.widgets, {
+      $ref: "#/components/schemas/WidgetPage",
+    });
+  });
+
   it("base models used in different visibility gets distinct names", async () => {
     const res = await openApiFor(`
       model Widget {
