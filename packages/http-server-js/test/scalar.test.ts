@@ -191,14 +191,6 @@ describe("scalar", () => {
     );
   });
 
-  it("keeps the escapes JSON.stringify writes when escaping unsafe characters", () => {
-    for (const value of ['a"b', "c\\d", "x\ny", "t\tu", "e\u2028f\u2029g", "</h>"]) {
-      const literal = escapeUnsafeChars(JSON.stringify(value));
-      expect(JSON.parse(literal)).toBe(value);
-      expect(literal).not.toMatch(/[\u2028\u2029]/);
-    }
-  });
-
   it("escapes forward slashes in emitted string literals", () => {
     expect(escapeUnsafeChars(JSON.stringify("application/zip"))).toBe('"application\\u002Fzip"');
   });

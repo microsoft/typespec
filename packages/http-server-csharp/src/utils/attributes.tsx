@@ -20,7 +20,6 @@ import {
   type Type,
 } from "@typespec/compiler";
 import { isUnionEnum } from "../components/enums/enums.jsx";
-import { csharpStringLiteral } from "./csharp-string-literal.js";
 
 /**
  * Maps a TypeSpec scalar name to the C# type name used in attributes.
@@ -83,22 +82,6 @@ function getScalarEncoding(
 }
 
 /**
- * `[JsonPropertyName]` with a property's json name, which is its `application/json` encoded name when
- * it has one. Written for every property, as the emitter-framework C# `Property` does, so the name
- * does not depend on the serializer's naming policy (camelCase in the generated
- * `JsonSerializationProvider`).
- */
-export function getJsonPropertyNameAttribute(program: Program, property: ModelProperty): Children {
-  const jsonName = resolveEncodedName(program, property, "application/json");
-  return (
-    <Attribute
-      name={Serialization.JsonPropertyNameAttribute}
-      args={[csharpStringLiteral(jsonName)]}
-    />
-  );
-}
-
-/**
  * Get all C# attributes for a model property.
  * Returns an array of attribute strings like `[JsonConverter(typeof(TimeSpanDurationConverter))]`
  */
@@ -131,6 +114,10 @@ export function getPropertyAttributes(program: Program, property: ModelProperty)
 
   const arrayAttr = getArrayConstraintAttribute(program, property);
   if (arrayAttr) attrs.push(arrayAttr);
+
+  // JsonPropertyName (only when encoded name differs)
+  const nameAttr = getEncodedNameAttribute(program, property);
+  if (nameAttr) attrs.push(nameAttr);
 
   // SafeInt constraint
   if (property.type.kind === "Scalar") {
@@ -267,6 +254,14 @@ function getArrayConstraintAttribute(
   if (maxItems !== undefined) params.push(`MaxItems = ${maxItems}`);
 
   return <Attribute name={`ArrayConstraint<${csharpType}>`} args={params} />;
+}
+
+function getEncodedNameAttribute(program: Program, property: ModelProperty): Children | undefined {
+  const encodedName = resolveEncodedName(program, property, "application/json");
+  if (encodedName !== property.name) {
+    return <Attribute name={Serialization.JsonPropertyNameAttribute} args={[`"${encodedName}"`]} />;
+  }
+  return undefined;
 }
 
 function getSafeIntAttribute(program: Program, scalar: Scalar): Children | undefined {
