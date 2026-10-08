@@ -201,6 +201,35 @@ describe("scalar", () => {
     expect(escapeUnsafeChars(JSON.stringify("application/zip"))).toBe('"application\\u002Fzip"');
   });
 
+  it("keeps the escapes JSON.stringify writes when escaping unsafe characters", () => {
+    for (const value of ['a"b', "c\\d", "x\ny", "t\tu", "e\u2028f\u2029g", "</h>"]) {
+      const literal = escapeUnsafeChars(JSON.stringify(value));
+      expect(JSON.parse(literal)).toBe(value);
+      expect(literal).not.toMatch(/[\u2028\u2029]/);
+    }
+  });
+
+  it("emits string literals containing a quote, a backslash or a newline", async () => {
+    const { outputs } = await HttpServerEmitterTester.compile(`
+      @service(#{ title: "Example" })
+      @route("/")
+      namespace Example {
+        model Cat {
+          quoted: "a\\"b";
+          backslashed: "c\\\\d";
+          multiline: "x\\ny";
+        }
+
+        @get op read(): Cat;
+      }
+    `);
+    const source = outputs["src/generated/models/all/example.ts"];
+
+    expect(source).toContain(`  quoted: 'a"b';`);
+    expect(source).toContain(`  backslashed: "c\\\\d";`);
+    expect(source).toContain(`  multiline: "x\\ny";`);
+  });
+
   it("emits result processing for bare scalar responses", async () => {
     const { outputs } = await HttpServerEmitterTester.compile(`
       @service(#{ title: "Example" })
