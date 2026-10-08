@@ -1,0 +1,37 @@
+id: pr.dependabot-auto-merge
+name: GitOps.PullRequestIssueManagement
+description: Automatically approve and merge Dependabot updates
+owner:
+resource: repository
+disabled: false
+where:
+configuration:
+  resourceManagementConfiguration:
+    eventResponderTasks:
+      - description: Approve and auto-merge Dependabot updates
+        if:
+          - payloadType: Pull_Request
+          - isAction:
+              action: Opened
+          - targetsBranch:
+              branch: main
+          - isActivitySender:
+              user: dependabot[bot]
+              issueAuthor: true
+        then:
+          - approvePullRequest:
+              comment: "Approved automatically for a Dependabot update."
+          - addLabel:
+              label: auto-merge
+          - enableAutoMerge:
+              mergeMethod: Squash
+
+      - description: Disable auto-merge when the auto-merge label is removed
+        if:
+          - payloadType: Pull_Request
+          - labelRemoved:
+              label: auto-merge
+        then:
+          - disableAutoMerge
+onFailure:
+onSuccess:
