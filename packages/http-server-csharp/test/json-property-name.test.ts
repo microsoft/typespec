@@ -65,3 +65,21 @@ it("uses the encoded name for a property of an anonymous request body", async ()
   expect(request).toContain(`[JsonPropertyName("full_name")]`);
   expect(request).toContain(`[JsonPropertyName("nickName")]`);
 });
+
+it("escapes a JSON name with a quote", async () => {
+  const result = await emit(`
+    model Item {
+      @encodedName("application/json", "a\\"b")
+      name: string;
+    }
+
+    op read(): Item;
+
+    @post op create(@encodedName("application/json", "c\\"d") label: string): void;
+  `);
+
+  expect(getFile(result, "/generated/models/Item.cs")).toContain(`[JsonPropertyName("a\\"b")]`);
+  expect(getFile(result, "/generated/models/ContosoOperationsCreateRequest.cs")).toContain(
+    `[JsonPropertyName("c\\"d")]`,
+  );
+});

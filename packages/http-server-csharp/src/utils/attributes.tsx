@@ -259,7 +259,9 @@ function getArrayConstraintAttribute(
  */
 export function getJsonPropertyNameAttribute(program: Program, property: ModelProperty): Children {
   const jsonName = resolveEncodedName(program, property, "application/json");
-  return <Attribute name={Serialization.JsonPropertyNameAttribute} args={[`"${jsonName}"`]} />;
+  return (
+    <Attribute name={Serialization.JsonPropertyNameAttribute} args={[JSON.stringify(jsonName)]} />
+  );
 }
 
 function getSafeIntAttribute(program: Program, scalar: Scalar): Children | undefined {
