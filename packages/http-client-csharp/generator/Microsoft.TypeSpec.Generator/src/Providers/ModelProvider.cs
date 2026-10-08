@@ -857,6 +857,23 @@ namespace Microsoft.TypeSpec.Generator.Providers
             InputProperty inputProperty)
         {
             var compatibleType = lastContractType.ApplyInputSpecProperty(inputProperty);
+            if (compatibleType.IsEnum && currentType.IsEnum && compatibleType.AreNamesEqual(currentType))
+            {
+                // The contract's nullability still applies, but serialization must use the current enum representation.
+                compatibleType = currentType.WithNullable(compatibleType.IsNullable);
+            }
+            else if (compatibleType.IsList && currentType.IsList)
+            {
+                compatibleType = compatibleType.MakeGenericType([
+                    GetPropertyTypeForBackCompatibility(compatibleType.ElementType, currentType.ElementType, inputProperty)]);
+            }
+            else if (compatibleType.IsDictionary && currentType.IsDictionary)
+            {
+                compatibleType = compatibleType.MakeGenericType([
+                    compatibleType.Arguments[0],
+                    GetPropertyTypeForBackCompatibility(compatibleType.ElementType, currentType.ElementType, inputProperty)]);
+            }
+
             return !compatibleType.IsValueType && currentType.IsNullable
                 ? compatibleType.WithNullable(true)
                 : compatibleType;
