@@ -13,6 +13,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ListType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MapType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Pom;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Proxy;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethodParameter;
@@ -47,6 +48,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -130,6 +132,149 @@ public class ProtocolImplementationTests {
             imports.toString());
         Assertions.assertFalse(imports.contains("io.clientcore.core.annotations.ServiceInterface"), imports.toString());
         compile(output);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = { "generic", "azurev2" })
+    public void voidResponsesPreserveMetadataAndCloseTheBody(String flavor) throws Exception {
+        initialize(flavor);
+        List<ProxyMethodParameter> parameters
+            = List.of(parameter("endpoint", "endpoint", RequestParameterLocation.URI, true),
+                parameter("id", "id", RequestParameterLocation.PATH, false));
+        ProxyMethod primitive = method("primitive", PrimitiveType.VOID, HttpMethod.GET, parameters).newBuilder()
+            .responseExpectedStatusCodes(List.of(204))
+            .build();
+        ProxyMethod boxed
+            = primitive.newBuilder().name("boxed").returnType(GenericType.response(ClassType.VOID)).build();
+        ProxyMethod unwrapped = primitive.newBuilder().name("unwrapped").returnType(PrimitiveType.VOID).build();
+        String output = render(List.of(primitive, boxed, unwrapped));
+        Assertions.assertTrue(output.contains("Response<Void> primitive("), output);
+        Assertions.assertFalse(output.contains("jsonSerializer ="), output);
+        compile(output);
+        AtomicInteger closes = new AtomicInteger();
+        AtomicReference<BinaryData> body = new AtomicReference<>(BinaryData.fromString("not a JSON body"));
+        HttpPipeline pipeline = responsePipeline(body, 204, closes);
+        try (URLClassLoader loader
+            = new URLClassLoader(new URL[] { classes.toUri().toURL() }, getClass().getClassLoader())) {
+            Class<?> serviceType = loader.loadClass("com.example.GeneratedClient$ExampleService");
+            Object service = serviceType.getMethod("getNewInstance", HttpPipeline.class).invoke(null, pipeline);
+            for (String name : List.of("primitive", "boxed")) {
+                try (Response<?> response = invoke(serviceType, service, name, "https://example.test", "item")) {
+                    Assertions.assertEquals(204, response.getStatusCode());
+                    Assertions.assertEquals("preserved",
+                        response.getHeaders().getValue(HttpHeaderName.fromString("x-test")));
+                    Assertions.assertEquals("https://example.test/items/item",
+                        response.getRequest().getUri().toString());
+                    Assertions.assertNull(response.getValue());
+                }
+                Assertions.assertEquals(1, closes.getAndSet(0));
+            }
+            Assertions.assertNull(invoke(serviceType, service, "unwrapped", "https://example.test", "item"));
+            Assertions.assertEquals(1, closes.get());
+        }
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = { "generic", "azurev2" })
+    public void dateTimeCollectionsDeserializeToTypedValues(String flavor) throws Exception {
+        initialize(flavor);
+        List<ProxyMethodParameter> parameters
+            = List.of(parameter("endpoint", "endpoint", RequestParameterLocation.URI, true),
+                parameter("jsonReader", "id", RequestParameterLocation.PATH, false));
+        ListType dates = new ListType(ClassType.DATE_TIME);
+        ProxyMethod list = method("list", dates, HttpMethod.GET, parameters);
+        compile(render(List.of(list,
+            list.newBuilder().name("mixed").responseContentTypes(Set.of("application/json", "application/xml")).build(),
+            method("nested", new ListType(dates), HttpMethod.GET, parameters),
+            method("map", new MapType(dates), HttpMethod.GET, parameters),
+            method("scalar", ClassType.DATE_TIME, HttpMethod.GET, parameters))));
+        OffsetDateTime first = OffsetDateTime.parse("2024-01-01T00:00:00Z");
+        OffsetDateTime second = OffsetDateTime.parse("2024-01-02T03:04:05+05:30");
+        List<OffsetDateTime> expected = Arrays.asList(first, null, second);
+        String payload = "[\"2024-01-01T00:00:00Z\",null,\"2024-01-02T03:04:05+05:30\"]";
+        AtomicReference<BinaryData> body = new AtomicReference<>(BinaryData.fromString(payload));
+        AtomicInteger closes = new AtomicInteger();
+        HttpPipeline pipeline = responsePipeline(body, 200, closes);
+        try (URLClassLoader loader
+            = new URLClassLoader(new URL[] { classes.toUri().toURL() }, getClass().getClassLoader())) {
+            Class<?> serviceType = loader.loadClass("com.example.GeneratedClient$ExampleService");
+            Object service = serviceType.getMethod("getNewInstance", HttpPipeline.class).invoke(null, pipeline);
+            for (String name : List.of("list", "mixed")) {
+                try (Response<?> response = invoke(serviceType, service, name, "https://example.test", "item")) {
+                    Assertions.assertEquals(expected, response.getValue());
+                    Assertions.assertEquals("preserved",
+                        response.getHeaders().getValue(HttpHeaderName.fromString("x-test")));
+                }
+                Assertions.assertEquals(1, closes.getAndSet(0));
+            }
+            body.set(BinaryData.fromString("[" + payload + ",null,[]]"));
+            try (Response<?> response = invoke(serviceType, service, "nested", "https://example.test", "item")) {
+                Assertions.assertEquals(Arrays.asList(expected, null, List.of()), response.getValue());
+            }
+            Assertions.assertEquals(1, closes.getAndSet(0));
+            body.set(BinaryData.fromString("{\"dates\":" + payload + "}"));
+            try (Response<?> response = invoke(serviceType, service, "map", "https://example.test", "item")) {
+                Assertions.assertEquals(Map.of("dates", expected), response.getValue());
+            }
+            Assertions.assertEquals(1, closes.getAndSet(0));
+            body.set(BinaryData.fromString("\"2024-01-01T00:00:00Z\""));
+            try (Response<?> response = invoke(serviceType, service, "scalar", "https://example.test", "item")) {
+                Assertions.assertEquals(first, response.getValue());
+            }
+            Assertions.assertEquals(1, closes.getAndSet(0));
+            for (BinaryData empty : Arrays.asList(null, BinaryData.empty(), BinaryData.fromString("null"))) {
+                body.set(empty);
+                try (Response<?> response = invoke(serviceType, service, "list", "https://example.test", "item")) {
+                    Assertions.assertNull(response.getValue());
+                }
+                Assertions.assertEquals(1, closes.getAndSet(0));
+            }
+            body.set(BinaryData.fromString("[]"));
+            try (Response<?> response = invoke(serviceType, service, "list", "https://example.test", "item")) {
+                Assertions.assertEquals(List.of(), response.getValue());
+            }
+            Assertions.assertEquals(1, closes.getAndSet(0));
+            body.set(BinaryData.fromString("[\"not-a-date\"]"));
+            Assertions.assertThrows(RuntimeException.class,
+                () -> invoke(serviceType, service, "list", "https://example.test", "item"));
+            Assertions.assertEquals(1, closes.get());
+        }
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = { "generic", "azurev2" })
+    public void encodedDateTimeListsPreserveTheContainerType(String flavor) throws Exception {
+        initialize(flavor);
+        List<ProxyMethodParameter> parameters
+            = List.of(parameter("endpoint", "endpoint", RequestParameterLocation.URI, true),
+                parameter("id", "id", RequestParameterLocation.PATH, false));
+        List<IType> wireTypes
+            = List.of(ClassType.DATE_TIME_RFC_1123, PrimitiveType.UNIX_TIME_LONG, ClassType.UNIX_TIME_LONG);
+        List<ProxyMethod> methods = new ArrayList<>();
+        for (int i = 0; i < wireTypes.size(); i++) {
+            IType wireType = wireTypes.get(i);
+            methods.add(method("dates" + i, new ListType(wireType), HttpMethod.GET, parameters).newBuilder()
+                .returnValueWireType(wireType)
+                .build());
+        }
+        compile(render(methods));
+        AtomicReference<BinaryData> body = new AtomicReference<>();
+        AtomicInteger closes = new AtomicInteger();
+        HttpPipeline pipeline = responsePipeline(body, 200, closes);
+        try (URLClassLoader loader
+            = new URLClassLoader(new URL[] { classes.toUri().toURL() }, getClass().getClassLoader())) {
+            Class<?> serviceType = loader.loadClass("com.example.GeneratedClient$ExampleService");
+            Object service = serviceType.getMethod("getNewInstance", HttpPipeline.class).invoke(null, pipeline);
+            for (int i = 0; i < wireTypes.size(); i++) {
+                body.set(
+                    BinaryData.fromString(i == 0 ? "[\"Mon, 01 Jan 2024 00:00:00 GMT\",null]" : "[1704067200,null]"));
+                try (Response<?> response = invoke(serviceType, service, "dates" + i, "https://example.test", "item")) {
+                    Assertions.assertEquals(Arrays.asList(OffsetDateTime.parse("2024-01-01T00:00:00Z"), null),
+                        response.getValue());
+                }
+                Assertions.assertEquals(1, closes.getAndSet(0));
+            }
+        }
     }
 
     @ParameterizedTest
@@ -569,6 +714,20 @@ public class ProtocolImplementationTests {
         file.declareImport(imports);
         file.publicFinalClass("GeneratedClient", owner -> ProxyTemplate.getInstance().write(proxy, owner));
         return file.getContents().toString();
+    }
+
+    private static HttpPipeline responsePipeline(AtomicReference<BinaryData> body, int statusCode,
+        AtomicInteger closes) {
+        return new HttpPipelineBuilder().httpClient(request -> new Response<>(request, statusCode,
+            new HttpHeaders().set(HttpHeaderName.CONTENT_TYPE, "application/json")
+                .set(HttpHeaderName.fromString("x-test"), "preserved"),
+            body.get()) {
+            @Override
+            public void close() {
+                closes.incrementAndGet();
+                super.close();
+            }
+        }).build();
     }
 
     private static Proxy proxy(List<ProxyMethod> methods) {

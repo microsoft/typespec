@@ -8,6 +8,8 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Clien
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModels;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IterableType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MapType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Proxy;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethod;
@@ -25,14 +27,17 @@ import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.implementation.utils.UriEscapers;
 import io.clientcore.core.instrumentation.logging.ClientLogger;
+import io.clientcore.core.models.CoreException;
 import io.clientcore.core.models.binarydata.BinaryData;
 import io.clientcore.core.serialization.SerializationFormat;
+import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.serialization.json.JsonSerializer;
 import io.clientcore.core.serialization.xml.XmlSerializer;
 import io.clientcore.core.utils.Base64Uri;
 import io.clientcore.core.utils.CoreUtils;
 import io.clientcore.core.utils.GeneratedCodeUtils;
 import io.clientcore.core.utils.UriBuilder;
+import java.io.IOException;
 import java.lang.reflect.ParameterizedType;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -83,6 +88,14 @@ final class ClientCoreProtocolImplementationTemplate {
             }
             if (ClassType.BASE_64_URL.equals(method.getReturnValueWireType())) {
                 imports.add(Base64Uri.class.getName());
+            }
+            if (deserializesResponse(method)
+                && responseUsesJson(method)
+                && requiresTypedJsonDeserialization(responseWireType(method))) {
+                imports.add(JsonReader.class.getName());
+                imports.add(IOException.class.getName());
+                imports.add(CoreException.class.getName());
+                responseWireType(method).getClientType().addImportsTo(imports, true);
             }
             for (ProxyMethodParameter parameter : method.getParameters()) {
                 RequestParameterLocation location = parameter.getRequestParameterLocation();
@@ -230,7 +243,7 @@ final class ClientCoreProtocolImplementationTemplate {
         IType returnType = method.getReturnType().getClientType();
         boolean returnsResponse = returnType instanceof GenericType
             && ((GenericType) returnType).getName().equals(ClassType.RESPONSE.getName());
-        IType bodyType = returnsResponse ? ((GenericType) returnType).getTypeArguments()[0] : returnType;
+        IType bodyType = returnsResponse ? ((GenericType) returnType).getTypeArguments()[0].asNullable() : returnType;
         if (ClassType.BINARY_DATA.equals(bodyType) || ClassType.INPUT_STREAM.equals(bodyType)) {
             writeReturn(method, block, response, status, bodyType, returnsResponse, names);
         } else {
@@ -358,40 +371,31 @@ final class ClientCoreProtocolImplementationTemplate {
                     + ".getValue().toBytes()).decodedBytes()";
             }
         } else {
-            IType wireType = method.getReturnValueWireType();
-            if (wireType == null) {
-                IType wireReturn = method.getReturnType();
-                wireType = returnsResponse ? ((GenericType) wireReturn).getTypeArguments()[0] : wireReturn;
-            }
+            IType wireType = responseWireType(method);
             String decoded = localName(names, "deserializedResult");
-            String responseType = "CoreUtils.createParameterizedType(Response.class, " + typeToken(wireType) + ")";
-            block.line("%s %s;", wireType.asNullable(), decoded);
             boolean xml = responseUsesXml(method);
             boolean json = responseUsesJson(method);
+            boolean typedJson = json && requiresTypedJsonDeserialization(wireType);
+            block.line("%s %s;", typedJson ? wireType.getClientType().asNullable() : wireType.asNullable(), decoded);
             if (xml && json) {
                 String format = localName(names, "responseSerializationFormat");
                 block.line("SerializationFormat %s = CoreUtils.serializationFormatFromContentType(%s.getHeaders());",
                     format, response);
                 block
                     .ifBlock("this.jsonSerializer.supportsFormat(" + format + ")",
-                        jsonBlock -> jsonBlock.line(
-                            "%s = CoreUtils.decodeNetworkResponse(%s.getValue(), this.jsonSerializer, %s);", decoded,
-                            response, responseType))
+                        jsonBlock -> writeResponseDeserialization(jsonBlock, response, decoded, wireType,
+                            "this.jsonSerializer", typedJson, typedJson, names))
                     .elseIfBlock("this.xmlSerializer.supportsFormat(" + format + ")",
-                        xmlBlock -> xmlBlock.line(
-                            "%s = CoreUtils.decodeNetworkResponse(%s.getValue(), this.xmlSerializer, %s);", decoded,
-                            response, responseType))
+                        xmlBlock -> writeResponseDeserialization(xmlBlock, response, decoded, wireType,
+                            "this.xmlSerializer", false, typedJson, names))
                     .elseBlock(unsupported -> unsupported.line(
                         "throw new UnsupportedOperationException(\"Unsupported response serialization format: \" + %s);",
                         format));
             } else {
-                block.line("%s = CoreUtils.decodeNetworkResponse(%s.getValue(), %s, %s);", decoded, response,
-                    xml ? "this.xmlSerializer" : "this.jsonSerializer", responseType);
+                writeResponseDeserialization(block, response, decoded, wireType,
+                    xml ? "this.xmlSerializer" : "this.jsonSerializer", typedJson, typedJson, names);
             }
-            value = wireType.convertToClientType(decoded);
-            if (!wireType.equals(wireType.getClientType()) && !(bodyType instanceof PrimitiveType)) {
-                value = decoded + " == null ? null : " + value;
-            }
+            value = typedJson ? decoded : convertResponseValue(wireType, decoded);
         }
         if (returnsResponse) {
             block.line("return new Response<>(%s.getRequest(), %s, %s.getHeaders(), %s);", response, status, response,
@@ -399,6 +403,82 @@ final class ClientCoreProtocolImplementationTemplate {
         } else {
             block.line("return %s;", value);
         }
+    }
+
+    private static IType responseWireType(ProxyMethod method) {
+        IType type = method.getResponseBodyType();
+        if (type == null) {
+            type = method.getReturnType();
+            if (type instanceof GenericType && ((GenericType) type).getName().equals(ClassType.RESPONSE.getName())) {
+                type = ((GenericType) type).getTypeArguments()[0];
+            }
+        }
+        // Return-value wire metadata describes a scalar encoding, not the enclosing collection.
+        return type instanceof GenericType || method.getReturnValueWireType() == null
+            ? type
+            : method.getReturnValueWireType();
+    }
+
+    private static boolean requiresTypedJsonDeserialization(IType type) {
+        if (type instanceof GenericType) {
+            return Arrays.stream(((GenericType) type).getTypeArguments())
+                .anyMatch(ClientCoreProtocolImplementationTemplate::requiresTypedJsonDeserialization);
+        }
+        return ClassType.DATE_TIME.equals(type.getClientType());
+    }
+
+    private static void writeResponseDeserialization(JavaBlock block, String response, String decoded, IType wireType,
+        String serializer, boolean typedJson, boolean clientValue, Set<String> names) {
+        if (typedJson) {
+            String bytes = localName(names, "responseBodyBytes");
+            String reader = localName(names, "jsonReader");
+            String exception = localName(names, "exception");
+            block.line("byte[] %s = %s.getValue() == null ? null : %s.getValue().toBytes();", bytes, response,
+                response);
+            block.ifBlock(bytes + " == null || " + bytes + ".length == 0", empty -> empty.line("%s = null;", decoded))
+                .elseBlock(body -> body
+                    .tryBlock("JsonReader " + reader + " = JsonReader.fromBytes(" + bytes + ")",
+                        json -> json.line("%s = %s.nextToken() == null ? null : %s;", decoded, reader,
+                            jsonResponseValue(wireType, reader, names)))
+                    .catchBlock("IOException " + exception, error -> error
+                        .line("throw LOGGER.throwableAtError().log(%s, CoreException::from);", exception)));
+            return;
+        }
+        String target
+            = clientValue && !wireType.equals(wireType.getClientType()) ? localName(names, "wireResult") : decoded;
+        String responseType = "CoreUtils.createParameterizedType(Response.class, " + typeToken(wireType) + ")";
+        block.line("%s%s = CoreUtils.decodeNetworkResponse(%s.getValue(), %s, %s);",
+            target.equals(decoded) ? "" : wireType.asNullable() + " ", target, response, serializer, responseType);
+        if (!target.equals(decoded)) {
+            block.line("%s = %s;", decoded, convertResponseValue(wireType, target));
+        }
+    }
+
+    private static String jsonResponseValue(IType type, String reader, Set<String> names) {
+        if (type instanceof IterableType) {
+            String elementReader = localName(names, "elementReader");
+            return reader + ".readArray(" + elementReader + " -> "
+                + jsonResponseValue(((IterableType) type).getElementType(), elementReader, names) + ")";
+        }
+        if (type instanceof MapType) {
+            String valueReader = localName(names, "valueReader");
+            return reader + ".readMap(" + valueReader + " -> "
+                + jsonResponseValue(((MapType) type).getValueType(), valueReader, names) + ")";
+        }
+        IType nullableType = type.asNullable();
+        if (!type.equals(type.getClientType())) {
+            String valueReader = localName(names, "valueReader");
+            String value = nullableType.jsonDeserializationMethod(valueReader)
+                .replace("nonNullReader", localName(names, "nonNullReader"));
+            return reader + ".getNullable(" + valueReader + " -> " + nullableType.convertToClientType(value) + ")";
+        }
+        return nullableType.jsonDeserializationMethod(reader)
+            .replace("nonNullReader", localName(names, "nonNullReader"));
+    }
+
+    private static String convertResponseValue(IType wireType, String value) {
+        String converted = wireType.convertToClientType(value);
+        return wireType.equals(wireType.getClientType()) ? converted : value + " == null ? null : " + converted;
     }
 
     private static boolean usesJsonSerializer(ProxyMethod method) {
