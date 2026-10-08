@@ -5,6 +5,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSe
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ArrayType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModels;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
@@ -20,6 +21,7 @@ import io.clientcore.core.http.models.HttpMethod;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -37,12 +39,18 @@ final class ClientCoreProtocolImplementationTemplate {
     }
 
     static void write(Proxy proxy, JavaClass classBlock) {
+        List<ProxyMethod> methods = proxy.getMethods()
+            .stream()
+            .filter(method -> method.getImplementation() == null)
+            .collect(Collectors.toList());
+        boolean usesJson = methods.stream().anyMatch(ClientCoreProtocolImplementationTemplate::usesJsonSerializer);
+        boolean usesXml = methods.stream().anyMatch(ClientCoreProtocolImplementationTemplate::usesXmlSerializer);
         JavaVisibility visibility
             = JavaSettings.getInstance().isServiceInterfaceAsPublic() ? JavaVisibility.Public : JavaVisibility.Private;
         classBlock.interfaceBlock(visibility, proxy.getName(), interfaceBlock -> {
             interfaceBlock.staticMethod(JavaVisibility.PackagePrivate,
                 proxy.getName() + " getNewInstance(" + CORE + "http.pipeline.HttpPipeline pipeline)",
-                block -> block.line("return new %sImpl(pipeline);", proxy.getName()));
+                block -> block.line("return new %sImpl(%s);", proxy.getName(), methods.isEmpty() ? "" : "pipeline"));
             for (ProxyMethod method : proxy.getMethods()) {
                 if (method.getImplementation() == null) {
                     interfaceBlock.publicMethod(signature(method));
@@ -52,20 +60,29 @@ final class ClientCoreProtocolImplementationTemplate {
             }
         });
         classBlock.privateStaticFinalClass(proxy.getName() + "Impl implements " + proxy.getName(), implementation -> {
-            implementation.privateStaticFinalVariable(CORE + "instrumentation.logging.ClientLogger LOGGER = new " + CORE
-                + "instrumentation.logging.ClientLogger(" + proxy.getName() + "Impl.class)");
-            implementation.privateFinalMemberVariable(CORE + "http.pipeline.HttpPipeline httpPipeline");
-            implementation.privateFinalMemberVariable(CORE + "serialization.json.JsonSerializer jsonSerializer = "
-                + CORE + "serialization.json.JsonSerializer.getInstance()");
-            implementation.privateFinalMemberVariable(CORE + "serialization.xml.XmlSerializer xmlSerializer = " + CORE
-                + "serialization.xml.XmlSerializer.getInstance()");
-            implementation.privateConstructor(proxy.getName() + "Impl(" + CORE + "http.pipeline.HttpPipeline pipeline)",
-                block -> block.line("this.httpPipeline = pipeline;"));
-            for (ProxyMethod method : proxy.getMethods()) {
-                if (method.getImplementation() == null) {
-                    implementation.annotation("Override");
-                    implementation.publicMethod(signature(method), block -> writeMethod(proxy, method, block));
-                }
+            if (!methods.isEmpty()) {
+                implementation.privateStaticFinalVariable(CORE + "instrumentation.logging.ClientLogger LOGGER = new "
+                    + CORE + "instrumentation.logging.ClientLogger(" + proxy.getName() + "Impl.class)");
+                implementation.privateFinalMemberVariable(CORE + "http.pipeline.HttpPipeline httpPipeline");
+            }
+            if (usesJson) {
+                implementation.privateFinalMemberVariable(CORE + "serialization.json.JsonSerializer jsonSerializer = "
+                    + CORE + "serialization.json.JsonSerializer.getInstance()");
+            }
+            if (usesXml) {
+                implementation.privateFinalMemberVariable(CORE + "serialization.xml.XmlSerializer xmlSerializer = "
+                    + CORE + "serialization.xml.XmlSerializer.getInstance()");
+            }
+            implementation.privateConstructor(proxy.getName() + "Impl("
+                + (methods.isEmpty() ? "" : CORE + "http.pipeline.HttpPipeline pipeline") + ")", block -> {
+                    if (!methods.isEmpty()) {
+                        block.line("this.httpPipeline = pipeline;");
+                    }
+                });
+            for (ProxyMethod method : methods) {
+                implementation.annotation("Override");
+                implementation.publicMethod(signature(method),
+                    block -> writeMethod(proxy, method, block, usesJson, usesXml));
             }
         });
     }
@@ -79,7 +96,8 @@ final class ClientCoreProtocolImplementationTemplate {
             + ")";
     }
 
-    private static void writeMethod(Proxy proxy, ProxyMethod method, JavaBlock block) {
+    private static void writeMethod(Proxy proxy, ProxyMethod method, JavaBlock block, boolean usesJson,
+        boolean usesXml) {
         Set<String> names = method.getParameters()
             .stream()
             .map(ProxyMethodParameter::getName)
@@ -88,15 +106,24 @@ final class ClientCoreProtocolImplementationTemplate {
         String uri = localName(names, "uriBuilder");
         String response = localName(names, "networkResponse");
         String status = localName(names, "responseCode");
-        block.line(UTILS + "UriBuilder %s = " + UTILS + "UriBuilder.parse(%s);", uri, urlExpression(proxy, method));
-        for (ProxyMethodParameter parameter : method.getParameters()) {
-            if (parameter.getRequestParameterLocation() == RequestParameterLocation.QUERY) {
-                block.line(UTILS + "GeneratedCodeUtils.addQueryParameter(%s, %s, true, %s, %s);", uri,
-                    quote(parameter.getRequestParameterName()), parameter.getName(), !parameter.getAlreadyEncoded());
+        boolean hasQuery = method.getParameters()
+            .stream()
+            .anyMatch(parameter -> parameter.getRequestParameterLocation() == RequestParameterLocation.QUERY);
+        String requestUri = urlExpression(proxy, method);
+        if (hasQuery) {
+            block.line(UTILS + "UriBuilder %s = " + UTILS + "UriBuilder.parse(%s);", uri, requestUri);
+            for (ProxyMethodParameter parameter : method.getParameters()) {
+                if (parameter.getRequestParameterLocation() == RequestParameterLocation.QUERY) {
+                    block.line(UTILS + "GeneratedCodeUtils.addQueryParameter(%s, %s, true, %s, %s);", uri,
+                        quote(parameter.getRequestParameterName()), parameter.getName(),
+                        !parameter.getAlreadyEncoded());
+                }
             }
+            requestUri = uri + ".toString()";
         }
-        block.line(HTTP + "HttpRequest %s = new " + HTTP + "HttpRequest().setMethod(" + HTTP
-            + "HttpMethod.%s).setUri(%s.toString());", request, method.getHttpMethod(), uri);
+        block.line(
+            HTTP + "HttpRequest %s = new " + HTTP + "HttpRequest().setMethod(" + HTTP + "HttpMethod.%s).setUri(%s);",
+            request, method.getHttpMethod(), requestUri);
         for (ProxyMethodParameter parameter : method.getParameters()) {
             if (parameter.getRequestParameterLocation() == RequestParameterLocation.HEADER) {
                 writeHeader(parameter, block, request, names);
@@ -128,7 +155,8 @@ final class ClientCoreProtocolImplementationTemplate {
                 .stream()
                 .map(code -> status + " == " + code)
                 .collect(Collectors.joining(" || "));
-        block.ifBlock("!(" + expected + ")", error -> writeError(proxy, method, error, response, status, names));
+        block.ifBlock("!(" + expected + ")",
+            error -> writeError(proxy, method, error, response, status, names, usesJson, usesXml));
         IType returnType = method.getReturnType().getClientType();
         boolean returnsResponse = returnType instanceof GenericType
             && ((GenericType) returnType).getName().equals(ClassType.RESPONSE.getName());
@@ -171,7 +199,7 @@ final class ClientCoreProtocolImplementationTemplate {
         IType type = parameter.getWireType();
         String value = parameter.getName();
         String mediaType = method.getRequestContentType();
-        boolean json = mediaType.contains("json");
+        boolean json = isMediaType(mediaType, "json");
         if (ClassType.BINARY_DATA.equals(type)) {
             block.line("%s.setBody(%s);", request, value);
         } else if (ArrayType.BYTE_ARRAY.equals(type) && !json) {
@@ -181,17 +209,36 @@ final class ClientCoreProtocolImplementationTemplate {
         } else if (ClassType.INPUT_STREAM.equals(type)) {
             block.line("%s.setBody(" + BINARY_DATA + ".fromStream(%s));", request, value);
         } else {
-            String format = localName(names, "requestSerializationFormat");
-            block.line(CORE + "serialization.SerializationFormat %s = " + UTILS
-                + "CoreUtils.serializationFormatFromContentType(%s.getHeaders());", format, request);
-            block.line("%s.setBody(" + BINARY_DATA
-                + ".fromObject(%s, this.xmlSerializer.supportsFormat(%s) ? this.xmlSerializer : this.jsonSerializer));",
-                request, value, format);
+            boolean xml = requestUsesXml(method, parameter);
+            boolean jsonFormat = requestUsesJson(method, parameter);
+            String serializer = xml ? "this.xmlSerializer" : "this.jsonSerializer";
+            if (xml && jsonFormat) {
+                String format = localName(names, "requestSerializationFormat");
+                block.line(CORE + "serialization.SerializationFormat %s = " + UTILS
+                    + "CoreUtils.serializationFormatFromContentType(%s.getHeaders());", format, request);
+                serializer
+                    = "this.xmlSerializer.supportsFormat(" + format + ") ? this.xmlSerializer : this.jsonSerializer";
+            }
+            block.line("%s.setBody(" + BINARY_DATA + ".fromObject(%s, %s));", request, value, serializer);
         }
     }
 
     private static void writeError(Proxy proxy, ProxyMethod method, JavaBlock block, String response, String status,
-        Set<String> names) {
+        Set<String> names, boolean usesJson, boolean usesXml) {
+        boolean xmlErrors = supportsXmlErrors(method);
+        if (!xmlErrors) {
+            block
+                .ifBlock(
+                    UTILS + "CoreUtils.serializationFormatFromContentType(" + response + ".getHeaders()) == " + CORE
+                        + "serialization.SerializationFormat.XML",
+                    unsupported -> unsupported
+                        .tryBlock(
+                            error -> error.line(
+                                "throw new " + HTTP
+                                    + "HttpResponseException(\"Unexpected XML response.\", %s, (Object) null);",
+                                response))
+                        .finallyBlock(cleanup -> cleanup.line("%s.close();", response)));
+        }
         String errorTypes = "null";
         if (method.getUnexpectedResponseExceptionTypes() != null
             && !method.getUnexpectedResponseExceptionTypes().isEmpty()) {
@@ -209,9 +256,14 @@ final class ClientCoreProtocolImplementationTemplate {
                 }
             }
         }
-        block.line(UTILS
-            + "GeneratedCodeUtils.handleUnexpectedResponse(%s, %s, this.jsonSerializer, this.xmlSerializer, %s, %s, %sImpl.LOGGER);",
-            status, response, errorBodyType(method.getUnexpectedResponseExceptionType()), errorTypes, proxy.getName());
+        String jsonSerializer
+            = usesJson ? "this.jsonSerializer" : CORE + "serialization.json.JsonSerializer.getInstance()";
+        String xmlSerializer = xmlErrors
+            ? (usesXml ? "this.xmlSerializer" : CORE + "serialization.xml.XmlSerializer.getInstance()")
+            : "null";
+        block.line(UTILS + "GeneratedCodeUtils.handleUnexpectedResponse(%s, %s, %s, %s, %s, %s, %sImpl.LOGGER);",
+            status, response, jsonSerializer, xmlSerializer, errorBodyType(method.getUnexpectedResponseExceptionType()),
+            errorTypes, proxy.getName());
     }
 
     private static String errorBodyType(ClassType exception) {
@@ -252,24 +304,32 @@ final class ClientCoreProtocolImplementationTemplate {
                 wireType = returnsResponse ? ((GenericType) wireReturn).getTypeArguments()[0] : wireReturn;
             }
             String decoded = localName(names, "deserializedResult");
-            String format = localName(names, "responseSerializationFormat");
             String responseType
                 = UTILS + "CoreUtils.createParameterizedType(" + HTTP + "Response.class, " + typeToken(wireType) + ")";
             block.line("%s %s;", wireType.asNullable(), decoded);
-            block.line(CORE + "serialization.SerializationFormat %s = " + UTILS
-                + "CoreUtils.serializationFormatFromContentType(%s.getHeaders());", format, response);
-            block
-                .ifBlock("this.jsonSerializer.supportsFormat(" + format + ")",
-                    json -> json.line(
-                        "%s = " + UTILS + "CoreUtils.decodeNetworkResponse(%s.getValue(), this.jsonSerializer, %s);",
-                        decoded, response, responseType))
-                .elseIfBlock("this.xmlSerializer.supportsFormat(" + format + ")",
-                    xml -> xml.line(
-                        "%s = " + UTILS + "CoreUtils.decodeNetworkResponse(%s.getValue(), this.xmlSerializer, %s);",
-                        decoded, response, responseType))
-                .elseBlock(unsupported -> unsupported.line(
-                    "throw new UnsupportedOperationException(\"Unsupported response serialization format: \" + %s);",
-                    format));
+            boolean xml = responseUsesXml(method);
+            boolean json = responseUsesJson(method);
+            if (xml && json) {
+                String format = localName(names, "responseSerializationFormat");
+                block.line(CORE + "serialization.SerializationFormat %s = " + UTILS
+                    + "CoreUtils.serializationFormatFromContentType(%s.getHeaders());", format, response);
+                block
+                    .ifBlock("this.jsonSerializer.supportsFormat(" + format + ")",
+                        jsonBlock -> jsonBlock.line(
+                            "%s = " + UTILS
+                                + "CoreUtils.decodeNetworkResponse(%s.getValue(), this.jsonSerializer, %s);",
+                            decoded, response, responseType))
+                    .elseIfBlock("this.xmlSerializer.supportsFormat(" + format + ")",
+                        xmlBlock -> xmlBlock.line(
+                            "%s = " + UTILS + "CoreUtils.decodeNetworkResponse(%s.getValue(), this.xmlSerializer, %s);",
+                            decoded, response, responseType))
+                    .elseBlock(unsupported -> unsupported.line(
+                        "throw new UnsupportedOperationException(\"Unsupported response serialization format: \" + %s);",
+                        format));
+            } else {
+                block.line("%s = " + UTILS + "CoreUtils.decodeNetworkResponse(%s.getValue(), %s, %s);", decoded,
+                    response, xml ? "this.xmlSerializer" : "this.jsonSerializer", responseType);
+            }
             value = wireType.convertToClientType(decoded);
             if (!wireType.equals(wireType.getClientType()) && !(bodyType instanceof PrimitiveType)) {
                 value = decoded + " == null ? null : " + value;
@@ -281,6 +341,100 @@ final class ClientCoreProtocolImplementationTemplate {
         } else {
             block.line("return %s;", value);
         }
+    }
+
+    private static boolean usesJsonSerializer(ProxyMethod method) {
+        return method.getParameters().stream().anyMatch(parameter -> requestUsesJson(method, parameter))
+            || (deserializesResponse(method) && responseUsesJson(method));
+    }
+
+    private static boolean usesXmlSerializer(ProxyMethod method) {
+        return method.getParameters().stream().anyMatch(parameter -> requestUsesXml(method, parameter))
+            || (deserializesResponse(method) && responseUsesXml(method));
+    }
+
+    private static boolean serializesRequest(ProxyMethod method, ProxyMethodParameter parameter) {
+        IType type = parameter.getWireType();
+        return parameter.getRequestParameterLocation() == RequestParameterLocation.BODY
+            && !ClassType.BINARY_DATA.equals(type)
+            && !ClassType.INPUT_STREAM.equals(type)
+            && (!(ClassType.STRING.equals(type) || ArrayType.BYTE_ARRAY.equals(type))
+                || isMediaType(method.getRequestContentType(), "json"));
+    }
+
+    private static boolean requestUsesJson(ProxyMethod method, ProxyMethodParameter parameter) {
+        return serializesRequest(method, parameter)
+            && (!isMediaType(method.getRequestContentType(), "xml")
+                || typeSupportsFormat(parameter.getWireType(), "json"));
+    }
+
+    private static boolean requestUsesXml(ProxyMethod method, ProxyMethodParameter parameter) {
+        return serializesRequest(method, parameter)
+            && (isMediaType(method.getRequestContentType(), "xml")
+                || typeSupportsFormat(parameter.getWireType(), "xml"));
+    }
+
+    private static boolean responseUsesJson(ProxyMethod method) {
+        return method.getResponseContentTypes() == null
+            || method.getResponseContentTypes().isEmpty()
+            || method.getResponseContentTypes().stream().anyMatch(mediaType -> !isMediaType(mediaType, "xml"));
+    }
+
+    private static boolean responseUsesXml(ProxyMethod method) {
+        return method.getResponseContentTypes() != null
+            && method.getResponseContentTypes().stream().anyMatch(mediaType -> isMediaType(mediaType, "xml"));
+    }
+
+    private static boolean deserializesResponse(ProxyMethod method) {
+        IType type = method.getReturnType().getClientType();
+        if (type instanceof GenericType && ((GenericType) type).getName().equals(ClassType.RESPONSE.getName())) {
+            type = ((GenericType) type).getTypeArguments()[0];
+        }
+        return !PrimitiveType.VOID.equals(type)
+            && !ClassType.VOID.equals(type)
+            && !ClassType.BINARY_DATA.equals(type)
+            && !ClassType.INPUT_STREAM.equals(type)
+            && !ArrayType.BYTE_ARRAY.equals(type)
+            && !(method.getHttpMethod() == HttpMethod.HEAD
+                && (PrimitiveType.BOOLEAN.equals(type) || ClassType.BOOLEAN.equals(type)));
+    }
+
+    private static boolean supportsXmlErrors(ProxyMethod method) {
+        if (responseUsesXml(method)
+            || isMediaType(method.getRequestContentType(), "xml")
+            || errorSupportsXml(method.getUnexpectedResponseExceptionType())) {
+            return true;
+        }
+        return method.getUnexpectedResponseExceptionTypes() != null
+            && method.getUnexpectedResponseExceptionTypes()
+                .keySet()
+                .stream()
+                .anyMatch(ClientCoreProtocolImplementationTemplate::errorSupportsXml);
+    }
+
+    private static boolean errorSupportsXml(ClassType exceptionType) {
+        ClientModel model = exceptionType == null ? null : ClientModelUtil.getErrorModelFromException(exceptionType);
+        return model != null && model.getSerializationFormats().stream().anyMatch(format -> isMediaType(format, "xml"));
+    }
+
+    private static boolean typeSupportsFormat(IType type, String format) {
+        if (type instanceof GenericType) {
+            return java.util.Arrays.stream(((GenericType) type).getTypeArguments())
+                .anyMatch(argument -> typeSupportsFormat(argument, format));
+        }
+        ClientModel model
+            = type instanceof ClassType ? ClientModels.getInstance().getModel(((ClassType) type).getName()) : null;
+        return model != null
+            && model.getSerializationFormats().stream().anyMatch(mediaType -> isMediaType(mediaType, format));
+    }
+
+    private static boolean isMediaType(String mediaType, String format) {
+        if (mediaType == null) {
+            return false;
+        }
+        int separator = mediaType.indexOf(';');
+        String type = (separator < 0 ? mediaType : mediaType.substring(0, separator)).trim().toLowerCase(Locale.ROOT);
+        return type.equals(format) || type.endsWith("/" + format) || type.endsWith("+" + format);
     }
 
     private static String typeToken(IType type) {

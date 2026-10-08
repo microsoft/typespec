@@ -33,6 +33,10 @@ import io.clientcore.core.models.binarydata.BinaryData;
 import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.serialization.json.models.JsonArray;
 import io.clientcore.core.serialization.json.models.JsonObject;
+import io.clientcore.core.serialization.xml.XmlReader;
+import io.clientcore.core.serialization.xml.XmlSerializable;
+import io.clientcore.core.serialization.xml.XmlToken;
+import io.clientcore.core.serialization.xml.XmlWriter;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.StringReader;
@@ -55,6 +59,7 @@ import javax.tools.JavaFileObject;
 import javax.tools.SimpleJavaFileObject;
 import javax.tools.ToolProvider;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.stream.XMLStreamException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -108,6 +113,9 @@ public class ProtocolImplementationTests {
         Assertions.assertFalse(output.contains("@ServiceInterface"), output);
         Assertions.assertFalse(output.contains("@HttpRequestInformation"), output);
         Assertions.assertFalse(output.contains("@BodyParam"), output);
+        Assertions.assertFalse(output.contains("XmlSerializer"), output);
+        Assertions.assertFalse(output.contains("requestSerializationFormat"), output);
+        Assertions.assertFalse(output.contains("responseSerializationFormat"), output);
         Assertions.assertTrue(output.contains("return new ExampleServiceImpl(pipeline);"), output);
         Set<String> imports = new HashSet<>();
         proxy(List.of(method("send", ClassType.STRING, HttpMethod.POST, requestParameters()))).addImportsTo(imports,
@@ -275,6 +283,13 @@ public class ProtocolImplementationTests {
             JsonArray defaultError = Assertions.assertInstanceOf(JsonArray.class, exception.getValue());
             Assertions.assertEquals("[\"failure\"]", defaultError.toJsonString());
             Assertions.assertEquals(1, closes.getAndSet(0));
+            contentType.set("application/xml");
+            responseBody.set(BinaryData.fromString("<error>undeclared</error>"));
+            exception = Assertions.assertThrows(HttpResponseException.class,
+                () -> invoke(serviceType, service, "send", "https://example.test", "item", null, null, null, null));
+            Assertions.assertEquals(500, exception.getResponse().getStatusCode());
+            Assertions.assertNull(exception.getCause());
+            Assertions.assertEquals(1, closes.getAndSet(0));
 
             statusCode.set(200);
             responseBody.set(BinaryData.fromString("\"fallback\""));
@@ -323,6 +338,140 @@ public class ProtocolImplementationTests {
         Assertions.assertTrue(output.contains("@ServiceInterface"), output);
         Assertions.assertTrue(output.contains("@Get"), output);
         Assertions.assertFalse(output.contains("ExampleServiceImpl"), output);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = { "generic", "azurev2" })
+    public void noBodyOrQueryOmitsSerializerFieldsAndUriBuilder(String flavor) throws Exception {
+        initialize(flavor);
+        List<ProxyMethodParameter> parameters
+            = List.of(parameter("endpoint", "endpoint", RequestParameterLocation.URI, true),
+                parameter("id", "id", RequestParameterLocation.PATH, false),
+                ProxyMethodParameter.REQUEST_CONTEXT_PARAMETER);
+        String output = render(List.of(method("send", ClassType.VOID, HttpMethod.GET, parameters)));
+        Assertions.assertFalse(output.contains("XmlSerializer"), output);
+        Assertions.assertFalse(output.contains("jsonSerializer ="), output);
+        Assertions.assertFalse(output.contains("UriBuilder"), output);
+        Assertions.assertTrue(output.contains("JsonSerializer.getInstance()"), output);
+        compile(output);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = { "generic", "azurev2" })
+    public void xmlAndMixedResponsesKeepOnlyRequiredBranches(String flavor) throws Exception {
+        initialize(flavor);
+        List<ProxyMethodParameter> parameters
+            = List.of(parameter("endpoint", "endpoint", RequestParameterLocation.URI, true),
+                parameter("id", "id", RequestParameterLocation.PATH, false));
+        ProxyMethod xml = method("xml", ClassType.STRING, HttpMethod.GET, parameters).newBuilder()
+            .responseContentTypes(Set.of("application/xml"))
+            .build();
+        String xmlOutput = render(List.of(xml));
+        Assertions.assertTrue(xmlOutput.contains("XmlSerializer xmlSerializer"), xmlOutput);
+        Assertions.assertFalse(xmlOutput.contains("JsonSerializer jsonSerializer"), xmlOutput);
+        Assertions.assertFalse(xmlOutput.contains("responseSerializationFormat"), xmlOutput);
+        compile(xmlOutput);
+        ProxyMethod mixed = xml.newBuilder()
+            .name("mixed")
+            .responseContentTypes(Set.of("application/json", "application/xml"))
+            .build();
+        String mixedOutput = render(List.of(mixed));
+        Assertions.assertTrue(mixedOutput.contains("JsonSerializer jsonSerializer"), mixedOutput);
+        Assertions.assertTrue(mixedOutput.contains("XmlSerializer xmlSerializer"), mixedOutput);
+        Assertions.assertTrue(mixedOutput.contains("responseSerializationFormat"), mixedOutput);
+        compile(mixedOutput);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = { "generic", "azurev2" })
+    public void defaultOnlyServiceOmitsUnusedFields(String flavor) throws Exception {
+        initialize(flavor);
+        ProxyMethod method = method("send", ClassType.VOID, HttpMethod.GET, List.of()).newBuilder()
+            .implementation("return null;")
+            .build();
+        String output = render(List.of(method));
+        Assertions.assertFalse(output.contains("Serializer"), output);
+        Assertions.assertFalse(output.contains("ClientLogger"), output);
+        Assertions.assertFalse(output.contains("HttpPipeline httpPipeline"), output);
+        compile(output);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = { "generic", "azurev2" })
+    public void xmlErrorOnlySerializerIsLazyAndStillDecodes(String flavor) throws Exception {
+        initialize(flavor);
+        ClientModels.getInstance()
+            .addModel(new ClientModel.Builder().name("XmlError")
+                .packageName(ProtocolImplementationTests.class.getName())
+                .serializationFormats(Set.of("xml"))
+                .properties(List.of())
+                .build());
+        List<ProxyMethodParameter> parameters
+            = List.of(parameter("endpoint", "endpoint", RequestParameterLocation.URI, true),
+                parameter("id", "id", RequestParameterLocation.PATH, false));
+        ProxyMethod method = method("send", ClassType.VOID, HttpMethod.GET, parameters).newBuilder()
+            .responseContentTypes(Set.of("application/json"))
+            .unexpectedResponseExceptionType(
+                new ClassType.Builder().name("XmlErrorException").packageName("com.example").build())
+            .build();
+        String output = render(List.of(method));
+        Assertions.assertFalse(output.contains("XmlSerializer xmlSerializer"), output);
+        Assertions.assertFalse(output.contains("JsonSerializer jsonSerializer"), output);
+        Assertions.assertTrue(output.contains("XmlSerializer.getInstance()"), output);
+        compile(output);
+        AtomicInteger closes = new AtomicInteger();
+        HttpPipeline pipeline = new HttpPipelineBuilder().httpClient(request -> new Response<>(request, 400,
+            new HttpHeaders().set(HttpHeaderName.CONTENT_TYPE, "application/xml"),
+            BinaryData.fromString("<XmlError><message>denied</message></XmlError>")) {
+            @Override
+            public void close() {
+                closes.incrementAndGet();
+                super.close();
+            }
+        }).build();
+        try (URLClassLoader loader
+            = new URLClassLoader(new URL[] { classes.toUri().toURL() }, getClass().getClassLoader())) {
+            Class<?> serviceType = loader.loadClass("com.example.GeneratedClient$ExampleService");
+            Object service = serviceType.getMethod("getNewInstance", HttpPipeline.class).invoke(null, pipeline);
+            HttpResponseException exception = Assertions.assertThrows(HttpResponseException.class,
+                () -> invoke(serviceType, service, "send", "https://example.test", "item"));
+            Assertions.assertEquals("denied",
+                Assertions.assertInstanceOf(XmlError.class, exception.getValue()).message);
+            Assertions.assertEquals(1, closes.get());
+        }
+    }
+
+    public static final class XmlError implements XmlSerializable<XmlError> {
+        private final String message;
+
+        private XmlError(String message) {
+            this.message = message;
+        }
+
+        @Override
+        public XmlWriter toXml(XmlWriter writer, String rootElementName) throws XMLStreamException {
+            return writer.writeStartElement(rootElementName == null ? "XmlError" : rootElementName)
+                .writeStringElement("message", message)
+                .writeEndElement();
+        }
+
+        public static XmlError fromXml(XmlReader reader) throws XMLStreamException {
+            return fromXml(reader, null);
+        }
+
+        public static XmlError fromXml(XmlReader reader, String rootElementName) throws XMLStreamException {
+            return reader.readObject(rootElementName == null ? "XmlError" : rootElementName, nested -> {
+                String message = null;
+                while (nested.nextElement() != XmlToken.END_ELEMENT) {
+                    if ("message".equals(nested.getElementName().getLocalPart())) {
+                        message = nested.getStringElement();
+                    } else {
+                        nested.skipElement();
+                    }
+                }
+                return new XmlError(message);
+            });
+        }
     }
 
     private static void initialize(String flavor) throws Exception {
