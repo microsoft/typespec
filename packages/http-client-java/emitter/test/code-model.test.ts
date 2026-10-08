@@ -245,7 +245,9 @@ describe("code model characterization", () => {
         NodeHost,
         fileURLToPath(
           new URL(
-            `../../generator/http-client-generator-test/tsp/${scenario}.tsp`,
+            scenario === "xml-bytes-verify"
+              ? "./fixtures/xml-bytes.tsp"
+              : `../../generator/http-client-generator-test/tsp/${scenario}.tsp`,
             import.meta.url,
           ),
         ),

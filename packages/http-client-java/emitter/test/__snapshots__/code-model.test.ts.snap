@@ -4125,17 +4125,17 @@ clients:
               language:
                 default:
                   description: ""
-                  name: getWmtsCapabilities
+                  name: getXmlBytes
               protocol: {}
             extensions: {}
             generateProtocolApi: true
             internalApi: false
             language:
               default:
-                crossLanguageDefinitionId: TspTest.XmlBytesVerify.getWmtsCapabilities
+                crossLanguageDefinitionId: TspTest.XmlBytesVerify.getXmlBytes
                 description: ""
-                name: getWmtsCapabilities
-            operationId: getWmtsCapabilities
+                name: getXmlBytes
+            operationId: getXmlBytes
             parameters:
               - *a1
               - implementation: Method
@@ -4153,7 +4153,7 @@ clients:
                   language:
                     default:
                       description: ""
-                      name: GetWmtsCapabilitiesResponseContentType
+                      name: GetXmlBytesResponseContentType
                   protocol: {}
                   type: constant
                   usage:
@@ -4183,7 +4183,7 @@ clients:
               - language:
                   default:
                     description: The request has succeeded.
-                    name: getWmtsCapabilitiesResponse
+                    name: getXmlBytesResponse
                 protocol:
                   http:
                     headers: []
@@ -4196,7 +4196,7 @@ clients:
                   language:
                     default:
                       description: Represent a byte array
-                      name: getWmtsCapabilitiesResponse
+                      name: getXmlBytesResponse
                   protocol: {}
                   type: byte-array
             signatureParameters: []
@@ -4208,7 +4208,7 @@ clients:
       schemes: []
     subClients: []
 crossLanguagePackageId: TspTest.XmlBytesVerify
-crossLanguageVersion: 4b7802441e11
+crossLanguageVersion: 5af178621229
 globalParameters:
   - *a1
 info:
@@ -4231,7 +4231,7 @@ schemas:
     - language:
         default:
           description: ""
-          name: GetWmtsCapabilitiesResponseContentType1
+          name: GetXmlBytesResponseContentType1
       protocol: {}
       type: constant
       value:
