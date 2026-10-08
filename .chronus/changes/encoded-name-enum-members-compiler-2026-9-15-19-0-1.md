@@ -1,5 +1,5 @@
 ---
-changeKind: breaking
+changeKind: fix
 packages:
   - "@typespec/compiler"
 ---

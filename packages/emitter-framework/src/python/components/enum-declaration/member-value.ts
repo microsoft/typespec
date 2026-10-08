@@ -20,10 +20,17 @@ export function getEnumMemberValue(
     : member.value;
 }
 
+const encodedEnums = new WeakMap<Enum, boolean>();
+
 function hasEncodedMember(program: Program, type: Enum): boolean {
-  return [...type.members.values()].some(
-    (member) =>
-      resolveEncodedEnumMemberValue(program, member, "application/json") !==
-      (member.value ?? member.name),
-  );
+  let encoded = encodedEnums.get(type);
+  if (encoded === undefined) {
+    encoded = [...type.members.values()].some(
+      (member) =>
+        resolveEncodedEnumMemberValue(program, member, "application/json") !==
+        (member.value ?? member.name),
+    );
+    encodedEnums.set(type, encoded);
+  }
+  return encoded;
 }
