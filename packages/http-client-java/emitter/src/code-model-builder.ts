@@ -1,47 +1,3 @@
-import type { Schema, SecurityScheme } from "@autorest/codemodel";
-import {
-  AnySchema,
-  ApiVersion,
-  ArraySchema,
-  BinaryResponse,
-  BinarySchema,
-  BooleanSchema,
-  ByteArraySchema,
-  ChoiceValue,
-  DateSchema,
-  DateTimeSchema,
-  DictionarySchema,
-  Discriminator,
-  GroupProperty,
-  GroupSchema,
-  HttpHeader,
-  HttpParameter,
-  ImplementationLocation,
-  KeySecurityScheme,
-  Language,
-  License,
-  Metadata,
-  NumberSchema,
-  OAuth2SecurityScheme,
-  ObjectSchema,
-  OperationGroup,
-  Parameter,
-  ParameterLocation,
-  Property,
-  Relations,
-  Response,
-  SchemaResponse,
-  SchemaType,
-  Security,
-  SerializationStyle,
-  StringSchema,
-  TimeSchema,
-  UnixTimeSchema,
-  UriSchema,
-  UuidSchema,
-  VirtualParameter,
-} from "@autorest/codemodel";
-import { KnownMediaType } from "@azure-tools/codegen";
 import type {
   CreateSdkContextOptions,
   DecoratedType,
@@ -111,6 +67,50 @@ import { fail } from "assert";
 import type { EncodedProperty, EncodedSchema, Serializable } from "./common/client.js";
 import { Client as CodeModelClient, PageableContinuationToken } from "./common/client.js";
 import { CodeModel } from "./common/code-model.js";
+import { KnownMediaType } from "./common/codemodel-helpers.js";
+import type { Schema, SecurityScheme } from "./common/codemodel.js";
+import {
+  AnySchema,
+  ApiVersion,
+  ArraySchema,
+  BinaryResponse,
+  BinarySchema,
+  BooleanSchema,
+  ByteArraySchema,
+  ChoiceValue,
+  DateSchema,
+  DateTimeSchema,
+  DictionarySchema,
+  Discriminator,
+  GroupProperty,
+  GroupSchema,
+  HttpHeader,
+  HttpParameter,
+  ImplementationLocation,
+  KeySecurityScheme,
+  Language,
+  License,
+  Metadata,
+  NumberSchema,
+  OAuth2SecurityScheme,
+  ObjectSchema,
+  OperationGroup,
+  Parameter,
+  ParameterLocation,
+  Property,
+  Relations,
+  Response,
+  SchemaResponse,
+  SchemaType,
+  Security,
+  SerializationStyle,
+  StringSchema,
+  TimeSchema,
+  UnixTimeSchema,
+  UriSchema,
+  UuidSchema,
+  VirtualParameter,
+} from "./common/codemodel.js";
 import { LongRunningMetadata } from "./common/long-running-metadata.js";
 import { Operation as CodeModelOperation, ConvenienceApi, Request } from "./common/operation.js";
 import { ChoiceSchema, SealedChoiceSchema } from "./common/schemas/choice.js";
@@ -288,7 +288,7 @@ export class CodeModelBuilder {
     const title = this.options["service-name"] ?? this.serviceNamespace.name;
 
     const description = this.getDoc(this.serviceNamespace);
-    this.codeModel = new CodeModel(title, false, {
+    this.codeModel = new CodeModel(title, {
       info: {
         description: description,
       },

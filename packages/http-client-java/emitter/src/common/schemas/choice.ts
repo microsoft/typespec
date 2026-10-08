@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-declaration-merging */
-import type { ChoiceValue, PrimitiveSchema, StringSchema, ValueSchema } from "@autorest/codemodel";
-import { Schema, SchemaType } from "@autorest/codemodel";
-import type { DeepPartial } from "@azure-tools/codegen";
+import type { DeepPartial } from "../codemodel-helpers.js";
+import type { ChoiceValue, PrimitiveSchema, StringSchema, ValueSchema } from "../codemodel.js";
+import { Schema, SchemaType } from "../codemodel.js";
 import type { SchemaUsage } from "./usage.js";
 
 /** a schema that represents a choice of several values (ie, an 'enum') */

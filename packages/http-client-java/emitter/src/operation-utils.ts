@@ -1,5 +1,3 @@
-import type { Property } from "@autorest/codemodel";
-import { ObjectSchema, Parameter, SchemaResponse } from "@autorest/codemodel";
 import type {
   SdkCookieParameter,
   SdkHeaderParameter,
@@ -15,6 +13,8 @@ import type { HttpOperation } from "@typespec/http";
 import type { Client as CodeModelClient } from "./common/client.js";
 import { ServiceVersion } from "./common/client.js";
 import type { CodeModel } from "./common/code-model.js";
+import type { Property } from "./common/codemodel.js";
+import { ObjectSchema, Parameter, SchemaResponse } from "./common/codemodel.js";
 import type { Operation as CodeModelOperation } from "./common/operation.js";
 import { getPropertySerializedName, modelIs, unionReferredByType } from "./type-utils.js";
 import { getNamespace, pascalCase } from "./utils.js";

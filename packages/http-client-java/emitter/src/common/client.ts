@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-declaration-merging */
-import type { HttpHeader, OperationGroup, Parameter, Property } from "@autorest/codemodel";
-import { Aspect, Metadata, Security } from "@autorest/codemodel";
-import type { DeepPartial } from "@azure-tools/codegen";
 import type { ArrayKnownEncoding } from "@azure-tools/typespec-client-generator-core";
+import type { DeepPartial } from "./codemodel-helpers.js";
+import type { HttpHeader, OperationGroup, Parameter, Property } from "./codemodel.js";
+import { Aspect, Metadata, Security } from "./codemodel.js";
 import type { XmlSerializationFormat } from "./formats/xml.js";
 
 export interface Client extends Aspect {

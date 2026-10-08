@@ -1,4 +1,4 @@
-import type { Metadata, Schema } from "@autorest/codemodel";
+import type { Metadata, Schema } from "./codemodel.js";
 
 export class LongRunningMetadata {
   longRunning: boolean = false;

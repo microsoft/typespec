@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-declaration-merging */
-import type { ApiVersion, Parameter, Response } from "@autorest/codemodel";
-import { Aspect, ImplementationLocation, Metadata, SchemaType } from "@autorest/codemodel";
-import type { DeepPartial } from "@azure-tools/codegen";
+import type { DeepPartial } from "./codemodel-helpers.js";
+import type { ApiVersion, Parameter, Response } from "./codemodel.js";
+import { Aspect, ImplementationLocation, Metadata, SchemaType } from "./codemodel.js";
 import type { LongRunningMetadata } from "./long-running-metadata.js";
 
 /** represents a single callable endpoint with a discrete set of inputs, and any number of output possibilities (responses or exceptions)  */

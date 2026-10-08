@@ -1,9 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-declaration-merging */
-import type { Parameter } from "@autorest/codemodel";
-import { Info, Metadata, OperationGroup, Schemas, Security } from "@autorest/codemodel";
-import type { DeepPartial } from "@azure-tools/codegen";
-import { enableSourceTracking } from "@azure-tools/codegen";
 import type { Client } from "./client.js";
+import type { DeepPartial } from "./codemodel-helpers.js";
+import type { Parameter } from "./codemodel.js";
+import { Info, Metadata, OperationGroup, Schemas, Security } from "./codemodel.js";
 
 /** the model that contains all the information required to generate a service api */
 export interface CodeModel extends Metadata {
@@ -33,18 +32,16 @@ export interface CodeModel extends Metadata {
 }
 
 export class CodeModel extends Metadata implements CodeModel {
-  constructor(title: string, sourceTracking = false, objectInitializer?: DeepPartial<CodeModel>) {
+  constructor(title: string, objectInitializer?: DeepPartial<CodeModel>) {
     super();
-    // if we are enabling source tracking, then we have to use a proxied version of this
-    const $this = sourceTracking ? enableSourceTracking(this) : this;
 
-    $this.info = new Info(title);
-    $this.schemas = new Schemas();
-    $this.operationGroups = [];
-    $this.security = new Security(false);
-    $this.clients = [];
+    this.info = new Info(title);
+    this.schemas = new Schemas();
+    this.operationGroups = [];
+    this.security = new Security(false);
+    this.clients = [];
 
-    this.applyTo($this, objectInitializer);
+    this.apply(objectInitializer);
   }
 
   private get globals(): Array<Parameter> {
