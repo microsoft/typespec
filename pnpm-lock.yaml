@@ -313,8 +313,8 @@ catalogs:
       specifier: ^0.56.0
       version: 0.56.0
     morgan:
-      specifier: ^1.12.0
-      version: 1.12.0
+      specifier: ^1.12.1
+      version: 1.12.1
     multer:
       specifier: ^2.3.0
       version: 2.3.0
@@ -1436,7 +1436,7 @@ importers:
         version: 5.2.1
       morgan:
         specifier: 'catalog:'
-        version: 1.12.0
+        version: 1.12.1
       ora:
         specifier: 'catalog:'
         version: 9.4.1
@@ -2477,7 +2477,7 @@ importers:
         version: 4.0.8
       morgan:
         specifier: 'catalog:'
-        version: 1.12.0
+        version: 1.12.1
       multer:
         specifier: 'catalog:'
         version: 2.3.0
@@ -9272,6 +9272,10 @@ packages:
 
   morgan@1.12.0:
     resolution: {integrity: sha512-OHpTRQwn2ezasILW8iKe+Yww1XsfWsZIpUOLF7RDb2g5GwO3trPaRwi7+8BDiJ7HFx2Kg2mfUdCBcVhwYlOz2g==}
+    engines: {node: '>= 0.8.0'}
+
+  morgan@1.12.1:
+    resolution: {integrity: sha512-tljKC0ex20AjO58Ob/eZ53JloycbVswbVNCHx6V6VLGzqt/w8dIynVGL0G8qVjNKwiA7sYSogCrN6QtJ82IV+g==}
     engines: {node: '>= 0.8.0'}
 
   mrmime@2.0.1:
@@ -18961,6 +18965,16 @@ snapshots:
       marked: 14.0.0
 
   morgan@1.12.0:
+    dependencies:
+      basic-auth: 2.0.1
+      debug: 2.6.9
+      depd: 2.0.0
+      on-finished: 2.4.1
+      on-headers: 1.1.0
+    transitivePeerDependencies:
+      - supports-color
+
+  morgan@1.12.1:
     dependencies:
       basic-auth: 2.0.1
       debug: 2.6.9
