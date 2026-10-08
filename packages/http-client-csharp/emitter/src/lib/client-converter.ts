@@ -19,6 +19,7 @@ import type {
   InputParameter,
   InputType,
 } from "../type/input-type.js";
+import { getExperimentalDetails } from "./experimental.js";
 import { createDiagnostic } from "./lib.js";
 import {
   fromMethodParameter,
@@ -101,6 +102,7 @@ function fromSdkClient(
     parent: undefined,
     children: undefined,
     isMultiServiceClient: isMultiService,
+    experimental: diagnostics.pipe(getExperimentalDetails(sdkContext, client.__raw.type)),
   };
 
   sdkContext.__typeCache.updateSdkClientReferences(client, inputClient);

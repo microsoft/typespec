@@ -411,6 +411,7 @@ namespace SampleTypeSpec
             return message;
         }
 
+#pragma warning disable SCME0001 // This generated code depends on experimental functionality.
         internal PipelineMessage CreateDynamicModelOperationRequest(BinaryContent content, RequestOptions options)
         {
             ClientUriBuilder uri = new ClientUriBuilder();
@@ -423,6 +424,7 @@ namespace SampleTypeSpec
             message.Apply(options);
             return message;
         }
+#pragma warning restore SCME0001 // This generated code depends on experimental functionality.
 
         internal PipelineMessage CreateGetXmlAdvancedModelRequest(RequestOptions options)
         {
@@ -499,5 +501,19 @@ namespace SampleTypeSpec
             message.Apply(options);
             return message;
         }
+
+#pragma warning disable SAMPLE0003 // This generated code depends on experimental functionality.
+        internal PipelineMessage CreateReceiveExperimentalJsonLinesRequest(RequestOptions options)
+        {
+            ClientUriBuilder uri = new ClientUriBuilder();
+            uri.Reset(_endpoint);
+            uri.AppendPath("/experimental/jsonl", false);
+            PipelineMessage message = Pipeline.CreateMessage(uri.ToUri(), "GET", PipelineMessageClassifier200);
+            PipelineRequest request = message.Request;
+            request.Headers.Set("Accept", "application/jsonl");
+            message.Apply(options);
+            return message;
+        }
+#pragma warning restore SAMPLE0003 // This generated code depends on experimental functionality.
     }
 }

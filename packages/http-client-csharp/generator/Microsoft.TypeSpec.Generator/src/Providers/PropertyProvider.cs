@@ -53,6 +53,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public TypeProvider EnclosingType { get; private set; }
 
         public IReadOnlyList<AttributeStatement> Attributes { get; private set; }
+        public IReadOnlyList<SuppressionStatement> Suppressions { get; private set; } = [];
 
         public string? OriginalName { get; internal init; }
 
@@ -146,7 +147,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
             Body = new AutoPropertyBody(propHasSetter, setterModifier, GetPropertyInitializationValue(propertyType, inputProperty));
 
             WireInfo = new PropertyWireInformation(inputProperty);
-            Attributes = [];
+            Attributes = ExperimentalApiHelpers.BuildAttributes(inputProperty.Experimental);
+            Suppressions = ExperimentalApiHelpers.MergeSuppressions(
+                ExperimentalApiHelpers.GetDependencySuppressions(inputProperty.Experimental),
+                ExperimentalApiHelpers.GetReferenceSuppressions(inputProperty.Type),
+                ExperimentalApiHelpers.GetReferenceSuppressions(inputProperty.DefaultValue?.Type));
 
             InitializeParameter(DocHelpers.GetFormattableDescription(inputProperty.Summary, inputProperty.Doc) ?? FormattableStringHelpers.Empty);
             BuildDocs();
@@ -162,7 +167,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             CSharpType? explicitInterface = null,
             PropertyWireInformation? wireInfo = null,
             bool isRef = false,
-            IEnumerable<AttributeStatement>? attributes = null)
+            IEnumerable<AttributeStatement>? attributes = null,
+            IEnumerable<SuppressionStatement>? suppressions = null)
         {
             Modifiers = modifiers;
             Type = type;
@@ -174,6 +180,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             WireInfo = wireInfo;
             EnclosingType = enclosingType;
             Attributes = (attributes as IReadOnlyList<AttributeStatement>) ?? [];
+            Suppressions = suppressions?.ToArray() ?? [];
 
             InitializeParameter(description ?? FormattableStringHelpers.Empty);
             _customDescription = description;

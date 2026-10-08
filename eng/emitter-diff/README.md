@@ -156,16 +156,43 @@ tool. The **baseline** is the base-branch commit the PR is based on (the `git me
 target branch). Because the tool runs the regenerate command as-is, the workflow **prepares both
 trees** (installs deps, builds the emitter, creates any venv) before invoking the tool, then:
 
-- posts a **sticky PR comment** (updated in place on each push) linking the diff artifact, and
+- writes a **job summary** with the rendered diff,
+- relays a **sticky PR comment** for fork and same-repository PRs, and
 - uploads the rendered **HTML report** as an artifact.
 
 **Informational:** the check **always passes unless the tool hits a real tool/build error** — a
 generated-output diff does not fail the PR. CI runs the tool without `--fail-on-diff`, so a diff
 still exits `0`; only a non-zero exit (a build/venv/generate failure) fails the job.
 
-**Fork PRs are not run.** The job checks out and executes the PR's code (builds the emitter, runs
-`regenerate`), so a job-level `if` guard restricts it to same-repo PRs — it skips any PR whose head
-is a fork.
+**Fork PR comments use an artifact relay.** The Python producer stays on `pull_request` with only
+`contents: read` and checkout credentials not persisted. It uploads a small
+**emitter-diff-python-comment** JSON artifact (retained for one day), including a failure message
+if setup or generation fails. Fork runs may require maintainer approval under the repository's
+Actions policy.
+
+`.github/workflows/ci-emitter-diff-python-commenter.yml` listens for completed **python / emitter diff**
+runs using `workflow_run`, with only `actions: read` and `pull-requests: write`. It never checks out,
+builds, or executes PR code or downloaded scripts. The artifact supplies only bounded comment text;
+the listener resolves exactly one open PR using the trusted run's head repository, branch, and SHA.
+It ignores artifact PR numbers and markers, skips stale/closed/ambiguous PRs, and rechecks the current
+head before posting. It paginates comments and updates only its fixed-marker, GitHub Actions bot-owned
+comment. Per-branch serialization and a trusted run stamp prevent an older run overwriting a newer
+comment.
+
+Cancelled or skipped runs do not post comments. A failed run without a comment artifact produces
+an explicit warning; missing artifacts from successful runs, malformed payloads, and API/download
+errors fail the listener rather than silently reporting success.
+
+To review a fork PR's diff, open its **python / emitter diff** check and follow **Details** to the
+workflow run. Read the rendered diff in the job summary or download **emitter-diff-html** from
+the run's **Artifacts** section (retained for seven days). Manual `workflow_dispatch` runs also
+produce reports without posting PR comments.
+
+The listener must land on the repository's **default branch** before GitHub will trigger it.
+An existing PR also needs a new producer run using the updated workflow revision; rerunning an old
+run retains its original revision. After these workflow changes land, updating the PR branch from
+its target branch and pushing starts a new run with the comment artifact. Local listener tests do
+not establish that hosted fork commenting works before that default-branch activation.
 
 ## Adding a new language
 

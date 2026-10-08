@@ -32,6 +32,7 @@
   - [Content-Type Parameter Ordering](#content-type-parameter-ordering)
     - [Content-Type Before Body Preserved from Last Contract](#scenario-content-type-before-body-preserved-from-last-contract)
   - [Client Methods](#client-methods)
+    - [Client Method Parameter Ordering Changed](#scenario-client-method-parameter-ordering-changed)
     - [New Optional Non-Body Parameter Added to a Service Method](#scenario-new-optional-non-body-parameter-added-to-a-service-method)
     - [Value-Type Parameter Nullability Removed](#scenario-value-type-parameter-nullability-removed)
     - [Nullable Optional Parameter Became Required](#scenario-nullable-optional-parameter-became-required)
@@ -1102,6 +1103,43 @@ The current base is retained when broader reconciliation would be required, incl
 Restoration checks the shipped property/accessor and method contracts, including nullable value types, parameter names, ref modifiers, `params`, optional defaults, and interface assignability. The default mapped input/property check requires matching value-type nullability; intentional downstream shape changes remain explicit compatibility-hook overrides. A selected historical constructor must also match its bound properties' value-type nullability. When a current property visitor removes a property, symbol-backed restoration does not reintroduce its historical declaration and the one-to-one checks reject restoration. Both full and initialization constructor calls must be provably callable on the mapped target; ambiguous overloads and changed omitted defaults are rejected. Generated-base constructors must remain property-backed. Historical generic methods, constants, by-ref returns, indexers, required-member properties, and defaults that cannot be represented losslessly are rejected rather than reconciled. Public or protected historical nested type declarations are also rejected for generated-base and symbol-backed mapped-base restoration; nested type emission and CLR nested-type reconciliation are not supported. These checks do not rediscover the complete CLR surface of an ordinary downstream mapping whose input omits members.
 
 ### Client Methods
+
+#### Scenario: Client Method Parameter Ordering Changed
+
+**Description:** When only the parameter ordering changes in a client method, the generator restores the order from `LastContractView` on the current method instead of adding a compatibility overload. This preserves existing positional calls to both protocol and convenience methods, including their synchronous and asynchronous variants. A previous contract must be available; without it, the generator uses the current parameter order.
+
+**Example:**
+
+Previous version of the client:
+
+```csharp
+public virtual ClientResult GetData(BinaryContent content, int count, bool includeDetails, RequestOptions options = null);
+public virtual ClientResult<string> GetData(string data, int count, bool includeDetails, CancellationToken cancellationToken = default);
+```
+
+Current TypeSpec moves `includeDetails` before `count`, which would normally change the order of those parameters in the generated methods:
+
+```typespec
+op getData(@body data: string, @header includeDetails: boolean, @query count: int32): string;
+```
+
+**Generated Compatibility Result:**
+
+The generator keeps the previously published order on both methods:
+
+```csharp
+public virtual ClientResult GetData(BinaryContent content, int count, bool includeDetails, RequestOptions options = null);
+public virtual ClientResult<string> GetData(string data, int count, bool includeDetails, CancellationToken cancellationToken = default);
+```
+
+The corresponding `GetDataAsync` methods likewise preserve their own last-contract parameter order.
+
+**Key Points:**
+
+- The method name and return type must match the previous contract, with the same parameter count and parameters matched by normalized name and type. Adding or removing parameters or changing their types is not part of this scenario.
+- Protocol and convenience methods are matched independently, so their parameter orders can be restored separately or together.
+- When a protocol method is reordered, convenience method calls to it are updated to pass arguments in the restored order.
+- Parameter XML documentation is reordered to match the restored signature.
 
 #### Scenario: New Optional Non-Body Parameter Added to a Service Method
 

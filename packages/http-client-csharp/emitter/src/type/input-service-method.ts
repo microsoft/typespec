@@ -54,6 +54,7 @@ export interface InputPagingServiceMetadata {
 
 export interface InputNextLink {
   operation?: InputServiceMethod;
+  verb?: "GET" | "POST";
   responseSegments: string[];
   responseLocation: ResponseLocation;
   reInjectedParameters?: InputParameter[];

@@ -165,11 +165,11 @@ namespace SampleTypeSpec
             return new RenamedModelCustom(name, additionalBinaryDataProperties: null, otherName);
         }
 
-        /// <summary> The ReturnsAnonymousModelResponse. </summary>
-        /// <returns> A new <see cref="SampleTypeSpec.ReturnsAnonymousModelResponse"/> instance for mocking. </returns>
-        public static ReturnsAnonymousModelResponse ReturnsAnonymousModelResponse()
+        /// <summary> The ReturnsAnonymousModelResult. </summary>
+        /// <returns> A new <see cref="SampleTypeSpec.ReturnsAnonymousModelResult"/> instance for mocking. </returns>
+        public static ReturnsAnonymousModelResult ReturnsAnonymousModelResult()
         {
-            return new ReturnsAnonymousModelResponse(additionalBinaryDataProperties: null);
+            return new ReturnsAnonymousModelResult(additionalBinaryDataProperties: null);
         }
 
         /// <summary> The ModelWithEmbeddedNonBodyParameters. </summary>
@@ -438,6 +438,30 @@ namespace SampleTypeSpec
             return new StreamingItem(message, additionalBinaryDataProperties: null);
         }
 
+        /// <summary> The PreviewDetails. </summary>
+        /// <param name="choice"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.PreviewDetails"/> instance for mocking. </returns>
+#pragma warning disable SAMPLE0004 // This generated code depends on experimental functionality.
+        [Experimental("SAMPLE0003")]
+        public static PreviewDetails PreviewDetails(PreviewChoice choice = default)
+        {
+            return new PreviewDetails(choice, additionalBinaryDataProperties: null);
+        }
+#pragma warning restore SAMPLE0004 // This generated code depends on experimental functionality.
+
+        /// <summary> The LifecycleModel. </summary>
+        /// <param name="preview"></param>
+        /// <param name="choice"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.LifecycleModel"/> instance for mocking. </returns>
+#pragma warning disable SAMPLE0003 // This generated code depends on experimental functionality.
+#pragma warning disable SAMPLE0005 // This generated code depends on experimental functionality.
+        public static LifecycleModel LifecycleModel(PreviewDetails preview = default, PreviewExtensibleChoice choice = default)
+        {
+            return new LifecycleModel(preview, choice, additionalBinaryDataProperties: null);
+        }
+#pragma warning restore SAMPLE0003 // This generated code depends on experimental functionality.
+#pragma warning restore SAMPLE0005 // This generated code depends on experimental functionality.
+
         /// <summary>
         /// Base animal with discriminator
         /// Please note this is the abstract base class. The derived classes available for instantiation are: <see cref="SampleTypeSpec.Dog"/> and <see cref="SampleTypeSpec.Pet"/>.
@@ -473,10 +497,21 @@ namespace SampleTypeSpec
         /// <param name="id"> The unique identifier of the plant. </param>
         /// <param name="height"> The height of the plant in centimeters. </param>
         /// <param name="age"> The age of the tree in years. </param>
+        /// <param name="nullableText"></param>
+        /// <param name="nullableLabels"></param>
         /// <returns> A new <see cref="SampleTypeSpec.Tree"/> instance for mocking. </returns>
-        public static Tree Tree(string id = default, int height = default, int age = default)
+        public static Tree Tree(string id = default, int height = default, int age = default, string nullableText = default, IDictionary<string, string> nullableLabels = default)
         {
-            return new Tree("tree", id, height, additionalBinaryDataProperties: null, age);
+            nullableLabels ??= new ChangeTrackingDictionary<string, string>();
+
+            return new Tree(
+                "tree",
+                id,
+                height,
+                additionalBinaryDataProperties: null,
+                age,
+                nullableText,
+                nullableLabels);
         }
 
         /// <summary>
@@ -492,22 +527,22 @@ namespace SampleTypeSpec
             return new UnknownPlant(species, id, height, additionalBinaryDataProperties: null);
         }
 
-        /// <summary> The GetWidgetMetricsResponse. </summary>
+        /// <summary> The GetWidgetMetricsResult. </summary>
         /// <param name="numSold"></param>
         /// <param name="averagePrice"></param>
-        /// <returns> A new <see cref="SampleTypeSpec.GetWidgetMetricsResponse"/> instance for mocking. </returns>
-        public static GetWidgetMetricsResponse GetWidgetMetricsResponse(int numSold = default, float averagePrice = default)
+        /// <returns> A new <see cref="SampleTypeSpec.GetWidgetMetricsResult"/> instance for mocking. </returns>
+        public static GetWidgetMetricsResult GetWidgetMetricsResult(int numSold = default, float averagePrice = default)
         {
-            return new GetWidgetMetricsResponse(numSold, averagePrice, additionalBinaryDataProperties: null);
+            return new GetWidgetMetricsResult(numSold, averagePrice, additionalBinaryDataProperties: null);
         }
 
-        /// <summary> The GetNotebookResponse. </summary>
+        /// <summary> The GetNotebookResult. </summary>
         /// <param name="name"></param>
         /// <param name="content"></param>
-        /// <returns> A new <see cref="SampleTypeSpec.GetNotebookResponse"/> instance for mocking. </returns>
-        public static GetNotebookResponse GetNotebookResponse(string name = default, string content = default)
+        /// <returns> A new <see cref="SampleTypeSpec.GetNotebookResult"/> instance for mocking. </returns>
+        public static GetNotebookResult GetNotebookResult(string name = default, string content = default)
         {
-            return new GetNotebookResponse(name, content, additionalBinaryDataProperties: null);
+            return new GetNotebookResult(name, content, additionalBinaryDataProperties: null);
         }
 
         /// <summary> The NullableDynamicModel. </summary>
@@ -537,6 +572,103 @@ namespace SampleTypeSpec
                 dictionaryChildren,
                 listOfDictionaries.ToList(),
                 default);
+        }
+
+        /// <summary> The OptionalNullableDynamicProperties. </summary>
+        /// <param name="inheritedNullable"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.OptionalNullableDynamicProperties"/> instance for mocking. </returns>
+        public static OptionalNullableDynamicProperties OptionalNullableDynamicProperties(string inheritedNullable = default)
+        {
+            return new OptionalNullableDynamicProperties(inheritedNullable, default);
+        }
+
+        /// <summary> The OptionalNullableBase. </summary>
+        /// <param name="inheritedNullable"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.OptionalNullableBase"/> instance for mocking. </returns>
+        public static OptionalNullableBase OptionalNullableBase(string inheritedNullable = default)
+        {
+            return new OptionalNullableBase(inheritedNullable, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The OptionalNullableChild. </summary>
+        /// <param name="value"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.OptionalNullableChild"/> instance for mocking. </returns>
+        public static OptionalNullableChild OptionalNullableChild(string value = default)
+        {
+            return new OptionalNullableChild(value, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The OptionalNullableProperties. </summary>
+        /// <param name="inheritedNullable"></param>
+        /// <param name="nullableModel"></param>
+        /// <param name="nullableString"></param>
+        /// <param name="nullableInt"></param>
+        /// <param name="nullableBoolean"></param>
+        /// <param name="nullableEnum"></param>
+        /// <param name="nullableOn"></param>
+        /// <param name="nullableBytes"></param>
+        /// <param name="nullableList"></param>
+        /// <param name="nullableDictionary"></param>
+        /// <param name="readOnlyNullable"></param>
+        /// <param name="requiredNullable"></param>
+        /// <param name="optionalNonNullable"></param>
+        /// <param name="optionalNonNullableInt"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.OptionalNullableProperties"/> instance for mocking. </returns>
+        public static OptionalNullableProperties OptionalNullableProperties(string inheritedNullable = default, OptionalNullableChild nullableModel = default, string nullableString = default, int? nullableInt = default, bool? nullableBoolean = default, StringFixedEnum? nullableEnum = default, DateTimeOffset? nullableOn = default, BinaryData nullableBytes = default, IEnumerable<string> nullableList = default, IDictionary<string, int?> nullableDictionary = default, string readOnlyNullable = default, string requiredNullable = default, string optionalNonNullable = default, int? optionalNonNullableInt = default)
+        {
+            nullableList ??= new ChangeTrackingList<string>();
+            nullableDictionary ??= new ChangeTrackingDictionary<string, int?>();
+
+            return new OptionalNullableProperties(
+                inheritedNullable,
+                additionalBinaryDataProperties: null,
+                nullableModel,
+                nullableString,
+                nullableInt,
+                nullableBoolean,
+                nullableEnum,
+                nullableOn,
+                nullableBytes,
+                nullableList.ToList(),
+                nullableDictionary,
+                readOnlyNullable,
+                requiredNullable,
+                optionalNonNullable,
+                optionalNonNullableInt);
+        }
+
+        /// <summary> The OptionalNullableContainer. </summary>
+        /// <param name="child"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.OptionalNullableContainer"/> instance for mocking. </returns>
+        public static OptionalNullableContainer OptionalNullableContainer(OptionalNullableProperties child = default)
+        {
+            return new OptionalNullableContainer(child, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The OptionalNullableFieldNames. </summary>
+        /// <param name="additionalStringProperties"></param>
+        /// <param name="additionalStringPropertiesIsDefined"></param>
+        /// <param name="additionalProperties"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.OptionalNullableFieldNames"/> instance for mocking. </returns>
+        public static OptionalNullableFieldNames OptionalNullableFieldNames(string additionalStringProperties = default, string additionalStringPropertiesIsDefined = default, IDictionary<string, string> additionalProperties = default)
+        {
+            additionalProperties ??= new ChangeTrackingDictionary<string, string>();
+
+            return new OptionalNullableFieldNames(additionalStringProperties, additionalStringPropertiesIsDefined, additionalProperties, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The UnionAdditionalProperties. </summary>
+        /// <param name="additionalProperties"></param>
+        /// <param name="additionalInt32Properties"></param>
+        /// <param name="additionalBooleanProperties"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.UnionAdditionalProperties"/> instance for mocking. </returns>
+        public static UnionAdditionalProperties UnionAdditionalProperties(IDictionary<string, string> additionalProperties = default, IDictionary<string, int> additionalInt32Properties = default, IDictionary<string, bool> additionalBooleanProperties = default)
+        {
+            additionalProperties ??= new ChangeTrackingDictionary<string, string>();
+            additionalInt32Properties ??= new ChangeTrackingDictionary<string, int>();
+            additionalBooleanProperties ??= new ChangeTrackingDictionary<string, bool>();
+
+            return new UnionAdditionalProperties(additionalProperties, additionalInt32Properties, additionalBooleanProperties, additionalBinaryDataProperties: null);
         }
     }
 }

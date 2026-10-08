@@ -17,6 +17,8 @@ namespace SampleTypeSpec
     {
         /// <summary> Keeps track of any properties unknown to the library. </summary>
         private protected readonly IDictionary<string, BinaryData> _additionalBinaryDataProperties;
+        private string _optionalNullableString;
+        internal bool _optionalNullableStringIsDefined;
 
         /// <summary> Initializes a new instance of <see cref="Thing"/>. </summary>
         /// <param name="rename"> name of the Thing. </param>
@@ -75,7 +77,7 @@ namespace SampleTypeSpec
             RequiredUnion = requiredUnion;
             RequiredLiteralString = requiredLiteralString;
             RequiredNullableString = requiredNullableString;
-            OptionalNullableString = optionalNullableString;
+            _optionalNullableString = optionalNullableString;
             RequiredLiteralInt = requiredLiteralInt;
             RequiredLiteralFloat = requiredLiteralFloat;
             RequiredLiteralBool = requiredLiteralBool;
@@ -142,7 +144,18 @@ namespace SampleTypeSpec
         public string RequiredNullableString { get; set; }
 
         /// <summary> required optional string. </summary>
-        public string OptionalNullableString { get; set; }
+        public string OptionalNullableString
+        {
+            get
+            {
+                return _optionalNullableString;
+            }
+            set
+            {
+                _optionalNullableString = value;
+                _optionalNullableStringIsDefined = true;
+            }
+        }
 
         /// <summary> required literal int. </summary>
         public int RequiredLiteralInt { get; } = 123;

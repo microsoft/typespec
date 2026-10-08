@@ -52,6 +52,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         public ClientProvider ClientProvider { get; }
 
+        protected override SuppressionStatement[] BuildDisabledFileWarnings()
+            => ExperimentalApiHelpers.GetDependencySuppressions(_inputClient.Experimental);
+
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.RestClient.cs");
 
         protected override string BuildName() => ClientProvider.Name;
@@ -245,13 +248,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // Build message and all request modifications
             var messageStatements = BuildMessage(serviceMethod, signature, isNextLinkRequest);
 
-            return new ScmMethodProvider(
+            var method = new ScmMethodProvider(
                 signature,
                 messageStatements,
                 this,
                 ScmMethodKind.CreateRequest,
                 xmlDocProvider: XmlDocProvider.Empty,
                 serviceMethod: serviceMethod);
+            ExperimentalApiHelpers.AddDependencySuppressions(method, serviceMethod.Operation);
+            return method;
         }
 
         private MethodBodyStatements BuildMessage(
@@ -342,7 +347,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             // Create the message
-            statements.AddRange([.. pipelineField.CreateMessage(options.ToApi<HttpRequestOptionsApi>(), uri, Literal(operation.HttpMethod), classifier, out HttpMessageApi message, out HttpRequestApi request)]);
+            var httpMethod = isNextLinkRequest
+                ? nextLink?.Operation?.HttpMethod ?? nextLink?.Verb ?? "GET"
+                : operation.HttpMethod;
+            statements.AddRange([.. pipelineField.CreateMessage(options.ToApi<HttpRequestOptionsApi>(), uri, Literal(httpMethod), classifier, out HttpMessageApi message, out HttpRequestApi request)]);
 
             // Handle request modifications
             if (isNextLinkRequest && nextLink != null)

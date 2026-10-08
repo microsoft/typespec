@@ -21,6 +21,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
     public class ModelProvider : TypeProvider
     {
         private const string AdditionalBinaryDataPropsFieldDescription = "Keeps track of any properties unknown to the library.";
+        private const string ResponseSuffix = "Response";
         private readonly InputModelType _inputModel;
         internal InputModelType InputModel => _inputModel;
 
@@ -418,6 +419,71 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return NormalizeTypeNameForNewContract(_inputModel.Name.ToIdentifierName());
         }
 
+        private protected override string NormalizeTypeName(string name)
+        {
+            var normalizedName = base.NormalizeTypeName(name);
+            if (_inputModel.Usage.HasFlag(InputModelTypeUsage.Error) ||
+                !normalizedName.EndsWith(ResponseSuffix, StringComparison.Ordinal))
+            {
+                return normalizedName;
+            }
+
+            var typeNamespace = BuildNamespace();
+            var sourceInputModel = CodeModelGenerator.Instance.SourceInputModel;
+            if (sourceInputModel.FindForTypeInCurrentCompilation(typeNamespace, normalizedName, DeclaringTypeName) is not null ||
+                sourceInputModel.FindForTypeInLastContract(typeNamespace, normalizedName, DeclaringTypeName) is not null)
+            {
+                return normalizedName;
+            }
+
+            return $"{normalizedName[..^ResponseSuffix.Length]}Result";
+        }
+
+        private protected override TypeProvider? BuildCustomCodeView(string? generatedTypeName = null, string? generatedTypeNamespace = null)
+        {
+            var typeNamespace = generatedTypeNamespace ?? BuildNamespace();
+            var typeName = generatedTypeName ?? BuildName();
+            var customCodeView = base.BuildCustomCodeView(typeName, typeNamespace);
+            return customCodeView ?? BuildResponseSuffixFallbackView(
+                typeName,
+                typeNamespace,
+                (name, ns) => base.BuildCustomCodeView(name, ns));
+        }
+
+        private protected override TypeProvider? BuildLastContractView(string? generatedTypeName = null, string? generatedTypeNamespace = null)
+        {
+            var typeNamespace = generatedTypeNamespace ?? CustomCodeView?.Type.Namespace ?? BuildNamespace();
+            var typeName = generatedTypeName ?? CustomCodeView?.Name ?? BuildName();
+            var lastContractView = base.BuildLastContractView(typeName, typeNamespace);
+            return lastContractView ?? BuildResponseSuffixFallbackView(
+                typeName,
+                typeNamespace,
+                (name, ns) => base.BuildLastContractView(name, ns));
+        }
+
+        private TypeProvider? BuildResponseSuffixFallbackView(
+            string typeName,
+            string typeNamespace,
+            Func<string, string, TypeProvider?> buildView)
+        {
+            if (_inputModel.IsExactName)
+            {
+                return null;
+            }
+
+            var originalName = _inputModel.Name.ToIdentifierName();
+            var normalizedOriginalName = originalName.NormalizeCSharpAcronyms();
+            if (!normalizedOriginalName.EndsWith(ResponseSuffix, StringComparison.Ordinal) ||
+                originalName == typeName ||
+                typeName != $"{normalizedOriginalName[..^ResponseSuffix.Length]}Result")
+            {
+                return null;
+            }
+
+            return buildView(originalName, typeNamespace) ??
+                (normalizedOriginalName == originalName ? null : buildView(normalizedOriginalName, typeNamespace));
+        }
+
         protected override TypeSignatureModifiers BuildDeclarationModifiers()
         {
             var customCodeModifiers = CustomCodeView?.DeclarationModifiers ?? TypeSignatureModifiers.None;
@@ -570,9 +636,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 {
                     if (valueType.IsUnion)
                     {
+                        bool needsNullableBucket = _inputModel.AdditionalProperties is InputNullableType;
                         foreach (var unionType in valueType.UnionItemTypes)
                         {
-                            AddFieldForAdditionalProperties(unionType, fields, true);
+                            var fieldType = needsNullableBucket ? unionType.WithNullable(true) : unionType;
+                            if (AddFieldForAdditionalProperties(fieldType, fields, true))
+                            {
+                                needsNullableBucket = false;
+                            }
                         }
                     }
                     else
@@ -585,7 +656,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return fields;
         }
 
-        private void AddFieldForAdditionalProperties(CSharpType valueType, List<FieldProvider> fields, bool isUnionType)
+        private bool AddFieldForAdditionalProperties(CSharpType valueType, List<FieldProvider> fields, bool isUnionType)
         {
             var originalType = new CSharpType(typeof(IDictionary<,>), typeof(string), valueType);
             var additionalPropsType = ReplaceUnverifiableType(originalType);
@@ -593,14 +664,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if ((isUnionType && additionalPropsType.ContainsBinaryData)
                 || additionalPropsType.Equals(_additionalBinaryDataPropsFieldType))
             {
-                return;
+                return false;
             }
 
-            fields.Add(new(
+            var field = new FieldProvider(
                 FieldModifiers.Private,
                 additionalPropsType,
                 BuildAdditionalTypePropertiesFieldName(additionalPropsType.ElementType),
-                this));
+                this);
+            field.Update(suppressions: ExperimentalApiHelpers.GetReferenceSuppressions(_inputModel.AdditionalProperties));
+            fields.Add(field);
+            return true;
         }
 
         internal IEnumerable<string> GetAdditionalPropertyNamesForBackCompatibility()
@@ -654,7 +728,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     propertyType,
                     i == 0 ? AdditionalPropertiesHelper.DefaultAdditionalPropertiesPropertyName : field.Name.ToIdentifierName(),
                     assignment,
-                    this)
+                    this,
+                    suppressions: field.Suppressions)
                 {
                     BackingField = field,
                     IsAdditionalProperties = true
@@ -1760,7 +1835,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 var baseDiscriminatorProperty = BaseModelProvider?.DiscriminatorProperty;
                 if (baseDiscriminatorProperty is { WireInfo.IsRequired: false })
                 {
-                    methodBodyStatements.Add(baseDiscriminatorProperty.Assign(DiscriminatorValueExpression).Terminate());
+                    methodBodyStatements.Add(ExperimentalApiHelpers.Suppress(
+                        baseDiscriminatorProperty.Assign(DiscriminatorValueExpression).Terminate(),
+                        ExperimentalApiHelpers.GetMemberSuppressions(baseDiscriminatorProperty)));
                 }
             }
 
@@ -1780,7 +1857,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         assignment = backingField.Assign(New.Instance(backingField.Type.PropertyInitializationType, property.AsParameter));
                     }
 
-                    methodBodyStatements.Add(assignment.Terminate());
+                    methodBodyStatements.Add(ExperimentalApiHelpers.Suppress(assignment.Terminate(),
+                        ExperimentalApiHelpers.GetMemberSuppressions(property)));
                 }
             }
 
@@ -1824,7 +1902,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (!isPrimaryConstructor)
             {
                 // always add the property for the serialization constructor
-                methodBodyStatements.Add(assignee.Assign(GetConversion(property, field)).Terminate());
+                methodBodyStatements.Add(ExperimentalApiHelpers.Suppress(assignee.Assign(GetConversion(property, field)).Terminate(),
+                    property is not null ? ExperimentalApiHelpers.GetMemberSuppressions(property) : ExperimentalApiHelpers.GetMemberSuppressions(field!)));
                 return;
             }
 
@@ -1853,7 +1932,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             if (initializationValue != null)
             {
-                methodBodyStatements.Add(assignee.Assign(initializationValue).Terminate());
+                methodBodyStatements.Add(ExperimentalApiHelpers.Suppress(assignee.Assign(initializationValue).Terminate(),
+                    property is not null ? ExperimentalApiHelpers.GetMemberSuppressions(property) : ExperimentalApiHelpers.GetMemberSuppressions(field!)));
             }
         }
 
