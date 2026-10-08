@@ -1,3 +1,3 @@
 global::Sample.Argument.AssertNotNullOrEmpty(sourceIPAddress, nameof(sourceIPAddress));
 
-return this.Send(sourceIPAddress: sourceIPAddress, options: cancellationToken.ToRequestOptions());
+return this.Send(sourceIPAddress, options: cancellationToken.ToRequestOptions());

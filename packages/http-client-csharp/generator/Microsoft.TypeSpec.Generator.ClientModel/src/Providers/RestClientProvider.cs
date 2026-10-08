@@ -192,7 +192,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private ScmMethodProvider BuildCreateRequestMethod(InputServiceMethod serviceMethod, bool isNextLinkRequest = false)
         {
-            var options = ScmKnownParameters.RequestOptions;
+            var options = ScmKnownParameters.CreateRequestOptions();
             var parameters = GetMethodParameters(serviceMethod, ScmMethodKind.CreateRequest, ClientProvider);
 
             if (isNextLinkRequest)
@@ -1417,7 +1417,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 bool bodyIsRequired = methodType == ScmMethodKind.Protocol
                     && operation.Parameters.OfType<InputBodyParameter>().Any(p => p.IsRequired);
-                sortedParams.Add(contentType++, bodyIsRequired ? ScmKnownParameters.ContentType : ScmKnownParameters.OptionalContentType);
+                sortedParams.Add(contentType++, ScmKnownParameters.CreateContentType(bodyIsRequired));
             }
 
             if (methodType == ScmMethodKind.CreateRequest)

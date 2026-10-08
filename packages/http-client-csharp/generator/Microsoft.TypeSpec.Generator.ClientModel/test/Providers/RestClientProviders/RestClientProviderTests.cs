@@ -176,7 +176,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                     requestInvocation.ArgumentList.Arguments.Select(argument => argument.Expression.ToString()));
 
                 StringAssert.Contains(
-                    $"this.{method.Signature.Name}({expectedName}: {expectedName}, options: cancellationToken.ToRequestOptions())",
+                    $"this.{method.Signature.Name}({expectedName}, {(signatureSource == "Custom" ? "version: null, " : "")}options: cancellationToken.ToRequestOptions())",
                     method.BodyStatements!.ToDisplayString());
                 if (signatureSource == "New")
                 {

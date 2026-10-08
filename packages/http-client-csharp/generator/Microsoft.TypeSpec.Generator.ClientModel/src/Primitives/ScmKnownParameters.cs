@@ -30,13 +30,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Primitives
         public static readonly ParameterProvider Data = new("data", FormattableStringHelpers.Empty, typeof(BinaryData));
         public static ParameterProvider ClientOptions(CSharpType clientOptionsType)
             => new("options", $"The options for configuring the client.", clientOptionsType, initializationValue: New.Instance(clientOptionsType));
-        public static ParameterProvider OptionalRequestOptions => new(
+        public static readonly ParameterProvider OptionalRequestOptions = CreateRequestOptions(optional: true);
+        public static readonly ParameterProvider RequestOptions = CreateRequestOptions();
+        public static readonly ParameterProvider CancellationToken = CreateCancellationToken();
+
+        public static ParameterProvider CreateRequestOptions(bool optional = false) => new(
             ScmCodeModelGenerator.Instance.TypeFactory.HttpRequestOptionsApi.ParameterName,
             $"The request options, which can override default behaviors of the client pipeline on a per-call basis.",
             ScmCodeModelGenerator.Instance.TypeFactory.HttpRequestOptionsApi.HttpRequestOptionsType,
-            defaultValue: Null);
-        public static ParameterProvider RequestOptions => new(ScmCodeModelGenerator.Instance.TypeFactory.HttpRequestOptionsApi.ParameterName, $"The request options, which can override default behaviors of the client pipeline on a per-call basis.", ScmCodeModelGenerator.Instance.TypeFactory.HttpRequestOptionsApi.HttpRequestOptionsType);
-        public static ParameterProvider CancellationToken => new("cancellationToken", $"The cancellation token that can be used to cancel the operation.", new CSharpType(typeof(CancellationToken)), defaultValue: Default);
+            defaultValue: optional ? Null : null);
+
+        public static ParameterProvider CreateCancellationToken() => new(
+            "cancellationToken",
+            $"The cancellation token that can be used to cancel the operation.",
+            new CSharpType(typeof(CancellationToken)),
+            defaultValue: Default);
 
         private static readonly FormattableString RequestContentDescription = $"The content to send as the body of the request.";
         private const string RequestContentParameterName = "content";
@@ -66,20 +74,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Primitives
         private static readonly FormattableString ContentTypeDescription = $"The contentType to use which has the multipart/form-data boundary.";
         private static readonly PropertyWireInformation ContentTypeWireInfo = new(SerializationFormat.Default, true, false, false, false, "Content-Type", false, false);
 
-        public static ParameterProvider ContentType => new(
-            ContentTypeParameterName,
-            ContentTypeDescription,
-            typeof(string),
-            wireInfo: ContentTypeWireInfo)
-        {
-            Validation = ParameterValidationType.AssertNotNullOrEmpty,
-        };
+        public static readonly ParameterProvider ContentType = CreateContentType(isRequired: true);
+        public static readonly ParameterProvider OptionalContentType = CreateContentType(isRequired: false);
 
-        public static ParameterProvider OptionalContentType => new(
+        public static ParameterProvider CreateContentType(bool isRequired) => new(
             ContentTypeParameterName,
             ContentTypeDescription,
             typeof(string),
-            wireInfo: ContentTypeWireInfo);
+            wireInfo: ContentTypeWireInfo,
+            validation: isRequired ? ParameterValidationType.AssertNotNullOrEmpty : ParameterValidationType.None);
 
         public static readonly ParameterProvider NextPage =
             new ParameterProvider("nextPage", $"The url of the next page of responses.", typeof(Uri));

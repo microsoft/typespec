@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.TypeSpec.Generator.ClientModel.Primitives;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
@@ -979,6 +980,61 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.AreEqual(
                 Helpers.GetExpectedFromFile(),
                 writer.ToString(false));
+        }
+
+        [Test]
+        public void BuildingProtocolSignaturesDoesNotMutateFactoryParameters()
+        {
+            var createdParameters = new List<ParameterProvider>();
+            bool captureParameters = false;
+            var operation = InputFactory.Operation(
+                "Send",
+                parameters: [InputFactory.QueryParameter("sourceIpAddress", InputPrimitiveType.Int32)],
+                responses: [InputFactory.OperationResponse([204])]);
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "Send", operation,
+                parameters: [InputFactory.MethodParameter("sourceIpAddress", InputPrimitiveType.Int32, location: InputRequestLocation.Query)]);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            MockHelpers.LoadMockGenerator(
+                clients: () => [inputClient],
+                createParameterCore: input =>
+                {
+                    var parameter = new ParameterProvider(input);
+                    if (captureParameters && input.Name == "sourceIpAddress")
+                    {
+                        createdParameters.Add(parameter.ToPublicInputParameter());
+                    }
+                    return parameter;
+                });
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+            _ = client.RestClient.Methods;
+            captureParameters = true;
+            var methods = client.Methods.OfType<ScmMethodProvider>().ToArray();
+
+            Assert.AreEqual(4, methods.Length);
+            Assert.IsNotEmpty(createdParameters);
+            foreach (var parameter in createdParameters)
+            {
+                Assert.AreEqual("sourceIPAddress", parameter.Name);
+                Assert.IsNotNull(parameter.DefaultValue);
+                Assert.IsTrue(parameter.Type.IsNullable);
+            }
+            foreach (var method in methods.Where(method => method.Kind == ScmMethodKind.Protocol))
+            {
+                Assert.IsNull(method.Signature.Parameters[0].DefaultValue);
+                Assert.IsTrue(method.Signature.Parameters[0].Type.IsNullable);
+            }
+        }
+
+        [Test]
+        public void KnownSignatureParametersRemainStable()
+        {
+            MockHelpers.LoadMockGenerator();
+            Assert.AreSame(ScmKnownParameters.RequestOptions, ScmKnownParameters.RequestOptions);
+            Assert.AreSame(ScmKnownParameters.OptionalRequestOptions, ScmKnownParameters.OptionalRequestOptions);
+            Assert.AreSame(ScmKnownParameters.CancellationToken, ScmKnownParameters.CancellationToken);
+            Assert.AreSame(ScmKnownParameters.ContentType, ScmKnownParameters.ContentType);
+            Assert.AreSame(ScmKnownParameters.OptionalContentType, ScmKnownParameters.OptionalContentType);
         }
 
         [Test]
