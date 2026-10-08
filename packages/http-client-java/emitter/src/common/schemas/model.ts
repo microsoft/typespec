@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-import type { XmlSerializationFormat } from "./formats/xml.js";
-import type { ChoiceSchema, SealedChoiceSchema } from "./schemas/choice.js";
-import type { ConstantSchema } from "./schemas/constant.js";
-import type { OrSchema } from "./schemas/relationship.js";
-import type { DurationSchema } from "./schemas/time.js";
-import type { SchemaUsage } from "./schemas/usage.js";
+import type { XmlSerializationFormat } from "../formats/xml.js";
+import type { ChoiceSchema, SealedChoiceSchema } from "./choice.js";
+import type { ConstantSchema } from "./constant.js";
+import type { OrSchema } from "./relationship.js";
+import type { DurationSchema } from "./time.js";
+import type { SchemaUsage } from "./usage.js";
 
 /** possible schema types that indicate the type of schema.
  *

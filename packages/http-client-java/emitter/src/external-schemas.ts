@@ -3,16 +3,16 @@ import type {
   SdkModelType,
   SdkType,
 } from "@azure-tools/typespec-client-generator-core";
-import type { BinarySchema, ObjectSchema, Schema, StringSchema } from "./common/model.js";
+import type { Schemas } from "./common/schemas.js";
+import { addSchema } from "./common/schemas.js";
+import type { BinarySchema, ObjectSchema, Schema, StringSchema } from "./common/schemas/model.js";
 import {
   KnownMediaType,
   addProperty,
   createArraySchema,
   createObjectSchema,
   createProperty,
-} from "./common/model.js";
-import type { Schemas } from "./common/schemas.js";
-import { addSchema } from "./common/schemas.js";
+} from "./common/schemas/model.js";
 import { getNamespace, pascalCase } from "./utils.js";
 
 /*

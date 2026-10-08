@@ -1,5 +1,5 @@
-import type { BaseSchema, ModelOptions } from "../model.js";
-import { createSchema, initializeMetadata, SchemaType } from "../model.js";
+import type { BaseSchema, ModelOptions } from "./model.js";
+import { createSchema, initializeMetadata, SchemaType } from "./model.js";
 
 /** a schema that represents a Duration value */
 export interface DurationSchema extends BaseSchema {

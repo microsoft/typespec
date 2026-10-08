@@ -1,12 +1,19 @@
 import type { LongRunningMetadata } from "./long-running-metadata.js";
-import type { ApiVersion, Aspect, Metadata, ModelOptions, Parameter, Response } from "./model.js";
+import type {
+  ApiVersion,
+  Aspect,
+  Metadata,
+  ModelOptions,
+  Parameter,
+  Response,
+} from "./schemas/model.js";
 import {
   createAspect,
   createMetadata,
   ImplementationLocation,
   initializeMetadata,
   SchemaType,
-} from "./model.js";
+} from "./schemas/model.js";
 
 /** represents a single callable endpoint with a discrete set of inputs, and any number of output possibilities (responses or exceptions)  */
 export interface Operation extends Aspect {

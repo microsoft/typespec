@@ -80,6 +80,23 @@ import type { CodeModel } from "./common/code-model.js";
 import { addGlobalParameter, createCodeModel } from "./common/code-model.js";
 import type { LongRunningMetadata } from "./common/long-running-metadata.js";
 import { createLongRunningMetadata } from "./common/long-running-metadata.js";
+import type { Operation as CodeModelOperation, Request } from "./common/operation.js";
+import {
+  addException,
+  addOperation,
+  addParameter,
+  addRequest,
+  addResponse,
+  createConvenienceApi,
+  createOperation,
+  createOperationGroup,
+  createRequest,
+} from "./common/operation.js";
+import { addSchema } from "./common/schemas.js";
+import type { ChoiceSchema, SealedChoiceSchema } from "./common/schemas/choice.js";
+import { createChoiceSchema, createSealedChoiceSchema } from "./common/schemas/choice.js";
+import type { ConstantSchema } from "./common/schemas/constant.js";
+import { createConstantSchema, createConstantValue } from "./common/schemas/constant.js";
 import type {
   AnySchema,
   ArraySchema,
@@ -106,7 +123,7 @@ import type {
   UnixTimeSchema,
   UriSchema,
   UuidSchema,
-} from "./common/model.js";
+} from "./common/schemas/model.js";
 import {
   ImplementationLocation,
   KnownMediaType,
@@ -150,24 +167,7 @@ import {
   isPrimitiveSchema,
   isSchemaResponse,
   isVirtualParameter,
-} from "./common/model.js";
-import type { Operation as CodeModelOperation, Request } from "./common/operation.js";
-import {
-  addException,
-  addOperation,
-  addParameter,
-  addRequest,
-  addResponse,
-  createConvenienceApi,
-  createOperation,
-  createOperationGroup,
-  createRequest,
-} from "./common/operation.js";
-import { addSchema } from "./common/schemas.js";
-import type { ChoiceSchema, SealedChoiceSchema } from "./common/schemas/choice.js";
-import { createChoiceSchema, createSealedChoiceSchema } from "./common/schemas/choice.js";
-import type { ConstantSchema } from "./common/schemas/constant.js";
-import { createConstantSchema, createConstantValue } from "./common/schemas/constant.js";
+} from "./common/schemas/model.js";
 import { createOrSchema } from "./common/schemas/relationship.js";
 import type { DurationSchema } from "./common/schemas/time.js";
 import { createDurationSchema } from "./common/schemas/time.js";

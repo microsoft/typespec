@@ -1,5 +1,5 @@
-import type { BaseSchema, ModelOptions, ObjectSchema } from "../model.js";
-import { createSchema, initializeMetadata, SchemaType } from "../model.js";
+import type { BaseSchema, ModelOptions, ObjectSchema } from "./model.js";
+import { createSchema, initializeMetadata, SchemaType } from "./model.js";
 
 /** an OR relationship between several schemas
  *

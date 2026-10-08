@@ -1,9 +1,9 @@
 import type { Client } from "./client.js";
-import type { Info, Metadata, ModelOptions, Parameter, Security } from "./model.js";
-import { createInfo, createMetadata, createSecurity, initializeMetadata } from "./model.js";
 import type { OperationGroup } from "./operation.js";
 import type { Schemas } from "./schemas.js";
 import { createSchemas } from "./schemas.js";
+import type { Info, Metadata, ModelOptions, Parameter, Security } from "./schemas/model.js";
+import { createInfo, createMetadata, createSecurity, initializeMetadata } from "./schemas/model.js";
 
 /** the model that contains all the information required to generate a service api */
 export interface CodeModel extends Metadata {

@@ -5,6 +5,10 @@ import { parse, stringify } from "yaml";
 import { CodeModelBuilder } from "../src/code-model-builder.js";
 import { addSubClient, createClient } from "../src/common/client.js";
 import { addGlobalParameter, createCodeModel } from "../src/common/code-model.js";
+import { addParameter, createOperation, createRequest } from "../src/common/operation.js";
+import { addSchema, createSchemas } from "../src/common/schemas.js";
+import { createChoiceSchema } from "../src/common/schemas/choice.js";
+import { createConstantSchema, createConstantValue } from "../src/common/schemas/constant.js";
 import {
   ImplementationLocation,
   SchemaType,
@@ -23,11 +27,7 @@ import {
   createSecurity,
   createStringSchema,
   createVirtualParameter,
-} from "../src/common/model.js";
-import { addParameter, createOperation, createRequest } from "../src/common/operation.js";
-import { addSchema, createSchemas } from "../src/common/schemas.js";
-import { createChoiceSchema } from "../src/common/schemas/choice.js";
-import { createConstantSchema, createConstantValue } from "../src/common/schemas/constant.js";
+} from "../src/common/schemas/model.js";
 import { createResponseErrorSchema } from "../src/external-schemas.js";
 import { cloneOperationParameter } from "../src/operation-utils.js";
 

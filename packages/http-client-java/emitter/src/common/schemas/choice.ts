@@ -1,5 +1,5 @@
-import type { BaseSchema, ChoiceValue, ModelOptions, PrimitiveSchema } from "../model.js";
-import { createSchema, initializeMetadata, SchemaType } from "../model.js";
+import type { BaseSchema, ChoiceValue, ModelOptions, PrimitiveSchema } from "./model.js";
+import { createSchema, initializeMetadata, SchemaType } from "./model.js";
 
 /** a schema that represents a choice of several values (ie, an 'enum') */
 export interface ChoiceSchema<

@@ -1,5 +1,6 @@
 import type { ArrayKnownEncoding } from "@azure-tools/typespec-client-generator-core";
 import type { XmlSerializationFormat } from "./formats/xml.js";
+import type { OperationGroup } from "./operation.js";
 import type {
   Aspect,
   HttpHeader,
@@ -8,9 +9,8 @@ import type {
   Parameter,
   Property,
   Security,
-} from "./model.js";
-import { createAspect, createSecurity, initializeMetadata } from "./model.js";
-import type { OperationGroup } from "./operation.js";
+} from "./schemas/model.js";
+import { createAspect, createSecurity, initializeMetadata } from "./schemas/model.js";
 
 export interface Client extends Aspect {
   /** All operations  */

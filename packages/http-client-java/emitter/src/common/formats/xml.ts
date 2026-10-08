@@ -1,4 +1,4 @@
-import type { SerializationFormat } from "../model.js";
+import type { SerializationFormat } from "../schemas/model.js";
 
 export interface XmlSerializationFormat extends SerializationFormat {
   name?: string;

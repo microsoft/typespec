@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+import type { ChoiceSchema, SealedChoiceSchema } from "./schemas/choice.js";
+import type { ConstantSchema } from "./schemas/constant.js";
 import type {
   AnySchema,
   ArraySchema,
@@ -19,10 +21,8 @@ import type {
   UnixTimeSchema,
   UriSchema,
   UuidSchema,
-} from "./model.js";
-import { SchemaType } from "./model.js";
-import type { ChoiceSchema, SealedChoiceSchema } from "./schemas/choice.js";
-import type { ConstantSchema } from "./schemas/constant.js";
+} from "./schemas/model.js";
+import { SchemaType } from "./schemas/model.js";
 import type { OrSchema } from "./schemas/relationship.js";
 import type { DurationSchema } from "./schemas/time.js";
 

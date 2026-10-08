@@ -13,9 +13,9 @@ import type { HttpOperation } from "@typespec/http";
 import type { Client as CodeModelClient, ServiceVersion } from "./common/client.js";
 import { createServiceVersion } from "./common/client.js";
 import type { CodeModel } from "./common/code-model.js";
-import type { Parameter, Property } from "./common/model.js";
-import { createParameter, isSchemaResponse, SchemaType } from "./common/model.js";
 import type { Operation as CodeModelOperation } from "./common/operation.js";
+import type { Parameter, Property } from "./common/schemas/model.js";
+import { createParameter, isSchemaResponse, SchemaType } from "./common/schemas/model.js";
 import { getPropertySerializedName, modelIs, unionReferredByType } from "./type-utils.js";
 import { getNamespace, pascalCase } from "./utils.js";
 

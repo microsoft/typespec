@@ -1,4 +1,4 @@
-import type { Metadata, Schema } from "./model.js";
+import type { Metadata, Schema } from "./schemas/model.js";
 
 export interface LongRunningMetadata {
   longRunning: boolean;

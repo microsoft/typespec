@@ -1,5 +1,5 @@
-import type { BaseSchema, Extensions, Languages, ModelOptions, Schema } from "../model.js";
-import { createSchema, initializeMetadata, SchemaType } from "../model.js";
+import type { BaseSchema, Extensions, Languages, ModelOptions, Schema } from "./model.js";
+import { createSchema, initializeMetadata, SchemaType } from "./model.js";
 
 /** a container for the actual constant value */
 export interface ConstantValue extends Extensions {
