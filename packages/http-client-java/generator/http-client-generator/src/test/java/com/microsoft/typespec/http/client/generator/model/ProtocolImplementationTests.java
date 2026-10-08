@@ -1,5 +1,6 @@
 package com.microsoft.typespec.http.client.generator.model;
 
+import com.google.googlejavaformat.java.RemoveUnusedImports;
 import com.microsoft.typespec.http.client.generator.TypeSpecPlugin;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
@@ -117,6 +118,10 @@ public class ProtocolImplementationTests {
         Assertions.assertFalse(output.contains("requestSerializationFormat"), output);
         Assertions.assertFalse(output.contains("responseSerializationFormat"), output);
         Assertions.assertTrue(output.contains("return new ExampleServiceImpl(pipeline);"), output);
+        Assertions.assertFalse(output.substring(output.indexOf("public final class")).contains("io.clientcore.core."),
+            output);
+        Assertions.assertTrue(output.contains("import io.clientcore.core.http.models.HttpRequest;"), output);
+        Assertions.assertTrue(output.contains("import io.clientcore.core.utils.GeneratedCodeUtils;"), output);
         Set<String> imports = new HashSet<>();
         proxy(List.of(method("send", ClassType.STRING, HttpMethod.POST, requestParameters()))).addImportsTo(imports,
             true, JavaSettings.getInstance());
@@ -124,6 +129,45 @@ public class ProtocolImplementationTests {
             imports.stream().anyMatch(name -> name.startsWith("io.clientcore.core.http.annotations.")),
             imports.toString());
         Assertions.assertFalse(imports.contains("io.clientcore.core.annotations.ServiceInterface"), imports.toString());
+        compile(output);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = { "generic", "azurev2" })
+    public void reflectionAndFormattingUseImportedClasses(String flavor) throws Exception {
+        initialize(flavor);
+        List<ProxyMethodParameter> parameters = new ArrayList<>(requestParameters());
+        parameters.add(new ProxyMethodParameter.Builder().name("timestamp")
+            .wireType(ClassType.DATE_TIME)
+            .clientType(ClassType.DATE_TIME)
+            .requestParameterName("x-timestamp")
+            .requestParameterLocation(RequestParameterLocation.HEADER)
+            .build());
+        ProxyMethod nested
+            = method("nested", new MapType(new ListType(ClassType.INTEGER)), HttpMethod.POST, parameters).newBuilder()
+                .unexpectedResponseExceptionTypes(Map.of(
+                    new ClassType.Builder().name("UnknownException").packageName("com.example").build(), List.of(400)))
+                .build();
+        ProxyMethod base64 = method("base64", ArrayType.BYTE_ARRAY, HttpMethod.GET, parameters).newBuilder()
+            .returnValueWireType(ClassType.BASE_64_URL)
+            .build();
+        String output = render(List.of(nested, base64));
+        Assertions.assertTrue(output.contains("import java.lang.reflect.ParameterizedType;"), output);
+        Assertions.assertTrue(output.contains("import java.time.format.DateTimeFormatter;"), output);
+        Assertions.assertTrue(output.contains("import java.util.HashMap;"), output);
+        Assertions.assertTrue(output.contains("import io.clientcore.core.utils.Base64Uri;"), output);
+        Assertions.assertTrue(
+            output.contains("Map<Integer, ParameterizedType> statusToExceptionTypeMap = new HashMap<>();"), output);
+        Assertions.assertTrue(output.contains(
+            "CoreUtils.createParameterizedType(Map.class, String.class, CoreUtils.createParameterizedType(List.class, Integer.class))"),
+            output);
+        Assertions.assertTrue(output.contains("timestamp.format(DateTimeFormatter.ISO_INSTANT)"), output);
+        Assertions.assertTrue(output.contains("new Base64Uri("), output);
+        String implementation = output.substring(output.indexOf("public final class"));
+        Assertions.assertFalse(implementation.contains("io.clientcore.core."), output);
+        Assertions.assertFalse(implementation.contains("java.util."), output);
+        Assertions.assertFalse(implementation.contains("java.lang.reflect."), output);
+        Assertions.assertFalse(implementation.contains("java.time.format."), output);
         compile(output);
     }
 
@@ -180,7 +224,14 @@ public class ProtocolImplementationTests {
                 .build(),
             method("query", ClassType.VOID, HttpMethod.GET, queryParameters),
             method("body", ClassType.VOID, HttpMethod.POST, bodyParameters));
-        compile(render(methods));
+        String output = render(methods);
+        Assertions.assertTrue(output.contains("import io.clientcore.core.serialization.json.models.JsonObject;"),
+            output);
+        Assertions.assertTrue(output.contains("import io.clientcore.core.serialization.json.models.JsonArray;"),
+            output);
+        Assertions.assertTrue(output.contains("CoreUtils.createParameterizedType(JsonObject.class)"), output);
+        Assertions.assertTrue(output.contains("CoreUtils.createParameterizedType(JsonArray.class)"), output);
+        compile(output);
         AtomicReference<HttpRequest> capturedRequest = new AtomicReference<>();
         AtomicReference<BinaryData> responseBody = new AtomicReference<>(BinaryData.fromString("\"decoded\""));
         AtomicReference<String> contentType = new AtomicReference<>("application/json");
@@ -338,6 +389,7 @@ public class ProtocolImplementationTests {
         Assertions.assertTrue(output.contains("@ServiceInterface"), output);
         Assertions.assertTrue(output.contains("@Get"), output);
         Assertions.assertFalse(output.contains("ExampleServiceImpl"), output);
+        Assertions.assertFalse(output.contains("import io.clientcore.core.utils.GeneratedCodeUtils;"), output);
     }
 
     @ParameterizedTest
@@ -511,9 +563,10 @@ public class ProtocolImplementationTests {
         Proxy proxy = proxy(methods);
         JavaFile file = new JavaFile("GeneratedClient.java");
         file.declarePackage("com.example");
-        file.declareImport("io.clientcore.core.http.models.Response", "io.clientcore.core.http.models.RequestContext",
-            "io.clientcore.core.models.binarydata.BinaryData", "java.util.List", "java.util.Map",
-            "java.io.InputStream");
+        Set<String> imports = new HashSet<>();
+        proxy.addImportsTo(imports, true, JavaSettings.getInstance());
+        ProxyTemplate.getInstance().addImportsTo(proxy, imports);
+        file.declareImport(imports);
         file.publicFinalClass("GeneratedClient", owner -> ProxyTemplate.getInstance().write(proxy, owner));
         return file.getContents().toString();
     }
@@ -527,12 +580,14 @@ public class ProtocolImplementationTests {
     }
 
     private void compile(String output) throws Exception {
+        // Match the generator's postprocessing of unused model imports.
+        String compiledOutput = RemoveUnusedImports.removeUnusedImports(output);
         DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
         JavaFileObject source = new SimpleJavaFileObject(URI.create("string:///com/example/GeneratedClient.java"),
             JavaFileObject.Kind.SOURCE) {
             @Override
             public CharSequence getCharContent(boolean ignoreEncodingErrors) {
-                return output;
+                return compiledOutput;
             }
         };
         String classpath = System.getProperty("surefire.test.class.path", System.getProperty("java.class.path"));
@@ -542,7 +597,7 @@ public class ProtocolImplementationTests {
                     List.of("--release", "11", "-proc:none", "-classpath", classpath, "-d", classes.toString()), null,
                     List.of(source))
                 .call();
-            Assertions.assertTrue(compiled, () -> diagnostics.getDiagnostics() + "\n" + output);
+            Assertions.assertTrue(compiled, () -> diagnostics.getDiagnostics() + "\n" + compiledOutput);
         }
     }
 

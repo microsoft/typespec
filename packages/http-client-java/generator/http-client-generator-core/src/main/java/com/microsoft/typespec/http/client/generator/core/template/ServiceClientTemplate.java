@@ -80,6 +80,7 @@ public class ServiceClientTemplate implements IJavaTemplate<ServiceClient, JavaF
         ClassType.HTTP_PIPELINE.addImportsTo(imports, false);
 
         serviceClient.addImportsTo(imports, true, false, settings);
+        Templates.getProxyTemplate().addImportsTo(serviceClient.getProxy(), imports);
         additionalMethods.forEach(method -> method.addImportsTo(imports));
         javaFile.declareImport(imports);
 

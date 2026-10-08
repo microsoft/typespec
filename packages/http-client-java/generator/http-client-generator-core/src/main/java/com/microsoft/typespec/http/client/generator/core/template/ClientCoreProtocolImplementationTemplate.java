@@ -17,8 +17,27 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaCla
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
+import io.clientcore.core.http.models.HttpHeaderName;
 import io.clientcore.core.http.models.HttpMethod;
+import io.clientcore.core.http.models.HttpRequest;
+import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.Response;
+import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.implementation.utils.UriEscapers;
+import io.clientcore.core.instrumentation.logging.ClientLogger;
+import io.clientcore.core.models.binarydata.BinaryData;
+import io.clientcore.core.serialization.SerializationFormat;
+import io.clientcore.core.serialization.json.JsonSerializer;
+import io.clientcore.core.serialization.xml.XmlSerializer;
+import io.clientcore.core.utils.Base64Uri;
+import io.clientcore.core.utils.CoreUtils;
+import io.clientcore.core.utils.GeneratedCodeUtils;
+import io.clientcore.core.utils.UriBuilder;
+import java.lang.reflect.ParameterizedType;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -29,13 +48,66 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 final class ClientCoreProtocolImplementationTemplate {
-    private static final String CORE = "io.clientcore.core.";
-    private static final String HTTP = CORE + "http.models.";
-    private static final String UTILS = CORE + "utils.";
-    private static final String BINARY_DATA = CORE + "models.binarydata.BinaryData";
     private static final Pattern PATH_PARAMETER = Pattern.compile("\\{([^{}]+)}");
 
     private ClientCoreProtocolImplementationTemplate() {
+    }
+
+    static void addImportsTo(Proxy proxy, Set<String> imports) {
+        imports.add(HttpPipeline.class.getName());
+        if (proxy.getMethods().stream().noneMatch(method -> method.getImplementation() == null)) {
+            return;
+        }
+        imports.addAll(Arrays.asList(ClientLogger.class.getName(), HttpRequest.class.getName(),
+            HttpMethod.class.getName(), Response.class.getName(), BinaryData.class.getName(),
+            JsonSerializer.class.getName(), CoreUtils.class.getName(), GeneratedCodeUtils.class.getName()));
+        for (ProxyMethod method : proxy.getMethods()) {
+            if (method.getImplementation() != null) {
+                continue;
+            }
+            boolean xmlErrors = supportsXmlErrors(method);
+            if (usesXmlSerializer(method) || xmlErrors) {
+                imports.add(XmlSerializer.class.getName());
+            }
+            if (!xmlErrors) {
+                imports.add(HttpResponseException.class.getName());
+            }
+            if (!xmlErrors || (deserializesResponse(method) && responseUsesJson(method) && responseUsesXml(method))) {
+                imports.add(SerializationFormat.class.getName());
+            }
+            if (method.getUnexpectedResponseExceptionTypes() != null
+                && !method.getUnexpectedResponseExceptionTypes().isEmpty()) {
+                imports.add(Map.class.getName());
+                imports.add(HashMap.class.getName());
+                imports.add(ParameterizedType.class.getName());
+            }
+            if (ClassType.BASE_64_URL.equals(method.getReturnValueWireType())) {
+                imports.add(Base64Uri.class.getName());
+            }
+            for (ProxyMethodParameter parameter : method.getParameters()) {
+                RequestParameterLocation location = parameter.getRequestParameterLocation();
+                if (location == RequestParameterLocation.QUERY) {
+                    imports.add(UriBuilder.class.getName());
+                }
+                if (location == RequestParameterLocation.HEADER || location == RequestParameterLocation.BODY) {
+                    imports.add(HttpHeaderName.class.getName());
+                }
+                if (location == RequestParameterLocation.URI || location == RequestParameterLocation.PATH) {
+                    if (!parameter.getAlreadyEncoded() && !"nextLink".equals(parameter.getRequestParameterName())) {
+                        imports.add(UriEscapers.class.getName());
+                    }
+                }
+                if ((location == RequestParameterLocation.URI
+                    || location == RequestParameterLocation.PATH
+                    || location == RequestParameterLocation.HEADER)
+                    && ClassType.DATE_TIME.equals(parameter.getWireType())) {
+                    imports.add(DateTimeFormatter.class.getName());
+                }
+                if (requestUsesJson(method, parameter) && requestUsesXml(method, parameter)) {
+                    imports.add(SerializationFormat.class.getName());
+                }
+            }
+        }
     }
 
     static void write(Proxy proxy, JavaClass classBlock) {
@@ -49,7 +121,7 @@ final class ClientCoreProtocolImplementationTemplate {
             = JavaSettings.getInstance().isServiceInterfaceAsPublic() ? JavaVisibility.Public : JavaVisibility.Private;
         classBlock.interfaceBlock(visibility, proxy.getName(), interfaceBlock -> {
             interfaceBlock.staticMethod(JavaVisibility.PackagePrivate,
-                proxy.getName() + " getNewInstance(" + CORE + "http.pipeline.HttpPipeline pipeline)",
+                proxy.getName() + " getNewInstance(HttpPipeline pipeline)",
                 block -> block.line("return new %sImpl(%s);", proxy.getName(), methods.isEmpty() ? "" : "pipeline"));
             for (ProxyMethod method : proxy.getMethods()) {
                 if (method.getImplementation() == null) {
@@ -61,20 +133,19 @@ final class ClientCoreProtocolImplementationTemplate {
         });
         classBlock.privateStaticFinalClass(proxy.getName() + "Impl implements " + proxy.getName(), implementation -> {
             if (!methods.isEmpty()) {
-                implementation.privateStaticFinalVariable(CORE + "instrumentation.logging.ClientLogger LOGGER = new "
-                    + CORE + "instrumentation.logging.ClientLogger(" + proxy.getName() + "Impl.class)");
-                implementation.privateFinalMemberVariable(CORE + "http.pipeline.HttpPipeline httpPipeline");
+                implementation.privateStaticFinalVariable(
+                    "ClientLogger LOGGER = new ClientLogger(" + proxy.getName() + "Impl.class)");
+                implementation.privateFinalMemberVariable("HttpPipeline httpPipeline");
             }
             if (usesJson) {
-                implementation.privateFinalMemberVariable(CORE + "serialization.json.JsonSerializer jsonSerializer = "
-                    + CORE + "serialization.json.JsonSerializer.getInstance()");
+                implementation
+                    .privateFinalMemberVariable("JsonSerializer jsonSerializer = JsonSerializer.getInstance()");
             }
             if (usesXml) {
-                implementation.privateFinalMemberVariable(CORE + "serialization.xml.XmlSerializer xmlSerializer = "
-                    + CORE + "serialization.xml.XmlSerializer.getInstance()");
+                implementation.privateFinalMemberVariable("XmlSerializer xmlSerializer = XmlSerializer.getInstance()");
             }
-            implementation.privateConstructor(proxy.getName() + "Impl("
-                + (methods.isEmpty() ? "" : CORE + "http.pipeline.HttpPipeline pipeline") + ")", block -> {
+            implementation.privateConstructor(
+                proxy.getName() + "Impl(" + (methods.isEmpty() ? "" : "HttpPipeline pipeline") + ")", block -> {
                     if (!methods.isEmpty()) {
                         block.line("this.httpPipeline = pipeline;");
                     }
@@ -111,19 +182,18 @@ final class ClientCoreProtocolImplementationTemplate {
             .anyMatch(parameter -> parameter.getRequestParameterLocation() == RequestParameterLocation.QUERY);
         String requestUri = urlExpression(proxy, method);
         if (hasQuery) {
-            block.line(UTILS + "UriBuilder %s = " + UTILS + "UriBuilder.parse(%s);", uri, requestUri);
+            block.line("UriBuilder %s = UriBuilder.parse(%s);", uri, requestUri);
             for (ProxyMethodParameter parameter : method.getParameters()) {
                 if (parameter.getRequestParameterLocation() == RequestParameterLocation.QUERY) {
-                    block.line(UTILS + "GeneratedCodeUtils.addQueryParameter(%s, %s, true, %s, %s);", uri,
+                    block.line("GeneratedCodeUtils.addQueryParameter(%s, %s, true, %s, %s);", uri,
                         quote(parameter.getRequestParameterName()), parameter.getName(),
                         !parameter.getAlreadyEncoded());
                 }
             }
             requestUri = uri + ".toString()";
         }
-        block.line(
-            HTTP + "HttpRequest %s = new " + HTTP + "HttpRequest().setMethod(" + HTTP + "HttpMethod.%s).setUri(%s);",
-            request, method.getHttpMethod(), requestUri);
+        block.line("HttpRequest %s = new HttpRequest().setMethod(HttpMethod.%s).setUri(%s);", request,
+            method.getHttpMethod(), requestUri);
         for (ProxyMethodParameter parameter : method.getParameters()) {
             if (parameter.getRequestParameterLocation() == RequestParameterLocation.HEADER) {
                 writeHeader(parameter, block, request, names);
@@ -147,7 +217,7 @@ final class ClientCoreProtocolImplementationTemplate {
                 });
             }
         }
-        block.line(HTTP + "Response<" + BINARY_DATA + "> %s = this.httpPipeline.send(%s);", response, request);
+        block.line("Response<BinaryData> %s = this.httpPipeline.send(%s);", response, request);
         block.line("int %s = %s.getStatusCode();", status, response);
         String expected = method.getResponseExpectedStatusCodes().isEmpty()
             ? status + " >= 200 && " + status + " < 300"
@@ -175,13 +245,11 @@ final class ClientCoreProtocolImplementationTemplate {
         if (prefix != null && !prefix.isEmpty()) {
             String key = localName(names, "headerName");
             String value = localName(names, "headerValue");
-            block.ifBlock(parameter.getName() + " != null",
-                headers -> headers.line(
-                    "%s.forEach((%s, %s) -> %s.getHeaders().set(" + HTTP
-                        + "HttpHeaderName.fromString(%s + %s), String.valueOf(%s)));",
-                    parameter.getName(), key, value, request, quote(prefix), key, value));
+            block.ifBlock(parameter.getName() + " != null", headers -> headers.line(
+                "%s.forEach((%s, %s) -> %s.getHeaders().set(HttpHeaderName.fromString(%s + %s), String.valueOf(%s)));",
+                parameter.getName(), key, value, request, quote(prefix), key, value));
         } else {
-            String statement = request + ".getHeaders().set(" + HTTP + "HttpHeaderName.fromString("
+            String statement = request + ".getHeaders().set(HttpHeaderName.fromString("
                 + quote(parameter.getRequestParameterName()) + "), " + stringValue(parameter) + ");";
             if (parameter.getWireType() instanceof PrimitiveType) {
                 block.line(statement);
@@ -193,9 +261,9 @@ final class ClientCoreProtocolImplementationTemplate {
 
     private static void writeBody(ProxyMethod method, ProxyMethodParameter parameter, JavaBlock block, String request,
         Set<String> names) {
-        block.ifBlock(request + ".getHeaders().get(" + HTTP + "HttpHeaderName.CONTENT_TYPE) == null",
-            contentType -> contentType.line("%s.getHeaders().set(" + HTTP + "HttpHeaderName.CONTENT_TYPE, %s);",
-                request, quote(method.getRequestContentType())));
+        block.ifBlock(request + ".getHeaders().get(HttpHeaderName.CONTENT_TYPE) == null",
+            contentType -> contentType.line("%s.getHeaders().set(HttpHeaderName.CONTENT_TYPE, %s);", request,
+                quote(method.getRequestContentType())));
         IType type = parameter.getWireType();
         String value = parameter.getName();
         String mediaType = method.getRequestContentType();
@@ -203,23 +271,23 @@ final class ClientCoreProtocolImplementationTemplate {
         if (ClassType.BINARY_DATA.equals(type)) {
             block.line("%s.setBody(%s);", request, value);
         } else if (ArrayType.BYTE_ARRAY.equals(type) && !json) {
-            block.line("%s.setBody(" + BINARY_DATA + ".fromBytes(%s));", request, value);
+            block.line("%s.setBody(BinaryData.fromBytes(%s));", request, value);
         } else if (ClassType.STRING.equals(type) && !json) {
-            block.line("%s.setBody(" + BINARY_DATA + ".fromString(%s));", request, value);
+            block.line("%s.setBody(BinaryData.fromString(%s));", request, value);
         } else if (ClassType.INPUT_STREAM.equals(type)) {
-            block.line("%s.setBody(" + BINARY_DATA + ".fromStream(%s));", request, value);
+            block.line("%s.setBody(BinaryData.fromStream(%s));", request, value);
         } else {
             boolean xml = requestUsesXml(method, parameter);
             boolean jsonFormat = requestUsesJson(method, parameter);
             String serializer = xml ? "this.xmlSerializer" : "this.jsonSerializer";
             if (xml && jsonFormat) {
                 String format = localName(names, "requestSerializationFormat");
-                block.line(CORE + "serialization.SerializationFormat %s = " + UTILS
-                    + "CoreUtils.serializationFormatFromContentType(%s.getHeaders());", format, request);
+                block.line("SerializationFormat %s = CoreUtils.serializationFormatFromContentType(%s.getHeaders());",
+                    format, request);
                 serializer
                     = "this.xmlSerializer.supportsFormat(" + format + ") ? this.xmlSerializer : this.jsonSerializer";
             }
-            block.line("%s.setBody(" + BINARY_DATA + ".fromObject(%s, %s));", request, value, serializer);
+            block.line("%s.setBody(BinaryData.fromObject(%s, %s));", request, value, serializer);
         }
     }
 
@@ -227,48 +295,40 @@ final class ClientCoreProtocolImplementationTemplate {
         Set<String> names, boolean usesJson, boolean usesXml) {
         boolean xmlErrors = supportsXmlErrors(method);
         if (!xmlErrors) {
-            block
-                .ifBlock(
-                    UTILS + "CoreUtils.serializationFormatFromContentType(" + response + ".getHeaders()) == " + CORE
-                        + "serialization.SerializationFormat.XML",
-                    unsupported -> unsupported
-                        .tryBlock(
-                            error -> error.line(
-                                "throw new " + HTTP
-                                    + "HttpResponseException(\"Unexpected XML response.\", %s, (Object) null);",
-                                response))
-                        .finallyBlock(cleanup -> cleanup.line("%s.close();", response)));
+            block.ifBlock(
+                "CoreUtils.serializationFormatFromContentType(" + response
+                    + ".getHeaders()) == SerializationFormat.XML",
+                unsupported -> unsupported
+                    .tryBlock(error -> error.line(
+                        "throw new HttpResponseException(\"Unexpected XML response.\", %s, (Object) null);", response))
+                    .finallyBlock(cleanup -> cleanup.line("%s.close();", response)));
         }
         String errorTypes = "null";
         if (method.getUnexpectedResponseExceptionTypes() != null
             && !method.getUnexpectedResponseExceptionTypes().isEmpty()) {
             errorTypes = localName(names, "statusToExceptionTypeMap");
-            block.line("java.util.Map<Integer, java.lang.reflect.ParameterizedType> %s = new java.util.HashMap<>();",
-                errorTypes);
+            block.line("Map<Integer, ParameterizedType> %s = new HashMap<>();", errorTypes);
             for (Map.Entry<ClassType, List<Integer>> mapping : method.getUnexpectedResponseExceptionTypes()
                 .entrySet()) {
                 String bodyType = errorBodyType(mapping.getKey());
                 if ("null".equals(bodyType)) {
-                    bodyType = UTILS + "CoreUtils.createParameterizedType(Object.class)";
+                    bodyType = "CoreUtils.createParameterizedType(Object.class)";
                 }
                 for (Integer code : mapping.getValue()) {
                     block.line("%s.put(%s, %s);", errorTypes, code, bodyType);
                 }
             }
         }
-        String jsonSerializer
-            = usesJson ? "this.jsonSerializer" : CORE + "serialization.json.JsonSerializer.getInstance()";
-        String xmlSerializer = xmlErrors
-            ? (usesXml ? "this.xmlSerializer" : CORE + "serialization.xml.XmlSerializer.getInstance()")
-            : "null";
-        block.line(UTILS + "GeneratedCodeUtils.handleUnexpectedResponse(%s, %s, %s, %s, %s, %s, %sImpl.LOGGER);",
-            status, response, jsonSerializer, xmlSerializer, errorBodyType(method.getUnexpectedResponseExceptionType()),
+        String jsonSerializer = usesJson ? "this.jsonSerializer" : "JsonSerializer.getInstance()";
+        String xmlSerializer = xmlErrors ? (usesXml ? "this.xmlSerializer" : "XmlSerializer.getInstance()") : "null";
+        block.line("GeneratedCodeUtils.handleUnexpectedResponse(%s, %s, %s, %s, %s, %s, %sImpl.LOGGER);", status,
+            response, jsonSerializer, xmlSerializer, errorBodyType(method.getUnexpectedResponseExceptionType()),
             errorTypes, proxy.getName());
     }
 
     private static String errorBodyType(ClassType exception) {
         ClientModel model = exception == null ? null : ClientModelUtil.getErrorModelFromException(exception);
-        return model == null ? "null" : UTILS + "CoreUtils.createParameterizedType(" + model.getFullName() + ".class)";
+        return model == null ? "null" : "CoreUtils.createParameterizedType(" + model.getName() + ".class)";
     }
 
     private static void writeReturn(ProxyMethod method, JavaBlock block, String response, String status, IType bodyType,
@@ -294,7 +354,7 @@ final class ClientCoreProtocolImplementationTemplate {
         } else if (ArrayType.BYTE_ARRAY.equals(bodyType)) {
             value = response + ".getValue() == null ? null : " + response + ".getValue().toBytes()";
             if (ClassType.BASE_64_URL.equals(method.getReturnValueWireType())) {
-                value = response + ".getValue() == null ? null : new " + UTILS + "Base64Uri(" + response
+                value = response + ".getValue() == null ? null : new Base64Uri(" + response
                     + ".getValue().toBytes()).decodedBytes()";
             }
         } else {
@@ -304,31 +364,29 @@ final class ClientCoreProtocolImplementationTemplate {
                 wireType = returnsResponse ? ((GenericType) wireReturn).getTypeArguments()[0] : wireReturn;
             }
             String decoded = localName(names, "deserializedResult");
-            String responseType
-                = UTILS + "CoreUtils.createParameterizedType(" + HTTP + "Response.class, " + typeToken(wireType) + ")";
+            String responseType = "CoreUtils.createParameterizedType(Response.class, " + typeToken(wireType) + ")";
             block.line("%s %s;", wireType.asNullable(), decoded);
             boolean xml = responseUsesXml(method);
             boolean json = responseUsesJson(method);
             if (xml && json) {
                 String format = localName(names, "responseSerializationFormat");
-                block.line(CORE + "serialization.SerializationFormat %s = " + UTILS
-                    + "CoreUtils.serializationFormatFromContentType(%s.getHeaders());", format, response);
+                block.line("SerializationFormat %s = CoreUtils.serializationFormatFromContentType(%s.getHeaders());",
+                    format, response);
                 block
                     .ifBlock("this.jsonSerializer.supportsFormat(" + format + ")",
                         jsonBlock -> jsonBlock.line(
-                            "%s = " + UTILS
-                                + "CoreUtils.decodeNetworkResponse(%s.getValue(), this.jsonSerializer, %s);",
-                            decoded, response, responseType))
+                            "%s = CoreUtils.decodeNetworkResponse(%s.getValue(), this.jsonSerializer, %s);", decoded,
+                            response, responseType))
                     .elseIfBlock("this.xmlSerializer.supportsFormat(" + format + ")",
                         xmlBlock -> xmlBlock.line(
-                            "%s = " + UTILS + "CoreUtils.decodeNetworkResponse(%s.getValue(), this.xmlSerializer, %s);",
-                            decoded, response, responseType))
+                            "%s = CoreUtils.decodeNetworkResponse(%s.getValue(), this.xmlSerializer, %s);", decoded,
+                            response, responseType))
                     .elseBlock(unsupported -> unsupported.line(
                         "throw new UnsupportedOperationException(\"Unsupported response serialization format: \" + %s);",
                         format));
             } else {
-                block.line("%s = " + UTILS + "CoreUtils.decodeNetworkResponse(%s.getValue(), %s, %s);", decoded,
-                    response, xml ? "this.xmlSerializer" : "this.jsonSerializer", responseType);
+                block.line("%s = CoreUtils.decodeNetworkResponse(%s.getValue(), %s, %s);", decoded, response,
+                    xml ? "this.xmlSerializer" : "this.jsonSerializer", responseType);
             }
             value = wireType.convertToClientType(decoded);
             if (!wireType.equals(wireType.getClientType()) && !(bodyType instanceof PrimitiveType)) {
@@ -336,8 +394,8 @@ final class ClientCoreProtocolImplementationTemplate {
             }
         }
         if (returnsResponse) {
-            block.line("return new " + HTTP + "Response<>(%s.getRequest(), %s, %s.getHeaders(), %s);", response, status,
-                response, value);
+            block.line("return new Response<>(%s.getRequest(), %s, %s.getHeaders(), %s);", response, status, response,
+                value);
         } else {
             block.line("return %s;", value);
         }
@@ -419,7 +477,7 @@ final class ClientCoreProtocolImplementationTemplate {
 
     private static boolean typeSupportsFormat(IType type, String format) {
         if (type instanceof GenericType) {
-            return java.util.Arrays.stream(((GenericType) type).getTypeArguments())
+            return Arrays.stream(((GenericType) type).getTypeArguments())
                 .anyMatch(argument -> typeSupportsFormat(argument, format));
         }
         ClientModel model
@@ -440,9 +498,8 @@ final class ClientCoreProtocolImplementationTemplate {
     private static String typeToken(IType type) {
         if (type instanceof GenericType) {
             GenericType generic = (GenericType) type;
-            return UTILS + "CoreUtils.createParameterizedType(" + generic.getPackage() + "." + generic.getName()
-                + ".class, "
-                + java.util.Arrays.stream(generic.getTypeArguments())
+            return "CoreUtils.createParameterizedType(" + generic.getName() + ".class, "
+                + Arrays.stream(generic.getTypeArguments())
                     .map(ClientCoreProtocolImplementationTemplate::typeToken)
                     .collect(Collectors.joining(", "))
                 + ")";
@@ -479,7 +536,7 @@ final class ClientCoreProtocolImplementationTemplate {
                     "Missing path parameter '" + parameterName + "' in protocol method '" + method.getName() + "'."));
             String value = stringValue(parameter);
             if (!parameter.getAlreadyEncoded() && !"nextLink".equals(parameterName)) {
-                value = CORE + "implementation.utils.UriEscapers.PATH_ESCAPER.escape(" + value + ")";
+                value = "UriEscapers.PATH_ESCAPER.escape(" + value + ")";
             }
             expressions.add(value);
             offset = matcher.end();
@@ -494,7 +551,7 @@ final class ClientCoreProtocolImplementationTemplate {
         if (ClassType.STRING.equals(parameter.getWireType())) {
             return parameter.getName();
         } else if (ClassType.DATE_TIME.equals(parameter.getWireType())) {
-            return parameter.getName() + ".format(java.time.format.DateTimeFormatter.ISO_INSTANT)";
+            return parameter.getName() + ".format(DateTimeFormatter.ISO_INSTANT)";
         }
         return "String.valueOf(" + parameter.getName() + ")";
     }

@@ -19,6 +19,7 @@ import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -32,6 +33,18 @@ public class ProxyTemplate implements IJavaTemplate<Proxy, JavaClass> {
 
     public static ProxyTemplate getInstance() {
         return INSTANCE;
+    }
+
+    /**
+     * Adds imports required by the generated protocol implementation.
+     *
+     * @param restAPI The proxy to generate.
+     * @param imports The imports for the containing class.
+     */
+    public final void addImportsTo(Proxy restAPI, Set<String> imports) {
+        if (restAPI != null && !JavaSettings.getInstance().isAzureV1()) {
+            ClientCoreProtocolImplementationTemplate.addImportsTo(restAPI, imports);
+        }
     }
 
     public final void write(Proxy restAPI, JavaClass classBlock) {
