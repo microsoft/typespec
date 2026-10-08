@@ -138,7 +138,7 @@ export enum KnownMediaType {
   Unknown = "unknown",
 }
 
-/** A dictionary of open-ended 'x-*' extensions propogated from the original source document.
+/** A dictionary of open-ended 'x-*' extensions propagated from the original source document.
  *
  * @note - any unrecognized non-schema extensions found in the source model will be copied here verbatim
  *
@@ -227,7 +227,7 @@ export interface Aspect extends Metadata {
    * @default undefined
    */
   deprecated?: { message?: string };
-  /** where did this aspect come from (jsonpath or 'modelerfour:<soemthing>') */
+  /** where did this aspect come from (jsonpath or 'modelerfour:<something>') */
   origin?: string;
   /** External Documentation Links */
   externalDocs?: { url: string; description?: string };
@@ -758,7 +758,7 @@ export interface BinaryResponse extends Response {
 }
 /** a response that should be deserialized into a result of type(schema) */
 export interface SchemaResponse extends Response {
-  /** the content returned by the service for a given operaiton */
+  /** the content returned by the service for a given operation */
   schema: Schema;
   /** indicates whether the response can be 'null' */
   nullable?: boolean;
