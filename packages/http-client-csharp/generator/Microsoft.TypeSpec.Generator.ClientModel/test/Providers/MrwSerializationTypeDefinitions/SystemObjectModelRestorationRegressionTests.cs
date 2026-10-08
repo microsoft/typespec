@@ -90,7 +90,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                     ConstructorSurface(currentBaseProvider.SerializationProviders.OfType<MrwSerializationTypeDefinition>().Single())],
                 references, new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
             Assert.That(generatedCompilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error), Is.Empty,
-                "Restoration must not introduce an uncallable implicit base() in the serialization partial.");
+                "Restoration must not introduce an implicit base() call that cannot be made in the serialization partial.");
         }
 
         [TestCase(false)]
