@@ -217,6 +217,12 @@ export const TypeSpecProtobufLibrary = createTypeSpecLibrary({
         "disallowed-option-type": paramMessage`option '${"name"}' with type '${"type"}' is not allowed in a package declaration (only string, boolean, and numeric types are allowed)`,
       },
     },
+    "long-running-type": {
+      severity: "error",
+      messages: {
+        default: paramMessage`the ${"role"} type of 'LongRunningOperation' must be a named model that is emitted as a message, not an array, map, or anonymous model`,
+      },
+    },
   },
   emitter: { options: EmitterOptionsSchema },
 });
@@ -270,6 +276,7 @@ const keys = [
   "service",
   "externRef",
   "stream",
+  "longRunning",
   "reserve",
   "message",
   "_map",
