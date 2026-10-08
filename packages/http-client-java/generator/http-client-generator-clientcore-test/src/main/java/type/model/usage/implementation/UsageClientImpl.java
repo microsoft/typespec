@@ -99,9 +99,6 @@ public final class UsageClientImpl {
         private final io.clientcore.core.serialization.json.JsonSerializer jsonSerializer
             = io.clientcore.core.serialization.json.JsonSerializer.getInstance();
 
-        private final io.clientcore.core.serialization.xml.XmlSerializer xmlSerializer
-            = io.clientcore.core.serialization.xml.XmlSerializer.getInstance();
-
         private UsageClientServiceImpl(io.clientcore.core.http.pipeline.HttpPipeline pipeline) {
             this.httpPipeline = pipeline;
         }
@@ -109,11 +106,9 @@ public final class UsageClientImpl {
         @Override
         public Response<Void> input(String endpoint, String contentType, InputRecord input,
             RequestContext requestContext) {
-            io.clientcore.core.utils.UriBuilder uriBuilder
-                = io.clientcore.core.utils.UriBuilder.parse(endpoint + "/type/model/usage/input");
             io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
                 .setMethod(io.clientcore.core.http.models.HttpMethod.POST)
-                .setUri(uriBuilder.toString());
+                .setUri(endpoint + "/type/model/usage/input");
             if (contentType != null) {
                 httpRequest.getHeaders()
                     .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Content-Type"), contentType);
@@ -123,12 +118,8 @@ public final class UsageClientImpl {
                     httpRequest.getHeaders()
                         .set(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE, "application/json");
                 }
-                io.clientcore.core.serialization.SerializationFormat requestSerializationFormat
-                    = io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(httpRequest.getHeaders());
-                httpRequest.setBody(io.clientcore.core.models.binarydata.BinaryData.fromObject(input,
-                    this.xmlSerializer.supportsFormat(requestSerializationFormat)
-                        ? this.xmlSerializer
-                        : this.jsonSerializer));
+                httpRequest
+                    .setBody(io.clientcore.core.models.binarydata.BinaryData.fromObject(input, this.jsonSerializer));
             }
             if (requestContext != null) {
                 httpRequest.setContext(requestContext);
@@ -138,8 +129,17 @@ public final class UsageClientImpl {
                 = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 204)) {
+                if (io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == io.clientcore.core.serialization.SerializationFormat.XML) {
+                    try {
+                        throw new io.clientcore.core.http.models.HttpResponseException("Unexpected XML response.",
+                            networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
                 io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
-                    this.jsonSerializer, this.xmlSerializer, null, null, UsageClientServiceImpl.LOGGER);
+                    this.jsonSerializer, null, null, null, UsageClientServiceImpl.LOGGER);
             }
             try {
                 return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
@@ -151,11 +151,9 @@ public final class UsageClientImpl {
 
         @Override
         public Response<OutputRecord> output(String endpoint, String accept, RequestContext requestContext) {
-            io.clientcore.core.utils.UriBuilder uriBuilder
-                = io.clientcore.core.utils.UriBuilder.parse(endpoint + "/type/model/usage/output");
             io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
                 .setMethod(io.clientcore.core.http.models.HttpMethod.GET)
-                .setUri(uriBuilder.toString());
+                .setUri(endpoint + "/type/model/usage/output");
             if (accept != null) {
                 httpRequest.getHeaders()
                     .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Accept"), accept);
@@ -168,28 +166,23 @@ public final class UsageClientImpl {
                 = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 200)) {
+                if (io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == io.clientcore.core.serialization.SerializationFormat.XML) {
+                    try {
+                        throw new io.clientcore.core.http.models.HttpResponseException("Unexpected XML response.",
+                            networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
                 io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
-                    this.jsonSerializer, this.xmlSerializer, null, null, UsageClientServiceImpl.LOGGER);
+                    this.jsonSerializer, null, null, null, UsageClientServiceImpl.LOGGER);
             }
             try {
                 OutputRecord deserializedResult;
-                io.clientcore.core.serialization.SerializationFormat responseSerializationFormat
-                    = io.clientcore.core.utils.CoreUtils
-                        .serializationFormatFromContentType(networkResponse.getHeaders());
-                if (this.jsonSerializer.supportsFormat(responseSerializationFormat)) {
-                    deserializedResult
-                        = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
-                            this.jsonSerializer, io.clientcore.core.utils.CoreUtils.createParameterizedType(
-                                io.clientcore.core.http.models.Response.class, OutputRecord.class));
-                } else if (this.xmlSerializer.supportsFormat(responseSerializationFormat)) {
-                    deserializedResult
-                        = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
-                            this.xmlSerializer, io.clientcore.core.utils.CoreUtils.createParameterizedType(
-                                io.clientcore.core.http.models.Response.class, OutputRecord.class));
-                } else {
-                    throw new UnsupportedOperationException(
-                        "Unsupported response serialization format: " + responseSerializationFormat);
-                }
+                deserializedResult = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(
+                    networkResponse.getValue(), this.jsonSerializer, io.clientcore.core.utils.CoreUtils
+                        .createParameterizedType(io.clientcore.core.http.models.Response.class, OutputRecord.class));
                 return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
                     networkResponse.getHeaders(), deserializedResult);
             } finally {
@@ -200,11 +193,9 @@ public final class UsageClientImpl {
         @Override
         public Response<InputOutputRecord> inputAndOutput(String endpoint, String contentType, String accept,
             InputOutputRecord body, RequestContext requestContext) {
-            io.clientcore.core.utils.UriBuilder uriBuilder
-                = io.clientcore.core.utils.UriBuilder.parse(endpoint + "/type/model/usage/input-output");
             io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
                 .setMethod(io.clientcore.core.http.models.HttpMethod.POST)
-                .setUri(uriBuilder.toString());
+                .setUri(endpoint + "/type/model/usage/input-output");
             if (contentType != null) {
                 httpRequest.getHeaders()
                     .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Content-Type"), contentType);
@@ -218,12 +209,8 @@ public final class UsageClientImpl {
                     httpRequest.getHeaders()
                         .set(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE, "application/json");
                 }
-                io.clientcore.core.serialization.SerializationFormat requestSerializationFormat
-                    = io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(httpRequest.getHeaders());
-                httpRequest.setBody(io.clientcore.core.models.binarydata.BinaryData.fromObject(body,
-                    this.xmlSerializer.supportsFormat(requestSerializationFormat)
-                        ? this.xmlSerializer
-                        : this.jsonSerializer));
+                httpRequest
+                    .setBody(io.clientcore.core.models.binarydata.BinaryData.fromObject(body, this.jsonSerializer));
             }
             if (requestContext != null) {
                 httpRequest.setContext(requestContext);
@@ -233,28 +220,24 @@ public final class UsageClientImpl {
                 = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 200)) {
+                if (io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == io.clientcore.core.serialization.SerializationFormat.XML) {
+                    try {
+                        throw new io.clientcore.core.http.models.HttpResponseException("Unexpected XML response.",
+                            networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
                 io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
-                    this.jsonSerializer, this.xmlSerializer, null, null, UsageClientServiceImpl.LOGGER);
+                    this.jsonSerializer, null, null, null, UsageClientServiceImpl.LOGGER);
             }
             try {
                 InputOutputRecord deserializedResult;
-                io.clientcore.core.serialization.SerializationFormat responseSerializationFormat
-                    = io.clientcore.core.utils.CoreUtils
-                        .serializationFormatFromContentType(networkResponse.getHeaders());
-                if (this.jsonSerializer.supportsFormat(responseSerializationFormat)) {
-                    deserializedResult
-                        = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
-                            this.jsonSerializer, io.clientcore.core.utils.CoreUtils.createParameterizedType(
-                                io.clientcore.core.http.models.Response.class, InputOutputRecord.class));
-                } else if (this.xmlSerializer.supportsFormat(responseSerializationFormat)) {
-                    deserializedResult
-                        = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
-                            this.xmlSerializer, io.clientcore.core.utils.CoreUtils.createParameterizedType(
-                                io.clientcore.core.http.models.Response.class, InputOutputRecord.class));
-                } else {
-                    throw new UnsupportedOperationException(
-                        "Unsupported response serialization format: " + responseSerializationFormat);
-                }
+                deserializedResult
+                    = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
+                        this.jsonSerializer, io.clientcore.core.utils.CoreUtils.createParameterizedType(
+                            io.clientcore.core.http.models.Response.class, InputOutputRecord.class));
                 return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
                     networkResponse.getHeaders(), deserializedResult);
             } finally {

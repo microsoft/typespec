@@ -62,20 +62,15 @@ public final class ListsImpl {
         private final io.clientcore.core.serialization.json.JsonSerializer jsonSerializer
             = io.clientcore.core.serialization.json.JsonSerializer.getInstance();
 
-        private final io.clientcore.core.serialization.xml.XmlSerializer xmlSerializer
-            = io.clientcore.core.serialization.xml.XmlSerializer.getInstance();
-
         private ListsServiceImpl(io.clientcore.core.http.pipeline.HttpPipeline pipeline) {
             this.httpPipeline = pipeline;
         }
 
         @Override
         public Response<Void> bulletPointsOp(String endpoint, RequestContext requestContext) {
-            io.clientcore.core.utils.UriBuilder uriBuilder
-                = io.clientcore.core.utils.UriBuilder.parse(endpoint + "/documentation/lists/bullet-points/op");
             io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
                 .setMethod(io.clientcore.core.http.models.HttpMethod.GET)
-                .setUri(uriBuilder.toString());
+                .setUri(endpoint + "/documentation/lists/bullet-points/op");
             if (requestContext != null) {
                 httpRequest.setContext(requestContext);
                 requestContext.getRequestCallback().accept(httpRequest);
@@ -84,8 +79,17 @@ public final class ListsImpl {
                 = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 204)) {
+                if (io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == io.clientcore.core.serialization.SerializationFormat.XML) {
+                    try {
+                        throw new io.clientcore.core.http.models.HttpResponseException("Unexpected XML response.",
+                            networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
                 io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
-                    this.jsonSerializer, this.xmlSerializer, null, null, ListsServiceImpl.LOGGER);
+                    this.jsonSerializer, null, null, null, ListsServiceImpl.LOGGER);
             }
             try {
                 return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
@@ -98,11 +102,9 @@ public final class ListsImpl {
         @Override
         public Response<Void> bulletPointsModel(String endpoint, String contentType,
             BulletPointsModelRequest bulletPointsModelRequest, RequestContext requestContext) {
-            io.clientcore.core.utils.UriBuilder uriBuilder
-                = io.clientcore.core.utils.UriBuilder.parse(endpoint + "/documentation/lists/bullet-points/model");
             io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
                 .setMethod(io.clientcore.core.http.models.HttpMethod.POST)
-                .setUri(uriBuilder.toString());
+                .setUri(endpoint + "/documentation/lists/bullet-points/model");
             if (contentType != null) {
                 httpRequest.getHeaders()
                     .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Content-Type"), contentType);
@@ -112,12 +114,8 @@ public final class ListsImpl {
                     httpRequest.getHeaders()
                         .set(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE, "application/json");
                 }
-                io.clientcore.core.serialization.SerializationFormat requestSerializationFormat
-                    = io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(httpRequest.getHeaders());
                 httpRequest.setBody(io.clientcore.core.models.binarydata.BinaryData.fromObject(bulletPointsModelRequest,
-                    this.xmlSerializer.supportsFormat(requestSerializationFormat)
-                        ? this.xmlSerializer
-                        : this.jsonSerializer));
+                    this.jsonSerializer));
             }
             if (requestContext != null) {
                 httpRequest.setContext(requestContext);
@@ -127,8 +125,17 @@ public final class ListsImpl {
                 = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 200)) {
+                if (io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == io.clientcore.core.serialization.SerializationFormat.XML) {
+                    try {
+                        throw new io.clientcore.core.http.models.HttpResponseException("Unexpected XML response.",
+                            networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
                 io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
-                    this.jsonSerializer, this.xmlSerializer, null, null, ListsServiceImpl.LOGGER);
+                    this.jsonSerializer, null, null, null, ListsServiceImpl.LOGGER);
             }
             try {
                 return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
@@ -140,11 +147,9 @@ public final class ListsImpl {
 
         @Override
         public Response<Void> numbered(String endpoint, RequestContext requestContext) {
-            io.clientcore.core.utils.UriBuilder uriBuilder
-                = io.clientcore.core.utils.UriBuilder.parse(endpoint + "/documentation/lists/numbered");
             io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
                 .setMethod(io.clientcore.core.http.models.HttpMethod.GET)
-                .setUri(uriBuilder.toString());
+                .setUri(endpoint + "/documentation/lists/numbered");
             if (requestContext != null) {
                 httpRequest.setContext(requestContext);
                 requestContext.getRequestCallback().accept(httpRequest);
@@ -153,8 +158,17 @@ public final class ListsImpl {
                 = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 204)) {
+                if (io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == io.clientcore.core.serialization.SerializationFormat.XML) {
+                    try {
+                        throw new io.clientcore.core.http.models.HttpResponseException("Unexpected XML response.",
+                            networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
                 io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
-                    this.jsonSerializer, this.xmlSerializer, null, null, ListsServiceImpl.LOGGER);
+                    this.jsonSerializer, null, null, null, ListsServiceImpl.LOGGER);
             }
             try {
                 return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,

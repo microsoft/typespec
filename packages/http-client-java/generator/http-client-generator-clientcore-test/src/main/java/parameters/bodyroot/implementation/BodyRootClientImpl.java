@@ -93,9 +93,6 @@ public final class BodyRootClientImpl {
         private final io.clientcore.core.serialization.json.JsonSerializer jsonSerializer
             = io.clientcore.core.serialization.json.JsonSerializer.getInstance();
 
-        private final io.clientcore.core.serialization.xml.XmlSerializer xmlSerializer
-            = io.clientcore.core.serialization.xml.XmlSerializer.getInstance();
-
         private BodyRootClientServiceImpl(io.clientcore.core.http.pipeline.HttpPipeline pipeline) {
             this.httpPipeline = pipeline;
         }
@@ -103,11 +100,9 @@ public final class BodyRootClientImpl {
         @Override
         public Response<Void> nested(String endpoint, String contentType, BodyRootModel bodyRootParameters,
             RequestContext requestContext) {
-            io.clientcore.core.utils.UriBuilder uriBuilder
-                = io.clientcore.core.utils.UriBuilder.parse(endpoint + "/parameters/body-root/nested");
             io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
                 .setMethod(io.clientcore.core.http.models.HttpMethod.POST)
-                .setUri(uriBuilder.toString());
+                .setUri(endpoint + "/parameters/body-root/nested");
             if (contentType != null) {
                 httpRequest.getHeaders()
                     .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Content-Type"), contentType);
@@ -117,12 +112,8 @@ public final class BodyRootClientImpl {
                     httpRequest.getHeaders()
                         .set(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE, "application/json");
                 }
-                io.clientcore.core.serialization.SerializationFormat requestSerializationFormat
-                    = io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(httpRequest.getHeaders());
                 httpRequest.setBody(io.clientcore.core.models.binarydata.BinaryData.fromObject(bodyRootParameters,
-                    this.xmlSerializer.supportsFormat(requestSerializationFormat)
-                        ? this.xmlSerializer
-                        : this.jsonSerializer));
+                    this.jsonSerializer));
             }
             if (requestContext != null) {
                 httpRequest.setContext(requestContext);
@@ -132,8 +123,17 @@ public final class BodyRootClientImpl {
                 = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 204)) {
+                if (io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == io.clientcore.core.serialization.SerializationFormat.XML) {
+                    try {
+                        throw new io.clientcore.core.http.models.HttpResponseException("Unexpected XML response.",
+                            networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
                 io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
-                    this.jsonSerializer, this.xmlSerializer, null, null, BodyRootClientServiceImpl.LOGGER);
+                    this.jsonSerializer, null, null, null, BodyRootClientServiceImpl.LOGGER);
             }
             try {
                 return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,

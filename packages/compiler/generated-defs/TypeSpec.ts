@@ -545,6 +545,7 @@ export type OverloadDecorator = (
 
 /**
  * Provide an alternative name for this type when serialized to the given mime type.
+ * On an enum member, the name is the value the member is serialized as.
  *
  * @param mimeType Mime type this should apply to. The mime type should be a known mime type as described here https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types without any suffix (e.g. `+json`)
  * @param name Alternative name

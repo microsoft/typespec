@@ -1619,13 +1619,13 @@ $(program).type.minValueExclusive(type: Type): number | undefined;
  * Call `type.resolve.withDiagnostics("reference")` to get a tuple containing the resolved type and any diagnostics.
  */
 $(program).type
-  .resolve(<K extends Type): ["kind"] | undefined>(reference: string, kind?: KK extends Type["kind"] ? Extract<Type, {
+  .resolve(K extends Type): ["kind"] | undefined>(reference: string, kind?: KK extends Type["kind"] ? Extract<Type, {
         kind: K;
-    }> : undefined);
+    }> : undefined;
 $(program).type.resolve
-  .withDiagnostics(<K extends Type): [["kind"] | undefined>(reference: string, kind?: KK extends Type["kind"] ? Extract<Type, {
+  .withDiagnostics(K extends Type): [["kind"] | undefined>(reference: string, kind?: KK extends Type["kind"] ? Extract<Type, {
         kind: K;
-    }> : undefined), readonly Diagnostic[]];
+    }> : undefined, readonly Diagnostic[]];
 ```
 
 ## union
@@ -1958,11 +1958,11 @@ $(program).value.isString(type: Entity): type is StringValue;
  * Call `value.resolve.withDiagnostics("reference")` to get a tuple containing the resolved value and any diagnostics.
  */
 $(program).value
-  .resolve(<K extends Value): ["valueKind"] | undefined>(reference: string, kind?: KK extends Value["valueKind"] ? Extract<Value, {
+  .resolve(K extends Value): ["valueKind"] | undefined>(reference: string, kind?: KK extends Value["valueKind"] ? Extract<Value, {
         valueKind: K;
-    }> : undefined);
+    }> : undefined;
 $(program).value.resolve
-  .withDiagnostics(<K extends Value): [["valueKind"] | undefined>(reference: string, kind?: KK extends Value["valueKind"] ? Extract<Value, {
+  .withDiagnostics(K extends Value): [["valueKind"] | undefined>(reference: string, kind?: KK extends Value["valueKind"] ? Extract<Value, {
         valueKind: K;
-    }> : undefined), readonly Diagnostic[]];
+    }> : undefined, readonly Diagnostic[]];
 ```

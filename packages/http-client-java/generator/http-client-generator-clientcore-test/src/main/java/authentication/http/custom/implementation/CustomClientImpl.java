@@ -90,23 +90,15 @@ public final class CustomClientImpl {
 
         private final io.clientcore.core.http.pipeline.HttpPipeline httpPipeline;
 
-        private final io.clientcore.core.serialization.json.JsonSerializer jsonSerializer
-            = io.clientcore.core.serialization.json.JsonSerializer.getInstance();
-
-        private final io.clientcore.core.serialization.xml.XmlSerializer xmlSerializer
-            = io.clientcore.core.serialization.xml.XmlSerializer.getInstance();
-
         private CustomClientServiceImpl(io.clientcore.core.http.pipeline.HttpPipeline pipeline) {
             this.httpPipeline = pipeline;
         }
 
         @Override
         public Response<Void> valid(String endpoint, RequestContext requestContext) {
-            io.clientcore.core.utils.UriBuilder uriBuilder
-                = io.clientcore.core.utils.UriBuilder.parse(endpoint + "/authentication/http/custom/valid");
             io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
                 .setMethod(io.clientcore.core.http.models.HttpMethod.GET)
-                .setUri(uriBuilder.toString());
+                .setUri(endpoint + "/authentication/http/custom/valid");
             if (requestContext != null) {
                 httpRequest.setContext(requestContext);
                 requestContext.getRequestCallback().accept(httpRequest);
@@ -115,8 +107,18 @@ public final class CustomClientImpl {
                 = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 204)) {
+                if (io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == io.clientcore.core.serialization.SerializationFormat.XML) {
+                    try {
+                        throw new io.clientcore.core.http.models.HttpResponseException("Unexpected XML response.",
+                            networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
                 io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
-                    this.jsonSerializer, this.xmlSerializer, null, null, CustomClientServiceImpl.LOGGER);
+                    io.clientcore.core.serialization.json.JsonSerializer.getInstance(), null, null, null,
+                    CustomClientServiceImpl.LOGGER);
             }
             try {
                 return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
@@ -128,11 +130,9 @@ public final class CustomClientImpl {
 
         @Override
         public Response<Void> invalid(String endpoint, RequestContext requestContext) {
-            io.clientcore.core.utils.UriBuilder uriBuilder
-                = io.clientcore.core.utils.UriBuilder.parse(endpoint + "/authentication/http/custom/invalid");
             io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
                 .setMethod(io.clientcore.core.http.models.HttpMethod.GET)
-                .setUri(uriBuilder.toString());
+                .setUri(endpoint + "/authentication/http/custom/invalid");
             if (requestContext != null) {
                 httpRequest.setContext(requestContext);
                 requestContext.getRequestCallback().accept(httpRequest);
@@ -141,13 +141,22 @@ public final class CustomClientImpl {
                 = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 204)) {
+                if (io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == io.clientcore.core.serialization.SerializationFormat.XML) {
+                    try {
+                        throw new io.clientcore.core.http.models.HttpResponseException("Unexpected XML response.",
+                            networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
                 java.util.Map<Integer, java.lang.reflect.ParameterizedType> statusToExceptionTypeMap
                     = new java.util.HashMap<>();
                 statusToExceptionTypeMap.put(403, io.clientcore.core.utils.CoreUtils
                     .createParameterizedType(authentication.http.custom.InvalidAuth.class));
                 io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
-                    this.jsonSerializer, this.xmlSerializer, null, statusToExceptionTypeMap,
-                    CustomClientServiceImpl.LOGGER);
+                    io.clientcore.core.serialization.json.JsonSerializer.getInstance(), null, null,
+                    statusToExceptionTypeMap, CustomClientServiceImpl.LOGGER);
             }
             try {
                 return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,

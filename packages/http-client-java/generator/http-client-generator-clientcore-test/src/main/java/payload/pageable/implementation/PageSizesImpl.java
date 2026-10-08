@@ -64,9 +64,6 @@ public final class PageSizesImpl {
         private final io.clientcore.core.serialization.json.JsonSerializer jsonSerializer
             = io.clientcore.core.serialization.json.JsonSerializer.getInstance();
 
-        private final io.clientcore.core.serialization.xml.XmlSerializer xmlSerializer
-            = io.clientcore.core.serialization.xml.XmlSerializer.getInstance();
-
         private PageSizesServiceImpl(io.clientcore.core.http.pipeline.HttpPipeline pipeline) {
             this.httpPipeline = pipeline;
         }
@@ -74,11 +71,9 @@ public final class PageSizesImpl {
         @Override
         public Response<ListWithoutContinuationResponse> listWithoutContinuation(String endpoint, String accept,
             RequestContext requestContext) {
-            io.clientcore.core.utils.UriBuilder uriBuilder = io.clientcore.core.utils.UriBuilder
-                .parse(endpoint + "/payload/pageable/pagesize/without-continuation");
             io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
                 .setMethod(io.clientcore.core.http.models.HttpMethod.GET)
-                .setUri(uriBuilder.toString());
+                .setUri(endpoint + "/payload/pageable/pagesize/without-continuation");
             if (accept != null) {
                 httpRequest.getHeaders()
                     .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Accept"), accept);
@@ -91,28 +86,24 @@ public final class PageSizesImpl {
                 = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 200)) {
+                if (io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == io.clientcore.core.serialization.SerializationFormat.XML) {
+                    try {
+                        throw new io.clientcore.core.http.models.HttpResponseException("Unexpected XML response.",
+                            networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
                 io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
-                    this.jsonSerializer, this.xmlSerializer, null, null, PageSizesServiceImpl.LOGGER);
+                    this.jsonSerializer, null, null, null, PageSizesServiceImpl.LOGGER);
             }
             try {
                 ListWithoutContinuationResponse deserializedResult;
-                io.clientcore.core.serialization.SerializationFormat responseSerializationFormat
-                    = io.clientcore.core.utils.CoreUtils
-                        .serializationFormatFromContentType(networkResponse.getHeaders());
-                if (this.jsonSerializer.supportsFormat(responseSerializationFormat)) {
-                    deserializedResult
-                        = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
-                            this.jsonSerializer, io.clientcore.core.utils.CoreUtils.createParameterizedType(
-                                io.clientcore.core.http.models.Response.class, ListWithoutContinuationResponse.class));
-                } else if (this.xmlSerializer.supportsFormat(responseSerializationFormat)) {
-                    deserializedResult
-                        = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
-                            this.xmlSerializer, io.clientcore.core.utils.CoreUtils.createParameterizedType(
-                                io.clientcore.core.http.models.Response.class, ListWithoutContinuationResponse.class));
-                } else {
-                    throw new UnsupportedOperationException(
-                        "Unsupported response serialization format: " + responseSerializationFormat);
-                }
+                deserializedResult
+                    = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
+                        this.jsonSerializer, io.clientcore.core.utils.CoreUtils.createParameterizedType(
+                            io.clientcore.core.http.models.Response.class, ListWithoutContinuationResponse.class));
                 return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
                     networkResponse.getHeaders(), deserializedResult);
             } finally {
@@ -141,28 +132,24 @@ public final class PageSizesImpl {
                 = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 200)) {
+                if (io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == io.clientcore.core.serialization.SerializationFormat.XML) {
+                    try {
+                        throw new io.clientcore.core.http.models.HttpResponseException("Unexpected XML response.",
+                            networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
                 io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
-                    this.jsonSerializer, this.xmlSerializer, null, null, PageSizesServiceImpl.LOGGER);
+                    this.jsonSerializer, null, null, null, PageSizesServiceImpl.LOGGER);
             }
             try {
                 ListWithPageSizeResponse deserializedResult;
-                io.clientcore.core.serialization.SerializationFormat responseSerializationFormat
-                    = io.clientcore.core.utils.CoreUtils
-                        .serializationFormatFromContentType(networkResponse.getHeaders());
-                if (this.jsonSerializer.supportsFormat(responseSerializationFormat)) {
-                    deserializedResult
-                        = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
-                            this.jsonSerializer, io.clientcore.core.utils.CoreUtils.createParameterizedType(
-                                io.clientcore.core.http.models.Response.class, ListWithPageSizeResponse.class));
-                } else if (this.xmlSerializer.supportsFormat(responseSerializationFormat)) {
-                    deserializedResult
-                        = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
-                            this.xmlSerializer, io.clientcore.core.utils.CoreUtils.createParameterizedType(
-                                io.clientcore.core.http.models.Response.class, ListWithPageSizeResponse.class));
-                } else {
-                    throw new UnsupportedOperationException(
-                        "Unsupported response serialization format: " + responseSerializationFormat);
-                }
+                deserializedResult
+                    = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
+                        this.jsonSerializer, io.clientcore.core.utils.CoreUtils.createParameterizedType(
+                            io.clientcore.core.http.models.Response.class, ListWithPageSizeResponse.class));
                 return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
                     networkResponse.getHeaders(), deserializedResult);
             } finally {

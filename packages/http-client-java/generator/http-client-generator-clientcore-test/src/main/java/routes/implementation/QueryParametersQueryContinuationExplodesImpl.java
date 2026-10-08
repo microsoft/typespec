@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import routes.ExpandParameters;
 
 /**
  * An instance of this class provides access to all the operations defined in QueryParametersQueryContinuationExplodes.
@@ -53,6 +54,8 @@ public final class QueryParametersQueryContinuationExplodesImpl {
         Response<Void> array(String endpoint, List<String> param, RequestContext requestContext);
 
         Response<Void> record(String endpoint, Map<String, Integer> param, RequestContext requestContext);
+
+        Response<Void> model(String endpoint, ExpandParameters param, RequestContext requestContext);
     }
 
     private static final class QueryParametersQueryContinuationExplodesServiceImpl
@@ -62,12 +65,6 @@ public final class QueryParametersQueryContinuationExplodesImpl {
                 QueryParametersQueryContinuationExplodesServiceImpl.class);
 
         private final io.clientcore.core.http.pipeline.HttpPipeline httpPipeline;
-
-        private final io.clientcore.core.serialization.json.JsonSerializer jsonSerializer
-            = io.clientcore.core.serialization.json.JsonSerializer.getInstance();
-
-        private final io.clientcore.core.serialization.xml.XmlSerializer xmlSerializer
-            = io.clientcore.core.serialization.xml.XmlSerializer.getInstance();
 
         private QueryParametersQueryContinuationExplodesServiceImpl(
             io.clientcore.core.http.pipeline.HttpPipeline pipeline) {
@@ -90,8 +87,17 @@ public final class QueryParametersQueryContinuationExplodesImpl {
                 = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 204)) {
+                if (io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == io.clientcore.core.serialization.SerializationFormat.XML) {
+                    try {
+                        throw new io.clientcore.core.http.models.HttpResponseException("Unexpected XML response.",
+                            networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
                 io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
-                    this.jsonSerializer, this.xmlSerializer, null, null,
+                    io.clientcore.core.serialization.json.JsonSerializer.getInstance(), null, null, null,
                     QueryParametersQueryContinuationExplodesServiceImpl.LOGGER);
             }
             try {
@@ -118,8 +124,17 @@ public final class QueryParametersQueryContinuationExplodesImpl {
                 = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 204)) {
+                if (io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == io.clientcore.core.serialization.SerializationFormat.XML) {
+                    try {
+                        throw new io.clientcore.core.http.models.HttpResponseException("Unexpected XML response.",
+                            networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
                 io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
-                    this.jsonSerializer, this.xmlSerializer, null, null,
+                    io.clientcore.core.serialization.json.JsonSerializer.getInstance(), null, null, null,
                     QueryParametersQueryContinuationExplodesServiceImpl.LOGGER);
             }
             try {
@@ -146,8 +161,54 @@ public final class QueryParametersQueryContinuationExplodesImpl {
                 = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 204)) {
+                if (io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == io.clientcore.core.serialization.SerializationFormat.XML) {
+                    try {
+                        throw new io.clientcore.core.http.models.HttpResponseException("Unexpected XML response.",
+                            networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
                 io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
-                    this.jsonSerializer, this.xmlSerializer, null, null,
+                    io.clientcore.core.serialization.json.JsonSerializer.getInstance(), null, null, null,
+                    QueryParametersQueryContinuationExplodesServiceImpl.LOGGER);
+            }
+            try {
+                return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
+                    networkResponse.getHeaders(), null);
+            } finally {
+                networkResponse.close();
+            }
+        }
+
+        @Override
+        public Response<Void> model(String endpoint, ExpandParameters param, RequestContext requestContext) {
+            io.clientcore.core.utils.UriBuilder uriBuilder = io.clientcore.core.utils.UriBuilder
+                .parse(endpoint + "/routes/query/query-continuation/explode/model?fixed=true");
+            io.clientcore.core.utils.GeneratedCodeUtils.addQueryParameter(uriBuilder, "param", true, param, true);
+            io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
+                .setMethod(io.clientcore.core.http.models.HttpMethod.GET)
+                .setUri(uriBuilder.toString());
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            io.clientcore.core.http.models.Response<io.clientcore.core.models.binarydata.BinaryData> networkResponse
+                = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 204)) {
+                if (io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == io.clientcore.core.serialization.SerializationFormat.XML) {
+                    try {
+                        throw new io.clientcore.core.http.models.HttpResponseException("Unexpected XML response.",
+                            networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
+                io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
+                    io.clientcore.core.serialization.json.JsonSerializer.getInstance(), null, null, null,
                     QueryParametersQueryContinuationExplodesServiceImpl.LOGGER);
             }
             try {
@@ -212,6 +273,24 @@ public final class QueryParametersQueryContinuationExplodesImpl {
         return this.instrumentation.instrumentWithResponse("Routes.QueryParameters.QueryContinuation.Explode.record",
             requestContext, updatedContext -> {
                 return service.record(this.client.getEndpoint(), param, updatedContext);
+            });
+    }
+
+    /**
+     * The model operation.
+     * 
+     * @param param The param parameter.
+     * @param requestContext The context to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the service returns an error.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> modelWithResponse(ExpandParameters param, RequestContext requestContext) {
+        return this.instrumentation.instrumentWithResponse("Routes.QueryParameters.QueryContinuation.Explode.model",
+            requestContext, updatedContext -> {
+                return service.model(this.client.getEndpoint(), param, updatedContext);
             });
     }
 

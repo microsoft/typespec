@@ -4306,6 +4306,14 @@ Test query continuation expansion with explode: true when passed an array value.
 Param value: ["a","b"]
 Expected path: /routes/query/query-continuation/explode/array?fixed=true&param=a&param=b
 
+### Routes_QueryParameters_QueryContinuation_Explode_model
+
+- Endpoint: `get /routes/query/query-continuation/explode/model?fixed=true{&param*}`
+
+Test query continuation expansion with explode: true when passed a named model value.
+Param value: {field: "status", value: "active"}
+Expected path: /routes/query/query-continuation/explode/model?fixed=true&field=status&value=active
+
 ### Routes_QueryParameters_QueryContinuation_Explode_primitive
 
 - Endpoint: `get /routes/query/query-continuation/explode/primitive?fixed=true{&param*}`
@@ -4329,6 +4337,14 @@ Expected path: /routes/query/query-continuation/explode/record?fixed=true&a=1&b=
 Test query continuation expansion with explode: false when passed an array value.
 Param value: ["a","b"]
 Expected path: /routes/query/query-continuation/standard/array?fixed=true&param=a,b
+
+### Routes_QueryParameters_QueryContinuation_Standard_model
+
+- Endpoint: `get /routes/query/query-continuation/standard/model?fixed=true{&param}`
+
+Test query continuation expansion with explode: false when passed a named model value.
+Param value: {field: "status", value: "active"}
+Expected path: /routes/query/query-continuation/standard/model?fixed=true&param=field,status,value,active
 
 ### Routes_QueryParameters_QueryContinuation_Standard_primitive
 
@@ -4388,6 +4404,14 @@ Expected path: /routes/query/query-expansion/explode/record?a=1&b=2
 Test query expansion with explode: false when passed an array value.
 Param value: ["a","b"]
 Expected path: /routes/query/query-expansion/standard/array?param=a,b
+
+### Routes_QueryParameters_QueryExpansion_Standard_model
+
+- Endpoint: `get /routes/query/query-expansion/standard/model{?param}`
+
+Test query expansion with explode: false when passed a named model value.
+Param value: {field: "status", value: "active"}
+Expected path: /routes/query/query-expansion/standard/model?param=field,status,value,active
 
 ### Routes_QueryParameters_QueryExpansion_Standard_primitive
 

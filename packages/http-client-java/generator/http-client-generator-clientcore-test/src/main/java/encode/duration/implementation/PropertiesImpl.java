@@ -111,9 +111,6 @@ public final class PropertiesImpl {
         private final io.clientcore.core.serialization.json.JsonSerializer jsonSerializer
             = io.clientcore.core.serialization.json.JsonSerializer.getInstance();
 
-        private final io.clientcore.core.serialization.xml.XmlSerializer xmlSerializer
-            = io.clientcore.core.serialization.xml.XmlSerializer.getInstance();
-
         private PropertiesServiceImpl(io.clientcore.core.http.pipeline.HttpPipeline pipeline) {
             this.httpPipeline = pipeline;
         }
@@ -121,11 +118,9 @@ public final class PropertiesImpl {
         @Override
         public Response<DefaultDurationProperty> defaultMethod(String endpoint, String contentType, String accept,
             DefaultDurationProperty body, RequestContext requestContext) {
-            io.clientcore.core.utils.UriBuilder uriBuilder
-                = io.clientcore.core.utils.UriBuilder.parse(endpoint + "/encode/duration/property/default");
             io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
                 .setMethod(io.clientcore.core.http.models.HttpMethod.POST)
-                .setUri(uriBuilder.toString());
+                .setUri(endpoint + "/encode/duration/property/default");
             if (contentType != null) {
                 httpRequest.getHeaders()
                     .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Content-Type"), contentType);
@@ -139,12 +134,8 @@ public final class PropertiesImpl {
                     httpRequest.getHeaders()
                         .set(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE, "application/json");
                 }
-                io.clientcore.core.serialization.SerializationFormat requestSerializationFormat
-                    = io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(httpRequest.getHeaders());
-                httpRequest.setBody(io.clientcore.core.models.binarydata.BinaryData.fromObject(body,
-                    this.xmlSerializer.supportsFormat(requestSerializationFormat)
-                        ? this.xmlSerializer
-                        : this.jsonSerializer));
+                httpRequest
+                    .setBody(io.clientcore.core.models.binarydata.BinaryData.fromObject(body, this.jsonSerializer));
             }
             if (requestContext != null) {
                 httpRequest.setContext(requestContext);
@@ -154,28 +145,24 @@ public final class PropertiesImpl {
                 = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 200)) {
+                if (io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == io.clientcore.core.serialization.SerializationFormat.XML) {
+                    try {
+                        throw new io.clientcore.core.http.models.HttpResponseException("Unexpected XML response.",
+                            networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
                 io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
-                    this.jsonSerializer, this.xmlSerializer, null, null, PropertiesServiceImpl.LOGGER);
+                    this.jsonSerializer, null, null, null, PropertiesServiceImpl.LOGGER);
             }
             try {
                 DefaultDurationProperty deserializedResult;
-                io.clientcore.core.serialization.SerializationFormat responseSerializationFormat
-                    = io.clientcore.core.utils.CoreUtils
-                        .serializationFormatFromContentType(networkResponse.getHeaders());
-                if (this.jsonSerializer.supportsFormat(responseSerializationFormat)) {
-                    deserializedResult
-                        = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
-                            this.jsonSerializer, io.clientcore.core.utils.CoreUtils.createParameterizedType(
-                                io.clientcore.core.http.models.Response.class, DefaultDurationProperty.class));
-                } else if (this.xmlSerializer.supportsFormat(responseSerializationFormat)) {
-                    deserializedResult
-                        = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
-                            this.xmlSerializer, io.clientcore.core.utils.CoreUtils.createParameterizedType(
-                                io.clientcore.core.http.models.Response.class, DefaultDurationProperty.class));
-                } else {
-                    throw new UnsupportedOperationException(
-                        "Unsupported response serialization format: " + responseSerializationFormat);
-                }
+                deserializedResult
+                    = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
+                        this.jsonSerializer, io.clientcore.core.utils.CoreUtils.createParameterizedType(
+                            io.clientcore.core.http.models.Response.class, DefaultDurationProperty.class));
                 return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
                     networkResponse.getHeaders(), deserializedResult);
             } finally {
@@ -186,11 +173,9 @@ public final class PropertiesImpl {
         @Override
         public Response<ISO8601DurationProperty> iso8601(String endpoint, String contentType, String accept,
             ISO8601DurationProperty body, RequestContext requestContext) {
-            io.clientcore.core.utils.UriBuilder uriBuilder
-                = io.clientcore.core.utils.UriBuilder.parse(endpoint + "/encode/duration/property/iso8601");
             io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
                 .setMethod(io.clientcore.core.http.models.HttpMethod.POST)
-                .setUri(uriBuilder.toString());
+                .setUri(endpoint + "/encode/duration/property/iso8601");
             if (contentType != null) {
                 httpRequest.getHeaders()
                     .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Content-Type"), contentType);
@@ -204,12 +189,8 @@ public final class PropertiesImpl {
                     httpRequest.getHeaders()
                         .set(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE, "application/json");
                 }
-                io.clientcore.core.serialization.SerializationFormat requestSerializationFormat
-                    = io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(httpRequest.getHeaders());
-                httpRequest.setBody(io.clientcore.core.models.binarydata.BinaryData.fromObject(body,
-                    this.xmlSerializer.supportsFormat(requestSerializationFormat)
-                        ? this.xmlSerializer
-                        : this.jsonSerializer));
+                httpRequest
+                    .setBody(io.clientcore.core.models.binarydata.BinaryData.fromObject(body, this.jsonSerializer));
             }
             if (requestContext != null) {
                 httpRequest.setContext(requestContext);
@@ -219,28 +200,24 @@ public final class PropertiesImpl {
                 = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 200)) {
+                if (io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == io.clientcore.core.serialization.SerializationFormat.XML) {
+                    try {
+                        throw new io.clientcore.core.http.models.HttpResponseException("Unexpected XML response.",
+                            networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
                 io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
-                    this.jsonSerializer, this.xmlSerializer, null, null, PropertiesServiceImpl.LOGGER);
+                    this.jsonSerializer, null, null, null, PropertiesServiceImpl.LOGGER);
             }
             try {
                 ISO8601DurationProperty deserializedResult;
-                io.clientcore.core.serialization.SerializationFormat responseSerializationFormat
-                    = io.clientcore.core.utils.CoreUtils
-                        .serializationFormatFromContentType(networkResponse.getHeaders());
-                if (this.jsonSerializer.supportsFormat(responseSerializationFormat)) {
-                    deserializedResult
-                        = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
-                            this.jsonSerializer, io.clientcore.core.utils.CoreUtils.createParameterizedType(
-                                io.clientcore.core.http.models.Response.class, ISO8601DurationProperty.class));
-                } else if (this.xmlSerializer.supportsFormat(responseSerializationFormat)) {
-                    deserializedResult
-                        = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
-                            this.xmlSerializer, io.clientcore.core.utils.CoreUtils.createParameterizedType(
-                                io.clientcore.core.http.models.Response.class, ISO8601DurationProperty.class));
-                } else {
-                    throw new UnsupportedOperationException(
-                        "Unsupported response serialization format: " + responseSerializationFormat);
-                }
+                deserializedResult
+                    = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
+                        this.jsonSerializer, io.clientcore.core.utils.CoreUtils.createParameterizedType(
+                            io.clientcore.core.http.models.Response.class, ISO8601DurationProperty.class));
                 return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
                     networkResponse.getHeaders(), deserializedResult);
             } finally {
@@ -251,11 +228,9 @@ public final class PropertiesImpl {
         @Override
         public Response<Int32SecondsDurationProperty> int32Seconds(String endpoint, String contentType, String accept,
             Int32SecondsDurationProperty body, RequestContext requestContext) {
-            io.clientcore.core.utils.UriBuilder uriBuilder
-                = io.clientcore.core.utils.UriBuilder.parse(endpoint + "/encode/duration/property/int32-seconds");
             io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
                 .setMethod(io.clientcore.core.http.models.HttpMethod.POST)
-                .setUri(uriBuilder.toString());
+                .setUri(endpoint + "/encode/duration/property/int32-seconds");
             if (contentType != null) {
                 httpRequest.getHeaders()
                     .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Content-Type"), contentType);
@@ -269,12 +244,8 @@ public final class PropertiesImpl {
                     httpRequest.getHeaders()
                         .set(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE, "application/json");
                 }
-                io.clientcore.core.serialization.SerializationFormat requestSerializationFormat
-                    = io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(httpRequest.getHeaders());
-                httpRequest.setBody(io.clientcore.core.models.binarydata.BinaryData.fromObject(body,
-                    this.xmlSerializer.supportsFormat(requestSerializationFormat)
-                        ? this.xmlSerializer
-                        : this.jsonSerializer));
+                httpRequest
+                    .setBody(io.clientcore.core.models.binarydata.BinaryData.fromObject(body, this.jsonSerializer));
             }
             if (requestContext != null) {
                 httpRequest.setContext(requestContext);
@@ -284,28 +255,24 @@ public final class PropertiesImpl {
                 = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 200)) {
+                if (io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == io.clientcore.core.serialization.SerializationFormat.XML) {
+                    try {
+                        throw new io.clientcore.core.http.models.HttpResponseException("Unexpected XML response.",
+                            networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
                 io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
-                    this.jsonSerializer, this.xmlSerializer, null, null, PropertiesServiceImpl.LOGGER);
+                    this.jsonSerializer, null, null, null, PropertiesServiceImpl.LOGGER);
             }
             try {
                 Int32SecondsDurationProperty deserializedResult;
-                io.clientcore.core.serialization.SerializationFormat responseSerializationFormat
-                    = io.clientcore.core.utils.CoreUtils
-                        .serializationFormatFromContentType(networkResponse.getHeaders());
-                if (this.jsonSerializer.supportsFormat(responseSerializationFormat)) {
-                    deserializedResult
-                        = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
-                            this.jsonSerializer, io.clientcore.core.utils.CoreUtils.createParameterizedType(
-                                io.clientcore.core.http.models.Response.class, Int32SecondsDurationProperty.class));
-                } else if (this.xmlSerializer.supportsFormat(responseSerializationFormat)) {
-                    deserializedResult
-                        = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
-                            this.xmlSerializer, io.clientcore.core.utils.CoreUtils.createParameterizedType(
-                                io.clientcore.core.http.models.Response.class, Int32SecondsDurationProperty.class));
-                } else {
-                    throw new UnsupportedOperationException(
-                        "Unsupported response serialization format: " + responseSerializationFormat);
-                }
+                deserializedResult
+                    = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
+                        this.jsonSerializer, io.clientcore.core.utils.CoreUtils.createParameterizedType(
+                            io.clientcore.core.http.models.Response.class, Int32SecondsDurationProperty.class));
                 return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
                     networkResponse.getHeaders(), deserializedResult);
             } finally {
@@ -316,11 +283,9 @@ public final class PropertiesImpl {
         @Override
         public Response<FloatSecondsDurationProperty> floatSeconds(String endpoint, String contentType, String accept,
             FloatSecondsDurationProperty body, RequestContext requestContext) {
-            io.clientcore.core.utils.UriBuilder uriBuilder
-                = io.clientcore.core.utils.UriBuilder.parse(endpoint + "/encode/duration/property/float-seconds");
             io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
                 .setMethod(io.clientcore.core.http.models.HttpMethod.POST)
-                .setUri(uriBuilder.toString());
+                .setUri(endpoint + "/encode/duration/property/float-seconds");
             if (contentType != null) {
                 httpRequest.getHeaders()
                     .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Content-Type"), contentType);
@@ -334,12 +299,8 @@ public final class PropertiesImpl {
                     httpRequest.getHeaders()
                         .set(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE, "application/json");
                 }
-                io.clientcore.core.serialization.SerializationFormat requestSerializationFormat
-                    = io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(httpRequest.getHeaders());
-                httpRequest.setBody(io.clientcore.core.models.binarydata.BinaryData.fromObject(body,
-                    this.xmlSerializer.supportsFormat(requestSerializationFormat)
-                        ? this.xmlSerializer
-                        : this.jsonSerializer));
+                httpRequest
+                    .setBody(io.clientcore.core.models.binarydata.BinaryData.fromObject(body, this.jsonSerializer));
             }
             if (requestContext != null) {
                 httpRequest.setContext(requestContext);
@@ -349,28 +310,24 @@ public final class PropertiesImpl {
                 = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 200)) {
+                if (io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == io.clientcore.core.serialization.SerializationFormat.XML) {
+                    try {
+                        throw new io.clientcore.core.http.models.HttpResponseException("Unexpected XML response.",
+                            networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
                 io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
-                    this.jsonSerializer, this.xmlSerializer, null, null, PropertiesServiceImpl.LOGGER);
+                    this.jsonSerializer, null, null, null, PropertiesServiceImpl.LOGGER);
             }
             try {
                 FloatSecondsDurationProperty deserializedResult;
-                io.clientcore.core.serialization.SerializationFormat responseSerializationFormat
-                    = io.clientcore.core.utils.CoreUtils
-                        .serializationFormatFromContentType(networkResponse.getHeaders());
-                if (this.jsonSerializer.supportsFormat(responseSerializationFormat)) {
-                    deserializedResult
-                        = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
-                            this.jsonSerializer, io.clientcore.core.utils.CoreUtils.createParameterizedType(
-                                io.clientcore.core.http.models.Response.class, FloatSecondsDurationProperty.class));
-                } else if (this.xmlSerializer.supportsFormat(responseSerializationFormat)) {
-                    deserializedResult
-                        = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
-                            this.xmlSerializer, io.clientcore.core.utils.CoreUtils.createParameterizedType(
-                                io.clientcore.core.http.models.Response.class, FloatSecondsDurationProperty.class));
-                } else {
-                    throw new UnsupportedOperationException(
-                        "Unsupported response serialization format: " + responseSerializationFormat);
-                }
+                deserializedResult
+                    = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
+                        this.jsonSerializer, io.clientcore.core.utils.CoreUtils.createParameterizedType(
+                            io.clientcore.core.http.models.Response.class, FloatSecondsDurationProperty.class));
                 return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
                     networkResponse.getHeaders(), deserializedResult);
             } finally {
@@ -381,11 +338,9 @@ public final class PropertiesImpl {
         @Override
         public Response<Float64SecondsDurationProperty> float64Seconds(String endpoint, String contentType,
             String accept, Float64SecondsDurationProperty body, RequestContext requestContext) {
-            io.clientcore.core.utils.UriBuilder uriBuilder
-                = io.clientcore.core.utils.UriBuilder.parse(endpoint + "/encode/duration/property/float64-seconds");
             io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
                 .setMethod(io.clientcore.core.http.models.HttpMethod.POST)
-                .setUri(uriBuilder.toString());
+                .setUri(endpoint + "/encode/duration/property/float64-seconds");
             if (contentType != null) {
                 httpRequest.getHeaders()
                     .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Content-Type"), contentType);
@@ -399,12 +354,8 @@ public final class PropertiesImpl {
                     httpRequest.getHeaders()
                         .set(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE, "application/json");
                 }
-                io.clientcore.core.serialization.SerializationFormat requestSerializationFormat
-                    = io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(httpRequest.getHeaders());
-                httpRequest.setBody(io.clientcore.core.models.binarydata.BinaryData.fromObject(body,
-                    this.xmlSerializer.supportsFormat(requestSerializationFormat)
-                        ? this.xmlSerializer
-                        : this.jsonSerializer));
+                httpRequest
+                    .setBody(io.clientcore.core.models.binarydata.BinaryData.fromObject(body, this.jsonSerializer));
             }
             if (requestContext != null) {
                 httpRequest.setContext(requestContext);
@@ -414,28 +365,24 @@ public final class PropertiesImpl {
                 = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 200)) {
+                if (io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == io.clientcore.core.serialization.SerializationFormat.XML) {
+                    try {
+                        throw new io.clientcore.core.http.models.HttpResponseException("Unexpected XML response.",
+                            networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
                 io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
-                    this.jsonSerializer, this.xmlSerializer, null, null, PropertiesServiceImpl.LOGGER);
+                    this.jsonSerializer, null, null, null, PropertiesServiceImpl.LOGGER);
             }
             try {
                 Float64SecondsDurationProperty deserializedResult;
-                io.clientcore.core.serialization.SerializationFormat responseSerializationFormat
-                    = io.clientcore.core.utils.CoreUtils
-                        .serializationFormatFromContentType(networkResponse.getHeaders());
-                if (this.jsonSerializer.supportsFormat(responseSerializationFormat)) {
-                    deserializedResult
-                        = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
-                            this.jsonSerializer, io.clientcore.core.utils.CoreUtils.createParameterizedType(
-                                io.clientcore.core.http.models.Response.class, Float64SecondsDurationProperty.class));
-                } else if (this.xmlSerializer.supportsFormat(responseSerializationFormat)) {
-                    deserializedResult
-                        = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
-                            this.xmlSerializer, io.clientcore.core.utils.CoreUtils.createParameterizedType(
-                                io.clientcore.core.http.models.Response.class, Float64SecondsDurationProperty.class));
-                } else {
-                    throw new UnsupportedOperationException(
-                        "Unsupported response serialization format: " + responseSerializationFormat);
-                }
+                deserializedResult
+                    = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
+                        this.jsonSerializer, io.clientcore.core.utils.CoreUtils.createParameterizedType(
+                            io.clientcore.core.http.models.Response.class, Float64SecondsDurationProperty.class));
                 return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
                     networkResponse.getHeaders(), deserializedResult);
             } finally {
@@ -446,11 +393,9 @@ public final class PropertiesImpl {
         @Override
         public Response<Int32MillisecondsDurationProperty> int32Milliseconds(String endpoint, String contentType,
             String accept, Int32MillisecondsDurationProperty body, RequestContext requestContext) {
-            io.clientcore.core.utils.UriBuilder uriBuilder
-                = io.clientcore.core.utils.UriBuilder.parse(endpoint + "/encode/duration/property/int32-milliseconds");
             io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
                 .setMethod(io.clientcore.core.http.models.HttpMethod.POST)
-                .setUri(uriBuilder.toString());
+                .setUri(endpoint + "/encode/duration/property/int32-milliseconds");
             if (contentType != null) {
                 httpRequest.getHeaders()
                     .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Content-Type"), contentType);
@@ -464,12 +409,8 @@ public final class PropertiesImpl {
                     httpRequest.getHeaders()
                         .set(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE, "application/json");
                 }
-                io.clientcore.core.serialization.SerializationFormat requestSerializationFormat
-                    = io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(httpRequest.getHeaders());
-                httpRequest.setBody(io.clientcore.core.models.binarydata.BinaryData.fromObject(body,
-                    this.xmlSerializer.supportsFormat(requestSerializationFormat)
-                        ? this.xmlSerializer
-                        : this.jsonSerializer));
+                httpRequest
+                    .setBody(io.clientcore.core.models.binarydata.BinaryData.fromObject(body, this.jsonSerializer));
             }
             if (requestContext != null) {
                 httpRequest.setContext(requestContext);
@@ -479,30 +420,24 @@ public final class PropertiesImpl {
                 = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 200)) {
+                if (io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == io.clientcore.core.serialization.SerializationFormat.XML) {
+                    try {
+                        throw new io.clientcore.core.http.models.HttpResponseException("Unexpected XML response.",
+                            networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
                 io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
-                    this.jsonSerializer, this.xmlSerializer, null, null, PropertiesServiceImpl.LOGGER);
+                    this.jsonSerializer, null, null, null, PropertiesServiceImpl.LOGGER);
             }
             try {
                 Int32MillisecondsDurationProperty deserializedResult;
-                io.clientcore.core.serialization.SerializationFormat responseSerializationFormat
-                    = io.clientcore.core.utils.CoreUtils
-                        .serializationFormatFromContentType(networkResponse.getHeaders());
-                if (this.jsonSerializer.supportsFormat(responseSerializationFormat)) {
-                    deserializedResult = io.clientcore.core.utils.CoreUtils
-                        .decodeNetworkResponse(networkResponse.getValue(), this.jsonSerializer,
-                            io.clientcore.core.utils.CoreUtils.createParameterizedType(
-                                io.clientcore.core.http.models.Response.class,
-                                Int32MillisecondsDurationProperty.class));
-                } else if (this.xmlSerializer.supportsFormat(responseSerializationFormat)) {
-                    deserializedResult = io.clientcore.core.utils.CoreUtils
-                        .decodeNetworkResponse(networkResponse.getValue(), this.xmlSerializer,
-                            io.clientcore.core.utils.CoreUtils.createParameterizedType(
-                                io.clientcore.core.http.models.Response.class,
-                                Int32MillisecondsDurationProperty.class));
-                } else {
-                    throw new UnsupportedOperationException(
-                        "Unsupported response serialization format: " + responseSerializationFormat);
-                }
+                deserializedResult
+                    = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
+                        this.jsonSerializer, io.clientcore.core.utils.CoreUtils.createParameterizedType(
+                            io.clientcore.core.http.models.Response.class, Int32MillisecondsDurationProperty.class));
                 return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
                     networkResponse.getHeaders(), deserializedResult);
             } finally {
@@ -513,11 +448,9 @@ public final class PropertiesImpl {
         @Override
         public Response<FloatMillisecondsDurationProperty> floatMilliseconds(String endpoint, String contentType,
             String accept, FloatMillisecondsDurationProperty body, RequestContext requestContext) {
-            io.clientcore.core.utils.UriBuilder uriBuilder
-                = io.clientcore.core.utils.UriBuilder.parse(endpoint + "/encode/duration/property/float-milliseconds");
             io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
                 .setMethod(io.clientcore.core.http.models.HttpMethod.POST)
-                .setUri(uriBuilder.toString());
+                .setUri(endpoint + "/encode/duration/property/float-milliseconds");
             if (contentType != null) {
                 httpRequest.getHeaders()
                     .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Content-Type"), contentType);
@@ -531,12 +464,8 @@ public final class PropertiesImpl {
                     httpRequest.getHeaders()
                         .set(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE, "application/json");
                 }
-                io.clientcore.core.serialization.SerializationFormat requestSerializationFormat
-                    = io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(httpRequest.getHeaders());
-                httpRequest.setBody(io.clientcore.core.models.binarydata.BinaryData.fromObject(body,
-                    this.xmlSerializer.supportsFormat(requestSerializationFormat)
-                        ? this.xmlSerializer
-                        : this.jsonSerializer));
+                httpRequest
+                    .setBody(io.clientcore.core.models.binarydata.BinaryData.fromObject(body, this.jsonSerializer));
             }
             if (requestContext != null) {
                 httpRequest.setContext(requestContext);
@@ -546,30 +475,24 @@ public final class PropertiesImpl {
                 = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 200)) {
+                if (io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == io.clientcore.core.serialization.SerializationFormat.XML) {
+                    try {
+                        throw new io.clientcore.core.http.models.HttpResponseException("Unexpected XML response.",
+                            networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
                 io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
-                    this.jsonSerializer, this.xmlSerializer, null, null, PropertiesServiceImpl.LOGGER);
+                    this.jsonSerializer, null, null, null, PropertiesServiceImpl.LOGGER);
             }
             try {
                 FloatMillisecondsDurationProperty deserializedResult;
-                io.clientcore.core.serialization.SerializationFormat responseSerializationFormat
-                    = io.clientcore.core.utils.CoreUtils
-                        .serializationFormatFromContentType(networkResponse.getHeaders());
-                if (this.jsonSerializer.supportsFormat(responseSerializationFormat)) {
-                    deserializedResult = io.clientcore.core.utils.CoreUtils
-                        .decodeNetworkResponse(networkResponse.getValue(), this.jsonSerializer,
-                            io.clientcore.core.utils.CoreUtils.createParameterizedType(
-                                io.clientcore.core.http.models.Response.class,
-                                FloatMillisecondsDurationProperty.class));
-                } else if (this.xmlSerializer.supportsFormat(responseSerializationFormat)) {
-                    deserializedResult = io.clientcore.core.utils.CoreUtils
-                        .decodeNetworkResponse(networkResponse.getValue(), this.xmlSerializer,
-                            io.clientcore.core.utils.CoreUtils.createParameterizedType(
-                                io.clientcore.core.http.models.Response.class,
-                                FloatMillisecondsDurationProperty.class));
-                } else {
-                    throw new UnsupportedOperationException(
-                        "Unsupported response serialization format: " + responseSerializationFormat);
-                }
+                deserializedResult
+                    = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
+                        this.jsonSerializer, io.clientcore.core.utils.CoreUtils.createParameterizedType(
+                            io.clientcore.core.http.models.Response.class, FloatMillisecondsDurationProperty.class));
                 return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
                     networkResponse.getHeaders(), deserializedResult);
             } finally {
@@ -580,11 +503,9 @@ public final class PropertiesImpl {
         @Override
         public Response<Float64MillisecondsDurationProperty> float64Milliseconds(String endpoint, String contentType,
             String accept, Float64MillisecondsDurationProperty body, RequestContext requestContext) {
-            io.clientcore.core.utils.UriBuilder uriBuilder = io.clientcore.core.utils.UriBuilder
-                .parse(endpoint + "/encode/duration/property/float64-milliseconds");
             io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
                 .setMethod(io.clientcore.core.http.models.HttpMethod.POST)
-                .setUri(uriBuilder.toString());
+                .setUri(endpoint + "/encode/duration/property/float64-milliseconds");
             if (contentType != null) {
                 httpRequest.getHeaders()
                     .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Content-Type"), contentType);
@@ -598,12 +519,8 @@ public final class PropertiesImpl {
                     httpRequest.getHeaders()
                         .set(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE, "application/json");
                 }
-                io.clientcore.core.serialization.SerializationFormat requestSerializationFormat
-                    = io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(httpRequest.getHeaders());
-                httpRequest.setBody(io.clientcore.core.models.binarydata.BinaryData.fromObject(body,
-                    this.xmlSerializer.supportsFormat(requestSerializationFormat)
-                        ? this.xmlSerializer
-                        : this.jsonSerializer));
+                httpRequest
+                    .setBody(io.clientcore.core.models.binarydata.BinaryData.fromObject(body, this.jsonSerializer));
             }
             if (requestContext != null) {
                 httpRequest.setContext(requestContext);
@@ -613,30 +530,24 @@ public final class PropertiesImpl {
                 = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 200)) {
+                if (io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == io.clientcore.core.serialization.SerializationFormat.XML) {
+                    try {
+                        throw new io.clientcore.core.http.models.HttpResponseException("Unexpected XML response.",
+                            networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
                 io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
-                    this.jsonSerializer, this.xmlSerializer, null, null, PropertiesServiceImpl.LOGGER);
+                    this.jsonSerializer, null, null, null, PropertiesServiceImpl.LOGGER);
             }
             try {
                 Float64MillisecondsDurationProperty deserializedResult;
-                io.clientcore.core.serialization.SerializationFormat responseSerializationFormat
-                    = io.clientcore.core.utils.CoreUtils
-                        .serializationFormatFromContentType(networkResponse.getHeaders());
-                if (this.jsonSerializer.supportsFormat(responseSerializationFormat)) {
-                    deserializedResult = io.clientcore.core.utils.CoreUtils
-                        .decodeNetworkResponse(networkResponse.getValue(), this.jsonSerializer,
-                            io.clientcore.core.utils.CoreUtils.createParameterizedType(
-                                io.clientcore.core.http.models.Response.class,
-                                Float64MillisecondsDurationProperty.class));
-                } else if (this.xmlSerializer.supportsFormat(responseSerializationFormat)) {
-                    deserializedResult = io.clientcore.core.utils.CoreUtils
-                        .decodeNetworkResponse(networkResponse.getValue(), this.xmlSerializer,
-                            io.clientcore.core.utils.CoreUtils.createParameterizedType(
-                                io.clientcore.core.http.models.Response.class,
-                                Float64MillisecondsDurationProperty.class));
-                } else {
-                    throw new UnsupportedOperationException(
-                        "Unsupported response serialization format: " + responseSerializationFormat);
-                }
+                deserializedResult
+                    = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
+                        this.jsonSerializer, io.clientcore.core.utils.CoreUtils.createParameterizedType(
+                            io.clientcore.core.http.models.Response.class, Float64MillisecondsDurationProperty.class));
                 return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
                     networkResponse.getHeaders(), deserializedResult);
             } finally {
@@ -647,11 +558,9 @@ public final class PropertiesImpl {
         @Override
         public Response<FloatSecondsDurationArrayProperty> floatSecondsArray(String endpoint, String contentType,
             String accept, FloatSecondsDurationArrayProperty body, RequestContext requestContext) {
-            io.clientcore.core.utils.UriBuilder uriBuilder
-                = io.clientcore.core.utils.UriBuilder.parse(endpoint + "/encode/duration/property/float-seconds-array");
             io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
                 .setMethod(io.clientcore.core.http.models.HttpMethod.POST)
-                .setUri(uriBuilder.toString());
+                .setUri(endpoint + "/encode/duration/property/float-seconds-array");
             if (contentType != null) {
                 httpRequest.getHeaders()
                     .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Content-Type"), contentType);
@@ -665,12 +574,8 @@ public final class PropertiesImpl {
                     httpRequest.getHeaders()
                         .set(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE, "application/json");
                 }
-                io.clientcore.core.serialization.SerializationFormat requestSerializationFormat
-                    = io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(httpRequest.getHeaders());
-                httpRequest.setBody(io.clientcore.core.models.binarydata.BinaryData.fromObject(body,
-                    this.xmlSerializer.supportsFormat(requestSerializationFormat)
-                        ? this.xmlSerializer
-                        : this.jsonSerializer));
+                httpRequest
+                    .setBody(io.clientcore.core.models.binarydata.BinaryData.fromObject(body, this.jsonSerializer));
             }
             if (requestContext != null) {
                 httpRequest.setContext(requestContext);
@@ -680,30 +585,24 @@ public final class PropertiesImpl {
                 = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 200)) {
+                if (io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == io.clientcore.core.serialization.SerializationFormat.XML) {
+                    try {
+                        throw new io.clientcore.core.http.models.HttpResponseException("Unexpected XML response.",
+                            networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
                 io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
-                    this.jsonSerializer, this.xmlSerializer, null, null, PropertiesServiceImpl.LOGGER);
+                    this.jsonSerializer, null, null, null, PropertiesServiceImpl.LOGGER);
             }
             try {
                 FloatSecondsDurationArrayProperty deserializedResult;
-                io.clientcore.core.serialization.SerializationFormat responseSerializationFormat
-                    = io.clientcore.core.utils.CoreUtils
-                        .serializationFormatFromContentType(networkResponse.getHeaders());
-                if (this.jsonSerializer.supportsFormat(responseSerializationFormat)) {
-                    deserializedResult = io.clientcore.core.utils.CoreUtils
-                        .decodeNetworkResponse(networkResponse.getValue(), this.jsonSerializer,
-                            io.clientcore.core.utils.CoreUtils.createParameterizedType(
-                                io.clientcore.core.http.models.Response.class,
-                                FloatSecondsDurationArrayProperty.class));
-                } else if (this.xmlSerializer.supportsFormat(responseSerializationFormat)) {
-                    deserializedResult = io.clientcore.core.utils.CoreUtils
-                        .decodeNetworkResponse(networkResponse.getValue(), this.xmlSerializer,
-                            io.clientcore.core.utils.CoreUtils.createParameterizedType(
-                                io.clientcore.core.http.models.Response.class,
-                                FloatSecondsDurationArrayProperty.class));
-                } else {
-                    throw new UnsupportedOperationException(
-                        "Unsupported response serialization format: " + responseSerializationFormat);
-                }
+                deserializedResult
+                    = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
+                        this.jsonSerializer, io.clientcore.core.utils.CoreUtils.createParameterizedType(
+                            io.clientcore.core.http.models.Response.class, FloatSecondsDurationArrayProperty.class));
                 return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
                     networkResponse.getHeaders(), deserializedResult);
             } finally {
@@ -715,11 +614,9 @@ public final class PropertiesImpl {
         public Response<FloatMillisecondsDurationArrayProperty> floatMillisecondsArray(String endpoint,
             String contentType, String accept, FloatMillisecondsDurationArrayProperty body,
             RequestContext requestContext) {
-            io.clientcore.core.utils.UriBuilder uriBuilder = io.clientcore.core.utils.UriBuilder
-                .parse(endpoint + "/encode/duration/property/float-milliseconds-array");
             io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
                 .setMethod(io.clientcore.core.http.models.HttpMethod.POST)
-                .setUri(uriBuilder.toString());
+                .setUri(endpoint + "/encode/duration/property/float-milliseconds-array");
             if (contentType != null) {
                 httpRequest.getHeaders()
                     .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Content-Type"), contentType);
@@ -733,12 +630,8 @@ public final class PropertiesImpl {
                     httpRequest.getHeaders()
                         .set(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE, "application/json");
                 }
-                io.clientcore.core.serialization.SerializationFormat requestSerializationFormat
-                    = io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(httpRequest.getHeaders());
-                httpRequest.setBody(io.clientcore.core.models.binarydata.BinaryData.fromObject(body,
-                    this.xmlSerializer.supportsFormat(requestSerializationFormat)
-                        ? this.xmlSerializer
-                        : this.jsonSerializer));
+                httpRequest
+                    .setBody(io.clientcore.core.models.binarydata.BinaryData.fromObject(body, this.jsonSerializer));
             }
             if (requestContext != null) {
                 httpRequest.setContext(requestContext);
@@ -748,30 +641,25 @@ public final class PropertiesImpl {
                 = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 200)) {
+                if (io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == io.clientcore.core.serialization.SerializationFormat.XML) {
+                    try {
+                        throw new io.clientcore.core.http.models.HttpResponseException("Unexpected XML response.",
+                            networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
                 io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
-                    this.jsonSerializer, this.xmlSerializer, null, null, PropertiesServiceImpl.LOGGER);
+                    this.jsonSerializer, null, null, null, PropertiesServiceImpl.LOGGER);
             }
             try {
                 FloatMillisecondsDurationArrayProperty deserializedResult;
-                io.clientcore.core.serialization.SerializationFormat responseSerializationFormat
-                    = io.clientcore.core.utils.CoreUtils
-                        .serializationFormatFromContentType(networkResponse.getHeaders());
-                if (this.jsonSerializer.supportsFormat(responseSerializationFormat)) {
-                    deserializedResult = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(
-                        networkResponse.getValue(), this.jsonSerializer,
+                deserializedResult = io.clientcore.core.utils.CoreUtils
+                    .decodeNetworkResponse(networkResponse.getValue(), this.jsonSerializer,
                         io.clientcore.core.utils.CoreUtils.createParameterizedType(
                             io.clientcore.core.http.models.Response.class,
                             FloatMillisecondsDurationArrayProperty.class));
-                } else if (this.xmlSerializer.supportsFormat(responseSerializationFormat)) {
-                    deserializedResult = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(
-                        networkResponse.getValue(), this.xmlSerializer,
-                        io.clientcore.core.utils.CoreUtils.createParameterizedType(
-                            io.clientcore.core.http.models.Response.class,
-                            FloatMillisecondsDurationArrayProperty.class));
-                } else {
-                    throw new UnsupportedOperationException(
-                        "Unsupported response serialization format: " + responseSerializationFormat);
-                }
                 return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
                     networkResponse.getHeaders(), deserializedResult);
             } finally {
@@ -783,11 +671,9 @@ public final class PropertiesImpl {
         public Response<Int32SecondsLargerUnitDurationProperty> int32SecondsLargerUnit(String endpoint,
             String contentType, String accept, Int32SecondsLargerUnitDurationProperty body,
             RequestContext requestContext) {
-            io.clientcore.core.utils.UriBuilder uriBuilder = io.clientcore.core.utils.UriBuilder
-                .parse(endpoint + "/encode/duration/property/int32-seconds-larger-unit");
             io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
                 .setMethod(io.clientcore.core.http.models.HttpMethod.POST)
-                .setUri(uriBuilder.toString());
+                .setUri(endpoint + "/encode/duration/property/int32-seconds-larger-unit");
             if (contentType != null) {
                 httpRequest.getHeaders()
                     .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Content-Type"), contentType);
@@ -801,12 +687,8 @@ public final class PropertiesImpl {
                     httpRequest.getHeaders()
                         .set(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE, "application/json");
                 }
-                io.clientcore.core.serialization.SerializationFormat requestSerializationFormat
-                    = io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(httpRequest.getHeaders());
-                httpRequest.setBody(io.clientcore.core.models.binarydata.BinaryData.fromObject(body,
-                    this.xmlSerializer.supportsFormat(requestSerializationFormat)
-                        ? this.xmlSerializer
-                        : this.jsonSerializer));
+                httpRequest
+                    .setBody(io.clientcore.core.models.binarydata.BinaryData.fromObject(body, this.jsonSerializer));
             }
             if (requestContext != null) {
                 httpRequest.setContext(requestContext);
@@ -816,30 +698,25 @@ public final class PropertiesImpl {
                 = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 200)) {
+                if (io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == io.clientcore.core.serialization.SerializationFormat.XML) {
+                    try {
+                        throw new io.clientcore.core.http.models.HttpResponseException("Unexpected XML response.",
+                            networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
                 io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
-                    this.jsonSerializer, this.xmlSerializer, null, null, PropertiesServiceImpl.LOGGER);
+                    this.jsonSerializer, null, null, null, PropertiesServiceImpl.LOGGER);
             }
             try {
                 Int32SecondsLargerUnitDurationProperty deserializedResult;
-                io.clientcore.core.serialization.SerializationFormat responseSerializationFormat
-                    = io.clientcore.core.utils.CoreUtils
-                        .serializationFormatFromContentType(networkResponse.getHeaders());
-                if (this.jsonSerializer.supportsFormat(responseSerializationFormat)) {
-                    deserializedResult = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(
-                        networkResponse.getValue(), this.jsonSerializer,
+                deserializedResult = io.clientcore.core.utils.CoreUtils
+                    .decodeNetworkResponse(networkResponse.getValue(), this.jsonSerializer,
                         io.clientcore.core.utils.CoreUtils.createParameterizedType(
                             io.clientcore.core.http.models.Response.class,
                             Int32SecondsLargerUnitDurationProperty.class));
-                } else if (this.xmlSerializer.supportsFormat(responseSerializationFormat)) {
-                    deserializedResult = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(
-                        networkResponse.getValue(), this.xmlSerializer,
-                        io.clientcore.core.utils.CoreUtils.createParameterizedType(
-                            io.clientcore.core.http.models.Response.class,
-                            Int32SecondsLargerUnitDurationProperty.class));
-                } else {
-                    throw new UnsupportedOperationException(
-                        "Unsupported response serialization format: " + responseSerializationFormat);
-                }
                 return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
                     networkResponse.getHeaders(), deserializedResult);
             } finally {
@@ -851,11 +728,9 @@ public final class PropertiesImpl {
         public Response<FloatSecondsLargerUnitDurationProperty> floatSecondsLargerUnit(String endpoint,
             String contentType, String accept, FloatSecondsLargerUnitDurationProperty body,
             RequestContext requestContext) {
-            io.clientcore.core.utils.UriBuilder uriBuilder = io.clientcore.core.utils.UriBuilder
-                .parse(endpoint + "/encode/duration/property/float-seconds-larger-unit");
             io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
                 .setMethod(io.clientcore.core.http.models.HttpMethod.POST)
-                .setUri(uriBuilder.toString());
+                .setUri(endpoint + "/encode/duration/property/float-seconds-larger-unit");
             if (contentType != null) {
                 httpRequest.getHeaders()
                     .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Content-Type"), contentType);
@@ -869,12 +744,8 @@ public final class PropertiesImpl {
                     httpRequest.getHeaders()
                         .set(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE, "application/json");
                 }
-                io.clientcore.core.serialization.SerializationFormat requestSerializationFormat
-                    = io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(httpRequest.getHeaders());
-                httpRequest.setBody(io.clientcore.core.models.binarydata.BinaryData.fromObject(body,
-                    this.xmlSerializer.supportsFormat(requestSerializationFormat)
-                        ? this.xmlSerializer
-                        : this.jsonSerializer));
+                httpRequest
+                    .setBody(io.clientcore.core.models.binarydata.BinaryData.fromObject(body, this.jsonSerializer));
             }
             if (requestContext != null) {
                 httpRequest.setContext(requestContext);
@@ -884,30 +755,25 @@ public final class PropertiesImpl {
                 = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 200)) {
+                if (io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == io.clientcore.core.serialization.SerializationFormat.XML) {
+                    try {
+                        throw new io.clientcore.core.http.models.HttpResponseException("Unexpected XML response.",
+                            networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
                 io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
-                    this.jsonSerializer, this.xmlSerializer, null, null, PropertiesServiceImpl.LOGGER);
+                    this.jsonSerializer, null, null, null, PropertiesServiceImpl.LOGGER);
             }
             try {
                 FloatSecondsLargerUnitDurationProperty deserializedResult;
-                io.clientcore.core.serialization.SerializationFormat responseSerializationFormat
-                    = io.clientcore.core.utils.CoreUtils
-                        .serializationFormatFromContentType(networkResponse.getHeaders());
-                if (this.jsonSerializer.supportsFormat(responseSerializationFormat)) {
-                    deserializedResult = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(
-                        networkResponse.getValue(), this.jsonSerializer,
+                deserializedResult = io.clientcore.core.utils.CoreUtils
+                    .decodeNetworkResponse(networkResponse.getValue(), this.jsonSerializer,
                         io.clientcore.core.utils.CoreUtils.createParameterizedType(
                             io.clientcore.core.http.models.Response.class,
                             FloatSecondsLargerUnitDurationProperty.class));
-                } else if (this.xmlSerializer.supportsFormat(responseSerializationFormat)) {
-                    deserializedResult = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(
-                        networkResponse.getValue(), this.xmlSerializer,
-                        io.clientcore.core.utils.CoreUtils.createParameterizedType(
-                            io.clientcore.core.http.models.Response.class,
-                            FloatSecondsLargerUnitDurationProperty.class));
-                } else {
-                    throw new UnsupportedOperationException(
-                        "Unsupported response serialization format: " + responseSerializationFormat);
-                }
                 return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
                     networkResponse.getHeaders(), deserializedResult);
             } finally {
@@ -919,11 +785,9 @@ public final class PropertiesImpl {
         public Response<Int32MillisecondsLargerUnitDurationProperty> int32MillisecondsLargerUnit(String endpoint,
             String contentType, String accept, Int32MillisecondsLargerUnitDurationProperty body,
             RequestContext requestContext) {
-            io.clientcore.core.utils.UriBuilder uriBuilder = io.clientcore.core.utils.UriBuilder
-                .parse(endpoint + "/encode/duration/property/int32-milliseconds-larger-unit");
             io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
                 .setMethod(io.clientcore.core.http.models.HttpMethod.POST)
-                .setUri(uriBuilder.toString());
+                .setUri(endpoint + "/encode/duration/property/int32-milliseconds-larger-unit");
             if (contentType != null) {
                 httpRequest.getHeaders()
                     .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Content-Type"), contentType);
@@ -937,12 +801,8 @@ public final class PropertiesImpl {
                     httpRequest.getHeaders()
                         .set(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE, "application/json");
                 }
-                io.clientcore.core.serialization.SerializationFormat requestSerializationFormat
-                    = io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(httpRequest.getHeaders());
-                httpRequest.setBody(io.clientcore.core.models.binarydata.BinaryData.fromObject(body,
-                    this.xmlSerializer.supportsFormat(requestSerializationFormat)
-                        ? this.xmlSerializer
-                        : this.jsonSerializer));
+                httpRequest
+                    .setBody(io.clientcore.core.models.binarydata.BinaryData.fromObject(body, this.jsonSerializer));
             }
             if (requestContext != null) {
                 httpRequest.setContext(requestContext);
@@ -952,30 +812,25 @@ public final class PropertiesImpl {
                 = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 200)) {
+                if (io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == io.clientcore.core.serialization.SerializationFormat.XML) {
+                    try {
+                        throw new io.clientcore.core.http.models.HttpResponseException("Unexpected XML response.",
+                            networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
                 io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
-                    this.jsonSerializer, this.xmlSerializer, null, null, PropertiesServiceImpl.LOGGER);
+                    this.jsonSerializer, null, null, null, PropertiesServiceImpl.LOGGER);
             }
             try {
                 Int32MillisecondsLargerUnitDurationProperty deserializedResult;
-                io.clientcore.core.serialization.SerializationFormat responseSerializationFormat
-                    = io.clientcore.core.utils.CoreUtils
-                        .serializationFormatFromContentType(networkResponse.getHeaders());
-                if (this.jsonSerializer.supportsFormat(responseSerializationFormat)) {
-                    deserializedResult = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(
-                        networkResponse.getValue(), this.jsonSerializer,
-                        io.clientcore.core.utils.CoreUtils.createParameterizedType(
-                            io.clientcore.core.http.models.Response.class,
-                            Int32MillisecondsLargerUnitDurationProperty.class));
-                } else if (this.xmlSerializer.supportsFormat(responseSerializationFormat)) {
-                    deserializedResult = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(
-                        networkResponse.getValue(), this.xmlSerializer,
-                        io.clientcore.core.utils.CoreUtils.createParameterizedType(
-                            io.clientcore.core.http.models.Response.class,
-                            Int32MillisecondsLargerUnitDurationProperty.class));
-                } else {
-                    throw new UnsupportedOperationException(
-                        "Unsupported response serialization format: " + responseSerializationFormat);
-                }
+                deserializedResult = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(
+                    networkResponse.getValue(), this.jsonSerializer,
+                    io.clientcore.core.utils.CoreUtils.createParameterizedType(
+                        io.clientcore.core.http.models.Response.class,
+                        Int32MillisecondsLargerUnitDurationProperty.class));
                 return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
                     networkResponse.getHeaders(), deserializedResult);
             } finally {
@@ -987,11 +842,9 @@ public final class PropertiesImpl {
         public Response<FloatMillisecondsLargerUnitDurationProperty> floatMillisecondsLargerUnit(String endpoint,
             String contentType, String accept, FloatMillisecondsLargerUnitDurationProperty body,
             RequestContext requestContext) {
-            io.clientcore.core.utils.UriBuilder uriBuilder = io.clientcore.core.utils.UriBuilder
-                .parse(endpoint + "/encode/duration/property/float-milliseconds-larger-unit");
             io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
                 .setMethod(io.clientcore.core.http.models.HttpMethod.POST)
-                .setUri(uriBuilder.toString());
+                .setUri(endpoint + "/encode/duration/property/float-milliseconds-larger-unit");
             if (contentType != null) {
                 httpRequest.getHeaders()
                     .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Content-Type"), contentType);
@@ -1005,12 +858,8 @@ public final class PropertiesImpl {
                     httpRequest.getHeaders()
                         .set(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE, "application/json");
                 }
-                io.clientcore.core.serialization.SerializationFormat requestSerializationFormat
-                    = io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(httpRequest.getHeaders());
-                httpRequest.setBody(io.clientcore.core.models.binarydata.BinaryData.fromObject(body,
-                    this.xmlSerializer.supportsFormat(requestSerializationFormat)
-                        ? this.xmlSerializer
-                        : this.jsonSerializer));
+                httpRequest
+                    .setBody(io.clientcore.core.models.binarydata.BinaryData.fromObject(body, this.jsonSerializer));
             }
             if (requestContext != null) {
                 httpRequest.setContext(requestContext);
@@ -1020,30 +869,25 @@ public final class PropertiesImpl {
                 = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 200)) {
+                if (io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == io.clientcore.core.serialization.SerializationFormat.XML) {
+                    try {
+                        throw new io.clientcore.core.http.models.HttpResponseException("Unexpected XML response.",
+                            networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
                 io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
-                    this.jsonSerializer, this.xmlSerializer, null, null, PropertiesServiceImpl.LOGGER);
+                    this.jsonSerializer, null, null, null, PropertiesServiceImpl.LOGGER);
             }
             try {
                 FloatMillisecondsLargerUnitDurationProperty deserializedResult;
-                io.clientcore.core.serialization.SerializationFormat responseSerializationFormat
-                    = io.clientcore.core.utils.CoreUtils
-                        .serializationFormatFromContentType(networkResponse.getHeaders());
-                if (this.jsonSerializer.supportsFormat(responseSerializationFormat)) {
-                    deserializedResult = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(
-                        networkResponse.getValue(), this.jsonSerializer,
-                        io.clientcore.core.utils.CoreUtils.createParameterizedType(
-                            io.clientcore.core.http.models.Response.class,
-                            FloatMillisecondsLargerUnitDurationProperty.class));
-                } else if (this.xmlSerializer.supportsFormat(responseSerializationFormat)) {
-                    deserializedResult = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(
-                        networkResponse.getValue(), this.xmlSerializer,
-                        io.clientcore.core.utils.CoreUtils.createParameterizedType(
-                            io.clientcore.core.http.models.Response.class,
-                            FloatMillisecondsLargerUnitDurationProperty.class));
-                } else {
-                    throw new UnsupportedOperationException(
-                        "Unsupported response serialization format: " + responseSerializationFormat);
-                }
+                deserializedResult = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(
+                    networkResponse.getValue(), this.jsonSerializer,
+                    io.clientcore.core.utils.CoreUtils.createParameterizedType(
+                        io.clientcore.core.http.models.Response.class,
+                        FloatMillisecondsLargerUnitDurationProperty.class));
                 return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
                     networkResponse.getHeaders(), deserializedResult);
             } finally {

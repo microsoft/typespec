@@ -94,20 +94,15 @@ public final class BodyOrNoContentClientImpl {
         private final io.clientcore.core.serialization.json.JsonSerializer jsonSerializer
             = io.clientcore.core.serialization.json.JsonSerializer.getInstance();
 
-        private final io.clientcore.core.serialization.xml.XmlSerializer xmlSerializer
-            = io.clientcore.core.serialization.xml.XmlSerializer.getInstance();
-
         private BodyOrNoContentClientServiceImpl(io.clientcore.core.http.pipeline.HttpPipeline pipeline) {
             this.httpPipeline = pipeline;
         }
 
         @Override
         public Response<BlobLayout> getBody(String endpoint, String accept, RequestContext requestContext) {
-            io.clientcore.core.utils.UriBuilder uriBuilder
-                = io.clientcore.core.utils.UriBuilder.parse(endpoint + "/response/body-or-no-content/body");
             io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
                 .setMethod(io.clientcore.core.http.models.HttpMethod.GET)
-                .setUri(uriBuilder.toString());
+                .setUri(endpoint + "/response/body-or-no-content/body");
             if (accept != null) {
                 httpRequest.getHeaders()
                     .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Accept"), accept);
@@ -120,26 +115,23 @@ public final class BodyOrNoContentClientImpl {
                 = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 200 || responseCode == 204)) {
+                if (io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == io.clientcore.core.serialization.SerializationFormat.XML) {
+                    try {
+                        throw new io.clientcore.core.http.models.HttpResponseException("Unexpected XML response.",
+                            networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
                 io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
-                    this.jsonSerializer, this.xmlSerializer, null, null, BodyOrNoContentClientServiceImpl.LOGGER);
+                    this.jsonSerializer, null, null, null, BodyOrNoContentClientServiceImpl.LOGGER);
             }
             try {
                 BlobLayout deserializedResult;
-                io.clientcore.core.serialization.SerializationFormat responseSerializationFormat
-                    = io.clientcore.core.utils.CoreUtils
-                        .serializationFormatFromContentType(networkResponse.getHeaders());
-                if (this.jsonSerializer.supportsFormat(responseSerializationFormat)) {
-                    deserializedResult = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(
-                        networkResponse.getValue(), this.jsonSerializer, io.clientcore.core.utils.CoreUtils
-                            .createParameterizedType(io.clientcore.core.http.models.Response.class, BlobLayout.class));
-                } else if (this.xmlSerializer.supportsFormat(responseSerializationFormat)) {
-                    deserializedResult = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(
-                        networkResponse.getValue(), this.xmlSerializer, io.clientcore.core.utils.CoreUtils
-                            .createParameterizedType(io.clientcore.core.http.models.Response.class, BlobLayout.class));
-                } else {
-                    throw new UnsupportedOperationException(
-                        "Unsupported response serialization format: " + responseSerializationFormat);
-                }
+                deserializedResult = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(
+                    networkResponse.getValue(), this.jsonSerializer, io.clientcore.core.utils.CoreUtils
+                        .createParameterizedType(io.clientcore.core.http.models.Response.class, BlobLayout.class));
                 return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
                     networkResponse.getHeaders(), deserializedResult);
             } finally {
@@ -149,11 +141,9 @@ public final class BodyOrNoContentClientImpl {
 
         @Override
         public Response<BlobLayout> getNoContent(String endpoint, String accept, RequestContext requestContext) {
-            io.clientcore.core.utils.UriBuilder uriBuilder
-                = io.clientcore.core.utils.UriBuilder.parse(endpoint + "/response/body-or-no-content/no-content");
             io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
                 .setMethod(io.clientcore.core.http.models.HttpMethod.GET)
-                .setUri(uriBuilder.toString());
+                .setUri(endpoint + "/response/body-or-no-content/no-content");
             if (accept != null) {
                 httpRequest.getHeaders()
                     .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Accept"), accept);
@@ -166,26 +156,23 @@ public final class BodyOrNoContentClientImpl {
                 = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 200 || responseCode == 204)) {
+                if (io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == io.clientcore.core.serialization.SerializationFormat.XML) {
+                    try {
+                        throw new io.clientcore.core.http.models.HttpResponseException("Unexpected XML response.",
+                            networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
                 io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
-                    this.jsonSerializer, this.xmlSerializer, null, null, BodyOrNoContentClientServiceImpl.LOGGER);
+                    this.jsonSerializer, null, null, null, BodyOrNoContentClientServiceImpl.LOGGER);
             }
             try {
                 BlobLayout deserializedResult;
-                io.clientcore.core.serialization.SerializationFormat responseSerializationFormat
-                    = io.clientcore.core.utils.CoreUtils
-                        .serializationFormatFromContentType(networkResponse.getHeaders());
-                if (this.jsonSerializer.supportsFormat(responseSerializationFormat)) {
-                    deserializedResult = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(
-                        networkResponse.getValue(), this.jsonSerializer, io.clientcore.core.utils.CoreUtils
-                            .createParameterizedType(io.clientcore.core.http.models.Response.class, BlobLayout.class));
-                } else if (this.xmlSerializer.supportsFormat(responseSerializationFormat)) {
-                    deserializedResult = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(
-                        networkResponse.getValue(), this.xmlSerializer, io.clientcore.core.utils.CoreUtils
-                            .createParameterizedType(io.clientcore.core.http.models.Response.class, BlobLayout.class));
-                } else {
-                    throw new UnsupportedOperationException(
-                        "Unsupported response serialization format: " + responseSerializationFormat);
-                }
+                deserializedResult = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(
+                    networkResponse.getValue(), this.jsonSerializer, io.clientcore.core.utils.CoreUtils
+                        .createParameterizedType(io.clientcore.core.http.models.Response.class, BlobLayout.class));
                 return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
                     networkResponse.getHeaders(), deserializedResult);
             } finally {

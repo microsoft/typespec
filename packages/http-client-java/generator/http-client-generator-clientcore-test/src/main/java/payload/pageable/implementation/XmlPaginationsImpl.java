@@ -125,11 +125,9 @@ public final class XmlPaginationsImpl {
         @Override
         public Response<XmlPetListResultWithNextLink> listWithNextLink(String endpoint, String accept,
             RequestContext requestContext) {
-            io.clientcore.core.utils.UriBuilder uriBuilder
-                = io.clientcore.core.utils.UriBuilder.parse(endpoint + "/payload/pageable/xml/list-with-next-link");
             io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
                 .setMethod(io.clientcore.core.http.models.HttpMethod.GET)
-                .setUri(uriBuilder.toString());
+                .setUri(endpoint + "/payload/pageable/xml/list-with-next-link");
             if (accept != null) {
                 httpRequest.getHeaders()
                     .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Accept"), accept);
@@ -174,10 +172,9 @@ public final class XmlPaginationsImpl {
         @Override
         public Response<XmlPetListResultWithNextLink> listWithNextLinkNext(String nextLink, String endpoint,
             String accept, RequestContext requestContext) {
-            io.clientcore.core.utils.UriBuilder uriBuilder = io.clientcore.core.utils.UriBuilder.parse(nextLink);
             io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
                 .setMethod(io.clientcore.core.http.models.HttpMethod.GET)
-                .setUri(uriBuilder.toString());
+                .setUri(nextLink);
             if (accept != null) {
                 httpRequest.getHeaders()
                     .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Accept"), accept);

@@ -59,12 +59,6 @@ public final class NoEnvelopeCustomDiscriminatorsImpl {
 
         private final io.clientcore.core.http.pipeline.HttpPipeline httpPipeline;
 
-        private final io.clientcore.core.serialization.json.JsonSerializer jsonSerializer
-            = io.clientcore.core.serialization.json.JsonSerializer.getInstance();
-
-        private final io.clientcore.core.serialization.xml.XmlSerializer xmlSerializer
-            = io.clientcore.core.serialization.xml.XmlSerializer.getInstance();
-
         private NoEnvelopeCustomDiscriminatorsServiceImpl(io.clientcore.core.http.pipeline.HttpPipeline pipeline) {
             this.httpPipeline = pipeline;
         }
@@ -89,8 +83,17 @@ public final class NoEnvelopeCustomDiscriminatorsImpl {
                 = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 200)) {
+                if (io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == io.clientcore.core.serialization.SerializationFormat.XML) {
+                    try {
+                        throw new io.clientcore.core.http.models.HttpResponseException("Unexpected XML response.",
+                            networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
                 io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
-                    this.jsonSerializer, this.xmlSerializer, null, null,
+                    io.clientcore.core.serialization.json.JsonSerializer.getInstance(), null, null, null,
                     NoEnvelopeCustomDiscriminatorsServiceImpl.LOGGER);
             }
             return networkResponse;
@@ -99,11 +102,9 @@ public final class NoEnvelopeCustomDiscriminatorsImpl {
         @Override
         public Response<BinaryData> put(String endpoint, String contentType, String accept, BinaryData input,
             RequestContext requestContext) {
-            io.clientcore.core.utils.UriBuilder uriBuilder = io.clientcore.core.utils.UriBuilder
-                .parse(endpoint + "/type/union/discriminated/no-envelope/custom-discriminator");
             io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
                 .setMethod(io.clientcore.core.http.models.HttpMethod.PUT)
-                .setUri(uriBuilder.toString());
+                .setUri(endpoint + "/type/union/discriminated/no-envelope/custom-discriminator");
             if (contentType != null) {
                 httpRequest.getHeaders()
                     .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Content-Type"), contentType);
@@ -127,8 +128,17 @@ public final class NoEnvelopeCustomDiscriminatorsImpl {
                 = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 200)) {
+                if (io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == io.clientcore.core.serialization.SerializationFormat.XML) {
+                    try {
+                        throw new io.clientcore.core.http.models.HttpResponseException("Unexpected XML response.",
+                            networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
                 io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
-                    this.jsonSerializer, this.xmlSerializer, null, null,
+                    io.clientcore.core.serialization.json.JsonSerializer.getInstance(), null, null, null,
                     NoEnvelopeCustomDiscriminatorsServiceImpl.LOGGER);
             }
             return networkResponse;

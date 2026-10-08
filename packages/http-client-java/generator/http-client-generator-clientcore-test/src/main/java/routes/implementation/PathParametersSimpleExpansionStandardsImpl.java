@@ -63,12 +63,6 @@ public final class PathParametersSimpleExpansionStandardsImpl {
 
         private final io.clientcore.core.http.pipeline.HttpPipeline httpPipeline;
 
-        private final io.clientcore.core.serialization.json.JsonSerializer jsonSerializer
-            = io.clientcore.core.serialization.json.JsonSerializer.getInstance();
-
-        private final io.clientcore.core.serialization.xml.XmlSerializer xmlSerializer
-            = io.clientcore.core.serialization.xml.XmlSerializer.getInstance();
-
         private PathParametersSimpleExpansionStandardsServiceImpl(
             io.clientcore.core.http.pipeline.HttpPipeline pipeline) {
             this.httpPipeline = pipeline;
@@ -76,12 +70,10 @@ public final class PathParametersSimpleExpansionStandardsImpl {
 
         @Override
         public Response<Void> primitive(String endpoint, String param, RequestContext requestContext) {
-            io.clientcore.core.utils.UriBuilder uriBuilder
-                = io.clientcore.core.utils.UriBuilder.parse(endpoint + "/routes/path/simple/standard/primitive"
-                    + io.clientcore.core.implementation.utils.UriEscapers.PATH_ESCAPER.escape(param));
             io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
                 .setMethod(io.clientcore.core.http.models.HttpMethod.GET)
-                .setUri(uriBuilder.toString());
+                .setUri(endpoint + "/routes/path/simple/standard/primitive"
+                    + io.clientcore.core.implementation.utils.UriEscapers.PATH_ESCAPER.escape(param));
             if (requestContext != null) {
                 httpRequest.setContext(requestContext);
                 requestContext.getRequestCallback().accept(httpRequest);
@@ -90,8 +82,17 @@ public final class PathParametersSimpleExpansionStandardsImpl {
                 = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 204)) {
+                if (io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == io.clientcore.core.serialization.SerializationFormat.XML) {
+                    try {
+                        throw new io.clientcore.core.http.models.HttpResponseException("Unexpected XML response.",
+                            networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
                 io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
-                    this.jsonSerializer, this.xmlSerializer, null, null,
+                    io.clientcore.core.serialization.json.JsonSerializer.getInstance(), null, null, null,
                     PathParametersSimpleExpansionStandardsServiceImpl.LOGGER);
             }
             try {
@@ -104,12 +105,10 @@ public final class PathParametersSimpleExpansionStandardsImpl {
 
         @Override
         public Response<Void> array(String endpoint, String param, RequestContext requestContext) {
-            io.clientcore.core.utils.UriBuilder uriBuilder
-                = io.clientcore.core.utils.UriBuilder.parse(endpoint + "/routes/path/simple/standard/array"
-                    + io.clientcore.core.implementation.utils.UriEscapers.PATH_ESCAPER.escape(param));
             io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
                 .setMethod(io.clientcore.core.http.models.HttpMethod.GET)
-                .setUri(uriBuilder.toString());
+                .setUri(endpoint + "/routes/path/simple/standard/array"
+                    + io.clientcore.core.implementation.utils.UriEscapers.PATH_ESCAPER.escape(param));
             if (requestContext != null) {
                 httpRequest.setContext(requestContext);
                 requestContext.getRequestCallback().accept(httpRequest);
@@ -118,8 +117,17 @@ public final class PathParametersSimpleExpansionStandardsImpl {
                 = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 204)) {
+                if (io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == io.clientcore.core.serialization.SerializationFormat.XML) {
+                    try {
+                        throw new io.clientcore.core.http.models.HttpResponseException("Unexpected XML response.",
+                            networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
                 io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
-                    this.jsonSerializer, this.xmlSerializer, null, null,
+                    io.clientcore.core.serialization.json.JsonSerializer.getInstance(), null, null, null,
                     PathParametersSimpleExpansionStandardsServiceImpl.LOGGER);
             }
             try {
@@ -132,12 +140,10 @@ public final class PathParametersSimpleExpansionStandardsImpl {
 
         @Override
         public Response<Void> record(String endpoint, Map<String, Integer> param, RequestContext requestContext) {
-            io.clientcore.core.utils.UriBuilder uriBuilder
-                = io.clientcore.core.utils.UriBuilder.parse(endpoint + "/routes/path/simple/standard/record"
-                    + io.clientcore.core.implementation.utils.UriEscapers.PATH_ESCAPER.escape(String.valueOf(param)));
             io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
                 .setMethod(io.clientcore.core.http.models.HttpMethod.GET)
-                .setUri(uriBuilder.toString());
+                .setUri(endpoint + "/routes/path/simple/standard/record"
+                    + io.clientcore.core.implementation.utils.UriEscapers.PATH_ESCAPER.escape(String.valueOf(param)));
             if (requestContext != null) {
                 httpRequest.setContext(requestContext);
                 requestContext.getRequestCallback().accept(httpRequest);
@@ -146,8 +152,17 @@ public final class PathParametersSimpleExpansionStandardsImpl {
                 = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 204)) {
+                if (io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == io.clientcore.core.serialization.SerializationFormat.XML) {
+                    try {
+                        throw new io.clientcore.core.http.models.HttpResponseException("Unexpected XML response.",
+                            networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
                 io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
-                    this.jsonSerializer, this.xmlSerializer, null, null,
+                    io.clientcore.core.serialization.json.JsonSerializer.getInstance(), null, null, null,
                     PathParametersSimpleExpansionStandardsServiceImpl.LOGGER);
             }
             try {

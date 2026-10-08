@@ -497,10 +497,21 @@ namespace SampleTypeSpec
         /// <param name="id"> The unique identifier of the plant. </param>
         /// <param name="height"> The height of the plant in centimeters. </param>
         /// <param name="age"> The age of the tree in years. </param>
+        /// <param name="nullableText"></param>
+        /// <param name="nullableLabels"></param>
         /// <returns> A new <see cref="SampleTypeSpec.Tree"/> instance for mocking. </returns>
-        public static Tree Tree(string id = default, int height = default, int age = default)
+        public static Tree Tree(string id = default, int height = default, int age = default, string nullableText = default, IDictionary<string, string> nullableLabels = default)
         {
-            return new Tree("tree", id, height, additionalBinaryDataProperties: null, age);
+            nullableLabels ??= new ChangeTrackingDictionary<string, string>();
+
+            return new Tree(
+                "tree",
+                id,
+                height,
+                additionalBinaryDataProperties: null,
+                age,
+                nullableText,
+                nullableLabels);
         }
 
         /// <summary>
@@ -561,6 +572,103 @@ namespace SampleTypeSpec
                 dictionaryChildren,
                 listOfDictionaries.ToList(),
                 default);
+        }
+
+        /// <summary> The OptionalNullableDynamicProperties. </summary>
+        /// <param name="inheritedNullable"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.OptionalNullableDynamicProperties"/> instance for mocking. </returns>
+        public static OptionalNullableDynamicProperties OptionalNullableDynamicProperties(string inheritedNullable = default)
+        {
+            return new OptionalNullableDynamicProperties(inheritedNullable, default);
+        }
+
+        /// <summary> The OptionalNullableBase. </summary>
+        /// <param name="inheritedNullable"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.OptionalNullableBase"/> instance for mocking. </returns>
+        public static OptionalNullableBase OptionalNullableBase(string inheritedNullable = default)
+        {
+            return new OptionalNullableBase(inheritedNullable, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The OptionalNullableChild. </summary>
+        /// <param name="value"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.OptionalNullableChild"/> instance for mocking. </returns>
+        public static OptionalNullableChild OptionalNullableChild(string value = default)
+        {
+            return new OptionalNullableChild(value, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The OptionalNullableProperties. </summary>
+        /// <param name="inheritedNullable"></param>
+        /// <param name="nullableModel"></param>
+        /// <param name="nullableString"></param>
+        /// <param name="nullableInt"></param>
+        /// <param name="nullableBoolean"></param>
+        /// <param name="nullableEnum"></param>
+        /// <param name="nullableOn"></param>
+        /// <param name="nullableBytes"></param>
+        /// <param name="nullableList"></param>
+        /// <param name="nullableDictionary"></param>
+        /// <param name="readOnlyNullable"></param>
+        /// <param name="requiredNullable"></param>
+        /// <param name="optionalNonNullable"></param>
+        /// <param name="optionalNonNullableInt"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.OptionalNullableProperties"/> instance for mocking. </returns>
+        public static OptionalNullableProperties OptionalNullableProperties(string inheritedNullable = default, OptionalNullableChild nullableModel = default, string nullableString = default, int? nullableInt = default, bool? nullableBoolean = default, StringFixedEnum? nullableEnum = default, DateTimeOffset? nullableOn = default, BinaryData nullableBytes = default, IEnumerable<string> nullableList = default, IDictionary<string, int?> nullableDictionary = default, string readOnlyNullable = default, string requiredNullable = default, string optionalNonNullable = default, int? optionalNonNullableInt = default)
+        {
+            nullableList ??= new ChangeTrackingList<string>();
+            nullableDictionary ??= new ChangeTrackingDictionary<string, int?>();
+
+            return new OptionalNullableProperties(
+                inheritedNullable,
+                additionalBinaryDataProperties: null,
+                nullableModel,
+                nullableString,
+                nullableInt,
+                nullableBoolean,
+                nullableEnum,
+                nullableOn,
+                nullableBytes,
+                nullableList.ToList(),
+                nullableDictionary,
+                readOnlyNullable,
+                requiredNullable,
+                optionalNonNullable,
+                optionalNonNullableInt);
+        }
+
+        /// <summary> The OptionalNullableContainer. </summary>
+        /// <param name="child"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.OptionalNullableContainer"/> instance for mocking. </returns>
+        public static OptionalNullableContainer OptionalNullableContainer(OptionalNullableProperties child = default)
+        {
+            return new OptionalNullableContainer(child, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The OptionalNullableFieldNames. </summary>
+        /// <param name="additionalStringProperties"></param>
+        /// <param name="additionalStringPropertiesIsDefined"></param>
+        /// <param name="additionalProperties"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.OptionalNullableFieldNames"/> instance for mocking. </returns>
+        public static OptionalNullableFieldNames OptionalNullableFieldNames(string additionalStringProperties = default, string additionalStringPropertiesIsDefined = default, IDictionary<string, string> additionalProperties = default)
+        {
+            additionalProperties ??= new ChangeTrackingDictionary<string, string>();
+
+            return new OptionalNullableFieldNames(additionalStringProperties, additionalStringPropertiesIsDefined, additionalProperties, additionalBinaryDataProperties: null);
+        }
+
+        /// <summary> The UnionAdditionalProperties. </summary>
+        /// <param name="additionalProperties"></param>
+        /// <param name="additionalInt32Properties"></param>
+        /// <param name="additionalBooleanProperties"></param>
+        /// <returns> A new <see cref="SampleTypeSpec.UnionAdditionalProperties"/> instance for mocking. </returns>
+        public static UnionAdditionalProperties UnionAdditionalProperties(IDictionary<string, string> additionalProperties = default, IDictionary<string, int> additionalInt32Properties = default, IDictionary<string, bool> additionalBooleanProperties = default)
+        {
+            additionalProperties ??= new ChangeTrackingDictionary<string, string>();
+            additionalInt32Properties ??= new ChangeTrackingDictionary<string, int>();
+            additionalBooleanProperties ??= new ChangeTrackingDictionary<string, bool>();
+
+            return new UnionAdditionalProperties(additionalProperties, additionalInt32Properties, additionalBooleanProperties, additionalBinaryDataProperties: null);
         }
     }
 }

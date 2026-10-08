@@ -2,7 +2,8 @@ import { editor, Range } from "monaco-editor";
 import { useCallback, useEffect, useRef, useState, type FunctionComponent } from "react";
 import { Editor, useMonacoModel, type EditorProps } from "./editor.js";
 import type { PlaygroundEditorsOptions } from "./playground.js";
-import "./typespec-editor.css";
+// Keep runtime styles out of the emitted declarations.
+import {} from "./typespec-editor.css";
 
 // Re-export for backward compatibility
 export { getChangedLineNumbers } from "./diff-utils.js";

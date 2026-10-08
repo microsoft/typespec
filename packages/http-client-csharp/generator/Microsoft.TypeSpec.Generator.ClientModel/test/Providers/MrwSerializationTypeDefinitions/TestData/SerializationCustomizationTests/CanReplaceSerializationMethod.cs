@@ -72,6 +72,7 @@ namespace Sample.Models
                 return null;
             }
             string prop1 = default;
+            bool prop2IsDefined = false;
             string prop2 = default;
             global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties = new global::Sample.ChangeTrackingDictionary<string, global::System.BinaryData>();
             foreach (var prop in element.EnumerateObject())
@@ -83,6 +84,7 @@ namespace Sample.Models
                 }
                 if (prop.NameEquals("prop2"u8))
                 {
+                    prop2IsDefined = true;
                     if ((prop.Value.ValueKind == global::System.Text.Json.JsonValueKind.Null))
                     {
                         prop2 = null;
@@ -96,7 +98,10 @@ namespace Sample.Models
                     additionalBinaryDataProperties.Add(prop.Name, prop.Value.GetUtf8Bytes());
                 }
             }
-            return new global::Sample.Models.MockInputModel(prop1, prop2, additionalBinaryDataProperties);
+            return new global::Sample.Models.MockInputModel(prop1, prop2, additionalBinaryDataProperties)
+            {
+                _prop2IsDefined = prop2IsDefined
+            };
         }
     }
 }

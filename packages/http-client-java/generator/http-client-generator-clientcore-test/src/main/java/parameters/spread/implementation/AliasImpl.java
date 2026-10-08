@@ -73,9 +73,6 @@ public final class AliasImpl {
         private final io.clientcore.core.serialization.json.JsonSerializer jsonSerializer
             = io.clientcore.core.serialization.json.JsonSerializer.getInstance();
 
-        private final io.clientcore.core.serialization.xml.XmlSerializer xmlSerializer
-            = io.clientcore.core.serialization.xml.XmlSerializer.getInstance();
-
         private AliasServiceImpl(io.clientcore.core.http.pipeline.HttpPipeline pipeline) {
             this.httpPipeline = pipeline;
         }
@@ -83,11 +80,9 @@ public final class AliasImpl {
         @Override
         public Response<Void> spreadAsRequestBody(String endpoint, String contentType,
             SpreadAsRequestBodyRequest spreadAsRequestBodyRequest, RequestContext requestContext) {
-            io.clientcore.core.utils.UriBuilder uriBuilder
-                = io.clientcore.core.utils.UriBuilder.parse(endpoint + "/parameters/spread/alias/request-body");
             io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
                 .setMethod(io.clientcore.core.http.models.HttpMethod.PUT)
-                .setUri(uriBuilder.toString());
+                .setUri(endpoint + "/parameters/spread/alias/request-body");
             if (contentType != null) {
                 httpRequest.getHeaders()
                     .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Content-Type"), contentType);
@@ -97,13 +92,8 @@ public final class AliasImpl {
                     httpRequest.getHeaders()
                         .set(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE, "application/json");
                 }
-                io.clientcore.core.serialization.SerializationFormat requestSerializationFormat
-                    = io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(httpRequest.getHeaders());
-                httpRequest
-                    .setBody(io.clientcore.core.models.binarydata.BinaryData.fromObject(spreadAsRequestBodyRequest,
-                        this.xmlSerializer.supportsFormat(requestSerializationFormat)
-                            ? this.xmlSerializer
-                            : this.jsonSerializer));
+                httpRequest.setBody(io.clientcore.core.models.binarydata.BinaryData
+                    .fromObject(spreadAsRequestBodyRequest, this.jsonSerializer));
             }
             if (requestContext != null) {
                 httpRequest.setContext(requestContext);
@@ -113,8 +103,17 @@ public final class AliasImpl {
                 = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 204)) {
+                if (io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == io.clientcore.core.serialization.SerializationFormat.XML) {
+                    try {
+                        throw new io.clientcore.core.http.models.HttpResponseException("Unexpected XML response.",
+                            networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
                 io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
-                    this.jsonSerializer, this.xmlSerializer, null, null, AliasServiceImpl.LOGGER);
+                    this.jsonSerializer, null, null, null, AliasServiceImpl.LOGGER);
             }
             try {
                 return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
@@ -128,12 +127,10 @@ public final class AliasImpl {
         public Response<Void> spreadParameterWithInnerModel(String endpoint, String id, String xMsTestHeader,
             String contentType, SpreadParameterWithInnerModelRequest spreadParameterWithInnerModelRequest,
             RequestContext requestContext) {
-            io.clientcore.core.utils.UriBuilder uriBuilder
-                = io.clientcore.core.utils.UriBuilder.parse(endpoint + "/parameters/spread/alias/inner-model-parameter/"
-                    + io.clientcore.core.implementation.utils.UriEscapers.PATH_ESCAPER.escape(id));
             io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
                 .setMethod(io.clientcore.core.http.models.HttpMethod.POST)
-                .setUri(uriBuilder.toString());
+                .setUri(endpoint + "/parameters/spread/alias/inner-model-parameter/"
+                    + io.clientcore.core.implementation.utils.UriEscapers.PATH_ESCAPER.escape(id));
             if (xMsTestHeader != null) {
                 httpRequest.getHeaders()
                     .set(io.clientcore.core.http.models.HttpHeaderName.fromString("x-ms-test-header"), xMsTestHeader);
@@ -147,13 +144,8 @@ public final class AliasImpl {
                     httpRequest.getHeaders()
                         .set(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE, "application/json");
                 }
-                io.clientcore.core.serialization.SerializationFormat requestSerializationFormat
-                    = io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(httpRequest.getHeaders());
-                httpRequest.setBody(
-                    io.clientcore.core.models.binarydata.BinaryData.fromObject(spreadParameterWithInnerModelRequest,
-                        this.xmlSerializer.supportsFormat(requestSerializationFormat)
-                            ? this.xmlSerializer
-                            : this.jsonSerializer));
+                httpRequest.setBody(io.clientcore.core.models.binarydata.BinaryData
+                    .fromObject(spreadParameterWithInnerModelRequest, this.jsonSerializer));
             }
             if (requestContext != null) {
                 httpRequest.setContext(requestContext);
@@ -163,8 +155,17 @@ public final class AliasImpl {
                 = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 204)) {
+                if (io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == io.clientcore.core.serialization.SerializationFormat.XML) {
+                    try {
+                        throw new io.clientcore.core.http.models.HttpResponseException("Unexpected XML response.",
+                            networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
                 io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
-                    this.jsonSerializer, this.xmlSerializer, null, null, AliasServiceImpl.LOGGER);
+                    this.jsonSerializer, null, null, null, AliasServiceImpl.LOGGER);
             }
             try {
                 return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
@@ -178,12 +179,10 @@ public final class AliasImpl {
         public Response<Void> spreadAsRequestParameter(String endpoint, String id, String xMsTestHeader,
             String contentType, SpreadAsRequestParameterRequest spreadAsRequestParameterRequest,
             RequestContext requestContext) {
-            io.clientcore.core.utils.UriBuilder uriBuilder
-                = io.clientcore.core.utils.UriBuilder.parse(endpoint + "/parameters/spread/alias/request-parameter/"
-                    + io.clientcore.core.implementation.utils.UriEscapers.PATH_ESCAPER.escape(id));
             io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
                 .setMethod(io.clientcore.core.http.models.HttpMethod.PUT)
-                .setUri(uriBuilder.toString());
+                .setUri(endpoint + "/parameters/spread/alias/request-parameter/"
+                    + io.clientcore.core.implementation.utils.UriEscapers.PATH_ESCAPER.escape(id));
             if (xMsTestHeader != null) {
                 httpRequest.getHeaders()
                     .set(io.clientcore.core.http.models.HttpHeaderName.fromString("x-ms-test-header"), xMsTestHeader);
@@ -197,13 +196,8 @@ public final class AliasImpl {
                     httpRequest.getHeaders()
                         .set(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE, "application/json");
                 }
-                io.clientcore.core.serialization.SerializationFormat requestSerializationFormat
-                    = io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(httpRequest.getHeaders());
-                httpRequest
-                    .setBody(io.clientcore.core.models.binarydata.BinaryData.fromObject(spreadAsRequestParameterRequest,
-                        this.xmlSerializer.supportsFormat(requestSerializationFormat)
-                            ? this.xmlSerializer
-                            : this.jsonSerializer));
+                httpRequest.setBody(io.clientcore.core.models.binarydata.BinaryData
+                    .fromObject(spreadAsRequestParameterRequest, this.jsonSerializer));
             }
             if (requestContext != null) {
                 httpRequest.setContext(requestContext);
@@ -213,8 +207,17 @@ public final class AliasImpl {
                 = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 204)) {
+                if (io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == io.clientcore.core.serialization.SerializationFormat.XML) {
+                    try {
+                        throw new io.clientcore.core.http.models.HttpResponseException("Unexpected XML response.",
+                            networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
                 io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
-                    this.jsonSerializer, this.xmlSerializer, null, null, AliasServiceImpl.LOGGER);
+                    this.jsonSerializer, null, null, null, AliasServiceImpl.LOGGER);
             }
             try {
                 return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
@@ -228,12 +231,10 @@ public final class AliasImpl {
         public Response<Void> spreadWithMultipleParameters(String endpoint, String id, String xMsTestHeader,
             String contentType, SpreadWithMultipleParametersRequest spreadWithMultipleParametersRequest,
             RequestContext requestContext) {
-            io.clientcore.core.utils.UriBuilder uriBuilder
-                = io.clientcore.core.utils.UriBuilder.parse(endpoint + "/parameters/spread/alias/multiple-parameters/"
-                    + io.clientcore.core.implementation.utils.UriEscapers.PATH_ESCAPER.escape(id));
             io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
                 .setMethod(io.clientcore.core.http.models.HttpMethod.PUT)
-                .setUri(uriBuilder.toString());
+                .setUri(endpoint + "/parameters/spread/alias/multiple-parameters/"
+                    + io.clientcore.core.implementation.utils.UriEscapers.PATH_ESCAPER.escape(id));
             if (xMsTestHeader != null) {
                 httpRequest.getHeaders()
                     .set(io.clientcore.core.http.models.HttpHeaderName.fromString("x-ms-test-header"), xMsTestHeader);
@@ -247,13 +248,8 @@ public final class AliasImpl {
                     httpRequest.getHeaders()
                         .set(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE, "application/json");
                 }
-                io.clientcore.core.serialization.SerializationFormat requestSerializationFormat
-                    = io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(httpRequest.getHeaders());
-                httpRequest.setBody(
-                    io.clientcore.core.models.binarydata.BinaryData.fromObject(spreadWithMultipleParametersRequest,
-                        this.xmlSerializer.supportsFormat(requestSerializationFormat)
-                            ? this.xmlSerializer
-                            : this.jsonSerializer));
+                httpRequest.setBody(io.clientcore.core.models.binarydata.BinaryData
+                    .fromObject(spreadWithMultipleParametersRequest, this.jsonSerializer));
             }
             if (requestContext != null) {
                 httpRequest.setContext(requestContext);
@@ -263,8 +259,17 @@ public final class AliasImpl {
                 = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 204)) {
+                if (io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == io.clientcore.core.serialization.SerializationFormat.XML) {
+                    try {
+                        throw new io.clientcore.core.http.models.HttpResponseException("Unexpected XML response.",
+                            networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
                 io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
-                    this.jsonSerializer, this.xmlSerializer, null, null, AliasServiceImpl.LOGGER);
+                    this.jsonSerializer, null, null, null, AliasServiceImpl.LOGGER);
             }
             try {
                 return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
@@ -278,12 +283,10 @@ public final class AliasImpl {
         public Response<Void> spreadParameterWithInnerAlias(String endpoint, String id, String xMsTestHeader,
             String contentType, SpreadParameterWithInnerAliasRequest spreadParameterWithInnerAliasRequest,
             RequestContext requestContext) {
-            io.clientcore.core.utils.UriBuilder uriBuilder
-                = io.clientcore.core.utils.UriBuilder.parse(endpoint + "/parameters/spread/alias/inner-alias-parameter/"
-                    + io.clientcore.core.implementation.utils.UriEscapers.PATH_ESCAPER.escape(id));
             io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
                 .setMethod(io.clientcore.core.http.models.HttpMethod.POST)
-                .setUri(uriBuilder.toString());
+                .setUri(endpoint + "/parameters/spread/alias/inner-alias-parameter/"
+                    + io.clientcore.core.implementation.utils.UriEscapers.PATH_ESCAPER.escape(id));
             if (xMsTestHeader != null) {
                 httpRequest.getHeaders()
                     .set(io.clientcore.core.http.models.HttpHeaderName.fromString("x-ms-test-header"), xMsTestHeader);
@@ -297,13 +300,8 @@ public final class AliasImpl {
                     httpRequest.getHeaders()
                         .set(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE, "application/json");
                 }
-                io.clientcore.core.serialization.SerializationFormat requestSerializationFormat
-                    = io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(httpRequest.getHeaders());
-                httpRequest.setBody(
-                    io.clientcore.core.models.binarydata.BinaryData.fromObject(spreadParameterWithInnerAliasRequest,
-                        this.xmlSerializer.supportsFormat(requestSerializationFormat)
-                            ? this.xmlSerializer
-                            : this.jsonSerializer));
+                httpRequest.setBody(io.clientcore.core.models.binarydata.BinaryData
+                    .fromObject(spreadParameterWithInnerAliasRequest, this.jsonSerializer));
             }
             if (requestContext != null) {
                 httpRequest.setContext(requestContext);
@@ -313,8 +311,17 @@ public final class AliasImpl {
                 = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 204)) {
+                if (io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == io.clientcore.core.serialization.SerializationFormat.XML) {
+                    try {
+                        throw new io.clientcore.core.http.models.HttpResponseException("Unexpected XML response.",
+                            networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
                 io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
-                    this.jsonSerializer, this.xmlSerializer, null, null, AliasServiceImpl.LOGGER);
+                    this.jsonSerializer, null, null, null, AliasServiceImpl.LOGGER);
             }
             try {
                 return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,

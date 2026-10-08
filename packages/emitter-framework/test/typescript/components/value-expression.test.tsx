@@ -13,6 +13,7 @@ import {
 } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
 import { assert, beforeAll, describe, expect, it } from "vitest";
+import { TspContext } from "../../../src/core/index.js";
 import { ValueExpression } from "../../../src/typescript/components/value-expression.js";
 
 let program: Program;
@@ -203,6 +204,7 @@ it("renders enums", async () => {
       value: red,
     } as EnumValue,
     `"Red"`,
+    program,
   );
 
   const green = colors?.members.get("Green");
@@ -213,21 +215,42 @@ it("renders enums", async () => {
       value: green,
     } as EnumValue,
     `3`,
+    program,
   );
+});
+
+it("renders the json encoded name of enum members without a value", async () => {
+  const program = await getProgram(`
+      namespace DemoService;
+      enum Color {
+        @encodedName("application/json", "red")
+        Red,
+      }
+    `);
+  const [namespace] = program.resolveTypeReference("DemoService");
+  const red = (namespace as Namespace).enums.get("Color")?.members.get("Red");
+  assert.exists(red, "unable to find Red enum member");
+  await testValueExpression({ valueKind: "EnumValue", value: red } as EnumValue, `"red"`, program);
 });
 
 /**
  * Helper that renders a value expression and checks the output against the expected value.
  */
-async function testValueExpression(value: Value, expected: string) {
+async function testValueExpression(
+  value: Value,
+  expected: string,
+  valueProgram: Program = program,
+) {
   const prefix = "const val = ";
 
   expect(
     <Output>
-      <SourceFile path="test.ts">
-        {prefix}
-        <ValueExpression value={value} />
-      </SourceFile>
+      <TspContext.Provider value={{ program: valueProgram }}>
+        <SourceFile path="test.ts">
+          {prefix}
+          <ValueExpression value={value} />
+        </SourceFile>
+      </TspContext.Provider>
     </Output>,
   ).toRenderTo(`${prefix}${expected}`);
 }

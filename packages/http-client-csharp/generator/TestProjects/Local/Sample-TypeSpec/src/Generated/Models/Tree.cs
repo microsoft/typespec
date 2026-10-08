@@ -13,6 +13,9 @@ namespace SampleTypeSpec
     /// <summary> Tree is a specific type of plant. </summary>
     public partial class Tree : Plant
     {
+        private string _nullableText;
+        internal bool _nullableTextIsDefined;
+
         /// <summary> Initializes a new instance of <see cref="Tree"/>. </summary>
         /// <param name="id"> The unique identifier of the plant. </param>
         /// <param name="height"> The height of the plant in centimeters. </param>
@@ -23,6 +26,7 @@ namespace SampleTypeSpec
             Argument.AssertNotNull(id, nameof(id));
 
             Age = age;
+            NullableLabels = new ChangeTrackingDictionary<string, string>();
         }
 
         /// <summary> Initializes a new instance of <see cref="Tree"/>. </summary>
@@ -31,12 +35,33 @@ namespace SampleTypeSpec
         /// <param name="height"> The height of the plant in centimeters. </param>
         /// <param name="additionalBinaryDataProperties"> Keeps track of any properties unknown to the library. </param>
         /// <param name="age"> The age of the tree in years. </param>
-        internal Tree(string species, string id, int height, IDictionary<string, BinaryData> additionalBinaryDataProperties, int age) : base(species, id, height, additionalBinaryDataProperties)
+        /// <param name="nullableText"></param>
+        /// <param name="nullableLabels"></param>
+        internal Tree(string species, string id, int height, IDictionary<string, BinaryData> additionalBinaryDataProperties, int age, string nullableText, IDictionary<string, string> nullableLabels) : base(species, id, height, additionalBinaryDataProperties)
         {
             Age = age;
+            _nullableText = nullableText;
+            NullableLabels = nullableLabels;
         }
 
         /// <summary> The age of the tree in years. </summary>
         public int Age { get; set; }
+
+        /// <summary> Gets or sets the NullableText. </summary>
+        public string NullableText
+        {
+            get
+            {
+                return _nullableText;
+            }
+            set
+            {
+                _nullableText = value;
+                _nullableTextIsDefined = true;
+            }
+        }
+
+        /// <summary> Gets or sets the NullableLabels. </summary>
+        public IDictionary<string, string> NullableLabels { get; set; }
     }
 }

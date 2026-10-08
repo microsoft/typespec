@@ -515,7 +515,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             var isDefinedCondition = prop.PropertyType is { IsCollection: true, IsReadOnlyMemory: false }
-                ? OptionalSnippets.IsCollectionDefined(prop.SerializationExp, prop.PropertyType)
+                ? OptionalSnippets.IsConcreteCollection(prop.PropertyType)
+                    ? prop.SerializationExp.NotEqual(Null)
+                    : prop.SerializationExp.NotEqual(Null).And(OptionalSnippets.IsCollectionDefined(prop.SerializationExp))
                 : OptionalSnippets.IsDefined(prop.SerializationExp);
 
             return new IfStatement(isDefinedCondition)
@@ -625,7 +627,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 new IfStatement(_xmlElementParameterSnippet.Equal(Null)) { valueKindEqualsNullReturn },
                 MethodBodyStatement.EmptyLine,
                 GetXmlNamespaceDeclarations(categorizedProperties.Namespaces),
-                GetPropertyVariableDeclarations(),
+                GetPropertyVariableDeclarations(preserveJsonPresence: false),
                 MethodBodyStatement.EmptyLine
             };
 
@@ -654,7 +656,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 statements.Add(MethodBodyStatement.EmptyLine);
             }
 
-            statements.Add(Return(New.Instance(_model.Type, GetSerializationCtorParameterValues())));
+            statements.Add(Return(New.Instance(_model.Type, GetSerializationCtorParameterValues(preserveJsonPresence: false))));
 
             return [.. statements];
         }

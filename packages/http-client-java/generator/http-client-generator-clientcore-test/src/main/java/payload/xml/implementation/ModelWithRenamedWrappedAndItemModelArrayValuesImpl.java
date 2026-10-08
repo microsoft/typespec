@@ -75,11 +75,9 @@ public final class ModelWithRenamedWrappedAndItemModelArrayValuesImpl {
         @Override
         public Response<ModelWithRenamedWrappedAndItemModelArray> get(String endpoint, String accept,
             RequestContext requestContext) {
-            io.clientcore.core.utils.UriBuilder uriBuilder = io.clientcore.core.utils.UriBuilder
-                .parse(endpoint + "/payload/xml/modelWithRenamedWrappedAndItemModelArray");
             io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
                 .setMethod(io.clientcore.core.http.models.HttpMethod.GET)
-                .setUri(uriBuilder.toString());
+                .setUri(endpoint + "/payload/xml/modelWithRenamedWrappedAndItemModelArray");
             if (accept != null) {
                 httpRequest.getHeaders()
                     .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Accept"), accept);
@@ -127,11 +125,9 @@ public final class ModelWithRenamedWrappedAndItemModelArrayValuesImpl {
         @Override
         public Response<Void> put(String endpoint, String contentType, ModelWithRenamedWrappedAndItemModelArray input,
             RequestContext requestContext) {
-            io.clientcore.core.utils.UriBuilder uriBuilder = io.clientcore.core.utils.UriBuilder
-                .parse(endpoint + "/payload/xml/modelWithRenamedWrappedAndItemModelArray");
             io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
                 .setMethod(io.clientcore.core.http.models.HttpMethod.PUT)
-                .setUri(uriBuilder.toString());
+                .setUri(endpoint + "/payload/xml/modelWithRenamedWrappedAndItemModelArray");
             if (contentType != null) {
                 httpRequest.getHeaders()
                     .set(io.clientcore.core.http.models.HttpHeaderName.fromString("content-type"), contentType);
@@ -141,12 +137,8 @@ public final class ModelWithRenamedWrappedAndItemModelArrayValuesImpl {
                     httpRequest.getHeaders()
                         .set(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE, "application/xml");
                 }
-                io.clientcore.core.serialization.SerializationFormat requestSerializationFormat
-                    = io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(httpRequest.getHeaders());
-                httpRequest.setBody(io.clientcore.core.models.binarydata.BinaryData.fromObject(input,
-                    this.xmlSerializer.supportsFormat(requestSerializationFormat)
-                        ? this.xmlSerializer
-                        : this.jsonSerializer));
+                httpRequest
+                    .setBody(io.clientcore.core.models.binarydata.BinaryData.fromObject(input, this.xmlSerializer));
             }
             if (requestContext != null) {
                 httpRequest.setContext(requestContext);

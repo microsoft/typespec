@@ -5,6 +5,10 @@ import { useTsp } from "@typespec/emitter-framework";
 import type { OperationHttpCanonicalization } from "@typespec/http-canonicalization";
 import { CSharpFile } from "../csharp-file.jsx";
 import {
+  getMultipartProtocolParameterNames,
+  operationHasMultipartBody,
+} from "../interfaces/interfaces.jsx";
+import {
   getNullableValueTypeUnionInnerType,
   TypeExpression,
 } from "../type-expression/type-expression.jsx";
@@ -59,6 +63,10 @@ function MockImplementation(props: MockImplementationProps): Children {
     }
   }
 
+  const hasMultipart =
+    props.canonicalOps?.some((op) => op.requestParameters.body?.bodyKind === "multipart") ||
+    operations.some(([, op]) => operationHasMultipartBody($.program, op));
+
   return (
     <CSharpFile
       path={`${className}.cs`}
@@ -69,6 +77,7 @@ function MockImplementation(props: MockImplementationProps): Children {
         "System.Text.Json.Serialization",
         "System.Threading.Tasks",
         "Microsoft.AspNetCore.Mvc",
+        ...(hasMultipart ? ["Microsoft.AspNetCore.WebUtilities"] : []),
       ]}
     >
       {code`
@@ -130,8 +139,10 @@ function MockMethods(props: MockMethodsProps): Children {
 
         // Check if this is a multipart operation
         const canonicalOp = props.canonicalMap?.get(name);
-        const isMultipart = canonicalOp?.requestParameters.body?.bodyKind === "multipart";
-        const multipartBodyPropNames = new Set<string>();
+        const isMultipart =
+          canonicalOp?.requestParameters.body?.bodyKind === "multipart" ||
+          operationHasMultipartBody(props.program, op);
+        const multipartBodyPropNames = getMultipartProtocolParameterNames(props.program, op);
         if (isMultipart && canonicalOp) {
           for (const p of canonicalOp.requestParameters.properties) {
             if (
