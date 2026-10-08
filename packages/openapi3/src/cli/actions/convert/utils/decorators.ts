@@ -148,7 +148,7 @@ function getLocationDecorator(
       decoratorArgs = getHeaderArgs(parameter.explode ?? false);
       break;
     case "query":
-      decoratorArgs = getQueryArgs({ explode: parameter.explode ?? true, style: parameter.style });
+      decoratorArgs = getQueryArgs({ explode: parameter.explode, style: parameter.style });
       break;
   }
 
@@ -197,12 +197,12 @@ export function normalizeObjectValueToTSValueExpression(value: any): string {
   } else return `${JSON.stringify(value)}`;
 }
 
-function getQueryArgs(parameter: { explode: boolean; style?: string }): TSValue | undefined {
+function getQueryArgs(parameter: { explode?: boolean; style?: string }): TSValue | undefined {
   const queryOptions = getNormalizedQueryOptions(parameter);
   return createTSValueFromObjectValue(queryOptions);
 }
 
-type QueryOptions = { explode?: boolean };
+type QueryOptions = { explode?: boolean; style?: "deepObject" };
 
 function getNormalizedQueryOptions({
   explode,
@@ -212,6 +212,10 @@ function getNormalizedQueryOptions({
   style?: string;
 }): QueryOptions {
   const queryOptions: QueryOptions = {};
+  if (style === "deepObject") {
+    queryOptions.style = "deepObject";
+  }
+
   // In OpenAPI 3, default style is 'form', and explode is true when 'form' is the style
   if (typeof explode !== "boolean") {
     if (style === "form" || !style) {
@@ -221,9 +225,10 @@ function getNormalizedQueryOptions({
     }
   }
 
-  // In TypeSpec, default explode is "false"
-  if (explode) {
-    queryOptions.explode = true;
+  // TypeSpec defaults deepObject to explode=true and all other query styles to explode=false.
+  const typespecDefaultExplode = style === "deepObject";
+  if (explode !== typespecDefaultExplode) {
+    queryOptions.explode = explode;
   }
 
   return queryOptions;

@@ -151,7 +151,7 @@ function getHttpProperty(
         );
       }
     } else if (implicit.type === "query" && annotations.query) {
-      if (annotations.query.explode !== undefined) {
+      if (annotations.query.explode !== undefined || annotations.query.style !== undefined) {
         diagnostics.push(
           createDiagnostic({
             code: "use-uri-template",

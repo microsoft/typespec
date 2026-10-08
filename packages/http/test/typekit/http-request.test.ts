@@ -203,6 +203,7 @@ describe("HttpRequest Get Parameters", () => {
     expect(tk.modelProperty.getHttpQueryOptions(dataProperty!)).toStrictEqual({
       explode: true,
       name: "data",
+      style: "form",
       type: "query",
     });
   });
