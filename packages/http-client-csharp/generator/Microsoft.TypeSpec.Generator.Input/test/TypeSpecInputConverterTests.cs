@@ -10,6 +10,201 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
 {
     public class TypeSpecInputConverterTests
     {
+        [TestCase("model", "\"properties\": []")]
+        [TestCase("enum", "\"values\": [], \"valueType\": {\"kind\":\"string\"}")]
+        [TestCase("string", "\"crossLanguageDefinitionId\": \"External.Value\"")]
+        [TestCase("union", "\"variantTypes\": [{\"kind\":\"string\"}, {\"kind\":\"int32\"}]")]
+        [TestCase("array", "\"valueType\": {\"kind\":\"string\"}")]
+        [TestCase("dict", "\"keyType\": {\"kind\":\"string\"}, \"valueType\": {\"kind\":\"string\"}")]
+        [TestCase("nullable", "\"type\": {\"kind\":\"string\"}")]
+        [TestCase("utcDateTime", "\"crossLanguageDefinitionId\":\"External.Value\", \"encode\":\"rfc3339\", \"wireType\":{\"kind\":\"string\"}")]
+        [TestCase("duration", "\"crossLanguageDefinitionId\":\"External.Value\", \"encode\":\"ISO8601\", \"wireType\":{\"kind\":\"string\"}")]
+        public void LoadsExperimentalExternalTypes(string kind, string typeProperties)
+        {
+            var content = $$"""
+                {
+                  "name": "Test",
+                  "models": [{
+                    "$id": "wrapper", "name": "Wrapper",
+                    "properties": [{
+                      "$id": "property", "name": "value",
+                      "type": {
+                        "$id": "external", "kind": "{{kind}}", "name": "External",
+                        {{typeProperties}},
+                        "external": {"identity":"External.Value"},
+                        "experimental": {"diagnosticId":"EXTERNAL001","dependsOn":["DEP001"]}
+                      }
+                    }]
+                  }]
+                }
+                """;
+            var type = TypeSpecSerialization.Deserialize(content)!.Models.Single().Properties.Single().Type;
+            Assert.AreEqual("External.Value", type.External?.Identity);
+            Assert.AreEqual("EXTERNAL001", type.Experimental?.DiagnosticId);
+            CollectionAssert.AreEqual(new[] { "DEP001" }, type.Experimental!.DependsOn);
+            Assert.IsNull(InputPrimitiveType.String.Experimental);
+        }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        public void LoadsExperimentalTypesAndMembers(bool annotated)
+        {
+            string Metadata(string id) => annotated
+                ? $"\"experimental\": {{\"diagnosticId\":\"{id}\",\"dependsOn\":[\"DEP001\"]}},"
+                : "";
+            var content = $$"""
+                {
+                  "name": "Test",
+                  "models": [{
+                    "$id": "model", "name": "Payload", {{Metadata("MODEL001")}}
+                    "properties": [{
+                      "$id": "property", "name": "value", {{Metadata("PROPERTY001")}}
+                      "type": {"kind":"string"}
+                    }]
+                  }],
+                  "enums": [{
+                    "$id": "enum", "name": "Choice", {{Metadata("ENUM001")}}
+                    "valueType": {"kind":"string"},
+                    "values": [{
+                      "$id": "value", "name": "One", "value": "one", {{Metadata("VALUE001")}}
+                      "valueType": {"kind":"string"}, "enumType": {"$ref":"enum"}
+                    }]
+                  }],
+                  "clients": [{
+                    "$id": "client", "name": "TestClient", {{Metadata("CLIENT001")}}
+                    "methods": []
+                  }]
+                }
+                """;
+            var input = TypeSpecSerialization.Deserialize(content)!;
+            var details = new[]
+            {
+                input.Models[0].Experimental,
+                input.Models[0].Properties[0].Experimental,
+                input.Enums[0].Experimental,
+                input.Enums[0].Values[0].Experimental,
+                input.Clients[0].Experimental
+            };
+            if (annotated)
+            {
+                CollectionAssert.AreEqual(
+                    new[] { "MODEL001", "PROPERTY001", "ENUM001", "VALUE001", "CLIENT001" },
+                    details.Select(d => d?.DiagnosticId));
+                Assert.IsTrue(details.All(d => d!.DependsOn.SequenceEqual(["DEP001"])));
+            }
+            else
+            {
+                Assert.IsTrue(details.All(d => d is null));
+            }
+        }
+
+        [TestCase("""{"diagnosticId":"C","dependsOn":["A","B"]}""", "C", new[] { "A", "B" })]
+        [TestCase("""{"diagnosticId":"C"}""", "C", new string[0])]
+        [TestCase("""{"dependsOn":["A"]}""", null, new[] { "A" })]
+        [TestCase("""{"diagnosticId":null,"dependsOn":["A"]}""", null, new[] { "A" })]
+        [TestCase("""{"diagnosticId":"C","dependsOn":null}""", "C", new string[0])]
+        [TestCase("""{"diagnosticId":null,"dependsOn":null}""", null, new string[0])]
+        [TestCase("""{}""", null, new string[0])]
+        [TestCase("""null""", null, null)]
+        [TestCase(null, null, null)]
+        public void LoadsExperimentalOperationDetails(string? experimental, string? diagnosticId, string[]? dependencies)
+        {
+            var content = $$"""
+                {
+                  "$id": "operation",
+                  "name": "bar",
+                  "httpMethod": "GET",
+                  "uri": "",
+                  "path": "",
+                  {{(experimental is null ? "" : $@"""experimental"": {experimental},")}}
+                  "crossLanguageDefinitionId": "Test.bar"
+                }
+                """;
+            var referenceHandler = new TypeSpecReferenceHandler();
+            var options = new JsonSerializerOptions
+            {
+                ReferenceHandler = referenceHandler,
+                Converters = { new InputOperationConverter(referenceHandler) }
+            };
+
+            var operation = JsonSerializer.Deserialize<InputOperation>(content, options)!;
+
+            if (dependencies is null)
+            {
+                Assert.IsNull(operation.Experimental);
+            }
+            else
+            {
+                Assert.IsNotNull(operation.Experimental);
+                Assert.AreEqual(diagnosticId, operation.Experimental!.DiagnosticId);
+                CollectionAssert.AreEqual(dependencies, operation.Experimental.DependsOn);
+            }
+        }
+
+        [TestCase("""{"diagnosticId":"STREAM001","dependsOn":["A","B"]}""", "STREAM001", new[] { "A", "B" })]
+        [TestCase("""{"diagnosticId":"STREAM001"}""", "STREAM001", new string[0])]
+        [TestCase("""{"dependsOn":["A"]}""", null, new[] { "A" })]
+        [TestCase("""{"diagnosticId":"STREAM001","dependsOn":null}""", "STREAM001", new string[0])]
+        [TestCase("""{"diagnosticId":null,"dependsOn":null}""", null, new string[0])]
+        [TestCase("""{}""", null, new string[0])]
+        [TestCase("""null""", null, null)]
+        [TestCase(null, null, null)]
+        public void LoadsExperimentalStreamingDetails(
+            string? experimental,
+            string? diagnosticId,
+            string[]? dependencies)
+        {
+            foreach (var streamKind in new[] { "jsonl", "sse" })
+            {
+                var contentType = streamKind == "sse" ? "text/event-stream" : "application/jsonl";
+                var content = $$"""
+                {
+                  "name": "Test",
+                  "models": [{
+                    "$id": "wrapper", "name": "Wrapper",
+                    "properties": [{
+                      "$id": "first", "name": "first",
+                      "type": {
+                        "$id": "stream", "kind": "streaming", "name": "Events",
+                        {{(experimental is null ? "" : $@"""experimental"": {experimental},")}}
+                        "streamKind": "{{streamKind}}",
+                        "contentTypes": ["{{contentType}}"],
+                        "valueType": {
+                          "$id": "event", "kind": "model", "name": "Event", "properties": [],
+                          "experimental": {"diagnosticId":"EVENT001","dependsOn":["EVENTDEP"]}
+                        }
+                      }
+                    }, {
+                      "$id": "second", "name": "second",
+                      "type": {"$ref": "stream"}
+                    }]
+                  }]
+                }
+                """;
+                var model = TypeSpecSerialization.Deserialize(content)!.Models.Single();
+                var stream = model.Properties[0].Type as InputStreamingType;
+
+                Assert.IsNotNull(stream);
+                Assert.AreSame(stream, model.Properties[1].Type);
+                Assert.AreEqual(streamKind, stream!.StreamKind);
+                CollectionAssert.AreEqual(new[] { contentType }, stream.ContentTypes);
+                Assert.IsNull(model.Experimental);
+                Assert.IsNull(model.Properties[0].Experimental);
+                Assert.AreEqual("EVENT001", stream.ValueType.Experimental?.DiagnosticId);
+                CollectionAssert.AreEqual(new[] { "EVENTDEP" }, stream.ValueType.Experimental!.DependsOn);
+                if (dependencies is null)
+                {
+                    Assert.IsNull(stream.Experimental);
+                }
+                else
+                {
+                    Assert.IsNotNull(stream.Experimental);
+                    Assert.AreEqual(diagnosticId, stream.Experimental!.DiagnosticId);
+                    CollectionAssert.AreEqual(dependencies, stream.Experimental.DependsOn);
+                }
+            }
+        }
+
         [Test]
         public void LoadsEmitterFixture()
         {

@@ -2,7 +2,6 @@ import react from "@vitejs/plugin-react";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
 import { defineConfig } from "vite";
-import dts from "vite-plugin-dts";
 
 const __dirname = dirname(fileURLToPath(import.meta.url)).replace(/\\/g, "/");
 
@@ -30,5 +29,5 @@ export default defineConfig({
       },
     },
   },
-  plugins: [react({}), dts()],
+  plugins: [react({})],
 });

@@ -155,7 +155,7 @@ namespace SampleTypeSpec
                     additionalBinaryDataProperties.Add(prop.Name, prop.Value.GetUtf8Bytes());
                 }
             }
-            return new ListWithContinuationTokenHeaderResponseResult(things, additionalBinaryDataProperties);
+            return new ListWithContinuationTokenHeaderResponseResult(things ?? new ChangeTrackingList<Thing>(), additionalBinaryDataProperties);
         }
     }
 }

@@ -64,10 +64,17 @@ namespace Sample.Models
                 writer.WritePropertyName("prop1"u8);
                 this.SerializationMethod(writer, options);
             }
-            if (global::Sample.Optional.IsDefined(Prop2))
+            if ((_prop2IsDefined || global::Sample.Optional.IsDefined(Prop2)))
             {
-                writer.WritePropertyName("prop2"u8);
-                this.SerializationMethod(writer, options);
+                if ((Prop2 != null))
+                {
+                    writer.WritePropertyName("prop2"u8);
+                    this.SerializationMethod(writer, options);
+                }
+                else
+                {
+                    writer.WriteNull("prop2"u8);
+                }
             }
             if (((options.Format != "W") && (_additionalBinaryDataProperties != null)))
             {
@@ -106,6 +113,7 @@ namespace Sample.Models
                 return null;
             }
             string prop1 = default;
+            bool prop2IsDefined = false;
             string prop2 = default;
             global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties = new global::Sample.ChangeTrackingDictionary<string, global::System.BinaryData>();
             foreach (var prop in element.EnumerateObject())
@@ -117,6 +125,7 @@ namespace Sample.Models
                 }
                 if (prop.NameEquals("prop2"u8))
                 {
+                    prop2IsDefined = true;
                     DeserializationMethod(prop, ref prop2);
                     continue;
                 }
@@ -125,7 +134,10 @@ namespace Sample.Models
                     additionalBinaryDataProperties.Add(prop.Name, prop.Value.GetUtf8Bytes());
                 }
             }
-            return new global::Sample.Models.MockInputModel(prop1, prop2, additionalBinaryDataProperties);
+            return new global::Sample.Models.MockInputModel(prop1, prop2, additionalBinaryDataProperties)
+            {
+                _prop2IsDefined = prop2IsDefined
+            };
         }
     }
 }
