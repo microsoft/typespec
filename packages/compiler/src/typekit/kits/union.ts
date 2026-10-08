@@ -3,7 +3,6 @@ import type { DiscriminatedUnion } from "../../core/helpers/discriminator-utils.
 import { getDiscriminatedUnion } from "../../core/helpers/discriminator-utils.js";
 import type { Entity, Enum, Type, Union, UnionVariant } from "../../core/types.js";
 import { $doc, getDoc } from "../../lib/decorators.js";
-import { resolveEncodedEnumMemberValue } from "../../lib/encoded-names.js";
 import { createRekeyableMap } from "../../utils/misc.js";
 import type { Diagnosable } from "../create-diagnosable.js";
 import { createDiagnosable } from "../create-diagnosable.js";
@@ -79,8 +78,7 @@ export interface UnionKit {
    *
    * @param type The enum to create a union from.
    *
-   * A member's value is its `application/json` encoded name if it has one, else its explicit value,
-   * else its name.
+   * For member without an explicit value, the member name is used as the value.
    *
    * Any API documentation will be rendered and preserved in the resulting union.
    *
@@ -195,7 +193,7 @@ export const UnionKit = defineKit<TypekitExtension>({
         decorators: enumDoc ? [[$doc, enumDoc]] : undefined,
         variants: Array.from(type.members.values()).map((member) => {
           const memberDoc = getDoc(this.program, member);
-          const value = resolveEncodedEnumMemberValue(this.program, member, "application/json");
+          const value = member.value ?? member.name;
 
           return this.unionVariant.create({
             name: member.name,

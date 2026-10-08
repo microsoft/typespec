@@ -278,13 +278,14 @@ describe("Enum Type Detection", () => {
     const output = getOutput(program, [<EnumDeclaration type={Mixed} />]);
 
     expect(output).toRenderTo(d`
+      from enum import auto
       from enum import Enum
 
 
       class Mixed(Enum):
           STRING_VALUE = "hello"
           NUMERIC_VALUE = 42
-          AUTO_VALUE = "autoValue"
+          AUTO_VALUE = auto()
       
       
     `);
@@ -301,13 +302,14 @@ describe("Enum Type Detection", () => {
     const output = getOutput(program, [<EnumDeclaration type={EnumWithoutValues} />]);
 
     expect(output).toRenderTo(d`
-      from enum import StrEnum
+      from enum import auto
+      from enum import Enum
 
 
-      class EnumWithoutValues(StrEnum):
-          SOME_VALUE = "someValue"
-          ANOTHER_VALUE = "anotherValue"
-          YET_ANOTHER_VALUE = "yetAnotherValue"
+      class EnumWithoutValues(Enum):
+          SOME_VALUE = auto()
+          ANOTHER_VALUE = auto()
+          YET_ANOTHER_VALUE = auto()
       
       
     `);

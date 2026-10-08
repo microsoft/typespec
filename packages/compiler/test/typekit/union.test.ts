@@ -110,24 +110,6 @@ it("can build unions from enums with custom values", async () => {
   expect((union.variants.get("c")?.type as StringLiteral).value).toBe(3);
 });
 
-it("builds unions from enums with the json encoded value of each member", async () => {
-  const { Foo, program } = await Tester.compile(t.code`
-    enum ${t.enum("Foo")} {
-      @encodedName("application/json", "on")
-      active,
-      @encodedName("application/json", "ready")
-      statusReady: 2,
-      plain: 3,
-    }
-  `);
-
-  const union = $(program).union.createFromEnum(Foo as Enum);
-
-  expect((union.variants.get("active")?.type as StringLiteral).value).toBe("on");
-  expect((union.variants.get("statusReady")?.type as StringLiteral).value).toBe("ready");
-  expect((union.variants.get("plain")?.type as StringLiteral).value).toBe(3);
-});
-
 it("preserves documentation when copying", async () => {
   const { Foo, program } = await Tester.compile(t.code`
     @doc("enum named foo")

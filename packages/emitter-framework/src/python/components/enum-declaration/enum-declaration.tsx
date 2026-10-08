@@ -1,16 +1,11 @@
 import { useTsp } from "#core/context/index.js";
 import { For, Prose } from "@alloy-js/core";
 import * as py from "@alloy-js/python";
-import {
-  resolveEncodedEnumMemberValue,
-  type Enum,
-  type Program,
-  type EnumMember as TspEnumMember,
-  type Union,
-} from "@typespec/compiler";
+import type { Enum, Program, EnumMember as TspEnumMember, Union } from "@typespec/compiler";
 import { reportDiagnostic } from "../../../lib.js";
 import { declarationRefkeys, efRefkey } from "../../utils/refkey.js";
 import { EnumMember } from "./enum-member.js";
+import { getEnumMemberValue } from "./member-value.js";
 
 export interface EnumDeclarationProps extends Omit<py.BaseDeclarationProps, "name"> {
   name?: string;
@@ -22,11 +17,15 @@ function determineEnumType(
   program: Program,
   members: Array<[string, TspEnumMember]>,
 ): "IntEnum" | "StrEnum" | "Enum" {
-  const values = members.map(([, member]) =>
-    resolveEncodedEnumMemberValue(program, member, "application/json"),
-  );
-  const allInteger = values.every((value) => typeof value === "number" && Number.isInteger(value));
-  const allString = values.every((value) => typeof value === "string");
+  const allInteger = members.every(([, member]) => {
+    const value = getEnumMemberValue(program, member);
+    return typeof value === "number" && Number.isInteger(value);
+  });
+
+  const allString = members.every(([, member]) => {
+    const value = getEnumMemberValue(program, member);
+    return typeof value === "string";
+  });
 
   if (allInteger) {
     return "IntEnum";

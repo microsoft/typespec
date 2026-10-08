@@ -727,7 +727,7 @@ export class OpenAPI3SchemaEmitterBase<
     );
     if (discriminatorProp) {
       const discriminatorValue = this.#getStringValueFromType(discriminatorProp.type);
-      if (discriminatorValue !== undefined) {
+      if (discriminatorValue) {
         const ref = this.emitter.emitTypeReference(union.defaultVariant);
         compilerAssert(ref.kind === "code", "Unexpected ref schema. Should be kind: code");
         mapping[discriminatorValue] = (ref.value as any).$ref;
