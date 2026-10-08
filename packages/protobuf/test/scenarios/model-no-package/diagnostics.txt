@@ -1,2 +1,4 @@
+/test/main.tsp:21:9 - error @typespec/protobuf/model-not-in-package: union Choice is not in a namespace that uses the '@Protobuf.package' decorator
 /test/main.tsp:14:12 - error @typespec/protobuf/model-not-in-package: model Input is not in a namespace that uses the '@Protobuf.package' decorator
 /test/main.tsp:17:13 - error @typespec/protobuf/model-not-in-package: model Input is not in a namespace that uses the '@Protobuf.package' decorator
+/test/main.tsp:32:7 - error @typespec/protobuf/model-not-in-package: union EagerChoice is not in a namespace that uses the '@Protobuf.package' decorator

@@ -62,6 +62,25 @@ npx playwright install --with-deps chromium
 pnpm run watch
 ```
 
+The Vite libraries (`react-components`, `html-program-viewer`, `playground`,
+`playground-website`, and `spec-dashboard`) emit declarations with TypeScript's
+native `tsc` CLI rather than a plugin that requires the JavaScript compiler API.
+Their library builds run Vite first, then `pnpm build:types`, using
+`tsconfig.declaration.json` to preserve the declaration paths in their package exports.
+The package-level library watchers run Vite and declaration emit together, with
+Vite's output cleanup disabled so rebuilds do not delete declarations. The
+`playground-website` watcher remains the website development server.
+
+Workspace compilation uses native TypeScript 7 through the root
+`typescript-native` dependency, which provides `tsc` to package scripts.
+The `typescript` catalog entry aliases `@typescript/typescript6`, providing
+the JavaScript compiler API for tools such as TypeDoc and Astro's checker,
+and the separate `tsc6` command. Existing package manifests keep using
+`"typescript": "catalog:"`; no pnpm hook is needed. Tools and editor integrations
+that load the `typescript` package see TypeScript 6, not the native compiler.
+Alloy's CLI resolves `typescript/bin/tsc` directly, so a workspace package extension
+gives it a native TypeScript dependency as well.
+
 ## Using command line
 
 **If you are not at the root of the repo you have to use `-w` option to specify you want to run the command for the workspace. `pnpm -w <command>`.**
@@ -240,16 +259,22 @@ that gets produced.
 
 ## Integration testing
 
-The `tsp-integration` tool allows you to test your local TypeSpec package changes against external repositories (e.g., `azure-rest-api-specs`). It clones the target repo, patches its `package.json` to use your local packages, installs dependencies, and compiles all TypeSpec projects found in the repo.
+The `tsp-integration` tool allows you to test your local TypeSpec package changes against external repositories (e.g., `azure-rest-api-specs`). It clones the target repo, patches its dependency configuration to use your local packages, installs dependencies, and compiles all TypeSpec projects found in the repo.
 
 ### Configuration
 
 Integration test suites are defined in `.typespec-integration/config.yaml` at the repo root. Each suite specifies a target repository, branch, glob pattern for finding TypeSpec projects.
 
+The tool supports npm and pnpm. It uses the target repository's root `package.json` `packageManager` declaration when present; otherwise, a root `pnpm-workspace.yaml` or `pnpm-lock.yaml` selects pnpm, and repositories without either use npm. Explicit declarations of other package managers are rejected.
+
+Install the selected package manager on `PATH` and use a Node.js version supported by the target repository. The integration tool does not install package managers; pnpm's own version management can honor the target's `packageManager` declaration.
+
+For pnpm targets, local packages are substituted using `pnpm-workspace.yaml` overrides, including transitive dependencies. Catalogs and workspace-member manifests are preserved. Local workspace directories use `link:` references, so install and build this workspace first; changes remain visible during interactive runs. Prebuilt tarballs use `file:` references and are installed with their dependencies.
+
 ### Running from workspace root
 
 ```bash
-pnpm integration-test <suite-name>
+pnpm tsp-integration <suite-name>
 ```
 
 ### CLI options
@@ -289,10 +314,12 @@ pnpm tsp-integration azure-specs --tgz-dir ./temp/artifacts
 The tool runs the following stages in order:
 
 1. **checkout** — Clones (or resets) the target repository.
-2. **patch** — Resolves local TypeSpec package versions and patches `package.json` / `overrides` in the target repo.
-3. **install** — Runs `npm install --no-package-lock` in the target repo, then restores the original `package.json`.
-4. **validate** — Finds all TypeSpec projects matching the configured pattern and compiles each entrypoint, running compilations in parallel.
+2. **patch** — Resolves local TypeSpec packages and patches npm dependencies/overrides in `package.json`, or pnpm overrides in `pnpm-workspace.yaml`. A temporary workspace file is created if a pnpm target does not have one.
+3. **install** — Runs `npm install --no-package-lock` or `pnpm install --no-lockfile --no-frozen-lockfile` in the target repo. These installs do not use or modify the committed lockfile. After success, original patched files are restored, including removing an integration-created workspace file. If installation fails, patches remain for diagnosis and a later successful install restores them.
+4. **validate** — Finds all TypeSpec projects matching the configured pattern and compiles each entrypoint using the target's npm or pnpm, running compilations in parallel. pnpm's automatic dependency checks are disabled for compilation so restored manifests cannot trigger a reinstall of the original packages.
 5. **validate:clean** — Verifies the target repo has no uncommitted changes after validation.
+
+Patch restoration state is stored in the target's Git metadata, so `patch` and `install` may run in separate invocations. An install without a preceding patch does not restore unrelated files. A new `checkout` discards stale patch state.
 
 ## TypeSpec website
 

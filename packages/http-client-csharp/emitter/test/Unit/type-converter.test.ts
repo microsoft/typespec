@@ -1,8 +1,13 @@
 vi.resetModules();
 
 import type { DecoratorInfo } from "@azure-tools/typespec-client-generator-core";
-import type { TestHost } from "@typespec/compiler/testing";
-import { ok, strictEqual } from "assert";
+import {
+  expectDiagnosticEmpty,
+  expectDiagnostics,
+  type TestHost,
+} from "@typespec/compiler/testing";
+import { HttpClientTestLibrary } from "@typespec/http-client/testing";
+import { deepStrictEqual, ok, strictEqual } from "assert";
 import { beforeEach, describe, it, vi } from "vitest";
 import { createModel } from "../../src/lib/client-model-builder.js";
 import { getAllModelDecorators } from "../../src/lib/type-converter.js";
@@ -93,6 +98,54 @@ describe("External types", () => {
 
   beforeEach(async () => {
     runner = await createEmitterTestHost();
+    await runner.addTypeSpecLibrary(HttpClientTestLibrary);
+  });
+
+  describe.each([
+    { kind: "model", declaration: "model ExternalValue { value: string; }" },
+    { kind: "enum", declaration: 'enum ExternalValue { One: "one", Two: "two" }' },
+    { kind: "union", declaration: "union ExternalValue { text: string, count: int32 }" },
+    { kind: "scalar", declaration: "scalar ExternalValue extends string;" },
+    { kind: "nullable", declaration: "union ExternalValue { string, null }" },
+    { kind: "array", declaration: "model ExternalValue is Array<string>;" },
+    { kind: "dict", declaration: "model ExternalValue is Record<string>;" },
+    { kind: "utcDateTime", declaration: "scalar ExternalValue extends utcDateTime;" },
+    { kind: "duration", declaration: "scalar ExternalValue extends duration;" },
+  ])("experimental external $kind", ({ declaration, kind }) => {
+    it.each([
+      { scope: "@typespec/http-client-csharp", applies: true },
+      { scope: "!other-emitter", applies: true },
+      { scope: "other-emitter", applies: false },
+    ])("preserves metadata scoped to $scope", async ({ scope, applies }) => {
+      const program = await typeSpecCompile(
+        `
+        @TypeSpec.HttpClient.experimental(#{
+          emitterScope: "${scope}", diagnosticId: "EXTERNAL001", dependsOn: #["DEP001"]
+        })
+        @alternateType({ identity: "External.Value" }, "csharp")
+        ${declaration}
+        model Wrapper { value: ExternalValue; }
+        op read(): Wrapper;
+        `,
+        runner,
+        { IsTCGCNeeded: true, IsHttpClientNeeded: true },
+      );
+      const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+      expectDiagnostics(
+        sdkContext.diagnostics,
+        kind === "union"
+          ? [{ code: "@azure-tools/typespec-azure-core/union-enums-multiple-kind" }]
+          : [],
+      );
+      const [root, diagnostics] = createModel(sdkContext);
+      expectDiagnosticEmpty(diagnostics);
+      const type = root.models.find((model) => model.name === "Wrapper")!.properties[0].type;
+      strictEqual(type.external?.identity, "External.Value");
+      deepStrictEqual(
+        type.experimental,
+        applies ? { diagnosticId: "EXTERNAL001", dependsOn: ["DEP001"] } : undefined,
+      );
+    });
   });
 
   it("should convert external type from @alternateType decorator", async () => {

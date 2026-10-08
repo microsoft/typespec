@@ -27,13 +27,15 @@ namespace Microsoft.TypeSpec.Generator.Input
             InputType? valueType = null;
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
             InputExternalTypeMetadata? external = null;
+            InputExperimentalDetails? experimental = null;
             while (reader.TokenType != JsonTokenType.EndObject)
             {
                 var isKnownProperty = reader.TryReadReferenceId(ref id)
                     || reader.TryReadString("name", ref name)
                     || reader.TryReadComplexType("type", options, ref valueType)
                     || reader.TryReadComplexType("decorators", options, ref decorators)
-                    || reader.TryReadComplexType("external", options, ref external);
+                    || reader.TryReadComplexType("external", options, ref external)
+                    || reader.TryReadComplexType("experimental", options, ref experimental);
 
                 if (!isKnownProperty)
                 {
@@ -46,7 +48,8 @@ namespace Microsoft.TypeSpec.Generator.Input
             var nullableType = new InputNullableType(valueType)
             {
                 Decorators = decorators ?? [],
-                External = external
+                External = external,
+                Experimental = experimental
             };
             if (id != null)
             {

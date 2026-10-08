@@ -1221,7 +1221,15 @@ model Foo {
         message?: string;
       }
 
-      @route("/") @get op getFoo(): Foo;
+      @route("/") @get op getFoo(): Responses.TestResponse;
+
+      namespace Responses {
+        /** test response */
+        model TestResponse {
+          @statusCode statusCode: 200;
+          @body body: TestService.Foo;
+        }
+      }
       "
     `);
 
@@ -1292,16 +1300,17 @@ model Foo {
         message?: string;
       }
 
-      @route("/") @get op getFoo(): GeneratedHelpers.DefaultResponse<
-        Description = "Overwritten description",
-        Body = Foo
-      >;
+      @route("/") @get op getFoo(): Responses.TestResponse;
 
-      @route("/") @head op headFoo(): GeneratedHelpers.DefaultResponse<
-        Description = "Base description",
-        Body = Foo
-      >;
+      @route("/") @head op headFoo(): Responses.TestResponse;
 
+      namespace Responses {
+        /** Base description */
+        @error
+        model TestResponse {
+          @body body: TestService.Foo;
+        }
+      }
       namespace GeneratedHelpers {
         @doc(Description)
         @error
@@ -1384,13 +1393,20 @@ model Foo {
         message?: string;
       }
 
-      @route("/") @get op getFoo(): {
-        /** my test header */
-        @header("x-test") xTest?: string;
+      @route("/") @get op getFoo(): Responses.TestResponse;
 
-        @header("x-test2") xTest2?: string;
-        @body body: Foo;
-      };
+      namespace Responses {
+        /** test response */
+        model TestResponse {
+          @statusCode statusCode: 200;
+
+          /** my test header */
+          @header("x-test") xTest?: string;
+
+          @header("x-test2") xTest2?: string;
+          @body body: TestService.Foo;
+        }
+      }
       "
     `);
 

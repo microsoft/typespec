@@ -12,6 +12,24 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
 {
     public static class InputFactory
     {
+        public static T Experimental<T>(T type, string? diagnosticId, params string[] dependsOn) where T : InputType
+        {
+            type.Experimental = new InputExperimentalDetails(diagnosticId, dependsOn);
+            return type;
+        }
+
+        public static InputModelProperty Experimental(InputModelProperty property, string? diagnosticId, params string[] dependsOn)
+        {
+            property.Experimental = new InputExperimentalDetails(diagnosticId, dependsOn);
+            return property;
+        }
+
+        public static InputClient Experimental(InputClient client, string? diagnosticId, params string[] dependsOn)
+        {
+            client.Experimental = new InputExperimentalDetails(diagnosticId, dependsOn);
+            return client;
+        }
+
         public static class EnumMember
         {
             public static InputEnumTypeValue Int32(string name, int value, InputEnumType enumType, bool isExactName = false)

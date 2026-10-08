@@ -3,9 +3,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
@@ -19,6 +24,245 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
 {
     public class TypeProviderTests
     {
+        [Test]
+        public void ExperimentalApiHelpersAreInternal()
+        {
+            Assert.IsTrue(typeof(ExperimentalApiHelpers).IsNotPublic);
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void ExperimentalNestedTypeReferencesIncludeTheDeclaringType(bool generic)
+        {
+            var input = InputFactory.Experimental(InputFactory.Model("Container"), "OUTER001");
+            var declaringType = CodeModelGenerator.Instance.TypeFactory.CreateModel(input)!.Type;
+            var nestedType = new CSharpType("Nested", declaringType.Namespace, false, false, declaringType, [], true, false);
+            var referencedType = generic ? new CSharpType(typeof(List<>), nestedType) : nestedType;
+
+            CollectionAssert.AreEqual(
+                new[] { Snippet.Literal("OUTER001").ToDisplayString() },
+                ExperimentalApiHelpers.GetReferenceSuppressions(referencedType).Select(suppression => suppression.Code.ToDisplayString()));
+        }
+
+        [TestCase("plain", false, true, null)]
+        [TestCase("generic", false, true, null)]
+        [TestCase("array", false, true, null)]
+        [TestCase("nested", false, true, null)]
+        [TestCase("plain", true, true, null)]
+        [TestCase("plain", false, false, null)]
+        [TestCase("plain", false, true, "C")]
+        public void ExperimentalDependenciesCoverSignaturesAndBodies(string shape, bool expressionBody, bool suppressBodyDependency, string? publicDiagnosticId)
+        {
+            var operation = InputFactory.Operation("UseDependencies");
+            operation.Update(experimental: new InputExperimentalDetails(publicDiagnosticId, suppressBodyDependency ? ["A", "B"] : ["A"]));
+            var client = new TestTypeProvider(name: "TestClient", ns: "Sample");
+
+            var tree = CSharpSyntaxTree.ParseText(Helpers.GetExpectedFromFile());
+            var references = AppDomain.CurrentDomain.GetAssemblies()
+                .Where(assembly => !assembly.IsDynamic && !string.IsNullOrEmpty(assembly.Location))
+                .Select(assembly => MetadataReference.CreateFromFile(assembly.Location));
+            var compilation = CSharpCompilation.Create(
+                "ExperimentalDependencies",
+                [tree],
+                references,
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            var dependency = compilation.GetTypeByMetadataName("Sample.SignatureDependency")!;
+            ITypeSymbol signatureSymbol = shape switch
+            {
+                "plain" => dependency,
+                "generic" => compilation.GetTypeByMetadataName("System.Collections.Generic.List`1")!.Construct(dependency),
+                "array" => compilation.CreateArrayTypeSymbol(dependency),
+                "nested" => compilation.GetTypeByMetadataName("System.Collections.Generic.List`1")!.Construct(compilation.CreateArrayTypeSymbol(dependency)),
+                _ => throw new ArgumentOutOfRangeException(nameof(shape))
+            };
+            var signatureType = signatureSymbol.GetCSharpType();
+            var bodyType = compilation.GetTypeByMetadataName("Sample.BodyDependency")!.GetCSharpType();
+            var parameter = new ParameterProvider("value", $"The value.", signatureType);
+            var attribute = ExperimentalApiHelpers.BuildAttribute(operation);
+            var signature = new MethodSignature(
+                "UseDependencies", null, MethodSignatureModifiers.Public, signatureType, null, [parameter],
+                Attributes: attribute is null ? [] : [attribute]);
+            var existingSuppression = new SuppressionStatement(null, Snippet.Literal("CS0168"), "Existing suppression.");
+            var method = expressionBody
+                ? new MethodProvider(signature, (ValueExpression)parameter, client, suppressions: [existingSuppression])
+                : new MethodProvider(signature, new MethodBodyStatements(
+                    [new ExpressionStatement(Snippet.New.Instance(bodyType)), Snippet.Return(parameter)]), client, suppressions: [existingSuppression]);
+            ExperimentalApiHelpers.AddDependencySuppressions(method, operation);
+            Assert.Contains(existingSuppression, method.Suppressions.ToArray());
+
+            using var writer = new CodeWriter();
+            writer.WriteMethod(method);
+            var root = tree.GetRoot();
+            var clientDeclaration = root.DescendantNodes().OfType<ClassDeclarationSyntax>().Single(c => c.Identifier.ValueText == "TestClient");
+            var generatedMethod = SyntaxFactory.ParseMemberDeclaration(writer.ToString(false))!;
+            var updatedRoot = root.ReplaceNode(clientDeclaration, clientDeclaration.AddMembers(generatedMethod));
+            var updatedTree = tree.WithRootAndOptions(updatedRoot, tree.Options);
+            compilation = compilation.ReplaceSyntaxTree(tree, updatedTree);
+
+            var emittedMethod = updatedTree.GetRoot().DescendantNodes().OfType<MethodDeclarationSyntax>()
+                .Single(m => m.Identifier.ValueText == "UseDependencies");
+            var diagnostics = compilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error).ToArray();
+            var methodDiagnostics = diagnostics.Where(d => emittedMethod.Span.Contains(d.Location.SourceSpan)).ToArray();
+            CollectionAssert.AreEqual(
+                suppressBodyDependency || expressionBody ? Array.Empty<string>() : ["B"],
+                methodDiagnostics.Select(d => d.Id),
+                string.Join(Environment.NewLine, methodDiagnostics.Select(d => d.ToString())));
+            var outsideDiagnostics = diagnostics.Where(d => !emittedMethod.Span.Contains(d.Location.SourceSpan)).ToArray();
+            CollectionAssert.AreEquivalent(
+                publicDiagnosticId is null ? new[] { "A", "B" } : ["A", "B", "C"],
+                outsideDiagnostics.Select(d => d.Id).Distinct());
+        }
+
+        [TestCase("CURRENT001", false)]
+        [TestCase("CURRENT001", true)]
+        [TestCase(null, true)]
+        public async Task ExperimentalBackCompatOverloadsFollowCurrentMetadata(string? diagnosticId, bool previouslyExperimental)
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () =>
+            {
+                var compilation = await Helpers.GetCompilationFromDirectoryAsync();
+                if (previouslyExperimental)
+                {
+                    return compilation;
+                }
+                var tree = compilation.SyntaxTrees.Single(t => t.FilePath.EndsWith("ExperimentalCompatibility.cs", StringComparison.Ordinal));
+                var root = tree.GetRoot();
+                var updatedRoot = root.ReplaceNodes(root.DescendantNodes().OfType<MethodDeclarationSyntax>(),
+                    (_, method) => method.WithAttributeLists(default));
+                return compilation.ReplaceSyntaxTree(tree, tree.WithRootAndOptions(updatedRoot, tree.Options));
+            });
+            var owner = new TestTypeProvider(name: "ExperimentalCompatibility", ns: "Test");
+            var attributes = ExperimentalApiHelpers.BuildAttributes(new InputExperimentalDetails(diagnosticId));
+            var suppressions = new[]
+            {
+                new SuppressionStatement(null, Snippet.Literal("DEP001"), "Dependency one."),
+                new SuppressionStatement(null, Snippet.Literal("DEP002"), "Dependency two.")
+            };
+            MethodProvider CreateMethod(string name, params ParameterProvider[] parameters) => new(
+                new MethodSignature(name, null, MethodSignatureModifiers.Public, null, null, parameters, Attributes: attributes),
+                Snippet.Throw(Snippet.Null), owner, suppressions: suppressions);
+            owner.Update(methods:
+            [
+                CreateMethod("AddOptional",
+                    new ParameterProvider("value", $"", typeof(int)),
+                    new ParameterProvider("added", $"", typeof(bool), defaultValue: Snippet.Default, location: ParameterLocation.Query)),
+                CreateMethod("RemoveNullability", new ParameterProvider("value", $"", typeof(int))),
+                CreateMethod("RequireOptional", new ParameterProvider("value", $"", typeof(int?)))
+            ]);
+
+            owner.ProcessTypeForBackCompatibility();
+            var shims = owner.Methods.Where(m => m.Signature.Attributes.Any(a => a.Type.Equals(typeof(EditorBrowsableAttribute)))).ToArray();
+            Assert.AreEqual(3, shims.Length);
+            foreach (var shim in shims)
+            {
+                var experiment = shim.Signature.Attributes.SingleOrDefault(a => a.Type.Equals(typeof(ExperimentalAttribute)));
+                Assert.AreEqual(diagnosticId is null ? null : Snippet.Literal(diagnosticId).ToDisplayString(),
+                    experiment?.Arguments[0].ToDisplayString());
+                CollectionAssert.AreEqual(
+                    suppressions.Select(s => s.Code.ToDisplayString()),
+                    shim.Suppressions.Select(s => s.Code.ToDisplayString()));
+            }
+
+            var references = AppDomain.CurrentDomain.GetAssemblies()
+                .Where(a => !a.IsDynamic && !string.IsNullOrEmpty(a.Location))
+                .Select(a => MetadataReference.CreateFromFile(a.Location));
+            var compilation = CSharpCompilation.Create(
+                "ExperimentalCompatibility",
+                [CSharpSyntaxTree.ParseText(new TypeProviderWriter(owner).Write().Content),
+                 CSharpSyntaxTree.ParseText(new TypeProviderWriter(new ArgumentDefinition()).Write().Content)],
+                references,
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, generalDiagnosticOption: ReportDiagnostic.Error));
+            Assert.IsEmpty(compilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error).Select(d => d.ToString()));
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void ExperimentalModelsAndProperties(bool modelAsStruct)
+        {
+            MockHelpers.LoadMockGenerator();
+            var property = InputFactory.Experimental(InputFactory.Property("value", InputPrimitiveType.String), "PROPERTY001", "PROPERTYDEP");
+            var model = InputFactory.Experimental(
+                InputFactory.Model("Payload", modelAsStruct: modelAsStruct, properties: [property]),
+                "MODEL001", "MODELDEP");
+            var provider = CodeModelGenerator.Instance.TypeFactory.CreateModel(model)!;
+
+            Assert.AreEqual(Snippet.Literal("MODEL001").ToDisplayString(),
+                provider.Attributes.Single(a => a.Type.Equals(typeof(ExperimentalAttribute))).Arguments[0].ToDisplayString());
+            Assert.AreEqual(Snippet.Literal("PROPERTY001").ToDisplayString(),
+                provider.Properties.Single(p => p.Name == "Value").Attributes.Single(a => a.Type.Equals(typeof(ExperimentalAttribute))).Arguments[0].ToDisplayString());
+            CollectionAssert.AreEquivalent(
+                new[] { "MODELDEP" }.Select(id => Snippet.Literal(id).ToDisplayString()),
+                provider.DisabledFileWarnings.Select(s => s.Code.ToDisplayString()));
+            StringAssert.Contains("#pragma warning disable PROPERTY001", new TypeProviderWriter(provider).Write().Content);
+            StringAssert.Contains("#pragma warning disable PROPERTYDEP", new TypeProviderWriter(provider).Write().Content);
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void ExperimentalEnumsAndMembers(bool isExtensible)
+        {
+            MockHelpers.LoadMockGenerator();
+            var input = InputFactory.Experimental(
+                InputFactory.StringEnum("Choice", [("One", "one"), ("Two", "two")], isExtensible: isExtensible),
+                "ENUM001", "ENUMDEP");
+            InputFactory.Experimental(input.Values[0], "MEMBER001", "MEMBERDEP");
+            var provider = CodeModelGenerator.Instance.TypeFactory.CreateEnum(input)!;
+            var attributes = isExtensible
+                ? provider.Properties.Single(p => p.Name == "One").Attributes
+                : provider.EnumValues.Single(v => v.Name == "One").Field.Attributes;
+
+            Assert.AreEqual(Snippet.Literal("ENUM001").ToDisplayString(),
+                provider.Attributes.Single(a => a.Type.Equals(typeof(ExperimentalAttribute))).Arguments[0].ToDisplayString());
+            Assert.AreEqual(Snippet.Literal("MEMBER001").ToDisplayString(),
+                attributes.Single(a => a.Type.Equals(typeof(ExperimentalAttribute))).Arguments[0].ToDisplayString());
+            CollectionAssert.AreEquivalent(
+                new[] { "ENUMDEP" }.Select(id => Snippet.Literal(id).ToDisplayString()),
+                provider.DisabledFileWarnings.Select(s => s.Code.ToDisplayString()));
+            StringAssert.Contains("#pragma warning disable MEMBERDEP", new TypeProviderWriter(provider).Write().Content);
+            var controlAttributes = isExtensible
+                ? provider.Properties.Single(p => p.Name == "Two").Attributes
+                : provider.EnumValues.Single(v => v.Name == "Two").Field.Attributes;
+            Assert.IsFalse(controlAttributes.Any(a => a.Type.Equals(typeof(ExperimentalAttribute))));
+        }
+
+        [Test]
+        public void ExperimentalReferencesAreSuppressedWithoutGraduatingOrPromotingTypes()
+        {
+            MockHelpers.LoadMockGenerator();
+            var dependency = InputFactory.Experimental(InputFactory.Model("Dependency"), "DEP001");
+            var model = InputFactory.Model("Payload", properties: [InputFactory.Property("dependency", InputFactory.Array(dependency))]);
+            var provider = CodeModelGenerator.Instance.TypeFactory.CreateModel(model)!;
+
+            Assert.IsFalse(provider.Attributes.Any(a => a.Type.Equals(typeof(ExperimentalAttribute))));
+            Assert.AreEqual(0, provider.DisabledFileWarnings.Count);
+            StringAssert.Contains("#pragma warning disable DEP001", new TypeProviderWriter(provider).Write().Content);
+            Assert.IsTrue(CodeModelGenerator.Instance.TypeFactory.CreateModel(dependency)!.Attributes.Any(a => a.Type.Equals(typeof(ExperimentalAttribute))));
+        }
+
+        [Test]
+        public void ExperimentalApiVersionMembers()
+        {
+            MockHelpers.LoadMockGenerator();
+            var input = InputFactory.StringEnum("Versions", [("2024-01-01", "2024-01-01")], usage: InputModelTypeUsage.ApiVersionEnum);
+            InputFactory.Experimental(input.Values[0], "VERSION001");
+            var provider = CodeModelGenerator.Instance.TypeFactory.CreateEnum(input)!;
+
+            Assert.AreEqual(Snippet.Literal("VERSION001").ToDisplayString(),
+                provider.EnumValues.Single().Field.Attributes.Single(a => a.Type.Equals(typeof(ExperimentalAttribute))).Arguments[0].ToDisplayString());
+        }
+
+        [TestCase("MODEL001")]
+        [TestCase(null)]
+        public void ExperimentalModelDependenciesDoNotControlPublicStatus(string? diagnosticId)
+        {
+            MockHelpers.LoadMockGenerator();
+            var input = InputFactory.Experimental(InputFactory.Model("Payload"), diagnosticId, "DEP001", "DEP001");
+            var provider = CodeModelGenerator.Instance.TypeFactory.CreateModel(input)!;
+
+            Assert.AreEqual(diagnosticId is null ? 0 : 1, provider.Attributes.Count(a => a.Type.Equals(typeof(ExperimentalAttribute))));
+            Assert.AreEqual(1, provider.DisabledFileWarnings.Count(s => s.Code.ToDisplayString() == Snippet.Literal("DEP001").ToDisplayString()));
+        }
+
         [SetUp]
         public void Setup()
         {

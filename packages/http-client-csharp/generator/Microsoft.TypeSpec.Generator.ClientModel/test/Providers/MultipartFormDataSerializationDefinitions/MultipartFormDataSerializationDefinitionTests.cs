@@ -375,6 +375,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MultipartForm
             Assert.AreEqual(Helpers.GetExpectedFromFile(), actual);
         }
 
+        [Test]
+        public async Task TestSerialization_CustomizedOptionalListUsesNullCheck()
+        {
+            var inputModel = MultipartModel(
+                "ConcreteListRequest",
+                [NonFilePartProperty("tags", InputFactory.Array(InputPrimitiveType.String), isRequired: false)]);
+            var actual = await WriteSerializationWithCustomCodeAsync(inputModel, "ConcreteListRequest");
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), actual);
+        }
+
         private static InputModelProperty FilePartProperty(string name, bool isRequired = true)
             => InputFactory.Property(
                 name,
