@@ -131,19 +131,26 @@ namespace SampleTypeSpec
             }
             else if (Optional.IsCollectionDefined(OptionalNullableList))
             {
-                writer.WritePropertyName("optionalNullableList"u8);
-                writer.WriteStartArray();
-                bool hasPatch = Patch.Contains("$"u8, "optionalNullableList"u8);
-                for (int i = 0; i < OptionalNullableList.Count; i++)
+                if (OptionalNullableList != null)
                 {
-                    if (hasPatch && Patch.IsRemoved(Encoding.UTF8.GetBytes($"$.optionalNullableList[{i}]")))
+                    writer.WritePropertyName("optionalNullableList"u8);
+                    writer.WriteStartArray();
+                    bool hasPatch = Patch.Contains("$"u8, "optionalNullableList"u8);
+                    for (int i = 0; i < OptionalNullableList.Count; i++)
                     {
-                        continue;
+                        if (hasPatch && Patch.IsRemoved(Encoding.UTF8.GetBytes($"$.optionalNullableList[{i}]")))
+                        {
+                            continue;
+                        }
+                        writer.WriteNumberValue(OptionalNullableList[i]);
                     }
-                    writer.WriteNumberValue(OptionalNullableList[i]);
+                    Patch.WriteTo(writer, "$.optionalNullableList"u8);
+                    writer.WriteEndArray();
                 }
-                Patch.WriteTo(writer, "$.optionalNullableList"u8);
-                writer.WriteEndArray();
+                else
+                {
+                    writer.WriteNull("optionalNullableList"u8);
+                }
             }
             if (Patch.Contains("$.requiredNullableList"u8))
             {
@@ -175,40 +182,47 @@ namespace SampleTypeSpec
             }
             if (Optional.IsCollectionDefined(OptionalNullableDictionary) && !Patch.Contains("$.optionalNullableDictionary"u8))
             {
-                writer.WritePropertyName("optionalNullableDictionary"u8);
-                writer.WriteStartObject();
-                bool hasPatch = Patch.Contains("$"u8, "optionalNullableDictionary"u8);
-                if (hasPatch)
+                if (OptionalNullableDictionary != null)
                 {
-#if NET8_0_OR_GREATER
-                    global::System.Span<byte> buffer = stackalloc byte[256];
-#endif
-                    foreach (var item in OptionalNullableDictionary)
+                    writer.WritePropertyName("optionalNullableDictionary"u8);
+                    writer.WriteStartObject();
+                    bool hasPatch = Patch.Contains("$"u8, "optionalNullableDictionary"u8);
+                    if (hasPatch)
                     {
 #if NET8_0_OR_GREATER
-                        int bytesWritten = global::System.Text.Encoding.UTF8.GetBytes(item.Key.AsSpan(), buffer);
-                        bool patchContains = (bytesWritten == 256) ? Patch.Contains("$.optionalNullableDictionary"u8, global::System.Text.Encoding.UTF8.GetBytes(item.Key)) : Patch.Contains("$.optionalNullableDictionary"u8, buffer.Slice(0, bytesWritten));
-#else
-                        bool patchContains = Patch.Contains("$.optionalNullableDictionary"u8, Encoding.UTF8.GetBytes(item.Key));
+                        global::System.Span<byte> buffer = stackalloc byte[256];
 #endif
-                        if (!patchContains)
+                        foreach (var item in OptionalNullableDictionary)
+                        {
+#if NET8_0_OR_GREATER
+                            int bytesWritten = global::System.Text.Encoding.UTF8.GetBytes(item.Key.AsSpan(), buffer);
+                            bool patchContains = (bytesWritten == 256) ? Patch.Contains("$.optionalNullableDictionary"u8, global::System.Text.Encoding.UTF8.GetBytes(item.Key)) : Patch.Contains("$.optionalNullableDictionary"u8, buffer.Slice(0, bytesWritten));
+#else
+                            bool patchContains = Patch.Contains("$.optionalNullableDictionary"u8, Encoding.UTF8.GetBytes(item.Key));
+#endif
+                            if (!patchContains)
+                            {
+                                writer.WritePropertyName(item.Key);
+                                writer.WriteNumberValue(item.Value);
+                            }
+                        }
+
+                        Patch.WriteTo(writer, "$.optionalNullableDictionary"u8);
+                    }
+                    else
+                    {
+                        foreach (var item in OptionalNullableDictionary)
                         {
                             writer.WritePropertyName(item.Key);
                             writer.WriteNumberValue(item.Value);
                         }
                     }
-
-                    Patch.WriteTo(writer, "$.optionalNullableDictionary"u8);
+                    writer.WriteEndObject();
                 }
                 else
                 {
-                    foreach (var item in OptionalNullableDictionary)
-                    {
-                        writer.WritePropertyName(item.Key);
-                        writer.WriteNumberValue(item.Value);
-                    }
+                    writer.WriteNull("optionalNullableDictionary"u8);
                 }
-                writer.WriteEndObject();
             }
             if (Optional.IsCollectionDefined(RequiredNullableDictionary) && !Patch.Contains("$.requiredNullableDictionary"u8))
             {
@@ -643,9 +657,9 @@ namespace SampleTypeSpec
             string name = default;
             BinaryData optionalUnknown = default;
             int? optionalInt = default;
-            IList<int> optionalNullableList = default;
+            IList<int> optionalNullableList = new ChangeTrackingList<int>();
             IList<int> requiredNullableList = default;
-            IDictionary<string, int> optionalNullableDictionary = default;
+            IDictionary<string, int> optionalNullableDictionary = new ChangeTrackingDictionary<string, int>();
             IDictionary<string, int> requiredNullableDictionary = default;
             IDictionary<string, int> primitiveDictionary = default;
             AnotherDynamicModel foo = default;
@@ -687,6 +701,7 @@ namespace SampleTypeSpec
                 {
                     if (prop.Value.ValueKind == JsonValueKind.Null)
                     {
+                        optionalNullableList = null;
                         continue;
                     }
                     List<int> array = new List<int>();
@@ -716,6 +731,7 @@ namespace SampleTypeSpec
                 {
                     if (prop.Value.ValueKind == JsonValueKind.Null)
                     {
+                        optionalNullableDictionary = null;
                         continue;
                     }
                     Dictionary<string, int> dictionary = new Dictionary<string, int>();
@@ -870,9 +886,9 @@ namespace SampleTypeSpec
                 name,
                 optionalUnknown,
                 optionalInt,
-                optionalNullableList ?? new ChangeTrackingList<int>(),
+                optionalNullableList,
                 requiredNullableList,
-                optionalNullableDictionary ?? new ChangeTrackingDictionary<string, int>(),
+                optionalNullableDictionary,
                 requiredNullableDictionary,
                 primitiveDictionary ?? new ChangeTrackingDictionary<string, int>(),
                 foo,

@@ -14,6 +14,7 @@ import {
   getEffectiveModelType,
   getFriendlyName,
   isArrayModelType,
+  resolveEncodedEnumMemberValue,
 } from "@typespec/compiler";
 import type { JsContext, Module } from "../ctx.js";
 import { isImportableType } from "../ctx.js";
@@ -235,16 +236,8 @@ export function emitTypeReference(
     case "Boolean":
       return String(type.value);
     case "EnumMember": {
-      if (typeof type.value === "string") {
-        return escapeUnsafeChars(JSON.stringify(type.value));
-      } else if (typeof type.value === "number") {
-        return String(type.value);
-      } else if (type.value === undefined) {
-        return escapeUnsafeChars(JSON.stringify(type.name));
-      } else {
-        void (type.value satisfies never);
-        return "unknown";
-      }
+      const value = resolveEncodedEnumMemberValue(ctx.program, type, "application/json");
+      return typeof value === "number" ? String(value) : escapeUnsafeChars(JSON.stringify(value));
     }
     case "Intrinsic":
       switch (type.name) {
@@ -309,7 +302,6 @@ const UNSAFE_CHAR_MAP: { [k: string]: string } = {
   "<": "\\u003C",
   ">": "\\u003E",
   "/": "\\u002F",
-  "\\": "\\\\",
   "\b": "\\b",
   "\f": "\\f",
   "\n": "\\n",
@@ -320,8 +312,12 @@ const UNSAFE_CHAR_MAP: { [k: string]: string } = {
   "\u2029": "\\u2029",
 };
 
+/**
+ * Escapes characters that are unsafe in generated source. Apply it to `JSON.stringify` output: a
+ * backslash there is an escape `JSON.stringify` wrote, so it is left alone.
+ */
 export function escapeUnsafeChars(s: string) {
-  return s.replace(/[<>/\\\b\f\n\r\t\0\u2028\u2029]/g, (x) => UNSAFE_CHAR_MAP[x]);
+  return s.replace(/[<>/\b\f\n\r\t\0\u2028\u2029]/g, (x) => UNSAFE_CHAR_MAP[x]);
 }
 
 export type JsTypeSpecLiteralType = LiteralType | (IntrinsicType & { name: "null" });

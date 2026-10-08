@@ -43,6 +43,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private readonly FieldProvider _valueField;
 
+        private protected override bool IsCustomizedValueName(string name)
+        {
+            var fieldName = name + "Value";
+            return base.IsCustomizedValueName(name) || base.IsCustomizedValueName(fieldName) ||
+                CustomCodeView?.Properties.Any(p => p.Name == name || p.OriginalName == name) == true ||
+                CustomCodeView?.Fields.Any(f => f.Name == fieldName || f.OriginalName == fieldName) == true;
+        }
+
         protected override TypeProvider? BuildDeclaringTypeProvider() => _declaringType;
         private readonly TypeProvider? _declaringType;
 
@@ -51,9 +59,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected override IReadOnlyList<EnumTypeMember> BuildEnumValues()
         {
             var lastContractNames = LastContractView?.Properties.Select(p => p.Name).ToArray() ?? [];
-            var generatedNames = _allowedValues
-                .Select(v => GetGeneratedValueName(v, lastContractNames))
-                .ToArray();
+            var generatedNames = GetGeneratedValueNames(_allowedValues, lastContractNames);
             var values = new EnumTypeMember[_allowedValues.Count];
 
             for (int i = 0; i < _allowedValues.Count; i++)

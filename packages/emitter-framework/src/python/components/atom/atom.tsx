@@ -1,6 +1,7 @@
 import { type Children } from "@alloy-js/core";
 import * as py from "@alloy-js/python";
-import { compilerAssert, type Value } from "@typespec/compiler";
+import { compilerAssert, resolveEncodedEnumMemberValue, type Value } from "@typespec/compiler";
+import { useTsp } from "../../../core/context/tsp-context.js";
 import { datetimeModule } from "../../builtins.js";
 
 /**
@@ -68,8 +69,14 @@ export function Atom(props: Readonly<AtomProps>): Children {
         jsProperties[key] = Atom({ value: value.value });
       }
       return <py.Atom jsValue={jsProperties} />;
-    case "EnumValue":
-      return <py.Atom jsValue={props.value.value.value ?? props.value.value.name} />;
+    case "EnumValue": {
+      const { $ } = useTsp();
+      return (
+        <py.Atom
+          jsValue={resolveEncodedEnumMemberValue($.program, props.value.value, "application/json")}
+        />
+      );
+    }
   }
 }
 

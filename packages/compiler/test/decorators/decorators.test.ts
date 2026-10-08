@@ -15,6 +15,7 @@ import {
   getPatternData,
   getReturnsDoc,
   isErrorModel,
+  resolveEncodedEnumMemberValue,
   resolveEncodedName,
   setMediaTypeHint,
 } from "../../src/lib/decorators.js";
@@ -1246,6 +1247,24 @@ describe("@discriminated", () => {
     });
   });
 
+  it("use the json encoded name of an enum member discriminator value", async () => {
+    const diagnostics = await Tester.diagnose(`
+        enum Kind {
+          @encodedName("application/json", "a")
+          aKind,
+        }
+        model A {
+          kind: Kind.aKind,
+        }
+        @discriminated(#{envelope: "none"})
+        union Foo {
+          a: A;
+        }
+      `);
+
+    expectDiagnosticEmpty(diagnostics);
+  });
+
   async function getTestDiscriminatedUnion(code: string) {
     const { Foo, program } = (await Tester.compile(code)) as any;
     return getDiscriminatedUnion(program, Foo)[0]!;
@@ -1377,6 +1396,45 @@ describe("@encodedName", () => {
       ]);
     });
 
+    it("emit error if an enum member encoded name is the value of another member", async () => {
+      const diagnostics = await Tester.diagnose(`
+          enum Status {
+            @encodedName("application/json", "ready")
+            active,
+            other: "ready",
+          }
+        `);
+
+      expectDiagnostics(diagnostics, {
+        code: "encoded-name-conflict",
+        message:
+          "Encoded name 'ready' conflicts with the value of another member for mime type 'application/json'",
+      });
+    });
+
+    it("is ok if an enum member encoded name is the name of a member with another value", async () => {
+      const diagnostics = await Tester.diagnose(`
+          enum Status {
+            @encodedName("application/json", "ready")
+            active,
+            ready: "is-ready",
+          }
+        `);
+
+      expectDiagnosticEmpty(diagnostics);
+    });
+
+    it("is ok if an enum member encoded name is its own name", async () => {
+      const diagnostics = await Tester.diagnose(`
+          enum Status {
+            @encodedName("application/json", "active")
+            active,
+          }
+        `);
+
+      expectDiagnosticEmpty(diagnostics);
+    });
+
     it("is ok if 2 different mime type have the same encoded name", async () => {
       const diagnostics = await Tester.diagnose(`
           model Cert {
@@ -1410,6 +1468,86 @@ describe("@encodedName", () => {
         }
       `);
     strictEqual(resolveEncodedName(program, expireAt, "application/xml"), "expireAt");
+  });
+
+  it("resolve encoded name of an enum member", async () => {
+    const { active, program } = await Tester.compile(t.code`
+        enum Status {
+          @encodedName("application/json", "on")
+          ${t.enumMember("active")},
+        }
+      `);
+    strictEqual(resolveEncodedName(program, active, "application/json"), "on");
+    strictEqual(resolveEncodedName(program, active, "application/xml"), "active");
+  });
+
+  it("resolve encoded name of an enum member copied with a spread", async () => {
+    const { Extended, program } = await Tester.compile(t.code`
+        enum Status {
+          @encodedName("application/json", "on")
+          active,
+        }
+        enum ${t.enum("Extended")} {
+          ...Status,
+        }
+      `);
+    const active = Extended.members.get("active")!;
+    strictEqual(active.enum, Extended);
+    strictEqual(resolveEncodedName(program, active, "application/json"), "on");
+    strictEqual(resolveEncodedEnumMemberValue(program, active, "application/json"), "on");
+  });
+});
+
+describe("resolveEncodedEnumMemberValue", () => {
+  it("prefers the encoded name over an explicit value", async () => {
+    const { statusReady, program } = await Tester.compile(t.code`
+        enum Status {
+          @encodedName("application/json", "ready")
+          ${t.enumMember("statusReady")}: 2,
+        }
+      `);
+    strictEqual(resolveEncodedEnumMemberValue(program, statusReady, "application/json"), "ready");
+  });
+
+  it("falls back to the json encoded name for a json-based mime type", async () => {
+    const { statusReady, program } = await Tester.compile(t.code`
+        enum Status {
+          @encodedName("application/json", "ready")
+          ${t.enumMember("statusReady")}: 2,
+        }
+      `);
+    strictEqual(
+      resolveEncodedEnumMemberValue(program, statusReady, "application/merge-patch+json"),
+      "ready",
+    );
+  });
+
+  it("keeps the explicit value when no encoded name applies to the mime type", async () => {
+    const { statusReady, program } = await Tester.compile(t.code`
+        enum Status {
+          @encodedName("application/json", "ready")
+          ${t.enumMember("statusReady")}: 2,
+        }
+      `);
+    strictEqual(resolveEncodedEnumMemberValue(program, statusReady, "application/xml"), 2);
+  });
+
+  it("keeps an explicit zero value", async () => {
+    const { none, program } = await Tester.compile(t.code`
+        enum Status {
+          ${t.enumMember("none")}: 0,
+        }
+      `);
+    strictEqual(resolveEncodedEnumMemberValue(program, none, "application/json"), 0);
+  });
+
+  it("falls back to the member name", async () => {
+    const { active, program } = await Tester.compile(t.code`
+        enum Status {
+          ${t.enumMember("active")},
+        }
+      `);
+    strictEqual(resolveEncodedEnumMemberValue(program, active, "application/json"), "active");
   });
 });
 
