@@ -2,6 +2,9 @@ parameters:
   - name: azLogin
     type: boolean
     default: false
+  - name: testFilter
+    type: string
+    default: ""
 jobs:
   - job: e2e
     displayName: E2E Tests
@@ -32,9 +35,9 @@ jobs:
               azureSubscription: "Azure SDK Engineering System"
               scriptType: bash
               scriptLocation: inlineScript
-              inlineScript: pnpm run test:e2e
+              inlineScript: pnpm run test:e2e ${{ parameters.testFilter }}
       - ${{ else }}:
-          - script: pnpm run test:e2e
+          - script: pnpm run test:e2e ${{ parameters.testFilter }}
             displayName: E2E Tests
 
       - task: 1ES.PublishPipelineArtifact@1
