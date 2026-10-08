@@ -2516,8 +2516,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.AreEqual("meows", catProtectedParams[3].Name);
         }
 
-        [Test]
-        public void TestMultiLevelDiscriminatorConstructorParameterPassthrough()
+        [TestCase(true)]
+        [TestCase(false)]
+        public void TestMultiLevelDiscriminatorConstructorParameterPassthrough(bool basePropertiesRequired)
         {
             // Create a three-level discriminator hierarchy: base → intermediate → derived
             var derivedInputModel = InputFactory.Model(
@@ -2533,7 +2534,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 discriminatedKind: "intermediate",
                 properties: [
                     InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
-                    InputFactory.Property("intermediateProperty", InputPrimitiveType.Boolean, isRequired: true)
+                    InputFactory.Property("intermediateProperty", InputPrimitiveType.Boolean, isRequired: basePropertiesRequired)
                 ],
                 discriminatedModels: new Dictionary<string, InputModelType>() { { "derived", derivedInputModel } });
 
@@ -2541,7 +2542,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
                 "base",
                 properties: [
                     InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
-                    InputFactory.Property("baseProperty", InputPrimitiveType.String, isRequired: true)
+                    InputFactory.Property("baseProperty", InputPrimitiveType.String, isRequired: basePropertiesRequired)
                 ],
                 discriminatedModels: new Dictionary<string, InputModelType>() { { "intermediate", intermediateInputModel } });
 
@@ -2579,6 +2580,9 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             var derivedInitializer = derivedCtor!.Signature.Initializer;
             Assert.IsNotNull(derivedInitializer, "Derived constructor should have base initializer");
             Assert.IsTrue(derivedInitializer!.IsBase, "Derived initializer should call base constructor");
+            Assert.AreEqual(basePropertiesRequired ? 3 : 1, derivedCtor.Signature.Parameters.Count);
+            Assert.IsFalse(derivedCtor.Signature.Parameters.Any(p => p.Name == "kind"));
+            Assert.AreEqual(basePropertiesRequired ? 3 : 1, derivedInitializer.Arguments.Count);
 
             // Derived should pass its discriminator value to intermediate constructor
             var derivedKindArgument = derivedInitializer!.Arguments[0].ToDisplayString();

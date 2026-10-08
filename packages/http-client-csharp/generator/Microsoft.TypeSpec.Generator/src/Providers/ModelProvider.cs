@@ -1458,27 +1458,24 @@ namespace Microsoft.TypeSpec.Generator.Providers
             ConstructorInitializer? constructorInitializer = null;
             if (BaseModelProvider != null)
             {
-                if (baseParameters.Count > 0)
+                // Check if we should call multi-level discriminator constructor
+                if (isInitializationConstructor && (IsMultiLevelDiscriminator || BaseModelProvider.IsMultiLevelDiscriminator))
                 {
-                    // Check if we should call multi-level discriminator constructor
-                    if (isInitializationConstructor && (IsMultiLevelDiscriminator || BaseModelProvider.IsMultiLevelDiscriminator))
-                    {
-                        var baseDiscriminatorParam = baseParameters.FirstOrDefault(p => p.Property?.IsDiscriminator == true);
+                    var baseDiscriminatorParam = baseParameters.FirstOrDefault(p => p.Property?.IsDiscriminator == true);
 
-                        ValueExpression discriminatorExpression = (baseDiscriminatorParam is not null && includeDiscriminatorParameter)
-                            ? constructorParameters.FirstOrDefault(p => p.Property?.IsDiscriminator == true) ?? baseDiscriminatorParam
-                            : DiscriminatorLiteral;
+                    ValueExpression discriminatorExpression = (baseDiscriminatorParam is not null && includeDiscriminatorParameter)
+                        ? constructorParameters.FirstOrDefault(p => p.Property?.IsDiscriminator == true) ?? baseDiscriminatorParam
+                        : DiscriminatorLiteral;
 
-                        var args = baseParameters.Where(p => p.Property?.IsDiscriminator != true)
-                            .Select(p => GetExpressionForCtor(p, overriddenProperties, isInitializationConstructor, constructorParameters));
+                    var args = baseParameters.Where(p => p.Property?.IsDiscriminator != true)
+                        .Select(p => GetExpressionForCtor(p, overriddenProperties, isInitializationConstructor, constructorParameters));
 
-                        constructorInitializer = new ConstructorInitializer(true, [discriminatorExpression, .. args]);
-                    }
-                    else
-                    {
-                        // Standard base constructor call
-                        constructorInitializer = new ConstructorInitializer(true, [.. baseParameters.Select(p => GetExpressionForCtor(p, overriddenProperties, isInitializationConstructor, constructorParameters))]);
-                    }
+                    constructorInitializer = new ConstructorInitializer(true, [discriminatorExpression, .. args]);
+                }
+                else if (baseParameters.Count > 0)
+                {
+                    // Standard base constructor call
+                    constructorInitializer = new ConstructorInitializer(true, [.. baseParameters.Select(p => GetExpressionForCtor(p, overriddenProperties, isInitializationConstructor, constructorParameters))]);
                 }
                 else
                 {
