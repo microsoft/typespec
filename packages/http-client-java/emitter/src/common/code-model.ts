@@ -45,7 +45,14 @@ export function createCodeModel(
       security: createSecurity(false),
       clients: [],
     },
-    { ...options, info: createInfo(title, options.info) },
+    {
+      ...options,
+      info: createInfo(title, options.info),
+      schemas: { ...createSchemas(), ...options.schemas },
+      operationGroups: [...(options.operationGroups ?? [])],
+      security: createSecurity(options.security?.authenticationRequired ?? false, options.security),
+      clients: [...(options.clients ?? [])],
+    },
   );
 }
 

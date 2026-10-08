@@ -22,5 +22,6 @@ external AutoRest flow.
 
 `test/code-model.test.ts` covers model initialization, registration, reference
 identity, signature filtering, plain-object graphs, and TypeSpec-to-YAML snapshots
-captured before the dependency removal. Snapshot keys are sorted without cloning
-away aliases, so mapping order does not obscure contract changes.
+captured before the dependency removal, including LRO, subclient, multipart, and
+XML-bytes scenarios. Snapshot keys are sorted without cloning away aliases, so
+mapping order does not obscure contract changes.

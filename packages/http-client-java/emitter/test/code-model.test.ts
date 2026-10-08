@@ -5,7 +5,12 @@ import { parse, stringify } from "yaml";
 import { CodeModelBuilder } from "../src/code-model-builder.js";
 import { addSubClient, createClient } from "../src/common/client.js";
 import { addGlobalParameter, createCodeModel } from "../src/common/code-model.js";
-import { addParameter, createOperation, createRequest } from "../src/common/operation.js";
+import {
+  addParameter,
+  createOperation,
+  createOperationGroup,
+  createRequest,
+} from "../src/common/operation.js";
 import { addSchema, createSchemas } from "../src/common/schemas.js";
 import { createChoiceSchema } from "../src/common/schemas/choice.js";
 import { createConstantSchema, createConstantValue } from "../src/common/schemas/constant.js";
@@ -60,6 +65,40 @@ describe("code model characterization", () => {
     expect(client.security).not.toBe(security);
     expect(client.security.schemes).not.toBe(security.schemes);
     expect(client.security.schemes[0]).toBe(scheme);
+  });
+
+  it("preserves root model container copies while sharing model nodes", () => {
+    const schema = createStringSchema("string", "");
+    const schemas = { strings: [schema] };
+    const scheme = createKeySecurityScheme({ name: "api-key" });
+    const security = createSecurity(true, { schemes: [scheme] });
+    const group = createOperationGroup("group");
+    const operationGroups = [group];
+    const client = createClient("client", "");
+    const clients = [client];
+    const model = createCodeModel("test", { schemas, security, operationGroups, clients });
+
+    expect(model.schemas).not.toBe(schemas);
+    expect(model.schemas.strings).toBe(schemas.strings);
+    expect(model.schemas.strings![0]).toBe(schema);
+    expect(model.security).not.toBe(security);
+    expect(model.security.authenticationRequired).toBe(true);
+    expect(model.security.schemes).not.toBe(security.schemes);
+    expect(model.security.schemes[0]).toBe(scheme);
+    expect(model.operationGroups).not.toBe(operationGroups);
+    expect(model.operationGroups[0]).toBe(group);
+    expect(model.clients).not.toBe(clients);
+    expect(model.clients[0]).toBe(client);
+
+    schemas.strings = [];
+    security.authenticationRequired = false;
+    security.schemes.push(createKeySecurityScheme({ name: "other-key" }));
+    operationGroups.push(createOperationGroup("other-group"));
+    clients.push(createClient("other-client", ""));
+    expect(model.schemas.strings).toEqual([schema]);
+    expect(model.security).toEqual({ authenticationRequired: true, schemes: [scheme] });
+    expect(model.operationGroups).toEqual([group]);
+    expect(model.clients).toEqual([client]);
   });
 
   it("keeps wire collection names and primitive naming defaults", () => {
@@ -200,7 +239,7 @@ describe("code model characterization", () => {
   });
 
   it.each(["lro", "subclient", "multipart", "xml-bytes-verify"])(
-    "builds %s metadata as plain data",
+    "preserves %s YAML metadata and references",
     async (scenario) => {
       const program = await compile(
         NodeHost,
@@ -239,6 +278,7 @@ describe("code model characterization", () => {
       } else if (scenario === "subclient") {
         expect(model.clients.some((client) => client.subClients.length > 0)).toBe(true);
       }
+      expect(stringify(sortGraph(model), { version: "1.1" })).toMatchSnapshot();
     },
   );
 });
