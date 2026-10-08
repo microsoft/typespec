@@ -4,7 +4,12 @@ import { createHash } from "crypto";
 import { Readable } from "stream";
 import { extract as tarX } from "tar/extract";
 import type { Hash } from "../install/spec.js";
-import { fetchPackageManifest, NpmRegistryError, type NpmPackageVersion } from "./npm-registry.js";
+import {
+  fetchFromNpmRegistry,
+  fetchPackageManifest,
+  NpmRegistryError,
+  type NpmPackageVersion,
+} from "./npm-registry.js";
 
 export async function downloadPackageVersion(
   packageName: string,
@@ -34,7 +39,7 @@ async function downloadAndExtractTarball(
 ): Promise<ExtractedTarballResult> {
   let res: Response;
   try {
-    res = await fetch(url);
+    res = await fetchFromNpmRegistry(url);
   } catch (error) {
     const message = error instanceof Error ? `: ${error.message}` : "";
     throw new NpmRegistryError(`Request to ${url} failed${message}`);

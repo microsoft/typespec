@@ -1,6 +1,6 @@
 import * as http from "http";
 import type { AddressInfo } from "net";
-import { afterEach, beforeEach, expect, it } from "vitest";
+import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import {
   fetchPackageManifest,
   getNpmRegistry,
@@ -12,6 +12,7 @@ let server: http.Server;
 let registryUrl: string;
 let lastRequestUrl: string | undefined;
 let lastAcceptHeader: string | undefined;
+let lastAuthorizationHeader: string | undefined;
 let responseStatus: number;
 let responseBody: NpmPackument | string;
 const originalTypeSpecNpmRegistry = process.env["TYPESPEC_NPM_REGISTRY"];
@@ -20,11 +21,14 @@ const originalNpmConfigRegistry = process.env["NPM_CONFIG_REGISTRY"];
 beforeEach(async () => {
   lastRequestUrl = undefined;
   lastAcceptHeader = undefined;
+  lastAuthorizationHeader = undefined;
+  vi.stubEnv("TYPESPEC_NPM_REGISTRY_TOKEN", undefined);
   responseStatus = 200;
   responseBody = createPackument();
   server = http.createServer((req, res) => {
     lastRequestUrl = req.url ?? "";
     lastAcceptHeader = req.headers.accept;
+    lastAuthorizationHeader = req.headers.authorization;
     res.writeHead(responseStatus, { "Content-Type": "application/json" });
     res.end(typeof responseBody === "string" ? responseBody : JSON.stringify(responseBody));
   });
@@ -34,6 +38,7 @@ beforeEach(async () => {
 });
 
 afterEach(async () => {
+  vi.unstubAllEnvs();
   restoreEnvironmentVariable("TYPESPEC_NPM_REGISTRY", originalTypeSpecNpmRegistry);
   restoreEnvironmentVariable("NPM_CONFIG_REGISTRY", originalNpmConfigRegistry);
   await new Promise<void>((resolve) => server.close(() => resolve()));
@@ -52,6 +57,23 @@ it("strips trailing slash from TYPESPEC_NPM_REGISTRY", async () => {
   const manifest = await fetchPackageManifest("test-pkg", "1.0.0");
   expect(manifest.version).toBe("1.0.0");
   expect(lastRequestUrl).toBe("/test-pkg");
+});
+
+it("authenticates registry metadata requests when a token is configured", async () => {
+  process.env["TYPESPEC_NPM_REGISTRY"] = registryUrl;
+  vi.stubEnv("TYPESPEC_NPM_REGISTRY_TOKEN", "test-token");
+
+  await fetchPackageManifest("test-pkg", "latest");
+
+  expect(lastAuthorizationHeader).toBe("Bearer test-token");
+});
+
+it("does not authenticate registry requests when no token is configured", async () => {
+  process.env["TYPESPEC_NPM_REGISTRY"] = registryUrl;
+
+  await fetchPackageManifest("test-pkg", "latest");
+
+  expect(lastAuthorizationHeader).toBeUndefined();
 });
 
 it("resolves a package version from a semver range", async () => {

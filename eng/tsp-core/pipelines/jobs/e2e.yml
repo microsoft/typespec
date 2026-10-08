@@ -33,9 +33,13 @@ jobs:
               scriptType: bash
               scriptLocation: inlineScript
               inlineScript: pnpm run test:e2e
+            env:
+              TYPESPEC_NPM_REGISTRY_TOKEN: $(System.AccessToken)
       - ${{ else }}:
           - script: pnpm run test:e2e
             displayName: E2E Tests
+            env:
+              TYPESPEC_NPM_REGISTRY_TOKEN: $(System.AccessToken)
 
       - task: 1ES.PublishPipelineArtifact@1
         inputs:

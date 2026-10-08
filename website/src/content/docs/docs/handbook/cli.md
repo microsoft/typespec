@@ -47,4 +47,18 @@ If this variable is not set, TypeSpec defaults to `https://registry.npmjs.org`.
 This variable does not configure the package manager invoked by `tsp init` or `tsp install`.
 Configure that package manager separately using its own registry and authentication settings.
 TypeSpec does not read those authentication settings: its package metadata request and the tarball
-URL returned by the registry must be accessible to the TypeSpec process.
+URL returned by the registry must be accessible to the TypeSpec process, using
+`TYPESPEC_NPM_REGISTRY_TOKEN` if authentication is required.
+
+### `TYPESPEC_NPM_REGISTRY_TOKEN`
+
+Set a bearer token to authenticate TypeSpec's package metadata requests and package-manager
+downloads against the registry selected by `TYPESPEC_NPM_REGISTRY`. If no registry is configured,
+the token applies to the default npm registry.
+
+TypeSpec only sends the token to URLs with the same origin and within the configured registry's
+path. It does not send the token to tarballs hosted on other origins or outside that path.
+
+Supply this variable through your environment or CI secret settings; do not commit tokens to
+source control. This variable does not configure authentication for the invoked package manager,
+which still uses its own authentication settings.

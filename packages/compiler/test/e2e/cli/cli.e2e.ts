@@ -176,6 +176,56 @@ describe("install", () => {
       );
     }
   });
+
+  it("authenticates both package manager metadata and tarball requests", async () => {
+    const requestUrls: string[] = [];
+    const server = http.createServer((req, res) => {
+      requestUrls.push(req.url ?? "");
+      if (req.headers.authorization !== "Bearer test-token") {
+        res.writeHead(401);
+        res.end();
+      } else if (req.url === "/npm") {
+        const manifest = {
+          name: "npm",
+          version: "99.99.98",
+          dist: { tarball: `http://${req.headers.host}/npm.tgz` },
+          bin: { npm: "bin/npm-cli.js" },
+        };
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(
+          JSON.stringify({
+            name: "npm",
+            "dist-tags": { latest: manifest.version },
+            versions: { [manifest.version]: manifest },
+          }),
+        );
+      } else {
+        res.writeHead(200);
+        res.end();
+      }
+    });
+    await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
+    const { port } = server.address() as AddressInfo;
+
+    try {
+      const result = await execCliFail(["install"], {
+        cwd: getScenarioDir("install"),
+        env: {
+          TYPESPEC_NPM_REGISTRY: `http://127.0.0.1:${port}`,
+          TYPESPEC_NPM_REGISTRY_TOKEN: "test-token",
+        },
+      });
+
+      expect(requestUrls).toEqual(["/npm", "/npm.tgz"]);
+      expect(result.stdio).toContain("Failed to extract package from");
+      expect(result.stdio).not.toContain("failed with status 401");
+      expect(result.stdio).not.toContain("test-token");
+    } finally {
+      await new Promise<void>((resolve, reject) =>
+        server.close((error) => (error ? reject(error) : resolve())),
+      );
+    }
+  });
 });
 
 describe("format", () => {
