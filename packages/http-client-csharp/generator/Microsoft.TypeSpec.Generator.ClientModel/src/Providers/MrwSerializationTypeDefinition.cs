@@ -291,7 +291,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         }
 
         private static bool IsParameter(ParameterProvider parameter, Type type, bool isRef = false)
-            => CSharpType.IgnoreNullableComparer.Equals(parameter.Type, new CSharpType(type)) &&
+            => parameter.Type.Equals(type) &&
                 parameter.IsRef == isRef &&
                 !parameter.IsOut &&
                 !parameter.IsIn &&

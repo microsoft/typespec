@@ -25,7 +25,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         public bool TryResolve(CSharpType previousBase, [NotNullWhen(true)] out ModelProvider? provider)
         {
-            if (!TryResolveCandidate(previousBase, out provider) || !_compatibility.CanRestore(provider))
+            if (!TryResolveCandidate(previousBase, out provider) ||
+                !_compatibility.CanRestore(provider) ||
+                !_model.CanRestoreLastContractModelBase(provider))
             {
                 provider = null;
                 return false;

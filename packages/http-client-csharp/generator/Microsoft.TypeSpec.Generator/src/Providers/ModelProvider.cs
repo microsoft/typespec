@@ -285,6 +285,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
         }
 
+        internal bool CanRestoreLastContractModelBase(ModelProvider candidate)
+            => candidate is not SystemObjectModelProvider mappedBase ||
+                !RequiresParameterlessBaseConstructor || mappedBase.HasCallableParameterlessConstructor;
+
+        /// <summary>
+        /// Whether generated constructors require a base constructor callable without arguments.
+        /// Used to validate a mapped last-contract base before committing the restored hierarchy.
+        /// </summary>
+        protected virtual bool RequiresParameterlessBaseConstructor => false;
+
         private CSharpType? BuildBaseTypeForBackCompatibilityCore(CSharpType? currentBase)
         {
             // A mapped external model's CLR hierarchy is owned by its wrapped system type.

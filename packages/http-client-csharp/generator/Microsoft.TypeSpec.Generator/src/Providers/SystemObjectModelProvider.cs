@@ -103,6 +103,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
         }
 
+        internal bool HasCallableParameterlessConstructor => HasCallableFrameworkConstructor([]);
+
         private bool HasCallableFrameworkConstructor(
             IReadOnlyList<ParameterProvider> generatedParameters,
             IReadOnlyList<ParameterProvider>? historicalParameters = null)
