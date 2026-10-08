@@ -63,10 +63,17 @@ namespace Sample.Models
                 writer.WritePropertyName("prop1"u8);
                 writer.WriteStringValue(Prop1);
             }
-            if (global::Sample.Optional.IsDefined(Prop2))
+            if ((_prop2IsDefined || global::Sample.Optional.IsDefined(Prop2)))
             {
-                writer.WritePropertyName("prop2"u8);
-                writer.WriteStringValue(Prop2);
+                if ((Prop2 != null))
+                {
+                    writer.WritePropertyName("prop2"u8);
+                    writer.WriteStringValue(Prop2);
+                }
+                else
+                {
+                    writer.WriteNull("prop2"u8);
+                }
             }
             if (((options.Format != "W") && (_additionalBinaryDataProperties != null)))
             {

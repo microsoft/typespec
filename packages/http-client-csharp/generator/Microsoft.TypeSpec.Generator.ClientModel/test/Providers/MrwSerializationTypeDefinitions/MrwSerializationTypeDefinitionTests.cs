@@ -64,6 +64,31 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.That(interfaces.Any(i => i.Equals(expectedJsonModelTInterface)));
         }
 
+        [TestCase(false, false, false)]
+        [TestCase(true, false, false)]
+        [TestCase(true, true, true)]
+        [TestCase(true, true, false)]
+        public void DeserializationOnlyInitializesTrackedPresence(bool hasProperty, bool isNullable, bool isRequired)
+        {
+            var inputModel = InputFactory.Model("model", properties: hasProperty
+                ? [InputFactory.Property("text", isNullable ? new InputNullableType(InputPrimitiveType.String) : InputPrimitiveType.String, isRequired: isRequired)]
+                : []);
+            var (model, serialization) = CreateModelAndSerialization(inputModel);
+            var returnStatement = (ExpressionStatement)serialization.BuildDeserializationMethod().BodyStatements!.Last();
+            var newInstance = (NewInstanceExpression)((KeywordExpression)returnStatement.Expression).Expression!;
+
+            if (hasProperty && isNullable && !isRequired)
+            {
+                var presence = ClientModel.Providers.ScmModelProvider.GetNullablePropertyPresence(model.Properties.Single());
+                Assert.That(newInstance.InitExpression, Is.Not.Null);
+                Assert.That(newInstance.InitExpression!.Values.Keys, Is.EqualTo(new[] { presence!.AsValueExpression }));
+            }
+            else
+            {
+                Assert.That(newInstance.InitExpression, Is.Null);
+            }
+        }
+
         // This test validates the json model serialization write method is built correctly
         [TestCase(true)]
         [TestCase(false)]
@@ -658,8 +683,31 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var (_, serialization) = CreateModelAndSerialization(inputModel);
 
             var deserializationMethod = serialization.Methods.Single(m => m.Signature.Name.StartsWith("Deserialize"));
-            var methodBody = deserializationMethod.BodyStatements!.ToDisplayString();
-            Assert.AreEqual(Helpers.GetExpectedFromFile(), methodBody);
+            using var writer = new CodeWriter();
+            writer.WriteMethod(deserializationMethod);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), writer.ToString(false));
+        }
+
+        [Test]
+        public void ExternalModelPropertiesPreserveReaderOptions()
+        {
+            // The enclosing options must flow into the ModelReaderWriter.Read fallback for external models
+            // so that unknown properties are preserved when reading in the "J" format.
+            var externalModel = InputFactory.Model(
+                "ExternalModel",
+                external: new InputExternalTypeMetadata("System.IO.File", null, null));
+            var inputModel = InputFactory.Model("mockInputModel", properties:
+            [
+                InputFactory.Property("scalar", externalModel),
+                InputFactory.Property("list", InputFactory.Array(externalModel)),
+                InputFactory.Property("dictionary", InputFactory.Dictionary(externalModel))
+            ]);
+            var (_, serialization) = CreateModelAndSerialization(inputModel);
+
+            var deserializationMethod = serialization.Methods.Single(m => m.Signature.Name.StartsWith("Deserialize"));
+            using var writer = new CodeWriter();
+            writer.WriteMethod(deserializationMethod);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), writer.ToString(false));
         }
 
         [Test]

@@ -28,7 +28,10 @@ export function HttpServiceExceptionFilter(): Children {
               {
                 foreach (var header in httpServiceException.Headers)
                 {
-                  context.HttpContext.Response.Headers.Append(header.Key, header.Value.ToString());
+                  if (header.Value is not null)
+                  {
+                    context.HttpContext.Response.Headers.Append(header.Key, header.Value);
+                  }
                 }
 
                 context.Result = new ObjectResult(httpServiceException.Value)

@@ -4,6 +4,7 @@
 import type {
   DiagnosticTarget,
   Enum,
+  EnumMember,
   Interface,
   IntrinsicType,
   Model,
@@ -15,6 +16,7 @@ import type {
   StringLiteral,
   Type,
   Union,
+  UnionVariant,
 } from "@typespec/compiler";
 import {
   compilerAssert,
@@ -23,6 +25,7 @@ import {
   getEffectiveModelType,
   getFriendlyName,
   getTypeName,
+  isArrayModelType,
   isDeclaredInNamespace,
   isTemplateInstance,
   isType,
@@ -30,6 +33,7 @@ import {
 } from "@typespec/compiler";
 import { SyntaxKind } from "@typespec/compiler/ast";
 import { capitalize } from "@typespec/compiler/casing";
+import { constantCase } from "change-case";
 import type {
   ProtoEnumDeclaration,
   ProtoEnumVariantDeclaration,
@@ -39,6 +43,7 @@ import type {
   ProtoMessageBodyDeclaration,
   ProtoMessageDeclaration,
   ProtoMethodDeclaration,
+  ProtoOneOfDeclaration,
   ProtoRef,
   ProtoScalar,
   ProtoTopLevelDeclaration,
@@ -49,12 +54,17 @@ import { map, matchType, ref, scalar, StreamingMode, unreachable } from "../ast.
 import type { ProtobufEmitterOptions } from "../lib.js";
 import { reportDiagnostic, state } from "../lib.js";
 import type { Reservation } from "../proto.js";
-import { $field, isMap } from "../proto.js";
+import { $field, isMap, PROTO_IDENT } from "../proto.js";
 import { writeProtoFile } from "../write.js";
 
 // Cache for scalar -> ProtoScalar map
 const _protoScalarsMap = new WeakMap<Program, Map<Type, ProtoScalar>>();
 const _protoExternMap = new WeakMap<Program, Map<string, [string, ProtoRef]>>();
+
+/**
+ * The name of the `oneof` declared within the wrapper message of a union used as a numbered field.
+ */
+const WRAPPER_ONEOF_NAME = "value";
 
 /**
  * Create a worker function that converts the TypeSpec program to Protobuf and writes it to the file system.
@@ -98,13 +108,24 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
 
   const serviceInterfaces = [...(program.stateSet(state.service) as Set<Interface>)];
 
-  const declaredMessages = [...(program.stateSet(state.message) as Set<Model>)];
+  const declaredMessages = [...program.stateSet(state.message)].filter(
+    (t): t is Model => t.kind === "Model",
+  );
+
+  // Named unions explicitly marked with `@message` are eagerly emitted as wrapper messages.
+  const declaredUnions = [...program.stateSet(state.message)].filter(
+    (t): t is Union => t.kind === "Union" && !t.expression,
+  );
 
   const declarationMap = new Map<Namespace, ProtoTopLevelDeclaration[]>(
     [...packages].map((p) => [p, []]),
   );
 
+  const enumMemberSources = new WeakMap<ProtoEnumVariantDeclaration, EnumMember>();
+
   const visitedTypes = new Set<Type>();
+
+  const validatedUnions = new Set<Union>();
 
   /**
    * Visits a model type, converting it into a message definition and adding it if it has not already been visited.
@@ -125,6 +146,29 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
     if (!visitedTypes.has(model)) {
       visitedTypes.add(model);
       declarations?.push(toMessage(model));
+    }
+  }
+
+  /**
+   * Visits a named union referenced by a numbered field, converting it into a wrapper message that contains a `oneof`
+   * and adding it if it has not already been visited.
+   */
+  function visitUnion(union: Union, source: Type) {
+    const unionPackage = getPackageOfType(program, union);
+    const declarations = unionPackage && declarationMap.get(unionPackage);
+
+    if (!declarations) {
+      reportDiagnostic(program, {
+        target: source,
+        code: "model-not-in-package",
+        messageId: "union",
+        format: { name: union.name! },
+      });
+    }
+
+    if (!visitedTypes.has(union)) {
+      visitedTypes.add(union);
+      declarations?.push(toWrapperMessage(union));
     }
   }
 
@@ -166,7 +210,7 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
 
   const importMap = new Map([...packages].map((ns) => [ns, new Set<string>()]));
 
-  function typeWantsImport(program: Program, t: Model | Operation, path: string) {
+  function typeWantsImport(program: Program, t: RelativeSource, path: string) {
     const packageNs = getPackageOfType(program, t);
 
     if (packageNs) {
@@ -176,13 +220,20 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
 
   const mapImportSourceInformation = new WeakMap<
     ProtoMap,
-    [Model | Operation, NamespaceTraversable]
+    [RelativeSource, NamespaceTraversable]
   >();
 
   const effectiveModelCache = new Map<Model, Model | undefined>();
 
   for (const packageNs of packages) {
     addDeclarationsOfPackage(packageNs);
+  }
+
+  // `addDeclarationsOfPackage` only visits `@message` unions inside a package, so report the rest here.
+  for (const union of declaredUnions) {
+    if (!getPackageOfType(program, union)) {
+      visitUnion(union, union);
+    }
   }
 
   // Emit a file per package.
@@ -218,6 +269,12 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
 
   checkForNamespaceCollisions(files);
 
+  if (emitterOptions["enum-value-prefix"] === "enum-name") {
+    for (const file of files) {
+      checkForEnumValueNameCollisions(file);
+    }
+  }
+
   return files;
 
   /**
@@ -235,7 +292,7 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
       // Add all models in the namespace that have `@field` on every property.
       for (const model of namespace.models.values()) {
         if (
-          [...model.properties.values()].every((p) => program.stateMap(state.fieldIndex).has(p)) ||
+          [...model.properties.values()].every(isFieldAnnotated) ||
           program.stateSet(state.message).has(model)
         ) {
           eagerModels.add(model);
@@ -248,11 +305,20 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
         // Don't eagerly visit externs
         !program.stateMap(state.externRef).has(model) &&
         // Only eagerly visit models where every field has a field index annotation.
-        ([...model.properties.values()].every((p) => program.stateMap(state.fieldIndex).has(p)) ||
+        ([...model.properties.values()].every(isFieldAnnotated) ||
           // OR where the model has been explicitly marked as a message.
           program.stateSet(state.message).has(model))
       ) {
         visitModel(model, model);
+      }
+    }
+
+    for (const union of declaredUnions) {
+      if (
+        union.namespace &&
+        (union.namespace === namespace || isDeclaredInNamespace(union.namespace, namespace))
+      ) {
+        visitUnion(union, union);
       }
     }
 
@@ -274,6 +340,23 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
   }
 
   // #region inline helpers
+
+  /**
+   * Determines whether a property is fully annotated with field indices: either the property has `@field`, or it is an
+   * unnumbered property of a named union type (an inline `oneof`) where every variant has `@field`.
+   */
+  function isFieldAnnotated(property: ModelProperty): boolean {
+    const fieldIndices = program.stateMap(state.fieldIndex);
+    if (fieldIndices.has(property)) return true;
+
+    const type = property.type;
+    return (
+      type.kind === "Union" &&
+      !type.expression &&
+      type.variants.size > 0 &&
+      [...type.variants.values()].every((variant) => fieldIndices.has(variant))
+    );
+  }
 
   /**
    * @param operation - the operation to convert
@@ -349,7 +432,7 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
       return ref(extern[1]);
     }
 
-    return ref(getModelName(model));
+    return ref(getMessageName(model));
   }
 
   /**
@@ -357,7 +440,7 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
    */
   function getCachedExternType(
     program: Program,
-    relativeSource: Operation | Model,
+    relativeSource: RelativeSource,
     name: string,
   ): ProtoRef {
     let cache = _protoExternMap.get(program);
@@ -430,7 +513,7 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
    * @param relativeSource - the relative source of the type
    * @returns a reference to the type's message
    */
-  function addIntrinsicType(t: IntrinsicType, relativeSource: Operation | Model): ProtoRef {
+  function addIntrinsicType(t: IntrinsicType, relativeSource: RelativeSource): ProtoRef {
     switch (t.name) {
       case "unknown":
         return getCachedExternType(program, relativeSource, "TypeSpec.Protobuf.WellKnown.Any");
@@ -463,7 +546,7 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
 
     const effectiveModel = computeEffectiveModel(m, capitalize(operation.name) + "Response");
     if (effectiveModel) {
-      return ref(getModelName(effectiveModel));
+      return ref(getMessageName(effectiveModel));
     }
 
     reportDiagnostic(program, {
@@ -480,7 +563,7 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
    * @param t - the type to add to the ProtoFile.
    * @returns a Protobuf type corresponding to the given type
    */
-  function addType(t: Type, relativeSource: Model | Operation): ProtoType {
+  function addType(t: Type, relativeSource: RelativeSource): ProtoType {
     // Exit early if this type is an extern.
     const extern = program.stateMap(state.externRef).get(t) as [string, string] | undefined;
     if (extern) {
@@ -503,7 +586,7 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
     switch (t.kind) {
       case "Model":
         // If we came from another model and this model is anonymous, then we can't reference it by name.
-        if (t.name === "" && relativeSource.kind === "Model") {
+        if (t.name === "" && relativeSource.kind !== "Operation") {
           reportDiagnostic(program, {
             code: "anonymous-model",
             target: t,
@@ -513,7 +596,21 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
 
         visitModel(t, relativeSource);
 
-        return ref(getModelName(t));
+        return ref(getMessageName(t));
+      case "Union":
+        // A named union in a numbered field is emitted as a wrapper message containing a `oneof`.
+        if (t.expression || !t.name) {
+          reportDiagnostic(program, {
+            code: "unsupported-field-type",
+            messageId: "union",
+            target: t,
+          });
+          return unreachable("anonymous union");
+        }
+
+        visitUnion(t, relativeSource);
+
+        return ref(getMessageName(t));
       case "Enum":
         visitEnum(t);
         return ref(t.name);
@@ -534,7 +631,7 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
     }
   }
 
-  function mapToProto(t: Model, relativeSource: Model | Operation): ProtoMap {
+  function mapToProto(t: Model, relativeSource: RelativeSource): ProtoMap {
     const [keyType, valueType] = t.templateMapper!.args;
 
     compilerAssert(isType(keyType), "Cannot be a value type");
@@ -558,13 +655,13 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
 
     return map(
       keyProto[1] as "string" | ScalarIntegralName,
-      valueType.kind === "Model"
+      valueType.kind === "Model" || valueType.kind === "Union"
         ? addImportSourceForProtoIfNeeded(program, valueProto, relativeSource, valueType)
         : valueProto,
     );
   }
 
-  function arrayToProto(t: Model, relativeSource: Model | Operation): ProtoType {
+  function arrayToProto(t: Model, relativeSource: RelativeSource): ProtoType {
     const valueType = (t as Model).templateMapper!.args[0];
     compilerAssert(isType(valueType), "Cannot be a value type");
 
@@ -689,26 +786,188 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
     }
   }
 
+  function checkForEnumValueNameCollisions(file: ProtoFile) {
+    const declarations = [...file.declarations];
+    const names = new Map<
+      string,
+      { kind: ProtoTopLevelDeclaration["kind"] | "enum value"; owner: string }
+    >();
+
+    for (const declaration of declarations) {
+      if (!names.has(declaration.name)) {
+        names.set(declaration.name, { kind: declaration.kind, owner: declaration.name });
+      }
+    }
+
+    for (const declaration of declarations) {
+      if (declaration.kind !== "enum") continue;
+
+      for (const variant of declaration.variants) {
+        const member = enumMemberSources.get(variant);
+        compilerAssert(member, "Missing TypeSpec source for emitted enum value.");
+        const existing = names.get(variant.name);
+        if (existing) {
+          reportDiagnostic(program, {
+            target: member,
+            code: "enum-value-name-collision",
+            format: { name: variant.name, kind: existing.kind, owner: existing.owner },
+          });
+        } else {
+          names.set(variant.name, { kind: "enum value", owner: getTypeName(member) });
+        }
+      }
+    }
+  }
+
   /**
    * @param model - the Model to convert
    * @returns a corresponding message declaration
    */
   function toMessage(model: Model): ProtoMessageDeclaration {
+    const reservations = program.stateMap(state.reserve).get(model) as Reservation[] | undefined;
+    const scope = createFieldScope(reservations);
     return {
       kind: "message",
-      name: getModelName(model),
-      reservations: program.stateMap(state.reserve).get(model),
-      declarations: [...model.properties.values()].map((f) => toMessageBodyDeclaration(f, model)),
+      name: getMessageName(model),
+      reservations,
+      declarations: [...model.properties.values()].map((f) =>
+        toMessageBodyDeclaration(f, model, scope),
+      ),
       doc: getDoc(program, model),
     };
   }
 
-  function getModelName(model: Model): string {
-    const friendlyName = getFriendlyName(program, model);
+  /**
+   * @param union - the named Union to convert
+   * @returns a wrapper message declaration containing a `oneof value` whose members use the wrapper message's own
+   *   field index space
+   */
+  function toWrapperMessage(union: Union): ProtoMessageDeclaration {
+    const reservations = program.stateMap(state.reserve).get(union) as Reservation[] | undefined;
+    const scope = createFieldScope(reservations);
+    scope.declareOneOf(WRAPPER_ONEOF_NAME, union);
+
+    return {
+      kind: "message",
+      name: getMessageName(union),
+      reservations,
+      declarations: [
+        {
+          kind: "oneof",
+          name: WRAPPER_ONEOF_NAME,
+          declarations: toOneOfFields(union, union, (name, index, variant) =>
+            scope.declareField(name, index, variant, getFieldIndexNode(variant) ?? variant),
+          ),
+        },
+      ],
+      doc: getDoc(program, union),
+    };
+  }
+
+  /**
+   * Tracks the field names and indices declared in a single message so that collisions can be detected.
+   */
+  interface FieldScope {
+    /**
+     * Declares a field (including a `oneof` member), checking it against reservations and previously declared fields.
+     */
+    declareField(
+      name: string,
+      index: number | undefined,
+      nameTarget: DiagnosticTarget,
+      indexTarget: DiagnosticTarget,
+    ): void;
+    /**
+     * Declares the name of a `oneof`, which shares the field name scope of its containing message.
+     */
+    declareOneOf(name: string, target: DiagnosticTarget): void;
+  }
+
+  function createFieldScope(reservations: readonly Reservation[] = []): FieldScope {
+    const names = new Set<string>();
+    const indices = new Map<number, string>();
+
+    function declareName(name: string, target: DiagnosticTarget) {
+      if (names.has(name)) {
+        reportDiagnostic(program, {
+          code: "field-name",
+          messageId: "duplicate",
+          format: { name },
+          target,
+        });
+      } else {
+        names.add(name);
+      }
+    }
+
+    return {
+      declareOneOf: declareName,
+      declareField(name, index, nameTarget, indexTarget) {
+        for (const reservation of reservations) {
+          if (typeof reservation === "string" && reservation === name) {
+            reportDiagnostic(program, {
+              code: "field-name",
+              messageId: "user-reserved",
+              format: {
+                name,
+              },
+              target: nameTarget,
+            });
+          } else if (
+            index !== undefined &&
+            typeof reservation === "number" &&
+            reservation === index
+          ) {
+            reportDiagnostic(program, {
+              code: "field-index",
+              messageId: "user-reserved",
+              format: {
+                index: index.toString(),
+              },
+              target: indexTarget,
+            });
+          } else if (
+            index !== undefined &&
+            Array.isArray(reservation) &&
+            index >= reservation[0] &&
+            index <= reservation[1]
+          ) {
+            reportDiagnostic(program, {
+              code: "field-index",
+              messageId: "user-reserved-range",
+              format: {
+                index: index.toString(),
+              },
+              target: indexTarget,
+            });
+          }
+        }
+
+        declareName(name, nameTarget);
+
+        if (index !== undefined) {
+          const other = indices.get(index);
+          if (other !== undefined) {
+            reportDiagnostic(program, {
+              code: "field-index",
+              messageId: "duplicate",
+              format: { name, index: index.toString(), other },
+              target: indexTarget,
+            });
+          } else {
+            indices.set(index, name);
+          }
+        }
+      },
+    };
+  }
+
+  function getMessageName(type: Model | Union): string {
+    const friendlyName = getFriendlyName(program, type);
 
     if (friendlyName) return capitalize(friendlyName);
 
-    const templateArguments = isTemplateInstance(model) ? model.templateMapper!.args : [];
+    const templateArguments = isTemplateInstance(type) ? type.templateMapper!.args : [];
 
     const prefix = templateArguments
       .map(function getTypePrefixName(arg, idx) {
@@ -719,9 +978,9 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
             code: "unspeakable-template-argument",
             // TODO-WILL - I'd rather attach the diagnostic to the template argument, but it's the best I can do for
             // now to attach it to the model itself.
-            target: model,
+            target: type,
             format: {
-              name: model.name,
+              name: type.name!,
             },
           });
 
@@ -730,7 +989,7 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
       })
       .join("");
 
-    return prefix + capitalize(model.name);
+    return prefix + capitalize(type.name!);
   }
 
   /**
@@ -740,20 +999,19 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
   function toMessageBodyDeclaration(
     property: ModelProperty,
     model: Model,
+    scope: FieldScope,
   ): ProtoMessageBodyDeclaration {
-    if (property.type.kind === "Union") {
-      // Unions are difficult to represent in protobuf, so for now we don't support them.
-      // See : https://github.com/microsoft/typespec/issues/1854
-      reportDiagnostic(program, {
-        code: "unsupported-field-type",
-        messageId: "union",
-        target: property,
-      });
-      return unreachable("union");
-    }
-
     const fieldIndex = program.stateMap(state.fieldIndex).get(property) as number | undefined;
-    const fieldIndexNode = property.decorators.find((d) => d.decorator === $field)?.args[0].node;
+    const fieldIndexNode = getFieldIndexNode(property);
+
+    // A union-typed property without `@field` is emitted inline as a `oneof`. With `@field`, the union is emitted as a
+    // wrapper message by `addType`.
+    if (
+      property.type.kind === "Union" &&
+      !property.decorators.some((d) => d.decorator === $field)
+    ) {
+      return toOneOf(property, property.type, model, scope);
+    }
 
     if (fieldIndex === undefined) {
       reportDiagnostic(program, {
@@ -769,51 +1027,14 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
     if (fieldIndex && !fieldIndexNode)
       throw new Error("Failed to recover field decorator argument.");
 
-    const reservations = program.stateMap(state.reserve).get(model) as Reservation[] | undefined;
-
-    if (reservations) {
-      for (const reservation of reservations) {
-        if (typeof reservation === "string" && reservation === property.name) {
-          reportDiagnostic(program, {
-            code: "field-name",
-            messageId: "user-reserved",
-            format: {
-              name: property.name,
-            },
-            target: getPropertyNameSyntaxTarget(property),
-          });
-        } else if (
-          fieldIndex !== undefined &&
-          typeof reservation === "number" &&
-          reservation === fieldIndex
-        ) {
-          reportDiagnostic(program, {
-            code: "field-index",
-            messageId: "user-reserved",
-            format: {
-              index: fieldIndex.toString(),
-            },
-            // Fail over to using the model if the field index node is missing... this should never occur but it's the
-            // simplest way to satisfy the type system.
-            target: fieldIndexNode ?? model,
-          });
-        } else if (
-          fieldIndex !== undefined &&
-          Array.isArray(reservation) &&
-          fieldIndex >= reservation[0] &&
-          fieldIndex <= reservation[1]
-        ) {
-          reportDiagnostic(program, {
-            code: "field-index",
-            messageId: "user-reserved-range",
-            format: {
-              index: fieldIndex.toString(),
-            },
-            target: fieldIndexNode ?? model,
-          });
-        }
-      }
-    }
+    scope.declareField(
+      property.name,
+      fieldIndex,
+      getPropertyNameSyntaxTarget(property),
+      // Fail over to using the model if the field index node is missing... this should never occur but it's the
+      // simplest way to satisfy the type system.
+      fieldIndexNode ?? model,
+    );
 
     const field: ProtoFieldDeclaration = {
       kind: "field",
@@ -833,6 +1054,154 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
     field.optional = shouldEmitOptionalLabel(property);
 
     return field;
+  }
+
+  /**
+   * Converts an unnumbered, union-typed property into an inline `oneof` whose members share the field index space of
+   * the containing message.
+   */
+  function toOneOf(
+    property: ModelProperty,
+    union: Union,
+    model: Model,
+    scope: FieldScope,
+  ): ProtoOneOfDeclaration {
+    if (union.expression || !union.name) {
+      // Each `oneof` member needs a name, so only named unions are supported.
+      reportDiagnostic(program, {
+        code: "unsupported-field-type",
+        messageId: "union",
+        target: property,
+      });
+      return unreachable("anonymous union");
+    }
+
+    if (!property.optional) {
+      reportDiagnostic(program, {
+        code: "invalid-oneof",
+        messageId: "required",
+        format: { name: property.name },
+        target: property,
+      });
+    }
+
+    if (!PROTO_IDENT.test(property.name)) {
+      reportDiagnostic(program, {
+        code: "invalid-oneof",
+        messageId: "invalid-name",
+        format: { name: property.name },
+        target: getPropertyNameSyntaxTarget(property),
+      });
+    }
+
+    scope.declareOneOf(property.name, getPropertyNameSyntaxTarget(property));
+
+    return {
+      kind: "oneof",
+      name: property.name,
+      // Collisions depend on the containing message (a union may be used by several), so they are reported on the
+      // property rather than on the union variant.
+      declarations: toOneOfFields(union, model, (name, index) =>
+        scope.declareField(name, index, property, property),
+      ),
+      doc: getDoc(program, property) ?? getDoc(program, union),
+    };
+  }
+
+  /**
+   * Converts the variants of a named union into `oneof` member fields.
+   *
+   * @param union - the union to convert
+   * @param relativeSource - the type that owns the resulting fields, used to resolve references and imports
+   * @param declareField - registers each member with the field scope of the owning message
+   */
+  function toOneOfFields(
+    union: Union,
+    relativeSource: Model | Union,
+    declareField: (name: string, index: number | undefined, variant: UnionVariant) => void,
+  ): ProtoFieldDeclaration[] {
+    // Problems with the union itself are reported once, even if it is converted for several messages.
+    const report = !validatedUnions.has(union);
+    validatedUnions.add(union);
+
+    if (report && union.variants.size === 0) {
+      reportDiagnostic(program, {
+        code: "invalid-oneof",
+        messageId: "empty",
+        format: { name: union.name! },
+        target: union,
+      });
+    }
+
+    const fields: ProtoFieldDeclaration[] = [];
+
+    for (const variant of union.variants.values()) {
+      if (typeof variant.name !== "string") {
+        if (report) {
+          reportDiagnostic(program, {
+            code: "invalid-oneof",
+            messageId: "unnamed-variant",
+            target: variant,
+          });
+        }
+        continue;
+      }
+
+      const index = program.stateMap(state.fieldIndex).get(variant) as number | undefined;
+
+      if (report && !PROTO_IDENT.test(variant.name)) {
+        reportDiagnostic(program, {
+          code: "invalid-oneof",
+          messageId: "invalid-member-name",
+          format: { name: variant.name },
+          target: variant,
+        });
+      }
+
+      if (report && index === undefined) {
+        reportDiagnostic(program, {
+          code: "field-index",
+          messageId: "missing",
+          format: { name: variant.name },
+          target: variant,
+        });
+      }
+
+      // `isArrayModelType` also matches named array models such as `model Strings is string[]`.
+      const isArrayVariant = variant.type.kind === "Model" && isArrayModelType(variant.type);
+      if (isArrayVariant || isMap(program, variant.type)) {
+        if (report) {
+          reportDiagnostic(program, {
+            code: "invalid-oneof",
+            messageId: isArrayVariant ? "repeated-variant" : "map-variant",
+            format: { name: variant.name },
+            target: variant,
+          });
+        }
+        continue;
+      }
+
+      declareField(variant.name, index, variant);
+
+      fields.push({
+        kind: "field",
+        name: variant.name,
+        type: addImportSourceForProtoIfNeeded(
+          program,
+          addType(variant.type, relativeSource),
+          relativeSource,
+          variant.type as NamespaceTraversable,
+        ),
+        index: index!,
+        doc: getDoc(program, variant),
+      });
+    }
+
+    return fields;
+  }
+
+  function getFieldIndexNode(target: ModelProperty | UnionVariant) {
+    return target.decorators.find((d) => d.decorator === $field)?.args[0].node;
   }
 
   function shouldEmitOptionalLabel(property: ModelProperty): boolean {
@@ -879,23 +1248,44 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
    */
   function toEnum(e: Enum): ProtoEnumDeclaration {
     const needsAlias = new Set([...e.members.values()].map((v) => v.value)).size !== e.members.size;
-
+    const prefix =
+      emitterOptions["enum-value-prefix"] === "enum-name"
+        ? constantCase(e.name, { prefixCharacters: "_" }) + "_"
+        : undefined;
     return {
       kind: "enum",
       name: e.name,
       allowAlias: needsAlias,
-      variants: [...e.members.values()].map((variant): ProtoEnumVariantDeclaration => ({
-        kind: "variant",
-        name: variant.name,
-        value: variant.value as number,
-        doc: getDoc(program, variant),
-      })),
+      variants: [...e.members.values()].map((variant): ProtoEnumVariantDeclaration => {
+        let name = variant.name;
+        if (prefix !== undefined) {
+          if (!name.startsWith(prefix)) {
+            name = constantCase(name, { prefixCharacters: "_" });
+            if (!name.startsWith(prefix)) {
+              name = prefix + name;
+            }
+          }
+        }
+        const declaration: ProtoEnumVariantDeclaration = {
+          kind: "variant",
+          name,
+          value: variant.value as number,
+          doc: getDoc(program, variant),
+        };
+        enumMemberSources.set(declaration, variant);
+        return declaration;
+      }),
       doc: getDoc(program, e),
     };
   }
 
   type NamespaceTraversable =
     Enum | Model | Interface | Union | Operation | Namespace | IntrinsicType;
+
+  /**
+   * A type that can refer to other types in Protobuf output.
+   */
+  type RelativeSource = Model | Operation | Union;
 
   function getPackageOfType(program: Program, t: NamespaceTraversable): Namespace | null {
     /* c8 ignore start */
@@ -938,7 +1328,7 @@ function tspToProto(program: Program, emitterOptions: ProtobufEmitterOptions): P
   function addImportSourceForProtoIfNeeded<T extends ProtoType>(
     program: Program,
     pt: T,
-    dependent: Model | Operation,
+    dependent: RelativeSource,
     dependency: NamespaceTraversable,
   ): T {
     {

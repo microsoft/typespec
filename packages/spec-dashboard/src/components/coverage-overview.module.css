@@ -18,7 +18,13 @@
   gap: 16px;
 }
 
+.overview {
+  display: flex;
+  min-width: 0;
+}
+
 .card {
+  flex: 1;
   background-color: var(--colorNeutralBackground1);
   padding: 16px 16px 20px;
   text-align: center;
@@ -27,6 +33,7 @@
   align-items: center;
   gap: 4px;
   min-height: 100px;
+  min-width: 0;
 }
 
 .card-name {
@@ -35,4 +42,35 @@
   display: flex;
   align-items: center;
   text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.emitters {
+  align-self: stretch;
+  margin: 8px 0 0;
+  padding-top: 8px;
+  border-top: 1px solid var(--colorNeutralStroke2);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.emitter-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.emitter-name {
+  min-width: 0;
+  color: var(--colorNeutralForeground2);
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+
+.emitter-percentage {
+  margin: 0;
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
 }

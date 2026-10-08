@@ -1,6 +1,7 @@
 import { existsSync, readdirSync, statSync } from "fs";
-import { readFile } from "fs/promises";
-import { join, relative, sep } from "path";
+import { mkdir, mkdtemp, readFile, rm, writeFile } from "fs/promises";
+import { tmpdir } from "os";
+import { dirname, join, relative, sep } from "path";
 import { expect, it } from "vitest";
 import { EmitterTester } from "./test-host.js";
 
@@ -12,13 +13,14 @@ function normalizePath(p: string): string {
   return sep === "\\" ? p.replaceAll("\\", "/") : p;
 }
 
-/** Recursively collect all file paths relative to `root`, using forward slashes. */
+/** Collect snapshot paths, excluding local .NET build output. */
 function listFilesRecursive(root: string, dir: string = root): string[] {
   const results: string[] = [];
   if (!existsSync(dir)) return results;
   for (const entry of readdirSync(dir)) {
     const full = join(dir, entry);
     if (statSync(full).isDirectory()) {
+      if (entry === "bin" || entry === "obj") continue;
       results.push(...listFilesRecursive(root, full));
     } else {
       results.push(normalizePath(relative(root, full)));
@@ -26,6 +28,28 @@ function listFilesRecursive(root: string, dir: string = root): string[] {
   }
   return results;
 }
+
+it("ignores .NET build directories without hiding stale source snapshots", async () => {
+  const root = await mkdtemp(join(tmpdir(), "typespec-csharp-snapshots-"));
+  try {
+    for (const path of [
+      "Program.cs",
+      "stale.cs",
+      "bin/Debug/net9.0/ServiceProject.dll",
+      "obj/Debug/net9.0/ServiceProject.AssemblyInfo.cs",
+      "nested/obj/project.assets.json",
+      "nested/Keep.cs",
+    ]) {
+      const full = join(root, path);
+      await mkdir(dirname(full), { recursive: true });
+      await writeFile(full, "");
+    }
+
+    expect(listFilesRecursive(root).sort()).toEqual(["Program.cs", "nested/Keep.cs", "stale.cs"]);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
 
 it("sample-service full output", async () => {
   const sampleServicePath = join(import.meta.dirname, "snapshots/sample-service.tsp");

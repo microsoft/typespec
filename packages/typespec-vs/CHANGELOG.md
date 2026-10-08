@@ -1,5 +1,9 @@
 # Change Log - typespec-vs
 
+## 1.17.0
+
+No changes, version bump only.
+
 ## 1.16.0
 
 ### Bug Fixes

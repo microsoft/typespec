@@ -1,5 +1,18 @@
 # Change Log - @typespec/html-program-viewer
 
+## 0.87.0
+
+### Features
+
+- [#11019](https://github.com/microsoft/typespec/pull/11019) Display the new `expression` property on `Model`, `Enum`, and `Scalar` types in the program viewer.
+- [#11810](https://github.com/microsoft/typespec/pull/11810) Hide the types coming from the compiler standard library and the loaded libraries from the type graph navigation tree. They can be shown again with the new toolbar button of the navigation pane, or by default with the new `defaultOnlyProjectCode` prop. Navigating to one of those types (from a link or a saved path) still shows it, with a notice that the tree does not list it.
+- [#11810](https://github.com/microsoft/typespec/pull/11810) Show where a type was declared (your code, the standard library or a library) in the type view, with its file and line. When the host provides the new `onRevealSource` callback, clicking the badge of a type declared in your code reveals its declaration.
+
+### Bug Fixes
+
+- [#11810](https://github.com/microsoft/typespec/pull/11810) Fix scrollbars showing in the type graph breadcrumb bar. The path now scrolls horizontally without a scrollbar and keeps the selected node in view.
+
+
 ## 0.86.0
 
 No changes, version bump only.

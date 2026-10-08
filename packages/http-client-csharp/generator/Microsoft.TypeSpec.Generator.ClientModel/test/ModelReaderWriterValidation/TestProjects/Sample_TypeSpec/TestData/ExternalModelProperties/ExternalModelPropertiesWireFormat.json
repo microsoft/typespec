@@ -1,0 +1,17 @@
+{
+  "scalar": {
+    "name": "scalar model"
+  },
+  "list": [
+    {
+      "name": "list model"
+    },
+    null
+  ],
+  "dictionary": {
+    "model": {
+      "name": "dictionary model"
+    },
+    "empty": null
+  }
+}
