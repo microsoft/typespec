@@ -1,25 +1,19 @@
 import type { ModelProperty, Scalar } from "@typespec/compiler";
-import { NoTarget, resolvePath } from "@typespec/compiler";
+import { NoTarget } from "@typespec/compiler";
 import type { BasicTestRunner } from "@typespec/compiler/testing";
-import { createTestRunner, createTester } from "@typespec/compiler/testing";
+import { createTestRunner } from "@typespec/compiler/testing";
 import { deepStrictEqual, strictEqual } from "assert";
 import { beforeEach, describe, expect, it } from "vitest";
 import { escapeUnsafeChars } from "../src/common/reference.js";
 import { getJsScalar } from "../src/common/scalar.js";
 import type { JsContext, Module } from "../src/ctx.js";
 import { createPathCursor } from "../src/ctx.js";
+import { HttpServerEmitterTester } from "./tester.js";
 
 import { module as dateTimeModule } from "../generated-defs/helpers/datetime.js";
 import { module as temporalHelpersModule } from "../generated-defs/helpers/temporal/native.js";
 import { module as temporalPolyfillHelpersModule } from "../generated-defs/helpers/temporal/polyfill.js";
 import type { JsEmitterOptions } from "../src/lib.js";
-
-const HttpServerEmitterTester = createTester(resolvePath(import.meta.dirname, ".."), {
-  libraries: ["@typespec/http", "@typespec/http-server-js"],
-})
-  .import("@typespec/http")
-  .using("Http")
-  .emit("@typespec/http-server-js");
 
 describe("scalar", () => {
   let runner: BasicTestRunner;
@@ -199,6 +193,35 @@ describe("scalar", () => {
 
   it("escapes forward slashes in emitted string literals", () => {
     expect(escapeUnsafeChars(JSON.stringify("application/zip"))).toBe('"application\\u002Fzip"');
+  });
+
+  it("keeps the escapes JSON.stringify writes when escaping unsafe characters", () => {
+    for (const value of ['a"b', "c\\d", "x\ny", "t\tu", "e\u2028f\u2029g", "</h>"]) {
+      const literal = escapeUnsafeChars(JSON.stringify(value));
+      expect(JSON.parse(literal)).toBe(value);
+      expect(literal).not.toMatch(/[\u2028\u2029]/);
+    }
+  });
+
+  it("emits string literals containing a quote, a backslash or a newline", async () => {
+    const { outputs } = await HttpServerEmitterTester.compile(`
+      @service(#{ title: "Example" })
+      @route("/")
+      namespace Example {
+        model Cat {
+          quoted: "a\\"b";
+          backslashed: "c\\\\d";
+          multiline: "x\\ny";
+        }
+
+        @get op read(): Cat;
+      }
+    `);
+    const source = outputs["src/generated/models/all/example.ts"];
+
+    expect(source).toContain(`  quoted: 'a"b';`);
+    expect(source).toContain(`  backslashed: "c\\\\d";`);
+    expect(source).toContain(`  multiline: "x\\ny";`);
   });
 
   it("emits result processing for bare scalar responses", async () => {
