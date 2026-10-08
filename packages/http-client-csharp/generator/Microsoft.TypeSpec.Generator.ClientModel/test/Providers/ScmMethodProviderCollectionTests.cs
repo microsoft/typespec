@@ -1202,6 +1202,85 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         }
 
         [Test]
+        public async Task AcronymSpreadParametersPreserveSignatures(
+            [Values("Normalized", "Exact", "Custom", "LastContract")] string signatureSource)
+        {
+            string[] inputNames = ["targetDbName", "sourceIpAddress", "guestOsType"];
+            string[] wireNames = ["target-db", "source-ip", "guest-os"];
+            var model = InputFactory.Model(
+                "Network",
+                usage: InputModelTypeUsage.Spread,
+                properties:
+                [
+                    InputFactory.Property("sourceIpAddress", InputPrimitiveType.String, isRequired: true, wireName: wireNames[1]),
+                    InputFactory.Property("targetDbName", InputPrimitiveType.String, isRequired: true, wireName: wireNames[0]),
+                    InputFactory.Property("guestOsType", InputPrimitiveType.String, wireName: wireNames[2])
+                ]);
+            var operation = InputFactory.Operation(
+                "Send",
+                parameters: [InputFactory.BodyParameter("network", model, isRequired: true, scope: InputParameterScope.Spread)],
+                responses: [InputFactory.OperationResponse([204])]);
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "Send",
+                operation,
+                parameters: inputNames.Select((name, index) => InputFactory.MethodParameter(
+                    name, InputPrimitiveType.String, isRequired: index < 2, scope: InputParameterScope.Spread,
+                    serializedName: wireNames[index], isExactName: signatureSource == "Exact")).ToArray());
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [inputClient],
+                inputModels: () => [model],
+                compilation: signatureSource == "Custom" ? async () => await Helpers.GetCompilationFromDirectoryAsync("Custom") : null,
+                lastContractCompilation: signatureSource == "LastContract" ? async () => await Helpers.GetCompilationFromDirectoryAsync("LastContract") : null);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+            client.ProcessTypeForBackCompatibility();
+            var methods = client.Methods.OfType<ScmMethodProvider>().ToArray();
+            Assert.AreEqual(4, methods.Length);
+
+            foreach (var method in methods)
+            {
+                var body = method.BodyStatements!.ToDisplayString();
+                if (method.Kind == ScmMethodKind.Protocol)
+                {
+                    CollectionAssert.AreEqual(new[] { "content", "options" }, method.Signature.Parameters.Select(parameter => parameter.Name));
+                    StringAssert.Contains("this.CreateSendRequest(content, options)", body);
+                    continue;
+                }
+
+                var suffix = method.Signature.Name.EndsWith("Async", StringComparison.Ordinal) ? "Async" : "Sync";
+                string[] expectedNames = signatureSource switch
+                {
+                    "Exact" => inputNames,
+                    "Custom" => [$"customDbName{suffix}", $"customIpAddress{suffix}", $"customOsType{suffix}"],
+                    "LastContract" => [$"publishedDbName{suffix}", $"publishedIpAddress{suffix}", $"publishedOsType{suffix}"],
+                    _ => ["targetDBName", "sourceIPAddress", "guestOSType"]
+                };
+                var expectedToken = signatureSource switch
+                {
+                    "Custom" => $"customToken{suffix}",
+                    "LastContract" => $"publishedToken{suffix}",
+                    _ => "cancellationToken"
+                };
+                CollectionAssert.AreEqual(expectedNames, method.Signature.Parameters.Take(3).Select(parameter => parameter.Name));
+                CollectionAssert.AreEqual(wireNames, method.Signature.Parameters.Take(3).Select(parameter => parameter.WireInfo.SerializedName));
+                Assert.IsTrue(method.Signature.Parameters.Take(3).All(parameter => parameter.SpreadSource != null));
+                Assert.AreEqual(signatureSource == "Custom", method.IsPartialMethod);
+                Assert.AreEqual(signatureSource != "Custom", method.Signature.Parameters[2].DefaultValue != null);
+
+                var syntax = CSharpSyntaxTree.ParseText(body).GetRoot();
+                var construction = syntax.DescendantNodes().OfType<ObjectCreationExpressionSyntax>().Single(expression =>
+                    expression.Type.ToString().EndsWith(".Network", StringComparison.Ordinal));
+                CollectionAssert.AreEqual(
+                    new[] { expectedNames[1], expectedNames[0], expectedNames[2], "default" },
+                    construction.ArgumentList!.Arguments.Select(argument => argument.Expression.ToString()));
+                StringAssert.Contains($"this.{method.Signature.Name}(spreadModel, {expectedToken}.ToRequestOptions())", body);
+            }
+
+            CollectionAssert.AreEqual(inputNames, serviceMethod.Parameters.Select(parameter => parameter.Name));
+            CollectionAssert.AreEqual(new[] { "content", "options" }, client.RestClient.Methods.Single().Signature.Parameters.Select(parameter => parameter.Name));
+        }
+
+        [Test]
         public async Task AcronymGroupedParameterReferences()
         {
             var optionsModel = InputFactory.Model(

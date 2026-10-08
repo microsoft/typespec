@@ -30,6 +30,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Primitives
         public static readonly ParameterProvider Data = new("data", FormattableStringHelpers.Empty, typeof(BinaryData));
         public static ParameterProvider ClientOptions(CSharpType clientOptionsType)
             => new("options", $"The options for configuring the client.", clientOptionsType, initializationValue: New.Instance(clientOptionsType));
+        // Fields are shared instances; explicit factory calls create parameters owned by a signature.
         public static readonly ParameterProvider OptionalRequestOptions = CreateRequestOptions(optional: true);
         public static readonly ParameterProvider RequestOptions = CreateRequestOptions();
         public static readonly ParameterProvider CancellationToken = CreateCancellationToken();

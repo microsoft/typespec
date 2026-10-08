@@ -1426,6 +1426,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 var parameter = protocolParameters[i];
                 if (makeOptionalRequired && parameter.DefaultValue != null && (contentIndex < 0 || i <= contentIndex))
                 {
+                    // Keep the optional source unchanged when constructing the required-nullable protocol variant.
                     parameter = parameter.IsContentParameter
                         ? ScmKnownParameters.CreateRequestContent(parameter.InputParameter, nullable: true)
                         : new ParameterProvider(
