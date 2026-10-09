@@ -15,6 +15,7 @@ from streaming.sse.protocol.data.models import WithEnvelope1
 from streaming.sse.protocol.models import ProtocolInfo
 from streaming.sse.retrieve.models import FinalResult, PartialResult, RetrievalRequest
 from streaming.sse.unnamed.models import Info
+from streaming.ssenoreconnect.aio import SseClient as NoReconnectSseClient
 
 
 @pytest_asyncio.fixture
@@ -116,6 +117,22 @@ async def test_protocol_reconnect(client: SseClient):
         assert isinstance(second, ProtocolInfo)
         assert [first.message, second.message] == ["hello", "world"]
         assert stream.last_event_id == "event-2"
+
+
+@pytest.mark.asyncio
+async def test_default_sse_does_not_reconnect():
+    async with NoReconnectSseClient(endpoint="http://localhost:3000") as client:
+        async with await client.protocol.reconnect() as stream:
+            assert [item.message async for item in stream] == ["hello"]
+            assert stream.last_event_id == "event-1"
+
+
+@pytest.mark.asyncio
+async def test_default_sse_parses_retry_metadata():
+    async with NoReconnectSseClient(endpoint="http://localhost:3000") as client:
+        async with await client.protocol.retry() as stream:
+            assert [item.message async for item in stream] == ["hello"]
+            assert stream.retry == 1000
 
 
 # ---------------------------------------------------------------------------

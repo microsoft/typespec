@@ -7,6 +7,7 @@ from types import SimpleNamespace
 
 import pytest
 
+from pygen import OptionsDict
 from pygen.codegen.models.response import (
     StreamingEvent,
     _get_terminal_event_names,
@@ -84,7 +85,8 @@ def test_inconsistent_unnamed_discriminators_are_ambiguous():
     ("async_mode", "stream_class"),
     [(False, "Stream"), (True, "AsyncStream")],
 )
-def test_generated_unnamed_discriminator_dispatch_and_terminal_predicate(async_mode, stream_class):
+@pytest.mark.parametrize("reconnect_options", [{}, {"enable-sse-reconnect": False}, {"enable-sse-reconnect": True}])
+def test_generated_unnamed_discriminator_dispatch_and_terminal_predicate(async_mode, stream_class, reconnect_options):
     connected = _streaming_event(payload_type=_discriminated_payload("connected", "_models.Connected"))
     disconnected = _streaming_event(
         payload_type=_discriminated_payload("disconnected", "_models.Disconnected"),
@@ -101,7 +103,7 @@ def test_generated_unnamed_discriminator_dispatch_and_terminal_predicate(async_m
     )
     code_model = SimpleNamespace(
         is_azure_flavor=False,
-        options={"models-mode": "dpg", "azure-arm": False},
+        options=OptionsDict({"models-mode": "dpg", **reconnect_options}),
         generate_typeddict_only=False,
         get_serialize_namespace=lambda *args, **kwargs: "test",
     )
@@ -131,6 +133,15 @@ def test_generated_unnamed_discriminator_dispatch_and_terminal_predicate(async_m
     assert "_event_json.get('kind') in ['disconnected']" in generated
     assert f"deserialized: {stream_class}[" in generated
     assert "terminal_event_predicate=_is_terminal_event" in generated
+    assert generated.count("return cls(pipeline_response, deserialized, {})") == 1
+    assert 'raise ValueError(f"Unknown SSE event type: {_event.event!r}")' in generated
+    assert not any(line.strip().startswith("_event.event =") for line in generated.splitlines())
+    if not reconnect_options.get("enable-sse-reconnect"):
+        assert "_reconnect" not in generated
+        assert "_last_event_id" not in generated
+        assert "_transport" not in generated
+        assert "_read_sse_response" not in generated
+        return
     assert (
         "async def _reconnect(_last_event_id, _reconnect_delay):"
         if async_mode
@@ -143,8 +154,7 @@ def test_generated_unnamed_discriminator_dispatch_and_terminal_predicate(async_m
         "self._client.send_request(_request, stream=True, **kwargs)"
     ) in generated
     assert (
-        f"{'await ' if async_mode else ''}_read_sse_response"
-        f"{'_async' if async_mode else ''}(_reconnect_response)"
+        f"{'await ' if async_mode else ''}_read_sse_response" f"{'_async' if async_mode else ''}(_reconnect_response)"
     ) in generated
     assert "_update_sse_request_headers(_request, _last_event_id)" in generated
     assert "if _reconnect_response.status_code not in [200, 204]:" in generated
@@ -154,9 +164,6 @@ def test_generated_unnamed_discriminator_dispatch_and_terminal_predicate(async_m
     assert "raise HttpResponseError(response=_reconnect_response, model=error)" in generated
     assert "last_event_id=_last_event_id" in generated
     assert "reconnect_callback=_reconnect" in generated
-    assert generated.count("return cls(pipeline_response, deserialized, {})") == 1
-    assert 'raise ValueError(f"Unknown SSE event type: {_event.event!r}")' in generated
-    assert not any(line.strip().startswith("_event.event =") for line in generated.splitlines())
 
 
 def test_named_terminal_event_uses_explicit_event_name():
@@ -180,7 +187,7 @@ def test_reconnect_error_uses_reconnect_pipeline_response_for_legacy_models():
     )
     code_model = SimpleNamespace(
         is_azure_flavor=False,
-        options={"models-mode": "msrest", "azure-arm": False},
+        options=OptionsDict({"models-mode": "msrest", "enable-sse-reconnect": True}),
         generate_typeddict_only=False,
         get_serialize_namespace=lambda *args, **kwargs: "test",
     )
@@ -197,9 +204,7 @@ def test_reconnect_error_uses_reconnect_pipeline_response_for_legacy_models():
     generated = "\n".join(serializer.handle_structured_stream_response(builder))
 
     assert "if _reconnect_response.status_code not in [200, 204]:" in generated
-    assert (
-        "PipelineResponse(_request, _reconnect_response, pipeline_response.context)," in generated
-    )
+    assert "PipelineResponse(_request, _reconnect_response, pipeline_response.context)," in generated
     assert "raise HttpResponseError(response=_reconnect_response, model=error)" in generated
 
 
