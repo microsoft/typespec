@@ -228,8 +228,11 @@ class OptionsDict(MutableMapping):
 
 
 class ReaderAndWriter:
-    def __init__(self, *, output_folder: Union[str, Path], **kwargs: Any) -> None:
+    def __init__(
+        self, *, output_folder: Union[str, Path], written_files: Optional[set[Path]] = None, **kwargs: Any
+    ) -> None:
         self.output_folder = Path(output_folder)
+        self.written_files = written_files if written_files is not None else set()
         self._list_file: list[str] = []
         try:
             with open(
@@ -261,6 +264,7 @@ class ReaderAndWriter:
         Path.mkdir(self.output_folder / file_folder, parents=True, exist_ok=True)
         with open(self.output_folder / Path(filename), "w", encoding="utf-8") as fd:
             fd.write(file_content)
+        self.written_files.add((self.output_folder / Path(filename)).resolve())
 
     def remove_file(self, filename: Union[str, Path]) -> None:
         try:

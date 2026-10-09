@@ -6,7 +6,7 @@
 import sys
 import logging
 from pathlib import Path
-from pygen import preprocess, codegen
+from pygen.generate import generate
 from pygen.utils import parse_args
 
 # eng/scripts/setup/run_tsp.py -> need to go up 4 levels to get to package root
@@ -14,7 +14,8 @@ _ROOT_DIR = Path(__file__).parent.parent.parent.parent
 
 _LOGGER = logging.getLogger(__name__)
 
-if __name__ == "__main__":
+
+def main() -> None:
     venv_path = _ROOT_DIR / "venv"
     venv_preexists = venv_path.exists()
 
@@ -34,7 +35,9 @@ if __name__ == "__main__":
         debugpy.wait_for_client()
         breakpoint()  # pylint: disable=undefined-variable
 
-    # pre-process
     args, unknown_args = parse_args()
-    preprocess.PreProcessPlugin(output_folder=args.output_folder, tsp_file=args.tsp_file, **unknown_args).process()
-    codegen.CodeGenerator(output_folder=args.output_folder, tsp_file=args.tsp_file, **unknown_args).process()
+    generate(output_folder=args.output_folder, tsp_file=args.tsp_file, **unknown_args)
+
+
+if __name__ == "__main__":
+    main()

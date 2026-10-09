@@ -3,14 +3,16 @@
 # Licensed under the MIT License. See License.txt in the project root for
 # license information.
 # --------------------------------------------------------------------------
+import argparse
 import logging
+from collections.abc import Iterable
 from pathlib import Path
 import os
+from typing import Any, Union
 import black
 from black.report import NothingChanged
 
 from . import Plugin
-from .utils import parse_args
 
 _LOGGER = logging.getLogger("blib2to3")
 
@@ -19,8 +21,9 @@ _BLACK_MODE.line_length = 120
 
 
 class BlackScriptPlugin(Plugin):
-    def __init__(self, **kwargs):
+    def __init__(self, *, files: Iterable[Union[str, Path]], **kwargs: Any):
         super().__init__(**kwargs)
+        self._files = tuple(Path(file) for file in files)
         output_folder = self.options.get("output-folder", str(self.output_folder))
         if output_folder.startswith("file:"):
             output_folder = output_folder[5:]
@@ -29,31 +32,15 @@ class BlackScriptPlugin(Plugin):
         self.output_folder = Path(output_folder)
 
     def process(self) -> bool:
-        # apply format_file on every .py file in the output folder
-        list(
-            map(
-                self.format_file,
-                [
-                    Path(f)
-                    for f in self.list_file()
-                    if Path(f).parts[0]
-                    not in (
-                        "__pycache__",
-                        "node_modules",
-                        "venv",
-                        "env",
-                    )
-                    # we shall also format generated files like "../../../generated_tests/test_xxx.py"
-                    and (not Path(f).parts[0].startswith(".") or Path(f).parts[0] == "..") and Path(f).suffix == ".py"
-                ],
-            )
-        )
+        for file in sorted(set(self._files)):
+            if file.suffix == ".py":
+                self.format_file(file)
         return True
 
     def format_file(self, file: Path) -> None:
         file_content = ""
         try:
-            file_content = self.read_file(file)
+            file_content = (self.output_folder / file).read_text(encoding="utf-8-sig")
             file_content = black.format_file_contents(file_content, fast=True, mode=_BLACK_MODE)
         except NothingChanged:
             pass
@@ -69,14 +56,16 @@ class BlackScriptPlugin(Plugin):
                 pylint_disables.append("too-many-lines")
             if pylint_disables:
                 file_content = (
-                    os.linesep.join([lines[0] + ",".join([""] + pylint_disables)] + lines[1:])
+                    file_content.replace(lines[0], lines[0] + "," + ",".join(pylint_disables), 1)
                     if "pylint: disable=" in lines[0]
-                    else f"# pylint: disable={','.join(pylint_disables)}{os.linesep}" + file_content
+                    else f"# pylint: disable={','.join(pylint_disables)}\n" + file_content
                 )
         self.write_file(file, file_content)
 
 
 if __name__ == "__main__":
-    # TSP pipeline will call this
-    args, unknown_args = parse_args(need_tsp_file=False)
-    BlackScriptPlugin(output_folder=args.output_folder, **unknown_args).process()
+    parser = argparse.ArgumentParser(description="Format explicitly listed generated Python files")
+    parser.add_argument("--output-folder", required=True)
+    parser.add_argument("files", nargs="+", type=Path)
+    args = parser.parse_args()
+    BlackScriptPlugin(output_folder=args.output_folder, files=args.files).process()

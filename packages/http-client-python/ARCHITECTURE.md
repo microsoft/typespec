@@ -154,6 +154,22 @@ def {{ operation.name }}(self, {{ operation.parameters }}):
 {% endfor %}
 ```
 
+#### Post-processing
+
+Native Python and Pyodide use the shared `pygen.generate.generate` pipeline. The
+`ReaderAndWriter.write_file` method records successful writes as normalized absolute paths.
+`CodeGenerator` shares its per-run `written_files` set with `JinjaSerializer` and resets it on
+each generation. `BlackScriptPlugin` receives those paths explicitly and formats only `.py`
+files, adding pylint suppression comments where needed without invoking pylint.
+
+Batch workers return their recorded paths to the parent process for post-processing after
+generation. Formatting never scans the output directory, including when the recorded set is
+empty. Absolute paths also cover generated packaging files, tests, and samples outside the
+immediate generation directory.
+
+The standalone `python -m pygen.black --output-folder <folder> <files...>` command
+also requires an explicit file list.
+
 ## Code Generation Flow
 
 ### Detailed Step-by-Step Process

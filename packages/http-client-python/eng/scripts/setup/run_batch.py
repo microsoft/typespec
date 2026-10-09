@@ -15,16 +15,17 @@ import os
 from pathlib import Path
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from multiprocessing import freeze_support
+from typing import Any
 
 # Add the generator to the path
 _ROOT_DIR = Path(__file__).parent.parent.parent.parent
 sys.path.insert(0, str(_ROOT_DIR / "generator"))
 
 
-def process_single_spec(config_path_str: str) -> tuple[str, bool, str]:
+def process_single_spec(config_path_str: str) -> tuple[str, bool, str, list[Path]]:
     """Process a single spec from its config file.
 
-    Returns: (output_dir, success, error_message)
+    Returns: (output_dir, success, error_message, written_files)
     """
     # Import inside function for multiprocessing compatibility
     from pygen import preprocess, codegen
@@ -44,26 +45,27 @@ def process_single_spec(config_path_str: str) -> tuple[str, bool, str]:
         # of pygen.utils.parse_args (the CLI path). Without this, the emitter passes string
         # "false" for flags like keep-setup-py, which is truthy in Python and causes pygen to
         # take the wrong branch (e.g. generating setup.py instead of pyproject.toml).
-        def _coerce(value):
+        def _coerce(value: Any) -> Any:
             if value == "true":
                 return True
             if value == "false":
                 return False
             return value
 
-        pygen_args = {k: _coerce(v) for k, v in command_args.items() if k not in ["emit-yaml-only"]}
+        pygen_args: dict[str, Any] = {k: _coerce(v) for k, v in command_args.items() if k not in ["emit-yaml-only"]}
 
         # Run preprocess and codegen (black is batched at the end for performance)
         preprocess.PreProcessPlugin(output_folder=output_dir, tsp_file=yaml_path, **pygen_args).process()
 
-        codegen.CodeGenerator(output_folder=output_dir, tsp_file=yaml_path, **pygen_args).process()
+        generator = codegen.CodeGenerator(output_folder=output_dir, tsp_file=yaml_path, **pygen_args)
+        generator.process()
 
         # Clean up the config file
         config_path.unlink()
 
-        return (output_dir, True, "")
+        return (output_dir, True, "", sorted(generator.written_files))
     except Exception as e:
-        return (str(config_path), False, str(e))
+        return (str(config_path), False, str(e), [])
 
 
 def render_progress_bar(completed: int, failed: int, total: int, width: int = 40) -> str:
@@ -152,10 +154,10 @@ def main():
         futures = {executor.submit(process_single_spec, cf): cf for cf in config_files}
 
         for future in as_completed(futures):
-            output_dir, success, error = future.result()
+            output_dir, success, error, written_files = future.result()
             if success:
                 succeeded += 1
-                output_dirs.append(output_dir)
+                output_dirs.append((output_dir, written_files))
             else:
                 failed += 1
                 failed_specs.append(f"{output_dir}: {error}")
@@ -188,8 +190,8 @@ def main():
         from pygen.black import BlackScriptPlugin
 
         print(f"Formatting {len(output_dirs)} packages with black...")
-        for d in output_dirs:
-            BlackScriptPlugin(output_folder=d).process()
+        for output_dir, written_files in output_dirs:
+            BlackScriptPlugin(output_folder=output_dir, files=written_files).process()
 
 
 if __name__ == "__main__":

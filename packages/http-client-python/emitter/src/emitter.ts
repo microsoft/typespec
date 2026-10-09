@@ -106,10 +106,8 @@ const pyodideGenerationCode = `
 async def main():
   import warnings
   with warnings.catch_warnings():
-    from pygen import preprocess, codegen, black
-  preprocess.PreProcessPlugin(output_folder=outputFolder, tsp_file=yamlFile, **commandArgs).process()
-  codegen.CodeGenerator(output_folder=outputFolder, tsp_file=yamlFile, **commandArgs).process()
-  black.BlackScriptPlugin(output_folder=outputFolder, **commandArgs).process()
+    from pygen.generate import generate
+  generate(output_folder=outputFolder, tsp_file=yamlFile, **commandArgs)
 
 await main()`;
 
