@@ -35,6 +35,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
             return Static<OptionalDefinition>().Invoke(IsDefinedMethodName, [value]).As<bool>();
         }
 
+        public static ScopedApi<bool> IsDefined(ValueExpression value, ValueExpression isDefined)
+        {
+            return Static<OptionalDefinition>().Invoke(IsDefinedMethodName, [value, isDefined]).As<bool>();
+        }
+
         public static ValueExpression FallBackToChangeTrackingCollection(VariableExpression collection, CSharpType? paramType)
         {
             if (!collection.Type.IsCollection || collection.Type.IsReadOnlyMemory)

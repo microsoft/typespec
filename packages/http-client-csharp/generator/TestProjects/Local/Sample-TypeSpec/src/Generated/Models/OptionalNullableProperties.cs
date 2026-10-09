@@ -14,21 +14,21 @@ namespace SampleTypeSpec
     public partial class OptionalNullableProperties : OptionalNullableBase
     {
         private OptionalNullableChild _nullableModel;
-        internal bool _nullableModelIsDefined;
+        private bool _nullableModelIsDefined;
         private string _nullableString;
-        internal bool _nullableStringIsDefined;
+        private bool _nullableStringIsDefined;
         private int? _nullableInt;
-        internal bool _nullableIntIsDefined;
+        private bool _nullableIntIsDefined;
         private bool? _nullableBoolean;
-        internal bool _nullableBooleanIsDefined;
+        private bool _nullableBooleanIsDefined;
         private StringFixedEnum? _nullableEnum;
-        internal bool _nullableEnumIsDefined;
+        private bool _nullableEnumIsDefined;
         private DateTimeOffset? _nullableOn;
-        internal bool _nullableOnIsDefined;
+        private bool _nullableOnIsDefined;
         private BinaryData _nullableBytes;
-        internal bool _nullableBytesIsDefined;
+        private bool _nullableBytesIsDefined;
         private string _readOnlyNullable;
-        internal bool _readOnlyNullableIsDefined;
+        private bool _readOnlyNullableIsDefined;
 
         /// <summary> Initializes a new instance of <see cref="OptionalNullableProperties"/>. </summary>
         /// <param name="requiredNullable"></param>

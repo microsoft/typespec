@@ -73,7 +73,7 @@ namespace SampleTypeSpec
             {
                 throw new FormatException($"The model {nameof(OptionalNullableFieldNames)} does not support writing '{format}' format.");
             }
-            if (_additionalStringPropertiesIsDefined1 || Optional.IsDefined(AdditionalStringProperties))
+            if (Optional.IsDefined(AdditionalStringProperties, _additionalStringPropertiesIsDefined1))
             {
                 if (AdditionalStringProperties != null)
                 {
@@ -85,7 +85,7 @@ namespace SampleTypeSpec
                     writer.WriteNull("additionalStringProperties"u8);
                 }
             }
-            if (_additionalStringPropertiesIsDefinedIsDefined || Optional.IsDefined(AdditionalStringPropertiesIsDefined))
+            if (Optional.IsDefined(AdditionalStringPropertiesIsDefined, _additionalStringPropertiesIsDefinedIsDefined))
             {
                 if (AdditionalStringPropertiesIsDefined != null)
                 {

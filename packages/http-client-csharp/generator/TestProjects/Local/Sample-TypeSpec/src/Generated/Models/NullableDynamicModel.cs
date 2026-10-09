@@ -19,7 +19,7 @@ namespace SampleTypeSpec
         [Experimental("SCME0001")]
         private JsonPatch _patch;
         private AnotherDynamicModel _modelValue;
-        internal bool _modelValueIsDefined;
+        private bool _modelValueIsDefined;
 
         /// <summary> Initializes a new instance of <see cref="NullableDynamicModel"/>. </summary>
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
