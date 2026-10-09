@@ -37,6 +37,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         internal IReadOnlyList<InputEnumTypeValue> AllowedValues { get; }
+
+        private protected override bool IsCustomizedValueName(string name) =>
+            base.IsCustomizedValueName(name) ||
+            CustomCodeView?.Fields.Any(f => f.Name == name || f.OriginalName == name) == true;
+
         protected override TypeProvider? BuildDeclaringTypeProvider() => _declaringTypeProvider;
         private readonly TypeProvider? _declaringTypeProvider;
 
@@ -75,9 +80,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var customMembers = new HashSet<FieldProvider>(CustomCodeView?.Fields ?? []);
             var lastContractFields = LastContractView?.Fields ?? [];
             var lastContractNames = lastContractFields.Select(f => f.Name).ToArray();
-            var generatedNames = AllowedValues
-                .Select(v => GetGeneratedValueName(v, lastContractNames))
-                .ToArray();
+            var generatedNames = GetGeneratedValueNames(AllowedValues, lastContractNames);
 
             var values = new EnumTypeMember[AllowedValues.Count];
 
@@ -210,9 +213,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     .Select(f => f.OriginalName!) ?? [],
                 StringComparer.Ordinal);
             var lastContractNames = lastContractFields.Select(f => f.Name).ToArray();
-            var generatedNames = AllowedValues
-                .Select(v => GetGeneratedValueName(v, lastContractNames))
-                .ToArray();
+            var generatedNames = GetGeneratedValueNames(AllowedValues, lastContractNames);
             var customMemberLastContractNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
             for (int i = 0; i < generatedNames.Length; i++)

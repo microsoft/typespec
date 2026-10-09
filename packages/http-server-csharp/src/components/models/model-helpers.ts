@@ -2,6 +2,7 @@ import type * as cs from "@alloy-js/csharp";
 import {
   getFriendlyName,
   getMinValue,
+  resolveEncodedEnumMemberValue,
   type Enum,
   type Model,
   type ModelProperty,
@@ -132,10 +133,14 @@ export function getScalarForLiteral(type: Type): Type {
   return type;
 }
 
-/** Returns true if the enum has any non-integer member values (float enums can't be C# enums). */
-export function hasNonIntegerValues(en: Enum): boolean {
+/**
+ * Returns true if the enum has any non-integer member values (float enums can't be C# enums). A
+ * member's value is its `application/json` encoded name when it has one.
+ */
+export function hasNonIntegerValues(program: Program, en: Enum): boolean {
   for (const member of en.members.values()) {
-    if (typeof member.value === "number" && !Number.isInteger(member.value)) {
+    const value = resolveEncodedEnumMemberValue(program, member, "application/json");
+    if (typeof value === "number" && !Number.isInteger(value)) {
       return true;
     }
   }

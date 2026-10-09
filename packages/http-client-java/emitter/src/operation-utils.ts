@@ -1,5 +1,3 @@
-import type { Property } from "@autorest/codemodel";
-import { ObjectSchema, Parameter, SchemaResponse } from "@autorest/codemodel";
 import type {
   SdkCookieParameter,
   SdkHeaderParameter,
@@ -12,10 +10,12 @@ import type {
 } from "@azure-tools/typespec-client-generator-core";
 import type { Operation, Program, Type, Union } from "@typespec/compiler";
 import type { HttpOperation } from "@typespec/http";
-import type { Client as CodeModelClient } from "./common/client.js";
-import { ServiceVersion } from "./common/client.js";
+import type { Client as CodeModelClient, ServiceVersion } from "./common/client.js";
+import { createServiceVersion } from "./common/client.js";
 import type { CodeModel } from "./common/code-model.js";
 import type { Operation as CodeModelOperation } from "./common/operation.js";
+import type { Parameter, Property } from "./common/schemas/model.js";
+import { createParameter, isSchemaResponse, SchemaType } from "./common/schemas/model.js";
 import { getPropertySerializedName, modelIs, unionReferredByType } from "./type-utils.js";
 import { getNamespace, pascalCase } from "./utils.js";
 
@@ -155,7 +155,7 @@ export function getServiceVersion(client: CodeModelClient | CodeModel): ServiceV
   } else {
     name = name + "ServiceVersion";
   }
-  return new ServiceVersion(name, description);
+  return createServiceVersion(name, description);
 }
 
 export function isLroNewPollingStrategy(
@@ -189,7 +189,7 @@ export function isLroNewPollingStrategy(
 }
 
 export function cloneOperationParameter(parameter: Parameter): Parameter {
-  return new Parameter(
+  return createParameter(
     parameter.language.default.name,
     parameter.language.default.description,
     parameter.schema,
@@ -221,14 +221,14 @@ export function findResponsePropertySegments(
   propertySegments: (SdkServiceResponseHeader | SdkModelPropertyType)[] | undefined,
 ): Property[] | undefined {
   if (op.responses && op.responses.length > 0) {
-    const schema = op.responses.find((r) => r instanceof SchemaResponse)?.schema;
-    if (propertySegments && schema instanceof ObjectSchema && schema.properties) {
+    const schema = op.responses.find((r) => isSchemaResponse(r))?.schema;
+    if (propertySegments && schema?.type === SchemaType.Object && schema.properties) {
       const propertyArray: Property[] = [];
 
       let currentSchemaProperties: Property[] | undefined = schema.properties;
       if (currentSchemaProperties && schema.parents && schema.parents.all) {
         for (const parent of schema.parents.all) {
-          if (parent instanceof ObjectSchema && parent.properties) {
+          if (parent.type === SchemaType.Object && parent.properties) {
             currentSchemaProperties = currentSchemaProperties.concat(parent.properties);
           }
         }
@@ -247,7 +247,7 @@ export function findResponsePropertySegments(
               propertyArray.push(property);
 
               currentSchemaProperties =
-                property.schema instanceof ObjectSchema ? property.schema.properties : undefined;
+                property.schema.type === SchemaType.Object ? property.schema.properties : undefined;
             }
           }
         }

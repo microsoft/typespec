@@ -1,7 +1,8 @@
-import { type Children, For, List } from "@alloy-js/core";
+import { For, List, type Children } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import {
   compilerAssert,
+  resolveEncodedEnumMemberValue,
   type Enum,
   type EnumMember,
   type Union,
@@ -27,7 +28,11 @@ export function UnionExpression({ type, children }: UnionExpressionProps) {
     <For joiner={" | "} each={items}>
       {(_, type) => {
         if ($.enumMember.is(type)) {
-          return <ts.ValueExpression jsValue={type.value ?? type.name} />;
+          return (
+            <ts.ValueExpression
+              jsValue={resolveEncodedEnumMemberValue($.program, type, "application/json")}
+            />
+          );
         }
 
         const discriminatedUnion = $.union.getDiscriminatedUnion(type.union);

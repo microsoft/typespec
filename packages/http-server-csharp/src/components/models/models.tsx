@@ -232,8 +232,7 @@ function ServerProperty(props: ServerPropertyProps): Children {
   const isLiteralOnly = literalInfo !== undefined && defaultValue === undefined;
 
   // Check if the property type is a non-integer enum (C# enums can only be integers)
-  const isFloatEnum =
-    $.enum.is(propType) && hasNonIntegerValues(propType as import("@typespec/compiler").Enum);
+  const isFloatEnum = $.enum.is(propType) && hasNonIntegerValues($.program, propType);
 
   // For error model properties with literal types, use the scalar base type
   // But not for union variant types — those should resolve to the enum type
