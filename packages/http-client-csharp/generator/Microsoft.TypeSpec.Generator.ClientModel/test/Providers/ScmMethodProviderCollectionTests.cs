@@ -1281,6 +1281,69 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         }
 
         [Test]
+        public void PagingAndStreamingArgumentsFollowCreateRequestSignature(
+            [Values(false, true)] bool isStreaming,
+            [Values(false, true)] bool omitPathParameter)
+        {
+            var item = InputFactory.Model("Item", properties: [InputFactory.Property("name", InputPrimitiveType.String)]);
+            var page = InputFactory.Model("Page", properties: [InputFactory.Property("items", InputFactory.Array(item))]);
+            InputType responseType = isStreaming
+                ? new InputStreamingType("JsonlStream", "Streaming.Jsonl.JsonlStream", item, ["application/jsonl"])
+                : page;
+            var operation = InputFactory.Operation(
+                "Receive",
+                parameters:
+                [
+                    InputFactory.PathParameter("targetDbName", InputPrimitiveType.String, serializedName: "db-name"),
+                    InputFactory.QueryParameter("sourceIpAddress", InputPrimitiveType.String, isRequired: true, serializedName: "ip-address")
+                ],
+                uri: "/networks/{db-name}",
+                responses: [InputFactory.OperationResponse([200], responseType)],
+                bufferResponse: !isStreaming);
+            var methodParameters = new List<InputMethodParameter>();
+            if (!omitPathParameter)
+            {
+                methodParameters.Add(InputFactory.MethodParameter(
+                    "targetDbName", InputPrimitiveType.String, location: InputRequestLocation.Path, serializedName: "db-name"));
+            }
+            methodParameters.Add(InputFactory.MethodParameter(
+                "sourceIpAddress", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Query, serializedName: "ip-address"));
+            InputServiceMethod serviceMethod = isStreaming
+                ? InputFactory.BasicServiceMethod(
+                    "Receive", operation, parameters: methodParameters, response: InputFactory.ServiceMethodResponse(responseType, null))
+                : InputFactory.PagingServiceMethod(
+                    "Receive", operation, parameters: methodParameters, response: InputFactory.ServiceMethodResponse(responseType, null),
+                    pagingMetadata: InputFactory.PagingMetadata(["items"], null, null));
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient], inputModels: () => [item, page]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+            var methods = client.Methods.OfType<ScmMethodProvider>().Where(method => method.Kind == ScmMethodKind.Convenience).ToArray();
+            Assert.AreEqual(isStreaming ? 1 : 2, methods.Length);
+
+            var request = client.RestClient.GetCreateRequestMethod(operation);
+            CollectionAssert.AreEqual(
+                new[] { "targetDBName", "sourceIPAddress", "options" },
+                request.Signature.Parameters.Select(parameter => parameter.Name));
+            Assert.IsTrue(request.Signature.Parameters.All(parameter => parameter.DefaultValue is null));
+
+            foreach (var method in methods)
+            {
+                var syntax = CSharpSyntaxTree.ParseText(method.BodyStatements!.ToDisplayString()).GetRoot();
+                var arguments = isStreaming
+                    ? syntax.DescendantNodes().OfType<InvocationExpressionSyntax>().Single(invocation =>
+                        invocation.Expression is MemberAccessExpressionSyntax member && member.Name.Identifier.ValueText == request.Signature.Name).ArgumentList.Arguments
+                    : syntax.DescendantNodes().OfType<ObjectCreationExpressionSyntax>().Single(construction =>
+                        construction.Type.ToString().Contains("CollectionResult", StringComparison.Ordinal)).ArgumentList!.Arguments;
+                CollectionAssert.AreEqual(
+                    new[] { omitPathParameter ? "null" : "targetDBName", "sourceIPAddress", "cancellationToken.ToRequestOptions()" },
+                    arguments.Skip(isStreaming ? 0 : 1).Select(argument => argument.Expression.ToString()));
+                CollectionAssert.AreEqual(
+                    omitPathParameter ? new[] { "targetDBName", "sourceIPAddress", "options" } : new string?[] { null, null, null },
+                    arguments.Skip(isStreaming ? 0 : 1).Select(argument => argument.NameColon?.Name.Identifier.ValueText));
+            }
+        }
+
+        [Test]
         public async Task AcronymGroupedParameterReferences()
         {
             var optionsModel = InputFactory.Model(

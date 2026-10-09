@@ -35,11 +35,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private static readonly CancellationTokenExtensionsDefinition _cancellationTokenExtensionsDefinition = new();
         private const string JsonMediaType = "application/json";
         private const string XmlMediaType = "application/xml";
-        private IReadOnlyList<ParameterProvider> ProtocolMethodParameters => _protocolMethodParameters ??= RestClientProvider.GetMethodParameters(ServiceMethod, ScmMethodKind.Protocol, Client);
-        private IReadOnlyList<ParameterProvider>? _protocolMethodParameters;
-
-        private IReadOnlyList<ParameterProvider> ConvenienceMethodParameters => _convenienceMethodParameters ??= RestClientProvider.GetMethodParameters(ServiceMethod, ScmMethodKind.Convenience, Client);
-        private IReadOnlyList<ParameterProvider>? _convenienceMethodParameters;
         private readonly InputPagingServiceMethod? _pagingServiceMethod;
         private IReadOnlyList<ScmMethodProvider>? _methods;
         private readonly bool _generateConvenienceMethod;
@@ -238,7 +233,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         createRequestSignature,
                         convenienceBodyParameters,
                         true,
-                        [.. protocolMethod.Signature.Parameters],
                         methodSignature.Parameters[^1])
                 ];
             }
@@ -247,7 +241,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 var conversionStatements = GetStackVariablesForProtocolParamConversion(
                     convenienceBodyParameters,
                     out var declarations);
-                var protocolArguments = GetProtocolMethodArguments(declarations, convenienceBodyParameters, methodSignature.Parameters[^1]);
+                var protocolArguments = GetMethodArguments(_createRequestMethod.Signature, declarations, convenienceBodyParameters, methodSignature.Parameters[^1]);
                 var requestOptions = protocolArguments[^1];
                 methodBody =
                 [
@@ -273,7 +267,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 methodBody =
                 [
                     .. GetStackVariablesForProtocolParamConversion(convenienceBodyParameters, out var declarations),
-                    Return(This.Invoke(protocolMethod.Signature, [.. GetProtocolMethodArguments(declarations, convenienceBodyParameters, methodSignature.Parameters[^1], protocolMethod.Signature.Parameters)], isAsync))
+                    Return(This.Invoke(protocolMethod.Signature, [.. GetMethodArguments(protocolMethod.Signature, declarations, convenienceBodyParameters, methodSignature.Parameters[^1])], isAsync))
                 ];
             }
             else
@@ -281,7 +275,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 methodBody =
                 [
                     .. GetStackVariablesForProtocolParamConversion(convenienceBodyParameters, out var paramDeclarations),
-                    Declare("result", This.Invoke(protocolMethod.Signature, [.. GetProtocolMethodArguments(paramDeclarations, convenienceBodyParameters, methodSignature.Parameters[^1], protocolMethod.Signature.Parameters)], isAsync).ToApi<ClientResponseApi>(), out ClientResponseApi result),
+                    Declare("result", This.Invoke(protocolMethod.Signature, [.. GetMethodArguments(protocolMethod.Signature, paramDeclarations, convenienceBodyParameters, methodSignature.Parameters[^1])], isAsync).ToApi<ClientResponseApi>(), out ClientResponseApi result),
                     .. GetStackVariablesForReturnValueConversion(result, responseBodyType, isAsync, out var resultDeclarations),
                     IsConvertibleFromBinaryData(responseBodyType)
                         || GetPlainTextParseType(responseBodyType, out _) is not null
@@ -1156,15 +1150,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
         }
 
-        private IReadOnlyList<ValueExpression> GetProtocolMethodArguments(
+        private IReadOnlyList<ValueExpression> GetMethodArguments(
+            MethodSignature signature,
             Dictionary<string, ValueExpression> declarations,
             IReadOnlyList<ParameterProvider> convenienceMethodParameters,
-            ParameterProvider cancellationToken,
-            IReadOnlyList<ParameterProvider>? targetParameters = null)
+            ParameterProvider cancellationToken)
         {
             List<ValueExpression> conversions = [];
             bool addedSpreadSource = false;
-            var requestOptionsParameter = targetParameters?[^1] ?? ScmKnownParameters.RequestOptions;
+            var requestOptionsParameter = signature.Parameters[^1];
 
             ModelProvider? bodyModel = null;
             InputParameter? methodBodyParameter = ServiceMethod.Parameters.FirstOrDefault(p => p.Location == InputRequestLocation.Body);
@@ -1178,25 +1172,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 .Where(p => p.WireInfo?.IsHttpMetadata == true)
                 .ToDictionary(p => p.WireInfo!.SerializedName, p => p);
 
-            // Create a mapping from convenience parameter names to their ParameterProvider
-            var convenienceParamsMap = new Dictionary<string, ParameterProvider>(StringComparer.OrdinalIgnoreCase);
-            for (int i = 0; i < ConvenienceMethodParameters.Count; i++)
-            {
-                var source = ConvenienceMethodParameters[i];
-                convenienceParamsMap.Add(source.Name, convenienceMethodParameters[i]);
-                if (source.InputParameter is { } inputParameter)
-                {
-                    convenienceParamsMap.TryAdd(inputParameter.Name, convenienceMethodParameters[i]);
-                }
-                else
-                {
-                    convenienceParamsMap.TryAdd(source.WireInfo.SerializedName, convenienceMethodParameters[i]);
-                }
-            }
+            var convenienceParamsMap = convenienceMethodParameters.ToDictionary(
+                parameter => parameter.InputParameter?.Name ?? parameter.WireInfo.SerializedName,
+                StringComparer.OrdinalIgnoreCase);
 
             bool requireNamedArgs = false;
-            // Iterate through protocol parameters to maintain correct argument order
-            foreach (var protocolParam in targetParameters ?? ProtocolMethodParameters)
+            foreach (var protocolParam in signature.Parameters)
             {
                 // Skip RequestOptions parameter as it's added at the end
                 if (protocolParam.Type.Equals(ScmCodeModelGenerator.Instance.TypeFactory.HttpRequestOptionsApi.HttpRequestOptionsType))
@@ -1662,10 +1643,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private static ValueExpression[]? BuildGroupedCreateRequestArguments(
             IReadOnlyList<ParameterProvider> createRequestParameters,
-            IReadOnlyList<ParameterProvider> protocolParameters,
-            Func<ParameterProvider, ValueExpression>? getArgument = null)
+            IReadOnlyList<ParameterProvider> protocolParameters)
         {
-            getArgument ??= parameter => parameter;
             var arguments = new ValueExpression[createRequestParameters.Count];
 
             for (int i = 0; i < createRequestParameters.Count; i++)
@@ -1681,7 +1660,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         return null;
                     }
 
-                    arguments[i] = getArgument(match);
+                    arguments[i] = match;
                     continue;
                 }
 
@@ -1696,7 +1675,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
 
                 var propertySegments = segments.Skip(1).Select(s => s.Name).ToList();
-                var propertyExpression = groupModel.GetPropertyExpression(getArgument(groupParameter), propertySegments, out var leafProperty);
+                var propertyExpression = groupModel.GetPropertyExpression(groupParameter, propertySegments, out var leafProperty);
 
                 // CreateRequest takes the serialized (string/number) form of an enum, so convert before forwarding.
                 if (leafProperty.Type.IsEnum && !createRequestParameter.Type.IsEnum)
@@ -1764,30 +1743,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             MethodSignature createRequestSignature,
             IReadOnlyList<ParameterProvider> parameters,
             bool isConvenience,
-            IReadOnlyList<ParameterProvider>? pagingProtocolParameters = null,
             ParameterProvider? cancellationToken = null)
         {
             if (isConvenience)
             {
                 var conversionStatements = GetStackVariablesForProtocolParamConversion(parameters, out var declarations);
-                var protocolArguments = GetProtocolMethodArguments(declarations, parameters, cancellationToken!);
-
-                IReadOnlyList<ValueExpression> constructorArguments = protocolArguments;
-                if (RestClientProvider.ShouldGroupProtocolParameters(ServiceMethod))
-                {
-                    var protocolParameters = pagingProtocolParameters
-                        ?? throw new InvalidOperationException("Paging protocol parameters are required to expand grouped arguments.");
-                    var argumentMap = new Dictionary<ParameterProvider, ValueExpression>();
-                    for (int i = 0; i < protocolParameters.Count; i++)
-                    {
-                        argumentMap[protocolParameters[i]] = protocolArguments[i];
-                    }
-
-                    constructorArguments = BuildGroupedCreateRequestArguments(
-                        createRequestSignature.Parameters,
-                        protocolParameters,
-                        parameter => argumentMap[parameter]) ?? protocolArguments;
-                }
+                var constructorArguments = GetMethodArguments(createRequestSignature, declarations, parameters, cancellationToken!);
 
                 return
                     [
@@ -2120,29 +2081,31 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private bool ShouldMakeProtocolMethodParametersRequired()
         {
-            var convenienceMethodParameterCount = ConvenienceMethodParameters.Count;
             if (!_generateConvenienceMethod)
             {
                 return false;
             }
+            var convenienceParameters = RestClientProvider.GetMethodParameters(ServiceMethod, ScmMethodKind.Convenience, Client);
+            var convenienceMethodParameterCount = convenienceParameters.Count;
             if (convenienceMethodParameterCount == 0)
             {
                 return true;
             }
 
+            var protocolParameters = RestClientProvider.GetMethodParameters(ServiceMethod, ScmMethodKind.Protocol, Client);
             for (int i = 0; i < convenienceMethodParameterCount; i++)
             {
                 // If protocol parameter is required, and convenience is optional, we don't need any changes.
-                if (ProtocolMethodParameters[i].DefaultValue == null && ConvenienceMethodParameters[i].DefaultValue != null)
+                if (protocolParameters[i].DefaultValue == null && convenienceParameters[i].DefaultValue != null)
                 {
                     return false;
                 }
                 // If convenience is optional, and protocol is optional, we do need to make the protocol required.
-                if (ConvenienceMethodParameters[i].DefaultValue != null)
+                if (convenienceParameters[i].DefaultValue != null)
                 {
                     return true;
                 }
-                if (!ProtocolMethodParameters[i].Type.Equals(ConvenienceMethodParameters[i].Type))
+                if (!protocolParameters[i].Type.Equals(convenienceParameters[i].Type))
                 {
                     return false;
                 }
