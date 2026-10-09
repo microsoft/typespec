@@ -83,7 +83,7 @@ namespace SampleTypeSpec
                 throw new FormatException($"The model {nameof(NullableDynamicModel)} does not support writing '{format}' format.");
             }
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-            if ((_modelValueIsDefined || Optional.IsDefined(ModelValue)) && !Patch.Contains("$.modelValue"u8))
+            if (Optional.IsDefined(ModelValue, _modelValueIsDefined) && !Patch.Contains("$.modelValue"u8))
             {
                 if (ModelValue != null)
                 {

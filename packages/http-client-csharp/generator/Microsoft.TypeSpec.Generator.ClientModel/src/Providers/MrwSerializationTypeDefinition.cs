@@ -2749,7 +2749,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 {
                     if (presence != null)
                     {
-                        isDefinedCondition = presence.As<bool>().Or(isDefinedCondition);
+                        isDefinedCondition = OptionalSnippets.IsDefined(propertyMemberExpression, presence);
                     }
                     var writeNullableProperty = new IfElseStatement(
                         new IfStatement(propertyMemberExpression.NotEqual(Null)) { writePropertySerializationStatement },

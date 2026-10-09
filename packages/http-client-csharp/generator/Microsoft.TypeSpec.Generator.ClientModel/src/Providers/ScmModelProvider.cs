@@ -254,8 +254,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private void AddNullablePropertyPresence(PropertyProvider property, FieldProvider backingField, HashSet<string> reservedFieldNames)
         {
+            var modifiers = FieldModifiers.Private;
+            if (_inputModel.DerivedModels.Count > 0 || _inputModel.DiscriminatedSubtypes.Count > 0)
+            {
+                modifiers |= FieldModifiers.Protected;
+            }
             var presence = new FieldProvider(
-                FieldModifiers.Internal, typeof(bool), GetAvailableFieldName($"_{property.Name.ToVariableName()}IsDefined", reservedFieldNames), this);
+                modifiers, typeof(bool), GetAvailableFieldName($"_{property.Name.ToVariableName()}IsDefined", reservedFieldNames), this);
             _nullablePropertyPresence[property] = presence;
             property.BackingField = backingField;
             MethodBodyStatement? setter = null;

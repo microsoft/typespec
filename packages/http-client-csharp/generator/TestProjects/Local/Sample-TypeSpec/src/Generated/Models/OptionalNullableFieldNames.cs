@@ -17,9 +17,9 @@ namespace SampleTypeSpec
         private protected readonly IDictionary<string, BinaryData> _additionalBinaryDataProperties;
         private IDictionary<string, string> _additionalStringProperties;
         private string _additionalStringProperties1;
-        internal bool _additionalStringPropertiesIsDefined1;
+        private bool _additionalStringPropertiesIsDefined1;
         private string _additionalStringPropertiesIsDefined;
-        internal bool _additionalStringPropertiesIsDefinedIsDefined;
+        private bool _additionalStringPropertiesIsDefinedIsDefined;
 
         /// <summary> Initializes a new instance of <see cref="OptionalNullableFieldNames"/>. </summary>
         public OptionalNullableFieldNames()

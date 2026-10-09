@@ -71,6 +71,47 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.IsFalse(Optional.IsDefined(value));
         }
 
+        [TestCase(null, false, false)]
+        [TestCase(null, true, true)]
+        [TestCase(0, false, true)]
+        [TestCase(0, true, true)]
+        [TestCase(5, false, true)]
+        [TestCase(5, true, true)]
+        public void Nullable_WithPresence(int? value, bool isDefined, bool expected)
+        {
+            Assert.That(Optional.IsDefined(value, isDefined), Is.EqualTo(expected));
+        }
+
+        [TestCase(null, false, false)]
+        [TestCase(null, true, true)]
+        [TestCase("", false, true)]
+        [TestCase("", true, true)]
+        [TestCase("test", false, true)]
+        [TestCase("test", true, true)]
+        public void String_WithPresence(string? value, bool isDefined, bool expected)
+        {
+            Assert.That(Optional.IsDefined(value, isDefined), Is.EqualTo(expected));
+        }
+
+        [Test]
+        public void Object_WithPresence([Values(false, true)] bool hasValue, [Values(false, true)] bool isDefined)
+        {
+            object? value = hasValue ? new object() : null;
+
+            Assert.That(Optional.IsDefined(value, isDefined), Is.EqualTo(hasValue || isDefined));
+        }
+
+        [Test]
+        public void Json_WithPresence(
+            [Values(null, "null", "{}", "false")] string? json,
+            [Values(false, true)] bool isDefined)
+        {
+            using var document = json is null ? null : JsonDocument.Parse(json);
+            var value = document?.RootElement ?? default;
+
+            Assert.That(Optional.IsDefined(value, isDefined), Is.EqualTo(json is not null || isDefined));
+        }
+
         [Test]
         public void Obj_NotNull_ReturnsTrue()
         {

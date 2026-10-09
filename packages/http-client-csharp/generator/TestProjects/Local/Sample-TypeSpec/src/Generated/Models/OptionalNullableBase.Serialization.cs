@@ -73,7 +73,7 @@ namespace SampleTypeSpec
             {
                 throw new FormatException($"The model {nameof(OptionalNullableBase)} does not support writing '{format}' format.");
             }
-            if (_inheritedNullableIsDefined || Optional.IsDefined(InheritedNullable))
+            if (Optional.IsDefined(InheritedNullable, _inheritedNullableIsDefined))
             {
                 if (InheritedNullable != null)
                 {
