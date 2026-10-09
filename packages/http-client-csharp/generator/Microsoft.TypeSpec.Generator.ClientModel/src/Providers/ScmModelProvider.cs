@@ -33,10 +33,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private readonly InputModelType _inputModel;
         private readonly Dictionary<PropertyProvider, FieldProvider> _nullablePropertyPresence = [];
 
-        // MRW can add an empty constructor with an implicit base() call. Do not invent
-        // default arguments for a framework base when that call cannot be made safely.
+        // MRW and multipart serialization can add an empty constructor with an implicit base() call.
+        // Do not invent default arguments for a framework base when that call cannot be made safely.
         protected override bool RequiresParameterlessBaseConstructor
-            => (_inputModel.Usage & (InputModelTypeUsage.Json | InputModelTypeUsage.Xml)) != 0;
+            => (_inputModel.Usage & (InputModelTypeUsage.Json | InputModelTypeUsage.Xml | InputModelTypeUsage.MultipartFormData)) != 0;
 
         private const string JsonPatchFieldName = "_patch";
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
