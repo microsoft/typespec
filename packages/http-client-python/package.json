@@ -35,6 +35,7 @@
   "scripts": {
     "clean": "rimraf ./dist ./temp ./venv ./tests/generated",
     "build": "tsc -p ./emitter/tsconfig.build.json && tsx ./eng/scripts/setup/build.ts",
+    "build:playground": "npm run build && tsx ./eng/scripts/setup/build-playground-assets.ts",
     "watch": "tsc -p ./emitter/tsconfig.build.json --watch",
     "install": "tsx ./eng/scripts/setup/install.ts",
     "prepare": "tsx ./eng/scripts/setup/prepare.ts",
@@ -62,6 +63,9 @@
     "dist/**",
     "!dist/test/**",
     "generator/**",
+    "!generator/dist/browser-wheels/**",
+    "!generator/dist/browser-wheels.json",
+    "!generator/dist/pyodide/**",
     "eng/scripts/**",
     "emitter"
   ],
@@ -86,6 +90,30 @@
       {
         "path": "generator/dist/pygen-*.whl",
         "contentType": "application/zip"
+      },
+      {
+        "path": "generator/dist/browser-wheels/*.whl",
+        "contentType": "application/zip"
+      },
+      {
+        "path": "generator/dist/browser-wheels.json",
+        "contentType": "application/json"
+      },
+      {
+        "path": "generator/dist/pyodide/*.js",
+        "contentType": "application/javascript"
+      },
+      {
+        "path": "generator/dist/pyodide/*.wasm",
+        "contentType": "application/wasm"
+      },
+      {
+        "path": "generator/dist/pyodide/*.zip",
+        "contentType": "application/zip"
+      },
+      {
+        "path": "generator/dist/pyodide/*.json",
+        "contentType": "application/json"
       }
     ],
     "bundlePeerDependencies": [
