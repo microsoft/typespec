@@ -33,6 +33,17 @@ it("renders Program.cs with swagger", () => {
   expect(content).toContain("builder.Services.AddSwaggerGen()");
 });
 
+it("escapes the OpenAPI path in Program.cs", () => {
+  const output = render(
+    <Output>
+      <ProgramCs useSwaggerUI openApiPath="..\openapi\spec.yaml" />
+    </Output>,
+  );
+  expect(getFileContent(output, "Program.cs")).toContain(
+    `var externalFilePath = "..\\\\openapi\\\\spec.yaml";`,
+  );
+});
+
 it("renders Program.cs with mocks", () => {
   const output = render(
     <Output>

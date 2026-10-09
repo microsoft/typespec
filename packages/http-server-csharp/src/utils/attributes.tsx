@@ -20,6 +20,7 @@ import {
   type Type,
 } from "@typespec/compiler";
 import { isUnionEnum } from "../components/enums/enums.jsx";
+import { csharpStringLiteral } from "./csharp-string-literal.js";
 
 /**
  * Maps a TypeSpec scalar name to the C# type name used in attributes.
@@ -228,7 +229,7 @@ function getStringConstraintAttribute(
   const params: string[] = [];
   if (minLen !== undefined) params.push(`MinLength = ${minLen}`);
   if (maxLen !== undefined) params.push(`MaxLength = ${maxLen}`);
-  if (pattern !== undefined) params.push(`Pattern = "${pattern}"`);
+  if (pattern !== undefined) params.push(`Pattern = ${csharpStringLiteral(pattern)}`);
 
   return <Attribute name="StringConstraint" args={params} />;
 }
@@ -259,7 +260,12 @@ function getArrayConstraintAttribute(
 function getEncodedNameAttribute(program: Program, property: ModelProperty): Children | undefined {
   const encodedName = resolveEncodedName(program, property, "application/json");
   if (encodedName !== property.name) {
-    return <Attribute name={Serialization.JsonPropertyNameAttribute} args={[`"${encodedName}"`]} />;
+    return (
+      <Attribute
+        name={Serialization.JsonPropertyNameAttribute}
+        args={[csharpStringLiteral(encodedName)]}
+      />
+    );
   }
   return undefined;
 }

@@ -5,6 +5,7 @@ import { isErrorModel, type Model, type Program } from "@typespec/compiler";
 import { useTsp } from "@typespec/emitter-framework";
 import { getNullableUnionInnerType } from "@typespec/emitter-framework/csharp";
 import { getHeaderFieldName, isHeader, isStatusCode } from "@typespec/http";
+import { csharpStringLiteral } from "../../utils/csharp-string-literal.js";
 import {
   getNullableValueTypeUnionInnerType,
   TypeExpression,
@@ -77,7 +78,7 @@ export function getErrorConstructor(program: Program, model: Model, className: s
 
     if (isHeader(program, prop)) {
       const headerName = getHeaderFieldName(program, prop);
-      headerParts.push(`{"${headerName}", ${prop.name}}`);
+      headerParts.push(`{${csharpStringLiteral(headerName)}, ${prop.name}}`);
     } else {
       valueParts.push(`${prop.name} = ${prop.name}`);
     }
