@@ -33,6 +33,7 @@ function addDefaultOptions(sdkContext: PythonSdkContext) {
     ...sdkContext.emitContext.options,
   };
   const options = sdkContext.emitContext.options;
+  options["enable-sse-reconnect"] ??= false;
   if (!options["package-name"]) {
     const namespace = getRootNamespace(sdkContext);
     const packageName = namespace.replace(/\./g, "-");

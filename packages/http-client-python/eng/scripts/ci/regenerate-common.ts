@@ -80,10 +80,9 @@ export const SpecialFlags: Record<string, Record<string, any>> = {
 
 // ---- Spec-specific emitter option overrides ----
 
-export const AZURE_EMITTER_OPTIONS: Record<
-  string,
-  Record<string, string> | Record<string, string>[]
-> = {
+type EmitterOptions = Record<string, string | boolean>;
+
+export const AZURE_EMITTER_OPTIONS: Record<string, EmitterOptions | EmitterOptions[]> = {
   "azure/client-generator-core/access": {
     namespace: "specs.azure.clientgenerator.core.access",
   },
@@ -219,7 +218,16 @@ export const AZURE_EMITTER_OPTIONS: Record<
   },
 };
 
-export const EMITTER_OPTIONS: Record<string, Record<string, string> | Record<string, string>[]> = {
+export const EMITTER_OPTIONS: Record<string, EmitterOptions | EmitterOptions[]> = {
+  "streaming/sse": [
+    {
+      "enable-sse-reconnect": true,
+    },
+    {
+      "package-name": "streaming-sse-no-reconnect",
+      namespace: "streaming.ssenoreconnect",
+    },
+  ],
   "resiliency/srv-driven/old.tsp": {
     "package-name": "resiliency-srv-driven1",
     namespace: "resiliency.srv.driven1",
@@ -416,7 +424,7 @@ export function getEmitterOptions(
   spec: string,
   flavor: string,
   ctx: RegenerateContext,
-): Record<string, string>[] {
+): EmitterOptions[] {
   const specDir = isAzureSpec(spec) ? ctx.azureHttpSpecs : ctx.httpSpecs;
   const relativeSpec = toPosix(relative(specDir, spec));
   const key = relativeSpec.includes("resiliency/srv-driven/old.tsp")

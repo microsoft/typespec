@@ -1,4 +1,5 @@
 # coding=utf-8
+{% set enable_sse_reconnect = code_model.options["enable-sse-reconnect"] %}
 {% if code_model.license_header %}
 {{ code_model.license_header }}
 {% endif %}
@@ -33,8 +34,11 @@ from typing import (
 
 from typing_extensions import Self
 
+{% if enable_sse_reconnect %}
 from {{ code_model.core_library }}.exceptions import StreamClosedError, StreamConsumedError
-from {{ code_model.core_library }}.rest import AsyncHttpResponse, HttpRequest, HttpResponse
+from {{ code_model.core_library }}.rest import HttpRequest
+{% endif %}
+from {{ code_model.core_library }}.rest import AsyncHttpResponse, HttpResponse
 
 DecodedType = TypeVar("DecodedType")
 ReturnType_co = TypeVar("ReturnType_co", covariant=True)
@@ -436,6 +440,7 @@ async def _aiter_sse_lines(iter_bytes: AsyncIterator[bytes]) -> AsyncGenerator[s
         yield line
 
 
+{% if enable_sse_reconnect %}
 def _read_sse_response(response: HttpResponse) -> None:
     """Read an SSE response body, ignoring responses that are already consumed or closed.
 
@@ -474,14 +479,22 @@ def _update_sse_request_headers(request: HttpRequest, last_event_id: Optional[st
         request.headers.pop("Last-Event-ID", None)
 
 
+{% endif %}
 class _SSEEventBuilder:
     """Accumulates SSE field lines and builds :class:`ServerSentEvent` instances.
 
+{% if enable_sse_reconnect %}
     :param last_event_id: The initial value of the SSE last event ID buffer.
     :type last_event_id: str
+{% endif %}
     """
 
+{% if enable_sse_reconnect %}
     def __init__(self, last_event_id: str = "") -> None:
+{% else %}
+    def __init__(self) -> None:
+        last_event_id = ""
+{% endif %}
         self._data: List[str] = []
         self._event_type = ""
         self._last_id = last_event_id
@@ -565,12 +578,19 @@ class SSEDecoder:
 
     https://html.spec.whatwg.org/multipage/server-sent-events.html
 
+{% if enable_sse_reconnect %}
     :keyword last_event_id: The initial value of the SSE last event ID buffer.
     :paramtype last_event_id: str or None
+{% endif %}
     """
 
+{% if enable_sse_reconnect %}
     def __init__(self, *, last_event_id: Optional[str] = None) -> None:
         self._builder = _SSEEventBuilder(last_event_id or "")
+{% else %}
+    def __init__(self) -> None:
+        self._builder = _SSEEventBuilder()
+{% endif %}
 
     @property
     def last_event_id(self) -> str:
@@ -609,12 +629,19 @@ class AsyncSSEDecoder:
 
     https://html.spec.whatwg.org/multipage/server-sent-events.html
 
+{% if enable_sse_reconnect %}
     :keyword last_event_id: The initial value of the SSE last event ID buffer.
     :paramtype last_event_id: str or None
+{% endif %}
     """
 
+{% if enable_sse_reconnect %}
     def __init__(self, *, last_event_id: Optional[str] = None) -> None:
         self._builder = _SSEEventBuilder(last_event_id or "")
+{% else %}
+    def __init__(self) -> None:
+        self._builder = _SSEEventBuilder()
+{% endif %}
 
     @property
     def last_event_id(self) -> str:
@@ -672,6 +699,7 @@ class Stream(Iterator[ReturnType_co]):
     :keyword terminal_event_predicate: Optional predicate that identifies a payload-bearing
         terminal event. The event is yielded before iteration stops.
     :paramtype terminal_event_predicate: Callable[[Any], bool] or None
+{% if enable_sse_reconnect %}
     :keyword last_event_id: Optional event ID from which this stream is resuming.
     :paramtype last_event_id: str or None
     :keyword reconnect_callback: Optional callback used to re-establish the underlying response
@@ -680,6 +708,7 @@ class Stream(Iterator[ReturnType_co]):
         called with the last-seen SSE event ID (or ``None``) and the reconnect delay in seconds,
         and must return a new response.
     :paramtype reconnect_callback: Callable[[str or None, float], ~{{ code_model.core_library }}.rest.HttpResponse] or None
+{% endif %}
     """
 
     def __init__(
@@ -691,8 +720,10 @@ class Stream(Iterator[ReturnType_co]):
         terminal_event: Optional[str] = None,
         terminal_event_names: Optional[Sequence[str]] = None,
         terminal_event_predicate: Optional[Callable[[DecodedType], bool]] = None,
+{% if enable_sse_reconnect %}
         last_event_id: Optional[str] = None,
         reconnect_callback: Optional[Callable[[Optional[str], float], HttpResponse]] = None,
+{% endif %}
     ) -> None:
         self._response = response
         content_type = response.headers.get("Content-Type", "").split(";", 1)[0].strip().lower()
@@ -700,7 +731,7 @@ class Stream(Iterator[ReturnType_co]):
             decoder
             if decoder is not None
             else (
-                SSEDecoder(last_event_id=last_event_id)
+                SSEDecoder({% if enable_sse_reconnect %}last_event_id=last_event_id{% endif %})
                 if content_type == "text/event-stream"
                 else JSONLDecoder()
             )
@@ -709,8 +740,12 @@ class Stream(Iterator[ReturnType_co]):
         self._terminal_event = terminal_event
         self._terminal_event_names = frozenset(terminal_event_names or ())
         self._terminal_event_predicate = terminal_event_predicate
+{% if enable_sse_reconnect %}
         self._reconnect_callback = reconnect_callback
         self._last_event_id = last_event_id
+{% else %}
+        self._last_event_id: Optional[str] = None
+{% endif %}
         self._retry: Optional[int] = None
         self._iterator = self._iter_results()
 
@@ -731,7 +766,9 @@ class Stream(Iterator[ReturnType_co]):
         return self
 
     def _iter_results(self) -> Generator[ReturnType_co, None, None]:
+{% if enable_sse_reconnect %}
         terminal = False
+{% endif %}
         try:
             while True:
                 if getattr(self._response, "status_code", None) == 204:
@@ -744,7 +781,9 @@ class Stream(Iterator[ReturnType_co]):
                     if event_retry is not None:
                         self._retry = event_retry
                     if self._terminal_event is not None and getattr(event, "data", None) == self._terminal_event:
+{% if enable_sse_reconnect %}
                         terminal = True
+{% endif %}
                         break
                     result = self._deserialization_callback(self._response, cast(Any, event))
                     yield result
@@ -755,8 +794,11 @@ class Stream(Iterator[ReturnType_co]):
                         self._terminal_event_predicate is not None
                         and self._terminal_event_predicate(cast(Any, event))
                     ):
+{% if enable_sse_reconnect %}
                         terminal = True
+{% endif %}
                         break
+{% if enable_sse_reconnect %}
                 if terminal or self._reconnect_callback is None:
                     break
                 if isinstance(self._decoder, SSEDecoder):
@@ -771,6 +813,9 @@ class Stream(Iterator[ReturnType_co]):
                     if isinstance(self._decoder, SSEDecoder)
                     else type(self._decoder)()
                 )
+{% else %}
+                break
+{% endif %}
         finally:
             self._response.close()
 
@@ -814,6 +859,7 @@ class AsyncStream(AsyncIterator[ReturnType_co]):
     :keyword terminal_event_predicate: Optional predicate that identifies a payload-bearing
         terminal event. The event is yielded before iteration stops.
     :paramtype terminal_event_predicate: Callable[[Any], bool] or None
+{% if enable_sse_reconnect %}
     :keyword last_event_id: Optional event ID from which this stream is resuming.
     :paramtype last_event_id: str or None
     :keyword reconnect_callback: Optional callback used to re-establish the underlying response
@@ -822,6 +868,7 @@ class AsyncStream(AsyncIterator[ReturnType_co]):
         called with the last-seen SSE event ID (or ``None``) and the reconnect delay in seconds,
         and must resolve to a new response.
     :paramtype reconnect_callback: Callable[[str or None, float], Any] or None
+{% endif %}
     """
 
     def __init__(
@@ -833,8 +880,10 @@ class AsyncStream(AsyncIterator[ReturnType_co]):
         terminal_event: Optional[str] = None,
         terminal_event_names: Optional[Sequence[str]] = None,
         terminal_event_predicate: Optional[Callable[[DecodedType], bool]] = None,
+{% if enable_sse_reconnect %}
         last_event_id: Optional[str] = None,
         reconnect_callback: Optional[Callable[[Optional[str], float], Any]] = None,
+{% endif %}
     ) -> None:
         self._response = response
         content_type = response.headers.get("Content-Type", "").split(";", 1)[0].strip().lower()
@@ -842,7 +891,7 @@ class AsyncStream(AsyncIterator[ReturnType_co]):
             decoder
             if decoder is not None
             else (
-                AsyncSSEDecoder(last_event_id=last_event_id)
+                AsyncSSEDecoder({% if enable_sse_reconnect %}last_event_id=last_event_id{% endif %})
                 if content_type == "text/event-stream"
                 else AsyncJSONLDecoder()
             )
@@ -851,8 +900,12 @@ class AsyncStream(AsyncIterator[ReturnType_co]):
         self._terminal_event = terminal_event
         self._terminal_event_names = frozenset(terminal_event_names or ())
         self._terminal_event_predicate = terminal_event_predicate
+{% if enable_sse_reconnect %}
         self._reconnect_callback = reconnect_callback
         self._last_event_id = last_event_id
+{% else %}
+        self._last_event_id: Optional[str] = None
+{% endif %}
         self._retry: Optional[int] = None
         self._iterator = self._iter_results()
 
@@ -873,7 +926,9 @@ class AsyncStream(AsyncIterator[ReturnType_co]):
         return self
 
     async def _iter_results(self) -> AsyncGenerator[ReturnType_co, None]:
+{% if enable_sse_reconnect %}
         terminal = False
+{% endif %}
         try:
             while True:
                 if getattr(self._response, "status_code", None) == 204:
@@ -888,7 +943,9 @@ class AsyncStream(AsyncIterator[ReturnType_co]):
                         if event_retry is not None:
                             self._retry = event_retry
                         if self._terminal_event is not None and getattr(event, "data", None) == self._terminal_event:
+{% if enable_sse_reconnect %}
                             terminal = True
+{% endif %}
                             break
                         result = self._deserialization_callback(self._response, cast(Any, event))
                         yield result
@@ -899,12 +956,15 @@ class AsyncStream(AsyncIterator[ReturnType_co]):
                             self._terminal_event_predicate is not None
                             and self._terminal_event_predicate(cast(Any, event))
                         ):
+{% if enable_sse_reconnect %}
                             terminal = True
+{% endif %}
                             break
                 finally:
                     aclose = getattr(events, "aclose", None)
                     if aclose is not None:
                         await aclose()
+{% if enable_sse_reconnect %}
                 if terminal or self._reconnect_callback is None:
                     break
                 if isinstance(self._decoder, AsyncSSEDecoder):
@@ -919,6 +979,9 @@ class AsyncStream(AsyncIterator[ReturnType_co]):
                     if isinstance(self._decoder, AsyncSSEDecoder)
                     else type(self._decoder)()
                 )
+{% else %}
+                break
+{% endif %}
         finally:
             await self._response.close()
 
