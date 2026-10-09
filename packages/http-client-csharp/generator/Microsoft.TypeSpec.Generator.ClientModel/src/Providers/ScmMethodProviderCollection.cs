@@ -1184,14 +1184,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 var source = ConvenienceMethodParameters[i];
                 convenienceParamsMap.Add(source.Name, convenienceMethodParameters[i]);
-                if (source.InputParameter is { } inputParameter)
-                {
-                    convenienceParamsMap.TryAdd(inputParameter.Name, convenienceMethodParameters[i]);
-                }
-                else
-                {
-                    convenienceParamsMap.TryAdd(source.WireInfo.SerializedName, convenienceMethodParameters[i]);
-                }
+                convenienceParamsMap.TryAdd(
+                    source.InputParameter?.Name ?? source.WireInfo.SerializedName,
+                    convenienceMethodParameters[i]);
             }
 
             bool requireNamedArgs = false;
