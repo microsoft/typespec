@@ -105,7 +105,11 @@ import {
   replaceTemplatedStringFromProperties,
 } from "./utils.js";
 
-export { $encodedName, resolveEncodedName } from "./encoded-names.js";
+export {
+  $encodedName,
+  resolveEncodedEnumMemberValue,
+  resolveEncodedName,
+} from "./encoded-names.js";
 export { serializeValueAsJson } from "./examples.js";
 export { getPagingOperation, isList, type PagingOperation, type PagingProperty } from "./paging.js";
 export * from "./service.js";

@@ -1,4 +1,4 @@
-import { strictEqual } from "assert";
+import { deepStrictEqual, strictEqual } from "assert";
 import { describe, it } from "vitest";
 import { getDiscriminatedUnionFromInheritance } from "../../src/core/helpers/discriminator-utils.js";
 import type { Model, Program } from "../../src/index.js";
@@ -16,7 +16,7 @@ function checkValidDiscriminatedUnion(program: Program, model: Model) {
   if (discriminator === undefined) {
     throw new Error("Discriminator shouldn't be undefined.");
   }
-  const [union, diagnostics] = getDiscriminatedUnionFromInheritance(model, discriminator);
+  const [union, diagnostics] = getDiscriminatedUnionFromInheritance(program, model, discriminator);
   expectDiagnosticEmpty(diagnostics);
   return union;
 }
@@ -129,6 +129,49 @@ describe("inheritance based", () => {
 
       const union = checkValidDiscriminatedUnion(program, Pet);
       strictEqual(union.variants.size, 1);
+      strictEqual(union.variants.get("cat"), Cat);
+    });
+
+    it("use the json encoded name of a string enum member", async () => {
+      const { Pet, Cat, program } = await Tester.compile(t.code`
+        @discriminator("kind")
+        model ${t.model("Pet")} {}
+
+        enum PetKind {
+          @encodedName("application/json", "feline")
+          cat,
+        }
+        model ${t.model("Cat")} extends Pet {
+          kind: PetKind.cat;
+        }
+      `);
+
+      const union = checkValidDiscriminatedUnion(program, Pet);
+      deepStrictEqual([...union.variants.keys()], ["feline"]);
+      strictEqual(union.variants.get("feline"), Cat);
+    });
+
+    it("use the enum member name with the deprecated signature without a program", async () => {
+      const { Pet, Cat, program } = await Tester.compile(t.code`
+        @discriminator("kind")
+        model ${t.model("Pet")} {}
+
+        enum PetKind {
+          @encodedName("application/json", "feline")
+          cat,
+        }
+        model ${t.model("Cat")} extends Pet {
+          kind: PetKind.cat;
+        }
+      `);
+
+      // eslint-disable-next-line @typescript-eslint/no-deprecated
+      const [union, diagnostics] = getDiscriminatedUnionFromInheritance(
+        Pet,
+        getDiscriminator(program, Pet)!,
+      );
+      expectDiagnosticEmpty(diagnostics);
+      deepStrictEqual([...union.variants.keys()], ["cat"]);
       strictEqual(union.variants.get("cat"), Cat);
     });
   });

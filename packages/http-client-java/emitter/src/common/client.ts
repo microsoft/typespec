@@ -1,9 +1,16 @@
-/* eslint-disable @typescript-eslint/no-unsafe-declaration-merging */
-import type { HttpHeader, OperationGroup, Parameter, Property } from "@autorest/codemodel";
-import { Aspect, Metadata, Security } from "@autorest/codemodel";
-import type { DeepPartial } from "@azure-tools/codegen";
 import type { ArrayKnownEncoding } from "@azure-tools/typespec-client-generator-core";
 import type { XmlSerializationFormat } from "./formats/xml.js";
+import type { OperationGroup } from "./operation.js";
+import type {
+  Aspect,
+  HttpHeader,
+  Metadata,
+  ModelOptions,
+  Parameter,
+  Property,
+  Security,
+} from "./schemas/model.js";
+import { createAspect, createSecurity, initializeMetadata } from "./schemas/model.js";
 
 export interface Client extends Aspect {
   /** All operations  */
@@ -33,60 +40,64 @@ export interface Client extends Aspect {
   parentAccessorPublic: boolean;
 }
 
-export class Client extends Aspect implements Client {
-  constructor(name: string, description: string, objectInitializer?: DeepPartial<Client>) {
-    super(name, description, objectInitializer);
-
-    this.operationGroups = [];
-    this.security = new Security(false);
-    this.subClients = [];
-    this.buildMethodPublic = true;
-    this.parentAccessorPublic = false;
-
-    this.applyTo(this, objectInitializer);
-  }
-
-  private get globals(): Array<Parameter> {
-    return this.globalParameters || (this.globalParameters = []);
-  }
-
-  addGlobalParameters(parameters: Parameter[]) {
-    this.globals.push(...parameters);
-  }
-
-  /**
-   * Add a sub Client to Client.
-   *
-   * @param subClient the sub Client
-   * @param buildMethodPublic the sub Client can be initialized by its ClientBuilder
-   * @param parentAccessorPublic the sub Client can be accessed by its parent Client
-   */
-  addSubClient(subClient: Client, buildMethodPublic: boolean, parentAccessorPublic: boolean) {
-    subClient.parent = this;
-    subClient.buildMethodPublic = buildMethodPublic;
-    subClient.parentAccessorPublic = parentAccessorPublic;
-    this.subClients.push(subClient);
-
-    // at present, sub client must be in same namespace of its parent client
-    subClient.language.java!.namespace = this.language.java!.namespace;
-  }
+export function createClient(
+  name: string,
+  description: string,
+  options?: ModelOptions<Client>,
+): Client {
+  return initializeMetadata<Client>(
+    {
+      ...createAspect(name, description),
+      operationGroups: [],
+      security: createSecurity(false),
+      subClients: [],
+      buildMethodPublic: true,
+      parentAccessorPublic: false,
+    },
+    {
+      ...options,
+      operationGroups: [...(options?.operationGroups ?? [])],
+      security: createSecurity(
+        options?.security?.authenticationRequired ?? false,
+        options?.security,
+      ),
+      subClients: [...(options?.subClients ?? [])],
+    },
+  );
 }
 
-export class ServiceVersion extends Metadata {
-  constructor(name: string, description: string, initializer?: DeepPartial<ServiceVersion>) {
-    super();
-    this.apply(
-      {
-        language: {
-          default: {
-            name: name,
-            description: description,
-          },
-        },
-      },
-      initializer,
-    );
-  }
+export function addGlobalParameters(client: Client, parameters: Parameter[]) {
+  (client.globalParameters ??= []).push(...parameters);
+}
+
+/**
+ * Add a sub Client to Client.
+ *
+ * @param subClient the sub Client
+ * @param buildMethodPublic the sub Client can be initialized by its ClientBuilder
+ * @param parentAccessorPublic the sub Client can be accessed by its parent Client
+ */
+export function addSubClient(
+  client: Client,
+  subClient: Client,
+  buildMethodPublic: boolean,
+  parentAccessorPublic: boolean,
+) {
+  subClient.parent = client;
+  subClient.buildMethodPublic = buildMethodPublic;
+  subClient.parentAccessorPublic = parentAccessorPublic;
+  client.subClients.push(subClient);
+  subClient.language.java!.namespace = client.language.java!.namespace;
+}
+
+export interface ServiceVersion extends Metadata {}
+
+export function createServiceVersion(
+  name: string,
+  description: string,
+  options?: ModelOptions<ServiceVersion>,
+): ServiceVersion {
+  return createAspect(name, description, options);
 }
 
 export interface EncodedSchema {
@@ -105,7 +116,7 @@ export interface EncodedProperty {
   arrayEncoding?: ArrayKnownEncoding;
 }
 
-export class PageableContinuationToken {
+export interface PageableContinuationToken {
   /**
    * The parameter of the operation as continuationToken in API request.
    */
@@ -120,19 +131,19 @@ export class PageableContinuationToken {
    * The reference to response header of the operation as continuationToken in API request.
    */
   responseHeader?: HttpHeader;
+}
 
-  constructor(parameter: Parameter, responseProperty?: Property[], responseHeader?: HttpHeader) {
-    this.parameter = parameter;
-    this.responseProperty = responseProperty;
-    this.responseHeader = responseHeader;
-  }
+export function createPageableContinuationToken(
+  parameter: Parameter,
+  responseProperty?: Property[],
+  responseHeader?: HttpHeader,
+): PageableContinuationToken {
+  return { parameter, responseProperty, responseHeader };
 }
 
 export interface Serializable {
   /**
    * The serialization format for the type or property.
    */
-  serialization?: {
-    xml?: XmlSerializationFormat;
-  };
+  serialization?: { xml?: XmlSerializationFormat };
 }
