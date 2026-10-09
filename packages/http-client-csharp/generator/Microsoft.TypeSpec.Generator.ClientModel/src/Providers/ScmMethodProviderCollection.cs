@@ -35,11 +35,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private static readonly CancellationTokenExtensionsDefinition _cancellationTokenExtensionsDefinition = new();
         private const string JsonMediaType = "application/json";
         private const string XmlMediaType = "application/xml";
-        private IList<ParameterProvider> ProtocolMethodParameters => _protocolMethodParameters ??= RestClientProvider.GetMethodParameters(ServiceMethod, ScmMethodKind.Protocol, Client);
-        private IList<ParameterProvider>? _protocolMethodParameters;
-
-        private IReadOnlyList<ParameterProvider> ConvenienceMethodParameters => _convenienceMethodParameters ??= RestClientProvider.GetMethodParameters(ServiceMethod, ScmMethodKind.Convenience, Client);
-        private IReadOnlyList<ParameterProvider>? _convenienceMethodParameters;
         private readonly InputPagingServiceMethod? _pagingServiceMethod;
         private IReadOnlyList<ScmMethodProvider>? _methods;
         private readonly bool _generateConvenienceMethod;
@@ -171,7 +166,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             var methodName = isAsync ? ServiceMethod.Name + "Async" : ServiceMethod.Name;
-            ParameterProvider[] signatureParameters = [.. ConvenienceMethodParameters, ScmKnownParameters.CancellationToken];
+            var convenienceParameters = RestClientProvider.GetMethodParameters(ServiceMethod, ScmMethodKind.Convenience, Client);
+            ParameterProvider[] signatureParameters = [.. convenienceParameters, ScmKnownParameters.CreateCancellationToken()];
 
             // Detect a partial method declaration in the client's custom code matching this convenience method.
             MethodSignature? customSignature = null;
@@ -192,8 +188,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     removeDefaults: true);
 
                 // The generator-controlled body params are the leading parameters (everything except the trailing CancellationToken).
-                var bodyParams = new ParameterProvider[ConvenienceMethodParameters.Count];
-                for (int i = 0; i < ConvenienceMethodParameters.Count; i++)
+                var bodyParams = new ParameterProvider[convenienceParameters.Count];
+                for (int i = 0; i < convenienceParameters.Count; i++)
                 {
                     bodyParams[i] = renamedSignatureParameters[i];
                 }
@@ -208,7 +204,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
             else
             {
-                convenienceBodyParameters = ConvenienceMethodParameters;
+                convenienceBodyParameters = signatureParameters[..^1];
                 methodSignature = new MethodSignature(
                     methodName,
                     DocHelpers.GetFormattableDescription(ServiceMethod.Operation.Summary, ServiceMethod.Operation.Doc) ?? FormattableStringHelpers.FromString(ServiceMethod.Operation.Name),
@@ -237,7 +233,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         createRequestSignature,
                         convenienceBodyParameters,
                         true,
-                        [.. protocolMethod.Signature.Parameters])
+                        methodSignature.Parameters[^1])
                 ];
             }
             else if (streamingResponse != null)
@@ -245,7 +241,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 var conversionStatements = GetStackVariablesForProtocolParamConversion(
                     convenienceBodyParameters,
                     out var declarations);
-                var protocolArguments = GetProtocolMethodArguments(declarations);
+                var protocolArguments = GetMethodArguments(_createRequestMethod.Signature, declarations, convenienceBodyParameters, methodSignature.Parameters[^1]);
                 var requestOptions = protocolArguments[^1];
                 methodBody =
                 [
@@ -262,7 +258,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             message,
                             requestOptions.ToApi<HttpRequestOptionsApi>(),
                             true),
-                        signatureParameters[^1],
+                        methodSignature.Parameters[^1],
                         useConvenienceType: true))
                 ];
             }
@@ -271,7 +267,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 methodBody =
                 [
                     .. GetStackVariablesForProtocolParamConversion(convenienceBodyParameters, out var declarations),
-                    Return(This.Invoke(protocolMethod.Signature, [.. GetProtocolMethodArguments(declarations)], isAsync))
+                    Return(This.Invoke(protocolMethod.Signature, [.. GetMethodArguments(protocolMethod.Signature, declarations, convenienceBodyParameters, methodSignature.Parameters[^1])], isAsync))
                 ];
             }
             else
@@ -279,7 +275,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 methodBody =
                 [
                     .. GetStackVariablesForProtocolParamConversion(convenienceBodyParameters, out var paramDeclarations),
-                    Declare("result", This.Invoke(protocolMethod.Signature, [.. GetProtocolMethodArguments(paramDeclarations)], isAsync).ToApi<ClientResponseApi>(), out ClientResponseApi result),
+                    Declare("result", This.Invoke(protocolMethod.Signature, [.. GetMethodArguments(protocolMethod.Signature, paramDeclarations, convenienceBodyParameters, methodSignature.Parameters[^1])], isAsync).ToApi<ClientResponseApi>(), out ClientResponseApi result),
                     .. GetStackVariablesForReturnValueConversion(result, responseBodyType, isAsync, out var resultDeclarations),
                     IsConvertibleFromBinaryData(responseBodyType)
                         || GetPlainTextParseType(responseBodyType, out _) is not null
@@ -474,20 +470,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var spreadSource = convenienceMethodParameters.FirstOrDefault(p => p.SpreadSource != null)?.SpreadSource;
             if (spreadSource is not null)
             {
-                statements.Add(Declare("spreadModel", New.Instance(spreadSource.Type, [.. GetSpreadConversion(spreadSource)]).As(spreadSource.Type), out var spread));
+                statements.Add(Declare("spreadModel", New.Instance(spreadSource.Type, [.. GetSpreadConversion(spreadSource, convenienceMethodParameters)]).As(spreadSource.Type), out var spread));
                 declarations["spread"] = spread;
             }
 
             return statements;
         }
 
-        private List<ValueExpression> GetSpreadConversion(TypeProvider spreadSource)
+        private List<ValueExpression> GetSpreadConversion(TypeProvider spreadSource, IReadOnlyList<ParameterProvider> convenienceMethodParameters)
         {
             // Match convenience method parameters to constructor parameters by wire (serialized) name
             // to handle cases where C# names diverge due to @clientName renames, @encodedName,
             // or casing differences between the convenience parameters and model properties.
             var convenienceMethodParamsByWireName = new Dictionary<string, ParameterProvider>(StringComparer.OrdinalIgnoreCase);
-            foreach (var p in ConvenienceMethodParameters)
+            foreach (var p in convenienceMethodParameters)
             {
                 if (p.WireInfo?.SerializedName != null)
                 {
@@ -501,7 +497,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 if (property.OriginalName != null && property.WireInfo?.SerializedName is { } wireName)
                 {
-                    var matchedParam = ConvenienceMethodParameters.FirstOrDefault(
+                    var matchedParam = convenienceMethodParameters.FirstOrDefault(
                         p => string.Equals(p.WireInfo?.SerializedName, wireName, StringComparison.OrdinalIgnoreCase));
                     if (matchedParam != null)
                     {
@@ -1154,10 +1150,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
         }
 
-        private IReadOnlyList<ValueExpression> GetProtocolMethodArguments(Dictionary<string, ValueExpression> declarations)
+        private IReadOnlyList<ValueExpression> GetMethodArguments(
+            MethodSignature signature,
+            Dictionary<string, ValueExpression> declarations,
+            IReadOnlyList<ParameterProvider> convenienceMethodParameters,
+            ParameterProvider cancellationToken)
         {
-            List<ValueExpression> conversions = new List<ValueExpression>();
+            List<ValueExpression> conversions = [];
             bool addedSpreadSource = false;
+            var requestOptionsParameter = signature.Parameters[^1];
 
             ModelProvider? bodyModel = null;
             InputParameter? methodBodyParameter = ServiceMethod.Parameters.FirstOrDefault(p => p.Location == InputRequestLocation.Body);
@@ -1166,17 +1167,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 bodyModel = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(model);
             }
 
-            var bodyParamProvider = ConvenienceMethodParameters.FirstOrDefault(p => p.Location == ParameterLocation.Body);
+            var bodyParamProvider = convenienceMethodParameters.FirstOrDefault(p => p.Location == ParameterLocation.Body);
             var nonBodyProperties = bodyModel?.CanonicalView.Properties
                 .Where(p => p.WireInfo?.IsHttpMetadata == true)
                 .ToDictionary(p => p.WireInfo!.SerializedName, p => p);
 
-            // Create a mapping from convenience parameter names to their ParameterProvider
-            var convenienceParamsMap = ConvenienceMethodParameters.ToDictionary(p => p.Name, p => p, StringComparer.OrdinalIgnoreCase);
+            var convenienceParamsMap = convenienceMethodParameters.ToDictionary(
+                parameter => parameter.InputParameter?.Name ?? parameter.WireInfo.SerializedName,
+                StringComparer.OrdinalIgnoreCase);
 
             bool requireNamedArgs = false;
-            // Iterate through protocol parameters to maintain correct argument order
-            foreach (var protocolParam in ProtocolMethodParameters)
+            foreach (var protocolParam in signature.Parameters)
             {
                 // Skip RequestOptions parameter as it's added at the end
                 if (protocolParam.Type.Equals(ScmCodeModelGenerator.Instance.TypeFactory.HttpRequestOptionsApi.HttpRequestOptionsType))
@@ -1235,7 +1236,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
                 else
                 {
-                    if (!convenienceParamsMap.TryGetValue(protocolParam.Name, out var convenienceParam))
+                    var sourceName = protocolParam.InputParameter?.Name ?? protocolParam.WireInfo.SerializedName;
+                    if (!convenienceParamsMap.TryGetValue(sourceName, out var convenienceParam))
                     {
                         if (protocolParam.IsContentParameter)
                         {
@@ -1250,7 +1252,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         // a boundary computed at runtime), forward the value from the multipart
                         // content's MediaType property to the protocol method.
                         if (ServiceMethod.Operation.IsMultipartFormData
-                            && string.Equals(protocolParam.Name, ScmKnownParameters.ContentType.Name, StringComparison.Ordinal)
+                            && string.Equals(protocolParam.WireInfo.SerializedName, ScmKnownParameters.ContentType.WireInfo.SerializedName, StringComparison.OrdinalIgnoreCase)
                             && declarations.TryGetValue("content", out ValueExpression? multipartContent))
                         {
                             // When the body is optional, `content` may be null, so we forward `content?.MediaType`.
@@ -1335,7 +1337,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var requestOptionsApi = ScmCodeModelGenerator.Instance.TypeFactory.HttpRequestOptionsApi;
             // Build method name like "ToRequestOptions" or "ToRequestContext" based on the parameter name
             var toRequestOptionsMethodName = $"ToRequest{char.ToUpper(requestOptionsApi.ParameterName[0])}{requestOptionsApi.ParameterName.Substring(1)}";
-            AddArgument(ScmKnownParameters.RequestOptions, ScmKnownParameters.CancellationToken.Invoke(toRequestOptionsMethodName, extensionType: _cancellationTokenExtensionsDefinition.Type));
+            AddArgument(requestOptionsParameter, cancellationToken.Invoke(toRequestOptionsMethodName, extensionType: _cancellationTokenExtensionsDefinition.Type));
 
             void AddArgument(ParameterProvider protocolParam, ValueExpression argument)
             {
@@ -1388,10 +1390,48 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             var requiredParameters = new List<ParameterProvider>();
             var optionalParameters = new List<ParameterProvider>();
+            var convertedRequiredParameters = new List<ParameterProvider>();
+            var protocolParameters = RestClientProvider.GetMethodParameters(ServiceMethod, ScmMethodKind.Protocol, Client);
+            var contentIndex = protocolParameters.FindIndex(parameter => parameter.IsContentParameter);
+            var hasOptionalContent = contentIndex >= 0 && protocolParameters[contentIndex].DefaultValue != null;
+            var makeOptionalRequired = shouldMakeParametersRequired
+                && (contentIndex < 0 || hasOptionalContent);
+            int requiredBeforeContent = 0;
 
-            for (var i = 0; i < ProtocolMethodParameters.Count; i++)
+            for (var i = 0; i < protocolParameters.Count; i++)
             {
-                var parameter = ProtocolMethodParameters[i];
+                if (i == contentIndex)
+                {
+                    requiredBeforeContent = requiredParameters.Count;
+                }
+                var parameter = protocolParameters[i];
+                if (makeOptionalRequired && parameter.DefaultValue != null && (contentIndex < 0 || i <= contentIndex))
+                {
+                    // Keep the optional source unchanged when constructing the required-nullable protocol variant.
+                    parameter = parameter.IsContentParameter
+                        ? ScmKnownParameters.CreateRequestContent(parameter.InputParameter, nullable: true)
+                        : new ParameterProvider(
+                            parameter.Name,
+                            parameter.Description,
+                            parameter.Type.WithNullable(true),
+                            isRef: parameter.IsRef,
+                            isOut: parameter.IsOut,
+                            isIn: parameter.IsIn,
+                            isParams: parameter.IsParams,
+                            attributes: parameter.Attributes,
+                            property: parameter.Property,
+                            field: parameter.Field,
+                            initializationValue: parameter.InitializationValue,
+                            location: parameter.Location,
+                            wireInfo: parameter.WireInfo,
+                            validation: parameter.Validation,
+                            inputParameter: parameter.InputParameter)
+                        {
+                            SpreadSource = parameter.SpreadSource
+                        };
+                    convertedRequiredParameters.Add(parameter);
+                    continue;
+                }
                 if (parameter.DefaultValue is null)
                 {
                     requiredParameters.Add(parameter);
@@ -1401,16 +1441,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     optionalParameters.Add(parameter);
                 }
             }
-            ParameterProvider requestOptionsParameter = ScmKnownParameters.RequestOptions;
-
-            if (shouldMakeParametersRequired)
-            {
-                ProcessOptionalParameters(optionalParameters, requiredParameters, ref requestOptionsParameter);
-            }
-            else
-            {
-                requestOptionsParameter = ScmKnownParameters.OptionalRequestOptions;
-            }
+            // Converted body parameters stay ahead of trailing required headers.
+            requiredParameters.InsertRange(
+                hasOptionalContent ? requiredBeforeContent : requiredParameters.Count,
+                convertedRequiredParameters);
+            var requestOptionsParameter = ScmKnownParameters.CreateRequestOptions(
+                optional: !shouldMakeParametersRequired || contentIndex >= 0);
 
             // A grouped options bag adopted by the protocol method can carry the same name as the request
             // options/context parameter, which would emit a duplicate parameter name. Rename the request
@@ -1428,6 +1464,25 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // generated body using the customized parameter references.
             MethodSignature? customSignature = null;
             PartialMethodCustomization.TryFindCustomSignature(client, methodName, parameters, out customSignature);
+
+            if (customSignature == null && client.CustomCodeView?.Methods is { Count: > 0 }
+                && ServiceMethod.Operation.IsMultipartFormData
+                && hasOptionalContent && convertedRequiredParameters.Count > 0)
+            {
+                // Older optional multipart signatures placed trailing required headers before the converted body parameters.
+                ParameterProvider[] legacyParameters =
+                [
+                    .. requiredParameters.Take(requiredBeforeContent),
+                    .. requiredParameters.Skip(requiredBeforeContent + convertedRequiredParameters.Count),
+                    .. convertedRequiredParameters,
+                    .. optionalParameters,
+                    requestOptionsParameter
+                ];
+                if (PartialMethodCustomization.TryFindCustomSignature(client, methodName, legacyParameters, out customSignature))
+                {
+                    parameters = legacyParameters;
+                }
+            }
 
             MethodSignature methodSignature;
             ParameterProvider[] bodyParameters;
@@ -1560,8 +1615,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         // operation/declaration order. Passing the protocol parameters positionally would therefore
         // bind them to the wrong CreateRequest parameters (for example, swapping an optional path
         // parameter with the request body). Reorder the arguments to match the CreateRequest
-        // signature by mapping each CreateRequest parameter to the protocol parameter with the same
-        // name. If the names cannot be reconciled, fall back to the original positional behavior.
+        // signature by matching each CreateRequest parameter to its protocol parameter, even when
+        // customization changes its name. If they cannot be reconciled, retain positional behavior.
         private ValueExpression[] BuildCreateRequestArguments(
             MethodSignature createRequestSignature,
             IReadOnlyList<ParameterProvider> bodyParameters)
@@ -1586,7 +1641,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 bool allMatched = true;
                 for (int i = 0; i < createRequestParameters.Count; i++)
                 {
-                    var match = bodyParameters.FirstOrDefault(p => p.Name == createRequestParameters[i].Name);
+                    var match = FindUngroupedArgument(bodyParameters, createRequestParameters[i]);
                     if (match is null)
                     {
                         allMatched = false;
@@ -1607,10 +1662,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private static ValueExpression[]? BuildGroupedCreateRequestArguments(
             IReadOnlyList<ParameterProvider> createRequestParameters,
-            IReadOnlyList<ParameterProvider> protocolParameters,
-            Func<ParameterProvider, ValueExpression>? getArgument = null)
+            IReadOnlyList<ParameterProvider> protocolParameters)
         {
-            getArgument ??= parameter => parameter;
             var arguments = new ValueExpression[createRequestParameters.Count];
 
             for (int i = 0; i < createRequestParameters.Count; i++)
@@ -1626,7 +1679,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         return null;
                     }
 
-                    arguments[i] = getArgument(match);
+                    arguments[i] = match;
                     continue;
                 }
 
@@ -1641,7 +1694,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
 
                 var propertySegments = segments.Skip(1).Select(s => s.Name).ToList();
-                var propertyExpression = groupModel.GetPropertyExpression(getArgument(groupParameter), propertySegments, out var leafProperty);
+                var propertyExpression = groupModel.GetPropertyExpression(groupParameter, propertySegments, out var leafProperty);
 
                 // CreateRequest takes the serialized (string/number) form of an enum, so convert before forwarding.
                 if (leafProperty.Type.IsEnum && !createRequestParameter.Type.IsEnum)
@@ -1661,7 +1714,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         /// <summary>
         /// Locates the protocol parameter to forward for a <c>CreateRequest</c> parameter that was not
-        /// folded into the options bag. The name alone is not reliable: a bag named after the request
+        /// folded into the options bag. Input identity survives custom parameter renames. The name
+        /// alone is not reliable: a bag named after the request
         /// options parameter causes that parameter to be renamed, so the original name now resolves to
         /// the bag. The type disambiguates in that case.
         /// </summary>
@@ -1671,6 +1725,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             foreach (var parameter in protocolParameters)
             {
+                if (createRequestParameter.InputParameter != null
+                    && ReferenceEquals(parameter.InputParameter, createRequestParameter.InputParameter))
+                {
+                    return parameter;
+                }
+
                 if (string.Equals(parameter.Name, createRequestParameter.Name, StringComparison.OrdinalIgnoreCase)
                     && parameter.Type.Equals(createRequestParameter.Type))
                 {
@@ -1697,99 +1757,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return typeMatch;
         }
 
-        private ParameterProvider ProcessOptionalParameters(
-            List<ParameterProvider> optionalParameters,
-            List<ParameterProvider> requiredParameters,
-            ref ParameterProvider requestOptionsParameter)
-        {
-            // If we need to make parameters required, make only the first optional parameter nullable required.
-            // This is to prevent ambiguous callsites with the RequestOptions parameter while avoiding overly aggressive required parameter conversion.
-            bool hasOptionalRequestContent =
-                optionalParameters.Any(p => p.IsContentParameter);
-
-            // If there is an optional request content parameter, we need to make all parameters required up to and including the request content parameter
-            if (hasOptionalRequestContent)
-            {
-                int parametersMadeRequired = 0;
-                foreach (var optionalParameter in optionalParameters)
-                {
-                    if (optionalParameter.IsContentParameter)
-                    {
-                        var nullableRequiredContent =
-                            ScmKnownParameters.CreateRequestContent(optionalParameter.InputParameter, nullable: true);
-                        requiredParameters.Add(nullableRequiredContent);
-                        // Update the body param in the underlying collection
-                        var bodyParamIndex = ProtocolMethodParameters.IndexOf(optionalParameter);
-                        ProtocolMethodParameters[bodyParamIndex] =
-                            nullableRequiredContent;
-                        parametersMadeRequired++;
-                        break;
-                    }
-
-                    optionalParameter.DefaultValue = null;
-                    optionalParameter.Type = optionalParameter.Type.WithNullable(true);
-                    requiredParameters.Add(optionalParameter);
-                    parametersMadeRequired++;
-                }
-
-                optionalParameters.RemoveRange(0, parametersMadeRequired);
-                requestOptionsParameter = ScmKnownParameters.OptionalRequestOptions;
-            }
-            else
-            {
-                // If there is a required request content, then we don't need to make the optional parameters required
-                bool hasRequiredRequestContent =
-                    requiredParameters.Any(p => p.IsContentParameter);
-
-                if (hasRequiredRequestContent)
-                {
-                    requestOptionsParameter = ScmKnownParameters.OptionalRequestOptions;
-                }
-                else
-                {
-                    // Otherwise we need to make all parameters required
-                    foreach (var optionalParameter in optionalParameters)
-                    {
-                        optionalParameter.DefaultValue = null;
-                        optionalParameter.Type = optionalParameter.Type.WithNullable(true);
-                        requiredParameters.Add(optionalParameter);
-                    }
-
-                    optionalParameters.Clear();
-                }
-            }
-
-            return requestOptionsParameter;
-        }
-
         private IEnumerable<MethodBodyStatement> GetPagingMethodBody(
             TypeProvider collection,
             MethodSignature createRequestSignature,
             IReadOnlyList<ParameterProvider> parameters,
             bool isConvenience,
-            IReadOnlyList<ParameterProvider>? pagingProtocolParameters = null)
+            ParameterProvider? cancellationToken = null)
         {
             if (isConvenience)
             {
-                var conversionStatements = GetStackVariablesForProtocolParamConversion(ConvenienceMethodParameters, out var declarations);
-                var protocolArguments = GetProtocolMethodArguments(declarations);
-
-                IReadOnlyList<ValueExpression> constructorArguments = protocolArguments;
-                if (RestClientProvider.ShouldGroupProtocolParameters(ServiceMethod))
-                {
-                    var protocolParameters = pagingProtocolParameters
-                        ?? throw new InvalidOperationException("Paging protocol parameters are required to expand grouped arguments.");
-                    var argumentMap = new Dictionary<ParameterProvider, ValueExpression>();
-                    for (int i = 0; i < protocolParameters.Count; i++)
-                    {
-                        argumentMap[protocolParameters[i]] = protocolArguments[i];
-                    }
-
-                    constructorArguments = BuildGroupedCreateRequestArguments(
-                        createRequestSignature.Parameters,
-                        protocolParameters,
-                        parameter => argumentMap[parameter]) ?? protocolArguments;
-                }
+                var conversionStatements = GetStackVariablesForProtocolParamConversion(parameters, out var declarations);
+                var constructorArguments = GetMethodArguments(createRequestSignature, declarations, parameters, cancellationToken!);
 
                 return
                     [
@@ -2122,29 +2100,31 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private bool ShouldMakeProtocolMethodParametersRequired()
         {
-            var convenienceMethodParameterCount = ConvenienceMethodParameters.Count;
             if (!_generateConvenienceMethod)
             {
                 return false;
             }
+            var convenienceParameters = RestClientProvider.GetMethodParameters(ServiceMethod, ScmMethodKind.Convenience, Client);
+            var convenienceMethodParameterCount = convenienceParameters.Count;
             if (convenienceMethodParameterCount == 0)
             {
                 return true;
             }
 
+            var protocolParameters = RestClientProvider.GetMethodParameters(ServiceMethod, ScmMethodKind.Protocol, Client);
             for (int i = 0; i < convenienceMethodParameterCount; i++)
             {
                 // If protocol parameter is required, and convenience is optional, we don't need any changes.
-                if (ProtocolMethodParameters[i].DefaultValue == null && ConvenienceMethodParameters[i].DefaultValue != null)
+                if (protocolParameters[i].DefaultValue == null && convenienceParameters[i].DefaultValue != null)
                 {
                     return false;
                 }
                 // If convenience is optional, and protocol is optional, we do need to make the protocol required.
-                if (ConvenienceMethodParameters[i].DefaultValue != null)
+                if (convenienceParameters[i].DefaultValue != null)
                 {
                     return true;
                 }
-                if (!ProtocolMethodParameters[i].Type.Equals(ConvenienceMethodParameters[i].Type))
+                if (!protocolParameters[i].Type.Equals(convenienceParameters[i].Type))
                 {
                     return false;
                 }

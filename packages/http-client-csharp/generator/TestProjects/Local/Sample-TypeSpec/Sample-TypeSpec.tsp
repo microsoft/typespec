@@ -676,6 +676,22 @@ op sayHi(
   @query optionalQuery?: string,
 ): Thing;
 
+@route("/acronyms/{targetDbName}")
+@doc("Send acronym-named path, query, and header parameters.")
+@get
+@convenientAPI(true, "csharp")
+op getAcronymParameters(
+  @path targetDbName: string,
+  @query sourceIpAddress?: string,
+  @header("X-Guest-OS-Type") guestOsType?: string,
+): void;
+
+@route("/acronyms/addresses")
+@doc("Send parameters with leading IP version acronyms.")
+@post
+@convenientAPI(true, "csharp")
+op setAcronymAddresses(@query ipV4Address: string, @query ipV6Address?: string): void;
+
 @route("/againHi")
 @doc("Return hi again")
 @get
