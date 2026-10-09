@@ -234,7 +234,7 @@ namespace SampleTypeSpec
             writer.WriteStartElement("data");
             writer.WriteBase64StringValue(Data.ToArray(), "D");
             writer.WriteEndElement();
-            if (Optional.IsCollectionDefined(OptionalRecordUnknown))
+            if (OptionalRecordUnknown != null && Optional.IsCollectionDefined(OptionalRecordUnknown))
             {
                 writer.WriteStartElement("optionalRecordUnknown");
                 foreach (var pair in OptionalRecordUnknown)

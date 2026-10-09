@@ -51,8 +51,8 @@ configuration:
               label: needs-info
           - isOpen
         then:
-          - assignTo:
-              users: []
+          - unassign:
+              author: true
           - addLabel:
               label: needs-area
           - removeLabel:

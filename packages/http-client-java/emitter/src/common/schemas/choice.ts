@@ -1,12 +1,10 @@
-/* eslint-disable @typescript-eslint/no-unsafe-declaration-merging */
-import type { ChoiceValue, PrimitiveSchema, StringSchema, ValueSchema } from "@autorest/codemodel";
-import { Schema, SchemaType } from "@autorest/codemodel";
-import type { DeepPartial } from "@azure-tools/codegen";
-import type { SchemaUsage } from "./usage.js";
+import type { BaseSchema, ChoiceValue, ModelOptions, PrimitiveSchema } from "./model.js";
+import { createSchema, initializeMetadata, SchemaType } from "./model.js";
 
 /** a schema that represents a choice of several values (ie, an 'enum') */
-export interface ChoiceSchema<ChoiceType extends PrimitiveSchema = StringSchema>
-  extends ValueSchema, SchemaUsage {
+export interface ChoiceSchema<
+  ChoiceType extends PrimitiveSchema = PrimitiveSchema,
+> extends BaseSchema {
   /** the schema type  */
   type: SchemaType.Choice;
   /** the primitive type for the choices */
@@ -17,26 +15,12 @@ export interface ChoiceSchema<ChoiceType extends PrimitiveSchema = StringSchema>
   crossLanguageDefinitionId?: string;
 }
 
-export class ChoiceSchema<ChoiceType extends PrimitiveSchema = StringSchema>
-  extends Schema
-  implements ChoiceSchema<ChoiceType>
-{
-  constructor(
-    name: string,
-    description: string,
-    objectInitializer?: DeepPartial<ChoiceSchema<ChoiceType>>,
-  ) {
-    super(name, description, SchemaType.Choice);
-    this.apply(objectInitializer);
-  }
-}
-
 /** a schema that represents a choice of several values (ie, an 'enum') */
-export interface SealedChoiceSchema<ChoiceType extends PrimitiveSchema = StringSchema>
-  extends ValueSchema, SchemaUsage {
+export interface SealedChoiceSchema<
+  ChoiceType extends PrimitiveSchema = PrimitiveSchema,
+> extends BaseSchema {
   /** the schema type  */
   type: SchemaType.SealedChoice;
-
   /** the primitive type for the choices */
   choiceType: ChoiceType;
 
@@ -46,18 +30,35 @@ export interface SealedChoiceSchema<ChoiceType extends PrimitiveSchema = StringS
   crossLanguageDefinitionId?: string;
 }
 
-export class SealedChoiceSchema<ChoiceType extends PrimitiveSchema = StringSchema>
-  extends Schema
-  implements SealedChoiceSchema<ChoiceType>
-{
-  // crossLanguageDefinitionId?: string;
+type ChoiceOptions<T extends ChoiceSchema | SealedChoiceSchema> = ModelOptions<T> &
+  Pick<T, "choiceType" | "choices">;
 
-  constructor(
-    name: string,
-    description: string,
-    objectInitializer?: DeepPartial<ChoiceSchema<ChoiceType>>,
-  ) {
-    super(name, description, SchemaType.SealedChoice);
-    this.apply(objectInitializer);
-  }
+export function createChoiceSchema(
+  name: string,
+  description: string,
+  options: ChoiceOptions<ChoiceSchema>,
+): ChoiceSchema {
+  return initializeMetadata(
+    {
+      ...createSchema(name, description, SchemaType.Choice),
+      choiceType: options.choiceType,
+      choices: options.choices,
+    },
+    options,
+  );
+}
+
+export function createSealedChoiceSchema(
+  name: string,
+  description: string,
+  options: ChoiceOptions<SealedChoiceSchema>,
+): SealedChoiceSchema {
+  return initializeMetadata(
+    {
+      ...createSchema(name, description, SchemaType.SealedChoice),
+      choiceType: options.choiceType,
+      choices: options.choices,
+    },
+    options,
+  );
 }

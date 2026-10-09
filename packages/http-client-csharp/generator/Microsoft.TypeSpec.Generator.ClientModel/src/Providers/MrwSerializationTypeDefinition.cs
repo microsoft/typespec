@@ -990,11 +990,26 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 new IfStatement(_jsonElementParameterSnippet.ValueKindEqualsNull()) { valueKindEqualsNullReturn },
                 GetPropertyVariableDeclarations(),
                 deserializePropertiesForEachStatement,
-                Return(New.Instance(_model.Type, GetSerializationCtorParameterValues()))
+                Return(New.Instance(SerializationConstructor.Signature, GetSerializationCtorParameterValues(), GetNullablePresenceInitializer()))
             ];
         }
 
-        private MethodBodyStatement GetPropertyVariableDeclarations()
+        private IReadOnlyDictionary<ValueExpression, ValueExpression>? GetNullablePresenceInitializer()
+        {
+            Dictionary<ValueExpression, ValueExpression>? values = null;
+            foreach (var parameter in SerializationConstructor.Signature.Parameters)
+            {
+                if (parameter.Property is { } property &&
+                    ScmModelProvider.GetNullablePropertyPresence(property) is { } presence)
+                {
+                    values ??= [];
+                    values[presence] = presence.AsVariableExpression;
+                }
+            }
+            return values;
+        }
+
+        private MethodBodyStatement GetPropertyVariableDeclarations(bool preserveJsonPresence = true)
         {
             var parameters = SerializationConstructor.Signature.Parameters;
             var propertyDeclarationStatements = new List<MethodBodyStatement>(parameters.Count);
@@ -1032,6 +1047,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     }
                     else
                     {
+                        if (preserveJsonPresence && ScmModelProvider.GetNullablePropertyPresence(property) is { } presence)
+                        {
+                            propertyDeclarationStatements.Add(Declare(presence.AsVariableExpression, False));
+                        }
                         ValueExpression defaultValue;
                         if (property.IsDiscriminator && _model.DiscriminatorValue != null && property.Type.IsFrameworkType)
                         {
@@ -1040,6 +1059,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         else if (IsXmlUnwrappedRequiredCollection(property))
                         {
                             defaultValue = New.List(property.Type.ElementType);
+                        }
+                        else if (preserveJsonPresence &&
+                            IsOptionalNullableCollection(property) &&
+                            !OptionalSnippets.IsConcreteCollection(property.Type))
+                        {
+                            defaultValue = New.Instance(property.Type.PropertyInitializationType);
                         }
                         else
                         {
@@ -1159,7 +1184,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// <summary>
         /// Builds the values for the serialization constructor parameters.
         /// </summary>
-        private ValueExpression[] GetSerializationCtorParameterValues()
+        private ValueExpression[] GetSerializationCtorParameterValues(bool preserveJsonPresence = true)
         {
             var parameters = SerializationConstructor.Signature.Parameters;
             ValueExpression[] serializationCtorParameters = new ValueExpression[parameters.Count];
@@ -1170,7 +1195,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 var parameter = parameters[i];
                 if (parameter.Property is { } property)
                 {
-                    serializationCtorParameters[i] = GetValueForSerializationConstructor(property);
+                    serializationCtorParameters[i] = GetValueForSerializationConstructor(property, preserveJsonPresence);
                     continue;
                 }
                 else
@@ -1184,13 +1209,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return serializationCtorParameters;
         }
 
-        private static ValueExpression GetValueForSerializationConstructor(PropertyProvider propertyProvider)
+        private static ValueExpression GetValueForSerializationConstructor(PropertyProvider propertyProvider, bool preserveJsonPresence)
         {
             var isRequired = propertyProvider.WireInfo?.IsRequired ?? false;
             var isNullable = propertyProvider.WireInfo?.IsNullable ?? propertyProvider.Type.IsNullable;
             var shouldFallBack = OptionalSnippets.IsConcreteCollection(propertyProvider.Type)
                 ? isRequired && !isNullable
                 : !isRequired || !isNullable;
+
+            if (preserveJsonPresence && IsOptionalNullableCollection(propertyProvider))
+            {
+                return propertyProvider.AsVariableExpression;
+            }
 
             if (!propertyProvider.Type.IsFrameworkType || propertyProvider.IsAdditionalProperties)
             {
@@ -1206,11 +1236,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return propertyProvider.AsVariableExpression;
         }
 
+        private static bool IsOptionalNullableCollection(PropertyProvider property)
+            => property.WireInfo is { IsRequired: false, IsNullable: true } &&
+                property.Type is { IsCollection: true, IsReadOnlyMemory: false };
+
         private List<MethodBodyStatement> BuildDeserializePropertiesStatements(ScopedApi<JsonProperty> jsonProperty)
         {
             List<MethodBodyStatement> propertyDeserializationStatements = [];
             Dictionary<JsonValueKind, List<MethodBodyStatement>> additionalPropsValueKindBodyStatements = [];
             var parameters = SerializationConstructor.Signature.Parameters;
+            var typedAdditionalProperties = new List<PropertyProvider>();
+            foreach (var parameter in parameters)
+            {
+                if (parameter.Property is { IsAdditionalProperties: true } property &&
+                    property != _additionalBinaryDataProperty.Value)
+                {
+                    typedAdditionalProperties.Add(property);
+                }
+            }
 
             // Get the custom serialization attributes
             var serializationAttributes = GetSerializationAttributes();
@@ -1224,7 +1267,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     // handle additional properties
                     if (parameter.Property != null && parameter.Property != _additionalBinaryDataProperty.Value && parameter.Property.IsAdditionalProperties)
                     {
-                        AddAdditionalPropertiesValueKindStatements(additionalPropsValueKindBodyStatements, parameter.Property, jsonProperty);
+                        AddAdditionalPropertiesValueKindStatements(
+                            additionalPropsValueKindBodyStatements,
+                            parameter.Property,
+                            typedAdditionalProperties,
+                            jsonProperty);
                         continue;
                     }
 
@@ -1240,10 +1287,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     var propertyName = parameter.Property?.Name ?? parameter.Field?.Name;
                     var propertyType = parameter.Property?.Type ?? parameter.Field?.Type;
                     var propertyExpression = parameter.Property?.AsVariableExpression ?? parameter.Field?.AsVariableExpression;
-                    var checkIfJsonPropEqualsName = new IfStatement(jsonProperty.NameEquals(propertySerializationName))
+                    var checkIfJsonPropEqualsName = new IfStatement(jsonProperty.NameEquals(propertySerializationName));
+                    if (parameter.Property is { } property &&
+                        ScmModelProvider.GetNullablePropertyPresence(property) is { } presence)
                     {
-                        DeserializeProperty(propertyName!, propertyType!, wireInfo, propertyExpression!, jsonProperty, serializationAttributes, wireInfo.SerializationFormat)
-                    };
+                        checkIfJsonPropEqualsName.Add(presence.AsVariableExpression.Assign(True).Terminate());
+                    }
+                    checkIfJsonPropEqualsName.Add(
+                        DeserializeProperty(propertyName!, propertyType!, wireInfo, propertyExpression!, jsonProperty, serializationAttributes, wireInfo.SerializationFormat));
                     propertyDeserializationStatements.Add(checkIfJsonPropEqualsName);
                 }
                 else
@@ -1307,10 +1358,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private void AddAdditionalPropertiesValueKindStatements(
             Dictionary<JsonValueKind, List<MethodBodyStatement>> additionalPropsValueKindBodyStatements,
             PropertyProvider additionalPropertiesProperty,
+            IReadOnlyList<PropertyProvider> typedAdditionalProperties,
             ScopedApi<JsonProperty> jsonProperty)
         {
             DictionaryExpression additionalPropsDict = additionalPropertiesProperty.AsVariableExpression.AsDictionary(additionalPropertiesProperty.Type);
             var valueType = additionalPropertiesProperty.Type.ElementType;
+
+            // A union may expose several nullable dictionaries; store each null entry in only the first one.
+            if (valueType.IsNullable && !additionalPropsValueKindBodyStatements.ContainsKey(JsonValueKind.Null))
+            {
+                AddStatements(JsonValueKind.Null,
+                [
+                    AssignValue(Null),
+                    Continue
+                ]);
+            }
 
             // Handle the known verifiable additional property value types
             if (valueType.IsFrameworkType && AdditionalPropertiesHelper.VerifiableAdditionalPropertyTypes.Contains(valueType.FrameworkType))
@@ -1321,7 +1383,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         AddStatements(JsonValueKind.String,
                         [
                             DeserializeValue(valueType, jsonProperty.Value(), SerializationFormat.Default, out ValueExpression stringValue),
-                            additionalPropsDict.Add(jsonProperty.Name(), stringValue),
+                            AssignValue(stringValue),
                             Continue
                         ]);
                         break;
@@ -1329,7 +1391,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         AddStatements(JsonValueKind.True,
                         [
                             DeserializeValue(valueType, jsonProperty.Value(), SerializationFormat.Default, out ValueExpression boolValue),
-                            additionalPropsDict.Add(jsonProperty.Name(), boolValue),
+                            AssignValue(boolValue),
                             Continue
                         ]);
                         break;
@@ -1338,7 +1400,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         [
                             new IfStatement(jsonProperty.Value().TryGetSingle(out ScopedApi<float> floatValue))
                             {
-                                additionalPropsDict.Add(jsonProperty.Name(), floatValue),
+                                AssignValue(floatValue),
                                 Continue
                             },
                         ]);
@@ -1348,7 +1410,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         [
                             new IfStatement(jsonProperty.Value().TryGetByte(out ScopedApi<byte> byteValue))
                             {
-                                additionalPropsDict.Add(jsonProperty.Name(), byteValue),
+                                AssignValue(byteValue),
                                 Continue
                             },
                         ]);
@@ -1358,7 +1420,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         [
                             new IfStatement(jsonProperty.Value().TryGetBytesFromBase64(out ScopedApi<byte[]> byteArray))
                             {
-                                additionalPropsDict.Add(jsonProperty.Name(), byteArray),
+                                AssignValue(byteArray),
                                 Continue
                             },
                         ]);
@@ -1368,7 +1430,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         [
                             new IfStatement(jsonProperty.Value().TryGetSByte(out ScopedApi<sbyte> sbyteValue))
                             {
-                                additionalPropsDict.Add(jsonProperty.Name(), sbyteValue),
+                                AssignValue(sbyteValue),
                                 Continue
                             },
                         ]);
@@ -1378,7 +1440,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         [
                             new IfStatement(jsonProperty.Value().TryGetDateTime(out ScopedApi<DateTime> dateTimeValue))
                             {
-                                additionalPropsDict.Add(jsonProperty.Name(), dateTimeValue),
+                                AssignValue(dateTimeValue),
                                 Continue
                             },
                         ]);
@@ -1388,7 +1450,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         [
                             new IfStatement(jsonProperty.Value().TryGetDateTimeOffset(out ScopedApi<DateTimeOffset> dateTimeOffsetValue))
                             {
-                                additionalPropsDict.Add(jsonProperty.Name(), dateTimeOffsetValue),
+                                AssignValue(dateTimeOffsetValue),
                                 Continue
                             },
                         ]);
@@ -1398,7 +1460,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         [
                             new IfStatement(jsonProperty.Value().TryGetGuid(out ScopedApi<Guid> guidValue))
                             {
-                                additionalPropsDict.Add(jsonProperty.Name(), guidValue),
+                                AssignValue(guidValue),
                                 Continue
                             },
                         ]);
@@ -1408,7 +1470,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         [
                             new IfStatement(jsonProperty.Value().TryGetDecimal(out ScopedApi<decimal> decimalValue))
                             {
-                                additionalPropsDict.Add(jsonProperty.Name(), decimalValue),
+                                AssignValue(decimalValue),
                                 Continue
                             },
                         ]);
@@ -1418,7 +1480,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         [
                             new IfStatement(jsonProperty.Value().TryGetDouble( out ScopedApi<double> doubleValue))
                             {
-                                additionalPropsDict.Add(jsonProperty.Name(), doubleValue),
+                                AssignValue(doubleValue),
                                 Continue
                             },
                         ]);
@@ -1428,7 +1490,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         [
                             new IfStatement(jsonProperty.Value().TryGetInt16(out ScopedApi<short> shortValue))
                             {
-                                additionalPropsDict.Add(jsonProperty.Name(), shortValue),
+                                AssignValue(shortValue),
                                 Continue
                             },
                         ]);
@@ -1438,7 +1500,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         [
                             new IfStatement(jsonProperty.Value().TryGetInt32(out ScopedApi<int> intValue))
                             {
-                                additionalPropsDict.Add(jsonProperty.Name(), intValue),
+                                AssignValue(intValue),
                                 Continue
                             },
                         ]);
@@ -1448,7 +1510,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         [
                             new IfStatement(jsonProperty.Value().TryGetInt64(out ScopedApi<long> longValue))
                             {
-                                additionalPropsDict.Add(jsonProperty.Name(), longValue),
+                                AssignValue(longValue),
                                 Continue
                             },
                         ]);
@@ -1458,7 +1520,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         [
                             new IfStatement(jsonProperty.Value().TryGetUInt16(out ScopedApi<ushort> ushortValue))
                             {
-                                additionalPropsDict.Add(jsonProperty.Name(), ushortValue),
+                                AssignValue(ushortValue),
                                 Continue
                             },
                         ]);
@@ -1468,7 +1530,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         [
                             new IfStatement(jsonProperty.Value().TryGetUInt32(out ScopedApi<uint> uintValue))
                             {
-                                additionalPropsDict.Add(jsonProperty.Name(), uintValue),
+                                AssignValue(uintValue),
                                 Continue
                             },
                         ]);
@@ -1478,7 +1540,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         [
                             new IfStatement(jsonProperty.Value().TryGetUInt64(out ScopedApi<ulong> ulongValue))
                             {
-                                additionalPropsDict.Add(jsonProperty.Name(), ulongValue),
+                                AssignValue(ulongValue),
                                 Continue
                             },
                         ]);
@@ -1496,7 +1558,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 AddStatements(valueKind,
                 [
                     DeserializeValue(valueType, jsonProperty.Value(), SerializationFormat.Default, out ValueExpression value),
-                    additionalPropsDict.Add(jsonProperty.Name(), value),
+                    AssignValue(value),
                     Continue
                 ]);
 
@@ -1513,6 +1575,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
                 checks.AddRange(statements);
             }
+
+            MethodBodyStatement AssignValue(ValueExpression value)
+            {
+                var statements = new List<MethodBodyStatement>(typedAdditionalProperties.Count);
+                foreach (var property in typedAdditionalProperties)
+                {
+                    if (!ReferenceEquals(property, additionalPropertiesProperty))
+                    {
+                        statements.Add(property.AsVariableExpression
+                            .AsDictionary(property.Type)
+                            .Invoke(nameof(Dictionary<object, object>.Remove), jsonProperty.Name())
+                            .Terminate());
+                    }
+                }
+                statements.Add(additionalPropsDict[jsonProperty.Name()].Assign(value).Terminate());
+                return statements;
+            }
         }
 
         private static SwitchStatement CreateDeserializeAdditionalPropsValueKindCheck(
@@ -1525,6 +1604,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 switch (valueKind)
                 {
+                    case JsonValueKind.Null:
+                        switchCases.Add(new SwitchCaseStatement(JsonValueKindSnippets.Null, statements));
+                        break;
                     case JsonValueKind.String:
                         switchCases.Add(new(JsonValueKindSnippets.String, statements));
                         break;
@@ -1647,7 +1729,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             if ((serializedType.IsNullable || !serializedType.IsValueType) && wireInfo.IsNullable)
             {
-                if (!serializedType.IsCollection)
+                if (!serializedType.IsCollection || !propertyIsRequired)
                 {
                     return new IfStatement(checkEmptyProperty)
                     {
@@ -1897,7 +1979,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         }
 
                         propertyStatements.Add(ExperimentalApiHelpers.Suppress(
-                            CreateWritePropertyStatement(property.WireInfo, property.Type, property.Name, property, property.WireInfo?.SerializationFormat),
+                            CreateWritePropertyStatement(property.WireInfo, property.Type, property.Name, property, property.WireInfo?.SerializationFormat,
+                                ScmModelProvider.GetNullablePropertyPresence(property)),
                             ExperimentalApiHelpers.GetMemberSuppressions(property)));
                     }
 
@@ -1925,7 +2008,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
 
                 propertyStatements.Add(ExperimentalApiHelpers.Suppress(
-                    CreateWritePropertyStatement(property.WireInfo, property.Type, property.Name, property, property.WireInfo.SerializationFormat),
+                    CreateWritePropertyStatement(property.WireInfo, property.Type, property.Name, property, property.WireInfo.SerializationFormat,
+                        ScmModelProvider.GetNullablePropertyPresence(property)),
                     ExperimentalApiHelpers.GetMemberSuppressions(property)));
             }
 
@@ -1949,7 +2033,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             CSharpType propertyType,
             string propertyName,
             MemberExpression propertyExpression,
-            SerializationFormat? serializationFormat)
+            SerializationFormat? serializationFormat,
+            FieldProvider? presence = null)
         {
             var propertySerializationName = GetJsonSerializedName(wireInfo);
             var propertySerializationFormat = wireInfo.SerializationFormat;
@@ -2010,7 +2095,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 propertyIsRequired,
                 propertyIsReadOnly,
                 propertyIsNullable,
-                writePropertySerializationStatements);
+                writePropertySerializationStatements,
+                presence);
 
             return wrapInIsDefinedStatement;
         }
@@ -2022,7 +2108,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             bool propertyIsRequired,
             bool propertyIsReadOnly,
             bool propertyIsNullable,
-            MethodBodyStatement writePropertySerializationStatement)
+            MethodBodyStatement writePropertySerializationStatement,
+            FieldProvider? presence)
         {
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates.
             ScopedApi<bool>? patchCheck = _jsonPatchProperty != null
@@ -2054,7 +2141,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 propertyIsRequired,
                 jsonSerializedName,
                 patchCheck,
-                writePropertySerializationStatement);
+                writePropertySerializationStatement,
+                presence);
         }
 
         /// <summary>
@@ -2623,7 +2711,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             bool isRequired,
             string serializedName,
             ValueExpression? patchCheck,
-            MethodBodyStatement writePropertySerializationStatement)
+            MethodBodyStatement writePropertySerializationStatement,
+            FieldProvider? presence)
         {
             ScopedApi<bool> condition;
             bool shouldCheckJsonPath = patchCheck != null && (propertyType.IsList || propertyType.IsArray);
@@ -2653,6 +2742,31 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var isDefinedCondition = propertyType is { IsCollection: true, IsReadOnlyMemory: false }
                 ? OptionalSnippets.IsCollectionDefined(propertyMemberExpression, propertyType)
                 : OptionalSnippets.IsDefined(propertyMemberExpression);
+
+            if (!isRequired && isNullable)
+            {
+                if (presence != null || propertyType is { IsCollection: true, IsReadOnlyMemory: false })
+                {
+                    if (presence != null)
+                    {
+                        isDefinedCondition = presence.As<bool>().Or(isDefinedCondition);
+                    }
+                    var writeNullableProperty = new IfElseStatement(
+                        new IfStatement(propertyMemberExpression.NotEqual(Null)) { writePropertySerializationStatement },
+                        _utf8JsonWriterSnippet.WriteNull(serializedName));
+                    condition = isReadOnly ? _isNotEqualToWireConditionSnippet.And(isDefinedCondition) : isDefinedCondition;
+                    if (shouldCheckJsonPath)
+                    {
+                        return CreateConditionalPatchSerializationStatement(
+                            serializedName, condition, writeNullableProperty, null);
+                    }
+                    if (patchCheck != null)
+                    {
+                        condition = condition.And(patchCheck);
+                    }
+                    return new IfStatement(condition) { writeNullableProperty };
+                }
+            }
 
             if (patchCheck != null && !shouldCheckJsonPath)
             {
@@ -2728,11 +2842,14 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 var additionalPropertiesProperty = AdditionalProperties[i];
                 var tKey = additionalPropertiesProperty.Type.Arguments[0];
                 var tValue = additionalPropertiesProperty.Type.Arguments[1];
+                var serializedName = additionalPropertiesProperty.WireInfo?.SerializedName ?? additionalPropertiesProperty.Name;
                 // generate serialization statements for each key-value pair in the additional properties dictionary
                 var forEachStatement = new ForEachStatement("item", additionalPropertiesProperty.AsDictionary(tKey, tValue), out KeyValuePairExpression item)
                 {
                     _utf8JsonWriterSnippet.WritePropertyName(item.Key),
-                    CreateSerializationStatement(additionalPropertiesProperty.Type.Arguments[1], item.Value, SerializationFormat.Default, additionalPropertiesProperty.WireInfo?.SerializedName ?? additionalPropertiesProperty.Name),
+                    tValue.IsNullable
+                        ? CreateNullCheckAndSerializationStatement(tValue, item.Value, SerializationFormat.Default, serializedName)
+                        : CreateSerializationStatement(tValue, item.Value, SerializationFormat.Default, serializedName),
                 };
                 statements[i] = ExperimentalApiHelpers.Suppress(forEachStatement,
                     ExperimentalApiHelpers.GetMemberSuppressions(additionalPropertiesProperty));

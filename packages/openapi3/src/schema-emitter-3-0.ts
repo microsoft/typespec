@@ -21,6 +21,7 @@ import {
   getMaxValueExclusive,
   getMinValueExclusive,
   isNullType,
+  resolveEncodedEnumMemberValue,
 } from "@typespec/compiler";
 import { $ } from "@typespec/compiler/typekit";
 import type { MetadataInfo } from "@typespec/http";
@@ -123,8 +124,9 @@ export class OpenAPI3SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPI3Sch
     const enumTypes = new Set<JsonType>();
     const enumValues = new Set<string | number>();
     for (const member of en.members.values()) {
-      enumTypes.add(typeof member.value === "number" ? "number" : "string");
-      enumValues.add(member.value ?? member.name);
+      const value = resolveEncodedEnumMemberValue(program, member, "application/json");
+      enumTypes.add(typeof value === "number" ? "number" : "string");
+      enumValues.add(value);
     }
 
     if (enumTypes.size > 1) {

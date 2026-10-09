@@ -1,5 +1,12 @@
 # Change Log - @typespec/playground
 
+## 0.18.0
+
+### Features
+
+- [#11810](https://github.com/microsoft/typespec/pull/11810) Clicking the source location of a type in the type graph now selects its declaration in the editor.
+
+
 ## 0.17.1
 
 ### Bug Fixes

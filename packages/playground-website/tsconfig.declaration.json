@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "composite": false,
+    "incremental": false,
+    "emitDeclarationOnly": true,
+    "noEmitOnError": true,
+    "outDir": "dist/lib"
+  },
+  "include": ["src/index.ts"]
+}

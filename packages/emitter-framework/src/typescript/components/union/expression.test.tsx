@@ -19,6 +19,22 @@ it("renders a union expression", async () => {
   ).toRenderTo(`"one" | "two"`);
 });
 
+it("renders the json encoded name of enum members without a value", async () => {
+  const { program, TestEnum } = await Tester.compile(t.code`
+    enum ${t.enum("TestEnum")} {
+      @encodedName("application/json", "on")
+      active,
+      inactive: "off",
+    }
+  `);
+
+  expect(
+    <TestFile program={program}>
+      <UnionExpression type={TestEnum} />
+    </TestFile>,
+  ).toRenderTo(`"on" | "off"`);
+});
+
 it("renders a union expression without conflicting names", async () => {
   const { program, TestUnion } = await Tester.compile(t.code`
     union ${t.union("TestUnion")} {

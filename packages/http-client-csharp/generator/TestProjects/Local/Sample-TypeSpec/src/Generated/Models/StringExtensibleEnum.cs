@@ -17,6 +17,11 @@ namespace SampleTypeSpec
         private const string OneValue = "1";
         private const string TwoValue = "2";
         private const string FourValue = "4";
+        private const string IPValue = "ip";
+        private const string DBValue = "db";
+        private const string OSValue = "os";
+        private const string IPv4Value = "ipv4";
+        private const string IPv6Value = "ipv6";
 
         /// <summary> Initializes a new instance of <see cref="StringExtensibleEnum"/>. </summary>
         /// <param name="value"> The value. </param>
@@ -36,6 +41,21 @@ namespace SampleTypeSpec
 
         /// <summary> Gets the Four. </summary>
         public static StringExtensibleEnum Four { get; } = new StringExtensibleEnum(FourValue);
+
+        /// <summary> Gets the IP. </summary>
+        public static StringExtensibleEnum IP { get; } = new StringExtensibleEnum(IPValue);
+
+        /// <summary> Gets the DB. </summary>
+        public static StringExtensibleEnum DB { get; } = new StringExtensibleEnum(DBValue);
+
+        /// <summary> Gets the OS. </summary>
+        public static StringExtensibleEnum OS { get; } = new StringExtensibleEnum(OSValue);
+
+        /// <summary> Gets the IPv4. </summary>
+        public static StringExtensibleEnum IPv4 { get; } = new StringExtensibleEnum(IPv4Value);
+
+        /// <summary> Gets the IPv6. </summary>
+        public static StringExtensibleEnum IPv6 { get; } = new StringExtensibleEnum(IPv6Value);
 
         /// <summary> Determines if two <see cref="StringExtensibleEnum"/> values are the same. </summary>
         /// <param name="left"> The left value to compare. </param>
