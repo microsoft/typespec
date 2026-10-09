@@ -1,0 +1,4248 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`code model characterization > builds an unchanged azure model from TypeSpec 1`] = `
+"apiVersionMap:
+  ModelContract: "2025-01-02"
+clients:
+  - apiVersions:
+      - version: "2025-01-02"
+    buildMethodPublic: true
+    globalParameters:
+      - &a1
+        clientDefaultValue: https://example.com
+        extensions:
+          x-ms-skip-url-encoding: true
+        implementation: Client
+        language:
+          default:
+            description: Service host
+            name: endpoint
+            serializedName: endpoint
+        origin: modelerfour:synthesized/host
+        protocol:
+          http:
+            in: uri
+        required: true
+        schema: &a34
+          language:
+            default:
+              description: Represent a URL string as described by https://url.spec.whatwg.org/
+              name: endpoint
+          protocol: {}
+          type: uri
+    language:
+      default:
+        crossLanguageDefinitionId: ModelContract
+        description: ""
+        name: ModelContractClient
+        namespace: ModelContract
+      java:
+        namespace: modelcontract
+    operationGroups:
+      - $key: Items
+        language:
+          default:
+            crossLanguageDefinitionId: ModelContract.Items
+            description: ""
+            name: Items
+        operations:
+          - convenienceApi:
+              language:
+                default:
+                  description: ""
+                  name: list
+              protocol: {}
+            extensions: {}
+            generateProtocolApi: true
+            internalApi: false
+            language:
+              default:
+                crossLanguageDefinitionId: ModelContract.Items.list
+                description: ""
+                name: list
+            operationId: Items_list
+            parameters:
+              - *a1
+              - &a6
+                implementation: Method
+                language:
+                  default:
+                    description: ""
+                    name: limit
+                    serializedName: limit
+                nullable: false
+                protocol:
+                  http:
+                    in: query
+                required: false
+                schema: &a25
+                  language:
+                    default:
+                      description: A 32-bit integer. (\`-2,147,483,648\` to \`2,147,483,647\`)
+                      name: limit
+                  precision: 32
+                  protocol: {}
+                  type: integer
+              - implementation: Method
+                language:
+                  default:
+                    description: ""
+                    name: accept
+                    serializedName: Accept
+                nullable: false
+                protocol:
+                  http:
+                    in: header
+                required: true
+                schema: &a15
+                  language:
+                    default:
+                      description: ""
+                      name: ListAccept
+                  protocol: {}
+                  type: constant
+                  usage:
+                    - input
+                    - public
+                  value:
+                    value: application/json
+                  valueType: &a2
+                    language:
+                      default:
+                        description: A sequence of textual characters.
+                        name: string
+                    protocol: {}
+                    type: string
+            protocol: {}
+            requests:
+              - language:
+                  default:
+                    description: ""
+                    name: ""
+                protocol:
+                  http:
+                    method: get
+                    path: /items
+                    uri: "{endpoint}"
+            responses:
+              - language:
+                  default:
+                    description: The request has succeeded.
+                    name: listResponse
+                protocol:
+                  http:
+                    headers: []
+                    mediaTypes:
+                      - application/json
+                    statusCodes:
+                      - "200"
+                schema: &a12
+                  elementType: &a5
+                    language:
+                      default:
+                        crossLanguageDefinitionId: ModelContract.Item
+                        description: ""
+                        name: Item
+                        namespace: ModelContract
+                      java:
+                        namespace: modelcontract
+                    properties:
+                      - language:
+                          default:
+                            description: ""
+                            name: id
+                        nullable: false
+                        protocol: {}
+                        readOnly: false
+                        required: true
+                        schema: *a2
+                        serializedName: id
+                      - language:
+                          default:
+                            description: ""
+                            name: enabled
+                        nullable: false
+                        protocol: {}
+                        readOnly: false
+                        required: true
+                        schema: &a13
+                          language:
+                            default:
+                              description: Boolean with \`true\` and \`false\` values.
+                              name: boolean
+                          protocol: {}
+                          type: boolean
+                        serializedName: enabled
+                      - language:
+                          default:
+                            description: ""
+                            name: count
+                        nullable: false
+                        protocol: {}
+                        readOnly: false
+                        required: true
+                        schema: &a26
+                          language:
+                            default:
+                              description: A 64-bit integer. (\`-9,223,372,036,854,775,808\` to
+                                \`9,223,372,036,854,775,807\`)
+                              name: int64
+                          precision: 64
+                          protocol: {}
+                          type: integer
+                        serializedName: count
+                      - language:
+                          default:
+                            description: ""
+                            name: ratio
+                        nullable: false
+                        protocol: {}
+                        readOnly: false
+                        required: true
+                        schema: &a27
+                          language:
+                            default:
+                              description: A 64 bit floating point number. (\`±5.0 × 10^−324\` to \`±1.7 ×
+                                10^308\`)
+                              name: float64
+                          precision: 64
+                          protocol: {}
+                          type: number
+                        serializedName: ratio
+                      - language:
+                          default:
+                            description: ""
+                            name: color
+                        nullable: false
+                        protocol: {}
+                        readOnly: false
+                        required: true
+                        schema: &a31
+                          choices:
+                            - language:
+                                default:
+                                  description: ""
+                                  name: red
+                              value: red
+                            - language:
+                                default:
+                                  description: ""
+                                  name: blue
+                              value: blue
+                          choiceType: *a2
+                          language:
+                            default:
+                              crossLanguageDefinitionId: ModelContract.Color
+                              description: ""
+                              name: Color
+                              namespace: ModelContract
+                            java:
+                              namespace: modelcontract
+                          protocol: {}
+                          type: sealed-choice
+                          usage:
+                            - output
+                            - public
+                            - input
+                        serializedName: color
+                      - language:
+                          default:
+                            description: ""
+                            name: fixed
+                        nullable: false
+                        protocol: {}
+                        readOnly: false
+                        required: true
+                        schema: &a16
+                          language:
+                            default:
+                              description: ""
+                              name: ItemFixed
+                          protocol: {}
+                          type: constant
+                          usage:
+                            - output
+                            - public
+                            - input
+                          value:
+                            value: "yes"
+                          valueType: *a2
+                        serializedName: fixed
+                      - language:
+                          default:
+                            description: ""
+                            name: date
+                        nullable: false
+                        protocol: {}
+                        readOnly: false
+                        required: true
+                        schema: &a21
+                          language:
+                            default:
+                              description: A date on a calendar without a time zone, e.g. "April 10th"
+                              name: plainDate
+                          protocol: {}
+                          type: date
+                        serializedName: date
+                      - language:
+                          default:
+                            description: ""
+                            name: time
+                        nullable: false
+                        protocol: {}
+                        readOnly: false
+                        required: true
+                        schema: &a33
+                          language:
+                            default:
+                              description: A time on a clock without a time zone, e.g. "3:00 am"
+                              name: plainTime
+                          protocol: {}
+                          type: time
+                        serializedName: time
+                      - language:
+                          default:
+                            description: ""
+                            name: timestamp
+                        nullable: false
+                        protocol: {}
+                        readOnly: false
+                        required: true
+                        schema: &a22
+                          format: date-time
+                          language:
+                            default:
+                              description: An instant in coordinated universal time (UTC)"
+                              name: ""
+                          protocol: {}
+                          type: date-time
+                        serializedName: timestamp
+                      - language:
+                          default:
+                            description: ""
+                            name: elapsed
+                        nullable: false
+                        protocol: {}
+                        readOnly: false
+                        required: true
+                        schema: &a24
+                          format: duration-rfc3339
+                          language:
+                            default:
+                              description: A duration/time period. e.g 5s, 10h
+                              name: ""
+                          protocol: {}
+                          type: duration
+                        serializedName: elapsed
+                      - language:
+                          default:
+                            description: ""
+                            name: data
+                        nullable: false
+                        protocol: {}
+                        readOnly: false
+                        required: true
+                        schema: &a14
+                          format: byte
+                          language:
+                            default:
+                              description: Represent a byte array
+                              name: bytes
+                          protocol: {}
+                          type: byte-array
+                        serializedName: data
+                      - language:
+                          default:
+                            description: ""
+                            name: url
+                        nullable: false
+                        protocol: {}
+                        readOnly: false
+                        required: true
+                        schema: &a35
+                          language:
+                            default:
+                              description: Represent a URL string as described by https://url.spec.whatwg.org/
+                              name: url
+                          protocol: {}
+                          type: uri
+                        serializedName: url
+                      - language:
+                          default:
+                            description: ""
+                            name: animals
+                        nullable: false
+                        protocol: {}
+                        readOnly: false
+                        required: true
+                        schema: &a11
+                          elementType: &a3
+                            children:
+                              all:
+                                - &a4
+                                  discriminatorValue: cat
+                                  language:
+                                    default:
+                                      crossLanguageDefinitionId: ModelContract.Cat
+                                      description: ""
+                                      name: Cat
+                                      namespace: ModelContract
+                                    java:
+                                      namespace: modelcontract
+                                  parents:
+                                    all:
+                                      - *a3
+                                    immediate:
+                                      - *a3
+                                  properties:
+                                    - language:
+                                        default:
+                                          description: ""
+                                          name: lives
+                                      nullable: false
+                                      protocol: {}
+                                      readOnly: false
+                                      required: true
+                                      schema: &a28
+                                        language:
+                                          default:
+                                            description: A 32-bit integer. (\`-2,147,483,648\` to \`2,147,483,647\`)
+                                            name: int32
+                                        precision: 32
+                                        protocol: {}
+                                        type: integer
+                                      serializedName: lives
+                                  protocol: {}
+                                  type: object
+                                  usage:
+                                    - output
+                                    - public
+                                    - input
+                              immediate:
+                                - *a4
+                            discriminator:
+                              all: {}
+                              immediate: {}
+                              property:
+                                language:
+                                  default:
+                                    description: Discriminator property for Animal.
+                                    name: kind
+                                nullable: false
+                                protocol: {}
+                                readOnly: false
+                                required: true
+                                schema: *a2
+                                serializedName: kind
+                            language:
+                              default:
+                                crossLanguageDefinitionId: ModelContract.Animal
+                                description: ""
+                                name: Animal
+                                namespace: ModelContract
+                              java:
+                                namespace: modelcontract
+                            properties:
+                              - language:
+                                  default:
+                                    description: ""
+                                    name: name
+                                nullable: false
+                                protocol: {}
+                                readOnly: false
+                                required: true
+                                schema: *a2
+                                serializedName: name
+                            protocol: {}
+                            type: object
+                            usage:
+                              - output
+                              - public
+                              - input
+                          language:
+                            default:
+                              description: ""
+                              name: ""
+                          nullableItems: false
+                          protocol: {}
+                          type: array
+                        serializedName: animals
+                      - language:
+                          default:
+                            description: ""
+                            name: labels
+                        nullable: false
+                        protocol: {}
+                        readOnly: false
+                        required: true
+                        schema: &a23
+                          elementType: *a2
+                          language:
+                            default:
+                              description: ""
+                              name: ""
+                          nullableItems: false
+                          protocol: {}
+                          type: dictionary
+                        serializedName: labels
+                      - language:
+                          default:
+                            description: ""
+                            name: child
+                        nullable: false
+                        protocol: {}
+                        readOnly: false
+                        required: false
+                        schema: *a5
+                        serializedName: child
+                      - language:
+                          default:
+                            description: ""
+                            name: choice
+                        nullable: false
+                        protocol: {}
+                        readOnly: false
+                        required: true
+                        schema: &a30
+                          anyOf:
+                            - language:
+                                default:
+                                  description: A sequence of textual characters.
+                                  name: StringItemChoice
+                                  namespace: ModelContract
+                                java:
+                                  namespace: modelcontract
+                              properties:
+                                - language:
+                                    default:
+                                      description: ""
+                                      name: value
+                                  protocol: {}
+                                  readOnly: false
+                                  required: true
+                                  schema: &a32
+                                    language:
+                                      default:
+                                        description: A sequence of textual characters.
+                                        name: String
+                                    protocol: {}
+                                    type: string
+                                  serializedName: value
+                              protocol: {}
+                              type: object
+                              usage:
+                                - output
+                                - public
+                                - input
+                            - language:
+                                default:
+                                  description: A 32-bit integer. (\`-2,147,483,648\` to \`2,147,483,647\`)
+                                  name: IntegerItemChoice
+                                  namespace: ModelContract
+                                java:
+                                  namespace: modelcontract
+                              properties:
+                                - language:
+                                    default:
+                                      description: ""
+                                      name: value
+                                  protocol: {}
+                                  readOnly: false
+                                  required: true
+                                  schema: &a29
+                                    language:
+                                      default:
+                                        description: A 32-bit integer. (\`-2,147,483,648\` to \`2,147,483,647\`)
+                                        name: Integer
+                                    precision: 32
+                                    protocol: {}
+                                    type: integer
+                                  serializedName: value
+                              protocol: {}
+                              type: object
+                              usage:
+                                - output
+                                - public
+                                - input
+                          language:
+                            default:
+                              description: ""
+                              name: ItemChoiceBase
+                          protocol: {}
+                          type: or
+                          usage:
+                            - output
+                            - public
+                            - input
+                        serializedName: choice
+                    protocol: {}
+                    type: object
+                    usage:
+                      - output
+                      - public
+                      - input
+                  language:
+                    default:
+                      description: ""
+                      name: listResponse
+                  nullableItems: false
+                  protocol: {}
+                  type: array
+            signatureParameters:
+              - *a6
+          - convenienceApi:
+              language:
+                default:
+                  description: ""
+                  name: read
+              protocol: {}
+            extensions: {}
+            generateProtocolApi: true
+            internalApi: false
+            language:
+              default:
+                crossLanguageDefinitionId: ModelContract.Items.read
+                description: ""
+                name: read
+            operationId: Items_read
+            parameters:
+              - *a1
+              - &a7
+                implementation: Method
+                language:
+                  default:
+                    description: ""
+                    name: id
+                    serializedName: id
+                nullable: false
+                protocol:
+                  http:
+                    in: path
+                required: true
+                schema: &a9
+                  language:
+                    default:
+                      description: A sequence of textual characters.
+                      name: id
+                  protocol: {}
+                  type: string
+              - implementation: Method
+                language:
+                  default:
+                    description: ""
+                    name: accept
+                    serializedName: Accept
+                nullable: false
+                protocol:
+                  http:
+                    in: header
+                required: true
+                schema: &a17
+                  language:
+                    default:
+                      description: ""
+                      name: ListAccept1
+                  protocol: {}
+                  type: constant
+                  usage:
+                    - input
+                    - public
+                  value:
+                    value: application/json
+                  valueType: *a2
+            protocol: {}
+            requests:
+              - language:
+                  default:
+                    description: ""
+                    name: ""
+                protocol:
+                  http:
+                    method: get
+                    path: /items/{id}
+                    uri: "{endpoint}"
+            responses:
+              - language:
+                  default:
+                    description: The request has succeeded.
+                    name: readResponse
+                protocol:
+                  http:
+                    headers: []
+                    mediaTypes:
+                      - application/json
+                    statusCodes:
+                      - "200"
+                schema: *a5
+            signatureParameters:
+              - *a7
+          - convenienceApi:
+              language:
+                default:
+                  description: ""
+                  name: create
+              protocol: {}
+            extensions: {}
+            generateProtocolApi: true
+            internalApi: false
+            language:
+              default:
+                crossLanguageDefinitionId: ModelContract.Items.create
+                description: ""
+                name: create
+            operationId: Items_create
+            parameters:
+              - *a1
+              - implementation: Method
+                language:
+                  default:
+                    description: Body parameter's content type. Known values are application/json
+                    name: contentType
+                    serializedName: Content-Type
+                nullable: false
+                protocol:
+                  http:
+                    in: header
+                required: true
+                schema: &a18
+                  language:
+                    default:
+                      description: ""
+                      name: ListAccept2
+                  protocol: {}
+                  type: constant
+                  usage:
+                    - input
+                    - public
+                  value:
+                    value: application/json
+                  valueType: *a2
+              - implementation: Method
+                language:
+                  default:
+                    description: ""
+                    name: accept
+                    serializedName: Accept
+                nullable: false
+                protocol:
+                  http:
+                    in: header
+                required: true
+                schema: &a19
+                  language:
+                    default:
+                      description: ""
+                      name: ListAccept3
+                  protocol: {}
+                  type: constant
+                  usage:
+                    - input
+                    - public
+                  value:
+                    value: application/json
+                  valueType: *a2
+              - &a8
+                implementation: Method
+                language:
+                  default:
+                    description: ""
+                    name: body
+                protocol:
+                  http:
+                    in: body
+                required: true
+                schema: *a5
+            protocol: {}
+            requests:
+              - language:
+                  default:
+                    description: ""
+                    name: ""
+                protocol:
+                  http:
+                    mediaTypes:
+                      - application/json
+                    method: post
+                    path: /items
+                    uri: "{endpoint}"
+            responses:
+              - language:
+                  default:
+                    description: The request has succeeded.
+                    name: createResponse
+                protocol:
+                  http:
+                    headers: []
+                    mediaTypes:
+                      - application/json
+                    statusCodes:
+                      - "200"
+                schema: *a5
+            signatureParameters:
+              - *a8
+          - convenienceApi:
+              language:
+                default:
+                  description: ""
+                  name: remove
+              protocol: {}
+            extensions: {}
+            generateProtocolApi: true
+            internalApi: false
+            language:
+              default:
+                crossLanguageDefinitionId: ModelContract.Items.remove
+                description: ""
+                name: remove
+            operationId: Items_remove
+            parameters:
+              - *a1
+              - &a10
+                implementation: Method
+                language:
+                  default:
+                    description: ""
+                    name: id
+                    serializedName: id
+                nullable: false
+                protocol:
+                  http:
+                    in: path
+                required: true
+                schema: *a9
+            protocol: {}
+            requests:
+              - language:
+                  default:
+                    description: ""
+                    name: ""
+                protocol:
+                  http:
+                    method: delete
+                    path: /items/{id}
+                    uri: "{endpoint}"
+            responses:
+              - language:
+                  default:
+                    description: "There is no content to send for this request, but the headers may
+                      be useful. "
+                    name: removeResponse
+                protocol:
+                  http:
+                    headers: []
+                    statusCodes:
+                      - "204"
+            signatureParameters:
+              - *a10
+          - convenienceApi:
+              language:
+                default:
+                  description: ""
+                  name: download
+              protocol: {}
+            extensions: {}
+            generateProtocolApi: true
+            internalApi: false
+            language:
+              default:
+                crossLanguageDefinitionId: ModelContract.Items.download
+                description: ""
+                name: download
+            operationId: Items_download
+            parameters:
+              - *a1
+              - implementation: Method
+                language:
+                  default:
+                    description: ""
+                    name: accept
+                    serializedName: Accept
+                nullable: false
+                protocol:
+                  http:
+                    in: header
+                required: true
+                schema: &a20
+                  language:
+                    default:
+                      description: ""
+                      name: DownloadResponseContentType
+                  protocol: {}
+                  type: constant
+                  usage:
+                    - input
+                    - public
+                  value:
+                    value: application/octet-stream
+                  valueType: *a2
+            protocol: {}
+            requests:
+              - language:
+                  default:
+                    description: ""
+                    name: ""
+                protocol:
+                  http:
+                    method: get
+                    path: /items/binary
+                    uri: "{endpoint}"
+            responses:
+              - binary: true
+                language:
+                  default:
+                    description: The request has succeeded.
+                    name: downloadResponse
+                protocol:
+                  http:
+                    headers: []
+                    knownMediaType: binary
+                    mediaTypes:
+                      - application/octet-stream
+                    statusCodes:
+                      - "200"
+            signatureParameters: []
+        protocol: {}
+    parentAccessorPublic: false
+    protocol: {}
+    security:
+      authenticationRequired: true
+      schemes:
+        - &a36
+          name: api-key
+          type: Key
+    serviceVersion:
+      language:
+        default:
+          description: ModelContractClient
+          name: ModelContractServiceVersion
+      protocol: {}
+    subClients: []
+crossLanguagePackageId: ModelContract
+crossLanguageVersion: 7f8d174db880
+globalParameters:
+  - *a1
+info:
+  description: ""
+  title: ModelContract
+language:
+  default:
+    description: ""
+    name: ModelContract
+    namespace: ModelContract
+  java:
+    namespace: modelcontract
+operationGroups: []
+protocol: {}
+schemas:
+  arrays:
+    - *a11
+    - *a12
+  booleans:
+    - *a13
+  byteArrays:
+    - *a14
+  constants:
+    - *a15
+    - *a16
+    - *a17
+    - *a18
+    - *a19
+    - *a20
+    - language:
+        default:
+          description: ""
+          name: DownloadResponseContentType1
+      protocol: {}
+      type: constant
+      value:
+        value: application/octet-stream
+      valueType: *a2
+  dates:
+    - *a21
+  dateTimes:
+    - *a22
+  dictionaries:
+    - *a23
+  durations:
+    - *a24
+  numbers:
+    - *a25
+    - *a26
+    - *a27
+    - *a28
+    - *a29
+  objects:
+    - *a5
+    - *a3
+    - *a4
+  ors:
+    - *a30
+  sealedChoices:
+    - *a31
+  strings:
+    - *a2
+    - *a32
+    - *a9
+  times:
+    - *a33
+  uris:
+    - *a34
+    - *a35
+security:
+  authenticationRequired: true
+  schemes:
+    - *a36
+"
+`;
+
+exports[`code model characterization > builds an unchanged standard model from TypeSpec 1`] = `
+"apiVersionMap:
+  ModelContract: "2025-01-02"
+clients:
+  - apiVersions:
+      - version: "2025-01-02"
+    buildMethodPublic: true
+    globalParameters:
+      - &a1
+        clientDefaultValue: https://example.com
+        extensions:
+          x-ms-skip-url-encoding: true
+        implementation: Client
+        language:
+          default:
+            description: Service host
+            name: endpoint
+            serializedName: endpoint
+        origin: modelerfour:synthesized/host
+        protocol:
+          http:
+            in: uri
+        required: true
+        schema: &a34
+          language:
+            default:
+              description: Represent a URL string as described by https://url.spec.whatwg.org/
+              name: endpoint
+          protocol: {}
+          type: uri
+    language:
+      default:
+        crossLanguageDefinitionId: ModelContract
+        description: ""
+        name: ModelContractClient
+        namespace: ModelContract
+      java:
+        namespace: modelcontract
+    operationGroups:
+      - $key: Items
+        language:
+          default:
+            crossLanguageDefinitionId: ModelContract.Items
+            description: ""
+            name: Items
+        operations:
+          - convenienceApi:
+              language:
+                default:
+                  description: ""
+                  name: list
+              protocol: {}
+            extensions: {}
+            generateProtocolApi: true
+            internalApi: false
+            language:
+              default:
+                crossLanguageDefinitionId: ModelContract.Items.list
+                description: ""
+                name: list
+            operationId: Items_list
+            parameters:
+              - *a1
+              - &a6
+                implementation: Method
+                language:
+                  default:
+                    description: ""
+                    name: limit
+                    serializedName: limit
+                nullable: false
+                protocol:
+                  http:
+                    in: query
+                required: false
+                schema: &a25
+                  language:
+                    default:
+                      description: A 32-bit integer. (\`-2,147,483,648\` to \`2,147,483,647\`)
+                      name: limit
+                  precision: 32
+                  protocol: {}
+                  type: integer
+              - implementation: Method
+                language:
+                  default:
+                    description: ""
+                    name: accept
+                    serializedName: Accept
+                nullable: false
+                protocol:
+                  http:
+                    in: header
+                required: true
+                schema: &a15
+                  language:
+                    default:
+                      description: ""
+                      name: ListAccept
+                  protocol: {}
+                  type: constant
+                  usage:
+                    - input
+                    - public
+                  value:
+                    value: application/json
+                  valueType: &a2
+                    language:
+                      default:
+                        description: A sequence of textual characters.
+                        name: string
+                    protocol: {}
+                    type: string
+            protocol: {}
+            requests:
+              - language:
+                  default:
+                    description: ""
+                    name: ""
+                protocol:
+                  http:
+                    method: get
+                    path: /items
+                    uri: "{endpoint}"
+            responses:
+              - language:
+                  default:
+                    description: The request has succeeded.
+                    name: listResponse
+                protocol:
+                  http:
+                    headers: []
+                    mediaTypes:
+                      - application/json
+                    statusCodes:
+                      - "200"
+                schema: &a12
+                  elementType: &a5
+                    language:
+                      default:
+                        crossLanguageDefinitionId: ModelContract.Item
+                        description: ""
+                        name: Item
+                        namespace: ModelContract
+                      java:
+                        namespace: modelcontract
+                    properties:
+                      - language:
+                          default:
+                            description: ""
+                            name: id
+                        nullable: false
+                        protocol: {}
+                        readOnly: false
+                        required: true
+                        schema: *a2
+                        serializedName: id
+                      - language:
+                          default:
+                            description: ""
+                            name: enabled
+                        nullable: false
+                        protocol: {}
+                        readOnly: false
+                        required: true
+                        schema: &a13
+                          language:
+                            default:
+                              description: Boolean with \`true\` and \`false\` values.
+                              name: boolean
+                          protocol: {}
+                          type: boolean
+                        serializedName: enabled
+                      - language:
+                          default:
+                            description: ""
+                            name: count
+                        nullable: false
+                        protocol: {}
+                        readOnly: false
+                        required: true
+                        schema: &a26
+                          language:
+                            default:
+                              description: A 64-bit integer. (\`-9,223,372,036,854,775,808\` to
+                                \`9,223,372,036,854,775,807\`)
+                              name: int64
+                          precision: 64
+                          protocol: {}
+                          type: integer
+                        serializedName: count
+                      - language:
+                          default:
+                            description: ""
+                            name: ratio
+                        nullable: false
+                        protocol: {}
+                        readOnly: false
+                        required: true
+                        schema: &a27
+                          language:
+                            default:
+                              description: A 64 bit floating point number. (\`±5.0 × 10^−324\` to \`±1.7 ×
+                                10^308\`)
+                              name: float64
+                          precision: 64
+                          protocol: {}
+                          type: number
+                        serializedName: ratio
+                      - language:
+                          default:
+                            description: ""
+                            name: color
+                        nullable: false
+                        protocol: {}
+                        readOnly: false
+                        required: true
+                        schema: &a31
+                          choices:
+                            - language:
+                                default:
+                                  description: ""
+                                  name: red
+                              value: red
+                            - language:
+                                default:
+                                  description: ""
+                                  name: blue
+                              value: blue
+                          choiceType: *a2
+                          language:
+                            default:
+                              crossLanguageDefinitionId: ModelContract.Color
+                              description: ""
+                              name: Color
+                              namespace: ModelContract
+                            java:
+                              namespace: modelcontract
+                          protocol: {}
+                          type: sealed-choice
+                          usage:
+                            - output
+                            - public
+                            - input
+                        serializedName: color
+                      - language:
+                          default:
+                            description: ""
+                            name: fixed
+                        nullable: false
+                        protocol: {}
+                        readOnly: false
+                        required: true
+                        schema: &a16
+                          language:
+                            default:
+                              description: ""
+                              name: ItemFixed
+                          protocol: {}
+                          type: constant
+                          usage:
+                            - output
+                            - public
+                            - input
+                          value:
+                            value: "yes"
+                          valueType: *a2
+                        serializedName: fixed
+                      - language:
+                          default:
+                            description: ""
+                            name: date
+                        nullable: false
+                        protocol: {}
+                        readOnly: false
+                        required: true
+                        schema: &a21
+                          language:
+                            default:
+                              description: A date on a calendar without a time zone, e.g. "April 10th"
+                              name: plainDate
+                          protocol: {}
+                          type: date
+                        serializedName: date
+                      - language:
+                          default:
+                            description: ""
+                            name: time
+                        nullable: false
+                        protocol: {}
+                        readOnly: false
+                        required: true
+                        schema: &a33
+                          language:
+                            default:
+                              description: A time on a clock without a time zone, e.g. "3:00 am"
+                              name: plainTime
+                          protocol: {}
+                          type: time
+                        serializedName: time
+                      - language:
+                          default:
+                            description: ""
+                            name: timestamp
+                        nullable: false
+                        protocol: {}
+                        readOnly: false
+                        required: true
+                        schema: &a22
+                          format: date-time
+                          language:
+                            default:
+                              description: An instant in coordinated universal time (UTC)"
+                              name: ""
+                          protocol: {}
+                          type: date-time
+                        serializedName: timestamp
+                      - language:
+                          default:
+                            description: ""
+                            name: elapsed
+                        nullable: false
+                        protocol: {}
+                        readOnly: false
+                        required: true
+                        schema: &a24
+                          format: duration-rfc3339
+                          language:
+                            default:
+                              description: A duration/time period. e.g 5s, 10h
+                              name: ""
+                          protocol: {}
+                          type: duration
+                        serializedName: elapsed
+                      - language:
+                          default:
+                            description: ""
+                            name: data
+                        nullable: false
+                        protocol: {}
+                        readOnly: false
+                        required: true
+                        schema: &a14
+                          format: byte
+                          language:
+                            default:
+                              description: Represent a byte array
+                              name: bytes
+                          protocol: {}
+                          type: byte-array
+                        serializedName: data
+                      - language:
+                          default:
+                            description: ""
+                            name: url
+                        nullable: false
+                        protocol: {}
+                        readOnly: false
+                        required: true
+                        schema: &a35
+                          language:
+                            default:
+                              description: Represent a URL string as described by https://url.spec.whatwg.org/
+                              name: url
+                          protocol: {}
+                          type: uri
+                        serializedName: url
+                      - language:
+                          default:
+                            description: ""
+                            name: animals
+                        nullable: false
+                        protocol: {}
+                        readOnly: false
+                        required: true
+                        schema: &a11
+                          elementType: &a3
+                            children:
+                              all:
+                                - &a4
+                                  discriminatorValue: cat
+                                  language:
+                                    default:
+                                      crossLanguageDefinitionId: ModelContract.Cat
+                                      description: ""
+                                      name: Cat
+                                      namespace: ModelContract
+                                    java:
+                                      namespace: modelcontract
+                                  parents:
+                                    all:
+                                      - *a3
+                                    immediate:
+                                      - *a3
+                                  properties:
+                                    - language:
+                                        default:
+                                          description: ""
+                                          name: lives
+                                      nullable: false
+                                      protocol: {}
+                                      readOnly: false
+                                      required: true
+                                      schema: &a28
+                                        language:
+                                          default:
+                                            description: A 32-bit integer. (\`-2,147,483,648\` to \`2,147,483,647\`)
+                                            name: int32
+                                        precision: 32
+                                        protocol: {}
+                                        type: integer
+                                      serializedName: lives
+                                  protocol: {}
+                                  type: object
+                                  usage:
+                                    - output
+                                    - public
+                                    - input
+                              immediate:
+                                - *a4
+                            discriminator:
+                              all: {}
+                              immediate: {}
+                              property:
+                                language:
+                                  default:
+                                    description: Discriminator property for Animal.
+                                    name: kind
+                                nullable: false
+                                protocol: {}
+                                readOnly: false
+                                required: true
+                                schema: *a2
+                                serializedName: kind
+                            language:
+                              default:
+                                crossLanguageDefinitionId: ModelContract.Animal
+                                description: ""
+                                name: Animal
+                                namespace: ModelContract
+                              java:
+                                namespace: modelcontract
+                            properties:
+                              - language:
+                                  default:
+                                    description: ""
+                                    name: name
+                                nullable: false
+                                protocol: {}
+                                readOnly: false
+                                required: true
+                                schema: *a2
+                                serializedName: name
+                            protocol: {}
+                            type: object
+                            usage:
+                              - output
+                              - public
+                              - input
+                          language:
+                            default:
+                              description: ""
+                              name: ""
+                          nullableItems: false
+                          protocol: {}
+                          type: array
+                        serializedName: animals
+                      - language:
+                          default:
+                            description: ""
+                            name: labels
+                        nullable: false
+                        protocol: {}
+                        readOnly: false
+                        required: true
+                        schema: &a23
+                          elementType: *a2
+                          language:
+                            default:
+                              description: ""
+                              name: ""
+                          nullableItems: false
+                          protocol: {}
+                          type: dictionary
+                        serializedName: labels
+                      - language:
+                          default:
+                            description: ""
+                            name: child
+                        nullable: false
+                        protocol: {}
+                        readOnly: false
+                        required: false
+                        schema: *a5
+                        serializedName: child
+                      - language:
+                          default:
+                            description: ""
+                            name: choice
+                        nullable: false
+                        protocol: {}
+                        readOnly: false
+                        required: true
+                        schema: &a30
+                          anyOf:
+                            - language:
+                                default:
+                                  description: A sequence of textual characters.
+                                  name: StringItemChoice
+                                  namespace: ModelContract
+                                java:
+                                  namespace: modelcontract
+                              properties:
+                                - language:
+                                    default:
+                                      description: ""
+                                      name: value
+                                  protocol: {}
+                                  readOnly: false
+                                  required: true
+                                  schema: &a32
+                                    language:
+                                      default:
+                                        description: A sequence of textual characters.
+                                        name: String
+                                    protocol: {}
+                                    type: string
+                                  serializedName: value
+                              protocol: {}
+                              type: object
+                              usage:
+                                - output
+                                - public
+                                - input
+                            - language:
+                                default:
+                                  description: A 32-bit integer. (\`-2,147,483,648\` to \`2,147,483,647\`)
+                                  name: IntegerItemChoice
+                                  namespace: ModelContract
+                                java:
+                                  namespace: modelcontract
+                              properties:
+                                - language:
+                                    default:
+                                      description: ""
+                                      name: value
+                                  protocol: {}
+                                  readOnly: false
+                                  required: true
+                                  schema: &a29
+                                    language:
+                                      default:
+                                        description: A 32-bit integer. (\`-2,147,483,648\` to \`2,147,483,647\`)
+                                        name: Integer
+                                    precision: 32
+                                    protocol: {}
+                                    type: integer
+                                  serializedName: value
+                              protocol: {}
+                              type: object
+                              usage:
+                                - output
+                                - public
+                                - input
+                          language:
+                            default:
+                              description: ""
+                              name: ItemChoiceBase
+                          protocol: {}
+                          type: or
+                          usage:
+                            - output
+                            - public
+                            - input
+                        serializedName: choice
+                    protocol: {}
+                    type: object
+                    usage:
+                      - output
+                      - public
+                      - input
+                  language:
+                    default:
+                      description: ""
+                      name: listResponse
+                  nullableItems: false
+                  protocol: {}
+                  type: array
+            signatureParameters:
+              - *a6
+          - convenienceApi:
+              language:
+                default:
+                  description: ""
+                  name: read
+              protocol: {}
+            extensions: {}
+            generateProtocolApi: true
+            internalApi: false
+            language:
+              default:
+                crossLanguageDefinitionId: ModelContract.Items.read
+                description: ""
+                name: read
+            operationId: Items_read
+            parameters:
+              - *a1
+              - &a7
+                implementation: Method
+                language:
+                  default:
+                    description: ""
+                    name: id
+                    serializedName: id
+                nullable: false
+                protocol:
+                  http:
+                    in: path
+                required: true
+                schema: &a9
+                  language:
+                    default:
+                      description: A sequence of textual characters.
+                      name: id
+                  protocol: {}
+                  type: string
+              - implementation: Method
+                language:
+                  default:
+                    description: ""
+                    name: accept
+                    serializedName: Accept
+                nullable: false
+                protocol:
+                  http:
+                    in: header
+                required: true
+                schema: &a17
+                  language:
+                    default:
+                      description: ""
+                      name: ListAccept1
+                  protocol: {}
+                  type: constant
+                  usage:
+                    - input
+                    - public
+                  value:
+                    value: application/json
+                  valueType: *a2
+            protocol: {}
+            requests:
+              - language:
+                  default:
+                    description: ""
+                    name: ""
+                protocol:
+                  http:
+                    method: get
+                    path: /items/{id}
+                    uri: "{endpoint}"
+            responses:
+              - language:
+                  default:
+                    description: The request has succeeded.
+                    name: readResponse
+                protocol:
+                  http:
+                    headers: []
+                    mediaTypes:
+                      - application/json
+                    statusCodes:
+                      - "200"
+                schema: *a5
+            signatureParameters:
+              - *a7
+          - convenienceApi:
+              language:
+                default:
+                  description: ""
+                  name: create
+              protocol: {}
+            extensions: {}
+            generateProtocolApi: true
+            internalApi: false
+            language:
+              default:
+                crossLanguageDefinitionId: ModelContract.Items.create
+                description: ""
+                name: create
+            operationId: Items_create
+            parameters:
+              - *a1
+              - implementation: Method
+                language:
+                  default:
+                    description: Body parameter's content type. Known values are application/json
+                    name: contentType
+                    serializedName: Content-Type
+                nullable: false
+                protocol:
+                  http:
+                    in: header
+                required: true
+                schema: &a18
+                  language:
+                    default:
+                      description: ""
+                      name: ListAccept2
+                  protocol: {}
+                  type: constant
+                  usage:
+                    - input
+                    - public
+                  value:
+                    value: application/json
+                  valueType: *a2
+              - implementation: Method
+                language:
+                  default:
+                    description: ""
+                    name: accept
+                    serializedName: Accept
+                nullable: false
+                protocol:
+                  http:
+                    in: header
+                required: true
+                schema: &a19
+                  language:
+                    default:
+                      description: ""
+                      name: ListAccept3
+                  protocol: {}
+                  type: constant
+                  usage:
+                    - input
+                    - public
+                  value:
+                    value: application/json
+                  valueType: *a2
+              - &a8
+                implementation: Method
+                language:
+                  default:
+                    description: ""
+                    name: body
+                protocol:
+                  http:
+                    in: body
+                required: true
+                schema: *a5
+            protocol: {}
+            requests:
+              - language:
+                  default:
+                    description: ""
+                    name: ""
+                protocol:
+                  http:
+                    mediaTypes:
+                      - application/json
+                    method: post
+                    path: /items
+                    uri: "{endpoint}"
+            responses:
+              - language:
+                  default:
+                    description: The request has succeeded.
+                    name: createResponse
+                protocol:
+                  http:
+                    headers: []
+                    mediaTypes:
+                      - application/json
+                    statusCodes:
+                      - "200"
+                schema: *a5
+            signatureParameters:
+              - *a8
+          - convenienceApi:
+              language:
+                default:
+                  description: ""
+                  name: remove
+              protocol: {}
+            extensions: {}
+            generateProtocolApi: true
+            internalApi: false
+            language:
+              default:
+                crossLanguageDefinitionId: ModelContract.Items.remove
+                description: ""
+                name: remove
+            operationId: Items_remove
+            parameters:
+              - *a1
+              - &a10
+                implementation: Method
+                language:
+                  default:
+                    description: ""
+                    name: id
+                    serializedName: id
+                nullable: false
+                protocol:
+                  http:
+                    in: path
+                required: true
+                schema: *a9
+            protocol: {}
+            requests:
+              - language:
+                  default:
+                    description: ""
+                    name: ""
+                protocol:
+                  http:
+                    method: delete
+                    path: /items/{id}
+                    uri: "{endpoint}"
+            responses:
+              - language:
+                  default:
+                    description: "There is no content to send for this request, but the headers may
+                      be useful. "
+                    name: removeResponse
+                protocol:
+                  http:
+                    headers: []
+                    statusCodes:
+                      - "204"
+            signatureParameters:
+              - *a10
+          - convenienceApi:
+              language:
+                default:
+                  description: ""
+                  name: download
+              protocol: {}
+            extensions: {}
+            generateProtocolApi: true
+            internalApi: false
+            language:
+              default:
+                crossLanguageDefinitionId: ModelContract.Items.download
+                description: ""
+                name: download
+            operationId: Items_download
+            parameters:
+              - *a1
+              - implementation: Method
+                language:
+                  default:
+                    description: ""
+                    name: accept
+                    serializedName: Accept
+                nullable: false
+                protocol:
+                  http:
+                    in: header
+                required: true
+                schema: &a20
+                  language:
+                    default:
+                      description: ""
+                      name: DownloadResponseContentType
+                  protocol: {}
+                  type: constant
+                  usage:
+                    - input
+                    - public
+                  value:
+                    value: application/octet-stream
+                  valueType: *a2
+            protocol: {}
+            requests:
+              - language:
+                  default:
+                    description: ""
+                    name: ""
+                protocol:
+                  http:
+                    method: get
+                    path: /items/binary
+                    uri: "{endpoint}"
+            responses:
+              - binary: true
+                language:
+                  default:
+                    description: The request has succeeded.
+                    name: downloadResponse
+                protocol:
+                  http:
+                    headers: []
+                    knownMediaType: binary
+                    mediaTypes:
+                      - application/octet-stream
+                    statusCodes:
+                      - "200"
+            signatureParameters: []
+        protocol: {}
+    parentAccessorPublic: false
+    protocol: {}
+    security:
+      authenticationRequired: true
+      schemes:
+        - &a36
+          name: api-key
+          type: Key
+    serviceVersion:
+      language:
+        default:
+          description: ModelContractClient
+          name: ModelContractServiceVersion
+      protocol: {}
+    subClients: []
+crossLanguagePackageId: ModelContract
+crossLanguageVersion: 7f8d174db880
+globalParameters:
+  - *a1
+info:
+  description: ""
+  title: ModelContract
+language:
+  default:
+    description: ""
+    name: ModelContract
+    namespace: ModelContract
+  java:
+    namespace: modelcontract
+operationGroups: []
+protocol: {}
+schemas:
+  arrays:
+    - *a11
+    - *a12
+  booleans:
+    - *a13
+  byteArrays:
+    - *a14
+  constants:
+    - *a15
+    - *a16
+    - *a17
+    - *a18
+    - *a19
+    - *a20
+    - language:
+        default:
+          description: ""
+          name: DownloadResponseContentType1
+      protocol: {}
+      type: constant
+      value:
+        value: application/octet-stream
+      valueType: *a2
+  dates:
+    - *a21
+  dateTimes:
+    - *a22
+  dictionaries:
+    - *a23
+  durations:
+    - *a24
+  numbers:
+    - *a25
+    - *a26
+    - *a27
+    - *a28
+    - *a29
+  objects:
+    - *a5
+    - *a3
+    - *a4
+  ors:
+    - *a30
+  sealedChoices:
+    - *a31
+  strings:
+    - *a2
+    - *a32
+    - *a9
+  times:
+    - *a33
+  uris:
+    - *a34
+    - *a35
+security:
+  authenticationRequired: true
+  schemes:
+    - *a36
+"
+`;
+
+exports[`code model characterization > preserves lro YAML metadata and references 1`] = `
+"apiVersionMap:
+  TspTest.LongRunning: 2022-06-01-preview
+clients:
+  - apiVersions:
+      - version: 2022-06-01-preview
+    buildMethodPublic: true
+    globalParameters:
+      - &a2
+        extensions:
+          x-ms-skip-url-encoding: true
+        implementation: Client
+        language:
+          default:
+            description: Service host
+            name: endpoint
+            serializedName: endpoint
+        origin: modelerfour:synthesized/host
+        protocol:
+          http:
+            in: uri
+        required: true
+        schema: &a30
+          language:
+            default:
+              description: Represent a URL string as described by https://url.spec.whatwg.org/
+              name: endpoint
+          protocol: {}
+          type: uri
+      - &a5
+        implementation: Client
+        language:
+          default:
+            description: Version parameter
+            name: api-version
+            serializedName: api-version
+        origin: modelerfour:synthesized/api-version
+        protocol:
+          http:
+            in: query
+        required: true
+        schema: &a18
+          language:
+            default:
+              description: API Version
+              name: api-version
+          protocol: {}
+          type: constant
+          value:
+            value: ""
+          valueType: &a28
+            language:
+              default:
+                description: simple string
+                name: string
+            protocol: {}
+            type: string
+    language:
+      default:
+        crossLanguageDefinitionId: TspTest.LongRunning
+        description: ""
+        name: LongRunningClient
+        namespace: TspTest.LongRunning
+      java:
+        namespace: tsptest.longrunning
+    operationGroups:
+      - $key: ""
+        language:
+          default:
+            crossLanguageDefinitionId: TspTest.LongRunning
+            description: ""
+            name: ""
+        operations:
+          - convenienceApi:
+              language:
+                default:
+                  description: ""
+                  name: longRunning
+              protocol: {}
+            extensions:
+              x-ms-long-running-operation: true
+            generateProtocolApi: true
+            internalApi: false
+            language:
+              default:
+                crossLanguageDefinitionId: TspTest.LongRunning.longRunning
+                description: ""
+                name: longRunning
+            lroMetadata:
+              longRunning: true
+              pollResultType: &a24
+                language:
+                  default:
+                    crossLanguageDefinitionId: TspTest.LongRunning.PollResponse
+                    description: ""
+                    name: PollResponse
+                    namespace: TspTest.LongRunning
+                  java:
+                    namespace: tsptest.longrunning
+                properties:
+                  - language:
+                      default:
+                        description: ""
+                        name: operationId
+                    nullable: false
+                    protocol: {}
+                    readOnly: false
+                    required: true
+                    schema: &a1
+                      language:
+                        default:
+                          description: A sequence of textual characters.
+                          name: string
+                      protocol: {}
+                      type: string
+                    serializedName: operationId
+                  - language:
+                      default:
+                        description: ""
+                        name: status
+                    nullable: false
+                    protocol: {}
+                    readOnly: false
+                    required: true
+                    schema: &a17
+                      choices:
+                        - language:
+                            default:
+                              description: The operation has not started.
+                              name: NotStarted
+                          value: NotStarted
+                        - language:
+                            default:
+                              description: The operation is in progress.
+                              name: Running
+                          value: Running
+                        - language:
+                            default:
+                              description: The operation has completed successfully.
+                              name: Succeeded
+                          value: Succeeded
+                        - language:
+                            default:
+                              description: The operation has failed.
+                              name: Failed
+                          value: Failed
+                        - language:
+                            default:
+                              description: The operation has been canceled by the user.
+                              name: Canceled
+                          value: Canceled
+                      choiceType: *a1
+                      language:
+                        default:
+                          crossLanguageDefinitionId: Azure.Core.Foundations.OperationState
+                          description: Enum describing allowed operation states.
+                          name: OperationState
+                          namespace: Azure.Core.Foundations
+                        java:
+                          namespace: azure.core.foundations
+                      protocol: {}
+                      type: choice
+                      usage:
+                        - output
+                        - public
+                    serializedName: status
+                protocol: {}
+                type: object
+                usage:
+                  - output
+                  - public
+            operationId: longRunning
+            parameters:
+              - *a2
+            protocol: {}
+            requests:
+              - language:
+                  default:
+                    description: ""
+                    name: ""
+                protocol:
+                  http:
+                    method: post
+                    path: /long-running/post
+                    uri: "{endpoint}"
+            responses:
+              - language:
+                  default:
+                    description: The request has been accepted for processing, but processing has
+                      not yet completed.
+                    name: longRunningResponse
+                protocol:
+                  http:
+                    headers: []
+                    statusCodes:
+                      - "202"
+            signatureParameters: []
+          - convenienceApi:
+              language:
+                default:
+                  description: ""
+                  name: getJob
+              protocol: {}
+            exceptions:
+              - language:
+                  default:
+                    name: getJobResponse
+                protocol:
+                  http:
+                    headers:
+                      - header: x-ms-error-code
+                        language:
+                          default:
+                            description: String error code indicating what went wrong.
+                            name: errorCode
+                        schema: &a8
+                          language:
+                            default:
+                              description: A sequence of textual characters.
+                              name: errorCode
+                          protocol: {}
+                          type: string
+                    mediaTypes:
+                      - application/json
+                    statusCodes:
+                      - default
+                schema: &a9
+                  language:
+                    default:
+                      crossLanguageDefinitionId: Azure.Core.Foundations.ErrorResponse
+                      description: A response containing error details.
+                      name: ErrorResponse
+                      namespace: Azure.Core.Foundations
+                    java:
+                      namespace: azure.core.foundations
+                  properties:
+                    - language:
+                        default:
+                          description: The error object.
+                          name: error
+                      nullable: false
+                      protocol: {}
+                      readOnly: false
+                      required: true
+                      schema: &a3
+                        language:
+                          default:
+                            crossLanguageDefinitionId: Azure.Core.Foundations.Error
+                            description: The error object.
+                            name: Error
+                            namespace: Azure.Core.Foundations
+                          java:
+                            namespace: azure.core.foundations
+                        properties:
+                          - language:
+                              default:
+                                description: One of a server-defined set of error codes.
+                                name: code
+                            nullable: false
+                            protocol: {}
+                            readOnly: false
+                            required: true
+                            schema: *a1
+                            serializedName: code
+                          - language:
+                              default:
+                                description: A human-readable representation of the error.
+                                name: message
+                            nullable: false
+                            protocol: {}
+                            readOnly: false
+                            required: true
+                            schema: *a1
+                            serializedName: message
+                          - language:
+                              default:
+                                description: The target of the error.
+                                name: target
+                            nullable: false
+                            protocol: {}
+                            readOnly: false
+                            required: false
+                            schema: *a1
+                            serializedName: target
+                          - language:
+                              default:
+                                description: An array of details about specific errors that led to this reported
+                                  error.
+                                name: details
+                            nullable: false
+                            protocol: {}
+                            readOnly: false
+                            required: false
+                            schema: &a16
+                              elementType: *a3
+                              language:
+                                default:
+                                  description: ""
+                                  name: ""
+                              nullableItems: false
+                              protocol: {}
+                              type: array
+                            serializedName: details
+                          - language:
+                              default:
+                                description: An object containing more specific information than the current
+                                  object about the error.
+                                name: innererror
+                            nullable: false
+                            protocol: {}
+                            readOnly: false
+                            required: false
+                            schema: &a4
+                              language:
+                                default:
+                                  crossLanguageDefinitionId: Azure.Core.Foundations.InnerError
+                                  description: An object containing more specific information about the error. As
+                                    per Azure REST API guidelines -
+                                    https://aka.ms/AzureRestApiGuidelines#handling-errors.
+                                  name: InnerError
+                                  namespace: Azure.Core.Foundations
+                                java:
+                                  namespace: azure.core.foundations
+                              properties:
+                                - language:
+                                    default:
+                                      description: One of a server-defined set of error codes.
+                                      name: code
+                                  nullable: false
+                                  protocol: {}
+                                  readOnly: false
+                                  required: false
+                                  schema: *a1
+                                  serializedName: code
+                                - language:
+                                    default:
+                                      description: Inner error.
+                                      name: innererror
+                                  nullable: false
+                                  protocol: {}
+                                  readOnly: false
+                                  required: false
+                                  schema: *a4
+                                  serializedName: innererror
+                              protocol: {}
+                              type: object
+                              usage:
+                                - output
+                                - public
+                                - exception
+                            serializedName: innererror
+                        protocol: {}
+                        type: object
+                        usage:
+                          - output
+                          - public
+                          - exception
+                      serializedName: error
+                  protocol: {}
+                  type: object
+                  usage:
+                    - exception
+                    - public
+            extensions: {}
+            generateProtocolApi: true
+            internalApi: false
+            language:
+              default:
+                crossLanguageDefinitionId: TspTest.LongRunning.getJob
+                description: A remote procedure call (RPC) operation.
+                name: getJob
+            operationId: getJob
+            parameters:
+              - *a2
+              - *a5
+              - &a7
+                implementation: Method
+                language:
+                  default:
+                    description: ""
+                    name: id
+                    serializedName: id
+                nullable: false
+                protocol:
+                  http:
+                    in: path
+                required: true
+                schema: &a29
+                  language:
+                    default:
+                      description: Universally Unique Identifier
+                      name: id
+                  protocol: {}
+                  type: string
+              - implementation: Method
+                language:
+                  default:
+                    description: ""
+                    name: accept
+                    serializedName: Accept
+                nullable: false
+                protocol:
+                  http:
+                    in: header
+                required: true
+                schema: &a19
+                  language:
+                    default:
+                      description: ""
+                      name: PollAccept
+                  protocol: {}
+                  type: constant
+                  usage:
+                    - input
+                    - public
+                  value:
+                    value: application/json
+                  valueType: *a1
+            protocol: {}
+            requests:
+              - language:
+                  default:
+                    description: ""
+                    name: ""
+                protocol:
+                  http:
+                    method: get
+                    path: /long-running/jobs/{id}
+                    uri: "{endpoint}"
+            responses:
+              - language:
+                  default:
+                    description: The request has succeeded.
+                    name: getJobResponse
+                protocol:
+                  http:
+                    headers:
+                      - header: Retry-After
+                        language:
+                          default:
+                            description: The Retry-After header can indicate how long the client should wait
+                              before polling the operation status.
+                            name: retryAfter
+                        schema: &a12
+                          language:
+                            default:
+                              description: A 32-bit integer. (\`-2,147,483,648\` to \`2,147,483,647\`)
+                              name: retryAfter
+                          precision: 32
+                          protocol: {}
+                          type: integer
+                    mediaTypes:
+                      - application/json
+                    statusCodes:
+                      - "200"
+                schema: &a11
+                  language:
+                    default:
+                      crossLanguageDefinitionId: TspTest.LongRunning.JobResult
+                      description: ""
+                      name: JobResult
+                      namespace: TspTest.LongRunning
+                    java:
+                      namespace: tsptest.longrunning
+                  properties:
+                    - extensions:
+                        x-ms-mutability:
+                          - read
+                      language:
+                        default:
+                          description: ""
+                          name: id
+                      nullable: false
+                      protocol: {}
+                      readOnly: true
+                      required: true
+                      schema: &a13
+                        language:
+                          default:
+                            description: Universally Unique Identifier
+                            name: string
+                        protocol: {}
+                        type: string
+                      serializedName: id
+                    - extensions:
+                        x-ms-mutability:
+                          - read
+                      language:
+                        default:
+                          description: ""
+                          name: status
+                      nullable: false
+                      protocol: {}
+                      readOnly: true
+                      required: true
+                      schema: &a14
+                        choices:
+                          - language:
+                              default:
+                                description: ""
+                                name: NotStarted
+                            value: notStarted
+                          - language:
+                              default:
+                                description: ""
+                                name: Running
+                            value: running
+                          - language:
+                              default:
+                                description: ""
+                                name: Succeeded
+                            value: Succeeded
+                          - language:
+                              default:
+                                description: ""
+                                name: Failed
+                            value: Failed
+                          - language:
+                              default:
+                                description: ""
+                                name: Canceled
+                            value: canceled
+                        choiceType: *a1
+                        language:
+                          default:
+                            crossLanguageDefinitionId: TspTest.LongRunning.JobStatus
+                            description: ""
+                            name: JobStatus
+                            namespace: TspTest.LongRunning
+                          java:
+                            namespace: tsptest.longrunning
+                        protocol: {}
+                        type: choice
+                        usage:
+                          - output
+                          - public
+                      serializedName: status
+                    - extensions:
+                        x-ms-mutability:
+                          - read
+                      language:
+                        default:
+                          description: ""
+                          name: createdDateTime
+                      nullable: false
+                      protocol: {}
+                      readOnly: true
+                      required: false
+                      schema: &a6
+                        format: date-time
+                        language:
+                          default:
+                            description: An instant in coordinated universal time (UTC)"
+                            name: ""
+                        protocol: {}
+                        type: date-time
+                      serializedName: createdDateTime
+                    - extensions:
+                        x-ms-mutability:
+                          - read
+                      language:
+                        default:
+                          description: ""
+                          name: expirationDateTime
+                      nullable: false
+                      protocol: {}
+                      readOnly: true
+                      required: false
+                      schema: *a6
+                      serializedName: expirationDateTime
+                    - extensions:
+                        x-ms-mutability:
+                          - read
+                      language:
+                        default:
+                          description: ""
+                          name: lastUpdateDateTime
+                      nullable: false
+                      protocol: {}
+                      readOnly: true
+                      required: false
+                      schema: *a6
+                      serializedName: lastUpdateDateTime
+                    - language:
+                        default:
+                          description: ""
+                          name: error
+                      nullable: false
+                      protocol: {}
+                      readOnly: false
+                      required: false
+                      schema: *a3
+                      serializedName: error
+                    - language:
+                        default:
+                          description: ""
+                          name: result
+                      nullable: false
+                      protocol: {}
+                      readOnly: false
+                      required: false
+                      schema: &a10
+                        language:
+                          default:
+                            crossLanguageDefinitionId: TspTest.LongRunning.JobResult.result.anonymous
+                            description: ""
+                            name: JobResultResult
+                            namespace: TspTest.LongRunning
+                          java:
+                            namespace: tsptest.longrunning
+                        properties:
+                          - language:
+                              default:
+                                description: ""
+                                name: data
+                            nullable: false
+                            protocol: {}
+                            readOnly: false
+                            required: true
+                            schema: *a1
+                            serializedName: data
+                        protocol: {}
+                        type: object
+                        usage:
+                          - output
+                          - public
+                      serializedName: result
+                  protocol: {}
+                  type: object
+                  usage:
+                    - output
+                    - public
+            signatureParameters:
+              - *a7
+          - convenienceApi:
+              language:
+                default:
+                  description: ""
+                  name: createJob
+              protocol: {}
+            exceptions:
+              - language:
+                  default:
+                    name: createJobResponse
+                protocol:
+                  http:
+                    headers:
+                      - header: x-ms-error-code
+                        language:
+                          default:
+                            description: String error code indicating what went wrong.
+                            name: errorCode
+                        schema: *a8
+                    mediaTypes:
+                      - application/json
+                    statusCodes:
+                      - default
+                schema: *a9
+            extensions:
+              x-ms-examples:
+                LongRunning CreateJob:
+                  operationId: CreateJob
+                  parameters:
+                    body:
+                      configuration: "{}"
+                      nullableFloatDict:
+                        average: 14.3
+                        max: 15
+                        min: 14
+                  responses:
+                    "202":
+                      headers:
+                        Operation-Location: https://www.example.org
+                    default:
+                      body:
+                        code: Error Code
+                        message: Error Message
+                      headers:
+                        Content-Type: application/json
+                        x-ms-error-code: Error Code
+                  title: LongRunning CreateJob
+                  x-ms-original-file: 2022-06-01-preview/LongRunning_CreateJob.json
+              x-ms-long-running-operation: true
+            generateProtocolApi: true
+            internalApi: false
+            language:
+              default:
+                crossLanguageDefinitionId: TspTest.LongRunning.createJob
+                description: A remote procedure call (RPC) operation.
+                name: createJob
+            lroMetadata:
+              finalResultPropertySerializedName: result
+              finalResultType: *a10
+              longRunning: true
+              pollingStrategy:
+                language:
+                  default:
+                    description: ""
+                    name: ""
+                  java:
+                    name: OperationLocationPollingStrategy
+                    namespace: tsptest.longrunning.implementation
+                protocol: {}
+              pollResultType: *a11
+            operationId: createJob
+            parameters:
+              - *a2
+              - *a5
+              - implementation: Method
+                language:
+                  default:
+                    description: Body parameter's content type. Known values are application/json
+                    name: contentType
+                    serializedName: Content-Type
+                nullable: false
+                protocol:
+                  http:
+                    in: header
+                required: true
+                schema: &a20
+                  language:
+                    default:
+                      description: ""
+                      name: PollAccept1
+                  protocol: {}
+                  type: constant
+                  usage:
+                    - input
+                    - public
+                  value:
+                    value: application/json
+                  valueType: *a1
+              - implementation: Method
+                language:
+                  default:
+                    description: ""
+                    name: accept
+                    serializedName: Accept
+                nullable: false
+                protocol:
+                  http:
+                    in: header
+                required: true
+                schema: &a21
+                  language:
+                    default:
+                      description: ""
+                      name: PollAccept2
+                  protocol: {}
+                  type: constant
+                  usage:
+                    - input
+                    - public
+                  value:
+                    value: application/json
+                  valueType: *a1
+              - &a15
+                implementation: Method
+                language:
+                  default:
+                    description: ""
+                    name: body
+                protocol:
+                  http:
+                    in: body
+                required: true
+                schema: &a25
+                  language:
+                    default:
+                      crossLanguageDefinitionId: TspTest.LongRunning.JobData
+                      description: ""
+                      name: JobData
+                      namespace: TspTest.LongRunning
+                    java:
+                      namespace: tsptest.longrunning
+                  properties:
+                    - language:
+                        default:
+                          description: ""
+                          name: configuration
+                      nullable: false
+                      protocol: {}
+                      readOnly: false
+                      required: false
+                      schema: *a1
+                      serializedName: configuration
+                    - language:
+                        default:
+                          description: ""
+                          name: nullableFloatDict
+                      nullable: false
+                      protocol: {}
+                      readOnly: false
+                      required: true
+                      schema: &a22
+                        elementType: &a23
+                          language:
+                            default:
+                              description: A 64 bit floating point number. (\`±5.0 × 10^−324\` to \`±1.7 ×
+                                10^308\`)
+                              name: float64
+                          precision: 64
+                          protocol: {}
+                          type: number
+                        language:
+                          default:
+                            description: ""
+                            name: ""
+                        nullableItems: true
+                        protocol: {}
+                        type: dictionary
+                      serializedName: nullableFloatDict
+                  protocol: {}
+                  type: object
+                  usage:
+                    - input
+                    - public
+            protocol: {}
+            requests:
+              - language:
+                  default:
+                    description: ""
+                    name: ""
+                protocol:
+                  http:
+                    mediaTypes:
+                      - application/json
+                    method: post
+                    path: /long-running/jobs
+                    uri: "{endpoint}"
+            responses:
+              - language:
+                  default:
+                    description: The request has been accepted for processing, but processing has
+                      not yet completed.
+                    name: createJobResponse
+                protocol:
+                  http:
+                    headers:
+                      - header: Operation-Location
+                        language:
+                          default:
+                            name: operationLocation
+                        schema: &a31
+                          language:
+                            default:
+                              description: ""
+                              name: operationLocation
+                          protocol: {}
+                          type: uri
+                      - header: Retry-After
+                        language:
+                          default:
+                            description: The Retry-After header can indicate how long the client should wait
+                              before polling the operation status.
+                            name: retryAfter
+                        schema: *a12
+                      - header: Repeatability-Result
+                        language:
+                          default:
+                            description: Indicates whether the repeatable request was accepted or rejected.
+                            name: repeatabilityResult
+                        schema: &a27
+                          choices:
+                            - language:
+                                default:
+                                  description: If the request was accepted and the server guarantees that the
+                                    server state reflects a single execution of
+                                    the operation.
+                                  name: accepted
+                              value: accepted
+                            - language:
+                                default:
+                                  description: >-
+                                    If the request was rejected because the
+                                    combination of Repeatability-First-Sent and
+                                    Repeatability-Request-ID were invalid
+
+                                    or because the Repeatability-First-Sent
+                                    value was outside the range of values held
+                                    by the server.
+                                  name: rejected
+                              value: rejected
+                          choiceType: *a1
+                          language:
+                            default:
+                              crossLanguageDefinitionId: Azure.Core.RepeatabilityResult
+                              description: Repeatability Result header options
+                              name: RepeatabilityResult
+                              namespace: Azure.Core
+                            java:
+                              namespace: azure.core
+                          protocol: {}
+                          type: sealed-choice
+                    mediaTypes:
+                      - application/json
+                    statusCodes:
+                      - "202"
+                schema: &a26
+                  language:
+                    default:
+                      crossLanguageDefinitionId: TspTest.LongRunning.LroOperationStatus
+                      description: ""
+                      name: LroOperationStatusError
+                      namespace: TspTest.LongRunning
+                    java:
+                      namespace: tsptest.longrunning
+                  properties:
+                    - extensions:
+                        x-ms-mutability:
+                          - read
+                      language:
+                        default:
+                          description: ""
+                          name: id
+                      nullable: false
+                      protocol: {}
+                      readOnly: true
+                      required: true
+                      schema: *a13
+                      serializedName: id
+                    - extensions:
+                        x-ms-mutability:
+                          - read
+                      language:
+                        default:
+                          description: ""
+                          name: status
+                      nullable: false
+                      protocol: {}
+                      readOnly: true
+                      required: true
+                      schema: *a14
+                      serializedName: status
+                    - extensions:
+                        x-ms-mutability:
+                          - read
+                      language:
+                        default:
+                          description: ""
+                          name: createdDateTime
+                      nullable: false
+                      protocol: {}
+                      readOnly: true
+                      required: false
+                      schema: *a6
+                      serializedName: createdDateTime
+                    - extensions:
+                        x-ms-mutability:
+                          - read
+                      language:
+                        default:
+                          description: ""
+                          name: expirationDateTime
+                      nullable: false
+                      protocol: {}
+                      readOnly: true
+                      required: false
+                      schema: *a6
+                      serializedName: expirationDateTime
+                    - extensions:
+                        x-ms-mutability:
+                          - read
+                      language:
+                        default:
+                          description: ""
+                          name: lastUpdateDateTime
+                      nullable: false
+                      protocol: {}
+                      readOnly: true
+                      required: false
+                      schema: *a6
+                      serializedName: lastUpdateDateTime
+                    - language:
+                        default:
+                          description: ""
+                          name: error
+                      nullable: false
+                      protocol: {}
+                      readOnly: false
+                      required: false
+                      schema: *a3
+                      serializedName: error
+                  protocol: {}
+                  type: object
+                  usage:
+                    - output
+            signatureParameters:
+              - *a15
+            specialHeaders:
+              - Repeatability-Request-ID
+              - Repeatability-First-Sent
+        protocol: {}
+    parentAccessorPublic: false
+    protocol: {}
+    security:
+      authenticationRequired: false
+      schemes: []
+    serviceVersion:
+      language:
+        default:
+          description: LongRunningClient
+          name: LongRunningServiceVersion
+      protocol: {}
+    subClients: []
+crossLanguagePackageId: TspTest.LongRunning
+crossLanguageVersion: a30e3d62c76a
+globalParameters:
+  - *a2
+info:
+  description: ""
+  title: LongRunning
+language:
+  default:
+    description: ""
+    name: LongRunning
+    namespace: TspTest.LongRunning
+  java:
+    namespace: tsptest.longrunning
+operationGroups: []
+protocol: {}
+schemas:
+  arrays:
+    - *a16
+  choices:
+    - *a17
+    - *a14
+  constants:
+    - *a18
+    - *a19
+    - *a20
+    - *a21
+  dateTimes:
+    - *a6
+  dictionaries:
+    - *a22
+  numbers:
+    - *a12
+    - *a23
+  objects:
+    - *a24
+    - *a11
+    - *a3
+    - *a4
+    - *a10
+    - *a9
+    - *a25
+    - *a26
+  sealedChoices:
+    - *a27
+  strings:
+    - *a1
+    - *a28
+    - *a29
+    - *a13
+    - *a8
+  uris:
+    - *a30
+    - *a31
+security:
+  authenticationRequired: false
+  schemes: []
+"
+`;
+
+exports[`code model characterization > preserves multipart YAML metadata and references 1`] = `
+"apiVersionMap: {}
+clients:
+  - buildMethodPublic: true
+    globalParameters:
+      - &a1
+        extensions:
+          x-ms-skip-url-encoding: true
+        implementation: Client
+        language:
+          default:
+            description: Service host
+            name: endpoint
+            serializedName: endpoint
+        origin: modelerfour:synthesized/host
+        protocol:
+          http:
+            in: uri
+        required: true
+        schema: &a25
+          language:
+            default:
+              description: Represent a URL string as described by https://url.spec.whatwg.org/
+              name: endpoint
+          protocol: {}
+          type: uri
+    language:
+      default:
+        crossLanguageDefinitionId: TspTest.Multipart
+        description: ""
+        name: MultipartClient
+        namespace: TspTest.Multipart
+      java:
+        namespace: tsptest.multipart
+    operationGroups:
+      - $key: ""
+        language:
+          default:
+            crossLanguageDefinitionId: TspTest.Multipart
+            description: ""
+            name: ""
+        operations:
+          - convenienceApi:
+              language:
+                default:
+                  description: ""
+                  name: upload
+              protocol: {}
+            extensions: {}
+            generateProtocolApi: true
+            internalApi: false
+            language:
+              default:
+                crossLanguageDefinitionId: TspTest.Multipart.upload
+                description: ""
+                name: upload
+            operationId: upload
+            parameters:
+              - *a1
+              - &a6
+                implementation: Method
+                language:
+                  default:
+                    description: ""
+                    name: name
+                    serializedName: name
+                nullable: false
+                protocol:
+                  http:
+                    in: path
+                required: true
+                schema: &a9
+                  language:
+                    default:
+                      description: A sequence of textual characters.
+                      name: name
+                  protocol: {}
+                  type: string
+              - &a7
+                implementation: Method
+                language:
+                  default:
+                    description: ""
+                    name: compress
+                    serializedName: compress
+                nullable: false
+                protocol:
+                  http:
+                    in: query
+                required: false
+                schema: &a10
+                  language:
+                    default:
+                      description: Boolean with \`true\` and \`false\` values.
+                      name: compress
+                  protocol: {}
+                  type: boolean
+              - implementation: Method
+                language:
+                  default:
+                    description: ""
+                    name: contentType
+                    serializedName: content-type
+                nullable: false
+                protocol:
+                  http:
+                    in: header
+                required: true
+                schema: &a16
+                  language:
+                    default:
+                      description: ""
+                      name: UploadRequestContentType
+                  protocol: {}
+                  type: constant
+                  usage:
+                    - input
+                    - public
+                  value:
+                    value: multipart/form-data
+                  valueType: &a2
+                    language:
+                      default:
+                        description: A sequence of textual characters.
+                        name: string
+                    protocol: {}
+                    type: string
+              - &a8
+                implementation: Method
+                language:
+                  default:
+                    description: ""
+                    name: data
+                protocol:
+                  http:
+                    in: body
+                required: true
+                schema: &a19
+                  language:
+                    default:
+                      crossLanguageDefinitionId: TspTest.Multipart.FormData
+                      description: ""
+                      name: FormData
+                      namespace: TspTest.Multipart
+                    java:
+                      namespace: tsptest.multipart
+                  properties:
+                    - language:
+                        default:
+                          description: ""
+                          name: name
+                      nullable: false
+                      protocol: {}
+                      readOnly: false
+                      required: true
+                      schema: *a2
+                      serializedName: name
+                    - language:
+                        default:
+                          description: ""
+                          name: resolution
+                      nullable: false
+                      protocol: {}
+                      readOnly: false
+                      required: true
+                      schema: &a3
+                        language:
+                          default:
+                            description: A 32-bit integer. (\`-2,147,483,648\` to \`2,147,483,647\`)
+                            name: int32
+                        precision: 32
+                        protocol: {}
+                        type: integer
+                      serializedName: resolution
+                    - language:
+                        default:
+                          description: ""
+                          name: type
+                      nullable: false
+                      protocol: {}
+                      readOnly: false
+                      required: true
+                      schema: &a15
+                        choices:
+                          - language:
+                              default:
+                                description: ""
+                                name: JPEG
+                            value: JPEG
+                          - language:
+                              default:
+                                description: ""
+                                name: PNG
+                            value: PNG
+                        choiceType: *a2
+                        language:
+                          default:
+                            crossLanguageDefinitionId: TspTest.Multipart.ImageType
+                            description: ""
+                            name: ImageType
+                            namespace: TspTest.Multipart
+                          java:
+                            namespace: tsptest.multipart
+                        protocol: {}
+                        serializationFormats: []
+                        type: choice
+                        usage:
+                          - input
+                          - public
+                      serializedName: type
+                    - language:
+                        default:
+                          description: ""
+                          name: size
+                      nullable: false
+                      protocol: {}
+                      readOnly: false
+                      required: true
+                      schema: &a11
+                        language:
+                          default:
+                            crossLanguageDefinitionId: TspTest.Multipart.Size
+                            description: ""
+                            name: Size
+                            namespace: TspTest.Multipart
+                          java:
+                            namespace: tsptest.multipart
+                        properties:
+                          - language:
+                              default:
+                                description: ""
+                                name: width
+                            nullable: false
+                            protocol: {}
+                            readOnly: false
+                            required: true
+                            schema: *a3
+                            serializedName: width
+                          - language:
+                              default:
+                                description: ""
+                                name: height
+                            nullable: false
+                            protocol: {}
+                            readOnly: false
+                            required: true
+                            schema: *a3
+                            serializedName: height
+                        protocol: {}
+                        serializationFormats: []
+                        type: object
+                        usage:
+                          - input
+                          - public
+                      serializedName: size
+                    - language:
+                        default:
+                          description: ""
+                          name: image
+                      nullable: false
+                      protocol: {}
+                      readOnly: false
+                      required: true
+                      schema: &a20
+                        language:
+                          default:
+                            description: The file details for the "image" field.
+                            name: ImageFileDetails
+                            namespace: TspTest.Multipart
+                          java:
+                            namespace: tsptest.multipart
+                        properties:
+                          - language:
+                              default:
+                                description: The content of the file.
+                                name: content
+                            nullable: false
+                            protocol: {}
+                            readOnly: false
+                            required: true
+                            schema: &a5
+                              language:
+                                default:
+                                  description: simple binary
+                                  name: binary
+                              protocol: {}
+                              type: binary
+                            serializedName: content
+                          - language:
+                              default:
+                                description: The filename of the file.
+                                name: filename
+                            nullable: false
+                            protocol: {}
+                            readOnly: false
+                            required: false
+                            schema: &a4
+                              language:
+                                default:
+                                  description: simple string
+                                  name: string
+                              protocol: {}
+                              type: string
+                            serializedName: filename
+                          - clientDefaultValue: application/octet-stream
+                            language:
+                              default:
+                                description: The content-type of the file.
+                                name: contentType
+                            nullable: false
+                            protocol: {}
+                            readOnly: false
+                            required: false
+                            schema: *a4
+                            serializedName: contentType
+                        protocol: {}
+                        serializationFormats:
+                          - multipart
+                        type: object
+                        usage:
+                          - input
+                          - public
+                      serializedName: image
+                    - language:
+                        default:
+                          description: ""
+                          name: fileData
+                      nullable: false
+                      protocol: {}
+                      readOnly: false
+                      required: false
+                      schema:
+                        elementType: &a21
+                          language:
+                            default:
+                              description: The file details for the "fileData" field.
+                              name: FileDataFileDetails
+                              namespace: TspTest.Multipart
+                            java:
+                              namespace: tsptest.multipart
+                          properties:
+                            - language:
+                                default:
+                                  description: The content of the file.
+                                  name: content
+                              nullable: false
+                              protocol: {}
+                              readOnly: false
+                              required: true
+                              schema: *a5
+                              serializedName: content
+                            - language:
+                                default:
+                                  description: The filename of the file.
+                                  name: filename
+                              nullable: false
+                              protocol: {}
+                              readOnly: false
+                              required: false
+                              schema: *a4
+                              serializedName: filename
+                            - clientDefaultValue: application/octet-stream
+                              language:
+                                default:
+                                  description: The content-type of the file.
+                                  name: contentType
+                              nullable: false
+                              protocol: {}
+                              readOnly: false
+                              required: false
+                              schema: *a4
+                              serializedName: contentType
+                          protocol: {}
+                          serializationFormats:
+                            - multipart
+                          type: object
+                          usage:
+                            - input
+                            - public
+                        language:
+                          default:
+                            description: ""
+                            name: fileData
+                        protocol: {}
+                        type: array
+                      serializedName: fileData
+                  protocol: {}
+                  serializationFormats:
+                    - multipart
+                  type: object
+                  usage:
+                    - input
+                    - public
+            protocol: {}
+            requests:
+              - language:
+                  default:
+                    description: ""
+                    name: ""
+                protocol:
+                  http:
+                    mediaTypes:
+                      - multipart/form-data
+                    method: post
+                    path: /upload/images/{name}
+                    uri: "{endpoint}"
+            responses:
+              - language:
+                  default:
+                    description: The request has succeeded.
+                    name: uploadResponse
+                protocol:
+                  http:
+                    headers: []
+                    statusCodes:
+                      - "200"
+            signatureParameters:
+              - *a6
+              - *a7
+              - *a8
+          - convenienceApi:
+              language:
+                default:
+                  description: ""
+                  name: uploadHttpPart
+              protocol: {}
+            extensions: {}
+            generateProtocolApi: true
+            internalApi: false
+            language:
+              default:
+                crossLanguageDefinitionId: TspTest.Multipart.uploadHttpPart
+                description: ""
+                name: uploadHttpPart
+            operationId: uploadHttpPart
+            parameters:
+              - *a1
+              - &a12
+                implementation: Method
+                language:
+                  default:
+                    description: ""
+                    name: name
+                    serializedName: name
+                nullable: false
+                protocol:
+                  http:
+                    in: path
+                required: true
+                schema: *a9
+              - &a13
+                implementation: Method
+                language:
+                  default:
+                    description: ""
+                    name: compress
+                    serializedName: compress
+                nullable: false
+                protocol:
+                  http:
+                    in: query
+                required: false
+                schema: *a10
+              - implementation: Method
+                language:
+                  default:
+                    description: ""
+                    name: contentType
+                    serializedName: content-type
+                nullable: false
+                protocol:
+                  http:
+                    in: header
+                required: true
+                schema: &a17
+                  language:
+                    default:
+                      description: ""
+                      name: UploadRequestContentType1
+                  protocol: {}
+                  type: constant
+                  usage:
+                    - input
+                    - public
+                  value:
+                    value: multipart/form-data
+                  valueType: *a2
+              - &a14
+                implementation: Method
+                language:
+                  default:
+                    description: ""
+                    name: body
+                protocol:
+                  http:
+                    in: body
+                required: true
+                schema: &a22
+                  language:
+                    default:
+                      crossLanguageDefinitionId: TspTest.Multipart.uploadHttpPart.Request.anonymous
+                      description: ""
+                      name: UploadHttpPartRequest
+                      namespace: TspTest.Multipart
+                    java:
+                      namespace: tsptest.multipart
+                  properties:
+                    - language:
+                        default:
+                          description: ""
+                          name: fileData1
+                      nullable: false
+                      protocol: {}
+                      readOnly: false
+                      required: true
+                      schema: &a23
+                        language:
+                          default:
+                            crossLanguageDefinitionId: TspTest.Multipart.Inherit2File
+                            description: Image file of content-type "image/jpeg"
+                            name: InheritFileData
+                            namespace: TspTest.Multipart
+                          java:
+                            namespace: tsptest.multipart
+                        properties:
+                          - language:
+                              default:
+                                description: The content of the file.
+                                name: content
+                            nullable: false
+                            protocol: {}
+                            readOnly: false
+                            required: true
+                            schema: *a5
+                            serializedName: content
+                          - language:
+                              default:
+                                description: The filename of the file.
+                                name: filename
+                            nullable: false
+                            protocol: {}
+                            readOnly: false
+                            required: true
+                            schema: *a4
+                            serializedName: filename
+                          - clientDefaultValue: image/jpeg
+                            language:
+                              default:
+                                description: The content-type of the file.
+                                name: contentType
+                            nullable: false
+                            protocol: {}
+                            readOnly: false
+                            required: true
+                            schema: &a18
+                              language:
+                                default:
+                                  description: ""
+                                  name: Inherit2FileContentType
+                              protocol: {}
+                              serializationFormats: []
+                              type: constant
+                              usage:
+                                - input
+                                - public
+                              value:
+                                value: image/jpeg
+                              valueType: *a2
+                            serializedName: contentType
+                        protocol: {}
+                        serializationFormats:
+                          - multipart
+                        type: object
+                        usage:
+                          - input
+                          - public
+                      serializedName: fileData1
+                    - language:
+                        default:
+                          description: ""
+                          name: fileData2
+                      nullable: false
+                      protocol: {}
+                      readOnly: false
+                      required: true
+                      schema: &a24
+                        language:
+                          default:
+                            crossLanguageDefinitionId: TypeSpec.Http.File
+                            description: >-
+                              A file in an HTTP request, response, or multipart
+                              payload.
+
+
+                              Files have a special meaning that the HTTP library
+                              understands. When the body of an HTTP request,
+                              response,
+
+                              or multipart payload is _effectively_ an instance
+                              of \`TypeSpec.Http.File\` or any type that extends
+                              it, the
+
+                              operation is treated as a file upload or download.
+
+
+                              When using file bodies, the fields of the file
+                              model are defined to come from particular
+                              locations by default:
+
+
+                              - \`contentType\`: The \`Content-Type\` header of the
+                              request, response, or multipart payload (CANNOT be
+                              overridden or changed).
+
+                              - \`contents\`: The body of the request, response,
+                              or multipart payload (CANNOT be overridden or
+                              changed).
+
+                              - \`filename\`: The \`filename\` parameter value of
+                              the \`Content-Disposition\` header of the response
+                              or multipart payload
+
+                              (MAY be overridden or changed).
+
+
+                              A File may be used as a normal structured JSON
+                              object in a request or response, if the request
+                              specifies an explicit
+
+                              \`Content-Type\` header. In this case, the entire
+                              File model is serialized as if it were any other
+                              model. In a JSON payload,
+
+                              it will have a structure like:
+
+
+                              \`\`\`
+
+                              {
+                                "contentType": <string?>,
+                                "filename": <string?>,
+                                "contents": <string, base64>
+                              }
+
+                              \`\`\`
+
+
+                              The \`contentType\` _within_ the file defines what
+                              media types the data inside the file can be, but
+                              if the specification
+
+                              defines a \`Content-Type\` for the payload as HTTP
+                              metadata, that \`Content-Type\` metadata defines
+                              _how the file is
+
+                              serialized_. See the examples below for more
+                              information.
+
+
+                              NOTE: The \`filename\` and \`contentType\` fields are
+                              optional. Furthermore, the default location of
+                              \`filename\`
+
+                              (\`Content-Disposition: <disposition>;
+                              filename=<filename>\`) is only valid in HTTP
+                              responses and multipart payloads. If
+
+                              you wish to send the \`filename\` in a request, you
+                              must use HTTP metadata decorators to describe the
+                              location of the
+
+                              \`filename\` field. You can combine the metadata
+                              decorators with \`@visibility\` to control when the
+                              \`filename\` location
+
+                              is overridden, as shown in the examples below.
+                            name: FileData2FileDetails
+                            namespace: TypeSpec.Http
+                          java:
+                            namespace: tsptest.multipart
+                        properties:
+                          - language:
+                              default:
+                                description: The content of the file.
+                                name: content
+                            nullable: false
+                            protocol: {}
+                            readOnly: false
+                            required: true
+                            schema: *a5
+                            serializedName: content
+                          - language:
+                              default:
+                                description: The filename of the file.
+                                name: filename
+                            nullable: false
+                            protocol: {}
+                            readOnly: false
+                            required: false
+                            schema: *a4
+                            serializedName: filename
+                          - clientDefaultValue: application/octet-stream
+                            language:
+                              default:
+                                description: The content-type of the file.
+                                name: contentType
+                            nullable: false
+                            protocol: {}
+                            readOnly: false
+                            required: false
+                            schema: *a4
+                            serializedName: contentType
+                        protocol: {}
+                        serializationFormats:
+                          - multipart
+                        summary: A file in an HTTP request, response, or multipart payload.
+                        type: object
+                        usage:
+                          - input
+                          - public
+                      serializedName: file_data2
+                    - language:
+                        default:
+                          description: ""
+                          name: size
+                      nullable: false
+                      protocol: {}
+                      readOnly: false
+                      required: true
+                      schema: *a11
+                      serializedName: size
+                  protocol: {}
+                  serializationFormats:
+                    - multipart
+                  type: object
+                  usage:
+                    - input
+                    - public
+            protocol: {}
+            requests:
+              - language:
+                  default:
+                    description: ""
+                    name: ""
+                protocol:
+                  http:
+                    mediaTypes:
+                      - multipart/form-data
+                    method: post
+                    path: /uploadHttpPart/images/{name}
+                    uri: "{endpoint}"
+            responses:
+              - language:
+                  default:
+                    description: The request has succeeded.
+                    name: uploadHttpPartResponse
+                protocol:
+                  http:
+                    headers: []
+                    statusCodes:
+                      - "200"
+            signatureParameters:
+              - *a12
+              - *a13
+              - *a14
+        protocol: {}
+    parentAccessorPublic: false
+    protocol: {}
+    security:
+      authenticationRequired: false
+      schemes: []
+    subClients: []
+crossLanguagePackageId: TspTest.Multipart
+crossLanguageVersion: 9638a3a91810
+globalParameters:
+  - *a1
+info:
+  description: ""
+  title: Multipart
+language:
+  default:
+    description: ""
+    name: Multipart
+    namespace: TspTest.Multipart
+  java:
+    namespace: tsptest.multipart
+operationGroups: []
+protocol: {}
+schemas:
+  binaries:
+    - *a5
+  booleans:
+    - *a10
+  choices:
+    - *a15
+  constants:
+    - *a16
+    - *a17
+    - *a18
+  numbers:
+    - *a3
+  objects:
+    - *a19
+    - *a11
+    - *a20
+    - *a21
+    - *a22
+    - *a23
+    - *a24
+  strings:
+    - *a9
+    - *a2
+    - *a4
+  uris:
+    - *a25
+security:
+  authenticationRequired: false
+  schemes: []
+"
+`;
+
+exports[`code model characterization > preserves subclient YAML metadata and references 1`] = `
+"apiVersionMap: {}
+clients:
+  - &a5
+    buildMethodPublic: false
+    globalParameters:
+      - &a1
+        clientDefaultValue: http://localhost:3000
+        extensions:
+          x-ms-skip-url-encoding: true
+        implementation: Client
+        language:
+          default:
+            description: Service host
+            name: endpoint
+            serializedName: endpoint
+        origin: modelerfour:synthesized/host
+        protocol:
+          http:
+            in: uri
+        required: true
+        schema: &a4
+          language:
+            default:
+              description: Represent a URL string as described by https://url.spec.whatwg.org/
+              name: endpoint
+          protocol: {}
+          type: uri
+      - &a2
+        implementation: Client
+        language:
+          default:
+            description: ""
+            name: name
+            serializedName: name
+        nullable: false
+        protocol:
+          http:
+            in: path
+        required: true
+        schema: &a8
+          language:
+            default:
+              description: A sequence of textual characters.
+              name: name
+          protocol: {}
+          type: string
+    language:
+      default:
+        crossLanguageDefinitionId: TspTest.ClientInitialization.SubClient
+        description: ""
+        name: SubClient
+        namespace: TspTest.ClientInitialization
+      java:
+        namespace: tsptest.clientinitialization
+    operationGroups:
+      - $key: ""
+        language:
+          default:
+            crossLanguageDefinitionId: TspTest.ClientInitialization.SubClient
+            description: ""
+            name: ""
+        operations:
+          - convenienceApi:
+              language:
+                default:
+                  description: ""
+                  name: action
+              protocol: {}
+            extensions: {}
+            generateProtocolApi: true
+            internalApi: false
+            language:
+              default:
+                crossLanguageDefinitionId: TspTest.ClientInitialization.SubClient.action
+                description: ""
+                name: action
+            operationId: action
+            parameters:
+              - *a1
+              - *a2
+              - &a3
+                implementation: Method
+                language:
+                  default:
+                    description: ""
+                    name: type
+                    serializedName: type
+                nullable: false
+                protocol:
+                  http:
+                    in: query
+                required: true
+                schema: &a9
+                  language:
+                    default:
+                      description: A sequence of textual characters.
+                      name: type
+                  protocol: {}
+                  type: string
+            protocol: {}
+            requests:
+              - language:
+                  default:
+                    description: ""
+                    name: ""
+                protocol:
+                  http:
+                    method: post
+                    path: /client/initialization/basic/sub-client/{name}:action
+                    uri: "{endpoint}"
+            responses:
+              - language:
+                  default:
+                    description: "There is no content to send for this request, but the headers may
+                      be useful. "
+                    name: actionResponse
+                protocol:
+                  http:
+                    headers: []
+                    statusCodes:
+                      - "204"
+            signatureParameters:
+              - *a3
+        protocol: {}
+    parent: &a6
+      buildMethodPublic: true
+      globalParameters:
+        - &a7
+          clientDefaultValue: http://localhost:3000
+          extensions:
+            x-ms-skip-url-encoding: true
+          implementation: Client
+          language:
+            default:
+              description: Service host
+              name: endpoint
+              serializedName: endpoint
+          origin: modelerfour:synthesized/host
+          protocol:
+            http:
+              in: uri
+          required: true
+          schema: *a4
+      language:
+        default:
+          crossLanguageDefinitionId: TspTest.ClientInitialization
+          description: Describe client with \`@clientInitialization\`
+          name: ClientInitializationClient
+          namespace: TspTest.ClientInitialization
+        java:
+          namespace: tsptest.clientinitialization
+      operationGroups:
+        - $key: ""
+          language:
+            default:
+              crossLanguageDefinitionId: TspTest.ClientInitialization
+              description: ""
+              name: ""
+          protocol: {}
+      parentAccessorPublic: false
+      protocol: {}
+      security:
+        authenticationRequired: false
+        schemes: []
+      subClients:
+        - *a5
+    parentAccessorPublic: true
+    protocol: {}
+    security:
+      authenticationRequired: false
+      schemes: []
+    subClients: []
+  - *a6
+crossLanguagePackageId: TspTest.ClientInitialization
+crossLanguageVersion: c3477e8a9ccd
+globalParameters:
+  - *a7
+  - *a1
+info:
+  description: Describe client with \`@clientInitialization\`
+  title: ClientInitialization
+language:
+  default:
+    description: Describe client with \`@clientInitialization\`
+    name: ClientInitialization
+    namespace: TspTest.ClientInitialization
+  java:
+    namespace: tsptest.clientinitialization
+operationGroups: []
+protocol: {}
+schemas:
+  strings:
+    - *a8
+    - *a9
+  uris:
+    - *a4
+security:
+  authenticationRequired: false
+  schemes: []
+"
+`;
+
+exports[`code model characterization > preserves xml-bytes-verify YAML metadata and references 1`] = `
+"apiVersionMap: {}
+clients:
+  - buildMethodPublic: true
+    globalParameters:
+      - &a1
+        extensions:
+          x-ms-skip-url-encoding: true
+        implementation: Client
+        language:
+          default:
+            description: Service host
+            name: endpoint
+            serializedName: endpoint
+        origin: modelerfour:synthesized/host
+        protocol:
+          http:
+            in: uri
+        required: true
+        schema: &a5
+          language:
+            default:
+              description: Represent a URL string as described by https://url.spec.whatwg.org/
+              name: endpoint
+          protocol: {}
+          type: uri
+    language:
+      default:
+        crossLanguageDefinitionId: TspTest.XmlBytesVerify
+        description: ""
+        name: XmlBytesVerifyClient
+        namespace: TspTest.XmlBytesVerify
+      java:
+        namespace: tsptest.xmlbytesverify
+    operationGroups:
+      - $key: ""
+        language:
+          default:
+            crossLanguageDefinitionId: TspTest.XmlBytesVerify
+            description: ""
+            name: ""
+        operations:
+          - convenienceApi:
+              language:
+                default:
+                  description: ""
+                  name: getXmlBytes
+              protocol: {}
+            extensions: {}
+            generateProtocolApi: true
+            internalApi: false
+            language:
+              default:
+                crossLanguageDefinitionId: TspTest.XmlBytesVerify.getXmlBytes
+                description: ""
+                name: getXmlBytes
+            operationId: getXmlBytes
+            parameters:
+              - *a1
+              - implementation: Method
+                language:
+                  default:
+                    description: ""
+                    name: accept
+                    serializedName: Accept
+                nullable: false
+                protocol:
+                  http:
+                    in: header
+                required: true
+                schema: &a3
+                  language:
+                    default:
+                      description: ""
+                      name: GetXmlBytesResponseContentType
+                  protocol: {}
+                  type: constant
+                  usage:
+                    - input
+                    - public
+                  value:
+                    value: application/xml
+                  valueType: &a4
+                    language:
+                      default:
+                        description: A sequence of textual characters.
+                        name: string
+                    protocol: {}
+                    type: string
+            protocol: {}
+            requests:
+              - language:
+                  default:
+                    description: ""
+                    name: ""
+                protocol:
+                  http:
+                    method: get
+                    path: /xml-bytes
+                    uri: "{endpoint}"
+            responses:
+              - language:
+                  default:
+                    description: The request has succeeded.
+                    name: getXmlBytesResponse
+                protocol:
+                  http:
+                    headers: []
+                    mediaTypes:
+                      - application/xml
+                    statusCodes:
+                      - "200"
+                schema: &a2
+                  format: byte
+                  language:
+                    default:
+                      description: Represent a byte array
+                      name: getXmlBytesResponse
+                  protocol: {}
+                  type: byte-array
+            signatureParameters: []
+        protocol: {}
+    parentAccessorPublic: false
+    protocol: {}
+    security:
+      authenticationRequired: false
+      schemes: []
+    subClients: []
+crossLanguagePackageId: TspTest.XmlBytesVerify
+crossLanguageVersion: 5af178621229
+globalParameters:
+  - *a1
+info:
+  description: ""
+  title: XmlBytesVerify
+language:
+  default:
+    description: ""
+    name: XmlBytesVerify
+    namespace: TspTest.XmlBytesVerify
+  java:
+    namespace: tsptest.xmlbytesverify
+operationGroups: []
+protocol: {}
+schemas:
+  byteArrays:
+    - *a2
+  constants:
+    - *a3
+    - language:
+        default:
+          description: ""
+          name: GetXmlBytesResponseContentType1
+      protocol: {}
+      type: constant
+      value:
+        value: application/xml
+      valueType: *a4
+  strings:
+    - *a4
+  uris:
+    - *a5
+security:
+  authenticationRequired: false
+  schemes: []
+"
+`;
