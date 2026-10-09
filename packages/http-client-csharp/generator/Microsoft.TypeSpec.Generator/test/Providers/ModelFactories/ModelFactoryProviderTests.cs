@@ -36,6 +36,23 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
         }
 
         [Test]
+        public async Task CustomConstructorReferencesUnstubbedTypes()
+        {
+            var model = InputFactory.Model("TestModel", properties: []);
+            var toolConfig = InputFactory.Model("ToolConfig", properties: []);
+            var executionType = InputFactory.StringEnum("ExecutionType", [("Server", "server")]);
+            var generator = (await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [model, toolConfig],
+                inputEnumTypes: [executionType],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync())).Object;
+            var modelFactory = generator.OutputLibrary.TypeProviders.OfType<ModelFactoryProvider>().Single();
+
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
+        [Test]
         public void SkipExternalModels()
         {
             var external = new InputExternalTypeMetadata("OpenAI.Responses.ResponseTool", "OpenAI", "2.11.0");

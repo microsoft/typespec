@@ -223,6 +223,14 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             string ns = string.Join('.', pieces.Take(pieces.Length - 1));
+            if (ns.Length == 0 &&
+                (isNullable ? typeArg : typeSymbol) is INamedTypeSymbol { TypeKind: TypeKind.Error, Arity: 0 } &&
+                CodeModelGenerator.Instance.TypeFactory.TypeProvidersByName.TryGetValue(name, out var typeProvider))
+            {
+                visited.Remove(typeSymbol);
+                return typeProvider.Type.WithNullable(isNullable);
+            }
+
             CSharpType? containingType = null;
 
             if (typeSymbol.ContainingType != null && typeSymbol.TypeKind != TypeKind.TypeParameter)
