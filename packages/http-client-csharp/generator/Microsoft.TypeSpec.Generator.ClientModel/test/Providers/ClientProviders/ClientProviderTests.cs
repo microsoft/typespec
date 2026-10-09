@@ -5558,6 +5558,90 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             }
         }
 
+        [Test]
+        public async Task PublishedAcronymOrderPreservesForwarding(
+            [Values(false, true)] bool sameParameterTypes,
+            [Values(false, true)] bool omitOptionalParameter)
+        {
+            var targetType = sameParameterTypes ? InputPrimitiveType.String : InputPrimitiveType.Int32;
+            var operation = InputFactory.Operation(
+                "Send",
+                parameters:
+                [
+                    InputFactory.QueryParameter("sourceIpAddress", InputPrimitiveType.String, isRequired: true, serializedName: "source-ip"),
+                    InputFactory.QueryParameter("targetDbName", targetType, isRequired: true, serializedName: "target-db"),
+                    InputFactory.QueryParameter("filter", InputPrimitiveType.Boolean)
+                ],
+                responses: [InputFactory.OperationResponse([204])]);
+            var methodParameters = new List<InputMethodParameter>
+            {
+                InputFactory.MethodParameter("sourceIpAddress", InputPrimitiveType.String, isRequired: !omitOptionalParameter, location: InputRequestLocation.Query, serializedName: "source-ip"),
+                InputFactory.MethodParameter("targetDbName", targetType, isRequired: true, location: InputRequestLocation.Query, serializedName: "target-db")
+            };
+            if (!omitOptionalParameter)
+            {
+                methodParameters.Add(InputFactory.MethodParameter("filter", InputPrimitiveType.Boolean, location: InputRequestLocation.Query));
+            }
+            var serviceMethod = InputFactory.BasicServiceMethod("Send", operation, parameters: methodParameters);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [inputClient],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(sameParameterTypes ? "Same" : "Mixed"),
+                configuration: """{"disable-xml-docs": false, "package-name": "Sample"}""");
+            var client = generator.Object.OutputLibrary.TypeProviders.OfType<ClientProvider>().Single();
+            client.ProcessTypeForBackCompatibility();
+
+            var protocols = client.Methods.OfType<ScmMethodProvider>().Where(method => method.Kind == ScmMethodKind.Protocol).ToArray();
+            Assert.AreEqual(2, protocols.Length);
+            foreach (var protocol in protocols)
+            {
+                bool isAsync = protocol.Signature.Name.EndsWith("Async", StringComparison.Ordinal);
+                string[] expectedProtocolNames = isAsync
+                    ? ["sourceIpAddress", "targetDbName", "filter", "options"]
+                    : ["targetDbName", "sourceIpAddress", "filter", "options"];
+                CollectionAssert.AreEqual(expectedProtocolNames, protocol.Signature.Parameters.Select(parameter => parameter.Name));
+                using var writer = new CodeWriter();
+                writer.WriteMethod(protocol);
+                var methodText = writer.ToString(false);
+                foreach (var name in expectedProtocolNames)
+                {
+                    StringAssert.Contains($"<param name=\"{name}\">", methodText);
+                }
+                var requestSyntax = CSharpSyntaxTree.ParseText(protocol.BodyStatements!.ToDisplayString()).GetRoot();
+                var requestCall = requestSyntax.DescendantNodes().OfType<InvocationExpressionSyntax>().Single(invocation =>
+                    invocation.Expression is MemberAccessExpressionSyntax member && member.Name.Identifier.ValueText == "CreateSendRequest");
+                CollectionAssert.AreEqual(
+                    new[] { "sourceIpAddress", "targetDbName", "filter", "options" },
+                    requestCall.ArgumentList.Arguments.Select(argument => argument.Expression.ToString()));
+
+                var convenience = client.Methods.OfType<ScmMethodProvider>().Single(method =>
+                    method.Kind == ScmMethodKind.Convenience && method.Signature.Name == protocol.Signature.Name);
+                CollectionAssert.AreEqual(
+                    omitOptionalParameter ? new[] { "targetDbName", "sourceIpAddress", "cancellationToken" } : new[] { "targetDbName", "sourceIpAddress", "filter", "cancellationToken" },
+                    convenience.Signature.Parameters.Select(parameter => parameter.Name));
+                var syntax = CSharpSyntaxTree.ParseText(convenience.BodyStatements!.ToDisplayString()).GetRoot();
+                var call = syntax.DescendantNodes().OfType<InvocationExpressionSyntax>().Single(invocation =>
+                    invocation.Expression is MemberAccessExpressionSyntax member && member.Name.Identifier.ValueText == protocol.Signature.Name);
+                CollectionAssert.AreEqual(
+                    expectedProtocolNames.Take(2).Concat(omitOptionalParameter ? [] : new[] { "filter" }).Append("cancellationToken.ToRequestOptions()"),
+                    call.ArgumentList.Arguments.Select(argument => argument.Expression.ToString()));
+            }
+
+            var references = AppDomain.CurrentDomain.GetAssemblies()
+                .Where(assembly => !assembly.IsDynamic && !string.IsNullOrEmpty(assembly.Location))
+                .Select(assembly => MetadataReference.CreateFromFile(assembly.Location))
+                .Append(MetadataReference.CreateFromFile(typeof(Microsoft.Extensions.Configuration.IConfigurationSection).Assembly.Location));
+            var providers = generator.Object.OutputLibrary.TypeProviders
+                .Where(provider => provider is not Utf8JsonBinaryContentDefinition and not BinaryContentHelperDefinition);
+            var trees = providers.Select(provider => new TypeProviderWriter(provider).Write())
+                .Select(file => CSharpSyntaxTree.ParseText(file.Content, path: file.Name));
+            var compilation = CSharpCompilation.Create(
+                "PublishedAcronymOrder", trees, references,
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, generalDiagnosticOption: ReportDiagnostic.Error));
+            Assert.IsEmpty(compilation.GetDiagnostics().Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error)
+                .Select(diagnostic => diagnostic.ToString()));
+        }
+
         [TestCase(false)]
         [TestCase(true)]
         public async Task AcronymParameterRestorationRequiresMatchingSignature(bool matchingParameterType)

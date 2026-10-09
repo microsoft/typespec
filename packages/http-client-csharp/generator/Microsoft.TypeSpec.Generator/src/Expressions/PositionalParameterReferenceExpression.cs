@@ -9,6 +9,13 @@ namespace Microsoft.TypeSpec.Generator.Expressions
     {
         // Back-compat restores the callee's name after the caller's arguments have been built.
         private readonly ParameterProvider? _parameter;
+        private readonly string _parameterName = ParameterName;
+
+        public string ParameterName
+        {
+            get => _parameter?.Name ?? _parameterName;
+            init => _parameterName = value;
+        }
 
         internal PositionalParameterReferenceExpression(ParameterProvider parameter) : this(parameter, parameter) { }
 
@@ -19,7 +26,7 @@ namespace Microsoft.TypeSpec.Generator.Expressions
 
         internal override void Write(CodeWriter writer)
         {
-            writer.Append($"{_parameter?.Name ?? ParameterName:I}: ");
+            writer.Append($"{ParameterName:I}: ");
             ParameterValue.Write(writer);
         }
     }

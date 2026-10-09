@@ -92,7 +92,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             foreach (var kvp in currentMethodSignatures)
             {
                 var currentSignature = kvp.Key;
-                if (currentSignature.Name.Equals(previousSignature.Name)
+                if (!kvp.Value.IsPartialMethod && currentSignature.Name.Equals(previousSignature.Name)
                     && currentSignature.ReturnType?.AreNamesEqual(previousSignature.ReturnType) == true
                     && MethodSignatureHelper.ContainsSameParameters(previousSignature, currentSignature))
                 {
@@ -217,9 +217,9 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                         }
                         else
                         {
-                            // Acronym restoration requires a matching signature; legacy date/time renames keep their name-only fallback.
+                            // Date/time inputs keep the legacy fallback even when their names also contain acronyms.
                             var hasAcronymRename = inputParameter.Name != inputParameter.Name.NormalizeCSharpAcronyms(useCamelCase: true);
-                            if (!hasAcronymRename)
+                            if (!hasAcronymRename || inputParameter.Type.IsDateTimeInputType())
                             {
                                 preservedName = FindPreviousParameterName(
                                     lastContractView, inputParameter.OriginalName, method.Signature.Name);
@@ -301,31 +301,31 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             MethodSignature previousSignature)
         {
             var currentSignature = methodToReorder.Signature;
-            if (MethodSignatureHelper.HaveSameParametersInSameOrder(currentSignature, previousSignature))
+            if (methodToReorder.IsPartialMethod
+                || !MethodSignatureHelper.TryMatchParameterOrder(currentSignature.Parameters, previousSignature.Parameters, out var reorderedParameters))
             {
                 return false;
             }
 
-            var parametersByName = currentSignature.Parameters.ToDictionary(p => p.Name.ToVariableName());
-            var reorderedParameters = new List<ParameterProvider>(currentSignature.Parameters.Count);
-
-            foreach (var previousParam in previousSignature.Parameters)
+            bool orderChanged = false;
+            for (int i = 0; i < reorderedParameters.Length; i++)
             {
-                if (parametersByName.TryGetValue(previousParam.Name.ToVariableName(), out var matchingParam))
+                if (!ReferenceEquals(currentSignature.Parameters[i], reorderedParameters[i]))
                 {
-                    reorderedParameters.Add(matchingParam);
+                    orderChanged = true;
+                    break;
                 }
             }
-
-            if (reorderedParameters.Count != currentSignature.Parameters.Count)
+            if (!orderChanged)
             {
                 return false;
             }
 
-            foreach (var previousParam in previousSignature.Parameters)
+            for (int i = 0; i < reorderedParameters.Length; i++)
             {
-                if (parametersByName.TryGetValue(previousParam.Name.ToVariableName(), out var matchingParam)
-                    && matchingParam.DefaultValue is not null
+                var matchingParam = reorderedParameters[i];
+                var previousParam = previousSignature.Parameters[i];
+                if (matchingParam.DefaultValue is not null
                     && previousParam.DefaultValue is not null)
                 {
                     matchingParam.Update(defaultValue: previousParam.DefaultValue);

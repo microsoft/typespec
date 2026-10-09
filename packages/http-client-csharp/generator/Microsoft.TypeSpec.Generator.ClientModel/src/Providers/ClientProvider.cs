@@ -1489,7 +1489,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             foreach (var (method, originalSignature) in originalSignatures)
             {
                 if (method.Signature.Name.Equals(originalSignature.Name)
-                    && !MethodSignatureHelper.HaveSameParametersInSameOrder(method.Signature, originalSignature))
+                    && !method.Signature.Parameters.SequenceEqual(originalSignature.Parameters, ReferenceEqualityComparer.Instance))
                 {
                     updatedSignatureToOriginal.TryAdd(method.Signature, originalSignature);
                     methodsWithReorderedParams.Add(method);
@@ -1860,7 +1860,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             MethodSignature updatedSignature)
         {
             var argumentCount = invocation.Arguments.Count;
-            if (argumentCount != originalSignature.Parameters.Count)
+            if (argumentCount > originalSignature.Parameters.Count)
             {
                 return;
             }
@@ -1868,15 +1868,26 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var argumentsByName = new Dictionary<string, ValueExpression>(argumentCount);
             for (int i = 0; i < argumentCount; i++)
             {
-                argumentsByName.TryAdd(originalSignature.Parameters[i].Name, invocation.Arguments[i]);
+                var argument = invocation.Arguments[i];
+                var parameterName = argument is PositionalParameterReferenceExpression named
+                    ? named.ParameterName
+                    : originalSignature.Parameters[i].Name;
+                argumentsByName.Add(parameterName, argument);
             }
 
             var reorderedArgs = new List<ValueExpression>(updatedSignature.Parameters.Count);
+            bool requireNamedArgs = false;
             foreach (var param in updatedSignature.Parameters)
             {
                 if (argumentsByName.TryGetValue(param.Name, out var arg))
                 {
-                    reorderedArgs.Add(arg);
+                    reorderedArgs.Add(requireNamedArgs && arg is not PositionalParameterReferenceExpression
+                        ? param.PositionalReference(arg)
+                        : arg);
+                }
+                else
+                {
+                    requireNamedArgs = true;
                 }
             }
 

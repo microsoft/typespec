@@ -19,6 +19,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Expressions
             var parameter = new ParameterProvider("sourceIPAddress", $"", typeof(string));
             var expression = parameter.PositionalReference(Snippet.Null);
             parameter.Update(name: restoredName);
+            Assert.AreEqual(restoredName, ((PositionalParameterReferenceExpression)expression).ParameterName);
 
             using CodeWriter writer = new CodeWriter();
             expression.Write(writer);
