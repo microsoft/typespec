@@ -5558,6 +5558,43 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             }
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task AcronymParameterRestorationRequiresMatchingSignature(bool matchingParameterType)
+        {
+            var valueType = matchingParameterType ? InputPrimitiveType.Int32 : InputPrimitiveType.Boolean;
+            var operation = InputFactory.Operation(
+                "Send",
+                parameters:
+                [
+                    InputFactory.QueryParameter("sourceIpAddress", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.QueryParameter("newValue", valueType, isRequired: true)
+                ],
+                responses: [InputFactory.OperationResponse([204])]);
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "Send", operation,
+                parameters:
+                [
+                    InputFactory.MethodParameter("sourceIpAddress", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Query),
+                    InputFactory.MethodParameter("newValue", valueType, isRequired: true, location: InputRequestLocation.Query)
+                ]);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [inputClient],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+            client.ProcessTypeForBackCompatibility();
+            var methods = client.Methods.OfType<ScmMethodProvider>().Where(method => method.Signature.Name is "Send" or "SendAsync").ToArray();
+            Assert.AreEqual(4, methods.Length);
+
+            foreach (var method in methods)
+            {
+                CollectionAssert.AreEqual(
+                    matchingParameterType ? new[] { "sourceIpAddress", "oldValue" } : new[] { "sourceIPAddress", "newValue" },
+                    method.Signature.Parameters.Take(2).Select(parameter => parameter.Name));
+            }
+        }
+
         [TestCase("LastContract")]
         [TestCase("DistinctLastContract")]
         [TestCase("CaseOnlyLastContract")]

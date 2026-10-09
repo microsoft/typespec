@@ -1038,6 +1038,148 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         }
 
         [Test]
+        public async Task PublishedCancellationTokenNamesDoNotAffectOtherMethods()
+        {
+            var serviceMethods = new[] { "Send", "Receive", "New" }.Select(name => InputFactory.BasicServiceMethod(
+                name, InputFactory.Operation(name, responses: [InputFactory.OperationResponse([204])]))).ToArray();
+            var inputClient = InputFactory.Client("TestClient", methods: serviceMethods);
+            await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [inputClient],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+            client.ProcessTypeForBackCompatibility();
+            var methods = client.Methods.OfType<ScmMethodProvider>().Where(method => method.Kind == ScmMethodKind.Convenience).ToArray();
+            Assert.AreEqual(6, methods.Length);
+
+            foreach (var method in methods)
+            {
+                var expectedToken = method.Signature.Name switch
+                {
+                    "Send" => "sendToken",
+                    "SendAsync" => "sendAsyncToken",
+                    "Receive" => "receiveToken",
+                    "ReceiveAsync" => "receiveAsyncToken",
+                    _ => "cancellationToken"
+                };
+                var token = method.Signature.Parameters.Single();
+                Assert.AreEqual(expectedToken, token.Name);
+                Assert.AreEqual(expectedToken, token.AsVariable().Declaration.RequestedName);
+                Assert.IsNotNull(token.DefaultValue);
+                StringAssert.Contains(
+                    $"this.{method.Signature.Name}({expectedToken}.ToRequestOptions())",
+                    method.BodyStatements!.ToDisplayString());
+            }
+            Assert.AreEqual("cancellationToken", ScmKnownParameters.CancellationToken.Name);
+        }
+
+        [Test]
+        public async Task MultipartContentTypeUsesWireNameAfterParameterRename(
+            [Values("Custom", "LastContract")] string signatureSource,
+            [Values(false, true)] bool bodyIsRequired)
+        {
+            var model = InputFactory.Model(
+                "UploadBody",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.MultipartFormData,
+                properties: [InputFactory.Property("message", InputPrimitiveType.String, isRequired: true,
+                    serializationOptions: InputFactory.Serialization.Options(
+                        multipart: InputFactory.Serialization.Multipart("message", isFilePart: false, defaultContentTypes: ["text/plain"])))]);
+            var operation = InputFactory.Operation(
+                "Send",
+                parameters:
+                [
+                    InputFactory.ContentTypeParameter("multipart/form-data"),
+                    InputFactory.BodyParameter("body", model, isRequired: bodyIsRequired,
+                        contentTypes: ["multipart/form-data"], defaultContentType: "multipart/form-data")
+                ],
+                requestMediaTypes: ["multipart/form-data"],
+                responses: [InputFactory.OperationResponse([204])]);
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "Send", operation,
+                parameters: [InputFactory.MethodParameter("body", model, isRequired: bodyIsRequired)]);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [inputClient], inputModels: () => [model],
+                compilation: signatureSource == "Custom" ? async () => await Helpers.GetCompilationFromDirectoryAsync("Custom") : null,
+                lastContractCompilation: signatureSource == "LastContract" ? async () => await Helpers.GetCompilationFromDirectoryAsync("LastContract") : null);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+            client.ProcessTypeForBackCompatibility();
+            var methods = client.Methods.OfType<ScmMethodProvider>().Where(method => method.Kind == ScmMethodKind.Convenience).ToArray();
+            Assert.AreEqual(2, methods.Length);
+
+            foreach (var method in methods)
+            {
+                var protocol = client.Methods.OfType<ScmMethodProvider>().Single(candidate =>
+                    candidate.Kind == ScmMethodKind.Protocol && candidate.Signature.Name == method.Signature.Name);
+                var expectedMediaTypeName = method.Signature.Name.EndsWith("Async", StringComparison.Ordinal) ? "asyncMediaType" : "mediaType";
+                Assert.AreEqual(expectedMediaTypeName, protocol.Signature.Parameters[1].Name);
+                Assert.AreEqual("Content-Type", protocol.Signature.Parameters[1].WireInfo.SerializedName);
+                var syntax = CSharpSyntaxTree.ParseText(method.BodyStatements!.ToDisplayString()).GetRoot();
+                var invocation = syntax.DescendantNodes().OfType<InvocationExpressionSyntax>().Single(candidate =>
+                    candidate.Expression is MemberAccessExpressionSyntax member && member.Name.Identifier.ValueText == protocol.Signature.Name);
+                CollectionAssert.AreEqual(
+                    new[] { "content", bodyIsRequired ? "content.MediaType" : "content?.MediaType", "cancellationToken.ToRequestOptions()" },
+                    invocation.ArgumentList.Arguments.Select(argument => argument.Expression.ToString()));
+            }
+        }
+
+        [Test]
+        public async Task OptionalMultipartLegacyParameterOrderIsPreserved(
+            [Values("Custom", "LastContract")] string signatureSource)
+        {
+            var model = InputFactory.Model(
+                "UploadBody",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.MultipartFormData,
+                properties: [InputFactory.Property("message", InputPrimitiveType.String, isRequired: true,
+                    serializationOptions: InputFactory.Serialization.Options(
+                        multipart: InputFactory.Serialization.Multipart("message", isFilePart: false, defaultContentTypes: ["text/plain"])))]);
+            var operation = InputFactory.Operation(
+                "Send",
+                parameters:
+                [
+                    InputFactory.ContentTypeParameter("multipart/form-data"),
+                    InputFactory.BodyParameter("body", model,
+                        contentTypes: ["multipart/form-data"], defaultContentType: "multipart/form-data")
+                ],
+                requestMediaTypes: ["multipart/form-data"],
+                responses: [InputFactory.OperationResponse([204])]);
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "Send", operation, parameters: [InputFactory.MethodParameter("body", model)]);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [inputClient], inputModels: () => [model],
+                compilation: signatureSource == "Custom" ? async () => await Helpers.GetCompilationFromDirectoryAsync("Custom") : null,
+                lastContractCompilation: signatureSource == "LastContract" ? async () => await Helpers.GetCompilationFromDirectoryAsync("LastContract") : null);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+            client.ProcessTypeForBackCompatibility();
+            var methods = client.Methods.OfType<ScmMethodProvider>().Where(method => method.Kind == ScmMethodKind.Protocol).ToArray();
+            Assert.AreEqual(2, methods.Length);
+
+            foreach (var method in methods)
+            {
+                var isAsync = method.Signature.Name.EndsWith("Async", StringComparison.Ordinal);
+                Assert.AreEqual(signatureSource == "Custom", method.IsPartialMethod);
+                Assert.IsTrue(method.Signature.Parameters[0].Type.Equals(isAsync ? typeof(string) : typeof(BinaryContent)));
+                Assert.IsTrue(method.Signature.Parameters[1].Type.Equals(isAsync ? typeof(BinaryContent) : typeof(string)));
+                var protocolSyntax = CSharpSyntaxTree.ParseText(method.BodyStatements!.ToDisplayString()).GetRoot();
+                var requestInvocation = protocolSyntax.DescendantNodes().OfType<InvocationExpressionSyntax>().Single(candidate =>
+                    candidate.Expression is MemberAccessExpressionSyntax member && member.Name.Identifier.ValueText == "CreateSendRequest");
+                CollectionAssert.AreEqual(
+                    new[] { method.Signature.Parameters[isAsync ? 1 : 0].Name, method.Signature.Parameters[isAsync ? 0 : 1].Name, method.Signature.Parameters[^1].Name },
+                    requestInvocation.ArgumentList.Arguments.Select(argument => argument.Expression.ToString()));
+                var convenience = client.Methods.OfType<ScmMethodProvider>().Single(candidate =>
+                    candidate.Kind == ScmMethodKind.Convenience && candidate.Signature.Name == method.Signature.Name);
+                var syntax = CSharpSyntaxTree.ParseText(convenience.BodyStatements!.ToDisplayString()).GetRoot();
+                var invocation = syntax.DescendantNodes().OfType<InvocationExpressionSyntax>().Single(candidate =>
+                    candidate.Expression is MemberAccessExpressionSyntax member && member.Name.Identifier.ValueText == method.Signature.Name);
+                CollectionAssert.AreEqual(
+                    isAsync
+                        ? new[] { "content?.MediaType", "content", "cancellationToken.ToRequestOptions()" }
+                        : new[] { "content", "content?.MediaType", "cancellationToken.ToRequestOptions()" },
+                    invocation.ArgumentList.Arguments.Select(argument => argument.Expression.ToString()));
+            }
+        }
+
+        [Test]
         public void MethodSignatureParametersAreIndependent()
         {
             var operations = new[] { "Send", "Receive" }.Select(name => InputFactory.Operation(

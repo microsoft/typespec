@@ -217,11 +217,13 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                         }
                         else
                         {
-                            // Acronym renames require a matching type; existing date/time renames retain their name-only fallback.
+                            // Acronym restoration requires a matching signature; legacy date/time renames keep their name-only fallback.
                             var hasAcronymRename = inputParameter.Name != inputParameter.Name.NormalizeCSharpAcronyms(useCamelCase: true);
-                            var typeToMatch = hasAcronymRename ? parameter.Type : null;
-                            preservedName = FindPreviousParameterName(
-                                lastContractView, inputParameter.OriginalName, method.Signature.Name, typeToMatch);
+                            if (!hasAcronymRename)
+                            {
+                                preservedName = FindPreviousParameterName(
+                                    lastContractView, inputParameter.OriginalName, method.Signature.Name);
+                            }
                         }
                     }
 

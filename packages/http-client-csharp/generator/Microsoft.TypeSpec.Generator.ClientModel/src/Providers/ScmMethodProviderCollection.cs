@@ -1465,6 +1465,25 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             MethodSignature? customSignature = null;
             PartialMethodCustomization.TryFindCustomSignature(client, methodName, parameters, out customSignature);
 
+            if (customSignature == null && client.CustomCodeView?.Methods is { Count: > 0 }
+                && ServiceMethod.Operation.IsMultipartFormData
+                && hasOptionalContent && convertedRequiredParameters.Count > 0)
+            {
+                // Older optional multipart signatures placed trailing required headers before the converted body parameters.
+                ParameterProvider[] legacyParameters =
+                [
+                    .. requiredParameters.Take(requiredBeforeContent),
+                    .. requiredParameters.Skip(requiredBeforeContent + convertedRequiredParameters.Count),
+                    .. convertedRequiredParameters,
+                    .. optionalParameters,
+                    requestOptionsParameter
+                ];
+                if (PartialMethodCustomization.TryFindCustomSignature(client, methodName, legacyParameters, out customSignature))
+                {
+                    parameters = legacyParameters;
+                }
+            }
+
             MethodSignature methodSignature;
             ParameterProvider[] bodyParameters;
 
