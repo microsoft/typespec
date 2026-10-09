@@ -1,11 +1,18 @@
-import type { BinarySchema, Schema, Schemas, StringSchema } from "@autorest/codemodel";
-import { ArraySchema, ObjectSchema, Property } from "@autorest/codemodel";
-import { KnownMediaType } from "@azure-tools/codegen";
 import type {
   SdkModelPropertyType,
   SdkModelType,
   SdkType,
 } from "@azure-tools/typespec-client-generator-core";
+import type { Schemas } from "./common/schemas.js";
+import { addSchema } from "./common/schemas.js";
+import type { BinarySchema, ObjectSchema, Schema, StringSchema } from "./common/schemas/model.js";
+import {
+  KnownMediaType,
+  addProperty,
+  createArraySchema,
+  createObjectSchema,
+  createProperty,
+} from "./common/schemas/model.js";
 import { getNamespace, pascalCase } from "./utils.js";
 
 /*
@@ -17,7 +24,7 @@ export function createResponseErrorSchema(
   schemas: Schemas,
   stringSchema: StringSchema,
 ): ObjectSchema {
-  const responseErrorSchema = new ObjectSchema("Error", "The error object.", {
+  const responseErrorSchema = createObjectSchema("Error", "The error object.", {
     language: {
       default: {
         namespace: "Azure.Core.Foundations",
@@ -28,39 +35,42 @@ export function createResponseErrorSchema(
     },
   });
   responseErrorSchema.language.default.crossLanguageDefinitionId = "Azure.Core.Foundations.Error";
-
-  schemas.add(responseErrorSchema);
-  responseErrorSchema.addProperty(
-    new Property("code", "One of a server-defined set of error codes.", stringSchema, {
+  addSchema(schemas, responseErrorSchema);
+  addProperty(
+    responseErrorSchema,
+    createProperty("code", "One of a server-defined set of error codes.", stringSchema, {
       serializedName: "code",
       required: true,
       nullable: false,
       readOnly: true,
     }),
   );
-  responseErrorSchema.addProperty(
-    new Property("message", "A human-readable representation of the error.", stringSchema, {
+  addProperty(
+    responseErrorSchema,
+    createProperty("message", "A human-readable representation of the error.", stringSchema, {
       serializedName: "message",
       required: true,
       nullable: false,
       readOnly: true,
     }),
   );
-  responseErrorSchema.addProperty(
-    new Property("target", "The target of this error.", stringSchema, {
+  addProperty(
+    responseErrorSchema,
+    createProperty("target", "The target of this error.", stringSchema, {
       serializedName: "target",
       required: false,
       nullable: true,
       readOnly: true,
     }),
   );
-  const errorDetailsSchema = new ArraySchema(
+  const errorDetailsSchema = createArraySchema(
     "errorDetails",
     "the array of errors.",
     responseErrorSchema,
   );
-  responseErrorSchema.addProperty(
-    new Property(
+  addProperty(
+    responseErrorSchema,
+    createProperty(
       "errorDetails",
       "An array of details about specific errors that led to this reported error.",
       errorDetailsSchema,
@@ -73,8 +83,9 @@ export function createResponseErrorSchema(
     ),
   );
   const innerErrorSchema = createResponseInnerErrorSchema(schemas, stringSchema);
-  responseErrorSchema.addProperty(
-    new Property(
+  addProperty(
+    responseErrorSchema,
+    createProperty(
       "innerError",
       "An object containing more specific information than the current object about the error.",
       innerErrorSchema,
@@ -93,7 +104,7 @@ export function createResponseInnerErrorSchema(
   schemas: Schemas,
   stringSchema: StringSchema,
 ): ObjectSchema {
-  const responseInnerErrorSchema = new ObjectSchema(
+  const responseInnerErrorSchema = createObjectSchema(
     "InnerError",
     "An object containing more specific information about the error.",
     {
@@ -109,18 +120,19 @@ export function createResponseInnerErrorSchema(
   );
   responseInnerErrorSchema.language.default.crossLanguageDefinitionId =
     "Azure.Core.Foundations.InnerError";
-
-  schemas.add(responseInnerErrorSchema);
-  responseInnerErrorSchema.addProperty(
-    new Property("code", "One of a server-defined set of error codes.", stringSchema, {
+  addSchema(schemas, responseInnerErrorSchema);
+  addProperty(
+    responseInnerErrorSchema,
+    createProperty("code", "One of a server-defined set of error codes.", stringSchema, {
       serializedName: "code",
       required: false,
       nullable: true,
       readOnly: true,
     }),
   );
-  responseInnerErrorSchema.addProperty(
-    new Property("innerError", "Inner error.", responseInnerErrorSchema, {
+  addProperty(
+    responseInnerErrorSchema,
+    createProperty("innerError", "Inner error.", responseInnerErrorSchema, {
       serializedName: "innererror",
       required: false,
       nullable: true,
@@ -134,7 +146,7 @@ export function createPollOperationDetailsSchema(
   schemas: Schemas,
   stringSchema: StringSchema,
 ): ObjectSchema {
-  const pollOperationDetailsSchema = new ObjectSchema(
+  const pollOperationDetailsSchema = createObjectSchema(
     "PollOperationDetails",
     "Status details for long running operations.",
     {
@@ -148,17 +160,19 @@ export function createPollOperationDetailsSchema(
       },
     },
   );
-  schemas.add(pollOperationDetailsSchema);
-  pollOperationDetailsSchema.addProperty(
-    new Property("operationId", "The unique ID of the operation.", stringSchema, {
+  addSchema(schemas, pollOperationDetailsSchema);
+  addProperty(
+    pollOperationDetailsSchema,
+    createProperty("operationId", "The unique ID of the operation.", stringSchema, {
       serializedName: "id",
       required: true,
       nullable: false,
       readOnly: true,
     }),
   );
-  pollOperationDetailsSchema.addProperty(
-    new Property("status", "The status of the operation.", stringSchema, {
+  addProperty(
+    pollOperationDetailsSchema,
+    createProperty("status", "The status of the operation.", stringSchema, {
       serializedName: "status",
       required: true,
       nullable: false,
@@ -166,8 +180,9 @@ export function createPollOperationDetailsSchema(
     }),
   );
   const responseErrorSchema = createResponseErrorSchema(schemas, stringSchema);
-  pollOperationDetailsSchema.addProperty(
-    new Property(
+  addProperty(
+    pollOperationDetailsSchema,
+    createProperty(
       "error",
       'Error object that describes the error when status is "Failed".',
       responseErrorSchema,
@@ -207,7 +222,7 @@ function createFileDetailsSchema(
   javaNamespace: string | undefined,
   schemas: Schemas,
 ) {
-  const fileDetailsSchema = new ObjectSchema(
+  const fileDetailsSchema = createObjectSchema(
     schemaName,
     'The file details for the "' + propertyName + '" field.',
     {
@@ -222,14 +237,15 @@ function createFileDetailsSchema(
       serializationFormats: [KnownMediaType.Multipart],
     },
   );
-  schemas.add(fileDetailsSchema);
+  addSchema(schemas, fileDetailsSchema);
   fileDetailsMap.set(schemaName, fileDetailsSchema);
   return fileDetailsSchema;
 }
 
 function addContentProperty(fileDetailsSchema: ObjectSchema, binarySchema: BinarySchema) {
-  fileDetailsSchema.addProperty(
-    new Property("content", "The content of the file.", binarySchema, {
+  addProperty(
+    fileDetailsSchema,
+    createProperty("content", "The content of the file.", binarySchema, {
       required: true,
       nullable: false,
       readOnly: false,
@@ -248,8 +264,9 @@ function addFilenameProperty(
   // If the type is constant but not required, treat the type as non-constant String but its value as the default.
   const clientDefaultValue =
     filenameProperty?.type.kind === "constant" ? String(filenameProperty.type.value) : undefined;
-  fileDetailsSchema.addProperty(
-    new Property(
+  addProperty(
+    fileDetailsSchema,
+    createProperty(
       "filename",
       "The filename of the file.",
       isConstant && processSchemaFunc ? processSchemaFunc(filenameProperty.type) : stringSchema,
@@ -280,8 +297,9 @@ function addContentTypeProperty(
     contentTypeProperty?.type.kind === "constant"
       ? String(contentTypeProperty.type.value)
       : "application/octet-stream";
-  fileDetailsSchema.addProperty(
-    new Property(
+  addProperty(
+    fileDetailsSchema,
+    createProperty(
       "contentType",
       "The content-type of the file.",
       isConstant && processSchemaFunc ? processSchemaFunc(contentTypeProperty.type) : stringSchema,
@@ -313,14 +331,14 @@ export function getFileDetailsSchema(
   if (fileSdkType) {
     // property.type is File, use name and properties from property.type for the File schema
     /*
-    Current logic:
-    - Class name suffix "FileDetails"
-    - No class hierarchy for File
-    - File has 3 properties: "content", "filename", "contentType" (Note that it is "contents" in TypeSpec)
-    - No adjustment on "content" property, it is always BinaryData and required
-    - Allow constant type for "filename" and "contentType" (to be discussed for other types e.g. enum)
-    - Allow required for "filename" and "contentType"
-     */
+        Current logic:
+        - Class name suffix "FileDetails"
+        - No class hierarchy for File
+        - File has 3 properties: "content", "filename", "contentType" (Note that it is "contents" in TypeSpec)
+        - No adjustment on "content" property, it is always BinaryData and required
+        - Allow constant type for "filename" and "contentType" (to be discussed for other types e.g. enum)
+        - Allow required for "filename" and "contentType"
+         */
     const filePropertyName = property.name;
     const schemaName = getFileSchemaName(filePropertyName, fileSdkType);
     let fileDetailsSchema = fileDetailsMap.get(schemaName);
