@@ -1580,14 +1580,16 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
-        public async Task BackCompat_EnumPropertyTypeIsRetainedWhenNullabilityDiffers()
+        public async Task BackCompat_EnumPropertyTypeIsRetainedWhenNullabilityDiffers(
+            [Values(false, true)] bool isExtensible,
+            [Values(false, true)] bool wasFixedEnum)
         {
             // A scalar (non-collection) enum property whose nullability changed between the
             // last contract and the current spec should retain the last contract's nullability.
             var statusEnum = InputFactory.StringEnum(
                 "StatusEnum",
                 [("Active", "Active"), ("Inactive", "Inactive")],
-                isExtensible: true);
+                isExtensible: isExtensible);
             var inputModel = InputFactory.Model(
                 "MockInputModel",
                 properties:
@@ -1598,7 +1600,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             await MockHelpers.LoadMockGeneratorAsync(
                 inputModelTypes: [inputModel],
                 inputEnumTypes: [statusEnum],
-                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(wasFixedEnum ? "Fixed" : null));
 
             var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders.SingleOrDefault(t => t.Name == "MockInputModel") as ModelProvider;
             Assert.IsNotNull(modelProvider);
@@ -1608,6 +1610,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.IsNotNull(statusProperty);
             Assert.IsTrue(statusProperty!.Type.IsNullable);
             Assert.AreEqual("StatusEnum", statusProperty.Type.Name);
+            Assert.IsTrue(statusProperty.Type.IsEnum);
+            Assert.AreEqual(isExtensible, statusProperty.Type.IsStruct);
         }
 
         [Test]
