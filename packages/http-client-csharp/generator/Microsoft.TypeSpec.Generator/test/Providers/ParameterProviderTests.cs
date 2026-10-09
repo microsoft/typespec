@@ -152,6 +152,37 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
 
         [Test]
+        public void ClientParameterNamePreservesAcronyms(
+            [Values("sourceIpAddress", "targetDbName", "guestOsType", "iPv4Address")] string name,
+            [Values(false, true)] bool isExactName)
+        {
+            MockHelpers.LoadMockGenerator();
+            var input = InputFactory.MethodParameter(
+                name, InputPrimitiveType.String, isRequired: true, scope: InputParameterScope.Client, isExactName: isExactName);
+            var parameter = CodeModelGenerator.Instance.TypeFactory.CreateParameter(input)!;
+
+            Assert.AreEqual(name, parameter.Name);
+            Assert.AreEqual(name, parameter.AsVariable().Declaration.RequestedName);
+            Assert.AreEqual(name, parameter.ToPublicInputParameter().Name);
+            Assert.AreEqual(name, parameter.WireInfo.SerializedName);
+        }
+
+        [TestCase("startTime", "startsOn")]
+        [TestCase("sourceIpCreationTime", "sourceIpCreatedOn")]
+        public void ClientParameterNameRetainsDateTimeNormalization(string name, string expected)
+        {
+            MockHelpers.LoadMockGenerator();
+            var dateTime = new InputDateTimeType(
+                DateTimeKnownEncoding.Rfc3339, "utcDateTime", "TypeSpec.utcDateTime", InputPrimitiveType.String);
+            var input = InputFactory.MethodParameter(name, dateTime, isRequired: true, scope: InputParameterScope.Client);
+            var parameter = CodeModelGenerator.Instance.TypeFactory.CreateParameter(input)!;
+
+            Assert.AreEqual(expected, parameter.Name);
+            Assert.AreEqual(expected, parameter.AsVariable().Declaration.RequestedName);
+            Assert.AreEqual(name, parameter.WireInfo.SerializedName);
+        }
+
+        [Test]
         public void IndependentlyCreatedParametersPreserveMetadata()
         {
             MockHelpers.LoadMockGenerator();
