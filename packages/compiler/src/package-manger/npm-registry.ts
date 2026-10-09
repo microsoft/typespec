@@ -91,6 +91,57 @@ export function getNpmRegistry(): string {
   return (process.env["TYPESPEC_NPM_REGISTRY"] ?? defaultRegistry).replace(/\/$/, "");
 }
 
+/** Only send registry credentials to URLs within the configured registry. */
+function getNpmRegistryHeaders(url: string): Record<string, string> {
+  const token = process.env["TYPESPEC_NPM_REGISTRY_TOKEN"];
+  if (!token) {
+    return {};
+  }
+
+  const registry = new URL(getNpmRegistry());
+  const target = new URL(url);
+  const registryPath = registry.pathname.replace(/\/$/, "");
+  if (
+    target.origin !== registry.origin ||
+    (target.pathname !== registryPath && !target.pathname.startsWith(`${registryPath}/`))
+  ) {
+    return {};
+  }
+
+  return { Authorization: `Bearer ${token}` };
+}
+
+export async function fetchFromNpmRegistry(
+  url: string,
+  headers: Record<string, string> = {},
+): Promise<Response> {
+  if (!process.env["TYPESPEC_NPM_REGISTRY_TOKEN"]) {
+    return fetch(url, { headers });
+  }
+
+  // Fetch preserves credentials on same-origin redirects, even outside the registry path.
+  let currentUrl = url;
+  for (let redirects = 0; ; redirects++) {
+    const response = await fetch(currentUrl, {
+      headers: { ...headers, ...getNpmRegistryHeaders(currentUrl) },
+      redirect: "manual",
+    });
+    if (![301, 302, 303, 307, 308].includes(response.status)) {
+      return response;
+    }
+    const location = response.headers.get("location");
+    if (location === null) {
+      return response;
+    }
+
+    await response.body?.cancel();
+    if (redirects === 20) {
+      throw new NpmRegistryError(`Request to ${url} exceeded 20 redirects.`);
+    }
+    currentUrl = new URL(location, currentUrl).href;
+  }
+}
+
 export async function fetchPackageManifest(
   packageName: string,
   versionOrRange: string,
@@ -101,8 +152,8 @@ export async function fetchPackageManifest(
   const url = `${getNpmRegistry()}/${encodedPackageName}`;
   let res: Response;
   try {
-    res = await fetch(url, {
-      headers: { Accept: "application/vnd.npm.install-v1+json" },
+    res = await fetchFromNpmRegistry(url, {
+      Accept: "application/vnd.npm.install-v1+json",
     });
   } catch (error) {
     const message = error instanceof Error ? `: ${error.message}` : "";
