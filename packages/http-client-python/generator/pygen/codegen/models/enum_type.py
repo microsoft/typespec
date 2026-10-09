@@ -59,7 +59,9 @@ class EnumValue(BaseType):
         client_namespace = self.enum_type.client_namespace
         if self.code_model.options.get("generation-subdir"):
             client_namespace += f".{self.code_model.options['generation-subdir']}"
-        enum_type_annotation = f"{client_namespace}.models.{self.name}"
+        # Reference the enum class, which is what the models module actually exports.
+        # The member name (e.g. ``MODEL_WEB_SUMMARIZATION``) is not a module-level symbol.
+        enum_type_annotation = f"{client_namespace}.models.{self.enum_type.name}"
         return f"{type_annotation} or ~{enum_type_annotation}"
 
     def get_json_template_representation(
