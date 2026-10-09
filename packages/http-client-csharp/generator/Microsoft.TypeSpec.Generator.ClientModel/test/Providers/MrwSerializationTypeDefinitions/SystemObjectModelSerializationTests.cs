@@ -5,11 +5,19 @@ using System;
 using System.ClientModel.Primitives;
 using System.Linq;
 using System.Text.Json;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
+using ClientModelProvider = Microsoft.TypeSpec.Generator.ClientModel.Providers.ScmModelProvider;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
+using Microsoft.TypeSpec.Generator.SourceInput;
 using Microsoft.TypeSpec.Generator.Tests.Common;
+using Moq;
+using Moq.Protected;
 using NUnit.Framework;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializationTypeDefinitions
@@ -90,6 +98,466 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var serializations = derived.SerializationProviders;
             Assert.AreEqual(1, serializations.Count);
             return (derived, (MrwSerializationTypeDefinition)serializations[0]);
+        }
+
+        [Test]
+        public async Task CreateCoreMethodsPreserveLastContractModelReturnTypeWithSystemBase()
+        {
+            var baseInputModel = InputFactory.Model("Resource", properties: []);
+            var derivedInputModel = InputFactory.Model("TrackedResource", properties: [], baseModel: baseInputModel);
+            var systemBase = new SystemObjectModelProvider(new CSharpType(typeof(object)), baseInputModel);
+            var generator = MockHelpers.LoadMockGenerator(
+                inputModels: () => [baseInputModel, derivedInputModel],
+                createModelCore: model => model == baseInputModel ? systemBase : new ModelProvider(model),
+                createSerializationsCore: (inputType, typeProvider) =>
+                    inputType is InputModelType modelType && typeProvider is ModelProvider modelProvider
+                        ? [new MrwSerializationTypeDefinition(modelType, modelProvider)]
+                        : []);
+            var lastContractCompilation = await Helpers.GetCompilationFromDirectoryAsync();
+            generator.SetupProperty(
+                plugin => plugin.SourceInputModel,
+                new SourceInputModel(null, lastContractCompilation));
+
+            var derived = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(derivedInputModel)!;
+            var serialization = (MrwSerializationTypeDefinition)derived.SerializationProviders.Single();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(serialization.BuildPersistableModelCreateCoreMethod().Signature.ReturnType?.Name,
+                    Is.EqualTo("TrackedResource"));
+                Assert.That(serialization.BuildJsonModelCreateCoreMethod().Signature.ReturnType?.Name,
+                    Is.EqualTo("TrackedResource"));
+            });
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void CreateCoreHistoricalReturnIsNotWidenedByMappedCandidateDiscovery(bool discoverMappedCandidate)
+        {
+            var mappedInput = InputFactory.Model("KnownMappedBase", properties: []);
+            var currentBase = InputFactory.Model("CurrentBase", properties: []);
+            var derivedInput = InputFactory.Model("Derived", properties: [], baseModel: currentBase);
+            var frameworkType = new CSharpType(typeof(CreateCoreFrameworkRoot));
+            var generator = MockHelpers.LoadMockGenerator(
+                inputModels: () => discoverMappedCandidate
+                    ? [mappedInput, currentBase, derivedInput] : [currentBase, derivedInput],
+                createModelCore: input => input == mappedInput
+                    ? new SystemObjectModelProvider(frameworkType, input) : new ClientModelProvider(input));
+            Mock.Get(generator.Object.TypeFactory).Protected()
+                .Setup<CSharpType?>("CreateLastContractModelBaseCore", ItExpr.IsAny<CSharpType>(), ItExpr.IsAny<InputModelType>())
+                .Returns(frameworkType);
+
+            var references = ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!).Split(System.IO.Path.PathSeparator)
+                .Append(typeof(ModelReaderWriterOptions).Assembly.Location)
+                .Append(typeof(BinaryData).Assembly.Location)
+                .Append(typeof(CreateCoreFrameworkRoot).Assembly.Location)
+                .Distinct().Select(path => MetadataReference.CreateFromFile(path)).ToArray();
+            var historicalSource = $$"""
+                namespace Sample.Models
+                {
+                    public class Derived : {{frameworkType.Namespace}}.{{frameworkType.Name}}
+                    {
+                        protected virtual Derived PersistableModelCreateCore(System.BinaryData data,
+                            System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw new System.NotImplementedException();
+                        protected virtual Derived JsonModelCreateCore(ref System.Text.Json.Utf8JsonReader reader,
+                            System.ClientModel.Primitives.ModelReaderWriterOptions options) => throw new System.NotImplementedException();
+                    }
+                }
+                """;
+            var historical = CSharpCompilation.Create("HistoricalCreateCoreReturn",
+                [CSharpSyntaxTree.ParseText(historicalSource)], references,
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            generator.SetupProperty(plugin => plugin.SourceInputModel, new SourceInputModel(null, historical));
+
+            // Let normal discovery register the candidate. Do not modify CSharpTypeMap or
+            // normalize the historical parameters to manufacture the root traversal.
+            var model = generator.Object.TypeFactory.CreateModel(derivedInput)!;
+            Assert.That(model.BaseType?.AreNamesEqual(frameworkType), Is.True);
+            Assert.That(generator.Object.TypeFactory.CSharpTypeMap.Keys.Any(type => type.AreNamesEqual(frameworkType)),
+                Is.EqualTo(discoverMappedCandidate));
+            var serialization = (MrwSerializationTypeDefinition)model.SerializationProviders.Single();
+            var emitted = CSharpSyntaxTree.ParseText(new TypeProviderWriter(serialization).Write().Content);
+            var signatures = emitted.GetRoot().DescendantNodes().OfType<MethodDeclarationSyntax>()
+                .Where(method => method.Identifier.Text is "PersistableModelCreateCore" or "JsonModelCreateCore")
+                .Select(method => method.WithBody(SyntaxFactory.Block(
+                    SyntaxFactory.ParseStatement("throw new System.NotImplementedException();"))).ToFullString()).ToArray();
+            Assert.That(signatures, Has.Length.EqualTo(2));
+            var consumer = CSharpSyntaxTree.ParseText("""
+                namespace Consumer
+                {
+                    public class ExistingSubclass : Sample.Models.Derived
+                    {
+                        public Sample.Models.Derived Clone(System.BinaryData data,
+                            System.ClientModel.Primitives.ModelReaderWriterOptions options)
+                            => base.PersistableModelCreateCore(data, options);
+                        public Sample.Models.Derived Read(ref System.Text.Json.Utf8JsonReader reader,
+                            System.ClientModel.Primitives.ModelReaderWriterOptions options)
+                            => base.JsonModelCreateCore(ref reader, options);
+                    }
+                }
+                """);
+            Assert.That(historical.AddSyntaxTrees(consumer).GetDiagnostics()
+                .Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error), Is.Empty,
+                "The unchanged consumer must compile against the shipped signatures.");
+            var generatedSource = $"namespace Sample.Models {{ public class Derived : {frameworkType.Namespace}.{frameworkType.Name} {{ {string.Join("\n", signatures)} }} }}";
+            var generated = CSharpCompilation.Create("GeneratedCreateCoreReturn",
+                [CSharpSyntaxTree.ParseText(generatedSource), consumer], references,
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            Assert.Multiple(() =>
+            {
+                Assert.That(generated.GetDiagnostics().Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error),
+                    Is.Empty, "Root traversal must not break existing Derived-returning consumers with CS0266.");
+                Assert.That(serialization.BuildPersistableModelCreateCoreMethod().Signature.ReturnType?.Name, Is.EqualTo("Derived"));
+                Assert.That(serialization.BuildJsonModelCreateCoreMethod().Signature.ReturnType?.Name, Is.EqualTo("Derived"));
+            });
+        }
+
+        [TestCase("PersistableOnlyResource")]
+        [TestCase("JsonOnlyResource")]
+        public async Task SingleHistoricalCreateCoreMethodCanSupplyVirtualModelReturnType(string modelName)
+        {
+            var baseInputModel = InputFactory.Model("Resource", properties: []);
+            var derivedInputModel = InputFactory.Model(modelName, properties: [], baseModel: baseInputModel);
+            var systemBase = new SystemObjectModelProvider(new CSharpType(typeof(object)), baseInputModel);
+            var generator = MockHelpers.LoadMockGenerator(
+                inputModels: () => [baseInputModel, derivedInputModel],
+                createModelCore: model => model == baseInputModel ? systemBase : new ModelProvider(model),
+                createSerializationsCore: (inputType, typeProvider) =>
+                    inputType is InputModelType modelType && typeProvider is ModelProvider modelProvider
+                        ? [new MrwSerializationTypeDefinition(modelType, modelProvider)]
+                        : []);
+            var lastContractCompilation = await Helpers.GetCompilationFromDirectoryAsync();
+            generator.SetupProperty(plugin => plugin.SourceInputModel, new SourceInputModel(null, lastContractCompilation));
+            var derived = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(derivedInputModel)!;
+            var historicalMethod = derived.LastContractView!.Methods.Single();
+            if (historicalMethod.Signature.Name == "JsonModelCreateCore")
+            {
+                // Isolate return selection using the reader shape required by the existing matcher.
+                historicalMethod.Signature.Parameters[0].Update(type: typeof(Utf8JsonReader));
+            }
+            Assert.That(MrwSerializationTypeDefinition.IsCreateCoreMethod(historicalMethod.Signature), Is.True);
+            var serialization = (MrwSerializationTypeDefinition)derived.SerializationProviders.Single();
+            var methods = new[] { serialization.BuildPersistableModelCreateCoreMethod(), serialization.BuildJsonModelCreateCoreMethod() };
+            Assert.Multiple(() =>
+            {
+                foreach (var method in methods)
+                {
+                    Assert.That(method.Signature.ReturnType?.Name, Is.EqualTo(modelName));
+                    Assert.That(method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Virtual), Is.True);
+                    Assert.That(method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Override), Is.False);
+                }
+            });
+
+            // Compile the exact emitted signatures with throw bodies to isolate the reported
+            // invalid-override concern from unrelated deserializer/helper dependencies.
+            var emitted = CSharpSyntaxTree.ParseText(new TypeProviderWriter(serialization).Write().Content);
+            var signatures = emitted.GetRoot().DescendantNodes().OfType<MethodDeclarationSyntax>()
+                .Where(method => method.Identifier.Text is "PersistableModelCreateCore" or "JsonModelCreateCore")
+                .Select(method => method.WithBody(SyntaxFactory.Block(
+                    SyntaxFactory.ParseStatement("throw new System.NotImplementedException();"))).ToFullString());
+            var references = ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!).Split(System.IO.Path.PathSeparator)
+                .Append(typeof(ModelReaderWriterOptions).Assembly.Location)
+                .Append(typeof(BinaryData).Assembly.Location)
+                .Distinct().Select(path => MetadataReference.CreateFromFile(path));
+            var compilation = CSharpCompilation.Create("SingleHistoricalCreateCoreSignatures",
+                [CSharpSyntaxTree.ParseText($"namespace Sample.Models {{ public class {modelName} : object {{ {string.Join("\n", signatures)} }} }}")],
+                references, new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            Assert.That(compilation.GetDiagnostics().Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error), Is.Empty);
+        }
+
+        [Test]
+        public async Task CreateCoreMethodsPreserveInheritedLastContractModelReturnTypeWithSystemBase()
+        {
+            var baseInputModel = InputFactory.Model("FrameworkMapped", properties: []);
+            var derivedInputModel = InputFactory.Model("DerivedModel", properties: [], baseModel: baseInputModel);
+            var systemBase = new SystemObjectModelProvider(new CSharpType(typeof(InheritedCreateCoreMapped)), baseInputModel);
+            var generator = MockHelpers.LoadMockGenerator(
+                inputModels: () => [baseInputModel, derivedInputModel],
+                createModelCore: model => model == baseInputModel ? systemBase : new ModelProvider(model),
+                createSerializationsCore: (inputType, typeProvider) =>
+                    inputType is InputModelType modelType && typeProvider is ModelProvider modelProvider
+                        ? [new MrwSerializationTypeDefinition(modelType, modelProvider)]
+                        : []);
+            generator.Object.AddMetadataReference(MetadataReference.CreateFromFile(typeof(InheritedCreateCoreMapped).Assembly.Location));
+            generator.SetupProperty(
+                plugin => plugin.SourceInputModel,
+                new SourceInputModel(null, await Helpers.GetCompilationFromDirectoryAsync()));
+
+            var derived = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(derivedInputModel)!;
+            var serialization = (MrwSerializationTypeDefinition)derived.SerializationProviders.Single();
+
+            Assert.That(derived.LastContractView!.Methods, Is.Empty);
+            Assert.Multiple(() =>
+            {
+                Assert.That(serialization.BuildPersistableModelCreateCoreMethod().Signature.ReturnType?.Name,
+                    Is.EqualTo(nameof(InheritedCreateCoreRoot)));
+                Assert.That(serialization.BuildJsonModelCreateCoreMethod().Signature.ReturnType?.Name,
+                    Is.EqualTo(nameof(InheritedCreateCoreRoot)));
+            });
+        }
+
+        [Test]
+        public async Task CreateCoreMethodsPreferNearestInheritedLastContractMethodWithSystemBase()
+        {
+            var baseInputModel = InputFactory.Model("FrameworkLeaf", properties: []);
+            var derivedInputModel = InputFactory.Model("DerivedModel", properties: [], baseModel: baseInputModel);
+            var systemBase = new SystemObjectModelProvider(new CSharpType(typeof(InheritedCreateCoreLeaf)), baseInputModel);
+            var generator = MockHelpers.LoadMockGenerator(
+                inputModels: () => [baseInputModel, derivedInputModel],
+                createModelCore: model => model == baseInputModel ? systemBase : new ModelProvider(model),
+                createSerializationsCore: (inputType, typeProvider) =>
+                    inputType is InputModelType modelType && typeProvider is ModelProvider modelProvider
+                        ? [new MrwSerializationTypeDefinition(modelType, modelProvider)]
+                        : []);
+            generator.Object.AddMetadataReference(MetadataReference.CreateFromFile(typeof(InheritedCreateCoreLeaf).Assembly.Location));
+            generator.SetupProperty(
+                plugin => plugin.SourceInputModel,
+                new SourceInputModel(null, await Helpers.GetCompilationFromDirectoryAsync()));
+
+            var derived = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(derivedInputModel)!;
+            var serialization = (MrwSerializationTypeDefinition)derived.SerializationProviders.Single();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(serialization.BuildPersistableModelCreateCoreMethod().Signature.ReturnType?.Name,
+                    Is.EqualTo(nameof(InheritedCreateCoreMiddle)));
+                Assert.That(serialization.BuildJsonModelCreateCoreMethod().Signature.ReturnType?.Name,
+                    Is.EqualTo(nameof(InheritedCreateCoreMiddle)));
+            });
+        }
+
+        [Test]
+        public async Task CreateCoreMethodsIgnoreUnrelatedLastContractReturnTypeWithSystemBase()
+        {
+            var baseInputModel = InputFactory.Model("Resource", properties: []);
+            var derivedInputModel = InputFactory.Model("TrackedResource", properties: [], baseModel: baseInputModel);
+            var systemBase = new SystemObjectModelProvider(new CSharpType(typeof(object)), baseInputModel);
+            var generator = MockHelpers.LoadMockGenerator(
+                inputModels: () => [baseInputModel, derivedInputModel],
+                createModelCore: model => model == baseInputModel ? systemBase : new ModelProvider(model),
+                createSerializationsCore: (inputType, typeProvider) =>
+                    inputType is InputModelType modelType && typeProvider is ModelProvider modelProvider
+                        ? [new MrwSerializationTypeDefinition(modelType, modelProvider)]
+                        : []);
+            var lastContractCompilation = await Helpers.GetCompilationFromDirectoryAsync();
+            generator.SetupProperty(
+                plugin => plugin.SourceInputModel,
+                new SourceInputModel(null, lastContractCompilation));
+
+            var derived = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(derivedInputModel)!;
+            var serialization = (MrwSerializationTypeDefinition)derived.SerializationProviders.Single();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(serialization.BuildPersistableModelCreateCoreMethod().Signature.ReturnType?.Name,
+                    Is.EqualTo("Object"));
+                Assert.That(serialization.BuildJsonModelCreateCoreMethod().Signature.ReturnType?.Name,
+                    Is.EqualTo("Object"));
+            });
+        }
+
+        [TestCase("TrackedResource")]
+        [TestCase("ResourceWithMixedReturn")]
+        public async Task CreateCoreMethodsIgnoreMixedLastContractReturnTypesWithSystemBase(string modelName)
+        {
+            var baseInputModel = InputFactory.Model("Resource", properties: []);
+            var derivedInputModel = InputFactory.Model(modelName, properties: [], baseModel: baseInputModel);
+            var systemBase = new SystemObjectModelProvider(new CSharpType(typeof(object)), baseInputModel);
+            var generator = MockHelpers.LoadMockGenerator(
+                inputModels: () => [baseInputModel, derivedInputModel],
+                createModelCore: model => model == baseInputModel ? systemBase : new ModelProvider(model),
+                createSerializationsCore: (inputType, typeProvider) =>
+                    inputType is InputModelType modelType && typeProvider is ModelProvider modelProvider
+                        ? [new MrwSerializationTypeDefinition(modelType, modelProvider)]
+                        : []);
+            generator.SetupProperty(
+                plugin => plugin.SourceInputModel,
+                new SourceInputModel(null, await Helpers.GetCompilationFromDirectoryAsync()));
+
+            var derived = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(derivedInputModel)!;
+            var serialization = (MrwSerializationTypeDefinition)derived.SerializationProviders.Single();
+            // The matcher intentionally requires the framework-backed reader parameter shape.
+            // Keep this regression about return matching, not symbol/framework type reconciliation.
+            derived.LastContractView!.Methods.Single(method => method.Signature.Name == "JsonModelCreateCore")
+                .Signature.Parameters[0].Update(type: typeof(Utf8JsonReader));
+            Assert.That(derived.LastContractView.Methods.Count(method =>
+                MrwSerializationTypeDefinition.IsCreateCoreMethod(method.Signature)), Is.EqualTo(2),
+                "Both historical methods must be recognized to reproduce the partial-return match.");
+            Assert.Multiple(() =>
+            {
+                Assert.That(serialization.BuildPersistableModelCreateCoreMethod().Signature.ReturnType?.Name,
+                    Is.EqualTo("Object"));
+                Assert.That(serialization.BuildJsonModelCreateCoreMethod().Signature.ReturnType?.Name,
+                    Is.EqualTo("Object"));
+            });
+        }
+
+        [Test]
+        public async Task CreateCoreMethodsIgnoreRemovedLastContractReturnTypeWithSystemBase()
+        {
+            var baseInputModel = InputFactory.Model("Resource", properties: []);
+            var derivedInputModel = InputFactory.Model("DerivedModel", properties: [], baseModel: baseInputModel);
+            var systemBase = new SystemObjectModelProvider(new CSharpType(typeof(object)), baseInputModel);
+            var generator = MockHelpers.LoadMockGenerator(
+                inputModels: () => [baseInputModel, derivedInputModel],
+                createModelCore: model => model == baseInputModel ? systemBase : new ModelProvider(model),
+                createSerializationsCore: (inputType, typeProvider) =>
+                    inputType is InputModelType modelType && typeProvider is ModelProvider modelProvider
+                        ? [new MrwSerializationTypeDefinition(modelType, modelProvider)]
+                        : []);
+            var lastContractCompilation = await Helpers.GetCompilationFromDirectoryAsync();
+            generator.SetupProperty(
+                plugin => plugin.SourceInputModel,
+                new SourceInputModel(null, lastContractCompilation));
+
+            var derived = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(derivedInputModel)!;
+            var removedType = derived.LastContractView!.Methods
+                .Single(method => method.Signature.Name == "JsonModelCreateCore")
+                .Signature.ReturnType!;
+            ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[removedType] = new SystemObjectTypeProvider(removedType);
+            var serialization = (MrwSerializationTypeDefinition)derived.SerializationProviders.Single();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(serialization.BuildPersistableModelCreateCoreMethod().Signature.ReturnType?.Name,
+                    Is.EqualTo("Object"));
+                Assert.That(serialization.BuildJsonModelCreateCoreMethod().Signature.ReturnType?.Name,
+                    Is.EqualTo("Object"));
+            });
+        }
+
+        [Test]
+        public async Task CreateCoreMethodsIgnoreAvailableModelOutsideCurrentHierarchyWithSystemBase()
+        {
+            var baseInputModel = InputFactory.Model("Resource", properties: []);
+            var derivedInputModel = InputFactory.Model("DerivedModel", properties: [], baseModel: baseInputModel);
+            var systemBase = new SystemObjectModelProvider(new CSharpType(typeof(object)), baseInputModel);
+            var generator = MockHelpers.LoadMockGenerator(
+                inputModels: () => [baseInputModel, derivedInputModel],
+                createModelCore: model => model == baseInputModel ? systemBase : new ModelProvider(model),
+                createSerializationsCore: (inputType, typeProvider) =>
+                    inputType is InputModelType modelType && typeProvider is ModelProvider modelProvider
+                        ? [new MrwSerializationTypeDefinition(modelType, modelProvider)]
+                        : []);
+            var lastContractCompilation = await Helpers.GetCompilationFromDirectoryAsync(
+                method: nameof(CreateCoreMethodsIgnoreRemovedLastContractReturnTypeWithSystemBase));
+            generator.SetupProperty(
+                plugin => plugin.SourceInputModel,
+                new SourceInputModel(null, lastContractCompilation));
+
+            var derived = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(derivedInputModel)!;
+            var previousBase = derived.LastContractView!.Methods
+                .Single(method => method.Signature.Name == "JsonModelCreateCore")
+                .Signature.ReturnType!;
+            ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap[previousBase] =
+                new ModelProvider(InputFactory.Model("UnrelatedModel", properties: []));
+            var serialization = (MrwSerializationTypeDefinition)derived.SerializationProviders.Single();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(serialization.BuildPersistableModelCreateCoreMethod().Signature.ReturnType?.Name,
+                    Is.EqualTo("Object"));
+                Assert.That(serialization.BuildJsonModelCreateCoreMethod().Signature.ReturnType?.Name,
+                    Is.EqualTo("Object"));
+            });
+        }
+
+        [Test]
+        public async Task GeneratedSerializationMethodDoesNotBlockRootBaseRestoration()
+        {
+            var previousBase = InputFactory.Model("PreviousBase", usage: InputModelTypeUsage.Json, properties: []);
+            var currentBase = InputFactory.Model("CurrentBase", usage: InputModelTypeUsage.Json, properties: []);
+            var derivedModel = InputFactory.Model(
+                "DerivedModel",
+                usage: InputModelTypeUsage.Json,
+                properties: [],
+                baseModel: currentBase);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [derivedModel, currentBase, previousBase],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var provider = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .OfType<ModelProvider>()
+                .Single(model => model.Name == "DerivedModel");
+
+            Assert.That(provider.BaseType?.Name, Is.EqualTo("PreviousBase"));
+        }
+
+        [Test]
+        public void CreateCoreMatcherRejectsGenericMethod()
+        {
+            var signature = new MethodSignature(
+                "JsonModelCreateCore",
+                null,
+                MethodSignatureModifiers.Protected | MethodSignatureModifiers.Virtual,
+                typeof(string),
+                null,
+                [
+                    new ParameterProvider("reader", $"", typeof(Utf8JsonReader), isRef: true),
+                    new ParameterProvider("options", $"", typeof(ModelReaderWriterOptions))
+                ],
+                GenericArguments: [new CSharpType(typeof(string))]);
+
+            Assert.That(MrwSerializationTypeDefinition.IsCreateCoreMethod(signature), Is.False);
+        }
+
+        [TestCase(true, true)]
+        [TestCase(false, true)]
+        [TestCase(true, false)]
+        [TestCase(false, false)]
+        public void CreateCoreMatcherRequiresSupportedSignature(bool json, bool unsupported)
+        {
+            var signature = new MethodSignature(
+                json ? "JsonModelCreateCore" : "PersistableModelCreateCore",
+                null,
+                MethodSignatureModifiers.Protected | MethodSignatureModifiers.Virtual,
+                typeof(string),
+                null,
+                [
+                    new ParameterProvider("data", $"", json ? typeof(Utf8JsonReader) : typeof(BinaryData), isRef: json),
+                    new ParameterProvider("options", $"", typeof(ModelReaderWriterOptions))
+                ])
+            {
+                HasUnsupportedBaseContract = unsupported
+            };
+
+            Assert.That(MrwSerializationTypeDefinition.IsCreateCoreMethod(signature), Is.EqualTo(!unsupported));
+        }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        public void CreateCoreMatcherRejectsUnsupportedParameterModifiers(bool firstParameter)
+        {
+            var signature = new MethodSignature(
+                "PersistableModelCreateCore", null,
+                MethodSignatureModifiers.Protected | MethodSignatureModifiers.Virtual,
+                typeof(string), null,
+                [
+                    new ParameterProvider("data", $"", typeof(BinaryData)) { HasUnsupportedParameterModifiers = firstParameter },
+                    new ParameterProvider("options", $"", typeof(ModelReaderWriterOptions)) { HasUnsupportedParameterModifiers = !firstParameter }
+                ]);
+
+            Assert.That(MrwSerializationTypeDefinition.IsCreateCoreMethod(signature), Is.False);
+        }
+
+        [TestCase(MethodSignatureModifiers.Protected)]
+        [TestCase(MethodSignatureModifiers.Protected | MethodSignatureModifiers.Internal | MethodSignatureModifiers.Virtual)]
+        [TestCase(MethodSignatureModifiers.Protected | MethodSignatureModifiers.Abstract)]
+        public void CreateCoreMatcherRejectsNonGeneratedModifiers(MethodSignatureModifiers modifiers)
+        {
+            var signature = new MethodSignature(
+                "JsonModelCreateCore",
+                null,
+                modifiers,
+                typeof(string),
+                null,
+                [
+                    new ParameterProvider("reader", $"", typeof(Utf8JsonReader), isRef: true),
+                    new ParameterProvider("options", $"", typeof(ModelReaderWriterOptions))
+                ]);
+
+            Assert.That(MrwSerializationTypeDefinition.IsCreateCoreMethod(signature), Is.False);
         }
 
         // -------------------------------------------------------------------
@@ -384,4 +852,35 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             protected override CSharpType? BuildBaseType() => BaseModel?.Type;
         }
     }
+
+    public class CreateCoreFrameworkRoot { }
+
+    // The mapped type inherits (rather than declares) the create-core signatures from its root.
+    public class InheritedCreateCoreRoot : IJsonModel<InheritedCreateCoreRoot>
+    {
+        protected virtual InheritedCreateCoreRoot PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
+            => this;
+
+        protected virtual InheritedCreateCoreRoot JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
+            => this;
+
+        void IJsonModel<InheritedCreateCoreRoot>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options) { }
+        InheritedCreateCoreRoot IJsonModel<InheritedCreateCoreRoot>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options) => this;
+        BinaryData IPersistableModel<InheritedCreateCoreRoot>.Write(ModelReaderWriterOptions options) => BinaryData.FromString(string.Empty);
+        InheritedCreateCoreRoot IPersistableModel<InheritedCreateCoreRoot>.Create(BinaryData data, ModelReaderWriterOptions options) => this;
+        string IPersistableModel<InheritedCreateCoreRoot>.GetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+    }
+
+    public class InheritedCreateCoreMapped : InheritedCreateCoreRoot { }
+
+    public class InheritedCreateCoreMiddle : InheritedCreateCoreRoot
+    {
+        protected override InheritedCreateCoreMiddle PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
+            => this;
+
+        protected override InheritedCreateCoreMiddle JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
+            => this;
+    }
+
+    public class InheritedCreateCoreLeaf : InheritedCreateCoreMiddle { }
 }
