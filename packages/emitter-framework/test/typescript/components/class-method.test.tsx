@@ -60,11 +60,15 @@ describe("ClassMethod bound to Typespec Types", () => {
     it("respects custom returnType and wraps in Promise when async", async () => {
       const program = await getProgram(`
       namespace DemoService;
+      model CustomResult {
+        value: string;
+      }
       op getName(id: string): string;
       `);
 
       const [namespace] = program.resolveTypeReference("DemoService");
       const operation = Array.from((namespace as Namespace).operations.values())[0];
+      const customModel = Array.from((namespace as Namespace).models.values())[0];
 
       expect(
         <Output program={program}>
@@ -73,14 +77,14 @@ describe("ClassMethod bound to Typespec Types", () => {
               <ClassMethod
                 async
                 type={operation}
-                returnType={<TypeExpression type={operation.returnType} />}
+                returnType={<TypeExpression type={customModel} />}
               />
             </ClassDeclaration>
           </SourceFile>
         </Output>,
       ).toRenderTo(d`
         class TestClient {
-          async getName(id: string): Promise<string> {}
+          async getName(id: string): Promise<CustomResult> {}
         }
       `);
     });
