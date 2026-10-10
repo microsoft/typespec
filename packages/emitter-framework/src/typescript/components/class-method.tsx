@@ -1,3 +1,4 @@
+import { code } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import type { Operation } from "@typespec/compiler";
 import { buildParameterDescriptors, getReturnType } from "../utils/operation.js";
@@ -17,8 +18,14 @@ export function ClassMethod(props: ClassMethodProps) {
   }
 
   const name = props.name ? props.name : ts.useTSNamePolicy().getName(props.type.name, "function");
-  const returnType =
-    props.returnType === null ? undefined : <TypeExpression type={getReturnType(props.type)} />;
+  let returnType =
+    props.returnType === null
+      ? undefined
+      : (props.returnType ?? <TypeExpression type={getReturnType(props.type)} />);
+
+  if (returnType && props.async) {
+    returnType = code`Promise<${returnType}>`;
+  }
 
   return (
     <ts.ClassMethod

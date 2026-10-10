@@ -27,12 +27,16 @@ export async function imageJpegContentType(
   body: FileWithHttpPartSpecificContentTypeRequest,
   options?: ImageJpegContentTypeOptions,
 ): Promise<void> {
-  const path = parse("/check-filename-and-specific-content-type-with-httppart").expand({});
+  const path = parse(
+    "/check-filename-and-specific-content-type-with-httppart",
+  ).expand({});
   const httpRequestOptions = {
     headers: {
       "content-type": options?.contentType ?? "multipart/form-data",
     },
-    body: [createFilePartDescriptor("profileImage", body.profileImage, "image/jpg")],
+    body: [
+      createFilePartDescriptor("profileImage", body.profileImage, "image/jpg"),
+    ],
   };
   const response = await client.pathUnchecked(path).post(httpRequestOptions);
 
@@ -56,7 +60,9 @@ export function jsonFileWithHttpPartSpecificContentTypeRequestToApplicationTrans
     return input_ as any;
   }
   return {
-    profileImage: jsonFileSpecificContentTypeToApplicationTransform(input_.profileImage),
+    profileImage: jsonFileSpecificContentTypeToApplicationTransform(
+      input_.profileImage,
+    ),
   }!;
 }
 ```

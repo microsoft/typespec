@@ -67,14 +67,16 @@ export class TestClient {
   constructor(endpoint: string, options?: TestClientOptions) {
     this.#context = createTestClientContext(endpoint, options);
   }
-  async send(prop: EnumsOnlyCases, options?: SendOptions) {
+  async send(prop: EnumsOnlyCases, options?: SendOptions): Promise<void> {
     return send(this.#context, prop, options);
   }
 }
 ```
 
 ```ts src/models/internal/serializers.ts function jsonEnumsOnlyCasesToTransportTransform
-export function jsonEnumsOnlyCasesToTransportTransform(input_?: EnumsOnlyCases | null): any {
+export function jsonEnumsOnlyCasesToTransportTransform(
+  input_?: EnumsOnlyCases | null,
+): any {
   if (!input_) {
     return input_ as any;
   }
