@@ -32,6 +32,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
     {
         private readonly InputModelType _inputModel;
         private readonly Dictionary<PropertyProvider, FieldProvider> _nullablePropertyPresence = [];
+
+        // MRW and multipart serialization can add an empty constructor with an implicit base() call.
+        // Do not invent default arguments for a framework base when that call cannot be made safely.
+        protected override bool RequiresParameterlessBaseConstructor
+            => (_inputModel.Usage & (InputModelTypeUsage.Json | InputModelTypeUsage.Xml | InputModelTypeUsage.MultipartFormData)) != 0;
+
         private const string JsonPatchFieldName = "_patch";
 #pragma warning disable SCME0001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
         private readonly CSharpType _jsonPatchFieldType = typeof(JsonPatch);
@@ -72,7 +78,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             _inputModel = inputModel;
             IsDynamicModel = inputModel.IsDynamicModel;
-            BaseJsonPatchProperty = new(GetBaseJsonPatchProperty());
+            // Resolve the hierarchy only after TypeFactory has registered this provider. Eager
+            // resolution here lets compatibility probes cache null types for recursive properties.
+            BaseJsonPatchProperty = new(GetBaseJsonPatchProperty);
         }
 
         protected override FieldProvider[] BuildFields()
