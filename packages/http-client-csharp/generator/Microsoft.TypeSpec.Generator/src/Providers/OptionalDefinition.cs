@@ -43,7 +43,29 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 IsStructDefined(),
                 IsObjectDefined(),
                 IsStringDefined(),
+                BuildIsDefinedWithPresence(new ParameterProvider("value", $"The value.", _t.WithNullable(true)), [_t], [Where.Struct(_t)]),
+                BuildIsDefinedWithPresence(new ParameterProvider("value", $"The value.", typeof(object))),
             ];
+        }
+
+        protected MethodProvider BuildIsDefinedWithPresence(
+            ParameterProvider valueParam,
+            IReadOnlyList<CSharpType>? genericArguments = null,
+            IReadOnlyList<WhereExpression>? genericParameterConstraints = null)
+        {
+            var isDefinedParam = new ParameterProvider("isDefined", $"Whether the value was explicitly set.", typeof(bool));
+            var signature = new MethodSignature(
+                "IsDefined",
+                null,
+                MethodSignatureModifiers.Public | MethodSignatureModifiers.Static,
+                typeof(bool),
+                null,
+                [valueParam, isDefinedParam],
+                GenericArguments: genericArguments,
+                GenericParameterConstraints: genericParameterConstraints);
+            return new MethodProvider(signature,
+                Return(isDefinedParam.As<bool>().Or(Static(Type).Invoke("IsDefined", [valueParam]).As<bool>())),
+                this, XmlDocProvider.Empty);
         }
 
         private MethodSignature GetIsDefinedSignature(ParameterProvider valueParam, IReadOnlyList<CSharpType>? genericArguments = null, IReadOnlyList<WhereExpression>? genericParameterConstraints = null) => new(

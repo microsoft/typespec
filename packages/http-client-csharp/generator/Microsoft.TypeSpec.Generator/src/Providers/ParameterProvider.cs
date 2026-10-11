@@ -35,6 +35,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public bool IsOut { get; private set; }
         public bool IsParams { get; private set; }
 
+        // Some Roslyn defaults cannot be represented losslessly by CreateDefaultValue. Do not use
+        // the fallback expression as evidence that a historical base member is compatible.
+        internal bool HasUnsupportedDefaultValue { get; init; }
+        internal bool HasUnsupportedParameterModifiers { get; init; }
+
         public bool IsContentParameter => Name == "content" && Location == ParameterLocation.Body;
 
         public IReadOnlyList<AttributeStatement> Attributes { get; private set; }
@@ -147,6 +152,20 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         private ParameterProvider? _inputParameter;
+
+        // A mapped last-contract property can change its CLR name and type after a visitor has
+        // materialized this parameter (and possibly its public input variant).
+        internal void SynchronizePropertyShape()
+        {
+            if (Property is not { } property)
+            {
+                return;
+            }
+
+            Update(name: property.Name.ToVariableName(), type: property.Type, validation: GetParameterValidation());
+            _inputParameter?.Update(name: Name, type: Type.InputType, validation: Validation);
+        }
+
         /// <summary>
         /// Returns the public input variant of this parameter.
         /// For example if the parameter is a <see cref="List{T}"/> it will be converted into an <see cref="IEnumerable{T}"/>.

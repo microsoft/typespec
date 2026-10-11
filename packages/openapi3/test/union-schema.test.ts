@@ -255,6 +255,82 @@ worksFor(supportedVersions, ({ diagnoseOpenApiFor, oapiForModel, openApiFor }) =
         );
       }
     });
+
+    it("default variant with a numeric enum member discriminator value uses its encoded name", async () => {
+      const res = await openApiFor(
+        `
+        @discriminated(#{discriminatorPropertyName: "taxonomic_family", envelope: "none"})
+        union Animal {
+          Dog,
+          felidae: Cat,
+        }
+
+        enum Family {
+          @encodedName("application/json", "canidae")
+          dogs: 1,
+        }
+
+        model Dog {
+          taxonomic_family: Family.dogs;
+        }
+
+        model Cat {
+          taxonomic_family: "felidae";
+        }
+
+        op read(): { @body body: Animal };
+        `,
+      );
+
+      if (res.openapi === "3.0.0" || res.openapi === "3.1.0") {
+        deepStrictEqual(res.components.schemas.Animal.discriminator.mapping, {
+          felidae: "#/components/schemas/Cat",
+          canidae: "#/components/schemas/Dog",
+        });
+      } else {
+        deepStrictEqual(res.components.schemas.Animal.discriminator.mapping, {
+          felidae: "#/components/schemas/Cat",
+        });
+      }
+    });
+
+    it("default variant with an enum member discriminator value uses its encoded name", async () => {
+      const res = await openApiFor(
+        `
+        @discriminated(#{discriminatorPropertyName: "taxonomic_family", envelope: "none"})
+        union Animal {
+          Dog,
+          felidae: Cat,
+        }
+
+        enum Family {
+          @encodedName("application/json", "canidae")
+          dogs,
+        }
+
+        model Dog {
+          taxonomic_family: Family.dogs;
+        }
+
+        model Cat {
+          taxonomic_family: "felidae";
+        }
+
+        op read(): { @body body: Animal };
+        `,
+      );
+
+      if (res.openapi === "3.0.0" || res.openapi === "3.1.0") {
+        deepStrictEqual(res.components.schemas.Animal.discriminator.mapping, {
+          felidae: "#/components/schemas/Cat",
+          canidae: "#/components/schemas/Dog",
+        });
+      } else {
+        deepStrictEqual(res.components.schemas.Animal.discriminator.mapping, {
+          felidae: "#/components/schemas/Cat",
+        });
+      }
+    });
   });
 
   describe("union literals", () => {

@@ -1,8 +1,19 @@
-/* eslint-disable @typescript-eslint/no-unsafe-declaration-merging */
-import type { ApiVersion, Parameter, Response } from "@autorest/codemodel";
-import { Aspect, ImplementationLocation, Metadata, SchemaType } from "@autorest/codemodel";
-import type { DeepPartial } from "@azure-tools/codegen";
 import type { LongRunningMetadata } from "./long-running-metadata.js";
+import type {
+  ApiVersion,
+  Aspect,
+  Metadata,
+  ModelOptions,
+  Parameter,
+  Response,
+} from "./schemas/model.js";
+import {
+  createAspect,
+  createMetadata,
+  ImplementationLocation,
+  initializeMetadata,
+  SchemaType,
+} from "./schemas/model.js";
 
 /** represents a single callable endpoint with a discrete set of inputs, and any number of output possibilities (responses or exceptions)  */
 export interface Operation extends Aspect {
@@ -55,21 +66,7 @@ export interface Operation extends Aspect {
   lroMetadata?: LongRunningMetadata;
 }
 
-export class ConvenienceApi extends Metadata {
-  constructor(name: string, initializer?: DeepPartial<ConvenienceApi>) {
-    super();
-    this.apply(
-      {
-        language: {
-          default: {
-            name: name,
-          },
-        },
-      },
-      initializer,
-    );
-  }
-
+export interface ConvenienceApi extends Metadata {
   requests?: Array<Request>;
 
   /**
@@ -80,6 +77,13 @@ export class ConvenienceApi extends Metadata {
   responseHeadersAsModel?: boolean;
 }
 
+export function createConvenienceApi(
+  name: string,
+  options?: ModelOptions<ConvenienceApi>,
+): ConvenienceApi {
+  return initializeMetadata(createAspect(name, ""), options);
+}
+
 export interface Request extends Metadata {
   /** the parameter inputs to the operation */
   parameters?: Array<Parameter>;
@@ -88,91 +92,63 @@ export interface Request extends Metadata {
   signatureParameters?: Array<Parameter>;
 }
 
-export class Request extends Metadata implements Request {
-  constructor(initializer?: DeepPartial<Request>) {
-    super();
-    this.apply(initializer);
-  }
+export function createRequest(options?: ModelOptions<Request>): Request {
+  return createMetadata(options);
+}
 
-  addParameter(parameter: Parameter) {
-    (this.parameters = this.parameters || []).push(parameter);
-    this.updateSignatureParameters();
-    return parameter;
-  }
+export function createOperation(
+  name: string,
+  description: string,
+  options?: ModelOptions<Operation>,
+): Operation {
+  return createAspect(name, description, options);
+}
 
-  updateSignatureParameters() {
-    if (this.parameters) {
-      this.signatureParameters = (this.parameters ?? []).filter(
-        (each) =>
-          each.schema.type !== SchemaType.Constant &&
-          each.implementation !== ImplementationLocation.Client &&
-          !each.groupedBy &&
-          !each.flattened,
-      );
-    }
+export function addParameter(target: Request | Operation, parameter: Parameter): Parameter {
+  (target.parameters ??= []).push(parameter);
+  updateSignatureParameters(target);
+  return parameter;
+}
+
+export function updateSignatureParameters(target: Request | Operation) {
+  if (target.parameters) {
+    target.signatureParameters = target.parameters.filter(
+      (parameter) =>
+        parameter.schema.type !== SchemaType.Constant &&
+        parameter.implementation !== ImplementationLocation.Client &&
+        !parameter.groupedBy &&
+        !parameter.flattened,
+    );
   }
 }
 
-export class Operation extends Aspect implements Operation {
-  constructor($key: string, description: string, initializer?: DeepPartial<Operation>) {
-    super($key, description);
-    this.apply(initializer);
-  }
+/** add a request to the operation */
+export function addRequest(operation: Operation, request: Request): Request {
+  (operation.requests ??= []).push(request);
+  return request;
+}
 
-  /** add a request to the operation */
-  addRequest(request: Request) {
-    (this.requests = this.requests || []).push(request);
-    return request;
-  }
+export function addResponse(operation: Operation, response: Response): Response {
+  (operation.responses ??= []).push(response);
+  return response;
+}
 
-  addParameter(parameter: Parameter) {
-    (this.parameters = this.parameters || []).push(parameter);
-    this.updateSignatureParameters();
-    return parameter;
-  }
-
-  updateSignatureParameters() {
-    if (this.parameters) {
-      this.signatureParameters = (this.parameters ?? []).filter(
-        (each) =>
-          each.schema.type !== SchemaType.Constant &&
-          each.implementation !== ImplementationLocation.Client &&
-          !each.groupedBy &&
-          !each.flattened,
-      );
-    }
-  }
-
-  addResponse(response: Response) {
-    (this.responses = this.responses || []).push(response);
-    return response;
-  }
-  addException(exception: Response) {
-    (this.exceptions = this.exceptions || []).push(exception);
-    return exception;
-  }
-  addProfile(profileName: string, apiVersion: ApiVersion) {
-    (this.profile = this.profile || {})[profileName] = apiVersion;
-    return this;
-  }
+export function addException(operation: Operation, response: Response): Response {
+  (operation.exceptions ??= []).push(response);
+  return response;
 }
 
 /** an operation group represents a container around set of operations */
 export interface OperationGroup extends Metadata {
   $key: string;
-  operations: Array<Operation>;
+  operations?: Operation[];
 }
 
-export class OperationGroup extends Metadata implements OperationGroup {
-  constructor(name: string, objectInitializer?: DeepPartial<OperationGroup>) {
-    super();
-    this.$key = name;
-    this.apply(objectInitializer);
-    this.language.default.name = name;
-  }
+export function createOperationGroup(name: string): OperationGroup {
+  return { ...createAspect(name, ""), $key: name };
+}
 
-  addOperation(operation: Operation) {
-    (this.operations = this.operations || []).push(operation);
-    return operation;
-  }
+export function addOperation(group: OperationGroup, operation: Operation): Operation {
+  (group.operations ??= []).push(operation);
+  return operation;
 }

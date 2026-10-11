@@ -27,7 +27,7 @@ export const hsjsDependencies: Record<string, string> = {
   "picocolors": "^1.1.1",
   "swagger-ui-express": "^5.0.1",
   "temporal-polyfill": "^1.0.4",
-  "typescript": "~6.0.2",
+  "typescript": "~7.0.2",
   "vitest": "^5.0.0",
   "yargs": "^18.1.0",
   "prettier": "^3.9.6",

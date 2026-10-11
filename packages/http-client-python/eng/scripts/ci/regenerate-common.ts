@@ -120,6 +120,9 @@ export const AZURE_EMITTER_OPTIONS: Record<
   "azure/client-generator-core/override": {
     namespace: "specs.azure.clientgenerator.core.override",
   },
+  "azure/client-generator-core/response-replacement": {
+    namespace: "specs.azure.clientgenerator.core.responsereplacement",
+  },
   "azure/client-generator-core/hierarchy-building": {
     namespace: "specs.azure.clientgenerator.core.hierarchybuilding",
   },
