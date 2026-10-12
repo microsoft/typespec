@@ -1881,7 +1881,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 var baseDiscriminatorProperty = GetInheritedDiscriminator();
                 if (baseDiscriminatorProperty is { WireInfo.IsRequired: false } ||
                     (baseDiscriminatorProperty is not null && _inputModel.DiscriminatorProperty is null &&
-                     baseDiscriminatorProperty.EnclosingType != BaseModelProvider))
+                     BaseModelProvider?.CanonicalView.Properties.Contains(baseDiscriminatorProperty) == false))
                 {
                     methodBodyStatements.Add(ExperimentalApiHelpers.Suppress(
                         baseDiscriminatorProperty.Assign(DiscriminatorValueExpression).Terminate(),

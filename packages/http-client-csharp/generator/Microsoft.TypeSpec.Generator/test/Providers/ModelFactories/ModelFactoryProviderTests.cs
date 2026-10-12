@@ -1616,6 +1616,28 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             }
         }
 
+        [TestCase("GetOnly")]
+        [TestCase("PrivateSetter")]
+        public async Task ModelWithCustomizedInheritedDiscriminator(string customization)
+        {
+            var child = InputFactory.Model("Child", properties: [], discriminatedKind: "child");
+            var root = InputFactory.Model(
+                "Root",
+                properties: [InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true)],
+                derivedModels: [child]);
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [root, child],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: customization));
+            var model = CodeModelGenerator.Instance.TypeFactory.CreateModel(child)!;
+            var property = CodeModelGenerator.Instance.TypeFactory.CreateModel(root)!.CanonicalView.Properties.Single(p => p.IsDiscriminator);
+            var expression = model.GetDiscriminatorValueExpression(property)!;
+
+            Assert.AreEqual(expression.ToDisplayString(),
+                model.Constructors.First().Signature.Initializer!.Arguments.Single().ToDisplayString());
+            StringAssert.DoesNotContain(property.Assign(expression).Terminate().ToDisplayString(),
+                model.Constructors.First().BodyStatements!.ToDisplayString());
+        }
+
         [Test]
         public void ModelWithSeparateInheritedDiscriminators()
         {
