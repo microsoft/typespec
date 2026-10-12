@@ -1690,56 +1690,75 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         private ValueExpression? EnsureDiscriminatorValueExpression()
+            => GetInheritedDiscriminator() is { } discriminator
+                ? GetDiscriminatorValueExpression(discriminator)
+                : null;
+
+        private PropertyProvider? GetInheritedDiscriminator()
+            => EnumerateBaseModelProviders()
+                .SelectMany(m => m.CanonicalView.Properties)
+                .FirstOrDefault(p => p.IsDiscriminator);
+
+        /// <summary>
+        /// Gets the discriminator value for a specific inherited property, preserving values for
+        /// separate discriminators declared at different levels of the hierarchy.
+        /// </summary>
+        public ValueExpression? GetDiscriminatorValueExpression(PropertyProvider property)
         {
-            if (_inputModel.BaseModel is not null && _inputModel.DiscriminatorValue is not null)
+            foreach (var model in new[] { this }.Concat(EnumerateBaseModelProviders()))
             {
-                var discriminator = BaseModelProvider?.CanonicalView.Properties.Where(p => p.IsDiscriminator).FirstOrDefault();
-                if (discriminator != null)
+                if (model._inputModel.DiscriminatorValue is not null && model.GetInheritedDiscriminator() == property)
                 {
-                    var type = discriminator.Type;
-                    if (IsUnknownDiscriminatorModel)
-                    {
-                        return GetUnknownDiscriminatorExpression(discriminator);
-                    }
-
-                    if (type is { IsFrameworkType: false, IsEnum: true })
-                    {
-                        if (_inputModel.BaseModel.DiscriminatorProperty?.Type is InputEnumType inputEnumType)
-                        {
-                            var discriminatorProvider = CodeModelGenerator.Instance.TypeFactory.CreateEnum(enumType: inputEnumType);
-
-                            var enumMember = discriminatorProvider!.EnumValues.FirstOrDefault(e => e.Value.ToString() == _inputModel.DiscriminatorValue)
-                                             ?? throw new InvalidOperationException($"invalid discriminator value {_inputModel.DiscriminatorValue}");
-                            var enumMemberName = enumMember.Name;
-
-                            // Check to see if the enum member for this discriminator value has been customized
-                            var customEnumProperty = discriminatorProvider.CustomCodeView?.Properties
-                                .FirstOrDefault(f => f.OriginalName?.Equals(enumMemberName, StringComparison.OrdinalIgnoreCase) == true);
-                            if (customEnumProperty != null)
-                            {
-                                enumMemberName = customEnumProperty.Name;
-                            }
-                            /* {KindType}.{enumMember} */
-                            return Static(type).Property(enumMemberName);
-                        }
-
-                        // Handle custom fixed enum discriminator
-                        if (discriminator.CustomProvider?.Value?.IsEnum == true)
-                        {
-                            var enumMember = discriminator.CustomProvider.Value.Fields
-                                .FirstOrDefault(f => f.Name.Equals(_inputModel.DiscriminatorValue, StringComparison.OrdinalIgnoreCase));
-                            if (enumMember != null)
-                            {
-                                return Static(type).Property(enumMember.Name);
-                            }
-                        }
-                    }
-
-                    // fallback to the default value
-                    return DiscriminatorLiteral;
+                    return model.BuildDiscriminatorValueExpression(property);
                 }
             }
+
             return null;
+        }
+
+        private ValueExpression BuildDiscriminatorValueExpression(PropertyProvider discriminator)
+        {
+            var type = discriminator.Type;
+            if (IsUnknownDiscriminatorModel)
+            {
+                return GetUnknownDiscriminatorExpression(discriminator)!;
+            }
+
+            if (type is { IsFrameworkType: false, IsEnum: true })
+            {
+                if (discriminator.InputProperty?.Type is InputEnumType inputEnumType)
+                {
+                    var discriminatorProvider = CodeModelGenerator.Instance.TypeFactory.CreateEnum(enumType: inputEnumType);
+
+                    var enumMember = discriminatorProvider!.EnumValues.FirstOrDefault(e => e.Value.ToString() == _inputModel.DiscriminatorValue)
+                                     ?? throw new InvalidOperationException($"invalid discriminator value {_inputModel.DiscriminatorValue}");
+                    var enumMemberName = enumMember.Name;
+
+                    // Check to see if the enum member for this discriminator value has been customized
+                    var customEnumProperty = discriminatorProvider.CustomCodeView?.Properties
+                        .FirstOrDefault(f => f.OriginalName?.Equals(enumMemberName, StringComparison.OrdinalIgnoreCase) == true);
+                    if (customEnumProperty != null)
+                    {
+                        enumMemberName = customEnumProperty.Name;
+                    }
+                    /* {KindType}.{enumMember} */
+                    return Static(type).Property(enumMemberName);
+                }
+
+                // Handle custom fixed enum discriminator
+                if (discriminator.CustomProvider?.Value?.IsEnum == true)
+                {
+                    var enumMember = discriminator.CustomProvider.Value.Fields
+                        .FirstOrDefault(f => f.Name.Equals(_inputModel.DiscriminatorValue, StringComparison.OrdinalIgnoreCase));
+                    if (enumMember != null)
+                    {
+                        return Static(type).Property(enumMember.Name);
+                    }
+                }
+            }
+
+            // fallback to the default value
+            return DiscriminatorLiteral;
         }
 
         private ValueExpression GetExpressionForCtor(
@@ -1752,7 +1771,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 if (isPrimaryConstructor)
                 {
-                    return DiscriminatorValueExpression ?? throw new InvalidOperationException($"invalid discriminator {_inputModel.DiscriminatorValue} for property {parameter.Property.Name}");
+                    return GetDiscriminatorValueExpression(parameter.Property) ?? throw new InvalidOperationException($"invalid discriminator {_inputModel.DiscriminatorValue} for property {parameter.Property.Name}");
                 }
                 else if (IsUnknownDiscriminatorModel)
                 {
@@ -1855,12 +1874,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 CreatePropertyAssignmentStatement(isPrimaryConstructor, methodBodyStatements, parameterMap, field: field);
             }
 
-            // If discriminator is defined as optional in the base model, but we have an expression for it, assign it in the
-            // primary constructor body.
+            // Assign optional discriminators and inherited discriminators that cannot be passed
+            // through the direct base model's initialization constructor.
             if (isPrimaryConstructor && DiscriminatorValueExpression != null)
             {
-                var baseDiscriminatorProperty = BaseModelProvider?.DiscriminatorProperty;
-                if (baseDiscriminatorProperty is { WireInfo.IsRequired: false })
+                var baseDiscriminatorProperty = GetInheritedDiscriminator();
+                if (baseDiscriminatorProperty is { WireInfo.IsRequired: false } ||
+                    (baseDiscriminatorProperty is not null && _inputModel.DiscriminatorProperty is null &&
+                     baseDiscriminatorProperty.EnclosingType != BaseModelProvider))
                 {
                     methodBodyStatements.Add(ExperimentalApiHelpers.Suppress(
                         baseDiscriminatorProperty.Assign(DiscriminatorValueExpression).Terminate(),
