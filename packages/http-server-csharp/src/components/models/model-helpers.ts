@@ -13,6 +13,7 @@ import {
 } from "@typespec/compiler";
 import type { useTsp } from "@typespec/emitter-framework";
 import { isStatusCode } from "@typespec/http";
+import { csharpStringLiteral } from "../../utils/csharp-string-literal.js";
 import { getUnionEnumMembers, isUnionEnum } from "../enums/enums.jsx";
 import { assignAnonymousName } from "./anonymous-models.js";
 
@@ -21,11 +22,11 @@ export function getLiteralValue(
   type: Type,
   collectionType?: "array" | "enumerable",
 ): string | undefined {
-  if (type.kind === "String") return `"${type.value}"`;
+  if (type.kind === "String") return csharpStringLiteral(type.value);
   if (type.kind === "Boolean") return type.value ? "true" : "false";
   if (type.kind === "Number") return String(type.value);
   if (type.kind === "StringTemplate" && (type as any).stringValue !== undefined) {
-    return `"${(type as any).stringValue}"`;
+    return csharpStringLiteral((type as any).stringValue);
   }
   if (type.kind === "Tuple") {
     const elements = type.values.map((v) => getLiteralValue(v));
@@ -54,7 +55,7 @@ export function getLiteralValue(
 
 /** Gets the string representation of a Value (for defaultValue). */
 export function getDefaultValueString(value: Value): string | undefined {
-  if (value.valueKind === "StringValue") return `"${value.value}"`;
+  if (value.valueKind === "StringValue") return csharpStringLiteral(value.value);
   if (value.valueKind === "BooleanValue") return value.value ? "true" : "false";
   if (value.valueKind === "NumericValue") return String(value.value);
   return undefined;

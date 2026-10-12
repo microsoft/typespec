@@ -1,4 +1,5 @@
 import { type Children } from "@alloy-js/core";
+import { csharpStringLiteral } from "../../utils/csharp-string-literal.js";
 import { CSharpFile } from "../csharp-file.jsx";
 
 export interface ProgramCsProps {
@@ -61,7 +62,7 @@ ${
     ? `
 app.MapGet("/openapi.yaml", async (HttpContext context) =>
 {
-    var externalFilePath = "${openApiPath}"; // Full path to the file outside the project
+    var externalFilePath = ${csharpStringLiteral(openApiPath)}; // Full path to the file outside the project
     if (!File.Exists(externalFilePath))
     {
         context.Response.StatusCode = StatusCodes.Status404NotFound;

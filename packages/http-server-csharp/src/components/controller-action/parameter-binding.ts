@@ -2,6 +2,7 @@ import type { AttributeProps } from "@alloy-js/csharp";
 import type { Type } from "@typespec/compiler";
 import type { CanonicalHttpProperty } from "@typespec/http-canonicalization";
 import { AspNetMvc } from "../../utils/csharp-libs.jsx";
+import { csharpStringLiteral } from "../../utils/csharp-string-literal.js";
 
 /**
  * Maps a canonical HTTP property to an ASP.NET parameter binding attribute.
@@ -20,11 +21,20 @@ export function getBindingAttribute(
       if (paramName !== undefined && paramName === prop.options.name) {
         return undefined;
       }
-      return { name: AspNetMvc.FromRouteAttribute, args: [`Name="${prop.options.name}"`] };
+      return {
+        name: AspNetMvc.FromRouteAttribute,
+        args: [`Name=${csharpStringLiteral(prop.options.name)}`],
+      };
     case "query":
-      return { name: AspNetMvc.FromQueryAttribute, args: [`Name="${prop.options.name}"`] };
+      return {
+        name: AspNetMvc.FromQueryAttribute,
+        args: [`Name=${csharpStringLiteral(prop.options.name)}`],
+      };
     case "header":
-      return { name: AspNetMvc.FromHeaderAttribute, args: [`Name="${prop.options.name}"`] };
+      return {
+        name: AspNetMvc.FromHeaderAttribute,
+        args: [`Name=${csharpStringLiteral(prop.options.name)}`],
+      };
     default:
       return undefined;
   }
@@ -38,10 +48,10 @@ export function getBindingAttribute(
 export function getLiteralDefaultValue(type: Type): string | undefined {
   switch (type.kind) {
     case "String":
-      return `"${type.value}"`;
+      return csharpStringLiteral(type.value);
     case "StringTemplate": {
       if (type.stringValue !== undefined) {
-        return `"${type.stringValue}"`;
+        return csharpStringLiteral(type.stringValue);
       }
       // Try to resolve the template by concatenating span values
       let resolved = "";
@@ -54,13 +64,13 @@ export function getLiteralDefaultValue(type: Type): string | undefined {
           }
           const spanDefault = getLiteralDefaultValue(spanType);
           if (spanDefault === undefined) return undefined;
-          // Strip quotes from the resolved value
-          resolved += spanDefault.replace(/^"|"$/g, "");
+          // A string span is a C# literal; concatenate the value it encodes
+          resolved += spanDefault.startsWith('"') ? JSON.parse(spanDefault) : spanDefault;
         } else {
           resolved += span.type.value;
         }
       }
-      return `"${resolved}"`;
+      return csharpStringLiteral(resolved);
     }
     case "Number":
       return type.valueAsString;

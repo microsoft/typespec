@@ -14,6 +14,7 @@ import {
 } from "@typespec/compiler";
 import { useTsp } from "@typespec/emitter-framework";
 import { getDocComments } from "@typespec/emitter-framework/csharp";
+import { csharpStringLiteral } from "../../utils/csharp-string-literal.js";
 import { getSubNamespaceParts } from "../../utils/namespace-utils.js";
 import { CSharpFile } from "../csharp-file.jsx";
 import { efRefkey } from "../type-expression/type-expression.jsx";
@@ -117,7 +118,7 @@ export function Enums(props: EnumsProps): Children {
                     <cs.DocWhen doc={getDocComments($, member.docSource)} />
                     <Attribute
                       name={Serialization.JsonStringEnumMemberNameAttribute}
-                      args={[`"${member.serializedValue}"`]}
+                      args={[csharpStringLiteral(member.serializedValue)]}
                     />
                     <hbr />
                     <cs.EnumMember

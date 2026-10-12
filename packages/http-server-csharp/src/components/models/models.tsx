@@ -15,6 +15,7 @@ import { isStatusCode } from "@typespec/http";
 import { getUniqueItems } from "@typespec/json-schema";
 import { useEmitterOptions } from "../../context/emitter-options-context.js";
 import { getPropertyAttributes } from "../../utils/attributes.jsx";
+import { csharpStringLiteral } from "../../utils/csharp-string-literal.js";
 import { getSubNamespaceParts } from "../../utils/namespace-utils.js";
 import { CSharpFile } from "../csharp-file.jsx";
 import {
@@ -201,7 +202,10 @@ function ServerProperty(props: ServerPropertyProps): Children {
   const csharpName = namePolicy.getName(propName, "class-property");
   if (csharpName !== props.type.name) {
     attrs.unshift(
-      <Attribute name={Serialization.JsonPropertyNameAttribute} args={[`"${props.type.name}"`]} />,
+      <Attribute
+        name={Serialization.JsonPropertyNameAttribute}
+        args={[csharpStringLiteral(props.type.name)]}
+      />,
     );
   }
 

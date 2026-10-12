@@ -6,6 +6,7 @@ import { useTsp } from "@typespec/emitter-framework";
 import { getDocComments } from "@typespec/emitter-framework/csharp";
 import type { OperationHttpCanonicalization } from "@typespec/http-canonicalization";
 import { AspNetMvc } from "../../utils/csharp-libs.jsx";
+import { csharpStringLiteral } from "../../utils/csharp-string-literal.js";
 import { getHttpVerbAttribute, getRouteTemplate } from "../../utils/http-helpers.js";
 import { getSuccessReturnType } from "../../utils/return-type-helpers.js";
 import type { RequestModelInfo } from "../request-models.jsx";
@@ -182,7 +183,7 @@ export function ControllerAction(props: ControllerActionProps): Children {
 
   const attributes: Children[] = [
     <Attribute name={verb} />,
-    <Attribute name={AspNetMvc.RouteAttribute} args={[`"${route}"`]} />,
+    <Attribute name={AspNetMvc.RouteAttribute} args={[csharpStringLiteral(route)]} />,
   ];
   if (isMultipart) {
     attributes.push(
