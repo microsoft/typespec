@@ -89,6 +89,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             }
         }
 
+        [Test]
+        public void SerializationUsesOptionalIsDefinedWithPresence(
+            [Values(false, true)] bool isValueType,
+            [Values(false, true)] bool isReadOnly,
+            [Values(false, true)] bool isDynamic)
+        {
+            var inputModel = InputFactory.Model("model", isDynamicModel: isDynamic, properties:
+                [InputFactory.Property("value", new InputNullableType(isValueType ? InputPrimitiveType.Int32 : InputPrimitiveType.String),
+                    isReadOnly: isReadOnly)]);
+            var (_, serialization) = CreateModelAndSerialization(inputModel);
+            var code = serialization.BuildJsonModelWriteCoreMethod().BodyStatements!.ToDisplayString();
+
+            StringAssert.Contains("Optional.IsDefined(Value, _valueIsDefined)", code);
+            StringAssert.DoesNotContain("_valueIsDefined ||", code);
+        }
+
         // This test validates the json model serialization write method is built correctly
         [TestCase(true)]
         [TestCase(false)]

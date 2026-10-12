@@ -144,7 +144,7 @@ namespace SampleTypeSpec
             base.JsonModelWriteCore(writer, options);
             writer.WritePropertyName("age"u8);
             writer.WriteNumberValue(Age);
-            if (_nullableTextIsDefined || Optional.IsDefined(NullableText))
+            if (Optional.IsDefined(NullableText, _nullableTextIsDefined))
             {
                 if (NullableText != null)
                 {

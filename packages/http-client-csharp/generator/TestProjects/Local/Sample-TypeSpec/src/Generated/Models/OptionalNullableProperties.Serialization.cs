@@ -79,7 +79,7 @@ namespace SampleTypeSpec
                 throw new FormatException($"The model {nameof(OptionalNullableProperties)} does not support writing '{format}' format.");
             }
             base.JsonModelWriteCore(writer, options);
-            if (_nullableModelIsDefined || Optional.IsDefined(NullableModel))
+            if (Optional.IsDefined(NullableModel, _nullableModelIsDefined))
             {
                 if (NullableModel != null)
                 {
@@ -91,7 +91,7 @@ namespace SampleTypeSpec
                     writer.WriteNull("nullableModel"u8);
                 }
             }
-            if (_nullableStringIsDefined || Optional.IsDefined(NullableString))
+            if (Optional.IsDefined(NullableString, _nullableStringIsDefined))
             {
                 if (NullableString != null)
                 {
@@ -103,7 +103,7 @@ namespace SampleTypeSpec
                     writer.WriteNull("nullableString"u8);
                 }
             }
-            if (_nullableIntIsDefined || Optional.IsDefined(NullableInt))
+            if (Optional.IsDefined(NullableInt, _nullableIntIsDefined))
             {
                 if (NullableInt != null)
                 {
@@ -115,7 +115,7 @@ namespace SampleTypeSpec
                     writer.WriteNull("nullableInt"u8);
                 }
             }
-            if (_nullableBooleanIsDefined || Optional.IsDefined(NullableBoolean))
+            if (Optional.IsDefined(NullableBoolean, _nullableBooleanIsDefined))
             {
                 if (NullableBoolean != null)
                 {
@@ -127,7 +127,7 @@ namespace SampleTypeSpec
                     writer.WriteNull("nullableBoolean"u8);
                 }
             }
-            if (_nullableEnumIsDefined || Optional.IsDefined(NullableEnum))
+            if (Optional.IsDefined(NullableEnum, _nullableEnumIsDefined))
             {
                 if (NullableEnum != null)
                 {
@@ -139,7 +139,7 @@ namespace SampleTypeSpec
                     writer.WriteNull("nullableEnum"u8);
                 }
             }
-            if (_nullableOnIsDefined || Optional.IsDefined(NullableOn))
+            if (Optional.IsDefined(NullableOn, _nullableOnIsDefined))
             {
                 if (NullableOn != null)
                 {
@@ -151,7 +151,7 @@ namespace SampleTypeSpec
                     writer.WriteNull("nullableDateTime"u8);
                 }
             }
-            if (_nullableBytesIsDefined || Optional.IsDefined(NullableBytes))
+            if (Optional.IsDefined(NullableBytes, _nullableBytesIsDefined))
             {
                 if (NullableBytes != null)
                 {
@@ -208,7 +208,7 @@ namespace SampleTypeSpec
                     writer.WriteNull("nullableDictionary"u8);
                 }
             }
-            if (options.Format != "W" && (_readOnlyNullableIsDefined || Optional.IsDefined(ReadOnlyNullable)))
+            if (options.Format != "W" && Optional.IsDefined(ReadOnlyNullable, _readOnlyNullableIsDefined))
             {
                 if (ReadOnlyNullable != null)
                 {
