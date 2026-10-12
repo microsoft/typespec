@@ -2,11 +2,20 @@ package payload.multipart.implementation;
 
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceMethod;
+import io.clientcore.core.http.models.HttpHeaderName;
+import io.clientcore.core.http.models.HttpMethod;
+import io.clientcore.core.http.models.HttpRequest;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.instrumentation.Instrumentation;
 import io.clientcore.core.instrumentation.logging.ClientLogger;
+import io.clientcore.core.models.binarydata.BinaryData;
+import io.clientcore.core.serialization.SerializationFormat;
+import io.clientcore.core.serialization.json.JsonSerializer;
+import io.clientcore.core.utils.CoreUtils;
+import io.clientcore.core.utils.GeneratedCodeUtils;
 import payload.multipart.BinaryArrayPartsRequest;
 import payload.multipart.ComplexPartsRequest;
 import payload.multipart.JsonPartRequest;
@@ -47,7 +56,7 @@ public final class FormDatasImpl {
     }
 
     public interface FormDatasService {
-        static FormDatasService getNewInstance(io.clientcore.core.http.pipeline.HttpPipeline pipeline) {
+        static FormDatasService getNewInstance(HttpPipeline pipeline) {
             return new FormDatasServiceImpl(pipeline);
         }
 
@@ -79,59 +88,50 @@ public final class FormDatasImpl {
     }
 
     private static final class FormDatasServiceImpl implements FormDatasService {
-        private static final io.clientcore.core.instrumentation.logging.ClientLogger LOGGER
-            = new io.clientcore.core.instrumentation.logging.ClientLogger(FormDatasServiceImpl.class);
+        private static final ClientLogger LOGGER = new ClientLogger(FormDatasServiceImpl.class);
 
-        private final io.clientcore.core.http.pipeline.HttpPipeline httpPipeline;
+        private final HttpPipeline httpPipeline;
 
-        private final io.clientcore.core.serialization.json.JsonSerializer jsonSerializer
-            = io.clientcore.core.serialization.json.JsonSerializer.getInstance();
+        private final JsonSerializer jsonSerializer = JsonSerializer.getInstance();
 
-        private FormDatasServiceImpl(io.clientcore.core.http.pipeline.HttpPipeline pipeline) {
+        private FormDatasServiceImpl(HttpPipeline pipeline) {
             this.httpPipeline = pipeline;
         }
 
         @Override
         public Response<Void> basic(String endpoint, String contentType, MultiPartRequest body,
             RequestContext requestContext) {
-            io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
-                .setMethod(io.clientcore.core.http.models.HttpMethod.POST)
-                .setUri(endpoint + "/multipart/form-data/mixed-parts");
+            HttpRequest httpRequest
+                = new HttpRequest().setMethod(HttpMethod.POST).setUri(endpoint + "/multipart/form-data/mixed-parts");
             if (contentType != null) {
-                httpRequest.getHeaders()
-                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("content-type"), contentType);
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("content-type"), contentType);
             }
             if (body != null) {
-                if (httpRequest.getHeaders().get(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE) == null) {
-                    httpRequest.getHeaders()
-                        .set(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE, "multipart/form-data");
+                if (httpRequest.getHeaders().get(HttpHeaderName.CONTENT_TYPE) == null) {
+                    httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, "multipart/form-data");
                 }
-                httpRequest
-                    .setBody(io.clientcore.core.models.binarydata.BinaryData.fromObject(body, this.jsonSerializer));
+                httpRequest.setBody(BinaryData.fromObject(body, this.jsonSerializer));
             }
             if (requestContext != null) {
                 httpRequest.setContext(requestContext);
                 requestContext.getRequestCallback().accept(httpRequest);
             }
-            io.clientcore.core.http.models.Response<io.clientcore.core.models.binarydata.BinaryData> networkResponse
-                = this.httpPipeline.send(httpRequest);
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 204)) {
-                if (io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
-                    == io.clientcore.core.serialization.SerializationFormat.XML) {
+                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == SerializationFormat.XML) {
                     try {
-                        throw new io.clientcore.core.http.models.HttpResponseException("Unexpected XML response.",
-                            networkResponse, (Object) null);
+                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
                     } finally {
                         networkResponse.close();
                     }
                 }
-                io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
-                    this.jsonSerializer, null, null, null, FormDatasServiceImpl.LOGGER);
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer, null,
+                    null, null, FormDatasServiceImpl.LOGGER);
             }
             try {
-                return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
-                    networkResponse.getHeaders(), null);
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
             } finally {
                 networkResponse.close();
             }
@@ -140,44 +140,37 @@ public final class FormDatasImpl {
         @Override
         public Response<Void> withWireName(String endpoint, String contentType, MultiPartRequestWithWireName body,
             RequestContext requestContext) {
-            io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
-                .setMethod(io.clientcore.core.http.models.HttpMethod.POST)
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.POST)
                 .setUri(endpoint + "/multipart/form-data/mixed-parts-with-wire-name");
             if (contentType != null) {
-                httpRequest.getHeaders()
-                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("content-type"), contentType);
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("content-type"), contentType);
             }
             if (body != null) {
-                if (httpRequest.getHeaders().get(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE) == null) {
-                    httpRequest.getHeaders()
-                        .set(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE, "multipart/form-data");
+                if (httpRequest.getHeaders().get(HttpHeaderName.CONTENT_TYPE) == null) {
+                    httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, "multipart/form-data");
                 }
-                httpRequest
-                    .setBody(io.clientcore.core.models.binarydata.BinaryData.fromObject(body, this.jsonSerializer));
+                httpRequest.setBody(BinaryData.fromObject(body, this.jsonSerializer));
             }
             if (requestContext != null) {
                 httpRequest.setContext(requestContext);
                 requestContext.getRequestCallback().accept(httpRequest);
             }
-            io.clientcore.core.http.models.Response<io.clientcore.core.models.binarydata.BinaryData> networkResponse
-                = this.httpPipeline.send(httpRequest);
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 204)) {
-                if (io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
-                    == io.clientcore.core.serialization.SerializationFormat.XML) {
+                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == SerializationFormat.XML) {
                     try {
-                        throw new io.clientcore.core.http.models.HttpResponseException("Unexpected XML response.",
-                            networkResponse, (Object) null);
+                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
                     } finally {
                         networkResponse.close();
                     }
                 }
-                io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
-                    this.jsonSerializer, null, null, null, FormDatasServiceImpl.LOGGER);
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer, null,
+                    null, null, FormDatasServiceImpl.LOGGER);
             }
             try {
-                return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
-                    networkResponse.getHeaders(), null);
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
             } finally {
                 networkResponse.close();
             }
@@ -186,44 +179,37 @@ public final class FormDatasImpl {
         @Override
         public Response<Void> optionalParts(String endpoint, String contentType, MultiPartOptionalRequest body,
             RequestContext requestContext) {
-            io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
-                .setMethod(io.clientcore.core.http.models.HttpMethod.POST)
-                .setUri(endpoint + "/multipart/form-data/optional-parts");
+            HttpRequest httpRequest
+                = new HttpRequest().setMethod(HttpMethod.POST).setUri(endpoint + "/multipart/form-data/optional-parts");
             if (contentType != null) {
-                httpRequest.getHeaders()
-                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("content-type"), contentType);
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("content-type"), contentType);
             }
             if (body != null) {
-                if (httpRequest.getHeaders().get(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE) == null) {
-                    httpRequest.getHeaders()
-                        .set(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE, "multipart/form-data");
+                if (httpRequest.getHeaders().get(HttpHeaderName.CONTENT_TYPE) == null) {
+                    httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, "multipart/form-data");
                 }
-                httpRequest
-                    .setBody(io.clientcore.core.models.binarydata.BinaryData.fromObject(body, this.jsonSerializer));
+                httpRequest.setBody(BinaryData.fromObject(body, this.jsonSerializer));
             }
             if (requestContext != null) {
                 httpRequest.setContext(requestContext);
                 requestContext.getRequestCallback().accept(httpRequest);
             }
-            io.clientcore.core.http.models.Response<io.clientcore.core.models.binarydata.BinaryData> networkResponse
-                = this.httpPipeline.send(httpRequest);
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 204)) {
-                if (io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
-                    == io.clientcore.core.serialization.SerializationFormat.XML) {
+                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == SerializationFormat.XML) {
                     try {
-                        throw new io.clientcore.core.http.models.HttpResponseException("Unexpected XML response.",
-                            networkResponse, (Object) null);
+                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
                     } finally {
                         networkResponse.close();
                     }
                 }
-                io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
-                    this.jsonSerializer, null, null, null, FormDatasServiceImpl.LOGGER);
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer, null,
+                    null, null, FormDatasServiceImpl.LOGGER);
             }
             try {
-                return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
-                    networkResponse.getHeaders(), null);
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
             } finally {
                 networkResponse.close();
             }
@@ -232,44 +218,37 @@ public final class FormDatasImpl {
         @Override
         public Response<Void> fileArrayAndBasic(String endpoint, String contentType, ComplexPartsRequest body,
             RequestContext requestContext) {
-            io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
-                .setMethod(io.clientcore.core.http.models.HttpMethod.POST)
-                .setUri(endpoint + "/multipart/form-data/complex-parts");
+            HttpRequest httpRequest
+                = new HttpRequest().setMethod(HttpMethod.POST).setUri(endpoint + "/multipart/form-data/complex-parts");
             if (contentType != null) {
-                httpRequest.getHeaders()
-                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("content-type"), contentType);
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("content-type"), contentType);
             }
             if (body != null) {
-                if (httpRequest.getHeaders().get(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE) == null) {
-                    httpRequest.getHeaders()
-                        .set(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE, "multipart/form-data");
+                if (httpRequest.getHeaders().get(HttpHeaderName.CONTENT_TYPE) == null) {
+                    httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, "multipart/form-data");
                 }
-                httpRequest
-                    .setBody(io.clientcore.core.models.binarydata.BinaryData.fromObject(body, this.jsonSerializer));
+                httpRequest.setBody(BinaryData.fromObject(body, this.jsonSerializer));
             }
             if (requestContext != null) {
                 httpRequest.setContext(requestContext);
                 requestContext.getRequestCallback().accept(httpRequest);
             }
-            io.clientcore.core.http.models.Response<io.clientcore.core.models.binarydata.BinaryData> networkResponse
-                = this.httpPipeline.send(httpRequest);
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 204)) {
-                if (io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
-                    == io.clientcore.core.serialization.SerializationFormat.XML) {
+                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == SerializationFormat.XML) {
                     try {
-                        throw new io.clientcore.core.http.models.HttpResponseException("Unexpected XML response.",
-                            networkResponse, (Object) null);
+                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
                     } finally {
                         networkResponse.close();
                     }
                 }
-                io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
-                    this.jsonSerializer, null, null, null, FormDatasServiceImpl.LOGGER);
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer, null,
+                    null, null, FormDatasServiceImpl.LOGGER);
             }
             try {
-                return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
-                    networkResponse.getHeaders(), null);
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
             } finally {
                 networkResponse.close();
             }
@@ -278,44 +257,37 @@ public final class FormDatasImpl {
         @Override
         public Response<Void> jsonPart(String endpoint, String contentType, JsonPartRequest body,
             RequestContext requestContext) {
-            io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
-                .setMethod(io.clientcore.core.http.models.HttpMethod.POST)
-                .setUri(endpoint + "/multipart/form-data/json-part");
+            HttpRequest httpRequest
+                = new HttpRequest().setMethod(HttpMethod.POST).setUri(endpoint + "/multipart/form-data/json-part");
             if (contentType != null) {
-                httpRequest.getHeaders()
-                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("content-type"), contentType);
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("content-type"), contentType);
             }
             if (body != null) {
-                if (httpRequest.getHeaders().get(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE) == null) {
-                    httpRequest.getHeaders()
-                        .set(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE, "multipart/form-data");
+                if (httpRequest.getHeaders().get(HttpHeaderName.CONTENT_TYPE) == null) {
+                    httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, "multipart/form-data");
                 }
-                httpRequest
-                    .setBody(io.clientcore.core.models.binarydata.BinaryData.fromObject(body, this.jsonSerializer));
+                httpRequest.setBody(BinaryData.fromObject(body, this.jsonSerializer));
             }
             if (requestContext != null) {
                 httpRequest.setContext(requestContext);
                 requestContext.getRequestCallback().accept(httpRequest);
             }
-            io.clientcore.core.http.models.Response<io.clientcore.core.models.binarydata.BinaryData> networkResponse
-                = this.httpPipeline.send(httpRequest);
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 204)) {
-                if (io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
-                    == io.clientcore.core.serialization.SerializationFormat.XML) {
+                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == SerializationFormat.XML) {
                     try {
-                        throw new io.clientcore.core.http.models.HttpResponseException("Unexpected XML response.",
-                            networkResponse, (Object) null);
+                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
                     } finally {
                         networkResponse.close();
                     }
                 }
-                io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
-                    this.jsonSerializer, null, null, null, FormDatasServiceImpl.LOGGER);
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer, null,
+                    null, null, FormDatasServiceImpl.LOGGER);
             }
             try {
-                return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
-                    networkResponse.getHeaders(), null);
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
             } finally {
                 networkResponse.close();
             }
@@ -324,44 +296,37 @@ public final class FormDatasImpl {
         @Override
         public Response<Void> binaryArrayParts(String endpoint, String contentType, BinaryArrayPartsRequest body,
             RequestContext requestContext) {
-            io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
-                .setMethod(io.clientcore.core.http.models.HttpMethod.POST)
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.POST)
                 .setUri(endpoint + "/multipart/form-data/binary-array-parts");
             if (contentType != null) {
-                httpRequest.getHeaders()
-                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("content-type"), contentType);
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("content-type"), contentType);
             }
             if (body != null) {
-                if (httpRequest.getHeaders().get(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE) == null) {
-                    httpRequest.getHeaders()
-                        .set(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE, "multipart/form-data");
+                if (httpRequest.getHeaders().get(HttpHeaderName.CONTENT_TYPE) == null) {
+                    httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, "multipart/form-data");
                 }
-                httpRequest
-                    .setBody(io.clientcore.core.models.binarydata.BinaryData.fromObject(body, this.jsonSerializer));
+                httpRequest.setBody(BinaryData.fromObject(body, this.jsonSerializer));
             }
             if (requestContext != null) {
                 httpRequest.setContext(requestContext);
                 requestContext.getRequestCallback().accept(httpRequest);
             }
-            io.clientcore.core.http.models.Response<io.clientcore.core.models.binarydata.BinaryData> networkResponse
-                = this.httpPipeline.send(httpRequest);
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 204)) {
-                if (io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
-                    == io.clientcore.core.serialization.SerializationFormat.XML) {
+                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == SerializationFormat.XML) {
                     try {
-                        throw new io.clientcore.core.http.models.HttpResponseException("Unexpected XML response.",
-                            networkResponse, (Object) null);
+                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
                     } finally {
                         networkResponse.close();
                     }
                 }
-                io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
-                    this.jsonSerializer, null, null, null, FormDatasServiceImpl.LOGGER);
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer, null,
+                    null, null, FormDatasServiceImpl.LOGGER);
             }
             try {
-                return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
-                    networkResponse.getHeaders(), null);
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
             } finally {
                 networkResponse.close();
             }
@@ -370,44 +335,37 @@ public final class FormDatasImpl {
         @Override
         public Response<Void> multiBinaryParts(String endpoint, String contentType, MultiBinaryPartsRequest body,
             RequestContext requestContext) {
-            io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
-                .setMethod(io.clientcore.core.http.models.HttpMethod.POST)
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.POST)
                 .setUri(endpoint + "/multipart/form-data/multi-binary-parts");
             if (contentType != null) {
-                httpRequest.getHeaders()
-                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("content-type"), contentType);
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("content-type"), contentType);
             }
             if (body != null) {
-                if (httpRequest.getHeaders().get(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE) == null) {
-                    httpRequest.getHeaders()
-                        .set(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE, "multipart/form-data");
+                if (httpRequest.getHeaders().get(HttpHeaderName.CONTENT_TYPE) == null) {
+                    httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, "multipart/form-data");
                 }
-                httpRequest
-                    .setBody(io.clientcore.core.models.binarydata.BinaryData.fromObject(body, this.jsonSerializer));
+                httpRequest.setBody(BinaryData.fromObject(body, this.jsonSerializer));
             }
             if (requestContext != null) {
                 httpRequest.setContext(requestContext);
                 requestContext.getRequestCallback().accept(httpRequest);
             }
-            io.clientcore.core.http.models.Response<io.clientcore.core.models.binarydata.BinaryData> networkResponse
-                = this.httpPipeline.send(httpRequest);
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 204)) {
-                if (io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
-                    == io.clientcore.core.serialization.SerializationFormat.XML) {
+                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == SerializationFormat.XML) {
                     try {
-                        throw new io.clientcore.core.http.models.HttpResponseException("Unexpected XML response.",
-                            networkResponse, (Object) null);
+                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
                     } finally {
                         networkResponse.close();
                     }
                 }
-                io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
-                    this.jsonSerializer, null, null, null, FormDatasServiceImpl.LOGGER);
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer, null,
+                    null, null, FormDatasServiceImpl.LOGGER);
             }
             try {
-                return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
-                    networkResponse.getHeaders(), null);
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
             } finally {
                 networkResponse.close();
             }
@@ -416,44 +374,37 @@ public final class FormDatasImpl {
         @Override
         public Response<Void> checkFileNameAndContentType(String endpoint, String contentType, MultiPartRequest body,
             RequestContext requestContext) {
-            io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
-                .setMethod(io.clientcore.core.http.models.HttpMethod.POST)
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.POST)
                 .setUri(endpoint + "/multipart/form-data/check-filename-and-content-type");
             if (contentType != null) {
-                httpRequest.getHeaders()
-                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("content-type"), contentType);
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("content-type"), contentType);
             }
             if (body != null) {
-                if (httpRequest.getHeaders().get(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE) == null) {
-                    httpRequest.getHeaders()
-                        .set(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE, "multipart/form-data");
+                if (httpRequest.getHeaders().get(HttpHeaderName.CONTENT_TYPE) == null) {
+                    httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, "multipart/form-data");
                 }
-                httpRequest
-                    .setBody(io.clientcore.core.models.binarydata.BinaryData.fromObject(body, this.jsonSerializer));
+                httpRequest.setBody(BinaryData.fromObject(body, this.jsonSerializer));
             }
             if (requestContext != null) {
                 httpRequest.setContext(requestContext);
                 requestContext.getRequestCallback().accept(httpRequest);
             }
-            io.clientcore.core.http.models.Response<io.clientcore.core.models.binarydata.BinaryData> networkResponse
-                = this.httpPipeline.send(httpRequest);
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 204)) {
-                if (io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
-                    == io.clientcore.core.serialization.SerializationFormat.XML) {
+                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == SerializationFormat.XML) {
                     try {
-                        throw new io.clientcore.core.http.models.HttpResponseException("Unexpected XML response.",
-                            networkResponse, (Object) null);
+                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
                     } finally {
                         networkResponse.close();
                     }
                 }
-                io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
-                    this.jsonSerializer, null, null, null, FormDatasServiceImpl.LOGGER);
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer, null,
+                    null, null, FormDatasServiceImpl.LOGGER);
             }
             try {
-                return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
-                    networkResponse.getHeaders(), null);
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
             } finally {
                 networkResponse.close();
             }
@@ -462,44 +413,37 @@ public final class FormDatasImpl {
         @Override
         public Response<Void> anonymousModel(String endpoint, String contentType, AnonymousModelRequest body,
             RequestContext requestContext) {
-            io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
-                .setMethod(io.clientcore.core.http.models.HttpMethod.POST)
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.POST)
                 .setUri(endpoint + "/multipart/form-data/anonymous-model");
             if (contentType != null) {
-                httpRequest.getHeaders()
-                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("content-type"), contentType);
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("content-type"), contentType);
             }
             if (body != null) {
-                if (httpRequest.getHeaders().get(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE) == null) {
-                    httpRequest.getHeaders()
-                        .set(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE, "multipart/form-data");
+                if (httpRequest.getHeaders().get(HttpHeaderName.CONTENT_TYPE) == null) {
+                    httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, "multipart/form-data");
                 }
-                httpRequest
-                    .setBody(io.clientcore.core.models.binarydata.BinaryData.fromObject(body, this.jsonSerializer));
+                httpRequest.setBody(BinaryData.fromObject(body, this.jsonSerializer));
             }
             if (requestContext != null) {
                 httpRequest.setContext(requestContext);
                 requestContext.getRequestCallback().accept(httpRequest);
             }
-            io.clientcore.core.http.models.Response<io.clientcore.core.models.binarydata.BinaryData> networkResponse
-                = this.httpPipeline.send(httpRequest);
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 204)) {
-                if (io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
-                    == io.clientcore.core.serialization.SerializationFormat.XML) {
+                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == SerializationFormat.XML) {
                     try {
-                        throw new io.clientcore.core.http.models.HttpResponseException("Unexpected XML response.",
-                            networkResponse, (Object) null);
+                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
                     } finally {
                         networkResponse.close();
                     }
                 }
-                io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
-                    this.jsonSerializer, null, null, null, FormDatasServiceImpl.LOGGER);
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer, null,
+                    null, null, FormDatasServiceImpl.LOGGER);
             }
             try {
-                return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
-                    networkResponse.getHeaders(), null);
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
             } finally {
                 networkResponse.close();
             }

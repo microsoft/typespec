@@ -2,12 +2,20 @@ package streaming.jsonl.implementation;
 
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceMethod;
+import io.clientcore.core.http.models.HttpHeaderName;
+import io.clientcore.core.http.models.HttpMethod;
+import io.clientcore.core.http.models.HttpRequest;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.instrumentation.Instrumentation;
 import io.clientcore.core.instrumentation.logging.ClientLogger;
 import io.clientcore.core.models.binarydata.BinaryData;
+import io.clientcore.core.serialization.SerializationFormat;
+import io.clientcore.core.serialization.json.JsonSerializer;
+import io.clientcore.core.utils.CoreUtils;
+import io.clientcore.core.utils.GeneratedCodeUtils;
 
 /**
  * An instance of this class provides access to all the operations defined in Basics.
@@ -40,7 +48,7 @@ public final class BasicsImpl {
     }
 
     public interface BasicsService {
-        static BasicsService getNewInstance(io.clientcore.core.http.pipeline.HttpPipeline pipeline) {
+        static BasicsService getNewInstance(HttpPipeline pipeline) {
             return new BasicsServiceImpl(pipeline);
         }
 
@@ -51,32 +59,26 @@ public final class BasicsImpl {
     }
 
     private static final class BasicsServiceImpl implements BasicsService {
-        private static final io.clientcore.core.instrumentation.logging.ClientLogger LOGGER
-            = new io.clientcore.core.instrumentation.logging.ClientLogger(BasicsServiceImpl.class);
+        private static final ClientLogger LOGGER = new ClientLogger(BasicsServiceImpl.class);
 
-        private final io.clientcore.core.http.pipeline.HttpPipeline httpPipeline;
+        private final HttpPipeline httpPipeline;
 
-        private BasicsServiceImpl(io.clientcore.core.http.pipeline.HttpPipeline pipeline) {
+        private BasicsServiceImpl(HttpPipeline pipeline) {
             this.httpPipeline = pipeline;
         }
 
         @Override
         public Response<Void> send(String endpoint, String contentType, BinaryData body, long contentLength,
             RequestContext requestContext) {
-            io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
-                .setMethod(io.clientcore.core.http.models.HttpMethod.POST)
-                .setUri(endpoint + "/streaming/jsonl/basic/send");
+            HttpRequest httpRequest
+                = new HttpRequest().setMethod(HttpMethod.POST).setUri(endpoint + "/streaming/jsonl/basic/send");
             if (contentType != null) {
-                httpRequest.getHeaders()
-                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("content-type"), contentType);
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("content-type"), contentType);
             }
-            httpRequest.getHeaders()
-                .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Content-Length"),
-                    String.valueOf(contentLength));
+            httpRequest.getHeaders().set(HttpHeaderName.fromString("Content-Length"), String.valueOf(contentLength));
             if (body != null) {
-                if (httpRequest.getHeaders().get(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE) == null) {
-                    httpRequest.getHeaders()
-                        .set(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE, "application/jsonl");
+                if (httpRequest.getHeaders().get(HttpHeaderName.CONTENT_TYPE) == null) {
+                    httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, "application/jsonl");
                 }
                 httpRequest.setBody(body);
             }
@@ -84,26 +86,22 @@ public final class BasicsImpl {
                 httpRequest.setContext(requestContext);
                 requestContext.getRequestCallback().accept(httpRequest);
             }
-            io.clientcore.core.http.models.Response<io.clientcore.core.models.binarydata.BinaryData> networkResponse
-                = this.httpPipeline.send(httpRequest);
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 204)) {
-                if (io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
-                    == io.clientcore.core.serialization.SerializationFormat.XML) {
+                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == SerializationFormat.XML) {
                     try {
-                        throw new io.clientcore.core.http.models.HttpResponseException("Unexpected XML response.",
-                            networkResponse, (Object) null);
+                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
                     } finally {
                         networkResponse.close();
                     }
                 }
-                io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
-                    io.clientcore.core.serialization.json.JsonSerializer.getInstance(), null, null, null,
-                    BasicsServiceImpl.LOGGER);
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, JsonSerializer.getInstance(),
+                    null, null, null, BasicsServiceImpl.LOGGER);
             }
             try {
-                return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
-                    networkResponse.getHeaders(), null);
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
             } finally {
                 networkResponse.close();
             }
@@ -111,33 +109,28 @@ public final class BasicsImpl {
 
         @Override
         public Response<BinaryData> receive(String endpoint, String accept, RequestContext requestContext) {
-            io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
-                .setMethod(io.clientcore.core.http.models.HttpMethod.GET)
-                .setUri(endpoint + "/streaming/jsonl/basic/receive");
+            HttpRequest httpRequest
+                = new HttpRequest().setMethod(HttpMethod.GET).setUri(endpoint + "/streaming/jsonl/basic/receive");
             if (accept != null) {
-                httpRequest.getHeaders()
-                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Accept"), accept);
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("Accept"), accept);
             }
             if (requestContext != null) {
                 httpRequest.setContext(requestContext);
                 requestContext.getRequestCallback().accept(httpRequest);
             }
-            io.clientcore.core.http.models.Response<io.clientcore.core.models.binarydata.BinaryData> networkResponse
-                = this.httpPipeline.send(httpRequest);
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 200)) {
-                if (io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
-                    == io.clientcore.core.serialization.SerializationFormat.XML) {
+                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == SerializationFormat.XML) {
                     try {
-                        throw new io.clientcore.core.http.models.HttpResponseException("Unexpected XML response.",
-                            networkResponse, (Object) null);
+                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
                     } finally {
                         networkResponse.close();
                     }
                 }
-                io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
-                    io.clientcore.core.serialization.json.JsonSerializer.getInstance(), null, null, null,
-                    BasicsServiceImpl.LOGGER);
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, JsonSerializer.getInstance(),
+                    null, null, null, BasicsServiceImpl.LOGGER);
             }
             return networkResponse;
         }

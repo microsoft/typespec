@@ -1,13 +1,24 @@
 package authentication.apikey.implementation;
 
+import authentication.apikey.InvalidAuth;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceMethod;
+import io.clientcore.core.http.models.HttpMethod;
+import io.clientcore.core.http.models.HttpRequest;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.instrumentation.Instrumentation;
 import io.clientcore.core.instrumentation.logging.ClientLogger;
+import io.clientcore.core.models.binarydata.BinaryData;
+import io.clientcore.core.serialization.SerializationFormat;
+import io.clientcore.core.serialization.json.JsonSerializer;
+import io.clientcore.core.utils.CoreUtils;
+import io.clientcore.core.utils.GeneratedCodeUtils;
+import java.lang.reflect.ParameterizedType;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Initializes a new instance of the ApiKeyClient type.
@@ -75,7 +86,7 @@ public final class ApiKeyClientImpl {
     }
 
     public interface ApiKeyClientService {
-        static ApiKeyClientService getNewInstance(io.clientcore.core.http.pipeline.HttpPipeline pipeline) {
+        static ApiKeyClientService getNewInstance(HttpPipeline pipeline) {
             return new ApiKeyClientServiceImpl(pipeline);
         }
 
@@ -85,44 +96,38 @@ public final class ApiKeyClientImpl {
     }
 
     private static final class ApiKeyClientServiceImpl implements ApiKeyClientService {
-        private static final io.clientcore.core.instrumentation.logging.ClientLogger LOGGER
-            = new io.clientcore.core.instrumentation.logging.ClientLogger(ApiKeyClientServiceImpl.class);
+        private static final ClientLogger LOGGER = new ClientLogger(ApiKeyClientServiceImpl.class);
 
-        private final io.clientcore.core.http.pipeline.HttpPipeline httpPipeline;
+        private final HttpPipeline httpPipeline;
 
-        private ApiKeyClientServiceImpl(io.clientcore.core.http.pipeline.HttpPipeline pipeline) {
+        private ApiKeyClientServiceImpl(HttpPipeline pipeline) {
             this.httpPipeline = pipeline;
         }
 
         @Override
         public Response<Void> valid(String endpoint, RequestContext requestContext) {
-            io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
-                .setMethod(io.clientcore.core.http.models.HttpMethod.GET)
-                .setUri(endpoint + "/authentication/api-key/valid");
+            HttpRequest httpRequest
+                = new HttpRequest().setMethod(HttpMethod.GET).setUri(endpoint + "/authentication/api-key/valid");
             if (requestContext != null) {
                 httpRequest.setContext(requestContext);
                 requestContext.getRequestCallback().accept(httpRequest);
             }
-            io.clientcore.core.http.models.Response<io.clientcore.core.models.binarydata.BinaryData> networkResponse
-                = this.httpPipeline.send(httpRequest);
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 204)) {
-                if (io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
-                    == io.clientcore.core.serialization.SerializationFormat.XML) {
+                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == SerializationFormat.XML) {
                     try {
-                        throw new io.clientcore.core.http.models.HttpResponseException("Unexpected XML response.",
-                            networkResponse, (Object) null);
+                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
                     } finally {
                         networkResponse.close();
                     }
                 }
-                io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
-                    io.clientcore.core.serialization.json.JsonSerializer.getInstance(), null, null, null,
-                    ApiKeyClientServiceImpl.LOGGER);
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, JsonSerializer.getInstance(),
+                    null, null, null, ApiKeyClientServiceImpl.LOGGER);
             }
             try {
-                return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
-                    networkResponse.getHeaders(), null);
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
             } finally {
                 networkResponse.close();
             }
@@ -130,37 +135,30 @@ public final class ApiKeyClientImpl {
 
         @Override
         public Response<Void> invalid(String endpoint, RequestContext requestContext) {
-            io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
-                .setMethod(io.clientcore.core.http.models.HttpMethod.GET)
-                .setUri(endpoint + "/authentication/api-key/invalid");
+            HttpRequest httpRequest
+                = new HttpRequest().setMethod(HttpMethod.GET).setUri(endpoint + "/authentication/api-key/invalid");
             if (requestContext != null) {
                 httpRequest.setContext(requestContext);
                 requestContext.getRequestCallback().accept(httpRequest);
             }
-            io.clientcore.core.http.models.Response<io.clientcore.core.models.binarydata.BinaryData> networkResponse
-                = this.httpPipeline.send(httpRequest);
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 204)) {
-                if (io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
-                    == io.clientcore.core.serialization.SerializationFormat.XML) {
+                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == SerializationFormat.XML) {
                     try {
-                        throw new io.clientcore.core.http.models.HttpResponseException("Unexpected XML response.",
-                            networkResponse, (Object) null);
+                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
                     } finally {
                         networkResponse.close();
                     }
                 }
-                java.util.Map<Integer, java.lang.reflect.ParameterizedType> statusToExceptionTypeMap
-                    = new java.util.HashMap<>();
-                statusToExceptionTypeMap.put(403, io.clientcore.core.utils.CoreUtils
-                    .createParameterizedType(authentication.apikey.InvalidAuth.class));
-                io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
-                    io.clientcore.core.serialization.json.JsonSerializer.getInstance(), null, null,
-                    statusToExceptionTypeMap, ApiKeyClientServiceImpl.LOGGER);
+                Map<Integer, ParameterizedType> statusToExceptionTypeMap = new HashMap<>();
+                statusToExceptionTypeMap.put(403, CoreUtils.createParameterizedType(InvalidAuth.class));
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, JsonSerializer.getInstance(),
+                    null, null, statusToExceptionTypeMap, ApiKeyClientServiceImpl.LOGGER);
             }
             try {
-                return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
-                    networkResponse.getHeaders(), null);
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
             } finally {
                 networkResponse.close();
             }

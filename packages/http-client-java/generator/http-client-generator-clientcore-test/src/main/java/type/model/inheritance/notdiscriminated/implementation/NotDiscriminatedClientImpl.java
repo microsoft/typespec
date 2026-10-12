@@ -2,12 +2,20 @@ package type.model.inheritance.notdiscriminated.implementation;
 
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceMethod;
+import io.clientcore.core.http.models.HttpHeaderName;
+import io.clientcore.core.http.models.HttpMethod;
+import io.clientcore.core.http.models.HttpRequest;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.instrumentation.Instrumentation;
 import io.clientcore.core.instrumentation.logging.ClientLogger;
+import io.clientcore.core.models.binarydata.BinaryData;
+import io.clientcore.core.serialization.SerializationFormat;
+import io.clientcore.core.serialization.json.JsonSerializer;
+import io.clientcore.core.utils.CoreUtils;
+import io.clientcore.core.utils.GeneratedCodeUtils;
 import type.model.inheritance.notdiscriminated.Siamese;
 
 /**
@@ -76,7 +84,7 @@ public final class NotDiscriminatedClientImpl {
     }
 
     public interface NotDiscriminatedClientService {
-        static NotDiscriminatedClientService getNewInstance(io.clientcore.core.http.pipeline.HttpPipeline pipeline) {
+        static NotDiscriminatedClientService getNewInstance(HttpPipeline pipeline) {
             return new NotDiscriminatedClientServiceImpl(pipeline);
         }
 
@@ -89,59 +97,50 @@ public final class NotDiscriminatedClientImpl {
     }
 
     private static final class NotDiscriminatedClientServiceImpl implements NotDiscriminatedClientService {
-        private static final io.clientcore.core.instrumentation.logging.ClientLogger LOGGER
-            = new io.clientcore.core.instrumentation.logging.ClientLogger(NotDiscriminatedClientServiceImpl.class);
+        private static final ClientLogger LOGGER = new ClientLogger(NotDiscriminatedClientServiceImpl.class);
 
-        private final io.clientcore.core.http.pipeline.HttpPipeline httpPipeline;
+        private final HttpPipeline httpPipeline;
 
-        private final io.clientcore.core.serialization.json.JsonSerializer jsonSerializer
-            = io.clientcore.core.serialization.json.JsonSerializer.getInstance();
+        private final JsonSerializer jsonSerializer = JsonSerializer.getInstance();
 
-        private NotDiscriminatedClientServiceImpl(io.clientcore.core.http.pipeline.HttpPipeline pipeline) {
+        private NotDiscriminatedClientServiceImpl(HttpPipeline pipeline) {
             this.httpPipeline = pipeline;
         }
 
         @Override
         public Response<Void> postValid(String endpoint, String contentType, Siamese input,
             RequestContext requestContext) {
-            io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
-                .setMethod(io.clientcore.core.http.models.HttpMethod.POST)
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.POST)
                 .setUri(endpoint + "/type/model/inheritance/not-discriminated/valid");
             if (contentType != null) {
-                httpRequest.getHeaders()
-                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Content-Type"), contentType);
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("Content-Type"), contentType);
             }
             if (input != null) {
-                if (httpRequest.getHeaders().get(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE) == null) {
-                    httpRequest.getHeaders()
-                        .set(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE, "application/json");
+                if (httpRequest.getHeaders().get(HttpHeaderName.CONTENT_TYPE) == null) {
+                    httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, "application/json");
                 }
-                httpRequest
-                    .setBody(io.clientcore.core.models.binarydata.BinaryData.fromObject(input, this.jsonSerializer));
+                httpRequest.setBody(BinaryData.fromObject(input, this.jsonSerializer));
             }
             if (requestContext != null) {
                 httpRequest.setContext(requestContext);
                 requestContext.getRequestCallback().accept(httpRequest);
             }
-            io.clientcore.core.http.models.Response<io.clientcore.core.models.binarydata.BinaryData> networkResponse
-                = this.httpPipeline.send(httpRequest);
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 204)) {
-                if (io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
-                    == io.clientcore.core.serialization.SerializationFormat.XML) {
+                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == SerializationFormat.XML) {
                     try {
-                        throw new io.clientcore.core.http.models.HttpResponseException("Unexpected XML response.",
-                            networkResponse, (Object) null);
+                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
                     } finally {
                         networkResponse.close();
                     }
                 }
-                io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
-                    this.jsonSerializer, null, null, null, NotDiscriminatedClientServiceImpl.LOGGER);
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer, null,
+                    null, null, NotDiscriminatedClientServiceImpl.LOGGER);
             }
             try {
-                return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
-                    networkResponse.getHeaders(), null);
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
             } finally {
                 networkResponse.close();
             }
@@ -149,40 +148,35 @@ public final class NotDiscriminatedClientImpl {
 
         @Override
         public Response<Siamese> getValid(String endpoint, String accept, RequestContext requestContext) {
-            io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
-                .setMethod(io.clientcore.core.http.models.HttpMethod.GET)
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.GET)
                 .setUri(endpoint + "/type/model/inheritance/not-discriminated/valid");
             if (accept != null) {
-                httpRequest.getHeaders()
-                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Accept"), accept);
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("Accept"), accept);
             }
             if (requestContext != null) {
                 httpRequest.setContext(requestContext);
                 requestContext.getRequestCallback().accept(httpRequest);
             }
-            io.clientcore.core.http.models.Response<io.clientcore.core.models.binarydata.BinaryData> networkResponse
-                = this.httpPipeline.send(httpRequest);
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 200)) {
-                if (io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
-                    == io.clientcore.core.serialization.SerializationFormat.XML) {
+                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == SerializationFormat.XML) {
                     try {
-                        throw new io.clientcore.core.http.models.HttpResponseException("Unexpected XML response.",
-                            networkResponse, (Object) null);
+                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
                     } finally {
                         networkResponse.close();
                     }
                 }
-                io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
-                    this.jsonSerializer, null, null, null, NotDiscriminatedClientServiceImpl.LOGGER);
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer, null,
+                    null, null, NotDiscriminatedClientServiceImpl.LOGGER);
             }
             try {
                 Siamese deserializedResult;
-                deserializedResult = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(
-                    networkResponse.getValue(), this.jsonSerializer, io.clientcore.core.utils.CoreUtils
-                        .createParameterizedType(io.clientcore.core.http.models.Response.class, Siamese.class));
-                return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
-                    networkResponse.getHeaders(), deserializedResult);
+                deserializedResult = CoreUtils.decodeNetworkResponse(networkResponse.getValue(), this.jsonSerializer,
+                    CoreUtils.createParameterizedType(Response.class, Siamese.class));
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(),
+                    deserializedResult);
             } finally {
                 networkResponse.close();
             }
@@ -191,52 +185,44 @@ public final class NotDiscriminatedClientImpl {
         @Override
         public Response<Siamese> putValid(String endpoint, String contentType, String accept, Siamese input,
             RequestContext requestContext) {
-            io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
-                .setMethod(io.clientcore.core.http.models.HttpMethod.PUT)
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.PUT)
                 .setUri(endpoint + "/type/model/inheritance/not-discriminated/valid");
             if (contentType != null) {
-                httpRequest.getHeaders()
-                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Content-Type"), contentType);
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("Content-Type"), contentType);
             }
             if (accept != null) {
-                httpRequest.getHeaders()
-                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Accept"), accept);
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("Accept"), accept);
             }
             if (input != null) {
-                if (httpRequest.getHeaders().get(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE) == null) {
-                    httpRequest.getHeaders()
-                        .set(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE, "application/json");
+                if (httpRequest.getHeaders().get(HttpHeaderName.CONTENT_TYPE) == null) {
+                    httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, "application/json");
                 }
-                httpRequest
-                    .setBody(io.clientcore.core.models.binarydata.BinaryData.fromObject(input, this.jsonSerializer));
+                httpRequest.setBody(BinaryData.fromObject(input, this.jsonSerializer));
             }
             if (requestContext != null) {
                 httpRequest.setContext(requestContext);
                 requestContext.getRequestCallback().accept(httpRequest);
             }
-            io.clientcore.core.http.models.Response<io.clientcore.core.models.binarydata.BinaryData> networkResponse
-                = this.httpPipeline.send(httpRequest);
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 200)) {
-                if (io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
-                    == io.clientcore.core.serialization.SerializationFormat.XML) {
+                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == SerializationFormat.XML) {
                     try {
-                        throw new io.clientcore.core.http.models.HttpResponseException("Unexpected XML response.",
-                            networkResponse, (Object) null);
+                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
                     } finally {
                         networkResponse.close();
                     }
                 }
-                io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
-                    this.jsonSerializer, null, null, null, NotDiscriminatedClientServiceImpl.LOGGER);
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer, null,
+                    null, null, NotDiscriminatedClientServiceImpl.LOGGER);
             }
             try {
                 Siamese deserializedResult;
-                deserializedResult = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(
-                    networkResponse.getValue(), this.jsonSerializer, io.clientcore.core.utils.CoreUtils
-                        .createParameterizedType(io.clientcore.core.http.models.Response.class, Siamese.class));
-                return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
-                    networkResponse.getHeaders(), deserializedResult);
+                deserializedResult = CoreUtils.decodeNetworkResponse(networkResponse.getValue(), this.jsonSerializer,
+                    CoreUtils.createParameterizedType(Response.class, Siamese.class));
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(),
+                    deserializedResult);
             } finally {
                 networkResponse.close();
             }

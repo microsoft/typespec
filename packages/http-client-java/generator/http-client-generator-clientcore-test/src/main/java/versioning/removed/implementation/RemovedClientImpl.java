@@ -2,12 +2,21 @@ package versioning.removed.implementation;
 
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceMethod;
+import io.clientcore.core.http.models.HttpHeaderName;
+import io.clientcore.core.http.models.HttpMethod;
+import io.clientcore.core.http.models.HttpRequest;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
+import io.clientcore.core.implementation.utils.UriEscapers;
 import io.clientcore.core.instrumentation.Instrumentation;
 import io.clientcore.core.instrumentation.logging.ClientLogger;
+import io.clientcore.core.models.binarydata.BinaryData;
+import io.clientcore.core.serialization.SerializationFormat;
+import io.clientcore.core.serialization.json.JsonSerializer;
+import io.clientcore.core.utils.CoreUtils;
+import io.clientcore.core.utils.GeneratedCodeUtils;
 import versioning.removed.ModelV2;
 import versioning.removed.ModelV3;
 import versioning.removed.RemovedServiceVersion;
@@ -95,7 +104,7 @@ public final class RemovedClientImpl {
     }
 
     public interface RemovedClientService {
-        static RemovedClientService getNewInstance(io.clientcore.core.http.pipeline.HttpPipeline pipeline) {
+        static RemovedClientService getNewInstance(HttpPipeline pipeline) {
             return new RemovedClientServiceImpl(pipeline);
         }
 
@@ -107,68 +116,58 @@ public final class RemovedClientImpl {
     }
 
     private static final class RemovedClientServiceImpl implements RemovedClientService {
-        private static final io.clientcore.core.instrumentation.logging.ClientLogger LOGGER
-            = new io.clientcore.core.instrumentation.logging.ClientLogger(RemovedClientServiceImpl.class);
+        private static final ClientLogger LOGGER = new ClientLogger(RemovedClientServiceImpl.class);
 
-        private final io.clientcore.core.http.pipeline.HttpPipeline httpPipeline;
+        private final HttpPipeline httpPipeline;
 
-        private final io.clientcore.core.serialization.json.JsonSerializer jsonSerializer
-            = io.clientcore.core.serialization.json.JsonSerializer.getInstance();
+        private final JsonSerializer jsonSerializer = JsonSerializer.getInstance();
 
-        private RemovedClientServiceImpl(io.clientcore.core.http.pipeline.HttpPipeline pipeline) {
+        private RemovedClientServiceImpl(HttpPipeline pipeline) {
             this.httpPipeline = pipeline;
         }
 
         @Override
         public Response<ModelV2> v2(String endpoint, String version, String contentType, String accept, ModelV2 body,
             RequestContext requestContext) {
-            io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
-                .setMethod(io.clientcore.core.http.models.HttpMethod.POST)
-                .setUri(endpoint + "/versioning/removed/api-version:"
-                    + io.clientcore.core.implementation.utils.UriEscapers.PATH_ESCAPER.escape(version) + "/v2");
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.POST)
+                .setUri(
+                    endpoint + "/versioning/removed/api-version:" + UriEscapers.PATH_ESCAPER.escape(version) + "/v2");
             if (contentType != null) {
-                httpRequest.getHeaders()
-                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Content-Type"), contentType);
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("Content-Type"), contentType);
             }
             if (accept != null) {
-                httpRequest.getHeaders()
-                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Accept"), accept);
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("Accept"), accept);
             }
             if (body != null) {
-                if (httpRequest.getHeaders().get(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE) == null) {
-                    httpRequest.getHeaders()
-                        .set(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE, "application/json");
+                if (httpRequest.getHeaders().get(HttpHeaderName.CONTENT_TYPE) == null) {
+                    httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, "application/json");
                 }
-                httpRequest
-                    .setBody(io.clientcore.core.models.binarydata.BinaryData.fromObject(body, this.jsonSerializer));
+                httpRequest.setBody(BinaryData.fromObject(body, this.jsonSerializer));
             }
             if (requestContext != null) {
                 httpRequest.setContext(requestContext);
                 requestContext.getRequestCallback().accept(httpRequest);
             }
-            io.clientcore.core.http.models.Response<io.clientcore.core.models.binarydata.BinaryData> networkResponse
-                = this.httpPipeline.send(httpRequest);
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 200)) {
-                if (io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
-                    == io.clientcore.core.serialization.SerializationFormat.XML) {
+                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == SerializationFormat.XML) {
                     try {
-                        throw new io.clientcore.core.http.models.HttpResponseException("Unexpected XML response.",
-                            networkResponse, (Object) null);
+                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
                     } finally {
                         networkResponse.close();
                     }
                 }
-                io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
-                    this.jsonSerializer, null, null, null, RemovedClientServiceImpl.LOGGER);
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer, null,
+                    null, null, RemovedClientServiceImpl.LOGGER);
             }
             try {
                 ModelV2 deserializedResult;
-                deserializedResult = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(
-                    networkResponse.getValue(), this.jsonSerializer, io.clientcore.core.utils.CoreUtils
-                        .createParameterizedType(io.clientcore.core.http.models.Response.class, ModelV2.class));
-                return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
-                    networkResponse.getHeaders(), deserializedResult);
+                deserializedResult = CoreUtils.decodeNetworkResponse(networkResponse.getValue(), this.jsonSerializer,
+                    CoreUtils.createParameterizedType(Response.class, ModelV2.class));
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(),
+                    deserializedResult);
             } finally {
                 networkResponse.close();
             }
@@ -177,53 +176,45 @@ public final class RemovedClientImpl {
         @Override
         public Response<ModelV3> modelV3(String endpoint, String version, String contentType, String accept,
             ModelV3 body, RequestContext requestContext) {
-            io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
-                .setMethod(io.clientcore.core.http.models.HttpMethod.POST)
-                .setUri(endpoint + "/versioning/removed/api-version:"
-                    + io.clientcore.core.implementation.utils.UriEscapers.PATH_ESCAPER.escape(version) + "/v3");
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.POST)
+                .setUri(
+                    endpoint + "/versioning/removed/api-version:" + UriEscapers.PATH_ESCAPER.escape(version) + "/v3");
             if (contentType != null) {
-                httpRequest.getHeaders()
-                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Content-Type"), contentType);
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("Content-Type"), contentType);
             }
             if (accept != null) {
-                httpRequest.getHeaders()
-                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Accept"), accept);
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("Accept"), accept);
             }
             if (body != null) {
-                if (httpRequest.getHeaders().get(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE) == null) {
-                    httpRequest.getHeaders()
-                        .set(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE, "application/json");
+                if (httpRequest.getHeaders().get(HttpHeaderName.CONTENT_TYPE) == null) {
+                    httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, "application/json");
                 }
-                httpRequest
-                    .setBody(io.clientcore.core.models.binarydata.BinaryData.fromObject(body, this.jsonSerializer));
+                httpRequest.setBody(BinaryData.fromObject(body, this.jsonSerializer));
             }
             if (requestContext != null) {
                 httpRequest.setContext(requestContext);
                 requestContext.getRequestCallback().accept(httpRequest);
             }
-            io.clientcore.core.http.models.Response<io.clientcore.core.models.binarydata.BinaryData> networkResponse
-                = this.httpPipeline.send(httpRequest);
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 200)) {
-                if (io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
-                    == io.clientcore.core.serialization.SerializationFormat.XML) {
+                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == SerializationFormat.XML) {
                     try {
-                        throw new io.clientcore.core.http.models.HttpResponseException("Unexpected XML response.",
-                            networkResponse, (Object) null);
+                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
                     } finally {
                         networkResponse.close();
                     }
                 }
-                io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
-                    this.jsonSerializer, null, null, null, RemovedClientServiceImpl.LOGGER);
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer, null,
+                    null, null, RemovedClientServiceImpl.LOGGER);
             }
             try {
                 ModelV3 deserializedResult;
-                deserializedResult = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(
-                    networkResponse.getValue(), this.jsonSerializer, io.clientcore.core.utils.CoreUtils
-                        .createParameterizedType(io.clientcore.core.http.models.Response.class, ModelV3.class));
-                return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
-                    networkResponse.getHeaders(), deserializedResult);
+                deserializedResult = CoreUtils.decodeNetworkResponse(networkResponse.getValue(), this.jsonSerializer,
+                    CoreUtils.createParameterizedType(Response.class, ModelV3.class));
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(),
+                    deserializedResult);
             } finally {
                 networkResponse.close();
             }

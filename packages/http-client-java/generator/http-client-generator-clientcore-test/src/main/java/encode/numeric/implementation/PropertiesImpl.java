@@ -5,11 +5,20 @@ import encode.numeric.property.Uint32AsStringProperty;
 import encode.numeric.property.Uint8AsStringProperty;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceMethod;
+import io.clientcore.core.http.models.HttpHeaderName;
+import io.clientcore.core.http.models.HttpMethod;
+import io.clientcore.core.http.models.HttpRequest;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.instrumentation.Instrumentation;
 import io.clientcore.core.instrumentation.logging.ClientLogger;
+import io.clientcore.core.models.binarydata.BinaryData;
+import io.clientcore.core.serialization.SerializationFormat;
+import io.clientcore.core.serialization.json.JsonSerializer;
+import io.clientcore.core.utils.CoreUtils;
+import io.clientcore.core.utils.GeneratedCodeUtils;
 
 /**
  * An instance of this class provides access to all the operations defined in Properties.
@@ -42,7 +51,7 @@ public final class PropertiesImpl {
     }
 
     public interface PropertiesService {
-        static PropertiesService getNewInstance(io.clientcore.core.http.pipeline.HttpPipeline pipeline) {
+        static PropertiesService getNewInstance(HttpPipeline pipeline) {
             return new PropertiesServiceImpl(pipeline);
         }
 
@@ -57,68 +66,57 @@ public final class PropertiesImpl {
     }
 
     private static final class PropertiesServiceImpl implements PropertiesService {
-        private static final io.clientcore.core.instrumentation.logging.ClientLogger LOGGER
-            = new io.clientcore.core.instrumentation.logging.ClientLogger(PropertiesServiceImpl.class);
+        private static final ClientLogger LOGGER = new ClientLogger(PropertiesServiceImpl.class);
 
-        private final io.clientcore.core.http.pipeline.HttpPipeline httpPipeline;
+        private final HttpPipeline httpPipeline;
 
-        private final io.clientcore.core.serialization.json.JsonSerializer jsonSerializer
-            = io.clientcore.core.serialization.json.JsonSerializer.getInstance();
+        private final JsonSerializer jsonSerializer = JsonSerializer.getInstance();
 
-        private PropertiesServiceImpl(io.clientcore.core.http.pipeline.HttpPipeline pipeline) {
+        private PropertiesServiceImpl(HttpPipeline pipeline) {
             this.httpPipeline = pipeline;
         }
 
         @Override
         public Response<SafeintAsStringProperty> safeintAsString(String endpoint, String contentType, String accept,
             SafeintAsStringProperty value, RequestContext requestContext) {
-            io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
-                .setMethod(io.clientcore.core.http.models.HttpMethod.POST)
-                .setUri(endpoint + "/encode/numeric/property/safeint");
+            HttpRequest httpRequest
+                = new HttpRequest().setMethod(HttpMethod.POST).setUri(endpoint + "/encode/numeric/property/safeint");
             if (contentType != null) {
-                httpRequest.getHeaders()
-                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Content-Type"), contentType);
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("Content-Type"), contentType);
             }
             if (accept != null) {
-                httpRequest.getHeaders()
-                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Accept"), accept);
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("Accept"), accept);
             }
             if (value != null) {
-                if (httpRequest.getHeaders().get(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE) == null) {
-                    httpRequest.getHeaders()
-                        .set(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE, "application/json");
+                if (httpRequest.getHeaders().get(HttpHeaderName.CONTENT_TYPE) == null) {
+                    httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, "application/json");
                 }
-                httpRequest
-                    .setBody(io.clientcore.core.models.binarydata.BinaryData.fromObject(value, this.jsonSerializer));
+                httpRequest.setBody(BinaryData.fromObject(value, this.jsonSerializer));
             }
             if (requestContext != null) {
                 httpRequest.setContext(requestContext);
                 requestContext.getRequestCallback().accept(httpRequest);
             }
-            io.clientcore.core.http.models.Response<io.clientcore.core.models.binarydata.BinaryData> networkResponse
-                = this.httpPipeline.send(httpRequest);
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 200)) {
-                if (io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
-                    == io.clientcore.core.serialization.SerializationFormat.XML) {
+                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == SerializationFormat.XML) {
                     try {
-                        throw new io.clientcore.core.http.models.HttpResponseException("Unexpected XML response.",
-                            networkResponse, (Object) null);
+                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
                     } finally {
                         networkResponse.close();
                     }
                 }
-                io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
-                    this.jsonSerializer, null, null, null, PropertiesServiceImpl.LOGGER);
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer, null,
+                    null, null, PropertiesServiceImpl.LOGGER);
             }
             try {
                 SafeintAsStringProperty deserializedResult;
-                deserializedResult
-                    = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
-                        this.jsonSerializer, io.clientcore.core.utils.CoreUtils.createParameterizedType(
-                            io.clientcore.core.http.models.Response.class, SafeintAsStringProperty.class));
-                return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
-                    networkResponse.getHeaders(), deserializedResult);
+                deserializedResult = CoreUtils.decodeNetworkResponse(networkResponse.getValue(), this.jsonSerializer,
+                    CoreUtils.createParameterizedType(Response.class, SafeintAsStringProperty.class));
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(),
+                    deserializedResult);
             } finally {
                 networkResponse.close();
             }
@@ -127,53 +125,44 @@ public final class PropertiesImpl {
         @Override
         public Response<Uint32AsStringProperty> uint32AsStringOptional(String endpoint, String contentType,
             String accept, Uint32AsStringProperty value, RequestContext requestContext) {
-            io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
-                .setMethod(io.clientcore.core.http.models.HttpMethod.POST)
-                .setUri(endpoint + "/encode/numeric/property/uint32");
+            HttpRequest httpRequest
+                = new HttpRequest().setMethod(HttpMethod.POST).setUri(endpoint + "/encode/numeric/property/uint32");
             if (contentType != null) {
-                httpRequest.getHeaders()
-                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Content-Type"), contentType);
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("Content-Type"), contentType);
             }
             if (accept != null) {
-                httpRequest.getHeaders()
-                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Accept"), accept);
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("Accept"), accept);
             }
             if (value != null) {
-                if (httpRequest.getHeaders().get(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE) == null) {
-                    httpRequest.getHeaders()
-                        .set(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE, "application/json");
+                if (httpRequest.getHeaders().get(HttpHeaderName.CONTENT_TYPE) == null) {
+                    httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, "application/json");
                 }
-                httpRequest
-                    .setBody(io.clientcore.core.models.binarydata.BinaryData.fromObject(value, this.jsonSerializer));
+                httpRequest.setBody(BinaryData.fromObject(value, this.jsonSerializer));
             }
             if (requestContext != null) {
                 httpRequest.setContext(requestContext);
                 requestContext.getRequestCallback().accept(httpRequest);
             }
-            io.clientcore.core.http.models.Response<io.clientcore.core.models.binarydata.BinaryData> networkResponse
-                = this.httpPipeline.send(httpRequest);
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 200)) {
-                if (io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
-                    == io.clientcore.core.serialization.SerializationFormat.XML) {
+                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == SerializationFormat.XML) {
                     try {
-                        throw new io.clientcore.core.http.models.HttpResponseException("Unexpected XML response.",
-                            networkResponse, (Object) null);
+                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
                     } finally {
                         networkResponse.close();
                     }
                 }
-                io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
-                    this.jsonSerializer, null, null, null, PropertiesServiceImpl.LOGGER);
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer, null,
+                    null, null, PropertiesServiceImpl.LOGGER);
             }
             try {
                 Uint32AsStringProperty deserializedResult;
-                deserializedResult
-                    = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
-                        this.jsonSerializer, io.clientcore.core.utils.CoreUtils.createParameterizedType(
-                            io.clientcore.core.http.models.Response.class, Uint32AsStringProperty.class));
-                return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
-                    networkResponse.getHeaders(), deserializedResult);
+                deserializedResult = CoreUtils.decodeNetworkResponse(networkResponse.getValue(), this.jsonSerializer,
+                    CoreUtils.createParameterizedType(Response.class, Uint32AsStringProperty.class));
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(),
+                    deserializedResult);
             } finally {
                 networkResponse.close();
             }
@@ -182,53 +171,44 @@ public final class PropertiesImpl {
         @Override
         public Response<Uint8AsStringProperty> uint8AsString(String endpoint, String contentType, String accept,
             Uint8AsStringProperty value, RequestContext requestContext) {
-            io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
-                .setMethod(io.clientcore.core.http.models.HttpMethod.POST)
-                .setUri(endpoint + "/encode/numeric/property/uint8");
+            HttpRequest httpRequest
+                = new HttpRequest().setMethod(HttpMethod.POST).setUri(endpoint + "/encode/numeric/property/uint8");
             if (contentType != null) {
-                httpRequest.getHeaders()
-                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Content-Type"), contentType);
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("Content-Type"), contentType);
             }
             if (accept != null) {
-                httpRequest.getHeaders()
-                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Accept"), accept);
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("Accept"), accept);
             }
             if (value != null) {
-                if (httpRequest.getHeaders().get(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE) == null) {
-                    httpRequest.getHeaders()
-                        .set(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE, "application/json");
+                if (httpRequest.getHeaders().get(HttpHeaderName.CONTENT_TYPE) == null) {
+                    httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, "application/json");
                 }
-                httpRequest
-                    .setBody(io.clientcore.core.models.binarydata.BinaryData.fromObject(value, this.jsonSerializer));
+                httpRequest.setBody(BinaryData.fromObject(value, this.jsonSerializer));
             }
             if (requestContext != null) {
                 httpRequest.setContext(requestContext);
                 requestContext.getRequestCallback().accept(httpRequest);
             }
-            io.clientcore.core.http.models.Response<io.clientcore.core.models.binarydata.BinaryData> networkResponse
-                = this.httpPipeline.send(httpRequest);
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 200)) {
-                if (io.clientcore.core.utils.CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
-                    == io.clientcore.core.serialization.SerializationFormat.XML) {
+                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == SerializationFormat.XML) {
                     try {
-                        throw new io.clientcore.core.http.models.HttpResponseException("Unexpected XML response.",
-                            networkResponse, (Object) null);
+                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
                     } finally {
                         networkResponse.close();
                     }
                 }
-                io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
-                    this.jsonSerializer, null, null, null, PropertiesServiceImpl.LOGGER);
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer, null,
+                    null, null, PropertiesServiceImpl.LOGGER);
             }
             try {
                 Uint8AsStringProperty deserializedResult;
-                deserializedResult
-                    = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
-                        this.jsonSerializer, io.clientcore.core.utils.CoreUtils.createParameterizedType(
-                            io.clientcore.core.http.models.Response.class, Uint8AsStringProperty.class));
-                return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
-                    networkResponse.getHeaders(), deserializedResult);
+                deserializedResult = CoreUtils.decodeNetworkResponse(networkResponse.getValue(), this.jsonSerializer,
+                    CoreUtils.createParameterizedType(Response.class, Uint8AsStringProperty.class));
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(),
+                    deserializedResult);
             } finally {
                 networkResponse.close();
             }

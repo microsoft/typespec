@@ -2,11 +2,21 @@ package payload.xml.implementation;
 
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceMethod;
+import io.clientcore.core.http.models.HttpHeaderName;
+import io.clientcore.core.http.models.HttpMethod;
+import io.clientcore.core.http.models.HttpRequest;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.instrumentation.Instrumentation;
 import io.clientcore.core.instrumentation.logging.ClientLogger;
+import io.clientcore.core.models.binarydata.BinaryData;
+import io.clientcore.core.serialization.SerializationFormat;
+import io.clientcore.core.serialization.json.JsonSerializer;
+import io.clientcore.core.serialization.xml.XmlSerializer;
+import io.clientcore.core.utils.CoreUtils;
+import io.clientcore.core.utils.GeneratedCodeUtils;
 import payload.xml.ModelWithRenamedNestedModel;
 
 /**
@@ -40,8 +50,7 @@ public final class ModelWithRenamedNestedModelValuesImpl {
     }
 
     public interface ModelWithRenamedNestedModelValuesService {
-        static ModelWithRenamedNestedModelValuesService
-            getNewInstance(io.clientcore.core.http.pipeline.HttpPipeline pipeline) {
+        static ModelWithRenamedNestedModelValuesService getNewInstance(HttpPipeline pipeline) {
             return new ModelWithRenamedNestedModelValuesServiceImpl(pipeline);
         }
 
@@ -53,65 +62,53 @@ public final class ModelWithRenamedNestedModelValuesImpl {
 
     private static final class ModelWithRenamedNestedModelValuesServiceImpl
         implements ModelWithRenamedNestedModelValuesService {
-        private static final io.clientcore.core.instrumentation.logging.ClientLogger LOGGER
-            = new io.clientcore.core.instrumentation.logging.ClientLogger(
-                ModelWithRenamedNestedModelValuesServiceImpl.class);
+        private static final ClientLogger LOGGER = new ClientLogger(ModelWithRenamedNestedModelValuesServiceImpl.class);
 
-        private final io.clientcore.core.http.pipeline.HttpPipeline httpPipeline;
+        private final HttpPipeline httpPipeline;
 
-        private final io.clientcore.core.serialization.json.JsonSerializer jsonSerializer
-            = io.clientcore.core.serialization.json.JsonSerializer.getInstance();
+        private final JsonSerializer jsonSerializer = JsonSerializer.getInstance();
 
-        private final io.clientcore.core.serialization.xml.XmlSerializer xmlSerializer
-            = io.clientcore.core.serialization.xml.XmlSerializer.getInstance();
+        private final XmlSerializer xmlSerializer = XmlSerializer.getInstance();
 
-        private ModelWithRenamedNestedModelValuesServiceImpl(io.clientcore.core.http.pipeline.HttpPipeline pipeline) {
+        private ModelWithRenamedNestedModelValuesServiceImpl(HttpPipeline pipeline) {
             this.httpPipeline = pipeline;
         }
 
         @Override
         public Response<ModelWithRenamedNestedModel> get(String endpoint, String accept,
             RequestContext requestContext) {
-            io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
-                .setMethod(io.clientcore.core.http.models.HttpMethod.GET)
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.GET)
                 .setUri(endpoint + "/payload/xml/modelWithRenamedNestedModel");
             if (accept != null) {
-                httpRequest.getHeaders()
-                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Accept"), accept);
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("Accept"), accept);
             }
             if (requestContext != null) {
                 httpRequest.setContext(requestContext);
                 requestContext.getRequestCallback().accept(httpRequest);
             }
-            io.clientcore.core.http.models.Response<io.clientcore.core.models.binarydata.BinaryData> networkResponse
-                = this.httpPipeline.send(httpRequest);
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 200)) {
-                io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
-                    this.jsonSerializer, this.xmlSerializer, null, null,
-                    ModelWithRenamedNestedModelValuesServiceImpl.LOGGER);
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
+                    this.xmlSerializer, null, null, ModelWithRenamedNestedModelValuesServiceImpl.LOGGER);
             }
             try {
                 ModelWithRenamedNestedModel deserializedResult;
-                io.clientcore.core.serialization.SerializationFormat responseSerializationFormat
-                    = io.clientcore.core.utils.CoreUtils
-                        .serializationFormatFromContentType(networkResponse.getHeaders());
+                SerializationFormat responseSerializationFormat
+                    = CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders());
                 if (this.jsonSerializer.supportsFormat(responseSerializationFormat)) {
                     deserializedResult
-                        = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
-                            this.jsonSerializer, io.clientcore.core.utils.CoreUtils.createParameterizedType(
-                                io.clientcore.core.http.models.Response.class, ModelWithRenamedNestedModel.class));
+                        = CoreUtils.decodeNetworkResponse(networkResponse.getValue(), this.jsonSerializer,
+                            CoreUtils.createParameterizedType(Response.class, ModelWithRenamedNestedModel.class));
                 } else if (this.xmlSerializer.supportsFormat(responseSerializationFormat)) {
-                    deserializedResult
-                        = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
-                            this.xmlSerializer, io.clientcore.core.utils.CoreUtils.createParameterizedType(
-                                io.clientcore.core.http.models.Response.class, ModelWithRenamedNestedModel.class));
+                    deserializedResult = CoreUtils.decodeNetworkResponse(networkResponse.getValue(), this.xmlSerializer,
+                        CoreUtils.createParameterizedType(Response.class, ModelWithRenamedNestedModel.class));
                 } else {
                     throw new UnsupportedOperationException(
                         "Unsupported response serialization format: " + responseSerializationFormat);
                 }
-                return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
-                    networkResponse.getHeaders(), deserializedResult);
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(),
+                    deserializedResult);
             } finally {
                 networkResponse.close();
             }
@@ -120,36 +117,29 @@ public final class ModelWithRenamedNestedModelValuesImpl {
         @Override
         public Response<Void> put(String endpoint, String contentType, ModelWithRenamedNestedModel input,
             RequestContext requestContext) {
-            io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
-                .setMethod(io.clientcore.core.http.models.HttpMethod.PUT)
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.PUT)
                 .setUri(endpoint + "/payload/xml/modelWithRenamedNestedModel");
             if (contentType != null) {
-                httpRequest.getHeaders()
-                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("content-type"), contentType);
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("content-type"), contentType);
             }
             if (input != null) {
-                if (httpRequest.getHeaders().get(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE) == null) {
-                    httpRequest.getHeaders()
-                        .set(io.clientcore.core.http.models.HttpHeaderName.CONTENT_TYPE, "application/xml");
+                if (httpRequest.getHeaders().get(HttpHeaderName.CONTENT_TYPE) == null) {
+                    httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, "application/xml");
                 }
-                httpRequest
-                    .setBody(io.clientcore.core.models.binarydata.BinaryData.fromObject(input, this.xmlSerializer));
+                httpRequest.setBody(BinaryData.fromObject(input, this.xmlSerializer));
             }
             if (requestContext != null) {
                 httpRequest.setContext(requestContext);
                 requestContext.getRequestCallback().accept(httpRequest);
             }
-            io.clientcore.core.http.models.Response<io.clientcore.core.models.binarydata.BinaryData> networkResponse
-                = this.httpPipeline.send(httpRequest);
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 204)) {
-                io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
-                    this.jsonSerializer, this.xmlSerializer, null, null,
-                    ModelWithRenamedNestedModelValuesServiceImpl.LOGGER);
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
+                    this.xmlSerializer, null, null, ModelWithRenamedNestedModelValuesServiceImpl.LOGGER);
             }
             try {
-                return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
-                    networkResponse.getHeaders(), null);
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
             } finally {
                 networkResponse.close();
             }

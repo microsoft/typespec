@@ -2,12 +2,26 @@ package payload.xml.implementation;
 
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceMethod;
+import io.clientcore.core.http.models.HttpHeaderName;
+import io.clientcore.core.http.models.HttpMethod;
+import io.clientcore.core.http.models.HttpRequest;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.instrumentation.Instrumentation;
 import io.clientcore.core.instrumentation.logging.ClientLogger;
+import io.clientcore.core.models.binarydata.BinaryData;
+import io.clientcore.core.serialization.SerializationFormat;
+import io.clientcore.core.serialization.json.JsonSerializer;
+import io.clientcore.core.serialization.xml.XmlSerializer;
+import io.clientcore.core.utils.CoreUtils;
+import io.clientcore.core.utils.GeneratedCodeUtils;
+import java.lang.reflect.ParameterizedType;
+import java.util.HashMap;
+import java.util.Map;
 import payload.xml.SimpleModel;
+import payload.xml.XmlErrorBody;
 
 /**
  * An instance of this class provides access to all the operations defined in XmlErrorValues.
@@ -40,7 +54,7 @@ public final class XmlErrorValuesImpl {
     }
 
     public interface XmlErrorValuesService {
-        static XmlErrorValuesService getNewInstance(io.clientcore.core.http.pipeline.HttpPipeline pipeline) {
+        static XmlErrorValuesService getNewInstance(HttpPipeline pipeline) {
             return new XmlErrorValuesServiceImpl(pipeline);
         }
 
@@ -48,65 +62,53 @@ public final class XmlErrorValuesImpl {
     }
 
     private static final class XmlErrorValuesServiceImpl implements XmlErrorValuesService {
-        private static final io.clientcore.core.instrumentation.logging.ClientLogger LOGGER
-            = new io.clientcore.core.instrumentation.logging.ClientLogger(XmlErrorValuesServiceImpl.class);
+        private static final ClientLogger LOGGER = new ClientLogger(XmlErrorValuesServiceImpl.class);
 
-        private final io.clientcore.core.http.pipeline.HttpPipeline httpPipeline;
+        private final HttpPipeline httpPipeline;
 
-        private final io.clientcore.core.serialization.json.JsonSerializer jsonSerializer
-            = io.clientcore.core.serialization.json.JsonSerializer.getInstance();
+        private final JsonSerializer jsonSerializer = JsonSerializer.getInstance();
 
-        private final io.clientcore.core.serialization.xml.XmlSerializer xmlSerializer
-            = io.clientcore.core.serialization.xml.XmlSerializer.getInstance();
+        private final XmlSerializer xmlSerializer = XmlSerializer.getInstance();
 
-        private XmlErrorValuesServiceImpl(io.clientcore.core.http.pipeline.HttpPipeline pipeline) {
+        private XmlErrorValuesServiceImpl(HttpPipeline pipeline) {
             this.httpPipeline = pipeline;
         }
 
         @Override
         public Response<SimpleModel> get(String endpoint, String accept, RequestContext requestContext) {
-            io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
-                .setMethod(io.clientcore.core.http.models.HttpMethod.GET)
-                .setUri(endpoint + "/payload/xml/error");
+            HttpRequest httpRequest
+                = new HttpRequest().setMethod(HttpMethod.GET).setUri(endpoint + "/payload/xml/error");
             if (accept != null) {
-                httpRequest.getHeaders()
-                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Accept"), accept);
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("Accept"), accept);
             }
             if (requestContext != null) {
                 httpRequest.setContext(requestContext);
                 requestContext.getRequestCallback().accept(httpRequest);
             }
-            io.clientcore.core.http.models.Response<io.clientcore.core.models.binarydata.BinaryData> networkResponse
-                = this.httpPipeline.send(httpRequest);
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 200)) {
-                java.util.Map<Integer, java.lang.reflect.ParameterizedType> statusToExceptionTypeMap
-                    = new java.util.HashMap<>();
-                statusToExceptionTypeMap.put(400,
-                    io.clientcore.core.utils.CoreUtils.createParameterizedType(payload.xml.XmlErrorBody.class));
-                io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
-                    this.jsonSerializer, this.xmlSerializer, null, statusToExceptionTypeMap,
-                    XmlErrorValuesServiceImpl.LOGGER);
+                Map<Integer, ParameterizedType> statusToExceptionTypeMap = new HashMap<>();
+                statusToExceptionTypeMap.put(400, CoreUtils.createParameterizedType(XmlErrorBody.class));
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
+                    this.xmlSerializer, null, statusToExceptionTypeMap, XmlErrorValuesServiceImpl.LOGGER);
             }
             try {
                 SimpleModel deserializedResult;
-                io.clientcore.core.serialization.SerializationFormat responseSerializationFormat
-                    = io.clientcore.core.utils.CoreUtils
-                        .serializationFormatFromContentType(networkResponse.getHeaders());
+                SerializationFormat responseSerializationFormat
+                    = CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders());
                 if (this.jsonSerializer.supportsFormat(responseSerializationFormat)) {
-                    deserializedResult = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(
-                        networkResponse.getValue(), this.jsonSerializer, io.clientcore.core.utils.CoreUtils
-                            .createParameterizedType(io.clientcore.core.http.models.Response.class, SimpleModel.class));
+                    deserializedResult = CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
+                        this.jsonSerializer, CoreUtils.createParameterizedType(Response.class, SimpleModel.class));
                 } else if (this.xmlSerializer.supportsFormat(responseSerializationFormat)) {
-                    deserializedResult = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(
-                        networkResponse.getValue(), this.xmlSerializer, io.clientcore.core.utils.CoreUtils
-                            .createParameterizedType(io.clientcore.core.http.models.Response.class, SimpleModel.class));
+                    deserializedResult = CoreUtils.decodeNetworkResponse(networkResponse.getValue(), this.xmlSerializer,
+                        CoreUtils.createParameterizedType(Response.class, SimpleModel.class));
                 } else {
                     throw new UnsupportedOperationException(
                         "Unsupported response serialization format: " + responseSerializationFormat);
                 }
-                return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
-                    networkResponse.getHeaders(), deserializedResult);
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(),
+                    deserializedResult);
             } finally {
                 networkResponse.close();
             }

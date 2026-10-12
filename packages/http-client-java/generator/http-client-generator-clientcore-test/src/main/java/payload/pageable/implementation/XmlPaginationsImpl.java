@@ -2,13 +2,24 @@ package payload.pageable.implementation;
 
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceMethod;
+import io.clientcore.core.http.models.HttpHeaderName;
+import io.clientcore.core.http.models.HttpMethod;
+import io.clientcore.core.http.models.HttpRequest;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.paging.PagedIterable;
 import io.clientcore.core.http.paging.PagedResponse;
+import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.instrumentation.Instrumentation;
 import io.clientcore.core.instrumentation.logging.ClientLogger;
+import io.clientcore.core.models.binarydata.BinaryData;
+import io.clientcore.core.serialization.SerializationFormat;
+import io.clientcore.core.serialization.json.JsonSerializer;
+import io.clientcore.core.serialization.xml.XmlSerializer;
+import io.clientcore.core.utils.CoreUtils;
+import io.clientcore.core.utils.GeneratedCodeUtils;
+import io.clientcore.core.utils.UriBuilder;
 import payload.pageable.XmlPet;
 
 /**
@@ -42,7 +53,7 @@ public final class XmlPaginationsImpl {
     }
 
     public interface XmlPaginationsService {
-        static XmlPaginationsService getNewInstance(io.clientcore.core.http.pipeline.HttpPipeline pipeline) {
+        static XmlPaginationsService getNewInstance(HttpPipeline pipeline) {
             return new XmlPaginationsServiceImpl(pipeline);
         }
 
@@ -57,66 +68,53 @@ public final class XmlPaginationsImpl {
     }
 
     private static final class XmlPaginationsServiceImpl implements XmlPaginationsService {
-        private static final io.clientcore.core.instrumentation.logging.ClientLogger LOGGER
-            = new io.clientcore.core.instrumentation.logging.ClientLogger(XmlPaginationsServiceImpl.class);
+        private static final ClientLogger LOGGER = new ClientLogger(XmlPaginationsServiceImpl.class);
 
-        private final io.clientcore.core.http.pipeline.HttpPipeline httpPipeline;
+        private final HttpPipeline httpPipeline;
 
-        private final io.clientcore.core.serialization.json.JsonSerializer jsonSerializer
-            = io.clientcore.core.serialization.json.JsonSerializer.getInstance();
+        private final JsonSerializer jsonSerializer = JsonSerializer.getInstance();
 
-        private final io.clientcore.core.serialization.xml.XmlSerializer xmlSerializer
-            = io.clientcore.core.serialization.xml.XmlSerializer.getInstance();
+        private final XmlSerializer xmlSerializer = XmlSerializer.getInstance();
 
-        private XmlPaginationsServiceImpl(io.clientcore.core.http.pipeline.HttpPipeline pipeline) {
+        private XmlPaginationsServiceImpl(HttpPipeline pipeline) {
             this.httpPipeline = pipeline;
         }
 
         @Override
         public Response<XmlPetListResult> listWithContinuation(String endpoint, String marker, String accept,
             RequestContext requestContext) {
-            io.clientcore.core.utils.UriBuilder uriBuilder
-                = io.clientcore.core.utils.UriBuilder.parse(endpoint + "/payload/pageable/xml/list-with-continuation");
-            io.clientcore.core.utils.GeneratedCodeUtils.addQueryParameter(uriBuilder, "marker", true, marker, true);
-            io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
-                .setMethod(io.clientcore.core.http.models.HttpMethod.GET)
-                .setUri(uriBuilder.toString());
+            UriBuilder uriBuilder = UriBuilder.parse(endpoint + "/payload/pageable/xml/list-with-continuation");
+            GeneratedCodeUtils.addQueryParameter(uriBuilder, "marker", true, marker, true);
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.GET).setUri(uriBuilder.toString());
             if (accept != null) {
-                httpRequest.getHeaders()
-                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Accept"), accept);
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("Accept"), accept);
             }
             if (requestContext != null) {
                 httpRequest.setContext(requestContext);
                 requestContext.getRequestCallback().accept(httpRequest);
             }
-            io.clientcore.core.http.models.Response<io.clientcore.core.models.binarydata.BinaryData> networkResponse
-                = this.httpPipeline.send(httpRequest);
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 200)) {
-                io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
-                    this.jsonSerializer, this.xmlSerializer, null, null, XmlPaginationsServiceImpl.LOGGER);
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
+                    this.xmlSerializer, null, null, XmlPaginationsServiceImpl.LOGGER);
             }
             try {
                 XmlPetListResult deserializedResult;
-                io.clientcore.core.serialization.SerializationFormat responseSerializationFormat
-                    = io.clientcore.core.utils.CoreUtils
-                        .serializationFormatFromContentType(networkResponse.getHeaders());
+                SerializationFormat responseSerializationFormat
+                    = CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders());
                 if (this.jsonSerializer.supportsFormat(responseSerializationFormat)) {
-                    deserializedResult
-                        = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
-                            this.jsonSerializer, io.clientcore.core.utils.CoreUtils.createParameterizedType(
-                                io.clientcore.core.http.models.Response.class, XmlPetListResult.class));
+                    deserializedResult = CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
+                        this.jsonSerializer, CoreUtils.createParameterizedType(Response.class, XmlPetListResult.class));
                 } else if (this.xmlSerializer.supportsFormat(responseSerializationFormat)) {
-                    deserializedResult
-                        = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
-                            this.xmlSerializer, io.clientcore.core.utils.CoreUtils.createParameterizedType(
-                                io.clientcore.core.http.models.Response.class, XmlPetListResult.class));
+                    deserializedResult = CoreUtils.decodeNetworkResponse(networkResponse.getValue(), this.xmlSerializer,
+                        CoreUtils.createParameterizedType(Response.class, XmlPetListResult.class));
                 } else {
                     throw new UnsupportedOperationException(
                         "Unsupported response serialization format: " + responseSerializationFormat);
                 }
-                return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
-                    networkResponse.getHeaders(), deserializedResult);
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(),
+                    deserializedResult);
             } finally {
                 networkResponse.close();
             }
@@ -125,45 +123,38 @@ public final class XmlPaginationsImpl {
         @Override
         public Response<XmlPetListResultWithNextLink> listWithNextLink(String endpoint, String accept,
             RequestContext requestContext) {
-            io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
-                .setMethod(io.clientcore.core.http.models.HttpMethod.GET)
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.GET)
                 .setUri(endpoint + "/payload/pageable/xml/list-with-next-link");
             if (accept != null) {
-                httpRequest.getHeaders()
-                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Accept"), accept);
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("Accept"), accept);
             }
             if (requestContext != null) {
                 httpRequest.setContext(requestContext);
                 requestContext.getRequestCallback().accept(httpRequest);
             }
-            io.clientcore.core.http.models.Response<io.clientcore.core.models.binarydata.BinaryData> networkResponse
-                = this.httpPipeline.send(httpRequest);
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 200)) {
-                io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
-                    this.jsonSerializer, this.xmlSerializer, null, null, XmlPaginationsServiceImpl.LOGGER);
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
+                    this.xmlSerializer, null, null, XmlPaginationsServiceImpl.LOGGER);
             }
             try {
                 XmlPetListResultWithNextLink deserializedResult;
-                io.clientcore.core.serialization.SerializationFormat responseSerializationFormat
-                    = io.clientcore.core.utils.CoreUtils
-                        .serializationFormatFromContentType(networkResponse.getHeaders());
+                SerializationFormat responseSerializationFormat
+                    = CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders());
                 if (this.jsonSerializer.supportsFormat(responseSerializationFormat)) {
                     deserializedResult
-                        = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
-                            this.jsonSerializer, io.clientcore.core.utils.CoreUtils.createParameterizedType(
-                                io.clientcore.core.http.models.Response.class, XmlPetListResultWithNextLink.class));
+                        = CoreUtils.decodeNetworkResponse(networkResponse.getValue(), this.jsonSerializer,
+                            CoreUtils.createParameterizedType(Response.class, XmlPetListResultWithNextLink.class));
                 } else if (this.xmlSerializer.supportsFormat(responseSerializationFormat)) {
-                    deserializedResult
-                        = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
-                            this.xmlSerializer, io.clientcore.core.utils.CoreUtils.createParameterizedType(
-                                io.clientcore.core.http.models.Response.class, XmlPetListResultWithNextLink.class));
+                    deserializedResult = CoreUtils.decodeNetworkResponse(networkResponse.getValue(), this.xmlSerializer,
+                        CoreUtils.createParameterizedType(Response.class, XmlPetListResultWithNextLink.class));
                 } else {
                     throw new UnsupportedOperationException(
                         "Unsupported response serialization format: " + responseSerializationFormat);
                 }
-                return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
-                    networkResponse.getHeaders(), deserializedResult);
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(),
+                    deserializedResult);
             } finally {
                 networkResponse.close();
             }
@@ -172,45 +163,37 @@ public final class XmlPaginationsImpl {
         @Override
         public Response<XmlPetListResultWithNextLink> listWithNextLinkNext(String nextLink, String endpoint,
             String accept, RequestContext requestContext) {
-            io.clientcore.core.http.models.HttpRequest httpRequest = new io.clientcore.core.http.models.HttpRequest()
-                .setMethod(io.clientcore.core.http.models.HttpMethod.GET)
-                .setUri(nextLink);
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.GET).setUri(nextLink);
             if (accept != null) {
-                httpRequest.getHeaders()
-                    .set(io.clientcore.core.http.models.HttpHeaderName.fromString("Accept"), accept);
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("Accept"), accept);
             }
             if (requestContext != null) {
                 httpRequest.setContext(requestContext);
                 requestContext.getRequestCallback().accept(httpRequest);
             }
-            io.clientcore.core.http.models.Response<io.clientcore.core.models.binarydata.BinaryData> networkResponse
-                = this.httpPipeline.send(httpRequest);
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 200)) {
-                io.clientcore.core.utils.GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse,
-                    this.jsonSerializer, this.xmlSerializer, null, null, XmlPaginationsServiceImpl.LOGGER);
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
+                    this.xmlSerializer, null, null, XmlPaginationsServiceImpl.LOGGER);
             }
             try {
                 XmlPetListResultWithNextLink deserializedResult;
-                io.clientcore.core.serialization.SerializationFormat responseSerializationFormat
-                    = io.clientcore.core.utils.CoreUtils
-                        .serializationFormatFromContentType(networkResponse.getHeaders());
+                SerializationFormat responseSerializationFormat
+                    = CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders());
                 if (this.jsonSerializer.supportsFormat(responseSerializationFormat)) {
                     deserializedResult
-                        = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
-                            this.jsonSerializer, io.clientcore.core.utils.CoreUtils.createParameterizedType(
-                                io.clientcore.core.http.models.Response.class, XmlPetListResultWithNextLink.class));
+                        = CoreUtils.decodeNetworkResponse(networkResponse.getValue(), this.jsonSerializer,
+                            CoreUtils.createParameterizedType(Response.class, XmlPetListResultWithNextLink.class));
                 } else if (this.xmlSerializer.supportsFormat(responseSerializationFormat)) {
-                    deserializedResult
-                        = io.clientcore.core.utils.CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
-                            this.xmlSerializer, io.clientcore.core.utils.CoreUtils.createParameterizedType(
-                                io.clientcore.core.http.models.Response.class, XmlPetListResultWithNextLink.class));
+                    deserializedResult = CoreUtils.decodeNetworkResponse(networkResponse.getValue(), this.xmlSerializer,
+                        CoreUtils.createParameterizedType(Response.class, XmlPetListResultWithNextLink.class));
                 } else {
                     throw new UnsupportedOperationException(
                         "Unsupported response serialization format: " + responseSerializationFormat);
                 }
-                return new io.clientcore.core.http.models.Response<>(networkResponse.getRequest(), responseCode,
-                    networkResponse.getHeaders(), deserializedResult);
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(),
+                    deserializedResult);
             } finally {
                 networkResponse.close();
             }
