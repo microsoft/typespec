@@ -1191,6 +1191,20 @@ export class CodeModelBuilder {
       lroMetadata = this.processLroMetadata(codeModelOperation, sdkMethod);
     }
 
+    const responseReplacement =
+      sdkMethod.isOverride &&
+      sdkMethod.kind === "basic" &&
+      (sdkMethod.response.type === undefined || sdkMethod.response.type.kind === "bytes") &&
+      httpOperation.responses.some((response) => response.type !== sdkMethod.response.type)
+        ? sdkMethod.response.type === undefined
+          ? "void"
+          : "bytes"
+        : undefined;
+    if (responseReplacement && this.isAzureV1() && codeModelOperation.convenienceApi) {
+      codeModelOperation.convenienceApi.response =
+        responseReplacement === "void" ? createResponse() : createBinaryResponse();
+    }
+
     // responses
     for (const response of sdkMethod.operation.responses) {
       this.processResponse(
@@ -1199,6 +1213,7 @@ export class CodeModelBuilder {
         response,
         lroMetadata.longRunning,
         false,
+        this.isAzureV1() ? undefined : responseReplacement,
       );
     }
 
@@ -2377,6 +2392,7 @@ export class CodeModelBuilder {
     sdkResponse: SdkHttpResponse | SdkHttpErrorResponse,
     longRunning: boolean,
     isErrorResponse: boolean,
+    responseReplacement?: "void" | "bytes",
   ) {
     // TODO: what to do if more than 1 response?
     // It happens when the response type is Union, on one status code.
@@ -2419,8 +2435,10 @@ export class CodeModelBuilder {
       }
     }
 
-    const bodyType: SdkType | undefined = sdkResponse.type;
-    let trackConvenienceApi: boolean = Boolean(op.convenienceApi);
+    const bodyType: SdkType | undefined =
+      responseReplacement === "void" ? undefined : sdkResponse.type;
+    let trackConvenienceApi: boolean =
+      Boolean(op.convenienceApi) && (isErrorResponse || !op.convenienceApi?.response);
     const trackResponseHeadersAsModel =
       trackConvenienceApi &&
       (op.convenienceApi?.responseHeadersAsModel === true ||
@@ -2436,7 +2454,7 @@ export class CodeModelBuilder {
       }
     }
 
-    let responseBodyIsFile: boolean = false;
+    let responseBodyIsFile: boolean = responseReplacement === "bytes" && bodyType !== undefined;
     if (
       bodyType &&
       bodyType.kind === "model" &&
@@ -2451,7 +2469,7 @@ export class CodeModelBuilder {
         sdkResponse.contentTypes &&
         sdkResponse.contentTypes.length > 0 &&
         !isKnownContentType(sdkResponse.contentTypes);
-      responseBodyIsFile = Boolean(unknownResponseBody);
+      responseBodyIsFile ||= Boolean(unknownResponseBody);
     }
 
     let response: Response;
@@ -2524,6 +2542,7 @@ export class CodeModelBuilder {
           http: {
             statusCodes: this.getStatusCodes(statusCode),
             headers: headers,
+            ...(responseReplacement ? { mediaTypes: sdkResponse.contentTypes } : {}),
           },
         },
         language: {

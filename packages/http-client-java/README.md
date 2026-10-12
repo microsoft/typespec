@@ -43,6 +43,13 @@ options:
     option: value
 ```
 
+### Response replacement
+
+Use TCGC's `@override` with `replaceResponseWithVoid` or `replaceResponseWithBytes` to
+ignore a basic operation's response body or return its raw `BinaryData`, without JSON decoding.
+The HTTP status codes, content types, headers, and error responses are preserved.
+For Azure clients, protocol methods still expose the original response body.
+
 ## Emitter options
 
 ### `emitter-output-dir`

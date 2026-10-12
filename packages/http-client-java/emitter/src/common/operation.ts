@@ -69,6 +69,9 @@ export interface Operation extends Aspect {
 export interface ConvenienceApi extends Metadata {
   requests?: Array<Request>;
 
+  /** Overrides the convenience return type without changing the protocol response. */
+  response?: Response;
+
   /**
    * Whether the convenience method returns the significant response headers as a strongly-typed model
    * (opt-in via the "responseHeadersAsModel" client option). Only applicable to data-plane operations

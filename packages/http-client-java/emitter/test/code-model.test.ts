@@ -32,6 +32,7 @@ import {
   createSecurity,
   createStringSchema,
   createVirtualParameter,
+  isSchemaResponse,
 } from "../src/common/schemas/model.js";
 import { createResponseErrorSchema } from "../src/external-schemas.js";
 import { cloneOperationParameter } from "../src/operation-utils.js";
@@ -281,6 +282,86 @@ describe("code model characterization", () => {
         expect(model.clients.some((client) => client.subClients.length > 0)).toBe(true);
       }
       expect(stringify(sortGraph(model), { version: "1.1" })).toMatchSnapshot();
+    },
+  );
+
+  it.each(["standard", "azure", "azurev2"])(
+    "honors response replacements in %s clients",
+    async (flavor) => {
+      const program = await compile(
+        NodeHost,
+        fileURLToPath(new URL("./fixtures/response-replacement.tsp", import.meta.url)),
+        { noEmit: true },
+      );
+      expect(program.diagnostics).toEqual([]);
+      const model = await new CodeModelBuilder(program, {
+        program,
+        emitterOutputDir: "/code-model-test-output",
+        options: { "dev-options": {}, flavor },
+        perf: {
+          startTimer: () => ({ end: () => 0 }),
+          time: (_label, callback) => callback(),
+          timeAsync: (_label, callback) => callback(),
+          report: () => {},
+        },
+      }).build();
+      expect(program.diagnostics.filter((d) => d.severity === "error")).toEqual([]);
+      const operations = model.clients.flatMap((client) =>
+        client.operationGroups.flatMap((group) => group.operations ?? []),
+      );
+      const voidOperation = operations.find((op) => op.language.default.name === "voidResponse")!;
+      const bytesOperation = operations.find((op) => op.language.default.name === "bytesResponse")!;
+      const widgetOperation = operations.find(
+        (op) => op.language.default.name === "widgetResponse",
+      )!;
+      for (const operation of [voidOperation, bytesOperation]) {
+        expect(operation.responses).toHaveLength(1);
+        expect(operation.responses![0].protocol.http).toMatchObject({
+          statusCodes: ["200"],
+          mediaTypes: ["application/json"],
+          headers: [expect.objectContaining({ header: "x-response-id" })],
+        });
+        expect(operation.exceptions).toHaveLength(1);
+        expect(operation.exceptions![0].protocol.http.statusCodes).toEqual(["400"]);
+        expect(isSchemaResponse(operation.exceptions![0])).toBe(true);
+        expect(operation.exceptions![0]).toMatchObject({
+          schema: {
+            usage: expect.arrayContaining(
+              flavor === "standard" ? ["exception", "public"] : ["exception"],
+            ),
+          },
+        });
+      }
+      if (flavor === "azure") {
+        expect(voidOperation.convenienceApi).toHaveProperty("response");
+        expect(voidOperation.convenienceApi).toMatchObject({ response: {} });
+        expect(bytesOperation.convenienceApi).toMatchObject({ response: { binary: true } });
+        expect(isSchemaResponse(voidOperation.responses![0])).toBe(true);
+        expect(isSchemaResponse(bytesOperation.responses![0])).toBe(true);
+      } else {
+        expect(isSchemaResponse(voidOperation.responses![0])).toBe(false);
+        expect(voidOperation.responses![0]).not.toHaveProperty("binary");
+        expect(bytesOperation.responses![0]).toMatchObject({ binary: true });
+      }
+      expect(widgetOperation.convenienceApi).not.toHaveProperty("response");
+      expect(widgetOperation.responses![0]).toMatchObject({
+        schema: { type: SchemaType.Object, language: { default: { name: "Widget" } } },
+      });
+      const encodedBytesOperation = operations.find(
+        (op) => op.language.default.name === "encodedBytesResponse",
+      )!;
+      expect(
+        flavor === "azure"
+          ? encodedBytesOperation.convenienceApi
+          : { response: encodedBytesOperation.responses![0] },
+      ).toMatchObject({ response: { binary: true } });
+      const parameterOverrideOperation = operations.find(
+        (op) => op.language.default.name === "parameterOverrideBytesResponse",
+      )!;
+      expect(parameterOverrideOperation.convenienceApi).not.toHaveProperty("response");
+      expect(parameterOverrideOperation.responses![0]).toMatchObject({
+        schema: { type: SchemaType.ByteArray },
+      });
     },
   );
 });

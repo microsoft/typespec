@@ -71,6 +71,14 @@ public class ConvenienceAsyncMethodTemplate extends ConvenienceMethodTemplateBas
         IType rawResponseBodyType = convenienceMethod.getProxyMethod().getRawResponseBodyType();
 
         if (convenienceMethod.getType() == ClientMethodType.SimpleAsync
+            && responseBodyType.asNullable() == ClassType.VOID
+            && protocolResponseBodyType == ClassType.BINARY_DATA) {
+            methodBlock
+                .methodReturn(String.format("%1$s(%2$s).then()", getMethodName(protocolMethod), invocationExpression));
+            return;
+        }
+
+        if (convenienceMethod.getType() == ClientMethodType.SimpleAsync
             && isResponseHeadersAsModel(convenienceMethod)) {
             // The convenience method returns the strongly-typed response-headers model, built from the response
             // headers of the protocol method (which returns Mono<Response<Void>>).
@@ -116,7 +124,9 @@ public class ConvenienceAsyncMethodTemplate extends ConvenienceMethodTemplateBas
 
             GenericType responseBaseType = getResponseBaseType(convenienceMethod.getReturnValue().getType());
             boolean responseBodyIsVoid = responseBodyType.asNullable() == ClassType.VOID;
-            if (responseBaseType == null && (responseBodyIsVoid || responseBodyType == ClassType.BINARY_DATA)) {
+            if (responseBaseType == null
+                && ((responseBodyIsVoid && protocolResponseBodyType.asNullable() == ClassType.VOID)
+                    || responseBodyType == ClassType.BINARY_DATA)) {
                 methodBlock.methodReturn(methodInvocation);
                 return;
             }
