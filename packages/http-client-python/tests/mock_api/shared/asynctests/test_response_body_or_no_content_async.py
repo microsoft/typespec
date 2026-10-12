@@ -17,21 +17,19 @@ async def client():
 
 @pytest.mark.asyncio
 async def test_get_body(client: BodyOrNoContentClient):
-    result, response = await client.get_body(
-        cls=lambda pipeline_response, result, _: (result, pipeline_response.http_response)
-    )
-
+    result = await client.get_body()
     assert result == BlobLayout(content="hello")
+
+    response = await client.get_body(cls=lambda pipeline_response, _, __: pipeline_response.http_response)
     assert response.status_code == 200
     assert response.headers["x-ms-request-id"] == "body-request"
 
 
 @pytest.mark.asyncio
 async def test_get_no_content(client: BodyOrNoContentClient):
-    result, response = await client.get_no_content(
-        cls=lambda pipeline_response, result, _: (result, pipeline_response.http_response)
-    )
-
+    result = await client.get_no_content()
     assert result is None
+
+    response = await client.get_no_content(cls=lambda pipeline_response, _, __: pipeline_response.http_response)
     assert response.status_code == 204
     assert response.headers["x-ms-request-id"] == "no-content-request"
