@@ -337,6 +337,16 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual(2, typeProvider.Methods[0].Signature.Parameters.Count);
         }
 
+        [Test]
+        public async Task BackCompatibilityIgnoresPolyfilledExperimentalAttribute()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                lastContractCompilation: () => Helpers.GetCompilationFromDirectoryAsync());
+            var typeProvider = new TestTypeProvider(name: "ExperimentalType");
+
+            Assert.IsNull(typeProvider.LastContractView);
+        }
+
         // Validates that a custom TypeProvider inherits the parameter-reordering back-compat behavior
         // from the base TypeProvider.
         [Test]

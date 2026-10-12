@@ -72,7 +72,7 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
         public TypeProvider? FindForTypeInLastContract(string ns, string name, string? declaringTypeName = null)
         {
             var type = FindTypeInCompilation(LastContract, ns, name, true, declaringTypeName, includeInternal: false);
-            return type?.Attributes.Any(ExperimentalApiHelpers.IsExperimentalAttribute) == true ? null : type;
+            return type is NamedTypeSymbolProvider { IsExperimental: true } ? null : type;
         }
 
         private IReadOnlyList<TypeProvider> PopulateCustomizationTypeProviders()

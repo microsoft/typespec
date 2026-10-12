@@ -51,6 +51,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         internal string MetadataSimpleName => _metadataSimpleName ??= _namedTypeSymbol.Name;
 
+        internal bool IsExperimental => _namedTypeSymbol.GetAttributes()
+            .Any(a => a.AttributeClass?.ToDisplayString() == typeof(ExperimentalAttribute).FullName);
+
         // Nested declarations are not materialized as providers for this symbol-backed view.
         internal bool HasPublicApiNestedTypes => _namedTypeSymbol.GetTypeMembers().Any(type =>
             type.DeclaredAccessibility is Accessibility.Public or Accessibility.Protected or
