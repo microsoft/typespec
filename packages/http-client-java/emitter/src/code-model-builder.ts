@@ -1191,6 +1191,7 @@ export class CodeModelBuilder {
       lroMetadata = this.processLroMetadata(codeModelOperation, sdkMethod);
     }
 
+    // TCGC only supports response replacement with void or bytes.
     const responseReplacement =
       sdkMethod.isOverride &&
       sdkMethod.kind === "basic" &&
@@ -1200,11 +1201,6 @@ export class CodeModelBuilder {
           ? "void"
           : "bytes"
         : undefined;
-    if (responseReplacement && this.isAzureV1() && codeModelOperation.convenienceApi) {
-      codeModelOperation.convenienceApi.response =
-        responseReplacement === "void" ? createResponse() : createBinaryResponse();
-    }
-
     // responses
     for (const response of sdkMethod.operation.responses) {
       this.processResponse(
@@ -1213,7 +1209,7 @@ export class CodeModelBuilder {
         response,
         lroMetadata.longRunning,
         false,
-        this.isAzureV1() ? undefined : responseReplacement,
+        responseReplacement,
       );
     }
 
@@ -2399,6 +2395,17 @@ export class CodeModelBuilder {
     // let response: Response;
     const headers: Array<HttpHeader> = [];
 
+    // Azure V1 replaces only the convenience return type, preserving the protocol response.
+    // Azure V2/ClientCore replace the operation response so the proxy handles void/raw bytes.
+    const replaceConvenienceResponse =
+      !isErrorResponse && responseReplacement !== undefined && this.isAzureV1();
+    const replaceResponseBodyType =
+      !isErrorResponse && responseReplacement !== undefined && !this.isAzureV1();
+    if (replaceConvenienceResponse && op.convenienceApi) {
+      op.convenienceApi.response =
+        responseReplacement === "void" ? createResponse() : createBinaryResponse();
+    }
+
     if (sdkResponse.headers) {
       for (const header of sdkResponse.headers) {
         const schema = this.processSchema(header.type, header.name);
@@ -2436,9 +2443,8 @@ export class CodeModelBuilder {
     }
 
     const bodyType: SdkType | undefined =
-      responseReplacement === "void" ? undefined : sdkResponse.type;
-    let trackConvenienceApi: boolean =
-      Boolean(op.convenienceApi) && (isErrorResponse || !op.convenienceApi?.response);
+      replaceResponseBodyType && responseReplacement === "void" ? undefined : sdkResponse.type;
+    let trackConvenienceApi: boolean = Boolean(op.convenienceApi) && !replaceConvenienceResponse;
     const trackResponseHeadersAsModel =
       trackConvenienceApi &&
       (op.convenienceApi?.responseHeadersAsModel === true ||
@@ -2454,7 +2460,8 @@ export class CodeModelBuilder {
       }
     }
 
-    let responseBodyIsFile: boolean = responseReplacement === "bytes" && bodyType !== undefined;
+    let responseBodyIsFile: boolean =
+      replaceResponseBodyType && responseReplacement === "bytes" && bodyType !== undefined;
     if (
       bodyType &&
       bodyType.kind === "model" &&
@@ -2542,7 +2549,7 @@ export class CodeModelBuilder {
           http: {
             statusCodes: this.getStatusCodes(statusCode),
             headers: headers,
-            ...(responseReplacement ? { mediaTypes: sdkResponse.contentTypes } : {}),
+            ...(replaceResponseBodyType ? { mediaTypes: sdkResponse.contentTypes } : {}),
           },
         },
         language: {
