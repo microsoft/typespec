@@ -159,6 +159,13 @@ export const $lib = createTypeSpecLibrary({
           "Spread JSON merge-patch payload is not supported. The reason is that a property in JSON merge-patch payload class can: set a value; not set so that value does not change; set to null to remove the value. A parameter on method cannot distinguish the latter 2 cases.",
       },
     },
+    "bytes-response-replacement-without-body": {
+      ...doc("bytes-response-replacement-without-body"),
+      severity: "warning",
+      messages: {
+        default: paramMessage`Cannot replace the response of operation '${"operationName"}' with bytes: the emitter cannot fabricate bytes when the HTTP response has no body. The response type override is ignored.`,
+      },
+    },
     "type-not-supported-on-text-plain": {
       ...doc("type-not-supported-on-text-plain"),
       severity: "warning",

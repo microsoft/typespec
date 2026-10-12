@@ -1192,15 +1192,31 @@ export class CodeModelBuilder {
     }
 
     // TCGC only supports response replacement with void or bytes.
-    const responseReplacement =
+    // Infer replacement when no declared HTTP body type matches the method return type.
+    // A no-content variant alone must not classify a parameter-only override as a replacement.
+    let responseReplacement: "void" | "bytes" | undefined =
       sdkMethod.isOverride &&
       sdkMethod.kind === "basic" &&
       (sdkMethod.response.type === undefined || sdkMethod.response.type.kind === "bytes") &&
-      httpOperation.responses.some((response) => response.type !== sdkMethod.response.type)
+      httpOperation.responses.some((response) => response.type !== sdkMethod.response.type) &&
+      !httpOperation.responses.some(
+        (response) => response.type !== undefined && response.type === sdkMethod.response.type,
+      )
         ? sdkMethod.response.type === undefined
           ? "void"
           : "bytes"
         : undefined;
+    if (
+      responseReplacement === "bytes" &&
+      httpOperation.responses.every((response) => response.type === undefined)
+    ) {
+      reportDiagnostic(this.program, {
+        code: "bytes-response-replacement-without-body",
+        format: { operationName },
+        target: sdkMethod.__raw ?? httpOperation.__raw.operation,
+      });
+      responseReplacement = undefined;
+    }
     // responses
     for (const response of sdkMethod.operation.responses) {
       this.processResponse(

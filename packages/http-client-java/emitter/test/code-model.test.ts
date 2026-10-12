@@ -1,4 +1,5 @@
 import { NodeHost, compile } from "@typespec/compiler";
+import { expectDiagnostics } from "@typespec/compiler/testing";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { parse, stringify } from "yaml";
@@ -305,7 +306,21 @@ describe("code model characterization", () => {
           report: () => {},
         },
       }).build();
-      expect(program.diagnostics.filter((d) => d.severity === "error")).toEqual([]);
+      expectDiagnostics(
+        program.diagnostics.filter(
+          (diagnostic) =>
+            diagnostic.code !==
+            "@azure-tools/typespec-client-generator-core/unsupported-generic-decorator-arg-type",
+        ),
+        [
+          {
+            code: "@typespec/http-client-java/bytes-response-replacement-without-body",
+            severity: "warning",
+            message:
+              "Cannot replace the response of operation 'bodylessBytesResponse' with bytes: the emitter cannot fabricate bytes when the HTTP response has no body. The response type override is ignored.",
+          },
+        ],
+      );
       const operations = model.clients.flatMap((client) =>
         client.operationGroups.flatMap((group) => group.operations ?? []),
       );
@@ -365,6 +380,46 @@ describe("code model characterization", () => {
       expect(parameterOverrideOperation.convenienceApi).not.toHaveProperty("response");
       expect(parameterOverrideOperation.responses![0]).toMatchObject({
         schema: { type: SchemaType.ByteArray },
+      });
+      const parameterOverrideOptionalOperation = operations.find(
+        (op) => op.language.default.name === "parameterOverrideOptionalBytesResponse",
+      )!;
+      expect(parameterOverrideOptionalOperation.convenienceApi).not.toHaveProperty("response");
+      expect(parameterOverrideOptionalOperation.responses![0]).toMatchObject({
+        schema: { type: SchemaType.ByteArray },
+      });
+      expect(parameterOverrideOptionalOperation.responses![1]).not.toHaveProperty("schema");
+      expect(parameterOverrideOptionalOperation.responses![1]).not.toHaveProperty("binary");
+
+      const optionalBytesOperation = operations.find(
+        (op) => op.language.default.name === "optionalBytesResponse",
+      )!;
+      const optionalVoidOperation = operations.find(
+        (op) => op.language.default.name === "optionalVoidResponse",
+      )!;
+      if (flavor === "azure") {
+        expect(optionalBytesOperation.convenienceApi).toMatchObject({ response: { binary: true } });
+        expect(optionalVoidOperation.convenienceApi).toMatchObject({ response: {} });
+        expect(isSchemaResponse(optionalVoidOperation.responses![0])).toBe(true);
+      } else {
+        expect(optionalBytesOperation.responses![0]).toMatchObject({ binary: true });
+        expect(optionalVoidOperation.responses![0]).not.toHaveProperty("schema");
+      }
+      for (const name of ["bodylessBytesResponse", "suppressedBodylessBytesResponse"]) {
+        const operation = operations.find((op) => op.language.default.name === name)!;
+        expect(operation.convenienceApi).not.toHaveProperty("response");
+        expect(operation.responses![0]).not.toHaveProperty("schema");
+        expect(operation.responses![0]).not.toHaveProperty("binary");
+        expect(operation.responses![0].protocol.http).toMatchObject({
+          statusCodes: ["204"],
+          headers: [expect.objectContaining({ header: "x-response-id" })],
+        });
+      }
+      const bodylessOperation = operations.find(
+        (op) => op.language.default.name === "bodylessBytesResponse",
+      )!;
+      expect(bodylessOperation.exceptions![0]).toMatchObject({
+        schema: { usage: expect.arrayContaining(["exception"]) },
       });
     },
   );
