@@ -19,7 +19,7 @@ namespace Sample
             return global::System.ClientModel.ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
 
-        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> UploadAsync(global::System.ClientModel.BinaryContent content, string contentType, global::System.ClientModel.Primitives.RequestOptions options = null)
+        public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> UploadAsync(string contentType, global::System.ClientModel.BinaryContent content, global::System.ClientModel.Primitives.RequestOptions options = null)
         {
             using global::System.ClientModel.Primitives.PipelineMessage message = this.CreateUploadRequest(content, contentType, options);
             return global::System.ClientModel.ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
@@ -36,7 +36,7 @@ namespace Sample
         public virtual async global::System.Threading.Tasks.Task<global::System.ClientModel.ClientResult> UploadAsync(global::Sample.Models.MultiPartRequest body = default, global::System.Threading.CancellationToken cancellationToken = default)
         {
             using global::System.ClientModel.MultiPartFormContent content = body?.ToMultipartFormContent();
-            return await this.UploadAsync(content, content?.MediaType, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            return await this.UploadAsync(content?.MediaType, content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
         }
     }
 }

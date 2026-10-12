@@ -191,7 +191,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
         }
 
         [Test]
-        public void AcronymArgumentsFollowRequiredParameterOrder()
+        public void AcronymArgumentsFollowExistingProjectionOrder()
         {
             var operation = InputFactory.Operation(
                 "Send",
@@ -224,14 +224,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
                     candidate.Expression is MemberAccessExpressionSyntax member && member.Name.Identifier.ValueText == targetName);
                 Assert.AreEqual(3, invocation.ArgumentList.Arguments.Count);
                 CollectionAssert.AreEqual(
-                    method.Kind == ScmMethodKind.Protocol
+                    method.Kind == ScmMethodKind.Protocol || !method.Signature.Name.EndsWith("Async", StringComparison.Ordinal)
                         ? new[] { "version", "sourceIPAddress" }
                         : new[] { "sourceIPAddress", "version" },
                     invocation.ArgumentList.Arguments.Take(2).Select(argument => argument.Expression.ToString()));
                 if (method.Kind == ScmMethodKind.Protocol)
                 {
                     CollectionAssert.AreEqual(
-                        new[] { "sourceIPAddress", "version", "options" },
+                        method.Signature.Name.EndsWith("Async", StringComparison.Ordinal)
+                            ? new[] { "sourceIPAddress", "version", "options" }
+                            : new[] { "version", "sourceIPAddress", "options" },
                         method.Signature.Parameters.Select(parameter => parameter.Name));
                 }
             }

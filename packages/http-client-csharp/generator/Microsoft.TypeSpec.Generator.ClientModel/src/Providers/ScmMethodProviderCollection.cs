@@ -232,7 +232,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         collection,
                         createRequestSignature,
                         convenienceBodyParameters,
-                        true,
                         methodSignature.Parameters[^1])
                 ];
             }
@@ -1396,14 +1395,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var hasOptionalContent = contentIndex >= 0 && protocolParameters[contentIndex].DefaultValue != null;
             var makeOptionalRequired = shouldMakeParametersRequired
                 && (contentIndex < 0 || hasOptionalContent);
-            int requiredBeforeContent = 0;
-
             for (var i = 0; i < protocolParameters.Count; i++)
             {
-                if (i == contentIndex)
-                {
-                    requiredBeforeContent = requiredParameters.Count;
-                }
                 var parameter = protocolParameters[i];
                 if (makeOptionalRequired && parameter.DefaultValue != null && (contentIndex < 0 || i <= contentIndex))
                 {
@@ -1429,7 +1422,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         {
                             SpreadSource = parameter.SpreadSource
                         };
-                    convertedRequiredParameters.Add(parameter);
+                    // Preserve the old async required-first order and sync order after optional promotion.
+                    (isAsync ? convertedRequiredParameters : requiredParameters).Add(parameter);
                     continue;
                 }
                 if (parameter.DefaultValue is null)
@@ -1441,10 +1435,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     optionalParameters.Add(parameter);
                 }
             }
-            // Converted body parameters stay ahead of trailing required headers.
-            requiredParameters.InsertRange(
-                hasOptionalContent ? requiredBeforeContent : requiredParameters.Count,
-                convertedRequiredParameters);
+            requiredParameters.AddRange(convertedRequiredParameters);
             var requestOptionsParameter = ScmKnownParameters.CreateRequestOptions(
                 optional: !shouldMakeParametersRequired || contentIndex >= 0);
 
@@ -1464,25 +1455,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // generated body using the customized parameter references.
             MethodSignature? customSignature = null;
             PartialMethodCustomization.TryFindCustomSignature(client, methodName, parameters, out customSignature);
-
-            if (customSignature == null && client.CustomCodeView?.Methods is { Count: > 0 }
-                && ServiceMethod.Operation.IsMultipartFormData
-                && hasOptionalContent && convertedRequiredParameters.Count > 0)
-            {
-                // Older optional multipart signatures placed trailing required headers before the converted body parameters.
-                ParameterProvider[] legacyParameters =
-                [
-                    .. requiredParameters.Take(requiredBeforeContent),
-                    .. requiredParameters.Skip(requiredBeforeContent + convertedRequiredParameters.Count),
-                    .. convertedRequiredParameters,
-                    .. optionalParameters,
-                    requestOptionsParameter
-                ];
-                if (PartialMethodCustomization.TryFindCustomSignature(client, methodName, legacyParameters, out customSignature))
-                {
-                    parameters = legacyParameters;
-                }
-            }
 
             MethodSignature methodSignature;
             ParameterProvider[] bodyParameters;
@@ -1526,7 +1498,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             if (_pagingServiceMethod != null)
             {
                 collection = ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.CreateClientCollectionResultDefinition(Client, _pagingServiceMethod, null, isAsync);
-                methodBody = [.. GetPagingMethodBody(collection, createRequestMethod.Signature, bodyParameters, false)];
+                methodBody = [.. GetPagingMethodBody(collection, createRequestMethod.Signature, bodyParameters)];
             }
             else
             {
@@ -1761,13 +1733,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             TypeProvider collection,
             MethodSignature createRequestSignature,
             IReadOnlyList<ParameterProvider> parameters,
-            bool isConvenience,
             ParameterProvider? cancellationToken = null)
         {
-            if (isConvenience)
+            if (cancellationToken != null)
             {
                 var conversionStatements = GetStackVariablesForProtocolParamConversion(parameters, out var declarations);
-                var constructorArguments = GetMethodArguments(createRequestSignature, declarations, parameters, cancellationToken!);
+                var constructorArguments = GetMethodArguments(createRequestSignature, declarations, parameters, cancellationToken);
 
                 return
                     [

@@ -130,15 +130,12 @@ namespace Microsoft.TypeSpec.Generator.Utilities
         /// <paramref name="originalName"/>, looked up in <paramref name="lastContractView"/>. When
         /// <paramref name="methodName"/> is supplied, the search is scoped to last-contract methods
         /// whose name matches it (allowing for a sync/async pair) so a parameter name shared across
-        /// methods cannot cross-match. When supplied, <paramref name="parameterType"/> must also match.
-        /// Omit the type for name-only restoration, including existing date/time type changes.
-        /// Returns null when no match exists.
+        /// methods cannot cross-match. Returns null when no match exists.
         /// </summary>
         public static string? FindPreviousParameterName(
             TypeProvider? lastContractView,
             string originalName,
-            string? methodName = null,
-            CSharpType? parameterType = null)
+            string? methodName = null)
         {
             var lastContractMethods = lastContractView?.Methods;
             if (lastContractMethods is null || lastContractMethods.Count == 0)
@@ -157,8 +154,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
 
             return scopedMethods
                 .SelectMany(method => method.Signature.Parameters)
-                .FirstOrDefault(p => string.Equals(p.Name, originalName, StringComparison.OrdinalIgnoreCase)
-                    && (parameterType == null || p.Type.AreNamesEqual(parameterType)))
+                .FirstOrDefault(p => string.Equals(p.Name, originalName, StringComparison.OrdinalIgnoreCase))
                 ?.Name;
         }
 

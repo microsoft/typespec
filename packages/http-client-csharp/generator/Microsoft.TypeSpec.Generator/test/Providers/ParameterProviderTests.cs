@@ -101,11 +101,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         [TestCase("sourceIpAddress", "sourceIPAddress")]
         [TestCase("targetDbName", "targetDBName")]
         [TestCase("guestOsType", "guestOSType")]
-        [TestCase("ipAddress", "ipAddress")]
-        [TestCase("dbName", "dbName")]
-        [TestCase("osType", "osType")]
-        [TestCase("ipv4Address", "ipv4Address")]
-        [TestCase("ipv6Address", "ipv6Address")]
         [TestCase("ipV4Address", "ipv4Address")]
         [TestCase("ipV6Address", "ipv6Address")]
         [TestCase("iPv4Address", "ipv4Address")]
@@ -113,16 +108,30 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         [TestCase("sourceIpv4Address", "sourceIPv4Address")]
         [TestCase("sourceIpV6Address", "sourceIPv6Address")]
         [TestCase("sourceIpIpDbOs", "sourceIPIPDBOS")] // cspell:ignore IPIPDBOS
-        [TestCase("sourceIPv4Address", "sourceIPv4Address")]
-        [TestCase("sourceIPAddress", "sourceIPAddress")]
-        [TestCase("targetDBName", "targetDBName")]
-        [TestCase("guestOSType", "guestOSType")]
-        [TestCase("sourceIpad", "sourceIpad")]
-        [TestCase("targetDbase", "targetDbase")] // cspell:ignore Dbase
-        [TestCase("guestOstrich", "guestOstrich")]
-        [TestCase("sourceIpv4address", "sourceIpv4address")]
-        [TestCase("sourceIp2Address", "sourceIp2Address")]
         public void MethodParameterNameNormalizesAcronyms(string name, string expected)
+            => AssertNormalizedMethodParameter(name, expected);
+
+        [TestCase("ipAddress")]
+        [TestCase("dbName")]
+        [TestCase("osType")]
+        [TestCase("ipv4Address")]
+        [TestCase("ipv6Address")]
+        [TestCase("sourceIPv4Address")]
+        [TestCase("sourceIPAddress")]
+        [TestCase("targetDBName")]
+        [TestCase("guestOSType")]
+        public void MethodParameterNamePreservesCanonicalAcronyms(string name)
+            => AssertNormalizedMethodParameter(name, name);
+
+        [TestCase("sourceIpad")]
+        [TestCase("targetDbase")] // cspell:ignore Dbase
+        [TestCase("guestOstrich")]
+        [TestCase("sourceIpv4address")]
+        [TestCase("sourceIp2Address")]
+        public void MethodParameterNamePreservesNonAcronymSubstrings(string name)
+            => AssertNormalizedMethodParameter(name, name);
+
+        private static void AssertNormalizedMethodParameter(string name, string expected)
         {
             MockHelpers.LoadMockGenerator();
             var input = InputFactory.MethodParameter(name, InputPrimitiveType.String, isRequired: true);

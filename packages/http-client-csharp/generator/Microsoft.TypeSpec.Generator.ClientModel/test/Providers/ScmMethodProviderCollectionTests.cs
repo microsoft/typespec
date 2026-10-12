@@ -1099,8 +1099,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
             await MockHelpers.LoadMockGeneratorAsync(
                 clients: () => [inputClient], inputModels: () => [model],
-                compilation: signatureSource == "Custom" ? async () => await Helpers.GetCompilationFromDirectoryAsync("Custom") : null,
-                lastContractCompilation: signatureSource == "LastContract" ? async () => await Helpers.GetCompilationFromDirectoryAsync("LastContract") : null);
+                compilation: signatureSource == "Custom" ? async () => await Helpers.GetCompilationFromDirectoryAsync(bodyIsRequired ? "Custom" : "CustomOptional") : null,
+                lastContractCompilation: signatureSource == "LastContract" ? async () => await Helpers.GetCompilationFromDirectoryAsync(bodyIsRequired ? "LastContract" : "LastContractOptional") : null);
             var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
             client.ProcessTypeForBackCompatibility();
             var methods = client.Methods.OfType<ScmMethodProvider>().Where(method => method.Kind == ScmMethodKind.Convenience).ToArray();
@@ -1111,15 +1111,120 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 var protocol = client.Methods.OfType<ScmMethodProvider>().Single(candidate =>
                     candidate.Kind == ScmMethodKind.Protocol && candidate.Signature.Name == method.Signature.Name);
                 var expectedMediaTypeName = method.Signature.Name.EndsWith("Async", StringComparison.Ordinal) ? "asyncMediaType" : "mediaType";
-                Assert.AreEqual(expectedMediaTypeName, protocol.Signature.Parameters[1].Name);
-                Assert.AreEqual("Content-Type", protocol.Signature.Parameters[1].WireInfo.SerializedName);
+                bool contentTypeFirst = !bodyIsRequired && method.Signature.Name.EndsWith("Async", StringComparison.Ordinal);
+                var contentTypeParameter = protocol.Signature.Parameters[contentTypeFirst ? 0 : 1];
+                Assert.AreEqual(expectedMediaTypeName, contentTypeParameter.Name);
+                Assert.AreEqual("Content-Type", contentTypeParameter.WireInfo.SerializedName);
                 var syntax = CSharpSyntaxTree.ParseText(method.BodyStatements!.ToDisplayString()).GetRoot();
                 var invocation = syntax.DescendantNodes().OfType<InvocationExpressionSyntax>().Single(candidate =>
                     candidate.Expression is MemberAccessExpressionSyntax member && member.Name.Identifier.ValueText == protocol.Signature.Name);
                 CollectionAssert.AreEqual(
-                    new[] { "content", bodyIsRequired ? "content.MediaType" : "content?.MediaType", "cancellationToken.ToRequestOptions()" },
+                    contentTypeFirst
+                        ? new[] { "content?.MediaType", "content", "cancellationToken.ToRequestOptions()" }
+                        : new[] { "content", bodyIsRequired ? "content.MediaType" : "content?.MediaType", "cancellationToken.ToRequestOptions()" },
                     invocation.ArgumentList.Arguments.Select(argument => argument.Expression.ToString()));
             }
+        }
+
+        [Test]
+        public void OperationParameterOrderPreservesPreNormalizationSignatures(
+            [Values("OptionalPath", "OptionalBody", "Multipart")] string shape,
+            [Values(false, true)] bool acronymNames)
+        {
+            var sourceName = acronymNames ? "sourceIpAddress" : "sourceAddress";
+            var targetName = acronymNames ? "targetDbName" : "targetName";
+            var emittedSourceName = acronymNames ? "sourceIPAddress" : sourceName;
+            var emittedTargetName = acronymNames ? "targetDBName" : targetName;
+            bool hasBody = shape != "OptionalPath";
+            bool isMultipart = shape == "Multipart";
+            var model = InputFactory.Model(
+                "UploadBody",
+                usage: InputModelTypeUsage.Input | (isMultipart ? InputModelTypeUsage.MultipartFormData : InputModelTypeUsage.Json),
+                properties: [InputFactory.Property("message", InputPrimitiveType.String, isRequired: true,
+                    serializationOptions: InputFactory.Serialization.Options(
+                        multipart: InputFactory.Serialization.Multipart("message", isFilePart: false, defaultContentTypes: ["text/plain"])))]);
+            var operationParameters = new List<InputParameter>
+            {
+                InputFactory.PathParameter(sourceName, InputPrimitiveType.String, serializedName: "source"),
+                InputFactory.QueryParameter(targetName, InputPrimitiveType.String, isRequired: true, serializedName: "target")
+            };
+            var methodParameters = new List<InputMethodParameter>
+            {
+                InputFactory.MethodParameter(sourceName, InputPrimitiveType.String, location: InputRequestLocation.Path, serializedName: "source"),
+                InputFactory.MethodParameter(targetName, InputPrimitiveType.String, location: InputRequestLocation.Query, serializedName: "target")
+            };
+            if (hasBody)
+            {
+                InputType bodyType = isMultipart ? model : InputPrimitiveType.String;
+                operationParameters.Add(InputFactory.BodyParameter("body", bodyType));
+                methodParameters.Add(InputFactory.MethodParameter("body", bodyType));
+            }
+            if (isMultipart)
+            {
+                operationParameters.Add(InputFactory.ContentTypeParameter("multipart/form-data"));
+            }
+            var operation = InputFactory.Operation(
+                "Send", parameters: operationParameters, uri: "/items/{source}",
+                requestMediaTypes: [isMultipart ? "multipart/form-data" : "text/plain"],
+                responses: [InputFactory.OperationResponse([204])]);
+            var serviceMethod = InputFactory.BasicServiceMethod("Send", operation, parameters: methodParameters);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            var generator = MockHelpers.LoadMockGenerator(clients: () => [inputClient], inputModels: () => isMultipart ? [model] : []);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+            var methods = client.Methods.OfType<ScmMethodProvider>().Where(method => method.Kind == ScmMethodKind.Protocol).ToArray();
+            Assert.AreEqual(2, methods.Length);
+            foreach (var method in methods)
+            {
+                bool isAsync = method.Signature.Name.EndsWith("Async", StringComparison.Ordinal);
+                string[] expectedOrder = (shape, isAsync) switch
+                {
+                    ("OptionalPath", false) => [emittedSourceName, emittedTargetName, "options"],
+                    ("OptionalPath", true) => [emittedTargetName, emittedSourceName, "options"],
+                    ("OptionalBody", false) => [emittedSourceName, emittedTargetName, "content", "options"],
+                    ("OptionalBody", true) => [emittedTargetName, emittedSourceName, "content", "options"],
+                    ("Multipart", false) => [emittedSourceName, emittedTargetName, "content", "contentType", "options"],
+                    _ => [emittedTargetName, "contentType", emittedSourceName, "content", "options"]
+                };
+                CollectionAssert.AreEqual(expectedOrder, method.Signature.Parameters.Select(parameter => parameter.Name));
+                Assert.IsNull(method.Signature.Parameters.Single(parameter => parameter.Name == emittedSourceName).DefaultValue);
+                Assert.AreEqual(hasBody, method.Signature.Parameters[^1].DefaultValue != null);
+                var request = client.RestClient.GetCreateRequestMethod(operation);
+                var protocolSyntax = CSharpSyntaxTree.ParseText(method.BodyStatements!.ToDisplayString()).GetRoot();
+                var requestCall = protocolSyntax.DescendantNodes().OfType<InvocationExpressionSyntax>().Single(invocation =>
+                    invocation.Expression is MemberAccessExpressionSyntax member && member.Name.Identifier.ValueText == request.Signature.Name);
+                CollectionAssert.AreEqual(
+                    request.Signature.Parameters.Select(parameter => parameter.Name),
+                    requestCall.ArgumentList.Arguments.Select(argument => argument.Expression.ToString()));
+                var convenience = client.Methods.OfType<ScmMethodProvider>().Single(candidate =>
+                    candidate.Kind == ScmMethodKind.Convenience && candidate.Signature.Name == method.Signature.Name);
+                var convenienceSyntax = CSharpSyntaxTree.ParseText(convenience.BodyStatements!.ToDisplayString()).GetRoot();
+                var protocolCall = convenienceSyntax.DescendantNodes().OfType<InvocationExpressionSyntax>().Single(invocation =>
+                    invocation.Expression is MemberAccessExpressionSyntax member && member.Name.Identifier.ValueText == method.Signature.Name);
+                CollectionAssert.AreEqual(
+                    expectedOrder.Select(name => name switch
+                    {
+                        "contentType" => "content?.MediaType",
+                        "options" => "cancellationToken.ToRequestOptions()",
+                        _ => name
+                    }),
+                    protocolCall.ArgumentList.Arguments.Select(argument => argument.Expression.ToString()));
+            }
+
+            var references = AppDomain.CurrentDomain.GetAssemblies()
+                .Where(assembly => !assembly.IsDynamic && !string.IsNullOrEmpty(assembly.Location))
+                .Select(assembly => MetadataReference.CreateFromFile(assembly.Location))
+                .Append(MetadataReference.CreateFromFile(typeof(System.Net.Http.HttpContent).Assembly.Location))
+                .Append(MetadataReference.CreateFromFile(typeof(Microsoft.Extensions.Configuration.IConfigurationSection).Assembly.Location));
+            var trees = generator.Object.OutputLibrary.TypeProviders
+                .Concat(isMultipart ? ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(model)!.SerializationProviders : [])
+                .Where(provider => provider is not Utf8JsonBinaryContentDefinition and not BinaryContentHelperDefinition and not MultiPartFormDataBinaryContentDefinition)
+                .Select(provider => new TypeProviderWriter(provider).Write())
+                .Select(file => CSharpSyntaxTree.ParseText(file.Content, path: file.Name));
+            var compilation = CSharpCompilation.Create(
+                "OperationParameterOrdering", trees, references,
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, generalDiagnosticOption: ReportDiagnostic.Error));
+            Assert.IsEmpty(compilation.GetDiagnostics().Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error)
+                .Select(diagnostic => diagnostic.ToString()));
         }
 
         [Test]
