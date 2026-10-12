@@ -798,13 +798,13 @@ class Stream(Iterator[ReturnType_co]):
                         terminal = True
 {% endif %}
                         break
-{% if enable_sse_reconnect %}
-                if terminal or self._reconnect_callback is None:
-                    break
                 if isinstance(self._decoder, SSEDecoder):
                     self._last_event_id = self._decoder.last_event_id
                     if self._decoder.retry is not None:
                         self._retry = self._decoder.retry
+{% if enable_sse_reconnect %}
+                if terminal or self._reconnect_callback is None:
+                    break
                 self._response.close()
                 reconnect_delay = (self._retry if self._retry is not None else 3000) / 1000
                 self._response = self._reconnect_callback(self._last_event_id, reconnect_delay)
@@ -964,13 +964,13 @@ class AsyncStream(AsyncIterator[ReturnType_co]):
                     aclose = getattr(events, "aclose", None)
                     if aclose is not None:
                         await aclose()
-{% if enable_sse_reconnect %}
-                if terminal or self._reconnect_callback is None:
-                    break
                 if isinstance(self._decoder, AsyncSSEDecoder):
                     self._last_event_id = self._decoder.last_event_id
                     if self._decoder.retry is not None:
                         self._retry = self._decoder.retry
+{% if enable_sse_reconnect %}
+                if terminal or self._reconnect_callback is None:
+                    break
                 await self._response.close()
                 reconnect_delay = (self._retry if self._retry is not None else 3000) / 1000
                 self._response = await self._reconnect_callback(self._last_event_id, reconnect_delay)

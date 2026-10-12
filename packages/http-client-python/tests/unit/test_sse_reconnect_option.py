@@ -134,6 +134,43 @@ def test_normal_sse_eof_keeps_metadata_and_closes(runtime, async_mode):
 
 @pytest.mark.parametrize("async_mode", [False, True])
 @pytest.mark.parametrize(
+    ("body", "expected_data", "expected_id", "expected_retry"),
+    [
+        (b"id: latest\nretry: 1000\n\n", [], "latest", 1000),
+        (
+            b"id: first\nretry: 3000\ndata: one\n\nid: latest\nretry: 1000\n\n",
+            ["one"],
+            "latest",
+            1000,
+        ),
+        (b"id: first\nretry: 3000\ndata: one\n\nid:\nretry: 0\n\n", ["one"], "", 0),
+        (
+            b"id: first\nretry: 3000\ndata: one\n\nid: invalid\x00id\nretry: invalid\n\n",
+            ["one"],
+            "first",
+            3000,
+        ),
+        (
+            b"id: first\nretry: 3000\ndata: one\n\nid: incomplete\n",
+            ["one"],
+            "first",
+            3000,
+        ),
+    ],
+)
+def test_sse_eof_keeps_metadata_without_data_event(
+    runtime, async_mode, body, expected_data, expected_id, expected_retry
+):
+    events, stream, response = _consume(runtime, body, async_mode=async_mode)
+    assert [event.data for event in events] == expected_data
+    assert stream.last_event_id == expected_id
+    assert stream.retry == expected_retry
+    assert response.closed
+    assert response.byte_iterator_closed
+
+
+@pytest.mark.parametrize("async_mode", [False, True])
+@pytest.mark.parametrize(
     ("body", "kwargs", "expected"),
     [
         (b"data: one\n\ndata: [DONE]\n\ndata: after\n\n", {"terminal_event": "[DONE]"}, ["one"]),
@@ -239,11 +276,20 @@ def test_reconnect_only_operation_imports_are_gated(code_model, reconnect_option
 
 
 @pytest.mark.parametrize("async_mode", [False, True])
-@pytest.mark.parametrize("metadata, expected", [(b"", ("", 3.0)), (b"id: first\nretry: 1000\n", ("first", 1.0))])
+@pytest.mark.parametrize(
+    ("body", "expected_items", "expected"),
+    [
+        (b"data: one\n\n", ["one"], ("", 3.0)),
+        (b"id: first\nretry: 1000\ndata: one\n\n", ["one"], ("first", 1.0)),
+        (b"id: first\nretry: 1000\n\n", [], ("first", 1.0)),
+    ],
+)
 @pytest.mark.parametrize("reconnect_options", [{"enable-sse-reconnect": True}])
-def test_enabled_reconnect_resumes_and_stops_at_204(runtime, reconnect_options, async_mode, metadata, expected):
+def test_enabled_reconnect_resumes_and_stops_at_204(
+    runtime, reconnect_options, async_mode, body, expected_items, expected
+):
     calls = []
-    first = (AsyncFakeResponse if async_mode else FakeResponse)(metadata + b"data: one\n\n")
+    first = (AsyncFakeResponse if async_mode else FakeResponse)(body)
     second = (AsyncFakeResponse if async_mode else FakeResponse)(b"", status_code=204)
 
     def reconnect(last_event_id, delay):
@@ -271,6 +317,6 @@ def test_enabled_reconnect_resumes_and_stops_at_204(runtime, reconnect_options, 
                 reconnect_callback=reconnect,
             )
         )
-    assert items == ["one"]
+    assert items == expected_items
     assert calls == [expected]
     assert first.closed and second.closed
