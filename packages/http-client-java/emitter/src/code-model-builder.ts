@@ -2477,27 +2477,28 @@ export class CodeModelBuilder {
       }
     }
 
-    let responseBodyIsBinary = false;
-    if (
+    let responseBodyIsFile = false;
+    if (replaceResponseWithBytes && bodyType) {
+      responseBodyIsFile = true;
+    } else if (
       bodyType &&
-      (replaceResponseWithBytes ||
-        (bodyType.kind === "model" &&
-          bodyType.serializationOptions.binary &&
-          bodyType.serializationOptions.binary.isFile))
+      bodyType.kind === "model" &&
+      bodyType.serializationOptions.binary &&
+      bodyType.serializationOptions.binary.isFile
     ) {
-      // raw response replacement or File
-      responseBodyIsBinary = true;
+      // check for File
+      responseBodyIsFile = true;
     } else if (bodyType && bodyType.kind === "bytes") {
       // check for bytes + unknown content-type
       const unknownResponseBody =
         sdkResponse.contentTypes &&
         sdkResponse.contentTypes.length > 0 &&
         !isKnownContentType(sdkResponse.contentTypes);
-      responseBodyIsBinary = Boolean(unknownResponseBody);
+      responseBodyIsFile = Boolean(unknownResponseBody);
     }
 
     let response: Response;
-    if (responseBodyIsBinary) {
+    if (responseBodyIsFile) {
       // binary/file
       response = createBinaryResponse({
         protocol: {
@@ -2525,7 +2526,7 @@ export class CodeModelBuilder {
       // schema (usually JSON)
       let schema: Schema | undefined;
       if (
-        !responseBodyIsBinary &&
+        !responseBodyIsFile &&
         sdkResponse.contentTypes &&
         sdkResponse.contentTypes.length === 1 &&
         sdkResponse.contentTypes[0] === "text/plain" &&
