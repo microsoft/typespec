@@ -5,7 +5,6 @@
 package _specs_.azure.clientgenerator.core.responsereplacement;
 
 import _specs_.azure.clientgenerator.core.responsereplacement.implementation.ResponseReplacementClientImpl;
-import _specs_.azure.clientgenerator.core.responsereplacement.models.Widget;
 import com.azure.core.annotation.Generated;
 import com.azure.core.annotation.ReturnType;
 import com.azure.core.annotation.ServiceClient;
@@ -96,15 +95,14 @@ public final class ResponseReplacementAsyncClient {
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response body on successful completion of {@link Mono}.
+     * @return A {@link Mono} that completes when a successful response is received.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Widget> voidResponse() {
+    public Mono<Void> voidResponse() {
         // Generated convenience method for voidResponseWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return voidResponseWithResponse(requestOptions).flatMap(FluxUtil::toMono)
-            .map(protocolMethodData -> protocolMethodData.toObject(Widget.class));
+        return voidResponseWithResponse(requestOptions).then();
     }
 
     /**
@@ -119,10 +117,9 @@ public final class ResponseReplacementAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Widget> bytesResponse() {
+    public Mono<BinaryData> bytesResponse() {
         // Generated convenience method for bytesResponseWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return bytesResponseWithResponse(requestOptions).flatMap(FluxUtil::toMono)
-            .map(protocolMethodData -> protocolMethodData.toObject(Widget.class));
+        return bytesResponseWithResponse(requestOptions).flatMap(FluxUtil::toMono);
     }
 }
