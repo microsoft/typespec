@@ -302,6 +302,41 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual("p1", signature.Parameters[0].Name);
         }
 
+        [Test]
+        public async Task BackCompatibilityIgnoresExperimentalLastContract(
+            [Values("ExperimentalType", "StableType", "UnrelatedExperimentalType")] string name,
+            [Values] bool currentlyExperimental)
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                lastContractCompilation: () => Helpers.GetCompilationFromDirectoryAsync());
+            var typeProvider = new TestTypeProvider(
+                name: name,
+                declarationModifiers: TypeSignatureModifiers.Public | TypeSignatureModifiers.Abstract | TypeSignatureModifiers.Class);
+            typeProvider.Update(
+                attributes: ExperimentalApiHelpers.BuildAttributes(
+                    currentlyExperimental ? new InputExperimentalDetails("CURRENT001") : null),
+                methods:
+                [
+                    new MethodProvider(
+                        new MethodSignature("DoWork", null, MethodSignatureModifiers.Public, null, null,
+                        [
+                            new ParameterProvider("value", $"", typeof(int)),
+                            new ParameterProvider("added", $"", typeof(bool), defaultValue: Snippet.Default, location: ParameterLocation.Query)
+                        ]),
+                        MethodBodyStatement.Empty,
+                        typeProvider)
+                ]);
+
+            var previouslyExperimental = name == "ExperimentalType";
+            Assert.AreEqual(previouslyExperimental, typeProvider.LastContractView is null);
+            Assert.AreEqual(previouslyExperimental, typeProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract));
+
+            typeProvider.ProcessTypeForBackCompatibility();
+
+            Assert.AreEqual(previouslyExperimental ? 1 : 2, typeProvider.Methods.Count);
+            Assert.AreEqual(2, typeProvider.Methods[0].Signature.Parameters.Count);
+        }
+
         // Validates that a custom TypeProvider inherits the parameter-reordering back-compat behavior
         // from the base TypeProvider.
         [Test]
