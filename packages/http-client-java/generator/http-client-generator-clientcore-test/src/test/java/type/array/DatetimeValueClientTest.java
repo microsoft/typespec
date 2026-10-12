@@ -19,7 +19,7 @@ public class DatetimeValueClientTest {
     public void get() {
         List<OffsetDateTime> response = client.get();
         Assertions.assertEquals(1, response.size());
-        Assertions.assertEquals("2022-08-26T18:38:00Z", response.get(0));
+        Assertions.assertEquals(OffsetDateTime.parse("2022-08-26T18:38:00Z"), response.get(0));
     }
 
     @Test
