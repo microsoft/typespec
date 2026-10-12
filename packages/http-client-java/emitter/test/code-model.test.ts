@@ -318,9 +318,13 @@ describe("code model characterization", () => {
         expect(operation.responses).toHaveLength(1);
         expect(operation.responses![0].protocol.http).toMatchObject({
           statusCodes: ["200"],
-          mediaTypes: ["application/json"],
           headers: [expect.objectContaining({ header: "x-response-id" })],
         });
+        if (operation === voidOperation && flavor !== "azure") {
+          expect(operation.responses![0].protocol.http).not.toHaveProperty("mediaTypes");
+        } else {
+          expect(operation.responses![0].protocol.http.mediaTypes).toEqual(["application/json"]);
+        }
         expect(operation.exceptions).toHaveLength(1);
         expect(operation.exceptions![0].protocol.http.statusCodes).toEqual(["400"]);
         expect(isSchemaResponse(operation.exceptions![0])).toBe(true);

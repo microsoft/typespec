@@ -2401,9 +2401,28 @@ export class CodeModelBuilder {
       !isErrorResponse && responseReplacement !== undefined && this.isAzureV1();
     const replaceResponseBodyType =
       !isErrorResponse && responseReplacement !== undefined && !this.isAzureV1();
-    if (replaceConvenienceResponse && op.convenienceApi) {
-      op.convenienceApi.response =
-        responseReplacement === "void" ? createResponse() : createBinaryResponse();
+    let bodyType: SdkType | undefined = sdkResponse.type;
+    let replaceResponseWithBytes = false;
+    if (!isErrorResponse && responseReplacement !== undefined) {
+      switch (responseReplacement) {
+        case "void":
+          if (replaceConvenienceResponse && op.convenienceApi) {
+            op.convenienceApi.response = createResponse();
+          } else if (replaceResponseBodyType) {
+            bodyType = undefined;
+          }
+          break;
+        case "bytes":
+          if (replaceConvenienceResponse && op.convenienceApi) {
+            op.convenienceApi.response = createBinaryResponse();
+          } else if (replaceResponseBodyType) {
+            // Raw bytes bypass JSON/base64 decoding even for application/json responses.
+            replaceResponseWithBytes = true;
+          }
+          break;
+        default:
+          fail(`Unsupported response replacement: ${responseReplacement satisfies never}`);
+      }
     }
 
     if (sdkResponse.headers) {
@@ -2442,8 +2461,6 @@ export class CodeModelBuilder {
       }
     }
 
-    const bodyType: SdkType | undefined =
-      replaceResponseBodyType && responseReplacement === "void" ? undefined : sdkResponse.type;
     let trackConvenienceApi: boolean = Boolean(op.convenienceApi) && !replaceConvenienceResponse;
     const trackResponseHeadersAsModel =
       trackConvenienceApi &&
@@ -2460,27 +2477,27 @@ export class CodeModelBuilder {
       }
     }
 
-    let responseBodyIsFile: boolean =
-      replaceResponseBodyType && responseReplacement === "bytes" && bodyType !== undefined;
+    let responseBodyIsBinary = false;
     if (
       bodyType &&
-      bodyType.kind === "model" &&
-      bodyType.serializationOptions.binary &&
-      bodyType.serializationOptions.binary.isFile
+      (replaceResponseWithBytes ||
+        (bodyType.kind === "model" &&
+          bodyType.serializationOptions.binary &&
+          bodyType.serializationOptions.binary.isFile))
     ) {
-      // check for File
-      responseBodyIsFile = true;
+      // raw response replacement or File
+      responseBodyIsBinary = true;
     } else if (bodyType && bodyType.kind === "bytes") {
       // check for bytes + unknown content-type
       const unknownResponseBody =
         sdkResponse.contentTypes &&
         sdkResponse.contentTypes.length > 0 &&
         !isKnownContentType(sdkResponse.contentTypes);
-      responseBodyIsFile ||= Boolean(unknownResponseBody);
+      responseBodyIsBinary = Boolean(unknownResponseBody);
     }
 
     let response: Response;
-    if (responseBodyIsFile) {
+    if (responseBodyIsBinary) {
       // binary/file
       response = createBinaryResponse({
         protocol: {
@@ -2508,7 +2525,7 @@ export class CodeModelBuilder {
       // schema (usually JSON)
       let schema: Schema | undefined;
       if (
-        !responseBodyIsFile &&
+        !responseBodyIsBinary &&
         sdkResponse.contentTypes &&
         sdkResponse.contentTypes.length === 1 &&
         sdkResponse.contentTypes[0] === "text/plain" &&
@@ -2549,7 +2566,6 @@ export class CodeModelBuilder {
           http: {
             statusCodes: this.getStatusCodes(statusCode),
             headers: headers,
-            ...(replaceResponseBodyType ? { mediaTypes: sdkResponse.contentTypes } : {}),
           },
         },
         language: {
