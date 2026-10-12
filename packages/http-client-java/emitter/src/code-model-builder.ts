@@ -2402,7 +2402,6 @@ export class CodeModelBuilder {
     const replaceResponseBodyType =
       !isErrorResponse && responseReplacement !== undefined && !this.isAzureV1();
     let bodyType: SdkType | undefined = sdkResponse.type;
-    let replaceResponseWithBytes = false;
     if (!isErrorResponse && responseReplacement !== undefined) {
       switch (responseReplacement) {
         case "void":
@@ -2415,9 +2414,6 @@ export class CodeModelBuilder {
         case "bytes":
           if (replaceConvenienceResponse && op.convenienceApi) {
             op.convenienceApi.response = createBinaryResponse();
-          } else if (replaceResponseBodyType) {
-            // Raw bytes bypass JSON/base64 decoding even for application/json responses.
-            replaceResponseWithBytes = true;
           }
           break;
         default:
@@ -2477,8 +2473,9 @@ export class CodeModelBuilder {
       }
     }
 
-    let responseBodyIsFile = false;
-    if (replaceResponseWithBytes && bodyType) {
+    let responseBodyIsFile: boolean = false;
+    if (replaceResponseBodyType && responseReplacement === "bytes" && bodyType) {
+      // Raw bytes bypass JSON/base64 decoding even for application/json responses.
       responseBodyIsFile = true;
     } else if (
       bodyType &&
