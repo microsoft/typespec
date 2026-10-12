@@ -29,13 +29,14 @@ import {
   type TestClientOptions,
 } from "./api/testClientContext.js";
 import { foo, type FooOptions } from "./api/testClientOperations.js";
+import type { Widget } from "./models/models.js";
 
 export class TestClient {
   #context: TestClientContext;
   constructor(endpoint: string, options?: TestClientOptions) {
     this.#context = createTestClientContext(endpoint, options);
   }
-  async foo(options?: FooOptions) {
+  async foo(options?: FooOptions): Promise<Widget> {
     return foo(this.#context, options);
   }
 }
@@ -110,7 +111,10 @@ A function named `foo` is generated to handle the HTTP request. It prepares the 
 - If the response status code is unexpected, an exception is thrown.
 
 ```ts src/api/testClientOperations.ts function foo
-export async function foo(client: TestClientContext, options?: FooOptions): Promise<Widget> {
+export async function foo(
+  client: TestClientContext,
+  options?: FooOptions,
+): Promise<Widget> {
   const path = parse("/").expand({});
   const httpRequestOptions = {
     headers: {},
@@ -120,7 +124,10 @@ export async function foo(client: TestClientContext, options?: FooOptions): Prom
   if (typeof options?.operationOptions?.onResponse === "function") {
     options?.operationOptions?.onResponse(response);
   }
-  if (+response.status === 200 && response.headers["content-type"]?.includes("application/json")) {
+  if (
+    +response.status === 200 &&
+    response.headers["content-type"]?.includes("application/json")
+  ) {
     return jsonWidgetToApplicationTransform(response.body)!;
   }
   throw createRestError(response);

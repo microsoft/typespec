@@ -34,13 +34,14 @@ import {
   type FooClientOptions,
 } from "./api/fooClientContext.js";
 import { get, type GetOptions } from "./api/fooClientOperations.js";
+import type { FooItem } from "./models/models.js";
 
 export class FooClient {
   #context: FooClientContext;
   constructor(endpoint: string, options?: FooClientOptions) {
     this.#context = createFooClientContext(endpoint, options);
   }
-  async get(options?: GetOptions) {
+  async get(options?: GetOptions): Promise<FooItem> {
     return get(this.#context, options);
   }
 }
@@ -54,7 +55,12 @@ import {
   type BarClientOptions,
   createBarClientContext,
 } from "./api/barClientContext.js";
-import { create, type CreateOptions, get, type GetOptions } from "./api/barClientOperations.js";
+import {
+  create,
+  type CreateOptions,
+  get,
+  type GetOptions,
+} from "./api/barClientOperations.js";
 import type { BarItem } from "./models/models.js";
 
 export class BarClient {
@@ -62,10 +68,10 @@ export class BarClient {
   constructor(endpoint: string, options?: BarClientOptions) {
     this.#context = createBarClientContext(endpoint, options);
   }
-  async get(options?: GetOptions) {
+  async get(options?: GetOptions): Promise<BarItem> {
     return get(this.#context, options);
   }
-  async create(foo: BarItem, options?: CreateOptions) {
+  async create(foo: BarItem, options?: CreateOptions): Promise<void> {
     return create(this.#context, foo, options);
   }
 }

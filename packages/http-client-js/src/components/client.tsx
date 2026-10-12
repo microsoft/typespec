@@ -2,7 +2,7 @@ import type { Refkey } from "@alloy-js/core";
 import { For, List, refkey } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { useTsp } from "@typespec/emitter-framework";
-import { ClassMethod } from "@typespec/emitter-framework/typescript";
+import { ClassMethod, TypeExpression } from "@typespec/emitter-framework/typescript";
 import type * as cl from "@typespec/http-client";
 import { useClientLibrary } from "@typespec/http-client";
 import { flattenClients } from "../utils/client-discovery.js";
@@ -73,13 +73,14 @@ export function ClientClass(props: ClientClassProps) {
             const parameters = getOperationParameters(op.httpOperation, refkey());
             const args = parameters.flatMap((p) => p.refkey);
             const isPaging = Boolean($.operation.getPagingMetadata(op.httpOperation.operation));
+            const returnType = $.httpOperation.getReturnType(op.httpOperation);
 
             return (
               <ClassMethod
                 async={!isPaging}
                 type={op.httpOperation.operation}
                 parameters={parameters}
-                returnType={null}
+                returnType={isPaging ? null : <TypeExpression type={returnType} />}
                 parametersMode="replace"
               >
                 return{" "}

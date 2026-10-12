@@ -53,7 +53,7 @@ export class TestClient {
   constructor(endpoint: string, options?: TestClientOptions) {
     this.#context = createTestClientContext(endpoint, options);
   }
-  async get(await_: string, options?: GetOptions) {
+  async get(await_: string, options?: GetOptions): Promise<void> {
     return get(this.#context, await_, options);
   }
 }

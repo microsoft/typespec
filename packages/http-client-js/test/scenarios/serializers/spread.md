@@ -53,7 +53,9 @@ export async function spreadWithMultipleParameters(
       requiredString: requiredString,
       optionalInt: options?.optionalInt,
       requiredIntList: jsonArrayInt32ToTransportTransform(requiredIntList),
-      optionalStringList: jsonArrayStringToTransportTransform(options?.optionalStringList),
+      optionalStringList: jsonArrayStringToTransportTransform(
+        options?.optionalStringList,
+      ),
     },
   };
   const response = await client.pathUnchecked(path).put(httpRequestOptions);

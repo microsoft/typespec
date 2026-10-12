@@ -80,7 +80,7 @@ export class TestClient {
       foo?: string;
     },
     options?: CreateOptions,
-  ) {
+  ): Promise<void> {
     return create(this.#context, widget, options);
   }
 }
