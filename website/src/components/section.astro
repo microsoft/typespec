@@ -114,19 +114,17 @@ const { layout, header, title, description, illustration } = Astro.props;
 <div class={clsx("section", layout === "text-right" ? "prose-right" : "prose-left")}>
   <div class={"info-container"}>
     <div class={"info"}>
-      {
-        header || title || description ? (
-          <div class={"info-heading"}>
-            <div class={"info-title"}>
-              <PrimaryText>{header}</PrimaryText>
-              <NeutralText size="xlarge">{title}</NeutralText>
-            </div>
-            <DescriptionText size="large" className={"info-description"}>
-              {description}
-            </DescriptionText>
+      {header || title || description ? (
+        <div class={"info-heading"}>
+          <div class={"info-title"}>
+            <PrimaryText>{header}</PrimaryText>
+            <NeutralText size="xlarge">{title}</NeutralText>
           </div>
-        ) : undefined
-      }
+          <DescriptionText size="large" className={"info-description"}>
+            {description}
+          </DescriptionText>
+        </div>
+      ) : undefined}
       <slot />
     </div>
   </div>
