@@ -144,7 +144,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             }
 
             IEnumerable<MethodProvider> scopedMethods = lastContractMethods
-                .Where(m => MethodSignatureHelper.IsPublicApi(m.Signature));
+                .Where(m => MethodSignatureHelper.IsPublicApi(m.Signature.Modifiers));
             if (methodName != null)
             {
                 scopedMethods = scopedMethods.Where(m =>
@@ -252,7 +252,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
         {
             foreach (var previousMethod in previousMethods)
             {
-                if (!MethodSignatureHelper.IsPublicApi(previousMethod.Signature))
+                if (!MethodSignatureHelper.IsPublicApi(previousMethod.Signature.Modifiers))
                 {
                     continue;
                 }
@@ -388,7 +388,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             {
                 var previousSignature = previousMethod.Signature;
                 if (previousSignature.Modifiers.HasFlag(MethodSignatureModifiers.Abstract) ||
-                    !MethodSignatureHelper.IsPublicApi(previousSignature) ||
+                    !MethodSignatureHelper.IsPublicApi(previousSignature.Modifiers) ||
                     !currentMethodsByName.TryGetValue(previousSignature.Name, out var candidates))
                 {
                     continue;

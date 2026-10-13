@@ -137,14 +137,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private List<EnumTypeMember> BuildApiVersionEnumValuesForBackwardCompatibility(List<EnumTypeMember> currentApiVersions)
         {
-            var lastContractFields = LastContractView?.Fields.Where(MethodSignatureHelper.IsPublicApi).ToArray();
-            if (lastContractFields == null || lastContractFields.Length == 0)
+            var lastContractFields = LastContractView?.Fields;
+            if (lastContractFields == null || lastContractFields.Count == 0)
             {
                 return currentApiVersions;
             }
 
             var currentVersionsLookup = currentApiVersions.ToDictionary(v => v.Name, StringComparer.OrdinalIgnoreCase);
-            var allMembers = new List<EnumTypeMember>(currentApiVersions.Count + lastContractFields.Length);
+            var allMembers = new List<EnumTypeMember>(currentApiVersions.Count + lastContractFields.Count);
             bool addedPreviousApiVersion = false;
 
             // First, add all missing backward compatibility versions in their original order

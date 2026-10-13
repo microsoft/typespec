@@ -3229,28 +3229,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
         }
 
         [Test]
-        public async Task BackCompat_ExperimentalPropertyInLastContractIsIgnored()
-        {
-            var inputModel = InputFactory.Model(
-                "MockInputModel",
-                properties:
-                [
-                    InputFactory.Property("count", InputPrimitiveType.Int32, isRequired: true),
-                ]);
-
-            await MockHelpers.LoadMockGeneratorAsync(
-                inputModelTypes: [inputModel],
-                lastContractCompilation: () => Helpers.GetCompilationFromDirectoryAsync());
-
-            var modelProvider = CodeModelGenerator.Instance.OutputLibrary.TypeProviders
-                .OfType<ModelProvider>()
-                .Single(model => model.Name == "MockInputModel");
-            modelProvider.ProcessTypeForBackCompatibility();
-
-            Assert.IsTrue(modelProvider.Properties.Single(property => property.Name == "Count").Type.Equals(typeof(int)));
-        }
-
-        [Test]
         public async Task BackCompat_NonAbstractTypeIsRespected()
         {
             var discriminatorEnum = InputFactory.StringEnum("kindEnum", [("One", "one"), ("Two", "two")]);

@@ -91,17 +91,19 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return lastContract.Implements.All(previous => currentInterfaces.Any(current =>
                     ModelBaseMemberCompatibility.AreTypesCompatible(previous, current))) &&
                 lastContract.Constructors
-                    .Where(constructor => MethodSignatureHelper.IsPublicApi(constructor.Signature))
+                    .Where(constructor => MethodSignatureHelper.IsPublicApi(constructor.Signature.Modifiers))
                     .All(constructor => SystemObjectModelProvider.HasSupportedConstructorParameters(constructor.Signature.Parameters) &&
                         constructor.Signature.Parameters.All(parameter => candidate.Properties.Any(property =>
                             property.AsParameter.Name == parameter.Name &&
                             (ModelBaseMemberCompatibility.AreTypesCompatible(parameter.Type, property.Type) ||
                                 ModelBaseMemberCompatibility.AreTypesCompatible(parameter.Type, property.Type.InputType))))) &&
                 lastContract.Methods
-                    .Where(method => MethodSignatureHelper.IsPublicApi(method.Signature))
+                    .Where(method => MethodSignatureHelper.IsPublicApi(method.Signature.Modifiers))
                     .All(previous => currentGeneratedMethods.Any(current =>
                         AreGeneratedMethodSignaturesEquivalent(previous.Signature, current.Signature))) &&
-                !lastContract.Fields.Any(MethodSignatureHelper.IsPublicApi);
+                !lastContract.Fields.Any(field =>
+                    field.Modifiers.HasFlag(FieldModifiers.Public) ||
+                    field.Modifiers.HasFlag(FieldModifiers.Protected));
         }
 
         private static bool AreGeneratedMethodSignaturesEquivalent(
@@ -126,8 +128,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return true;
             }
 
-            var currentProperties = GetUniquePublicProperties(candidate.Properties, isLastContract: false);
-            var previousProperties = GetUniquePublicProperties(lastContract.Properties, isLastContract: true);
+            var currentProperties = GetUniquePublicProperties(candidate.Properties);
+            var previousProperties = GetUniquePublicProperties(lastContract.Properties);
             if (currentProperties is null || previousProperties is null)
             {
                 return false;
@@ -142,13 +144,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         private static Dictionary<string, PropertyProvider>? GetUniquePublicProperties(
-            IReadOnlyList<PropertyProvider> properties,
-            bool isLastContract)
+            IReadOnlyList<PropertyProvider> properties)
         {
             var result = new Dictionary<string, PropertyProvider>(StringComparer.Ordinal);
-            foreach (var property in properties.Where(property => isLastContract
-                ? MethodSignatureHelper.IsPublicApi(property)
-                : MethodSignatureHelper.IsPublicApi(property.Modifiers)))
+            foreach (var property in properties.Where(property => MethodSignatureHelper.IsPublicApi(property.Modifiers)))
             {
                 // Overloaded indexers can share a symbol name. They are unsupported contracts, not
                 // malformed input that should abort generation with a duplicate-key exception.
@@ -166,7 +165,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private bool LastContractDerivedConstructorHasRequiredParameter(PropertyProvider property)
             => _model.LastContractView?.Constructors.Any(constructor =>
-                MethodSignatureHelper.IsPublicApi(constructor.Signature) &&
+                MethodSignatureHelper.IsPublicApi(constructor.Signature.Modifiers) &&
                 constructor.Signature.Parameters.Any(parameter =>
                     parameter.Name == property.AsParameter.Name &&
                     parameter.Type.Equals(property.Type, ignoreNullable: true) &&

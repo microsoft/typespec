@@ -58,10 +58,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected override IReadOnlyList<EnumTypeMember> BuildEnumValues()
         {
-            var lastContractNames = LastContractView?.Properties
-                .Where(MethodSignatureHelper.IsPublicApi)
-                .Select(p => p.Name)
-                .ToArray() ?? [];
+            var lastContractNames = LastContractView?.Properties.Select(p => p.Name).ToArray() ?? [];
             var generatedNames = GetGeneratedValueNames(_allowedValues, lastContractNames);
             var values = new EnumTypeMember[_allowedValues.Count];
 
@@ -291,7 +288,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected internal override IReadOnlyList<EnumTypeMember>? BuildEnumValuesForBackCompatibility(IReadOnlyList<EnumTypeMember> currentValues)
         {
             var lastContractProperties = LastContractView?.Properties
-                .Where(MethodSignatureHelper.IsPublicApi);
+                .Where(p => MethodSignatureHelper.IsPublicApi(p.Modifiers));
 
             if (lastContractProperties == null || !lastContractProperties.Any())
             {

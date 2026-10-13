@@ -1218,7 +1218,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             foreach (var previousMethod in previousMethods)
             {
                 if (currentMethodSignatures.ContainsKey(previousMethod.Signature)
-                    || !MethodSignatureHelper.IsPublicApi(previousMethod.Signature)
+                    || !MethodSignatureHelper.IsPublicApi(previousMethod.Signature.Modifiers)
                     || BackCompatHelper.IsMethodRemovalAcceptedInBaseline(this, previousMethod.Signature))
                 {
                     continue;
@@ -1283,7 +1283,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // Check if the last contract had a public constructor with matching parameters
             foreach (var previousConstructor in LastContractView.Constructors)
             {
-                if (!MethodSignatureHelper.IsPublicApi(previousConstructor.Signature))
+                if (!previousConstructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public))
                 {
                     continue;
                 }

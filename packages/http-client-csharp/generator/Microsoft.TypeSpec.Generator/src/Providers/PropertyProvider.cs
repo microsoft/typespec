@@ -113,7 +113,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 var canonicalName = identifierName.NormalizeCSharpAcronyms(isDateTime);
                 var enclosingTypeName = enclosingType.Name;
                 var lastContractProperties = enclosingType.LastContractView?.Properties
-                    .Where(MethodSignatureHelper.IsPublicApi)
+                    .Where(p => MethodSignatureHelper.IsPublicApi(p.Modifiers))
                     .ToList();
 
                 // An exact input-identifier match is authoritative: it is the name this property would have had

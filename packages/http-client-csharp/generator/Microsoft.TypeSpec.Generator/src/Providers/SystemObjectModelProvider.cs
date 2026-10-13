@@ -159,7 +159,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             foreach (var constructor in constructors.Where(constructor =>
-                MethodSignatureHelper.IsPublicApi(constructor.Signature) &&
+                MethodSignatureHelper.IsPublicApi(constructor.Signature.Modifiers) &&
                 HasSupportedConstructorParameters(constructor.Signature.Parameters)))
             {
                 var matches = constructor.Signature.Parameters
@@ -269,7 +269,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             var properties = Properties;
             foreach (var candidate in _lastContractType!.Constructors
-                .Where(constructor => MethodSignatureHelper.IsPublicApi(constructor.Signature) &&
+                .Where(constructor => MethodSignatureHelper.IsPublicApi(constructor.Signature.Modifiers) &&
                     HasSupportedConstructorParameters(constructor.Signature.Parameters))
                 .OrderByDescending(constructor => constructor.Signature.Parameters.Count))
             {
@@ -316,7 +316,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             for (var provider = _lastContractType; provider is not null; provider = provider.BaseTypeProvider)
             {
                 foreach (var property in provider.Properties.Where(property =>
-                    MethodSignatureHelper.IsPublicApi(property) && seenPropertyNames.Add(property.Name)))
+                    MethodSignatureHelper.IsPublicApi(property.Modifiers) && seenPropertyNames.Add(property.Name)))
                 {
                     if (ApplyCurrentInputMetadata(property) is { } projectedProperty)
                     {
@@ -342,7 +342,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             for (var provider = _lastContractType; provider is not null; provider = provider.BaseTypeProvider)
             {
                 if (provider.Properties
-                    .Where(MethodSignatureHelper.IsPublicApi)
+                    .Where(property => MethodSignatureHelper.IsPublicApi(property.Modifiers))
                     .Any(property => FindEffectiveFrameworkProperty(property.Name) is not { } candidate ||
                         !IsCompatibleProperty(property, candidate)))
                 {
@@ -391,7 +391,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
 
                 foreach (var method in provider.Methods.Where(method =>
-                    MethodSignatureHelper.IsPublicApi(method.Signature)))
+                    MethodSignatureHelper.IsPublicApi(method.Signature.Modifiers)))
                 {
                     var signature = method.Signature;
                     if (overriddenMethods.Any(overrideSignature =>
@@ -407,7 +407,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 overriddenMethods.AddRange(provider.Methods.Select(method => method.Signature)
                     .Where(signature => signature.Modifiers.HasFlag(MethodSignatureModifiers.Override)));
                 if (provider.Fields
-                    .Where(MethodSignatureHelper.IsPublicApi)
+                    .Where(field => IsPublicApiField(field.Modifiers))
                     .Any(field => FindEffectiveFrameworkMember(field.Name) is not FieldInfo candidate ||
                         !IsCompatibleField(field, candidate)))
                 {
@@ -425,16 +425,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 for (var provider = _lastContractType; provider is not null; provider = provider.BaseTypeProvider)
                 {
                     foreach (var property in provider.Properties.Where(property =>
-                        MethodSignatureHelper.IsPublicApi(property)))
+                        MethodSignatureHelper.IsPublicApi(property.Modifiers)))
                     {
                         yield return property.Name;
                     }
                     foreach (var method in provider.Methods.Where(method =>
-                        MethodSignatureHelper.IsPublicApi(method.Signature)))
+                        MethodSignatureHelper.IsPublicApi(method.Signature.Modifiers)))
                     {
                         yield return GetPublicApiMemberName(method.Signature.Name);
                     }
-                    foreach (var field in provider.Fields.Where(MethodSignatureHelper.IsPublicApi))
+                    foreach (var field in provider.Fields.Where(field => IsPublicApiField(field.Modifiers)))
                     {
                         yield return field.Name;
                     }
@@ -668,6 +668,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 (modifiers.HasFlag(MethodSignatureModifiers.Virtual) ||
                     modifiers.HasFlag(MethodSignatureModifiers.Abstract) ||
                     modifiers.HasFlag(MethodSignatureModifiers.Override));
+
+        private static bool IsPublicApiField(FieldModifiers modifiers)
+            => modifiers.HasFlag(FieldModifiers.Public) ||
+                modifiers.HasFlag(FieldModifiers.Protected) && !modifiers.HasFlag(FieldModifiers.Private);
 
         private static bool IsCompatibleField(FieldProvider previous, FieldInfo current)
             // Historical constant expressions are not necessarily available (e.g. metadata symbols).
