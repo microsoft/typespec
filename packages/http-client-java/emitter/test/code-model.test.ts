@@ -283,6 +283,63 @@ describe("code model characterization", () => {
       expect(stringify(sortGraph(model), { version: "1.1" })).toMatchSnapshot();
     },
   );
+
+  it.each(["arm-api-version-override", "arm-versioned"])(
+    "preserves API-version parameter handling for %s",
+    async (scenario) => {
+      const program = await compile(
+        NodeHost,
+        fileURLToPath(
+          new URL(
+            `../../generator/http-client-generator-test/tsp/${scenario}.tsp`,
+            import.meta.url,
+          ),
+        ),
+        { noEmit: true },
+      );
+      expect(program.diagnostics.filter((d) => d.severity === "error")).toEqual([]);
+      const model = await new CodeModelBuilder(program, {
+        program,
+        emitterOutputDir: "/code-model-test-output",
+        options: { flavor: "azure", "dev-options": {} },
+        perf: {
+          startTimer: () => ({ end: () => 0 }),
+          time: (_label, callback) => callback(),
+          timeAsync: (_label, callback) => callback(),
+          report: () => {},
+        },
+      }).build();
+      expect(program.diagnostics.filter((d) => d.severity === "error")).toEqual([]);
+      const client = model.clients[0];
+      expect(client).toBeDefined();
+      expect(client.operationGroups).toHaveLength(scenario === "arm-api-version-override" ? 2 : 1);
+      for (const group of client.operationGroups) {
+        expect(group.operations?.length).toBeGreaterThan(0);
+        for (const operation of group.operations ?? []) {
+          const parameter = operation.parameters?.find(
+            (p) => p.language.default.serializedName === "api-version",
+          );
+          expect(parameter).toMatchObject({
+            implementation:
+              scenario === "arm-api-version-override"
+                ? ImplementationLocation.Method
+                : ImplementationLocation.Client,
+            schema: {
+              type: SchemaType.Constant,
+              value: {
+                value:
+                  scenario === "arm-versioned"
+                    ? "2024-12-01"
+                    : group.$key === "VmssNetworkInterfaces"
+                      ? "2018-10-01"
+                      : "2026-03-01",
+              },
+            },
+          });
+        }
+      }
+    },
+  );
 });
 
 function assertPlainGraph(value: unknown, seen = new Set<object>()) {

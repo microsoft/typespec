@@ -6,7 +6,7 @@ import { findVersionedNamespace, getVersions } from "@typespec/versioning";
 
 /**
  * Sentinel values that describe a client that not have consistent api-versions.
- * Reason is either the service is not versioned, or the client aggregates multiple services of different api-versions.
+ * Reason is either the service is not versioned, or the client uses different API versions.
  */
 export enum InconsistentVersions {
   /**
@@ -14,7 +14,7 @@ export enum InconsistentVersions {
    */
   NotVersioned,
   /**
-   * The client contains multiple services which may have the same set or different set of api-versions.
+   * The client aggregates multiple services or uses different operation-group API versions.
    */
   MixedVersions,
 }
@@ -23,7 +23,7 @@ export enum InconsistentVersions {
  * Gets the array of api-version on the TypeSpec service that contains this SDK client.
  * Returns {@link InconsistentVersions.NotVersioned} when the service is not versioned and
  * {@link InconsistentVersions.MixedVersions} when the client aggregates multiple services
- * that disagree on api-version.
+ * or its operations use different API-version defaults.
  *
  * @param program the program
  * @param client the SDK client
@@ -61,6 +61,23 @@ export function getServiceApiVersions(
     }
   } else {
     apiVersions = InconsistentVersions.NotVersioned;
+  }
+  if (Array.isArray(apiVersions)) {
+    const defaults = new Set<string>();
+    const clients = [client];
+    for (const current of clients) {
+      clients.push(...(current.children ?? []));
+      for (const method of current.methods) {
+        for (const parameter of method.operation.parameters) {
+          if (parameter.isApiVersionParam && typeof parameter.clientDefaultValue === "string") {
+            defaults.add(parameter.clientDefaultValue);
+            if (defaults.size > 1) {
+              return InconsistentVersions.MixedVersions;
+            }
+          }
+        }
+      }
+    }
   }
   return apiVersions;
 }
