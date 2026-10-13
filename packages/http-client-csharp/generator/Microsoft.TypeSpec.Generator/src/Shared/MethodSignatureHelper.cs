@@ -24,10 +24,6 @@ namespace Microsoft.TypeSpec.Generator
             => (modifiers.HasFlag(MethodSignatureModifiers.Public) || modifiers.HasFlag(MethodSignatureModifiers.Protected))
                 && !modifiers.HasFlag(MethodSignatureModifiers.Private);
 
-        internal static bool IsPublicApi(PropertyProvider property)
-            => IsPublicApi(property.Modifiers)
-                && !property.Attributes.Any(ExperimentalApiHelpers.IsExperimentalAttribute);
-
         internal static bool IsPublicApi(
             FieldModifiers modifiers,
             IReadOnlyList<AttributeStatement>? attributes = null)

@@ -348,7 +348,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
 
         [Test]
-        public async Task ExperimentalAttributesAreExcludedFromPublicApiDetection()
+        public async Task ExperimentalAttributesAreExcludedForMethodConstructorAndFieldDetection()
         {
             await MockHelpers.LoadMockGeneratorAsync(
                 lastContractCompilation: () => Helpers.GetCompilationFromDirectoryAsync(
@@ -375,8 +375,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
 
             Assert.IsFalse(MethodSignatureHelper.IsPublicApi(experimentalMethod.Signature));
             Assert.IsTrue(MethodSignatureHelper.IsPublicApi(stableMethod.Signature));
-            Assert.IsFalse(MethodSignatureHelper.IsPublicApi(experimentalProperty));
-            Assert.IsTrue(MethodSignatureHelper.IsPublicApi(stableProperty));
+            Assert.IsTrue(MethodSignatureHelper.IsPublicApi(experimentalProperty.Modifiers));
+            Assert.IsTrue(MethodSignatureHelper.IsPublicApi(stableProperty.Modifiers));
             Assert.IsFalse(MethodSignatureHelper.IsPublicApi(experimentalConstructor.Signature));
             Assert.IsFalse(MethodSignatureHelper.IsPublicApi(experimentalField.Modifiers, experimentalField.Attributes));
         }
