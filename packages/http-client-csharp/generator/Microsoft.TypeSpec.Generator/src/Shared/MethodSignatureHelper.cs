@@ -10,14 +10,25 @@ using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
+using Microsoft.TypeSpec.Generator.Utilities;
 
 namespace Microsoft.TypeSpec.Generator
 {
     internal class MethodSignatureHelper
     {
-        internal static bool IsPublicApi(MethodSignatureModifiers modifiers)
+        internal static bool IsPublicApi(
+            MethodSignatureModifiers modifiers,
+            IReadOnlyList<AttributeStatement>? attributes = null)
             => (modifiers.HasFlag(MethodSignatureModifiers.Public) || modifiers.HasFlag(MethodSignatureModifiers.Protected))
-                && !modifiers.HasFlag(MethodSignatureModifiers.Private);
+                && !modifiers.HasFlag(MethodSignatureModifiers.Private)
+                && attributes?.Any(ExperimentalApiHelpers.IsExperimentalAttribute) != true;
+
+        internal static bool IsPublicApi(
+            FieldModifiers modifiers,
+            IReadOnlyList<AttributeStatement>? attributes = null)
+            => (modifiers.HasFlag(FieldModifiers.Public) || modifiers.HasFlag(FieldModifiers.Protected))
+                && !modifiers.HasFlag(FieldModifiers.Private)
+                && attributes?.Any(ExperimentalApiHelpers.IsExperimentalAttribute) != true;
 
         internal static bool ContainsSameParameters(MethodSignature method1, MethodSignature method2)
         {

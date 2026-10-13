@@ -56,7 +56,7 @@ When generating code, the generator can optionally receive a compiled assembly f
 
 Types in the last released contract marked with `System.Diagnostics.CodeAnalysis.ExperimentalAttribute` are excluded from backward-compatibility lookup. The generator does not preserve their previous type shape or restore their previous members as compatibility shims, allowing those types to change when they graduate to stable or are removed.
 
-This decision uses the attribute on the last released type, including polyfilled definitions of the attribute. Marking a previously stable type experimental in the current generation does not remove its compatibility guarantees. Experimental attributes on individual members continue to use the existing member-level handling.
+This decision uses the attribute on the last released type, including polyfilled definitions of the attribute. Marking a previously stable type experimental in the current generation does not remove its compatibility guarantees. Experimental attributes on individual members in the last released contract also exclude those members from compatibility handling; attributes added only in the current generation do not remove guarantees for previously stable members.
 
 ### ApiCompat Baseline Awareness
 

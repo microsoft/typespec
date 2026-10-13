@@ -152,7 +152,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
 
             owner.ProcessTypeForBackCompatibility();
             var shims = owner.Methods.Where(m => m.Signature.Attributes.Any(a => a.Type.Equals(typeof(EditorBrowsableAttribute)))).ToArray();
-            Assert.AreEqual(3, shims.Length);
+            Assert.AreEqual(previouslyExperimental ? 0 : 3, shims.Length);
             foreach (var shim in shims)
             {
                 var experiment = shim.Signature.Attributes.SingleOrDefault(a => a.Type.Equals(typeof(ExperimentalAttribute)));
@@ -348,7 +348,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
 
         [Test]
-        public async Task ExperimentalAttributesDoNotChangePublicApiDetection()
+        public async Task ExperimentalAttributesAreExcludedFromPublicApiDetection()
         {
             await MockHelpers.LoadMockGeneratorAsync(
                 lastContractCompilation: () => Helpers.GetCompilationFromDirectoryAsync(
@@ -366,13 +366,19 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             CollectionAssert.AreEquivalent(
                 new[] { 0, 1 },
                 lastContractView.Constructors.Select(constructor => constructor.Signature.Parameters.Count).ToArray());
-            Assert.IsTrue(MethodSignatureHelper.IsPublicApi(
-                lastContractView.Methods.Single(method => method.Signature.Name == "ExperimentalMethod").Signature.Modifiers));
-            Assert.IsTrue(MethodSignatureHelper.IsPublicApi(
-                lastContractView.Properties.Single(property => property.Name == "ExperimentalProperty").Modifiers));
-            Assert.IsTrue(MethodSignatureHelper.IsPublicApi(
-                lastContractView.Constructors.Single(constructor => constructor.Signature.Parameters.Count == 1).Signature.Modifiers));
-            Assert.IsTrue(lastContractView.Fields.Single(field => field.Name == "ExperimentalField").Modifiers.HasFlag(FieldModifiers.Public));
+            var experimentalMethod = lastContractView.Methods.Single(method => method.Signature.Name == "ExperimentalMethod");
+            var stableMethod = lastContractView.Methods.Single(method => method.Signature.Name == "StableMethod");
+            var experimentalProperty = lastContractView.Properties.Single(property => property.Name == "ExperimentalProperty");
+            var stableProperty = lastContractView.Properties.Single(property => property.Name == "StableProperty");
+            var experimentalConstructor = lastContractView.Constructors.Single(constructor => constructor.Signature.Parameters.Count == 1);
+            var experimentalField = lastContractView.Fields.Single(field => field.Name == "ExperimentalField");
+
+            Assert.IsFalse(MethodSignatureHelper.IsPublicApi(experimentalMethod.Signature.Modifiers, experimentalMethod.Signature.Attributes));
+            Assert.IsTrue(MethodSignatureHelper.IsPublicApi(stableMethod.Signature.Modifiers, stableMethod.Signature.Attributes));
+            Assert.IsFalse(MethodSignatureHelper.IsPublicApi(experimentalProperty.Modifiers, experimentalProperty.Attributes));
+            Assert.IsTrue(MethodSignatureHelper.IsPublicApi(stableProperty.Modifiers, stableProperty.Attributes));
+            Assert.IsFalse(MethodSignatureHelper.IsPublicApi(experimentalConstructor.Signature.Modifiers, experimentalConstructor.Signature.Attributes));
+            Assert.IsFalse(MethodSignatureHelper.IsPublicApi(experimentalField.Modifiers, experimentalField.Attributes));
         }
 
         [Test]

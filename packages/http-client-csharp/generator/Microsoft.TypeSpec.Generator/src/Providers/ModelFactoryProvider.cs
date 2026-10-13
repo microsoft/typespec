@@ -127,7 +127,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             foreach (var previousMethod in LastContractView.Methods)
             {
-                if (!MethodSignatureHelper.IsPublicApi(previousMethod.Signature.Modifiers))
+                if (!MethodSignatureHelper.IsPublicApi(previousMethod.Signature.Modifiers, previousMethod.Signature.Attributes))
                 {
                     continue;
                 }

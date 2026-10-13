@@ -91,19 +91,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return lastContract.Implements.All(previous => currentInterfaces.Any(current =>
                     ModelBaseMemberCompatibility.AreTypesCompatible(previous, current))) &&
                 lastContract.Constructors
-                    .Where(constructor => MethodSignatureHelper.IsPublicApi(constructor.Signature.Modifiers))
+                    .Where(constructor => MethodSignatureHelper.IsPublicApi(constructor.Signature.Modifiers, constructor.Signature.Attributes))
                     .All(constructor => SystemObjectModelProvider.HasSupportedConstructorParameters(constructor.Signature.Parameters) &&
                         constructor.Signature.Parameters.All(parameter => candidate.Properties.Any(property =>
                             property.AsParameter.Name == parameter.Name &&
                             (ModelBaseMemberCompatibility.AreTypesCompatible(parameter.Type, property.Type) ||
                                 ModelBaseMemberCompatibility.AreTypesCompatible(parameter.Type, property.Type.InputType))))) &&
                 lastContract.Methods
-                    .Where(method => MethodSignatureHelper.IsPublicApi(method.Signature.Modifiers))
+                    .Where(method => MethodSignatureHelper.IsPublicApi(method.Signature.Modifiers, method.Signature.Attributes))
                     .All(previous => currentGeneratedMethods.Any(current =>
                         AreGeneratedMethodSignaturesEquivalent(previous.Signature, current.Signature))) &&
-                !lastContract.Fields.Any(field =>
-                    field.Modifiers.HasFlag(FieldModifiers.Public) ||
-                    field.Modifiers.HasFlag(FieldModifiers.Protected));
+                !lastContract.Fields.Any(field => MethodSignatureHelper.IsPublicApi(field.Modifiers, field.Attributes));
         }
 
         private static bool AreGeneratedMethodSignaturesEquivalent(
@@ -128,8 +126,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return true;
             }
 
-            var currentProperties = GetUniquePublicProperties(candidate.Properties);
-            var previousProperties = GetUniquePublicProperties(lastContract.Properties);
+            var currentProperties = GetUniquePublicProperties(candidate.Properties, isLastContract: false);
+            var previousProperties = GetUniquePublicProperties(lastContract.Properties, isLastContract: true);
             if (currentProperties is null || previousProperties is null)
             {
                 return false;
@@ -144,10 +142,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         private static Dictionary<string, PropertyProvider>? GetUniquePublicProperties(
-            IReadOnlyList<PropertyProvider> properties)
+            IReadOnlyList<PropertyProvider> properties,
+            bool isLastContract)
         {
             var result = new Dictionary<string, PropertyProvider>(StringComparer.Ordinal);
-            foreach (var property in properties.Where(property => MethodSignatureHelper.IsPublicApi(property.Modifiers)))
+            foreach (var property in properties.Where(property => isLastContract
+                ? MethodSignatureHelper.IsPublicApi(property.Modifiers, property.Attributes)
+                : MethodSignatureHelper.IsPublicApi(property.Modifiers)))
             {
                 // Overloaded indexers can share a symbol name. They are unsupported contracts, not
                 // malformed input that should abort generation with a duplicate-key exception.
@@ -165,7 +166,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private bool LastContractDerivedConstructorHasRequiredParameter(PropertyProvider property)
             => _model.LastContractView?.Constructors.Any(constructor =>
-                MethodSignatureHelper.IsPublicApi(constructor.Signature.Modifiers) &&
+                MethodSignatureHelper.IsPublicApi(constructor.Signature.Modifiers, constructor.Signature.Attributes) &&
                 constructor.Signature.Parameters.Any(parameter =>
                     parameter.Name == property.AsParameter.Name &&
                     parameter.Type.Equals(property.Type, ignoreNullable: true) &&
