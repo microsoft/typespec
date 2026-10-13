@@ -7,6 +7,7 @@ export const defaultTypeSpecVitestConfig = defineConfig({
   test: {
     environment: "node",
     isolate: false,
+    fsModuleCache: true,
     coverage: {
       reporter: ["cobertura", "json", "text"],
     },
