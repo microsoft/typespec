@@ -53,7 +53,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 Is.EqualTo(new[] { "isEnabled", "destinationType" }));
 
             var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
-                serializationProvider, name => name == "DeserializeMockInputModel"));
+                serializationProvider, name => name is "DeserializeMockInputModel" or "JsonModelWriteCore"));
             Assert.AreEqual(Helpers.GetExpectedFromFile(), writer.Write().Content);
         }
 
