@@ -299,6 +299,43 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             new TestCaseData(InputFactory.Int32Enum("EnumType", [("one", 1)], isExtensible: true)),
         ];
 
+        [Test]
+        public async Task BackCompat_EnumChangedToExtensibleUsesCurrentSerialization(
+            [Values(false, true)] bool customizeEnum)
+        {
+            var inputEnum = InputFactory.StringEnum(
+                "StatusEnum",
+                [("Active", "active"), ("Inactive", "inactive")],
+                isExtensible: true);
+            var inputModel = InputFactory.Model("MockInputModel", properties: [
+                    InputFactory.Property("status", inputEnum, isRequired: true),
+                    InputFactory.Property("optionalStatus", inputEnum),
+                    InputFactory.Property("statuses", InputFactory.Array(inputEnum)),
+                    InputFactory.Property("statusMap", InputFactory.Dictionary(inputEnum))
+                ],
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputEnums: () => [inputEnum],
+                inputModels: () => [inputModel],
+                compilation: customizeEnum
+                    ? async () => await Helpers.GetCompilationFromDirectoryAsync("Custom")
+                    : null,
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync("Previous"));
+
+            var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.OfType<ModelProvider>().Single();
+            var serializationProvider = modelProvider.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition);
+            modelProvider.EnsureBuilt();
+            serializationProvider.EnsureBuilt();
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                serializationProvider, name => name is "DeserializeMockInputModel" or "JsonModelWriteCore"));
+            var content = writer.Write().Content;
+            StringAssert.DoesNotContain("ToSerialString", content);
+            StringAssert.DoesNotContain(".ToStatusEnum()", content);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
         [TestCaseSource(nameof(ExtensibleEnumCases))]
         public async Task CanCustomizeExtensibleEnum(InputEnumType enumType)
         {
