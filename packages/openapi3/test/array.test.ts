@@ -268,18 +268,24 @@ worksFor(["3.0.0"], ({ oapiForModel }) => {
     deepStrictEqual(res.schemas.Pet.properties.names, {
       type: "array",
       items: {},
+      minItems: 2,
+      maxItems: 2,
       default: ["bismarck", 12],
     });
 
     deepStrictEqual(res.schemas.Pet.properties.decimals, {
       type: "array",
       items: {},
+      minItems: 2,
+      maxItems: 2,
       default: ["hi", 456.7],
     });
 
     deepStrictEqual(res.schemas.Pet.properties.decimal128s, {
       type: "array",
       items: {},
+      minItems: 2,
+      maxItems: 2,
       default: ["hi", 456.7],
     });
   });
@@ -369,18 +375,24 @@ worksFor(["3.1.0"], ({ oapiForModel }) => {
     deepStrictEqual(res.schemas.Pet.properties.names, {
       type: "array",
       prefixItems: [{ type: "string" }, { type: "integer", format: "int32" }],
+      minItems: 2,
+      maxItems: 2,
       default: ["bismarck", 12],
     });
 
     deepStrictEqual(res.schemas.Pet.properties.decimals, {
       type: "array",
       prefixItems: [{ type: "string" }, { type: "number", format: "decimal" }],
+      minItems: 2,
+      maxItems: 2,
       default: ["hi", 456.7],
     });
 
     deepStrictEqual(res.schemas.Pet.properties.decimal128s, {
       type: "array",
       prefixItems: [{ type: "string" }, { type: "number", format: "decimal128" }],
+      minItems: 2,
+      maxItems: 2,
       default: ["hi", 456.7],
     });
   });
@@ -401,6 +413,8 @@ worksFor(["3.1.0"], ({ oapiForModel }) => {
         { type: "string", enum: ["bismark"] },
         { type: "number", enum: [32] },
       ],
+      minItems: 2,
+      maxItems: 2,
     });
   });
 });
@@ -418,6 +432,8 @@ worksFor(["3.1.0", "3.2.0"], ({ oapiForModel }) => {
     deepStrictEqual(res.schemas.Pet.properties.names, {
       type: "array",
       prefixItems: [{ $ref: "#/components/schemas/Bar" }],
+      minItems: 1,
+      maxItems: 1,
     });
   });
 
@@ -432,6 +448,8 @@ worksFor(["3.1.0", "3.2.0"], ({ oapiForModel }) => {
     deepStrictEqual(res.schemas.Pet.properties.names, {
       type: "array",
       prefixItems: [{ $ref: "#/components/schemas/Pet" }],
+      minItems: 1,
+      maxItems: 1,
     });
   });
 });
