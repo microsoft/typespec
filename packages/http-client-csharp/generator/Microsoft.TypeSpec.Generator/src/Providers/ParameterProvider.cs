@@ -191,7 +191,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 wireInfo: WireInfo,
                 validation: Validation)
             {
-                _asVariable = _asVariable,
                 SpreadSource = SpreadSource,
                 InputParameter = InputParameter,
                 IsExactName = IsExactName

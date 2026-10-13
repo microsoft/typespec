@@ -1,13 +1,19 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Text.Json;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
+using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
 
@@ -15,6 +21,75 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
 {
     public class SerializationCustomizationTests
     {
+        [Test]
+        public async Task BackCompat_RenamedPropertiesKeepSerializationParameters(
+            [Values(false, true)] bool useLastContract)
+        {
+            var inputEnum = InputFactory.StringEnum("DestinationKind", [("VirtualNetwork", "virtualNetwork")]);
+            var inputModel = InputFactory.Model("MockInputModel", properties: [
+                    InputFactory.Property("isEnabled", InputPrimitiveType.Boolean, isRequired: true, serializedName: "enabled"),
+                    InputFactory.Property("destinationType", inputEnum, isRequired: true, serializedName: "type")
+                ],
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Json);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputEnums: () => [inputEnum],
+                inputModels: () => [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync("Custom"),
+                lastContractCompilation: useLastContract
+                    ? async () => await Helpers.GetCompilationFromDirectoryAsync("Previous")
+                    : null);
+
+            var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.OfType<ModelProvider>().Single();
+            var serializationProvider = modelProvider.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition);
+            modelProvider.EnsureBuilt();
+            serializationProvider.EnsureBuilt();
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            var publicConstructor = modelProvider.Constructors.Single(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.That(publicConstructor.Signature.Parameters.Select(p => p.Name),
+                Is.EqualTo(useLastContract ? new[] { "enabled", "type" } : new[] { "isEnabled", "destinationType" }));
+            Assert.That(publicConstructor.Signature.Parameters.Select(p => p.Property?.Name),
+                Is.EqualTo(new[] { "IsEnabled", "DestinationType" }));
+            Assert.That(modelProvider.FullConstructor.Signature.Parameters.Take(2).Select(p => p.Name),
+                Is.EqualTo(new[] { "isEnabled", "destinationType" }));
+            Assert.That(modelProvider.FullConstructor.Signature.Parameters.Take(2).Select(p => p.AsVariable().Declaration.RequestedName),
+                Is.EqualTo(new[] { "isEnabled", "destinationType" }));
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                serializationProvider, name => name == "DeserializeMockInputModel"));
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), writer.Write().Content);
+
+            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies().Where(a => !a.IsDynamic && !string.IsNullOrEmpty(a.Location)))
+            {
+                mockGenerator.Object.AddMetadataReference(MetadataReference.CreateFromFile(assembly.Location));
+            }
+            var providers = mockGenerator.Object.OutputLibrary.TypeProviders
+                .Where(p => p is not CustomCodeAttributeDefinition and not Utf8JsonBinaryContentDefinition and not BinaryContentHelperDefinition);
+            var sources = providers.Concat(providers.SelectMany(p => p.SerializationProviders))
+                .Select(p => new TypeProviderWriter(p).Write())
+                .Select(f => (f.Name, f.Content))
+                .Append(("SampleContext.cs", Helpers.GetExpectedFromFile("Context")))
+                .Append(("CompatibilityAliases.cs", File.ReadAllText(
+                    Path.Combine(Helpers.GetAssetFileOrDirectoryPath(false, "Custom"), "MockInputModel.cs"))));
+            var compilation = await Helpers.GetCompilationFromSourceFilesAsync(sources);
+            using var stream = new MemoryStream();
+            var result = compilation.WithAssemblyName($"RenamedProperties{Guid.NewGuid():N}").Emit(stream);
+            Assert.IsTrue(result.Success, string.Join(Environment.NewLine, result.Diagnostics));
+
+            var modelType = Assembly.Load(stream.ToArray()).GetType("Sample.Models.MockInputModel")!;
+            var deserialize = modelType.GetMethod("DeserializeMockInputModel", BindingFlags.NonPublic | BindingFlags.Static)!;
+            foreach (var enabled in new[] { true, false })
+            {
+                using var document = JsonDocument.Parse($"{{\"enabled\":{enabled.ToString().ToLowerInvariant()},\"type\":\"virtualNetwork\"}}");
+                var model = deserialize.Invoke(null, [document.RootElement, new System.ClientModel.Primitives.ModelReaderWriterOptions("J")]);
+                Assert.AreEqual(enabled, modelType.GetProperty("IsEnabled")!.GetValue(model));
+                Assert.AreEqual(enabled, modelType.GetProperty("Enabled")!.GetValue(model));
+                Assert.AreEqual("VirtualNetwork", modelType.GetProperty("DestinationType")!.GetValue(model)!.ToString());
+                Assert.AreEqual("VirtualNetwork", modelType.GetProperty("Type")!.GetValue(model)!.ToString());
+            }
+        }
+
         [Test]
         public async Task CanChangePropertyName()
         {

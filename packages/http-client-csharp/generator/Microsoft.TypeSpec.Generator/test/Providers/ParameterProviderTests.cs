@@ -206,6 +206,23 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
 
         [Test]
+        public void ToPublicInputParameterDoesNotShareVariable()
+        {
+            var parameter = new ParameterProvider("isEnabled", $"Description", typeof(bool));
+            var variable = parameter.AsVariable();
+            var publicParameter = parameter.ToPublicInputParameter();
+            var publicVariable = publicParameter.AsVariable();
+
+            publicParameter.Update(name: "enabled");
+
+            Assert.AreEqual("isEnabled", parameter.Name);
+            Assert.AreEqual("isEnabled", variable.Declaration.RequestedName);
+            Assert.AreEqual("enabled", publicVariable.Declaration.RequestedName);
+            Assert.AreSame(variable, parameter.AsVariable());
+            Assert.AreSame(publicVariable, publicParameter.AsVariable());
+        }
+
+        [Test]
         public void WithRefCopiesProperties()
         {
             MockHelpers.LoadMockGenerator();
