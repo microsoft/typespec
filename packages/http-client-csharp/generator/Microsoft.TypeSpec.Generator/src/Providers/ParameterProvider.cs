@@ -80,6 +80,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             Name = !inputParameter.IsExactName && inputParameter.Type.IsDateTimeInputType()
                 ? inputParameter.Name.NormalizeDateTimeSuffix()
                 : inputParameter.Name;
+            if (!inputParameter.IsExactName && inputParameter.Scope != InputParameterScope.Client)
+            {
+                Name = Name.NormalizeCSharpAcronyms(useCamelCase: true);
+            }
             Description = DocHelpers.GetFormattableDescription(inputParameter.Summary, inputParameter.Doc) ?? FormattableStringHelpers.Empty;
             var type = CodeModelGenerator.Instance.TypeFactory.CreateCSharpType(inputParameter.Type);
             if (type is null)

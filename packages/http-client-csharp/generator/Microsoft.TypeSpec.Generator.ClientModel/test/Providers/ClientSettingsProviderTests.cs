@@ -24,6 +24,31 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 {
     public class ClientSettingsProviderTests
     {
+        [TestCase("sourceIpAddress", "SourceIpAddress")]
+        [TestCase("targetDbName", "TargetDbName")]
+        [TestCase("guestOsType", "GuestOsType")]
+        public void ClientScopedAcronymsPreserveConstructorAndSettingsNames(string name, string propertyName)
+        {
+            var parameter = InputFactory.MethodParameter(
+                name, InputPrimitiveType.String, isRequired: true, scope: InputParameterScope.Client);
+            var inputClient = InputFactory.Client("TestClient", parameters: [parameter]);
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+            var constructors = client.Constructors.Where(constructor =>
+                constructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public)
+                && constructor.Signature.Parameters.Any(candidate => ReferenceEquals(candidate.InputParameter, parameter))).ToArray();
+
+            Assert.IsNotEmpty(constructors);
+            foreach (var constructor in constructors)
+            {
+                Assert.AreEqual(name, constructor.Signature.Parameters.Single(candidate =>
+                    ReferenceEquals(candidate.InputParameter, parameter)).Name);
+            }
+            var settings = client.ClientSettings!;
+            Assert.AreEqual(name, settings.OtherRequiredParams.Single().Name);
+            Assert.IsTrue(settings.Properties.Any(property => property.Name == propertyName));
+        }
+
         [TestCase(false)]
         [TestCase(true)]
         public async Task ExperimentalCustomConfigurationBindingsUseContainingExperimentalContext(bool generatedModel)
