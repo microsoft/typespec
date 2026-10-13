@@ -6,8 +6,9 @@ export interface Props {
   as?: "a";
   href: string;
   className?: string;
+  title?: string;
 }
-const { href, className, appearance } = Astro.props;
+const { href, className, appearance, title } = Astro.props;
 const appearanceCls = `appearance-${appearance ?? "primary"}`;
 ---
 
@@ -66,6 +67,6 @@ const appearanceCls = `appearance-${appearance ?? "primary"}`;
     color: var(--colorNeutralForeground1Hover);
   }
 </style>
-<Link class:list={["button", appearanceCls, className]} href={href}>
+<Link class:list={["button", appearanceCls, className]} href={href} title={title}>
   <slot />
 </Link>
