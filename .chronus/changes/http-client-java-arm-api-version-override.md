@@ -4,4 +4,4 @@ packages:
   - "@typespec/http-client-java"
 ---
 
-Honor operation-group API-version overrides in management clients.
+Honor operation-group API-version overrides, including standalone clients and subclients.

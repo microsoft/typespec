@@ -27,11 +27,13 @@ export enum InconsistentVersions {
  *
  * @param program the program
  * @param client the SDK client
+ * @param apiVersion the selected service API version, defaulting to the latest
  * @returns the array of api-version when there is only one service in the SDK client or an {@link InconsistentVersions} indicator when the SDK client is not versioned or has multiple versions.
  */
 export function getServiceApiVersions(
   program: Program,
   client: SdkClientType<SdkHttpOperation>,
+  apiVersion?: string,
 ): Version[] | InconsistentVersions {
   // TODO: use client.apiVersions
 
@@ -63,7 +65,11 @@ export function getServiceApiVersions(
     apiVersions = InconsistentVersions.NotVersioned;
   }
   if (Array.isArray(apiVersions)) {
-    const defaults = new Set<string>();
+    const selectedVersion =
+      apiVersion && !["all", "latest"].includes(apiVersion)
+        ? apiVersions.find((version) => version.value === apiVersion)?.value
+        : apiVersions.at(-1)?.value;
+    const defaults = new Set<string>(selectedVersion ? [selectedVersion] : []);
     const clients = [client];
     for (const current of clients) {
       clients.push(...(current.children ?? []));

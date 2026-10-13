@@ -16,6 +16,7 @@ import { createChoiceSchema } from "../src/common/schemas/choice.js";
 import { createConstantSchema, createConstantValue } from "../src/common/schemas/constant.js";
 import {
   ImplementationLocation,
+  ParameterLocation,
   SchemaType,
   createAnySchema,
   createArraySchema,
@@ -284,14 +285,24 @@ describe("code model characterization", () => {
     },
   );
 
-  it.each(["arm-api-version-override", "arm-versioned"])(
-    "preserves API-version parameter handling for %s",
-    async (scenario) => {
+  it.each([
+    { scenario: "arm-api-version-override", enableSubclient: false },
+    { scenario: "arm-api-version-override", enableSubclient: true },
+    { scenario: "arm-api-version-override-only", enableSubclient: false },
+    { scenario: "api-version-header-override", enableSubclient: false },
+    { scenario: "arm-versioned", enableSubclient: false },
+    { scenario: "arm-versioned", enableSubclient: false, apiVersion: "2023-12-01" },
+  ])(
+    "preserves $scenario API versions (subclients: $enableSubclient, version: $apiVersion)",
+    async ({ scenario, enableSubclient, apiVersion }) => {
       const program = await compile(
         NodeHost,
         fileURLToPath(
           new URL(
-            `../../generator/http-client-generator-test/tsp/${scenario}.tsp`,
+            scenario === "arm-api-version-override-only" ||
+              scenario === "api-version-header-override"
+              ? `./fixtures/${scenario}.tsp`
+              : `../../generator/http-client-generator-test/tsp/${scenario}.tsp`,
             import.meta.url,
           ),
         ),
@@ -301,7 +312,12 @@ describe("code model characterization", () => {
       const model = await new CodeModelBuilder(program, {
         program,
         emitterOutputDir: "/code-model-test-output",
-        options: { flavor: "azure", "dev-options": {} },
+        options: {
+          flavor: "azure",
+          "enable-subclient": enableSubclient,
+          "api-version": apiVersion,
+          "dev-options": {},
+        },
         perf: {
           startTimer: () => ({ end: () => 0 }),
           time: (_label, callback) => callback(),
@@ -310,32 +326,53 @@ describe("code model characterization", () => {
         },
       }).build();
       expect(program.diagnostics.filter((d) => d.severity === "error")).toEqual([]);
-      const client = model.clients[0];
-      expect(client).toBeDefined();
-      expect(client.operationGroups).toHaveLength(scenario === "arm-api-version-override" ? 2 : 1);
-      for (const group of client.operationGroups) {
-        expect(group.operations?.length).toBeGreaterThan(0);
-        for (const operation of group.operations ?? []) {
-          const parameter = operation.parameters?.find(
-            (p) => p.language.default.serializedName === "api-version",
-          );
-          expect(parameter).toMatchObject({
-            implementation:
-              scenario === "arm-api-version-override"
-                ? ImplementationLocation.Method
-                : ImplementationLocation.Client,
-            schema: {
-              type: SchemaType.Constant,
-              value: {
-                value:
-                  scenario === "arm-versioned"
-                    ? "2024-12-01"
-                    : group.$key === "NetworkInterfaces"
-                      ? "2026-03-01"
-                      : "2018-10-01",
+      const clients = model.clients.filter((client) =>
+        client.operationGroups.some((group) => group.operations?.length),
+      );
+      expect(clients).toHaveLength(enableSubclient ? 2 : 1);
+      for (const client of clients) {
+        expect(client.operationGroups).toHaveLength(
+          scenario === "arm-api-version-override" && !enableSubclient ? 2 : 1,
+        );
+        for (const group of client.operationGroups) {
+          expect(group.operations?.length).toBeGreaterThan(0);
+          if (scenario === "api-version-header-override") {
+            expect(group.operations).toHaveLength(2);
+          }
+          const groupName = enableSubclient ? client.language.default.name : group.$key;
+          const overridden = scenario !== "arm-versioned" && groupName !== "NetworkInterfaces";
+          for (const operation of group.operations ?? []) {
+            const serializedName =
+              operation.language.default.name === "readNamed" ? "x-ms-api-version" : "api-version";
+            const parameter = operation.parameters?.find(
+              (p) => p.language.default.serializedName === serializedName,
+            );
+            expect(parameter).toMatchObject({
+              implementation:
+                scenario !== "arm-versioned" && (!enableSubclient || overridden)
+                  ? ImplementationLocation.Method
+                  : ImplementationLocation.Client,
+              protocol: {
+                http: {
+                  in:
+                    scenario === "api-version-header-override"
+                      ? ParameterLocation.Header
+                      : ParameterLocation.Query,
+                },
               },
-            },
-          });
+              schema: {
+                type: SchemaType.Constant,
+                value: {
+                  value:
+                    scenario === "arm-versioned"
+                      ? (apiVersion ?? "2024-12-01")
+                      : overridden
+                        ? "2018-10-01"
+                        : "2026-03-01",
+                },
+              },
+            });
+          }
         }
       }
     },

@@ -761,10 +761,10 @@ export class CodeModelBuilder {
     }
 
     // versioning, here we handle consistent api-versions for the client
-    const versions = getServiceApiVersions(this.program, client);
+    const apiVersionOption = resolveApiVersionOption(this.sdkContext.apiVersion);
+    const versions = getServiceApiVersions(this.program, client, apiVersionOption);
     if (Array.isArray(versions) && versions.length > 0) {
       // consistent api-versions
-      const apiVersionOption = resolveApiVersionOption(this.sdkContext.apiVersion);
       if (!apiVersionOption || ["all", "latest"].includes(apiVersionOption)) {
         this.apiVersion = versions[versions.length - 1].value;
       } else {
@@ -1508,8 +1508,12 @@ export class CodeModelBuilder {
       if (clientContext.apiVersions === InconsistentVersions.MixedVersions) {
         // mixed api-versions
         const parameter = this.createApiVersionParameter(
-          "api-version",
-          param.kind === "query" ? ParameterLocation.Query : ParameterLocation.Path,
+          param.serializedName,
+          param.kind === "query"
+            ? ParameterLocation.Query
+            : param.kind === "header"
+              ? ParameterLocation.Header
+              : ParameterLocation.Path,
           String(param.clientDefaultValue),
           ImplementationLocation.Method,
         );
