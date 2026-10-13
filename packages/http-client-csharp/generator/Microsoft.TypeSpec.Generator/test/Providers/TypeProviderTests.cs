@@ -356,15 +356,64 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             var lastContractView = typeProvider.LastContractView;
 
             Assert.IsNotNull(lastContractView);
-            CollectionAssert.AreEqual(
-                new[] { "StableMethod" },
+            CollectionAssert.AreEquivalent(
+                new[] { "ExperimentalMethod", "StableMethod" },
                 lastContractView!.Methods.Select(method => method.Signature.Name).ToArray());
-            CollectionAssert.AreEqual(
-                new[] { "StableProperty" },
+            CollectionAssert.AreEquivalent(
+                new[] { "ExperimentalProperty", "StableProperty" },
                 lastContractView.Properties.Select(property => property.Name).ToArray());
-            CollectionAssert.AreEqual(
-                new[] { 0 },
+            CollectionAssert.AreEquivalent(
+                new[] { 0, 1 },
                 lastContractView.Constructors.Select(constructor => constructor.Signature.Parameters.Count).ToArray());
+            Assert.IsFalse(MethodSignatureHelper.IsPublicApi(
+                lastContractView.Methods.Single(method => method.Signature.Name == "ExperimentalMethod").Signature));
+            Assert.IsTrue(MethodSignatureHelper.IsPublicApi(
+                lastContractView.Methods.Single(method => method.Signature.Name == "StableMethod").Signature));
+            Assert.IsFalse(MethodSignatureHelper.IsPublicApi(
+                lastContractView.Properties.Single(property => property.Name == "ExperimentalProperty")));
+            Assert.IsTrue(MethodSignatureHelper.IsPublicApi(
+                lastContractView.Properties.Single(property => property.Name == "StableProperty")));
+            Assert.IsFalse(MethodSignatureHelper.IsPublicApi(
+                lastContractView.Constructors.Single(constructor => constructor.Signature.Parameters.Count == 1).Signature));
+            Assert.IsTrue(MethodSignatureHelper.IsPublicApi(
+                lastContractView.Constructors.Single(constructor => constructor.Signature.Parameters.Count == 0).Signature));
+            Assert.IsFalse(MethodSignatureHelper.IsPublicApi(
+                lastContractView.Fields.Single(field => field.Name == "ExperimentalField")));
+        }
+
+        [Test]
+        public async Task BackCompatibilityDoesNotPromoteExperimentalConstructor()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                lastContractCompilation: () => Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompatibilityIgnoresExperimentalMembersLastContract)));
+            var typeProvider = new TestTypeProvider(
+                name: "ExperimentalMembersType",
+                declarationModifiers: TypeSignatureModifiers.Public | TypeSignatureModifiers.Abstract | TypeSignatureModifiers.Class);
+            var experimentalConstructor = new ConstructorProvider(
+                new ConstructorSignature(
+                    typeProvider.Type,
+                    null,
+                    MethodSignatureModifiers.Private | MethodSignatureModifiers.Protected,
+                    [new ParameterProvider("value", $"", typeof(int))]),
+                MethodBodyStatement.Empty,
+                typeProvider);
+            var stableConstructor = new ConstructorProvider(
+                new ConstructorSignature(
+                    typeProvider.Type,
+                    null,
+                    MethodSignatureModifiers.Private | MethodSignatureModifiers.Protected,
+                    []),
+                MethodBodyStatement.Empty,
+                typeProvider);
+            typeProvider.Update(constructors: [experimentalConstructor, stableConstructor]);
+
+            typeProvider.ProcessTypeForBackCompatibility();
+
+            Assert.AreEqual(
+                MethodSignatureModifiers.Private | MethodSignatureModifiers.Protected,
+                experimentalConstructor.Signature.Modifiers);
+            Assert.AreEqual(MethodSignatureModifiers.Public, stableConstructor.Signature.Modifiers);
         }
 
         // Validates that a custom TypeProvider inherits the parameter-reordering back-compat behavior

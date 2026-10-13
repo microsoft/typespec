@@ -78,7 +78,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected override IReadOnlyList<EnumTypeMember> BuildEnumValues()
         {
             var customMembers = new HashSet<FieldProvider>(CustomCodeView?.Fields ?? []);
-            var lastContractFields = LastContractView?.Fields ?? [];
+            var lastContractFields = LastContractView?.Fields.Where(MethodSignatureHelper.IsPublicApi).ToArray() ?? [];
             var lastContractNames = lastContractFields.Select(f => f.Name).ToArray();
             var generatedNames = GetGeneratedValueNames(AllowedValues, lastContractNames);
 
@@ -126,8 +126,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected internal override IReadOnlyList<EnumTypeMember>? BuildEnumValuesForBackCompatibility(IReadOnlyList<EnumTypeMember> currentValues)
         {
-            var lastContractFields = LastContractView?.Fields;
-            if (lastContractFields == null || lastContractFields.Count == 0)
+            var lastContractFields = LastContractView?.Fields.Where(MethodSignatureHelper.IsPublicApi).ToArray();
+            if (lastContractFields == null || lastContractFields.Length == 0)
             {
                 return null;
             }
@@ -212,7 +212,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     .Where(f => f.OriginalName != null)
                     .Select(f => f.OriginalName!) ?? [],
                 StringComparer.Ordinal);
-            var lastContractNames = lastContractFields.Select(f => f.Name).ToArray();
+            var lastContractNames = lastContractFields
+                .Where(MethodSignatureHelper.IsPublicApi)
+                .Select(f => f.Name)
+                .ToArray();
             var generatedNames = GetGeneratedValueNames(AllowedValues, lastContractNames);
             var customMemberLastContractNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
@@ -255,7 +258,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
             IReadOnlyList<FieldProvider> lastContractFields,
             List<EnumTypeMember> allMembers)
         {
-            var lastContractNames = new HashSet<string>(lastContractFields.Select(f => f.Name), StringComparer.OrdinalIgnoreCase);
+            var lastContractNames = new HashSet<string>(
+                lastContractFields.Where(MethodSignatureHelper.IsPublicApi).Select(f => f.Name),
+                StringComparer.OrdinalIgnoreCase);
             foreach (var current in currentValues)
             {
                 if (!lastContractNames.Contains(current.Name))

@@ -10,6 +10,7 @@ using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
+using Microsoft.TypeSpec.Generator.Utilities;
 
 namespace Microsoft.TypeSpec.Generator
 {
@@ -18,6 +19,17 @@ namespace Microsoft.TypeSpec.Generator
         internal static bool IsPublicApi(MethodSignatureModifiers modifiers)
             => (modifiers.HasFlag(MethodSignatureModifiers.Public) || modifiers.HasFlag(MethodSignatureModifiers.Protected))
                 && !modifiers.HasFlag(MethodSignatureModifiers.Private);
+
+        internal static bool IsPublicApi(MethodSignatureBase signature)
+            => IsPublicApi(signature.Modifiers) && !signature.Attributes.Any(ExperimentalApiHelpers.IsExperimentalAttribute);
+
+        internal static bool IsPublicApi(PropertyProvider property)
+            => IsPublicApi(property.Modifiers) && !property.Attributes.Any(ExperimentalApiHelpers.IsExperimentalAttribute);
+
+        internal static bool IsPublicApi(FieldProvider field)
+            => (field.Modifiers.HasFlag(FieldModifiers.Public) || field.Modifiers.HasFlag(FieldModifiers.Protected))
+                && !field.Modifiers.HasFlag(FieldModifiers.Private)
+                && !field.Attributes.Any(ExperimentalApiHelpers.IsExperimentalAttribute);
 
         internal static bool ContainsSameParameters(MethodSignature method1, MethodSignature method2)
         {

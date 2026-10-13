@@ -3,7 +3,7 @@
 
 namespace Test
 {
-    public class ExperimentalMembersType
+    public abstract class ExperimentalMembersType
     {
         public ExperimentalMembersType() { }
 
@@ -14,6 +14,9 @@ namespace Test
         public int ExperimentalProperty { get; set; }
 
         public int StableProperty { get; set; }
+
+        [System.Diagnostics.CodeAnalysis.Experimental("PREVIOUS001")]
+        public const int ExperimentalField = 1;
 
         [System.Diagnostics.CodeAnalysis.Experimental("PREVIOUS001")]
         public void ExperimentalMethod() { }

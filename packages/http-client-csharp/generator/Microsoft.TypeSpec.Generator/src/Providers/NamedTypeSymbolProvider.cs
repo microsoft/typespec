@@ -26,13 +26,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private string? _metadataName;
         private string? _metadataSimpleName;
         private TypeProvider? _baseTypeProvider;
-        private readonly bool _excludeExperimentalMembers;
 
-        public NamedTypeSymbolProvider(INamedTypeSymbol namedTypeSymbol, Compilation compilation, bool excludeExperimentalMembers = false)
+        public NamedTypeSymbolProvider(INamedTypeSymbol namedTypeSymbol, Compilation compilation)
         {
             _namedTypeSymbol = namedTypeSymbol;
             _compilation = compilation;
-            _excludeExperimentalMembers = excludeExperimentalMembers;
             IsExperimental = HasExperimentalAttribute(namedTypeSymbol);
         }
 
@@ -101,7 +99,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return null;
             }
 
-            return new NamedTypeSymbolProvider(_namedTypeSymbol.BaseType!, _compilation, _excludeExperimentalMembers);
+            return new NamedTypeSymbolProvider(_namedTypeSymbol.BaseType!, _compilation);
         }
 
         protected override CSharpType? BuildBaseType()
@@ -213,11 +211,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
             List<PropertyProvider> properties = new List<PropertyProvider>();
             foreach (var propertySymbol in _namedTypeSymbol.GetMembers().OfType<IPropertySymbol>())
             {
-                if (_excludeExperimentalMembers && HasExperimentalAttribute(propertySymbol))
-                {
-                    continue;
-                }
-
                 var modifiers = GetAccessModifier(propertySymbol.DeclaredAccessibility);
                 if (propertySymbol.IsStatic)
                 {
@@ -335,10 +328,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 {
                     continue;
                 }
-                if (_excludeExperimentalMembers && HasExperimentalAttribute(constructorSymbol))
-                {
-                    continue;
-                }
 
                 var initializer = ExtractConstructorInitializer(constructorSymbol);
                 var signature = new ConstructorSignature(
@@ -346,6 +335,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     GetSymbolXmlDoc(constructorSymbol, "summary"),
                     GetAccessModifier(constructorSymbol.DeclaredAccessibility),
                     [.. constructorSymbol.Parameters.Select(p => ConvertToParameterProvider(constructorSymbol, p))],
+                    attributes: [.. constructorSymbol.GetAttributes()
+                        .Where(a => a.AttributeClass?.ToDisplayString() == typeof(ExperimentalAttribute).FullName)
+                        .Select(a => new AttributeStatement(a))],
                     initializer: initializer);
                 constructors.Add(new ConstructorProvider(signature, MethodBodyStatement.Empty, this));
             }
@@ -365,10 +357,6 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
                 // skip constructors
                 if (methodSymbol.MethodKind == MethodKind.Constructor)
-                {
-                    continue;
-                }
-                if (_excludeExperimentalMembers && HasExperimentalAttribute(methodSymbol))
                 {
                     continue;
                 }

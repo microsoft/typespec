@@ -58,6 +58,22 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 provider.EnumValues.Single(v => v.Name == "Preview").Value);
         }
 
+        [TestCase(false, "ExperimentalFixedMembers")]
+        [TestCase(true, "ExperimentalExtensibleMembers")]
+        public async Task BackCompatibilityIgnoresExperimentalEnumMembers(bool isExtensible, string previousContract)
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                lastContractCompilation: () => Helpers.GetCompilationFromDirectoryAsync(method: previousContract));
+            var input = isExtensible
+                ? InputFactory.StringEnum("Choice", [], isExtensible: true)
+                : InputFactory.Int32Enum("Choice", []);
+            var provider = EnumProvider.Create(input);
+            provider.EnsureBuilt();
+            provider.ProcessTypeForBackCompatibility();
+
+            CollectionAssert.AreEqual(new[] { "Stable" }, provider.EnumValues.Select(value => value.Name).ToArray());
+        }
+
         [Test]
         public async Task ExperimentalFixedEnumDependenciesSurviveBackCompatibility(
             [Values] bool numeric,
