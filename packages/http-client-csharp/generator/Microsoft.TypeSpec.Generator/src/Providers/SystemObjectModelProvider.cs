@@ -316,7 +316,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             for (var provider = _lastContractType; provider is not null; provider = provider.BaseTypeProvider)
             {
                 foreach (var property in provider.Properties.Where(property =>
-                    MethodSignatureHelper.IsPublicApi(property.Modifiers) && seenPropertyNames.Add(property.Name)))
+                    MethodSignatureHelper.IsPublicApi(property.Modifiers, property.Attributes) && seenPropertyNames.Add(property.Name)))
                 {
                     if (ApplyCurrentInputMetadata(property) is { } projectedProperty)
                     {
@@ -342,7 +342,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             for (var provider = _lastContractType; provider is not null; provider = provider.BaseTypeProvider)
             {
                 if (provider.Properties
-                    .Where(property => MethodSignatureHelper.IsPublicApi(property.Modifiers))
+                    .Where(property => MethodSignatureHelper.IsPublicApi(property.Modifiers, property.Attributes))
                     .Any(property => FindEffectiveFrameworkProperty(property.Name) is not { } candidate ||
                         !IsCompatibleProperty(property, candidate)))
                 {
@@ -425,7 +425,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 for (var provider = _lastContractType; provider is not null; provider = provider.BaseTypeProvider)
                 {
                     foreach (var property in provider.Properties.Where(property =>
-                        MethodSignatureHelper.IsPublicApi(property.Modifiers)))
+                        MethodSignatureHelper.IsPublicApi(property.Modifiers, property.Attributes)))
                     {
                         yield return property.Name;
                     }

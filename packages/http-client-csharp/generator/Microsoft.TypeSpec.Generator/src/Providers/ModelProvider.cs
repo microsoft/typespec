@@ -107,7 +107,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private IDictionary<string, CSharpType> LastContractPropertiesMap
             => _lastContractPropertiesMap ??= LastContractView?.Properties
-                .Where(p => MethodSignatureHelper.IsPublicApi(p.Modifiers))
+                .Where(p => MethodSignatureHelper.IsPublicApi(p.Modifiers, p.Attributes))
                 .ToDictionary(p => p.Name, p => p.Type) ?? [];
 
         private IDictionary<string, CSharpType>? _lastContractPropertiesMap;
@@ -2056,7 +2056,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             // Check if the property exists in the last contract by name
             var lastContractProperty = LastContractView.Properties.FirstOrDefault(p =>
-                MethodSignatureHelper.IsPublicApi(p.Modifiers) &&
+                MethodSignatureHelper.IsPublicApi(p.Modifiers, p.Attributes) &&
                 p.Name == AdditionalPropertiesHelper.DefaultAdditionalPropertiesPropertyName);
 
             if (lastContractProperty == null)
