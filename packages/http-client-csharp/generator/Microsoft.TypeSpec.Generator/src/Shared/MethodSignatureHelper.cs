@@ -17,14 +17,16 @@ namespace Microsoft.TypeSpec.Generator
     internal class MethodSignatureHelper
     {
         internal static bool IsPublicApi(MethodSignatureBase signature)
-            => IsPublicApi(signature.Modifiers, signature.Attributes);
+            => IsPublicApi(signature.Modifiers)
+                && !signature.Attributes.Any(ExperimentalApiHelpers.IsExperimentalAttribute);
 
-        internal static bool IsPublicApi(
-            MethodSignatureModifiers modifiers,
-            IReadOnlyList<AttributeStatement>? attributes = null)
+        internal static bool IsPublicApi(MethodSignatureModifiers modifiers)
             => (modifiers.HasFlag(MethodSignatureModifiers.Public) || modifiers.HasFlag(MethodSignatureModifiers.Protected))
-                && !modifiers.HasFlag(MethodSignatureModifiers.Private)
-                && attributes?.Any(ExperimentalApiHelpers.IsExperimentalAttribute) != true;
+                && !modifiers.HasFlag(MethodSignatureModifiers.Private);
+
+        internal static bool IsPublicApi(PropertyProvider property)
+            => IsPublicApi(property.Modifiers)
+                && !property.Attributes.Any(ExperimentalApiHelpers.IsExperimentalAttribute);
 
         internal static bool IsPublicApi(
             FieldModifiers modifiers,

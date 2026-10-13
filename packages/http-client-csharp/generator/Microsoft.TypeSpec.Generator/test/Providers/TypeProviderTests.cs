@@ -373,11 +373,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             var experimentalConstructor = lastContractView.Constructors.Single(constructor => constructor.Signature.Parameters.Count == 1);
             var experimentalField = lastContractView.Fields.Single(field => field.Name == "ExperimentalField");
 
-            Assert.IsFalse(MethodSignatureHelper.IsPublicApi(experimentalMethod.Signature.Modifiers, experimentalMethod.Signature.Attributes));
-            Assert.IsTrue(MethodSignatureHelper.IsPublicApi(stableMethod.Signature.Modifiers, stableMethod.Signature.Attributes));
-            Assert.IsFalse(MethodSignatureHelper.IsPublicApi(experimentalProperty.Modifiers, experimentalProperty.Attributes));
-            Assert.IsTrue(MethodSignatureHelper.IsPublicApi(stableProperty.Modifiers, stableProperty.Attributes));
-            Assert.IsFalse(MethodSignatureHelper.IsPublicApi(experimentalConstructor.Signature.Modifiers, experimentalConstructor.Signature.Attributes));
+            Assert.IsFalse(MethodSignatureHelper.IsPublicApi(experimentalMethod.Signature));
+            Assert.IsTrue(MethodSignatureHelper.IsPublicApi(stableMethod.Signature));
+            Assert.IsFalse(MethodSignatureHelper.IsPublicApi(experimentalProperty));
+            Assert.IsTrue(MethodSignatureHelper.IsPublicApi(stableProperty));
+            Assert.IsFalse(MethodSignatureHelper.IsPublicApi(experimentalConstructor.Signature));
             Assert.IsFalse(MethodSignatureHelper.IsPublicApi(experimentalField.Modifiers, experimentalField.Attributes));
         }
 

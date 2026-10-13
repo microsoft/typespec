@@ -69,7 +69,7 @@ namespace Microsoft.TypeSpec.Generator
             CSharpType mappedBase,
             InputModelProperty currentProperty,
             PropertyProvider lastContractProperty)
-            => MethodSignatureHelper.IsPublicApi(lastContractProperty.Modifiers, lastContractProperty.Attributes) &&
+            => MethodSignatureHelper.IsPublicApi(lastContractProperty) &&
                 !lastContractProperty.Modifiers.HasFlag(MethodSignatureModifiers.Static) &&
                 IsLastContractModelBasePropertyCompatibleCore(mappedBase, currentProperty, lastContractProperty);
 

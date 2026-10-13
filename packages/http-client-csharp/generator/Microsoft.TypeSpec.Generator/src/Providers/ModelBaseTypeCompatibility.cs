@@ -147,7 +147,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             var result = new Dictionary<string, PropertyProvider>(StringComparer.Ordinal);
             foreach (var property in properties.Where(property => isLastContract
-                ? MethodSignatureHelper.IsPublicApi(property.Modifiers, property.Attributes)
+                ? MethodSignatureHelper.IsPublicApi(property)
                 : MethodSignatureHelper.IsPublicApi(property.Modifiers)))
             {
                 // Overloaded indexers can share a symbol name. They are unsupported contracts, not
