@@ -28,7 +28,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var inputEnum = InputFactory.StringEnum("DestinationKind", [("VirtualNetwork", "virtualNetwork")]);
             var inputModel = InputFactory.Model("MockInputModel", properties: [
                     InputFactory.Property("isEnabled", InputPrimitiveType.Boolean, isRequired: true, serializedName: "enabled"),
-                    InputFactory.Property("destinationType", inputEnum, isRequired: true, serializedName: "type")
+                    InputFactory.Property("destinationType", inputEnum, isRequired: true, serializedName: "type"),
+                    InputFactory.Property("enforcement", inputEnum)
                 ],
                 usage: InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Json);
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
@@ -81,12 +82,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var deserialize = modelType.GetMethod("DeserializeMockInputModel", BindingFlags.NonPublic | BindingFlags.Static)!;
             foreach (var enabled in new[] { true, false })
             {
-                using var document = JsonDocument.Parse($"{{\"enabled\":{enabled.ToString().ToLowerInvariant()},\"type\":\"virtualNetwork\"}}");
+                using var document = JsonDocument.Parse($"{{\"enabled\":{enabled.ToString().ToLowerInvariant()},\"type\":\"virtualNetwork\",\"enforcement\":\"virtualNetwork\"}}");
                 var model = deserialize.Invoke(null, [document.RootElement, new System.ClientModel.Primitives.ModelReaderWriterOptions("J")]);
                 Assert.AreEqual(enabled, modelType.GetProperty("IsEnabled")!.GetValue(model));
                 Assert.AreEqual(enabled, modelType.GetProperty("Enabled")!.GetValue(model));
                 Assert.AreEqual("VirtualNetwork", modelType.GetProperty("DestinationType")!.GetValue(model)!.ToString());
                 Assert.AreEqual("VirtualNetwork", modelType.GetProperty("Type")!.GetValue(model)!.ToString());
+                Assert.AreEqual("VirtualNetwork", modelType.GetProperty("Enforcement")!.GetValue(model)!.ToString());
             }
         }
 

@@ -14,10 +14,11 @@ namespace Sample.Models
             DestinationType = type;
         }
 
-        internal MockInputModel(bool enabled, DestinationKind type, IDictionary<string, BinaryData> additionalBinaryDataProperties)
+        internal MockInputModel(bool enabled, DestinationKind type, DestinationKind? enforcement, IDictionary<string, BinaryData> additionalBinaryDataProperties)
         {
             IsEnabled = enabled;
             DestinationType = type;
+            Enforcement = enforcement;
         }
 
         public bool IsEnabled { get; set; }
@@ -28,6 +29,7 @@ namespace Sample.Models
         }
 
         public DestinationKind DestinationType { get; set; }
+        public DestinationKind? Enforcement { get; set; }
         public DestinationKind Type
         {
             get => DestinationType;

@@ -20,6 +20,7 @@ namespace Sample
             }
             bool isEnabled = default;
             global::Sample.Models.DestinationKind destinationType = default;
+            global::Sample.Models.DestinationKind? enforcement = default;
             global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties = new global::Sample.ChangeTrackingDictionary<string, global::System.BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
@@ -33,12 +34,21 @@ namespace Sample
                     destinationType = prop.Value.GetString().ToDestinationKind();
                     continue;
                 }
+                if (prop.NameEquals("enforcement"u8))
+                {
+                    if ((prop.Value.ValueKind == global::System.Text.Json.JsonValueKind.Null))
+                    {
+                        continue;
+                    }
+                    enforcement = prop.Value.GetString().ToDestinationKind();
+                    continue;
+                }
                 if ((options.Format != "W"))
                 {
                     additionalBinaryDataProperties.Add(prop.Name, prop.Value.GetUtf8Bytes());
                 }
             }
-            return new global::Sample.Models.MockInputModel(isEnabled, destinationType, additionalBinaryDataProperties);
+            return new global::Sample.Models.MockInputModel(isEnabled, destinationType, enforcement, additionalBinaryDataProperties);
         }
     }
 }
