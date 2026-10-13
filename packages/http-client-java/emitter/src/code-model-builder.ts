@@ -1191,6 +1191,32 @@ export class CodeModelBuilder {
       lroMetadata = this.processLroMetadata(codeModelOperation, sdkMethod);
     }
 
+    // TCGC only supports response replacement with void or bytes.
+    // Infer replacement when no declared HTTP body type matches the method return type.
+    // A no-content variant alone must not classify a parameter-only override as a replacement.
+    let responseReplacement: "void" | "bytes" | undefined =
+      sdkMethod.isOverride &&
+      sdkMethod.kind === "basic" &&
+      (sdkMethod.response.type === undefined || sdkMethod.response.type.kind === "bytes") &&
+      httpOperation.responses.some((response) => response.type !== sdkMethod.response.type) &&
+      !httpOperation.responses.some(
+        (response) => response.type !== undefined && response.type === sdkMethod.response.type,
+      )
+        ? sdkMethod.response.type === undefined
+          ? "void"
+          : "bytes"
+        : undefined;
+    if (
+      responseReplacement === "bytes" &&
+      httpOperation.responses.every((response) => response.type === undefined)
+    ) {
+      reportDiagnostic(this.program, {
+        code: "bytes-response-replacement-without-body",
+        format: { operationName },
+        target: sdkMethod.__raw ?? httpOperation.__raw.operation,
+      });
+      responseReplacement = undefined;
+    }
     // responses
     for (const response of sdkMethod.operation.responses) {
       this.processResponse(
@@ -1199,6 +1225,7 @@ export class CodeModelBuilder {
         response,
         lroMetadata.longRunning,
         false,
+        responseReplacement,
       );
     }
 
@@ -2381,11 +2408,38 @@ export class CodeModelBuilder {
     sdkResponse: SdkHttpResponse | SdkHttpErrorResponse,
     longRunning: boolean,
     isErrorResponse: boolean,
+    responseReplacement?: "void" | "bytes",
   ) {
     // TODO: what to do if more than 1 response?
     // It happens when the response type is Union, on one status code.
     // let response: Response;
     const headers: Array<HttpHeader> = [];
+
+    // Azure V1 replaces only the convenience return type, preserving the protocol response.
+    // Azure V2/ClientCore replace the operation response so the proxy handles void/raw bytes.
+    const replaceConvenienceResponse =
+      !isErrorResponse && responseReplacement !== undefined && this.isAzureV1();
+    const replaceResponseBodyType =
+      !isErrorResponse && responseReplacement !== undefined && !this.isAzureV1();
+    let bodyType: SdkType | undefined = sdkResponse.type;
+    if (!isErrorResponse && responseReplacement !== undefined) {
+      switch (responseReplacement) {
+        case "void":
+          if (replaceConvenienceResponse && op.convenienceApi) {
+            op.convenienceApi.response = createResponse();
+          } else if (replaceResponseBodyType) {
+            bodyType = undefined;
+          }
+          break;
+        case "bytes":
+          if (replaceConvenienceResponse && op.convenienceApi) {
+            op.convenienceApi.response = createBinaryResponse();
+          }
+          break;
+        default:
+          fail(`Unsupported response replacement: ${responseReplacement satisfies never}`);
+      }
+    }
 
     if (sdkResponse.headers) {
       for (const header of sdkResponse.headers) {
@@ -2423,10 +2477,9 @@ export class CodeModelBuilder {
       }
     }
 
-    const bodyType: SdkType | undefined = sdkResponse.type;
-    let trackConvenienceApi: boolean = Boolean(op.convenienceApi);
+    let trackResponseBody: boolean = Boolean(op.convenienceApi) && !replaceConvenienceResponse;
     const trackResponseHeadersAsModel =
-      trackConvenienceApi &&
+      Boolean(op.convenienceApi) &&
       (op.convenienceApi?.responseHeadersAsModel === true ||
         (this.isAzureV1() && this.options["max-overload"] === "model"));
 
@@ -2441,7 +2494,10 @@ export class CodeModelBuilder {
     }
 
     let responseBodyIsFile: boolean = false;
-    if (
+    if (replaceResponseBodyType && responseReplacement === "bytes" && bodyType) {
+      // Raw bytes bypass JSON/base64 decoding even for application/json responses.
+      responseBodyIsFile = true;
+    } else if (
       bodyType &&
       bodyType.kind === "model" &&
       bodyType.serializationOptions.binary &&
@@ -2481,7 +2537,7 @@ export class CodeModelBuilder {
       if (longRunning) {
         // LRO uses the LroMetadata for poll/final result, not the response of activation request
         // hence the schema below is not tracked for convenience API
-        trackConvenienceApi = false;
+        trackResponseBody = false;
       }
 
       // schema (usually JSON)
@@ -2544,7 +2600,7 @@ export class CodeModelBuilder {
       if (isSchemaResponse(response)) {
         this.trackSchemaUsage(response.schema, { usage: [SchemaContext.Exception] });
 
-        if (trackConvenienceApi) {
+        if (trackResponseBody) {
           let outputErrorModel = false;
           if (!this.isBranded()) {
             outputErrorModel = true;
@@ -2572,7 +2628,7 @@ export class CodeModelBuilder {
       if (isSchemaResponse(response)) {
         this.trackSchemaUsage(response.schema, { usage: [SchemaContext.Output] });
 
-        if (trackConvenienceApi) {
+        if (trackResponseBody) {
           this.trackSchemaUsage(response.schema, {
             usage: [op.internalApi ? SchemaContext.Internal : SchemaContext.Public],
           });

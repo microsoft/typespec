@@ -5,7 +5,6 @@
 package _specs_.azure.clientgenerator.core.responsereplacement;
 
 import _specs_.azure.clientgenerator.core.responsereplacement.implementation.ResponseReplacementClientImpl;
-import _specs_.azure.clientgenerator.core.responsereplacement.models.Widget;
 import com.azure.core.annotation.Generated;
 import com.azure.core.annotation.ReturnType;
 import com.azure.core.annotation.ServiceClient;
@@ -94,14 +93,13 @@ public final class ResponseReplacementClient {
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Widget voidResponse() {
+    public void voidResponse() {
         // Generated convenience method for voidResponseWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return voidResponseWithResponse(requestOptions).getValue().toObject(Widget.class);
+        voidResponseWithResponse(requestOptions);
     }
 
     /**
@@ -116,9 +114,9 @@ public final class ResponseReplacementClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Widget bytesResponse() {
+    public BinaryData bytesResponse() {
         // Generated convenience method for bytesResponseWithResponse
         RequestOptions requestOptions = new RequestOptions();
-        return bytesResponseWithResponse(requestOptions).getValue().toObject(Widget.class);
+        return bytesResponseWithResponse(requestOptions).getValue();
     }
 }

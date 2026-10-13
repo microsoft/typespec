@@ -228,10 +228,16 @@ abstract class ConvenienceMethodTemplateBase {
 
     protected static String expressionConvertFromBinaryData(IType responseBodyType, IType rawType,
         String invocationExpression, Set<String> mediaTypes, Set<GenericType> typeReferenceStaticClasses) {
+        if (responseBodyType == ClassType.BINARY_DATA) {
+            return invocationExpression;
+        }
         SupportedMimeType mimeType = SupportedMimeType.getResponseKnownMimeType(mediaTypes);
         String serializerArgument = xmlSerializerArgument(mimeType, responseBodyType);
         switch (mimeType) {
             case TEXT:
+                if (responseBodyType == ArrayType.BYTE_ARRAY) {
+                    return invocationExpression + ".toBytes()";
+                }
                 String basicText = invocationExpression + ".toString()";
                 if (!rawType.isNullable()) {
                     return wrapPrimitiveMimeTypeText(basicText, (PrimitiveType) rawType);
@@ -251,8 +257,6 @@ abstract class ConvenienceMethodTemplateBase {
                     return String.format("%2$s.toObject(%1$s%3$s)",
                         TemplateUtil.getTypeReferenceCreation(responseBodyType), invocationExpression,
                         serializerArgument);
-                } else if (responseBodyType == ClassType.BINARY_DATA) {
-                    return invocationExpression;
                 } else if (responseBodyType == ArrayType.BYTE_ARRAY) {
                     if (rawType == ClassType.BASE_64_URL) {
                         return invocationExpression + ".toObject(" + ClassType.BASE_64_URL.getName() + ".class"
