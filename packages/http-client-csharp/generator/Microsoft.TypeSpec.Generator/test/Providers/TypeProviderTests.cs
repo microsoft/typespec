@@ -152,7 +152,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
 
             owner.ProcessTypeForBackCompatibility();
             var shims = owner.Methods.Where(m => m.Signature.Attributes.Any(a => a.Type.Equals(typeof(EditorBrowsableAttribute)))).ToArray();
-            Assert.AreEqual(3, shims.Length);
+            Assert.AreEqual(previouslyExperimental ? 0 : 3, shims.Length);
             foreach (var shim in shims)
             {
                 var experiment = shim.Signature.Attributes.SingleOrDefault(a => a.Type.Equals(typeof(ExperimentalAttribute)));
@@ -345,6 +345,26 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             var typeProvider = new TestTypeProvider(name: "ExperimentalType");
 
             Assert.IsNull(typeProvider.LastContractView);
+        }
+
+        [Test]
+        public async Task BackCompatibilityIgnoresExperimentalMembersLastContract()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                lastContractCompilation: () => Helpers.GetCompilationFromDirectoryAsync());
+            var typeProvider = new TestTypeProvider(name: "ExperimentalMembersType");
+            var lastContractView = typeProvider.LastContractView;
+
+            Assert.IsNotNull(lastContractView);
+            CollectionAssert.AreEqual(
+                new[] { "StableMethod" },
+                lastContractView!.Methods.Select(method => method.Signature.Name).ToArray());
+            CollectionAssert.AreEqual(
+                new[] { "StableProperty" },
+                lastContractView.Properties.Select(property => property.Name).ToArray());
+            CollectionAssert.AreEqual(
+                new[] { 0 },
+                lastContractView.Constructors.Select(constructor => constructor.Signature.Parameters.Count).ToArray());
         }
 
         // Validates that a custom TypeProvider inherits the parameter-reordering back-compat behavior

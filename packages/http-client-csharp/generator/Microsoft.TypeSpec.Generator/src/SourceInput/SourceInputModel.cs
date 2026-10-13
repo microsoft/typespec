@@ -71,7 +71,14 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
 
         public TypeProvider? FindForTypeInLastContract(string ns, string name, string? declaringTypeName = null)
         {
-            var type = FindTypeInCompilation(LastContract, ns, name, true, declaringTypeName, includeInternal: false);
+            var type = FindTypeInCompilation(
+                LastContract,
+                ns,
+                name,
+                true,
+                declaringTypeName,
+                includeInternal: false,
+                excludeExperimentalMembers: true);
             return type is NamedTypeSymbolProvider { IsExperimental: true } ? null : type;
         }
 
@@ -115,7 +122,8 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
             string name,
             bool includeReferencedAssemblies,
             string? declaringTypeName = null,
-            bool includeInternal = true)
+            bool includeInternal = true,
+            bool excludeExperimentalMembers = false)
         {
             if (compilation == null)
             {
@@ -144,7 +152,7 @@ namespace Microsoft.TypeSpec.Generator.SourceInput
                 type = null;
             }
 
-            return type != null ? new NamedTypeSymbolProvider(type, compilation) : null;
+            return type != null ? new NamedTypeSymbolProvider(type, compilation, excludeExperimentalMembers) : null;
         }
 
         private bool TryGetName(ISymbol symbol, [NotNullWhen(true)] out string? name)
