@@ -2473,9 +2473,9 @@ export class CodeModelBuilder {
       }
     }
 
-    let trackConvenienceApi: boolean = Boolean(op.convenienceApi) && !replaceConvenienceResponse;
+    let trackResponseBody: boolean = Boolean(op.convenienceApi) && !replaceConvenienceResponse;
     const trackResponseHeadersAsModel =
-      trackConvenienceApi &&
+      Boolean(op.convenienceApi) &&
       (op.convenienceApi?.responseHeadersAsModel === true ||
         (this.isAzureV1() && this.options["max-overload"] === "model"));
 
@@ -2533,7 +2533,7 @@ export class CodeModelBuilder {
       if (longRunning) {
         // LRO uses the LroMetadata for poll/final result, not the response of activation request
         // hence the schema below is not tracked for convenience API
-        trackConvenienceApi = false;
+        trackResponseBody = false;
       }
 
       // schema (usually JSON)
@@ -2596,7 +2596,7 @@ export class CodeModelBuilder {
       if (isSchemaResponse(response)) {
         this.trackSchemaUsage(response.schema, { usage: [SchemaContext.Exception] });
 
-        if (trackConvenienceApi) {
+        if (trackResponseBody) {
           let outputErrorModel = false;
           if (!this.isBranded()) {
             outputErrorModel = true;
@@ -2624,7 +2624,7 @@ export class CodeModelBuilder {
       if (isSchemaResponse(response)) {
         this.trackSchemaUsage(response.schema, { usage: [SchemaContext.Output] });
 
-        if (trackConvenienceApi) {
+        if (trackResponseBody) {
           this.trackSchemaUsage(response.schema, {
             usage: [op.internalApi ? SchemaContext.Internal : SchemaContext.Public],
           });

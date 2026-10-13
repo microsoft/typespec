@@ -187,10 +187,16 @@ public class ConvenienceAsyncMethodTemplate extends ConvenienceMethodTemplateBas
 
     private String expressionMapFromBinaryData(IType responseBodyType, IType rawType, Set<String> mediaTypes,
         Set<GenericType> typeReferenceStaticClasses) {
+        if (responseBodyType == ClassType.BINARY_DATA) {
+            return null;
+        }
         SupportedMimeType mimeType = SupportedMimeType.getResponseKnownMimeType(mediaTypes);
         String serializerArgument = xmlSerializerArgument(mimeType, responseBodyType);
         switch (mimeType) {
             case TEXT:
+                if (responseBodyType == ArrayType.BYTE_ARRAY) {
+                    return "protocolMethodData -> protocolMethodData.toBytes()";
+                }
                 String baseHandling = "protocolMethodData.toString()";
                 if (!rawType.isNullable()) {
                     // Dealing with a primitive type that needs to be converted.
@@ -214,9 +220,6 @@ public class ConvenienceAsyncMethodTemplate extends ConvenienceMethodTemplateBas
                     typeReferenceStaticClasses.add((GenericType) responseBodyType);
                     return String.format("protocolMethodData -> protocolMethodData.toObject(%1$s%2$s)",
                         TemplateUtil.getTypeReferenceCreation(responseBodyType), serializerArgument);
-                } else if (responseBodyType == ClassType.BINARY_DATA) {
-                    // BinaryData, no need to do the map in expressionConvertFromBinaryData
-                    return null;
                 } else if (responseBodyType == ArrayType.BYTE_ARRAY) {
                     // byte[]
                     if (rawType == ClassType.BASE_64_URL) {

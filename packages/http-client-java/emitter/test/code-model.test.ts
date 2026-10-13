@@ -1,5 +1,5 @@
 import { NodeHost, compile } from "@typespec/compiler";
-import { expectDiagnostics } from "@typespec/compiler/testing";
+import { expectDiagnosticEmpty, expectDiagnostics } from "@typespec/compiler/testing";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { parse, stringify } from "yaml";
@@ -421,6 +421,88 @@ describe("code model characterization", () => {
       expect(bodylessOperation.exceptions![0]).toMatchObject({
         schema: { usage: expect.arrayContaining(["exception"]) },
       });
+    },
+  );
+  it.each([
+    { internalApi: false, typedHeaders: false },
+    { internalApi: false, typedHeaders: true },
+    { internalApi: true, typedHeaders: false },
+    { internalApi: true, typedHeaders: true },
+  ])(
+    "preserves replacement header visibility (internal: $internalApi, typed: $typedHeaders)",
+    async ({ internalApi, typedHeaders }) => {
+      const program = await compile(
+        NodeHost,
+        fileURLToPath(
+          new URL(
+            `./fixtures/response-replacement-headers${internalApi ? "-internal" : ""}.tsp`,
+            import.meta.url,
+          ),
+        ),
+        { noEmit: true },
+      );
+      expectDiagnosticEmpty(program.diagnostics);
+      const model = await new CodeModelBuilder(program, {
+        program,
+        emitterOutputDir: "/code-model-test-output",
+        options: {
+          flavor: "azure",
+          ...(typedHeaders ? { "max-overload": "model" } : {}),
+          "dev-options": {},
+        },
+        perf: {
+          startTimer: () => ({ end: () => 0 }),
+          time: (_label, callback) => callback(),
+          timeAsync: (_label, callback) => callback(),
+          report: () => {},
+        },
+      }).build();
+      expectDiagnosticEmpty(
+        program.diagnostics.filter(
+          (diagnostic) =>
+            diagnostic.code !==
+            "@azure-tools/typespec-client-generator-core/unsupported-generic-decorator-arg-type",
+        ),
+      );
+      const bodySchema = model.schemas.objects?.find(
+        (schema) => schema.language.default.name === "OriginalBody",
+      );
+      const bodyEnum = [
+        ...(model.schemas.choices ?? []),
+        ...(model.schemas.sealedChoices ?? []),
+      ].find((schema) => schema.language.default.name === "BodyState");
+      for (const schema of [bodySchema, bodyEnum]) {
+        expect(schema).toBeDefined();
+        for (const visibility of ["public", "internal"]) {
+          expect(schema).not.toMatchObject({ usage: expect.arrayContaining([visibility]) });
+        }
+      }
+
+      const operations = model.clients.flatMap((client) =>
+        client.operationGroups.flatMap((group) => group.operations ?? []),
+      );
+      expect(operations).toHaveLength(2);
+      for (const operation of operations) {
+        expect(operation.internalApi).toBe(internalApi);
+        expect(operation.responses).toHaveLength(1);
+        expect(operation.responses![0]).toMatchObject({ schema: bodySchema });
+        const header = operation.responses![0].protocol.http.headers![0];
+        expect(header).toMatchObject({
+          header: "x-response-state",
+          schema: { language: { default: { name: "ResponseState" } } },
+        });
+        if (typedHeaders) {
+          expect(header.schema).toMatchObject({
+            usage: expect.arrayContaining([internalApi ? "internal" : "public"]),
+          });
+        } else {
+          for (const visibility of ["public", "internal"]) {
+            expect(header.schema).not.toMatchObject({
+              usage: expect.arrayContaining([visibility]),
+            });
+          }
+        }
+      }
     },
   );
 });
