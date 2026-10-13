@@ -1655,11 +1655,11 @@ export function skipTriviaBackward(
 }
 
 /**
- *
- * @param input
- * @param position
- * @param endPosition exclude
- * @returns return === endPosition (or input.length) means not found non-trivia until endPosition - 1
+ * Skip whitespace, single-line comments, and multi-line comments.
+ * @param input - Source text to scan.
+ * @param position - Position at which to start scanning.
+ * @param endPosition - Exclusive scan limit, capped at the input length. Defaults to the input length.
+ * @returns The position after the skipped trivia.
  */
 export function skipTrivia(input: string, position: number, endPosition = input.length): number {
   endPosition = endPosition > input.length ? input.length : endPosition;
