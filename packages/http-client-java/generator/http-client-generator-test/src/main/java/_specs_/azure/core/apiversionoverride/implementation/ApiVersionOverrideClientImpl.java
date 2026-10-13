@@ -4,7 +4,6 @@
 
 package _specs_.azure.core.apiversionoverride.implementation;
 
-import _specs_.azure.core.apiversionoverride.ApiVersionOverrideServiceVersion;
 import com.azure.core.http.HttpPipeline;
 import com.azure.core.http.HttpPipelineBuilder;
 import com.azure.core.http.policy.RetryPolicy;
@@ -28,20 +27,6 @@ public final class ApiVersionOverrideClientImpl {
      */
     public String getEndpoint() {
         return this.endpoint;
-    }
-
-    /**
-     * Service version.
-     */
-    private final ApiVersionOverrideServiceVersion serviceVersion;
-
-    /**
-     * Gets Service version.
-     * 
-     * @return the serviceVersion value.
-     */
-    public ApiVersionOverrideServiceVersion getServiceVersion() {
-        return this.serviceVersion;
     }
 
     /**
@@ -90,11 +75,10 @@ public final class ApiVersionOverrideClientImpl {
      * Initializes an instance of ApiVersionOverrideClient client.
      * 
      * @param endpoint Service host.
-     * @param serviceVersion Service version.
      */
-    public ApiVersionOverrideClientImpl(String endpoint, ApiVersionOverrideServiceVersion serviceVersion) {
+    public ApiVersionOverrideClientImpl(String endpoint) {
         this(new HttpPipelineBuilder().policies(new UserAgentPolicy(), new RetryPolicy()).build(),
-            JacksonAdapter.createDefaultSerializerAdapter(), endpoint, serviceVersion);
+            JacksonAdapter.createDefaultSerializerAdapter(), endpoint);
     }
 
     /**
@@ -102,11 +86,9 @@ public final class ApiVersionOverrideClientImpl {
      * 
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param endpoint Service host.
-     * @param serviceVersion Service version.
      */
-    public ApiVersionOverrideClientImpl(HttpPipeline httpPipeline, String endpoint,
-        ApiVersionOverrideServiceVersion serviceVersion) {
-        this(httpPipeline, JacksonAdapter.createDefaultSerializerAdapter(), endpoint, serviceVersion);
+    public ApiVersionOverrideClientImpl(HttpPipeline httpPipeline, String endpoint) {
+        this(httpPipeline, JacksonAdapter.createDefaultSerializerAdapter(), endpoint);
     }
 
     /**
@@ -115,14 +97,12 @@ public final class ApiVersionOverrideClientImpl {
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param serializerAdapter The serializer to serialize an object into a string.
      * @param endpoint Service host.
-     * @param serviceVersion Service version.
      */
-    public ApiVersionOverrideClientImpl(HttpPipeline httpPipeline, SerializerAdapter serializerAdapter, String endpoint,
-        ApiVersionOverrideServiceVersion serviceVersion) {
+    public ApiVersionOverrideClientImpl(HttpPipeline httpPipeline, SerializerAdapter serializerAdapter,
+        String endpoint) {
         this.httpPipeline = httpPipeline;
         this.serializerAdapter = serializerAdapter;
         this.endpoint = endpoint;
-        this.serviceVersion = serviceVersion;
         this.legacyClients = new LegacyClientsImpl(this);
     }
 }

@@ -4,7 +4,6 @@
 
 package _specs_.azure.core.apiversionoverride.implementation;
 
-import _specs_.azure.core.apiversionoverride.ApiVersionOverrideServiceVersion;
 import com.azure.core.annotation.ExpectedResponses;
 import com.azure.core.annotation.Get;
 import com.azure.core.annotation.Host;
@@ -51,15 +50,6 @@ public final class LegacyClientsImpl {
     }
 
     /**
-     * Gets Service version.
-     * 
-     * @return the serviceVersion value.
-     */
-    public ApiVersionOverrideServiceVersion getServiceVersion() {
-        return client.getServiceVersion();
-    }
-
-    /**
      * The interface defining all the services for ApiVersionOverrideClientLegacyClients to be used by the proxy service
      * to perform REST calls.
      */
@@ -97,8 +87,9 @@ public final class LegacyClientsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Mono<Response<Void>> getWithResponseAsync(RequestOptions requestOptions) {
-        return FluxUtil.withContext(context -> service.get(this.client.getEndpoint(),
-            this.client.getServiceVersion().getVersion(), requestOptions, context));
+        final String apiVersion = "2022-10-01";
+        return FluxUtil
+            .withContext(context -> service.get(this.client.getEndpoint(), apiVersion, requestOptions, context));
     }
 
     /**
@@ -113,7 +104,7 @@ public final class LegacyClientsImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> getWithResponse(RequestOptions requestOptions) {
-        return service.getSync(this.client.getEndpoint(), this.client.getServiceVersion().getVersion(), requestOptions,
-            Context.NONE);
+        final String apiVersion = "2022-10-01";
+        return service.getSync(this.client.getEndpoint(), apiVersion, requestOptions, Context.NONE);
     }
 }
