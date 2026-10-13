@@ -159,7 +159,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             foreach (var constructor in constructors.Where(constructor =>
-                MethodSignatureHelper.IsPublicApi(constructor.Signature.Modifiers, constructor.Signature.Attributes) &&
+                MethodSignatureHelper.IsPublicApi(constructor.Signature) &&
                 HasSupportedConstructorParameters(constructor.Signature.Parameters)))
             {
                 var matches = constructor.Signature.Parameters
@@ -269,7 +269,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             var properties = Properties;
             foreach (var candidate in _lastContractType!.Constructors
-                .Where(constructor => MethodSignatureHelper.IsPublicApi(constructor.Signature.Modifiers, constructor.Signature.Attributes) &&
+                .Where(constructor => MethodSignatureHelper.IsPublicApi(constructor.Signature) &&
                     HasSupportedConstructorParameters(constructor.Signature.Parameters))
                 .OrderByDescending(constructor => constructor.Signature.Parameters.Count))
             {
@@ -391,7 +391,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
 
                 foreach (var method in provider.Methods.Where(method =>
-                    MethodSignatureHelper.IsPublicApi(method.Signature.Modifiers, method.Signature.Attributes)))
+                    MethodSignatureHelper.IsPublicApi(method.Signature)))
                 {
                     var signature = method.Signature;
                     if (overriddenMethods.Any(overrideSignature =>
@@ -430,7 +430,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         yield return property.Name;
                     }
                     foreach (var method in provider.Methods.Where(method =>
-                        MethodSignatureHelper.IsPublicApi(method.Signature.Modifiers, method.Signature.Attributes)))
+                        MethodSignatureHelper.IsPublicApi(method.Signature)))
                     {
                         yield return GetPublicApiMemberName(method.Signature.Name);
                     }

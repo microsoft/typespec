@@ -1111,7 +1111,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             foreach (var previousConstructor in restorablePreviousConstructors)
             {
-                if (!MethodSignatureHelper.IsPublicApi(previousConstructor.Signature.Modifiers, previousConstructor.Signature.Attributes))
+                if (!MethodSignatureHelper.IsPublicApi(previousConstructor.Signature))
                 {
                     continue;
                 }
@@ -1183,7 +1183,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             const MethodSignatureModifiers privateProtected = MethodSignatureModifiers.Private | MethodSignatureModifiers.Protected;
             foreach (var previousConstructor in previousConstructors)
             {
-                if (!MethodSignatureHelper.IsPublicApi(previousConstructor.Signature.Modifiers, previousConstructor.Signature.Attributes))
+                if (!MethodSignatureHelper.IsPublicApi(previousConstructor.Signature))
                 {
                     continue;
                 }

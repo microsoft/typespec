@@ -91,14 +91,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return lastContract.Implements.All(previous => currentInterfaces.Any(current =>
                     ModelBaseMemberCompatibility.AreTypesCompatible(previous, current))) &&
                 lastContract.Constructors
-                    .Where(constructor => MethodSignatureHelper.IsPublicApi(constructor.Signature.Modifiers, constructor.Signature.Attributes))
+                    .Where(constructor => MethodSignatureHelper.IsPublicApi(constructor.Signature))
                     .All(constructor => SystemObjectModelProvider.HasSupportedConstructorParameters(constructor.Signature.Parameters) &&
                         constructor.Signature.Parameters.All(parameter => candidate.Properties.Any(property =>
                             property.AsParameter.Name == parameter.Name &&
                             (ModelBaseMemberCompatibility.AreTypesCompatible(parameter.Type, property.Type) ||
                                 ModelBaseMemberCompatibility.AreTypesCompatible(parameter.Type, property.Type.InputType))))) &&
                 lastContract.Methods
-                    .Where(method => MethodSignatureHelper.IsPublicApi(method.Signature.Modifiers, method.Signature.Attributes))
+                    .Where(method => MethodSignatureHelper.IsPublicApi(method.Signature))
                     .All(previous => currentGeneratedMethods.Any(current =>
                         AreGeneratedMethodSignaturesEquivalent(previous.Signature, current.Signature))) &&
                 !lastContract.Fields.Any(field => MethodSignatureHelper.IsPublicApi(field.Modifiers, field.Attributes));
@@ -166,7 +166,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private bool LastContractDerivedConstructorHasRequiredParameter(PropertyProvider property)
             => _model.LastContractView?.Constructors.Any(constructor =>
-                MethodSignatureHelper.IsPublicApi(constructor.Signature.Modifiers, constructor.Signature.Attributes) &&
+                MethodSignatureHelper.IsPublicApi(constructor.Signature) &&
                 constructor.Signature.Parameters.Any(parameter =>
                     parameter.Name == property.AsParameter.Name &&
                     parameter.Type.Equals(property.Type, ignoreNullable: true) &&

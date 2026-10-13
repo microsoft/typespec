@@ -16,6 +16,9 @@ namespace Microsoft.TypeSpec.Generator
 {
     internal class MethodSignatureHelper
     {
+        internal static bool IsPublicApi(MethodSignatureBase signature)
+            => IsPublicApi(signature.Modifiers, signature.Attributes);
+
         internal static bool IsPublicApi(
             MethodSignatureModifiers modifiers,
             IReadOnlyList<AttributeStatement>? attributes = null)

@@ -1218,7 +1218,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             foreach (var previousMethod in previousMethods)
             {
                 if (currentMethodSignatures.ContainsKey(previousMethod.Signature)
-                    || !MethodSignatureHelper.IsPublicApi(previousMethod.Signature.Modifiers, previousMethod.Signature.Attributes)
+                    || !MethodSignatureHelper.IsPublicApi(previousMethod.Signature)
                     || BackCompatHelper.IsMethodRemovalAcceptedInBaseline(this, previousMethod.Signature))
                 {
                     continue;
@@ -1284,7 +1284,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             foreach (var previousConstructor in LastContractView.Constructors)
             {
                 if (!previousConstructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) ||
-                    !MethodSignatureHelper.IsPublicApi(previousConstructor.Signature.Modifiers, previousConstructor.Signature.Attributes))
+                    !MethodSignatureHelper.IsPublicApi(previousConstructor.Signature))
                 {
                     continue;
                 }
