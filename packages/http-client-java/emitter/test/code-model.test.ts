@@ -330,9 +330,9 @@ describe("code model characterization", () => {
                 value:
                   scenario === "arm-versioned"
                     ? "2024-12-01"
-                    : group.$key === "VmssNetworkInterfaces"
-                      ? "2018-10-01"
-                      : "2026-03-01",
+                    : group.$key === "NetworkInterfaces"
+                      ? "2026-03-01"
+                      : "2018-10-01",
               },
             },
           });
