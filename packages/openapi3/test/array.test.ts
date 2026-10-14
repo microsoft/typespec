@@ -289,6 +289,22 @@ worksFor(["3.0.0"], ({ oapiForModel }) => {
       default: ["hi", 456.7],
     });
   });
+
+  it("emits minItems and maxItems of 0 for empty tuple", async () => {
+    const res = await oapiForModel(
+      "Pet",
+      `
+      model Pet { names: [] };
+      `,
+    );
+
+    deepStrictEqual(res.schemas.Pet.properties.names, {
+      type: "array",
+      items: {},
+      minItems: 0,
+      maxItems: 0,
+    });
+  });
 });
 
 worksFor(["3.1.0"], ({ oapiForModel }) => {
@@ -450,6 +466,22 @@ worksFor(["3.1.0", "3.2.0"], ({ oapiForModel }) => {
       prefixItems: [{ $ref: "#/components/schemas/Pet" }],
       minItems: 1,
       maxItems: 1,
+    });
+  });
+
+  it("emits minItems and maxItems of 0 for empty tuple", async () => {
+    const res = await oapiForModel(
+      "Pet",
+      `
+      model Pet { names: [] };
+      `,
+    );
+
+    deepStrictEqual(res.schemas.Pet.properties.names, {
+      type: "array",
+      prefixItems: [],
+      minItems: 0,
+      maxItems: 0,
     });
   });
 });
