@@ -52,6 +52,9 @@ in Protobuf.
 The key type of a Protobuf `map` must be any integral type or `string`. The value type can be any type other than
 another `Map`.
 
+An object value fills a map, for example in `@opExample` or a `const`: `#{ team: "storage" }`. Its keys are
+strings, as in the Protobuf JSON mapping, so the keys of a map with an integral key type are not checked.
+
 ```typespec
 model TypeSpec.Protobuf.Map<Key, Value>
 ```
