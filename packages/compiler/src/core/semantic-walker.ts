@@ -96,11 +96,12 @@ export function scopeNavigationToNamespace<T extends SemanticNodeListener>(
   const wrappedListeners: SemanticNodeListener = {};
   for (const [name, callback] of Object.entries(listeners)) {
     wrappedListeners[name as any as keyof TypeListeners] = (x) => {
-      if (x !== namespace && "namespace" in x) {
-        if (options.skipSubNamespaces && x.namespace !== namespace) {
+      const target = x.kind === "EnumMember" ? x.enum : x;
+      if (target !== namespace && "namespace" in target) {
+        if (options.skipSubNamespaces && target.namespace !== namespace) {
           return ListenerFlow.NoRecursion;
         }
-        if (x.namespace && !isSubNamespace(x.namespace, namespace)) {
+        if (target.namespace && !isSubNamespace(target.namespace, namespace)) {
           return ListenerFlow.NoRecursion;
         }
       }

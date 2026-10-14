@@ -1,6 +1,6 @@
 import { deepStrictEqual, ok, strictEqual } from "assert";
 import { describe, expect, it } from "vitest";
-import type { NavigationOptions } from "../src/core/semantic-walker.js";
+import type { NamespaceNavigationOptions, NavigationOptions } from "../src/core/semantic-walker.js";
 import {
   getProperty,
   navigateProgram,
@@ -706,7 +706,7 @@ it("stop navigation of children when returning NoRecursion from callback", async
 });
 
 describe("findInNamespace", () => {
-  async function runFindInNamespace(code: string) {
+  async function runFindInNamespace(code: string, options: NamespaceNavigationOptions = {}) {
     const { program } = await Tester.compile(code, {
       compilerOptions: { nostdlib: true },
     });
@@ -714,7 +714,7 @@ describe("findInNamespace", () => {
     const TargetNs = program.getGlobalNamespaceType().namespaces.get("TargetNs");
     ok(TargetNs, "Should have a namespace called TargetNs");
     const [result, listener] = createCollector();
-    navigateTypesInNamespace(TargetNs, listener);
+    navigateTypesInNamespace(TargetNs, listener, options);
 
     return result;
   }
@@ -749,6 +749,46 @@ describe("findInNamespace", () => {
     strictEqual(results.models[0].name, "A");
     strictEqual(results.models[1].name, "B");
   });
+
+  it.each([false, true])(
+    "scopes referenced enum members with skipSubNamespaces=%s",
+    async (skipSubNamespaces) => {
+      const results = await runFindInNamespace(
+        `
+          enum GlobalEnum { GlobalMember }
+
+          namespace TargetNs {
+            enum LocalEnum { LocalMember }
+            model References {
+              local: LocalEnum.LocalMember;
+              nested: Sub.NestedEnum.NestedMember;
+              external: Other.ExternalEnum.ExternalMember;
+              global: GlobalEnum.GlobalMember;
+            }
+
+            namespace Sub {
+              enum NestedEnum { NestedMember }
+            }
+          }
+
+          namespace Other {
+            enum ExternalEnum { ExternalMember }
+          }
+        `,
+        { skipSubNamespaces },
+      );
+
+      const expected = skipSubNamespaces ? ["LocalMember"] : ["LocalMember", "NestedMember"];
+      deepStrictEqual(
+        results.enumMembers.map((member) => member.name),
+        expected,
+      );
+      deepStrictEqual(
+        results.exitEnumMembers.map((member) => member.name),
+        expected,
+      );
+    },
+  );
 });
 
 describe("template declarations", () => {
