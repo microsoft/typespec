@@ -86,6 +86,11 @@ Before creating pull request, the code is required to be well-formatted.
 Run `npm run format` in "packages/http-client-java" folder.
 It formats TypeScript code as well as Java code.
 
+## Lint and Type-check
+
+Run `npm run lint` in "packages/http-client-java" to lint and type-check the emitter source and tests.
+Java CI runs this before the emitter unit tests.
+
 ## Add Change Description
 
 A change description is required to pass CI of your pull request.

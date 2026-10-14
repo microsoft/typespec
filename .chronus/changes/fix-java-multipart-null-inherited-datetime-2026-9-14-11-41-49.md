@@ -4,4 +4,4 @@ packages:
   - "@typespec/http-client-java"
 ---
 
-Fix TypeScript errors in the Java emitter's code-model tests.
+Fix TypeScript errors in the Java emitter's code-model tests and type-check emitter source and tests during CI.
