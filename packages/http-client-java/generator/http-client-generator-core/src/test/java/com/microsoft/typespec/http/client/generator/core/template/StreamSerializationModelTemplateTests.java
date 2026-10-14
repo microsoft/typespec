@@ -24,6 +24,10 @@ import org.junit.jupiter.params.provider.CsvSource;
 
 @Isolated
 public class StreamSerializationModelTemplateTests {
+    private enum Serialization {
+        JSON, XML_ELEMENT, XML_ATTRIBUTE, XML_TEXT
+    }
+
     @BeforeEach
     public void configureConstructorArguments() {
         new MockUnitJavagen() {
@@ -44,36 +48,63 @@ public class StreamSerializationModelTemplateTests {
 
     @ParameterizedTest
     @CsvSource({
-        "true,true,false,false",
-        "true,false,false,false",
-        "false,true,false,false",
-        "false,false,false,false",
-        "true,true,true,false",
-        "true,false,true,false",
-        "false,true,true,false",
-        "false,false,true,false",
-        "true,true,false,true",
-        "true,false,false,true",
-        "false,true,false,true",
-        "false,false,false,true",
-        "true,true,true,true",
-        "true,false,true,true",
-        "false,true,true,true",
-        "false,false,true,true" })
-    public void inheritedReadOnlyDatetimeUsesSetterOrShadowType(boolean samePackage, boolean required, boolean xml,
-        boolean constructorArguments) {
+        "true,true,JSON,false",
+        "true,false,JSON,false",
+        "false,true,JSON,false",
+        "false,false,JSON,false",
+        "true,true,XML_ELEMENT,false",
+        "true,false,XML_ELEMENT,false",
+        "false,true,XML_ELEMENT,false",
+        "false,false,XML_ELEMENT,false",
+        "true,true,JSON,true",
+        "true,false,JSON,true",
+        "false,true,JSON,true",
+        "false,false,JSON,true",
+        "true,true,XML_ELEMENT,true",
+        "true,false,XML_ELEMENT,true",
+        "false,true,XML_ELEMENT,true",
+        "false,false,XML_ELEMENT,true",
+        "true,true,XML_ATTRIBUTE,false",
+        "true,false,XML_ATTRIBUTE,false",
+        "false,true,XML_ATTRIBUTE,false",
+        "false,false,XML_ATTRIBUTE,false",
+        "true,true,XML_TEXT,false",
+        "true,false,XML_TEXT,false",
+        "false,true,XML_TEXT,false",
+        "false,false,XML_TEXT,false",
+        "true,true,XML_ATTRIBUTE,true",
+        "true,false,XML_ATTRIBUTE,true",
+        "false,true,XML_ATTRIBUTE,true",
+        "false,false,XML_ATTRIBUTE,true",
+        "true,true,XML_TEXT,true",
+        "true,false,XML_TEXT,true",
+        "false,true,XML_TEXT,true",
+        "false,false,XML_TEXT,true" })
+    public void inheritedReadOnlyDatetimeUsesSetterOrShadowType(boolean samePackage, boolean required,
+        Serialization serialization, boolean constructorArguments) {
         IType wireType = required ? PrimitiveType.UNIX_TIME_LONG : ClassType.UNIX_TIME_LONG;
-        String generated = renderInheritedDatetime(samePackage, required, xml, constructorArguments, wireType);
-        String readExpression = xml
-            ? wireType.xmlDeserializationMethod("reader", null, null, false)
-            : wireType.jsonDeserializationMethod("reader");
+        String generated
+            = renderInheritedDatetime(samePackage, required, serialization, constructorArguments, wireType);
+        if (serialization != Serialization.JSON) {
+            Assertions.assertTrue(generated.contains("if (getCreatedAt() != null)"), generated);
+            Assertions.assertFalse(generated.contains("getCreatedAt().toEpochSecond() != null"), generated);
+        }
+        if (serialization == Serialization.XML_TEXT) {
+            Assertions.assertTrue(generated.contains(wireType.xmlSerializationMethodCall("xmlWriter", null, null,
+                wireType.convertFromClientType("getCreatedAt()"), false, false, false) + ";"), generated);
+        }
+        String readExpression = serialization == Serialization.JSON
+            ? wireType.jsonDeserializationMethod("reader")
+            : wireType.xmlDeserializationMethod("reader",
+                serialization == Serialization.XML_ATTRIBUTE ? "created_at" : null, null, false);
         if (samePackage) {
             String value = required ? readExpression : "createdAtHolder";
             String assignment = constructorArguments
                 ? "createdAt = " + wireType.convertToClientType(value) + ";"
                 : "deserializedDatetimeChild.setCreatedAt(" + wireType.convertToClientType(value) + ");";
             Assertions.assertTrue(generated.contains(assignment), generated);
-            if (constructorArguments) {
+            if (constructorArguments
+                && (!required || serialization == Serialization.JSON || serialization == Serialization.XML_ELEMENT)) {
                 Assertions.assertTrue(generated.contains("OffsetDateTime createdAt = null;"), generated);
             }
             if (!required) {
@@ -88,17 +119,21 @@ public class StreamSerializationModelTemplateTests {
             String target = constructorArguments ? "createdAt" : "deserializedDatetimeChild.createdAt";
             Assertions.assertTrue(generated.contains(target + " = " + readExpression + ";"), generated);
             Assertions.assertFalse(generated.contains("createdAtHolder"), generated);
-            if (constructorArguments) {
+            if (constructorArguments
+                && (serialization == Serialization.JSON || serialization == Serialization.XML_ELEMENT)) {
                 Assertions.assertTrue(
                     generated.contains(wireType + " createdAt = " + wireType.defaultValueExpression() + ";"),
                     generated);
+            } else if (constructorArguments) {
+                Assertions.assertTrue(generated.contains(wireType + " createdAt = " + readExpression + ";"), generated);
             }
         }
     }
 
-    private static String renderInheritedDatetime(boolean samePackage, boolean required, boolean xml,
+    private static String renderInheritedDatetime(boolean samePackage, boolean required, Serialization serialization,
         boolean constructorArguments, IType wireType) {
-        String suffix = "" + samePackage + required + xml + constructorArguments;
+        boolean xml = serialization != Serialization.JSON;
+        String suffix = "" + samePackage + required + serialization + constructorArguments;
         ClientModelProperty discriminator = new ClientModelProperty.Builder().name("kind")
             .serializedName("kind")
             .xmlName("kind")
@@ -113,6 +148,8 @@ public class StreamSerializationModelTemplateTests {
         ClientModelProperty createdAt = new ClientModelProperty.Builder().name("createdAt")
             .serializedName("created_at")
             .xmlName("created_at")
+            .xmlAttribute(serialization == Serialization.XML_ATTRIBUTE)
+            .xmlText(serialization == Serialization.XML_TEXT)
             .wireType(wireType)
             .clientType(wireType.getClientType())
             .required(required)
@@ -130,6 +167,7 @@ public class StreamSerializationModelTemplateTests {
         ClientModelProperty name = new ClientModelProperty.Builder().name("name")
             .serializedName("name")
             .xmlName("name")
+            .xmlAttribute(xml)
             .wireType(ClassType.STRING)
             .clientType(ClassType.STRING)
             .required(true)

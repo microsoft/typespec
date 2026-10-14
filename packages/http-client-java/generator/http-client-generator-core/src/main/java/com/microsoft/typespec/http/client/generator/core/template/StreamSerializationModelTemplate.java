@@ -2100,23 +2100,17 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
 
             // Attempt to determine whether the wire type is simple serialization.
             // This is primitives, boxed primitives, a small set of string based models, and other ClientModels.
-            String xmlSerializationMethodCall = wireType.xmlSerializationMethodCall("xmlWriter", element.getXmlName(),
-                propertiesManager.getXmlNamespaceConstant(element.getXmlNamespace()), propertyValueGetter,
-                element.isXmlAttribute(), false, true);
+            String xmlSerializationMethodCall
+                = wireType.xmlSerializationMethodCall("xmlWriter", element.isXmlText() ? null : element.getXmlName(),
+                    propertiesManager.getXmlNamespaceConstant(element.getXmlNamespace()), propertyValueGetter,
+                    element.isXmlAttribute(), false, true);
             if (xmlSerializationMethodCall != null) {
-                Consumer<JavaBlock> serializationLogic = javaBlock -> {
-                    // XML text has special handling.
-                    if (element.isXmlText()) {
-                        javaBlock.line("xmlWriter.writeString(" + propertyValueGetter + ");");
-                    } else {
-                        javaBlock.line(xmlSerializationMethodCall + ";");
-                    }
-                };
+                Consumer<JavaBlock> serializationLogic = javaBlock -> javaBlock.line(xmlSerializationMethodCall + ";");
 
                 // If the property is from a super type and the client type is different from the wire type then a null
                 // check is required to prevent a NullPointerException when converting the value.
                 if (fromSuperType && clientType != wireType && clientType.isNullable()) {
-                    methodBlock.ifBlock(propertyValueGetter + " != null", serializationLogic);
+                    methodBlock.ifBlock(element.getGetterName() + "() != null", serializationLogic);
                 } else {
                     serializationLogic.accept(methodBlock);
                 }
@@ -2467,20 +2461,44 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
                 xmlAttributeDeserialization = "discriminatorValue";
             }
 
-            if (propertiesManager.hasConstructorArguments()) {
-                methodBlock.line(
-                    attribute.getClientType() + " " + attribute.getName() + " = " + xmlAttributeDeserialization + ";");
-            } else {
-                handleSettingDeserializedValue(methodBlock, attribute, xmlAttributeDeserialization, fromSuper);
-            }
+            generateSimpleXmlDeserializationLogic(methodBlock, attribute, xmlAttributeDeserialization, fromSuper, true);
         }
 
         private void deserializeXmlText(JavaBlock methodBlock, ClientModelProperty text, boolean fromSuper) {
             String xmlTextDeserialization = getSimpleXmlDeserialization(text.getWireType(), null, null, null, false);
-            if (propertiesManager.hasConstructorArguments()) {
-                methodBlock.line(text.getClientType() + " " + text.getName() + " = " + xmlTextDeserialization + ";");
+            generateSimpleXmlDeserializationLogic(methodBlock, text, xmlTextDeserialization, fromSuper, true);
+        }
+
+        private void generateSimpleXmlDeserializationLogic(JavaBlock methodBlock, ClientModelProperty property,
+            String simpleDeserialization, boolean fromSuper, boolean declareLocal) {
+            IType wireType = property.getWireType();
+            IType deserializationType = getDeserializationType(property, fromSuper);
+            boolean convertToClientType = deserializationType != wireType;
+            boolean nullableConversion = convertToClientType && wireType.isNullable();
+            boolean declareVariable = declareLocal && propertiesManager.hasConstructorArguments();
+            if (declareVariable && nullableConversion) {
+                methodBlock.line(deserializationType + " " + property.getName() + " = "
+                    + deserializationType.defaultValueExpression() + ";");
+            }
+
+            BiConsumer<String, JavaBlock> setValue = (value, block) -> {
+                if (!propertiesManager.hasConstructorArguments()) {
+                    handleSettingDeserializedValue(block, property, value, fromSuper);
+                } else {
+                    String declaration = declareVariable && !nullableConversion ? deserializationType + " " : "";
+                    block.line(declaration + property.getName() + " = " + value + ";");
+                }
+            };
+
+            if (nullableConversion) {
+                String holderName = property.getName() + "Holder";
+                methodBlock.line(wireType + " " + holderName + " = " + simpleDeserialization + ";");
+                methodBlock.ifBlock(holderName + " != null",
+                    ifBlock -> setValue.accept(wireType.convertToClientType(holderName), ifBlock));
             } else {
-                handleSettingDeserializedValue(methodBlock, text, xmlTextDeserialization, fromSuper);
+                setValue.accept(
+                    convertToClientType ? wireType.convertToClientType(simpleDeserialization) : simpleDeserialization,
+                    methodBlock);
             }
         }
 
@@ -2522,42 +2540,8 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
             String simpleDeserialization
                 = getSimpleXmlDeserialization(wireType, property.getXmlName(), null, null, false);
             if (simpleDeserialization != null) {
-                boolean convertToClientType = getDeserializationType(property, fromSuper) != wireType;
-                BiConsumer<String, JavaBlock> simpleDeserializationConsumer = (logic, block) -> {
-                    if (!propertiesManager.hasConstructorArguments()) {
-                        handleSettingDeserializedValue(block, property, logic, fromSuper);
-                    } else {
-                        block.line(property.getName() + " = " + logic + ";");
-                    }
-                };
-
-                if (convertToClientType) {
-                    // If the wire type is nullable don't attempt to call the convert to client type until it's known
-                    // that
-                    // a value was deserialized. This protects against cases such as UnixTimeLong where the wire type is
-                    // Long and the client type of OffsetDateTime. This is converted using Instant.ofEpochMilli(long)
-                    // which
-                    // would result in a null if the Long is null, which is already guarded using
-                    // reader.readNullable(nonNullReader -> Instant.ofEpochMillis(nonNullReader.readLong())) but this
-                    // itself
-                    // returns null which would have been passed to OffsetDateTime.ofInstant(Instant, ZoneId) which
-                    // would
-                    // have thrown a NullPointerException.
-                    if (wireType.isNullable()) {
-                        // Check if the property is required, if so use a holder name as there will be an existing
-                        // holder
-                        // variable for the value that will be used in the constructor.
-                        String holderName = property.getName() + "Holder";
-                        deserializationBlock.line(wireType + " " + holderName + " = " + simpleDeserialization + ";");
-                        deserializationBlock.ifBlock(holderName + " != null", ifBlock -> simpleDeserializationConsumer
-                            .accept(wireType.convertToClientType(holderName), ifBlock));
-                    } else {
-                        simpleDeserializationConsumer.accept(wireType.convertToClientType(simpleDeserialization),
-                            deserializationBlock);
-                    }
-                } else {
-                    simpleDeserializationConsumer.accept(simpleDeserialization, deserializationBlock);
-                }
+                generateSimpleXmlDeserializationLogic(deserializationBlock, property, simpleDeserialization, fromSuper,
+                    false);
             } else if (wireType instanceof IterableType) {
                 IType elementType = ((IterableType) wireType).getElementType();
                 boolean sameNames = Objects.equals(property.getXmlName(), property.getXmlListElementName());

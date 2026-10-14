@@ -4,4 +4,4 @@ packages:
   - "@typespec/http-client-java"
 ---
 
-Fix deserialization of inherited read-only encoded datetime properties in discriminator subtypes.
+Fix serialization and deserialization of inherited read-only encoded datetime properties in discriminator subtypes, including XML attributes and text.
