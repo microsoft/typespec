@@ -14,6 +14,7 @@ import type {
 } from "../src/core/types.js";
 import type {
   Enum,
+  EnumMember,
   Interface,
   Model,
   ModelProperty,
@@ -42,6 +43,8 @@ function createCollector(customListener?: SemanticNodeListener) {
   const result = {
     enums: [] as Enum[],
     exitEnums: [] as Enum[],
+    enumMembers: [] as EnumMember[],
+    exitEnumMembers: [] as EnumMember[],
     interfaces: [] as Interface[],
     exitInterfaces: [] as Interface[],
     models: [] as Model[],
@@ -105,6 +108,14 @@ function createCollector(customListener?: SemanticNodeListener) {
     exitEnum: (x) => {
       result.exitEnums.push(x);
       return customListener?.exitEnum?.(x);
+    },
+    enumMember: (x) => {
+      result.enumMembers.push(x);
+      return customListener?.enumMember?.(x);
+    },
+    exitEnumMember: (x) => {
+      result.exitEnumMembers.push(x);
+      return customListener?.exitEnumMember?.(x);
     },
     union: (x) => {
       result.unions.push(x);
@@ -431,6 +442,10 @@ it("finds enums", async () => {
   strictEqual(result.enums.length, 2);
   strictEqual(result.enums[0].name, "Direction");
   strictEqual(result.enums[1].name, "Metric");
+  deepStrictEqual(
+    result.enumMembers.map((member) => member.name),
+    ["North", "East", "South", "West", "One", "Ten", "Hundred"],
+  );
 });
 
 it("finds exit enums", async () => {
@@ -452,6 +467,65 @@ it("finds exit enums", async () => {
   strictEqual(result.exitEnums.length, 2);
   strictEqual(result.exitEnums[0].name, "Direction");
   strictEqual(result.exitEnums[1].name, "Metric");
+  deepStrictEqual(result.exitEnumMembers, result.enumMembers);
+  strictEqual(result.exitEnumMembers.length, 7);
+});
+
+it("visits referenced enum members only once", async () => {
+  const result = await runNavigator(`
+      enum Direction {
+        North,
+        South,
+      }
+
+      model Foo {
+        first: Direction.North;
+        second: Direction.North;
+      }
+    `);
+
+  deepStrictEqual(
+    result.enumMembers.map((member) => member.name),
+    ["North", "South"],
+  );
+  deepStrictEqual(result.exitEnumMembers, result.enumMembers);
+});
+
+it("navigates enum members directly", async () => {
+  const { Direction } = await Tester.compile(t.code`
+      enum ${t.enum("Direction")} {
+        North,
+        South,
+      }
+    `);
+  const north = Direction.members.get("North")!;
+  const events: string[] = [];
+  navigateType(
+    north,
+    {
+      enumMember(member) {
+        strictEqual(member, north);
+        events.push("enumMember");
+      },
+      exitEnumMember(member) {
+        strictEqual(member, north);
+        events.push("exitEnumMember");
+      },
+    },
+    {},
+  );
+
+  deepStrictEqual(events, ["enumMember", "exitEnumMember"]);
+});
+
+it("does not visit enum members when the enum listener returns NoRecursion", async () => {
+  const result = await runNavigator(`enum Direction { North, South }`, {
+    enum: () => ListenerFlow.NoRecursion,
+  });
+
+  strictEqual(result.enums.length, 1);
+  strictEqual(result.enumMembers.length, 0);
+  strictEqual(result.exitEnums.length, 0);
 });
 
 it("finds tuples with model", async () => {

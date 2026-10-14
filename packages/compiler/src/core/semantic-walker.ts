@@ -3,6 +3,7 @@ import { isTemplateDeclaration } from "./type-utils.js";
 import type {
   Decorator,
   Enum,
+  EnumMember,
   FunctionValue,
   Interface,
   Model,
@@ -319,12 +320,20 @@ function navigateEnumType(type: Enum, context: NavigationContext) {
     return;
   }
 
-  context.emit("enum", type);
+  if (context.emit("enum", type) === ListenerFlow.NoRecursion) return;
   for (const member of type.members.values()) {
     navigateTypeInternal(member, context);
   }
 
   context.emit("exitEnum", type);
+}
+
+function navigateEnumMember(type: EnumMember, context: NavigationContext) {
+  if (checkVisited(context.visited, type)) {
+    return;
+  }
+  if (context.emit("enumMember", type) === ListenerFlow.NoRecursion) return;
+  context.emit("exitEnumMember", type);
 }
 
 function navigateUnionType(type: Union, context: NavigationContext) {
@@ -439,6 +448,8 @@ function navigateTypeInternal(entity: Type | Value, context: NavigationContext) 
         return navigateInterfaceType(entity, context);
       case "Enum":
         return navigateEnumType(entity, context);
+      case "EnumMember":
+        return navigateEnumMember(entity, context);
       case "Operation":
         return navigateOperationType(entity, context);
       case "Union":
@@ -462,7 +473,6 @@ function navigateTypeInternal(entity: Type | Value, context: NavigationContext) 
       case "FunctionParameter":
       case "FunctionType":
       case "Boolean":
-      case "EnumMember":
       case "Intrinsic":
       case "Number":
       case "String":
