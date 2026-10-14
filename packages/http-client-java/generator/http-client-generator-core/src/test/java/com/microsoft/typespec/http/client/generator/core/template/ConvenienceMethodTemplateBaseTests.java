@@ -130,6 +130,15 @@ public class ConvenienceMethodTemplateBaseTests {
     }
 
     @Test
+    public void requiredNullableMultipartTextFieldsKeepNullText() {
+        for (IType type : List.of(ClassType.BOOLEAN, ClassType.INTEGER, ClassType.LONG, ClassType.DOUBLE)) {
+            String getter = type == ClassType.BOOLEAN ? "isValue" : "getValue";
+            Assertions.assertTrue(renderMultipartConversion(type, true)
+                .contains(".serializeTextField(\"value\", Objects.toString(body." + getter + "()))"));
+        }
+    }
+
+    @Test
     public void requiredMultipartPrimitivesKeepStringConversion() {
         for (IType type : List.of(PrimitiveType.BOOLEAN, PrimitiveType.INT, PrimitiveType.LONG, PrimitiveType.DOUBLE)) {
             String getter = type == PrimitiveType.BOOLEAN ? "isValue" : "getValue";

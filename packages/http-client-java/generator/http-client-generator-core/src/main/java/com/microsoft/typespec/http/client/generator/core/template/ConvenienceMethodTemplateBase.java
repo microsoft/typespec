@@ -1062,7 +1062,9 @@ abstract class ConvenienceMethodTemplateBase {
                     if (property.getWireType() instanceof PrimitiveType) {
                         stringExpression = String.format("String.valueOf(%s)", stringExpression);
                     } else if (property.getWireType() != ClassType.STRING) {
-                        stringExpression = String.format("Objects.toString(%s, null)", stringExpression);
+                        stringExpression = String.format(
+                            property.isRequired() ? "Objects.toString(%s)" : "Objects.toString(%s, null)",
+                            stringExpression);
                     }
                     builder.append(String.format(".serializeTextField(%1$s, %2$s)",
                         ClassType.STRING.defaultValueExpression(property.getSerializedName()), stringExpression));
