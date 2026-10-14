@@ -215,7 +215,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
         }
 
         [Test]
-        public void PublicInputVariantPreservesVariableAndMetadata()
+        public void PublicInputVariantPreservesMetadataWithIndependentVariable()
         {
             MockHelpers.LoadMockGenerator();
             var input = InputFactory.MethodParameter(
@@ -226,13 +226,20 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
 
             Assert.AreEqual(parameter.Name, inputVariant.Name);
             Assert.IsTrue(inputVariant.Type.Equals(typeof(IEnumerable<string>)));
-            Assert.AreSame(variable, inputVariant.AsVariable());
+            Assert.AreNotSame(variable, inputVariant.AsVariable());
+            Assert.AreEqual(inputVariant.Type, inputVariant.AsVariable().Type);
+            Assert.AreEqual(variable.Declaration.RequestedName, inputVariant.AsVariable().Declaration.RequestedName);
             Assert.AreSame(input, inputVariant.InputParameter);
             Assert.AreSame(parameter.WireInfo, inputVariant.WireInfo);
             Assert.AreEqual(parameter.IsExactName, inputVariant.IsExactName);
             Assert.AreEqual(parameter.DefaultValue, inputVariant.DefaultValue);
             Assert.AreEqual(parameter.Validation, inputVariant.Validation);
             Assert.AreSame(inputVariant, parameter.ToPublicInputParameter());
+
+            inputVariant.Update(name: "publishedIPv4Addresses");
+            Assert.AreEqual("publishedIPv4Addresses", inputVariant.AsVariable().Declaration.RequestedName);
+            Assert.AreEqual("iPv4Addresses", parameter.Name);
+            Assert.AreEqual("iPv4Addresses", variable.Declaration.RequestedName);
         }
 
         private static IEnumerable<InputType> ValueInputTypes()
@@ -342,6 +349,23 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual(parameter.WireInfo, publicParameter.WireInfo);
 
             Assert.AreEqual(parameter.Type.InputType, publicParameter.Type);
+        }
+
+        [Test]
+        public void ToPublicInputParameterDoesNotShareVariable()
+        {
+            var parameter = new ParameterProvider("isEnabled", $"Description", typeof(bool));
+            var variable = parameter.AsVariable();
+            var publicParameter = parameter.ToPublicInputParameter();
+            var publicVariable = publicParameter.AsVariable();
+
+            publicParameter.Update(name: "enabled");
+
+            Assert.AreEqual("isEnabled", parameter.Name);
+            Assert.AreEqual("isEnabled", variable.Declaration.RequestedName);
+            Assert.AreEqual("enabled", publicVariable.Declaration.RequestedName);
+            Assert.AreSame(variable, parameter.AsVariable());
+            Assert.AreSame(publicVariable, publicParameter.AsVariable());
         }
 
         [Test]
