@@ -845,7 +845,8 @@ export class OpenAPI3SchemaEmitterBase<
   }
 
   tupleLiteral(tuple: Tuple): EmitterOutput<Record<string, any>> {
-    return { type: "array", items: {} };
+    const size = tuple.values.length;
+    return { type: "array", items: {}, minItems: size, maxItems: size };
   }
   #getSchemaForScalar(scalar: Scalar): Schema {
     let result: Schema = {} as Schema;
