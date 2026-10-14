@@ -287,7 +287,7 @@ export class CodeModelBuilder {
   private namespace: string;
   private baseJavaNamespace!: string;
   private sdkContext!: SdkContext;
-  private options: EmitterOptionsDev;
+  private options: Partial<EmitterOptionsDev>;
   private codeModel: CodeModel;
   private emitterContext: EmitContext<EmitterOptions>;
   private serviceNamespace: Namespace;
@@ -307,8 +307,11 @@ export class CodeModelBuilder {
   // enum types with UsageFlags.ApiVersionEnum, collected in processVersionEnum()
   private apiVersionEnums: SdkEnumType[] = [];
 
-  public constructor(program1: Program, context: EmitContext<EmitterOptions>) {
-    this.options = context.options as EmitterOptionsDev;
+  public constructor(
+    program1: Program,
+    context: EmitContext<EmitterOptions & Partial<EmitterOptionsDev>>,
+  ) {
+    this.options = context.options;
     this.program = program1;
     this.emitterContext = context;
 
