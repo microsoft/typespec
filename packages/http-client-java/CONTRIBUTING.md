@@ -89,7 +89,7 @@ It formats TypeScript code as well as Java code.
 ## Lint and Type-check
 
 Run `npm run lint` in "packages/http-client-java" to lint and type-check the emitter source and tests.
-Java CI runs this before the emitter unit tests.
+Java CI runs `npm run typecheck` before the emitter unit tests; it does not require the root-only linter.
 
 ## Add Change Description
 

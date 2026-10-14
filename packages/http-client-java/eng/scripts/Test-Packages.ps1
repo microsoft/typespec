@@ -20,7 +20,7 @@ Invoke-LoggedCommand "mvn -version"
 Push-Location $packageRoot
 try {
     if ($UnitTests) {
-        Invoke-LoggedCommand "npm run lint"
+        Invoke-LoggedCommand "npm run typecheck"
         Invoke-LoggedCommand "npm run test"
         Write-Host "Emitter unit tests passed"
 
