@@ -101,9 +101,15 @@ export async function runMain(action: (signal: AbortSignal) => Promise<void>): P
   try {
     await action(controller.signal);
   } catch (error) {
-    if (!controller.signal.aborted) {
+    const cancelled =
+      controller.signal.aborted &&
+      (error === controller.signal.reason ||
+        (error instanceof Error && error.name === "AbortError"));
+    if (!cancelled) {
       process.stderr.write(`${error}\n`);
-      process.exitCode = error instanceof ProcessFailedError ? error.exitCode : 1;
+      if (!controller.signal.aborted) {
+        process.exitCode = error instanceof ProcessFailedError ? error.exitCode : 1;
+      }
     }
   } finally {
     process.removeListener("SIGINT", interrupt);
