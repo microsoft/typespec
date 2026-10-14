@@ -248,17 +248,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return serviceMethod.Operation.Name;
             }
 
-            var operationName = (serviceMethod.Operation.OriginalName ?? serviceMethod.Operation.Name).ToIdentifierName();
-            // Replace List with Get as .NET convention is to use Get for list operations.
-            if (operationName == "List")
+            var originalName = (serviceMethod.Operation.OriginalName ?? serviceMethod.Operation.Name).ToIdentifierName();
+            var operationName = NormalizeListOperationName(originalName);
+            // Keep distinct input operations distinct before public names and request builders are projected.
+            if (operationName != originalName && _inputClient.Methods.Any(other =>
+                {
+                    var otherOriginalName = (other.IsExactName
+                        ? other.Operation.Name
+                        : other.Operation.OriginalName ?? other.Operation.Name).ToIdentifierName();
+                    var otherOperationName = other.IsExactName
+                        ? otherOriginalName
+                        : NormalizeListOperationName(otherOriginalName);
+                    return otherOriginalName != originalName && otherOperationName == operationName;
+                }))
             {
-                operationName = "GetAll";
-            }
-            else if (operationName.StartsWith("List", StringComparison.Ordinal) &&
-                operationName.Length > 4 && char.IsUpper(operationName[4]))
-            {
-                // If the operation name starts with List and has a capital letter after it, we replace List with Get.
-                operationName = $"Get{operationName.Substring(4)}";
+                operationName = originalName;
             }
 
             if (!normalizePublicName)
@@ -285,6 +289,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return normalizedName;
+        }
+
+        private static string NormalizeListOperationName(string operationName)
+        {
+            // Replace List with Get as .NET convention is to use Get for list operations.
+            if (operationName == "List")
+            {
+                return "GetAll";
+            }
+            if (operationName.StartsWith("List", StringComparison.Ordinal) &&
+                operationName.Length > 4 && char.IsUpper(operationName[4]))
+            {
+                return $"Get{operationName.Substring(4)}";
+            }
+
+            return operationName;
         }
 
         private bool HasExistingName(string name)
