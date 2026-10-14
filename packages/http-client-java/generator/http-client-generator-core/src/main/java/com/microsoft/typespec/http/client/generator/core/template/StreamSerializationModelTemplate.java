@@ -1385,13 +1385,8 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
                         }
                         initializeLocalVariable(methodBlock, property, true);
                     });
-                    propertiesManager.forEachSuperSetterProperty(property -> {
-                        if (ClientModelUtil.readOnlyNotInCtor(model, property, settings)) {
-                            initializeShadowPropertyLocalVariable(methodBlock, property);
-                        } else {
-                            initializeLocalVariable(methodBlock, property, true);
-                        }
-                    });
+                    propertiesManager
+                        .forEachSuperSetterProperty(property -> initializeLocalVariable(methodBlock, property, true));
                     propertiesManager.forEachRequiredProperty(property -> {
                         if (property.isConstant()) {
                             // Constants are never deserialized.
@@ -1413,16 +1408,6 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
             }
         }
 
-        /*
-         * Shadow properties from parent should be initialized as wired type.
-         */
-        private static void initializeShadowPropertyLocalVariable(JavaBlock methodBlock, ClientModelProperty property) {
-            IType type = property.getWireType();
-            String defaultValue
-                = property.isPolymorphicDiscriminator() ? property.getDefaultValue() : type.defaultValueExpression();
-            methodBlock.line(type + " " + property.getName() + " = " + defaultValue + ";");
-        }
-
         private void initializeLocalVariable(JavaBlock methodBlock, ClientModelProperty property, boolean fromSuper) {
             if (includePropertyInConstructor(property, settings) && !settings.isDisableRequiredJsonAnnotation()) {
                 // Required properties need an additional boolean variable to indicate they've been found.
@@ -1434,12 +1419,22 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
             // local variable with the client type. Otherwise, initialize as the wire type to prevent multiple
             // conversions
             // between wire and client types.
-            IType type = (includePropertyInConstructor(property, settings) || fromSuper)
-                ? property.getClientType()
-                : property.getWireType();
+            IType type = getDeserializationType(property, fromSuper);
             String defaultValue
                 = property.isPolymorphicDiscriminator() ? property.getDefaultValue() : type.defaultValueExpression();
             methodBlock.line(type + " " + property.getName() + " = " + defaultValue + ";");
+        }
+
+        private IType getDeserializationType(ClientModelProperty property, boolean fromSuper) {
+            return includePropertyInConstructor(property, settings)
+                || (fromSuper && useInheritedPropertySetter(property))
+                    ? property.getClientType()
+                    : property.getWireType();
+        }
+
+        private boolean useInheritedPropertySetter(ClientModelProperty property) {
+            return (!ClientModelUtil.readOnlyNotInCtor(model, property, settings) && !property.getClientFlatten())
+                || model.isAllPolymorphicModelsInSamePackage();
         }
 
         /**
@@ -1579,9 +1574,7 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
             if (simpleDeserialization != null) {
                 // Need to convert the wire type to the client type for constructors.
                 // Need to convert the wire type to the client type for public setters.
-                boolean convertToClientType = (clientType != wireType)
-                    && (includePropertyInConstructor(property, settings)
-                        || (fromSuper && !ClientModelUtil.readOnlyNotInCtor(model, property, settings)));
+                boolean convertToClientType = getDeserializationType(property, fromSuper) != wireType;
                 BiConsumer<String, JavaBlock> simpleDeserializationConsumer = (logic, block) -> {
                     if (!propertiesManager.hasConstructorArguments()) {
                         handleSettingDeserializedValue(block, property, logic, fromSuper);
@@ -1993,8 +1986,7 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
             if (fromSuper
                 // If the property is flattened or read-only from parent, and not all polymorphic models are in the same
                 // package, it will be shadowed in child class.
-                && (!ClientModelUtil.readOnlyNotInCtor(model, property, settings) && !property.getClientFlatten()
-                    || model.isAllPolymorphicModelsInSamePackage())) {
+                && useInheritedPropertySetter(property)) {
                 if (model.isPolymorphic() && isJsonMergePatchModel) {
                     // Polymorphic JSON merge patch needs special handling as the setter methods are used to track
                     // whether
@@ -2524,21 +2516,18 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
         private void generateXmlDeserializationLogic(JavaBlock deserializationBlock, ClientModelProperty property,
             boolean fromSuper) {
             IType wireType = property.getWireType();
-            IType clientType = property.getClientType();
 
             // Attempt to determine whether the wire type is simple deserialization.
             // This is primitives, boxed primitives, a small set of string based models, and other ClientModels.
             String simpleDeserialization
                 = getSimpleXmlDeserialization(wireType, property.getXmlName(), null, null, false);
             if (simpleDeserialization != null) {
-                boolean convertToClientType = (clientType != wireType)
-                    && (includePropertyInConstructor(property, settings)
-                        || (fromSuper && !ClientModelUtil.readOnlyNotInCtor(model, property, settings)));
+                boolean convertToClientType = getDeserializationType(property, fromSuper) != wireType;
                 BiConsumer<String, JavaBlock> simpleDeserializationConsumer = (logic, block) -> {
                     if (!propertiesManager.hasConstructorArguments()) {
-                        handleSettingDeserializedValue(deserializationBlock, property, logic, fromSuper);
+                        handleSettingDeserializedValue(block, property, logic, fromSuper);
                     } else {
-                        deserializationBlock.line(property.getName() + " = " + logic + ";");
+                        block.line(property.getName() + " = " + logic + ";");
                     }
                 };
 
