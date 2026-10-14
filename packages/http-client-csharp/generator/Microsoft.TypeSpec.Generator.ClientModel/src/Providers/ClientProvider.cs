@@ -248,23 +248,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             var originalName = (serviceMethod.Operation.OriginalName ?? serviceMethod.Operation.Name).ToIdentifierName();
-            var operationName = NormalizeListOperationName(originalName);
-            // Keep distinct input operations distinct before public names and request builders are projected.
-            if (operationName != originalName && _inputClient.Methods.Any(other =>
-                {
-                    var otherOriginalName = (other.IsExactName
-                        ? other.Operation.Name
-                        : other.Operation.OriginalName ?? other.Operation.Name).ToIdentifierName();
-                    var otherOperationName = other.IsExactName
-                        ? otherOriginalName
-                        : NormalizeListOperationName(otherOriginalName);
-                    return otherOriginalName != originalName &&
-                        OperationNamesCollide(otherOperationName, operationName) &&
-                        OperationSignaturesCollide(serviceMethod, other, otherOperationName == operationName);
-                }))
-            {
-                operationName = originalName;
-            }
+            var operationName = TryNormalizeListOperationName(serviceMethod, originalName, out var listNormalizedName)
+                ? listNormalizedName
+                : originalName;
 
             if (!normalizePublicName)
             {
@@ -292,43 +278,64 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return normalizedName;
         }
 
-        private bool OperationSignaturesCollide(InputServiceMethod first, InputServiceMethod second, bool requestNamesCollide)
+        private bool TryNormalizeListOperationName(InputServiceMethod serviceMethod, string originalName, out string normalizedName)
         {
-            foreach (var kind in new[] { ScmMethodKind.CreateRequest, ScmMethodKind.Protocol, ScmMethodKind.Convenience })
+            normalizedName = NormalizeName(originalName);
+            if (normalizedName == originalName)
             {
-                if (kind == ScmMethodKind.CreateRequest && !requestNamesCollide ||
-                    kind == ScmMethodKind.Convenience && (!first.Operation.GenerateConvenienceMethod || !second.Operation.GenerateConvenienceMethod))
+                return false;
+            }
+
+            // Keep distinct input operations distinct before public names and request builders are projected.
+            foreach (var other in _inputClient.Methods)
+            {
+                var otherOriginalName = (other.IsExactName
+                    ? other.Operation.Name
+                    : other.Operation.OriginalName ?? other.Operation.Name).ToIdentifierName();
+                var otherOperationName = other.IsExactName
+                    ? otherOriginalName
+                    : NormalizeName(otherOriginalName);
+                if (otherOriginalName == originalName || !OperationNamesCollide(otherOperationName, normalizedName))
                 {
                     continue;
                 }
 
-                var firstParameters = RestClientProvider.GetMethodParameters(first, kind, this);
-                var secondParameters = RestClientProvider.GetMethodParameters(second, kind, this);
-                if (firstParameters.Count == secondParameters.Count &&
-                    firstParameters.Zip(secondParameters).All(pair =>
-                        MethodSignatureHelper.AreEquivalentParameterTypes(pair.First.Type, pair.Second.Type)))
+                foreach (var kind in new[] { ScmMethodKind.CreateRequest, ScmMethodKind.Protocol, ScmMethodKind.Convenience })
                 {
-                    return true;
+                    if (kind == ScmMethodKind.CreateRequest && otherOperationName != normalizedName ||
+                        kind == ScmMethodKind.Convenience && (!serviceMethod.Operation.GenerateConvenienceMethod || !other.Operation.GenerateConvenienceMethod))
+                    {
+                        continue;
+                    }
+
+                    var parameters = RestClientProvider.GetMethodParameters(serviceMethod, kind, this);
+                    var otherParameters = RestClientProvider.GetMethodParameters(other, kind, this);
+                    if (parameters.Count == otherParameters.Count &&
+                        parameters.Zip(otherParameters).All(pair =>
+                            MethodSignatureHelper.AreEquivalentParameterTypes(pair.First.Type, pair.Second.Type)))
+                    {
+                        return false;
+                    }
                 }
             }
 
-            return false;
-        }
+            return true;
 
-        private static string NormalizeListOperationName(string operationName)
-        {
-            // Replace List with Get as .NET convention is to use Get for list operations.
-            if (operationName == "List")
+            static string NormalizeName(string operationName)
             {
-                return "GetAll";
-            }
-            if (operationName.StartsWith("List", StringComparison.Ordinal) &&
-                operationName.Length > 4 && char.IsUpper(operationName[4]))
-            {
-                return $"Get{operationName.Substring(4)}";
-            }
+                // Replace List with Get as .NET convention is to use Get for list operations.
+                if (operationName == "List")
+                {
+                    return "GetAll";
+                }
+                if (operationName.StartsWith("List", StringComparison.Ordinal) &&
+                    operationName.Length > 4 && char.IsUpper(operationName[4]))
+                {
+                    return $"Get{operationName.Substring(4)}";
+                }
 
-            return operationName;
+                return operationName;
+            }
         }
 
         private bool HasExistingName(string name)
