@@ -1,0 +1,145 @@
+name: "python / emitter diff commenter"
+
+# The artifact is untrusted data. Never check out, build, or execute PR code here.
+# Resolve the PR from trusted workflow_run metadata, not artifact fields.
+on:
+  workflow_run:
+    workflows: ["python / emitter diff"]
+    types:
+      - completed
+
+permissions:
+  actions: read
+  pull-requests: write
+
+concurrency:
+  group: python-emitter-diff-comment-${{ github.event.workflow_run.head_repository.full_name }}-${{ github.event.workflow_run.head_branch }}
+  cancel-in-progress: false
+
+jobs:
+  commenter:
+    if: github.event.workflow_run.event == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Resolve PR and artifact
+        id: resolve
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const run = context.payload.workflow_run;
+            if (run.path !== '.github/workflows/ci-emitter-diff-python.yml') {
+              throw new Error('Unexpected producer workflow path.');
+            }
+            if (run.conclusion === 'cancelled' || run.conclusion === 'skipped') {
+              core.info(`Skipping ${run.conclusion} producer run.`);
+              return;
+            }
+            const headSha = run.head_sha;
+            const headBranch = run.head_branch;
+            const headRepo = run.head_repository?.full_name;
+            const headOwner = run.head_repository?.owner?.login;
+            if (!headSha || !headBranch || !headRepo || !headOwner) {
+              throw new Error('workflow_run is missing trusted head repository information.');
+            }
+            // Fork runs have empty pull_requests; commit association lookup also
+            // misses fork commits that have not been merged into the base repo.
+            const prs = await github.paginate(github.rest.pulls.list, {
+              owner, repo, state: 'open', head: `${headOwner}:${headBranch}`, per_page: 100,
+            });
+            const matches = prs.filter((pr) =>
+              pr.state === 'open' &&
+              pr.head.sha === headSha &&
+              pr.head.ref === headBranch &&
+              pr.head.repo?.full_name === headRepo &&
+              pr.base.repo?.full_name === `${owner}/${repo}`
+            );
+            if (matches.length !== 1) {
+              core.info(`Skipping stale, closed, missing, or ambiguous PR: found ${matches.length} exact matches.`);
+              return;
+            }
+            const artifacts = await github.paginate(github.rest.actions.listWorkflowRunArtifacts, {
+              owner, repo, run_id: run.id, per_page: 100,
+            });
+            const comments = artifacts.filter((artifact) => artifact.name === 'emitter-diff-python-comment');
+            if (comments.length === 0 && run.conclusion !== 'success') {
+              core.warning('Failed producer run has no comment artifact; see the producer run for the tool/build error.');
+              return;
+            }
+            if (comments.length !== 1 || comments[0].expired) {
+              throw new Error('Expected one unexpired comment artifact from the producer run.');
+            }
+            core.setOutput('pr', String(matches[0].number));
+            core.setOutput('artifact', String(comments[0].id));
+
+      - name: Download comment artifact
+        if: steps.resolve.outputs.artifact != ''
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          artifact-ids: ${{ steps.resolve.outputs.artifact }}
+          merge-multiple: true
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: ${{ runner.temp }}/emitter-diff-comment
+
+      - name: Post PR comment
+        if: steps.resolve.outputs.artifact != ''
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          PR_NUMBER: ${{ steps.resolve.outputs.pr }}
+        with:
+          script: |
+            const fs = require('node:fs');
+            const path = require('node:path');
+            const { owner, repo } = context.repo;
+            const run = context.payload.workflow_run;
+            const marker = '<!-- emitter-diff-python -->';
+            const issue_number = Number(process.env.PR_NUMBER);
+            if (!Number.isSafeInteger(issue_number) || issue_number <= 0 ||
+                !Number.isSafeInteger(run.id) || !Number.isSafeInteger(run.run_attempt)) {
+              throw new Error('Invalid trusted PR or run identifier.');
+            }
+            const file = path.join(process.env.RUNNER_TEMP, 'emitter-diff-comment', 'comment.json');
+            const stat = fs.lstatSync(file);
+            if (!stat.isFile() || stat.size > 16384) {
+              throw new Error('Comment artifact must be a regular JSON file of at most 16 KiB.');
+            }
+            const payload = JSON.parse(fs.readFileSync(file, 'utf8'));
+            if (!payload || typeof payload.body !== 'string' ||
+                !payload.body.trim() || payload.body.length > 8000) {
+              throw new Error('Comment body must be a nonempty string of at most 8000 characters.');
+            }
+            // Force both control markers from trusted values before the untrusted body.
+            const body = `${marker}\n<!-- emitter-diff-python-run: ${run.id}:${run.run_attempt} -->\n${payload.body}`;
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner, repo, issue_number, per_page: 100,
+            });
+            const owned = comments.filter((comment) =>
+              comment.user?.type === 'Bot' &&
+              comment.user?.login === 'github-actions[bot]' &&
+              comment.body?.startsWith(marker + '\n')
+            );
+            if (owned.length > 1) {
+              throw new Error('Multiple bot-owned emitter diff comments; refusing an ambiguous update.');
+            }
+            const hit = owned[0];
+            const stamp = hit?.body.match(/^<!-- emitter-diff-python -->\n<!-- emitter-diff-python-run: (\d+):(\d+) -->/);
+            if (stamp && (Number(stamp[1]) > run.id ||
+                (Number(stamp[1]) === run.id && Number(stamp[2]) > run.run_attempt))) {
+              core.info('Skipping older run; a newer emitter diff comment is already present.');
+              return;
+            }
+            // Recheck after download/pagination, immediately before writing.
+            const { data: pr } = await github.rest.pulls.get({ owner, repo, pull_number: issue_number });
+            if (pr.state !== 'open' || pr.head.sha !== run.head_sha ||
+                pr.head.ref !== run.head_branch ||
+                pr.head.repo?.full_name !== run.head_repository.full_name ||
+                pr.base.repo?.full_name !== `${owner}/${repo}`) {
+              core.info('Skipping PR that closed or changed head while preparing the comment.');
+              return;
+            }
+            if (hit) {
+              await github.rest.issues.updateComment({ owner, repo, comment_id: hit.id, body });
+            } else {
+              await github.rest.issues.createComment({ owner, repo, issue_number, body });
+            }

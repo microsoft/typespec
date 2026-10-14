@@ -68,6 +68,31 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         }
 
         [Test]
+        public void XmlDeserializationOfJsonModelDoesNotInitializeJsonPresence()
+        {
+            var inputModel = InputFactory.Model(
+                "TestJsonXmlModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Json | InputModelTypeUsage.Xml,
+                properties:
+                [
+                    InputFactory.Property("text", new InputNullableType(InputPrimitiveType.String),
+                        serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("text"))),
+                    InputFactory.Property("numbers", new InputNullableType(InputFactory.Array(InputPrimitiveType.Int32)),
+                        serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("numbers", itemsName: "int32"))),
+                    InputFactory.Property("labels", new InputNullableType(InputFactory.Dictionary(InputPrimitiveType.String)),
+                        serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("labels")))
+                ]);
+            var generator = MockHelpers.LoadMockGenerator(inputModels: () => [inputModel]);
+            var model = (ModelProvider)generator.Object.TypeFactory.CreateModel(inputModel)!;
+            var serialization = (MrwSerializationTypeDefinition)model.SerializationProviders.Single();
+
+            Assert.That(ClientModel.Providers.ScmModelProvider.GetNullablePropertyPresence(
+                model.Properties.Single(p => p.Name == "Text")), Is.Not.Null);
+            Assert.That(serialization.BuildXmlDeserializationMethod().BodyStatements!.ToDisplayString(),
+                Is.EqualTo(Helpers.GetExpectedFromFile().ReplaceLineEndings("\n")));
+        }
+
+        [Test]
         public async Task XmlDeserializationMethodBodyContainsPropertyDeserialization()
         {
             var inputModel = InputFactory.Model(

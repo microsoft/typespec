@@ -1,15 +1,27 @@
 import type {
   OpenAPI3PathItem,
   OpenAPI3RequestBody,
+  OpenAPI3Response,
   OpenAPI3Responses,
   OpenAPIPathItem3_2,
   OpenAPIRequestBody3_2,
   OpenAPIResponses3_2,
   Refable,
   SupportedOpenAPIDocuments,
+  SupportedOpenAPISchema,
 } from "../../../../types.js";
-import type { TypeSpecModel, TypeSpecProgram } from "../interfaces.js";
+import type {
+  TypeSpecDataTypes,
+  TypeSpecModel,
+  TypeSpecModelProperty,
+  TypeSpecProgram,
+} from "../interfaces.js";
 import type { Context } from "../utils/context.js";
+import { getScopeAndName } from "../utils/get-scope-and-name.js";
+import {
+  convertHeaderToProperty,
+  convertStatusCodeToProperty,
+} from "../utils/response-properties.js";
 import { transformComponentParameters } from "./transform-component-parameters.js";
 import { transformComponentSchemas } from "./transform-component-schemas.js";
 import { transformNamespaces } from "./transform-namespaces.js";
@@ -294,8 +306,129 @@ function collectDataTypes(context: Context): TypeSpecModel[] {
   const models: TypeSpecModel[] = [];
   // get models from `#/components/schema
   transformComponentSchemas(context, models);
+  transformComponentResponses(context, models);
   // get models from `#/components/parameters
   transformComponentParameters(context, models);
 
   return models;
+}
+
+export function transformComponentResponses(
+  context: Context,
+  dataTypes: TypeSpecDataTypes[],
+): void {
+  const responses = context.openApi3Doc.components?.responses;
+  if (!responses) return;
+
+  const seenResponseRefs = new Set<string>();
+  const componentResponseNames = new Set<string>();
+
+  for (const path of Object.values(context.openApi3Doc.paths ?? {})) {
+    if (!path) continue;
+    for (const method of methods) {
+      const operation = path[method];
+      if (!operation?.responses) continue;
+
+      const operationResponses = (operation as any).responses as Record<string, any> | undefined;
+      if (!operationResponses) continue;
+
+      for (const [statusCode, response] of Object.entries(operationResponses)) {
+        const responseObject = response as any;
+        if (
+          !responseObject ||
+          typeof responseObject !== "object" ||
+          !("$ref" in responseObject) ||
+          typeof responseObject.$ref !== "string" ||
+          !responseObject.$ref.startsWith("#/components/responses/")
+        ) {
+          continue;
+        }
+
+        const ref = responseObject.$ref as string;
+        const responseKey = `${ref}:${statusCode}`;
+        if (seenResponseRefs.has(responseKey)) continue;
+        seenResponseRefs.add(responseKey);
+
+        const componentResponse = context.getByRef<OpenAPI3Response>(ref);
+        if (!componentResponse) continue;
+
+        const { name, scope } = getScopeAndName(ref.slice("#/components/responses/".length));
+        const namespace = [...scope];
+        namespace.unshift("Responses");
+        const nameSuffix = statusCode === "default" ? "Default" : statusCode;
+        let componentResponseName = name;
+        let index = 0;
+        while (componentResponseNames.has([...namespace, componentResponseName].join("."))) {
+          componentResponseName = `${name}${nameSuffix}${index || ""}`;
+          index++;
+        }
+        componentResponseNames.add([...namespace, componentResponseName].join("."));
+        context.registerComponentResponse(
+          ref,
+          statusCode,
+          [...namespace, componentResponseName].join("."),
+        );
+
+        dataTypes.push({
+          kind: "model",
+          name: componentResponseName,
+          scope: namespace,
+          decorators: statusCode === "default" ? [{ name: "error", args: [] }] : [],
+          doc: componentResponse.description,
+          properties: getResponseProperties(statusCode, componentResponse, context),
+        });
+      }
+    }
+  }
+}
+
+function getResponseProperties(
+  statusCode: string,
+  response: OpenAPI3Response,
+  context: Context,
+): TypeSpecModelProperty[] {
+  const properties: TypeSpecModelProperty[] = [];
+  const resolvedStatus = statusCode === "default" ? "default" : statusCode;
+
+  if (resolvedStatus !== "default") {
+    properties.push(convertStatusCodeToProperty(resolvedStatus));
+  }
+
+  for (const [headerName, header] of Object.entries(response.headers ?? {})) {
+    const property = convertHeaderToProperty({ name: headerName, header, context });
+    if (property) {
+      properties.push(property);
+    }
+  }
+
+  const contentEntries = Object.entries(response.content ?? {});
+  const preferredContent = [
+    contentEntries.find(([mediaType]) => mediaType === "application/json"),
+    contentEntries[0],
+  ].find((entry): entry is [string, any] => !!entry);
+
+  const bodySchema =
+    preferredContent && typeof preferredContent[1] === "object" && "schema" in preferredContent[1]
+      ? (preferredContent[1].schema as Refable<SupportedOpenAPISchema>)
+      : undefined;
+
+  if (preferredContent && preferredContent[0] !== "application/json") {
+    properties.push({
+      name: "contentType",
+      decorators: [{ name: "header", args: ["Content-Type"] }],
+      isOptional: false,
+      schema: { type: "string", enum: [preferredContent[0]] },
+    });
+  }
+
+  if (bodySchema) {
+    properties.push({
+      name: "body",
+      decorators: [{ name: "body", args: [] }],
+      isOptional: false,
+      schema: bodySchema,
+    });
+  }
+
+  return properties;
 }

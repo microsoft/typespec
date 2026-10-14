@@ -290,7 +290,8 @@ $(program).entity.isAssignableTo
 
 ```ts
 /**
- * Resolve a type reference string to a TypeSpec type. By default any diagnostics are ignored.
+ * Resolve a type reference string to a TypeSpec type.
+ * By default any diagnostics are ignored.
  *
  * Call `resolve.withDiagnostics("Type")` to get a tuple containing the resolved type and any diagnostics.
  */
@@ -307,7 +308,8 @@ A kit for working with enum types.
 
 ```ts
 /**
- * Build an enum type. The enum type will be finished (i.e. decorators are run).
+ * Build an enum type. The enum type will be finished (i.e. decorators are
+ * run).
  */
 $(program).enum.create(desc: EnumDescriptor): Enum;
 ```
@@ -320,9 +322,12 @@ $(program).enum.create(desc: EnumDescriptor): Enum;
  *
  * @remarks
  *
- * Union variants which are not valid enum members are skipped. You can check if a union is a valid enum with {@link UnionKit.union}'s `isEnumValue`.
+ * Union variants which are
+ * not valid enum members are skipped. You can check if a union is a valid
+ * enum with {@link UnionKit.union}'s `isEnumValue`.
  *
- * Any API documentation will be rendered and preserved in the resulting enum. - No other decorators are copied from the union to the enum
+ * Any API documentation will be rendered and preserved in the resulting enum.
+ * - No other decorators are copied from the union to the enum
  */
 $(program).enum.createFromUnion(type: Union): Enum;
 ```
@@ -533,7 +538,11 @@ $(program).model.create(desc: ModelDescriptor): Model;
 
 ```ts
 /**
- * Get the record representing additional properties, if there are additional properties. This method checks for additional properties in the following cases: 1. If the model is a Record type. 2. If the model extends a Record type. 3. If the model spreads a Record type.
+ * Get the record representing additional properties, if there are additional properties.
+ * This method checks for additional properties in the following cases:
+ * 1. If the model is a Record type.
+ * 2. If the model extends a Record type.
+ * 3. If the model spreads a Record type.
  *
  * @param model - The model to get the additional properties type of.
  *
@@ -560,13 +569,21 @@ $(program).model.getDiscriminatedUnion
 
 ```ts
 /**
- * If the input is anonymous (or the provided filter removes properties) and there exists a named model with the same set of properties (ignoring filtered properties), then return that named model. Otherwise, return the input unchanged.
+ * If the input is anonymous (or the provided filter removes properties)
+ * and there exists a named model with the same set of properties
+ * (ignoring filtered properties), then return that named model.
+ * Otherwise, return the input unchanged.
  *
- * This can be used by emitters to find a better name for a set of properties after filtering. For example, given `{  @metadata prop: string} & SomeName`, and an emitter that wishes to discard properties marked with `@metadata`, the emitter can use this to recover that the best name for the remaining properties is `SomeName`.
+ * This can be used by emitters to find a better name for a set of
+ * properties after filtering. For example, given `{  @metadata prop:
+ * string} & SomeName`, and an emitter that wishes to discard properties
+ * marked with `@metadata`, the emitter can use this to recover that the
+ * best name for the remaining properties is `SomeName`.
  *
  * @param model - The input model
  *
- * @param filter - An optional filter to apply to the input model's properties.
+ * @param filter - An optional filter to apply to the input model's
+ * properties.
  */
 $(program).model.getEffectiveModel(
   model: Model,
@@ -605,7 +622,8 @@ $(program).model.is(type: Entity): type is Model;
 
 ```ts
 /**
- * Check this is an anonyous model. Specifically, this checks if the model has a name.
+ * Check this is an anonyous model. Specifically, this checks if the
+ * model has a name.
  *
  * @param type - The model to check.
  */
@@ -633,7 +651,8 @@ $(program).modelProperty.create(desc: ModelPropertyDescriptor): ModelProperty;
 
 ```ts
 /**
- * Get the encoding of the model property or its type. The property's type must be a scalar.
+ * Get the encoding of the model property or its type. The property's type
+ * must be a scalar.
  *
  * @param property - The model property to get the encoding for.
  */
@@ -645,7 +664,8 @@ $(program).modelProperty
 
 ```ts
 /**
- * Get the format of the model property or its type. The property's type must be a string.
+ * Get the format of the model property or its type. The property's type must
+ * be a string.
  *
  * @param property - The model property to get the format for.
  */
@@ -1035,9 +1055,13 @@ $(program).scalar.extendsUtcDateTime(type: Entity): type is Scalar;
 
 ```ts
 /**
- * Get the encoding information for a scalar type. Returns undefined if no encoding data is specified.
+ * Get the encoding information for a scalar type. Returns undefined if no
+ * encoding data is specified.
  *
- * Note: This will return the encoding data for the scalar type itself, not the model property that uses the scalar type. If this scalar might be referenced from a model property, use {@link modelProperty.getEncoding} instead.
+ * Note: This will return the encoding data for the scalar type itself, not
+ * the model property that uses the scalar type. If this scalar might be
+ * referenced from a model property, use {@link modelProperty.getEncoding}
+ * instead.
  *
  * @param scalar - The scalar to get the encoding data for.
  */
@@ -1048,9 +1072,13 @@ $(program).scalar.getEncoding(scalar: Scalar): EncodeData | undefined;
 
 ```ts
 /**
- * Get the well-known format for a string scalar. Returns undefined if no format is specified.
+ * Get the well-known format for a string scalar. Returns undefined if no
+ * format is specified.
  *
- * Note: This will return the format data for the scalar type itself, not the model property that uses the scalar type. If this scalar might be referenced from a model property, use {@link ModelPropertyKit.getEncoding} instead.
+ * Note: This will return the format data for the scalar type itself, not
+ * the model property that uses the scalar type. If this scalar might be
+ * referenced from a model property, use {@link ModelPropertyKit.getEncoding}
+ * instead.
  *
  * @param scalar - The scalar to get the format for.
  */
@@ -1061,7 +1089,11 @@ $(program).scalar.getFormat(scalar: Scalar): string | undefined;
 
 ```ts
 /**
- * Get the standard built-in base type of a scalar. For all built-in scalar types (numeric, string, int32, etc.) this will just return the scalar type. For user-defined scalars, this will return the first base scalar that is built-in. For user-defined scalars without a standard base type, this will return null.
+ * Get the standard built-in base type of a scalar. For all built-in scalar
+ * types (numeric, string, int32, etc.) this will just return the scalar
+ * type. For user-defined scalars, this will return the first base scalar
+ * that is built-in. For user-defined scalars without a standard base type,
+ * this will return null.
  *
  * @param type - The scalar to check.
  */
@@ -1400,7 +1432,8 @@ $(program).type.finishType(type: Type): void;
 
 ```ts
 /**
- * Get the documentation of this type as specified by the `@doc` decorator or the JSDoc comment.
+ * Get the documentation of this type as specified by the `@doc` decorator or
+ * the JSDoc comment.
  *
  * @param type - The type to get the documentation for.
  */
@@ -1425,7 +1458,9 @@ $(program).type.getEncodedName(
 
 ```ts
 /**
- * Get the plausible name of a type. If the type has a name, it will use it otherwise it will try generate a name based on the context. If the type can't get a name, it will return an empty string. If the type is a TemplateInstance, it will prefix the name with the template arguments.
+ * Get the plausible name of a type. If the type has a name, it will use it otherwise it will try generate a name based on the context.
+ * If the type can't get a name, it will return an empty string.
+ * If the type is a TemplateInstance, it will prefix the name with the template arguments.
  *
  * @param type - The scalar to get the name of.z
  */
@@ -1612,20 +1647,22 @@ $(program).type.minValueExclusive(type: Type): number | undefined;
 
 ```ts
 /**
- * Resolve a type reference to a TypeSpec type. By default any diagnostics are ignored.
+ * Resolve a type reference to a TypeSpec type.
+ * By default any diagnostics are ignored.
  *
- * If a `kind` is provided, it will check if the resolved type matches the expected kind and throw an error if it doesn't.
+ * If a `kind` is provided, it will check if the resolved type matches the expected kind
+ * and throw an error if it doesn't.
  *
  * Call `type.resolve.withDiagnostics("reference")` to get a tuple containing the resolved type and any diagnostics.
  */
 $(program).type
-  .resolve(<K extends Type): ["kind"] | undefined>(reference: string, kind?: KK extends Type["kind"] ? Extract<Type, {
+  .resolve(K extends Type): ["kind"] | undefined>(reference: string, kind?: KK extends Type["kind"] ? Extract<Type, {
         kind: K;
-    }> : undefined);
+    }> : undefined;
 $(program).type.resolve
-  .withDiagnostics(<K extends Type): [["kind"] | undefined>(reference: string, kind?: KK extends Type["kind"] ? Extract<Type, {
+  .withDiagnostics(K extends Type): [["kind"] | undefined>(reference: string, kind?: KK extends Type["kind"] ? Extract<Type, {
         kind: K;
-    }> : undefined), readonly Diagnostic[]];
+    }> : undefined, readonly Diagnostic[]];
 ```
 
 ## union
@@ -1720,7 +1757,9 @@ $(program).union.isExpression(type: Union): boolean;
 
 ```ts
 /**
- * Check if a union is extensible. Extensible unions are unions which contain a variant that is a supertype of all the other types. This means that the subtypes of the common supertype are known example values, but others may be present.
+ * Check if a union is extensible. Extensible unions are unions which contain a variant
+ * that is a supertype of all the other types. This means that the subtypes of the common
+ * supertype are known example values, but others may be present.
  *
  * @param type - The union to check.
  */
@@ -1731,7 +1770,9 @@ $(program).union.isExtensible(type: Union): boolean;
 
 ```ts
 /**
- * Check if the union is a valid enum. Specifically, this checks if the union has a name (since there are no enum expressions), and whether each of the variant types is a valid enum member value.
+ * Check if the union is a valid enum. Specifically, this checks if the
+ * union has a name (since there are no enum expressions), and whether each
+ * of the variant types is a valid enum member value.
  *
  * @param type - The union to check.
  */
@@ -1951,18 +1992,20 @@ $(program).value.isString(type: Entity): type is StringValue;
 
 ```ts
 /**
- * Resolve a value reference to a TypeSpec value. By default any diagnostics are ignored.
+ * Resolve a value reference to a TypeSpec value.
+ * By default any diagnostics are ignored.
  *
- * If a `kind` is provided, it will check if the resolved value matches the expected kind and throw an error if it doesn't.
+ * If a `kind` is provided, it will check if the resolved value matches the expected kind
+ * and throw an error if it doesn't.
  *
  * Call `value.resolve.withDiagnostics("reference")` to get a tuple containing the resolved value and any diagnostics.
  */
 $(program).value
-  .resolve(<K extends Value): ["valueKind"] | undefined>(reference: string, kind?: KK extends Value["valueKind"] ? Extract<Value, {
+  .resolve(K extends Value): ["valueKind"] | undefined>(reference: string, kind?: KK extends Value["valueKind"] ? Extract<Value, {
         valueKind: K;
-    }> : undefined);
+    }> : undefined;
 $(program).value.resolve
-  .withDiagnostics(<K extends Value): [["valueKind"] | undefined>(reference: string, kind?: KK extends Value["valueKind"] ? Extract<Value, {
+  .withDiagnostics(K extends Value): [["valueKind"] | undefined>(reference: string, kind?: KK extends Value["valueKind"] ? Extract<Value, {
         valueKind: K;
-    }> : undefined), readonly Diagnostic[]];
+    }> : undefined, readonly Diagnostic[]];
 ```

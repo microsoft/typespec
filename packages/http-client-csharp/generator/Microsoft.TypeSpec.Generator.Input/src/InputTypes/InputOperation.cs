@@ -102,6 +102,7 @@ namespace Microsoft.TypeSpec.Generator.Input
         public string CrossLanguageDefinitionId { get; internal set; }
         public IReadOnlyList<InputDecoratorInfo> Decorators { get; internal set; } = new List<InputDecoratorInfo>();
         public IReadOnlyList<InputOperationExample> Examples { get; internal set; } = new List<InputOperationExample>();
+        public InputExperimentalDetails? Experimental { get; internal set; }
 
         private bool? _isMultipartFormData;
         public bool IsMultipartFormData => _isMultipartFormData ??= RequestMediaTypes is not null && RequestMediaTypes.Count == 1 && RequestMediaTypes[0] == "multipart/form-data";
@@ -124,7 +125,8 @@ namespace Microsoft.TypeSpec.Generator.Input
             bool? generateProtocolMethod = null,
             bool? generateConvenienceMethod = null,
             string? crossLanguageDefinitionId = null,
-            string? ns = null)
+            string? ns = null,
+            InputExperimentalDetails? experimental = null)
         {
             if (name != null)
             {
@@ -197,6 +199,10 @@ namespace Microsoft.TypeSpec.Generator.Input
             if (ns != null)
             {
                 Namespace = ns;
+            }
+            if (experimental != null)
+            {
+                Experimental = experimental;
             }
         }
     }

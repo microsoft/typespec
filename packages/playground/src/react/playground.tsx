@@ -1,6 +1,7 @@
 import type { Diagnostic, DiagnosticTarget } from "@typespec/compiler";
 import { Pane, SplitPane } from "@typespec/react-components";
-import "@typespec/react-components/style.css";
+// Keep runtime styles out of the emitted declarations.
+import {} from "@typespec/react-components/style.css";
 import { editor } from "monaco-editor";
 import {
   useCallback,

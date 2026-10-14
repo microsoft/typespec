@@ -52,6 +52,7 @@ export interface TypeSpecCompileOptions {
   NoEmit?: boolean;
   IsVersionNeeded?: boolean;
   IsSseNeeded?: boolean;
+  IsHttpClientNeeded?: boolean;
 }
 
 export async function typeSpecCompile(
@@ -85,6 +86,7 @@ export async function typeSpecCompile(
   const fileContent = `
     import "@typespec/rest";
     import "@typespec/http";
+    ${options?.IsHttpClientNeeded ? 'import "@typespec/http-client";' : ""}
     import "@typespec/http/streams";
     ${needSse ? 'import "@typespec/events";\nimport "@typespec/sse";' : ""}
     import "@typespec/versioning";

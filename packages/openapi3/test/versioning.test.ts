@@ -268,3 +268,32 @@ worksFor(supportedVersions, ({ openApiFor, version: specVersion }) => {
     });
   });
 });
+
+// The versioning emitter runs each version through a mutator, which clones the model graph. The
+// indexer keyword is chosen from `model.baseModel`, so a clone that lost its base model would
+// silently change the keyword between two versions of the same API.
+it("keeps the indexer keyword stable across versions in OpenAPI 3.1", async () => {
+  const { v1, v2 } = await openApiForVersions(
+    `
+    @versioned(Versions)
+    @service(#{title: "My Service"})
+    namespace MyService;
+    enum Versions { v1, v2 }
+    model Dict { ...Record<string>; }
+    model Sub extends Dict { @added(Versions.v2) extra: string; }
+    @route("/d") @post op d(@body body: Dict): Dict;
+    @route("/s") @post op s(@body body: Sub): Sub;
+    `,
+    ["v1", "v2"],
+    { "openapi-versions": ["3.1.0"] },
+  );
+
+  for (const doc of [v1, v2]) {
+    strictEqual(doc.openapi, "3.1.0");
+    deepStrictEqual(doc.components!.schemas!.Dict, {
+      type: "object",
+      additionalProperties: { type: "string" },
+    });
+    deepStrictEqual(doc.components!.schemas!.Sub!.allOf, [{ $ref: "#/components/schemas/Dict" }]);
+  }
+});

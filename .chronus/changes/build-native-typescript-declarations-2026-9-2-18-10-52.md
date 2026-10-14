@@ -1,0 +1,9 @@
+---
+changeKind: internal
+packages:
+  - "@typespec/react-components"
+  - "@typespec/playground-website"
+  - "@typespec/spec-dashboard"
+---
+
+Generate Vite library declarations with the native TypeScript 7 CLI instead of a plugin using the JavaScript compiler API.

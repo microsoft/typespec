@@ -81,7 +81,7 @@ namespace Sample
                 }
                 patch.Set([.. "$."u8, .. global::System.Text.Encoding.UTF8.GetBytes(prop.Name)], prop.Value.GetUtf8Bytes());
             }
-            return new global::Sample.Models.DynamicModel((cats ?? new global::Sample.ChangeTrackingDictionary<string, global::Sample.Models.Cat>()), names, (optionalNames ?? new global::Sample.ChangeTrackingDictionary<string, string>()), patch);
+            return new global::Sample.Models.DynamicModel((cats ?? new global::Sample.ChangeTrackingDictionary<string, global::Sample.Models.Cat>()), (names ?? new global::Sample.ChangeTrackingDictionary<string, string>()), (optionalNames ?? new global::Sample.ChangeTrackingDictionary<string, string>()), patch);
         }
     }
 }

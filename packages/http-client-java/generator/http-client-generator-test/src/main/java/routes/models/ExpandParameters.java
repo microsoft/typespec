@@ -13,7 +13,7 @@ import com.azure.json.JsonWriter;
 import java.io.IOException;
 
 /**
- * A named model used to verify explode expansion of a model-valued query parameter.
+ * A named model used to verify expansion of a model-valued query parameter.
  */
 @Immutable
 public final class ExpandParameters implements JsonSerializable<ExpandParameters> {

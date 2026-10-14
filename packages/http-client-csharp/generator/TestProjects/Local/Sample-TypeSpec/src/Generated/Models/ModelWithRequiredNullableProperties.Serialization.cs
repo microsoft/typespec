@@ -105,6 +105,16 @@ namespace SampleTypeSpec
             {
                 writer.WriteNull("requiredFixedEnum"u8);
             }
+            if (Optional.IsDefined(FixedUnion))
+            {
+                writer.WritePropertyName("fixedUnion"u8);
+                writer.WriteStringValue(FixedUnion.Value.ToSerialString());
+            }
+            if (Optional.IsDefined(NumericEnum))
+            {
+                writer.WritePropertyName("numericEnum"u8);
+                writer.WriteNumberValue((int)NumericEnum.Value);
+            }
             if (options.Format != "W" && _additionalBinaryDataProperties != null)
             {
                 foreach (var item in _additionalBinaryDataProperties)
@@ -150,6 +160,8 @@ namespace SampleTypeSpec
             int? requiredNullablePrimitive = default;
             StringExtensibleEnum? requiredExtensibleEnum = default;
             StringFixedEnum? requiredFixedEnum = default;
+            StringFixedUnion? fixedUnion = default;
+            IntFixedEnum? numericEnum = default;
             IDictionary<string, BinaryData> additionalBinaryDataProperties = new ChangeTrackingDictionary<string, BinaryData>();
             foreach (var prop in element.EnumerateObject())
             {
@@ -183,12 +195,36 @@ namespace SampleTypeSpec
                     requiredFixedEnum = prop.Value.GetString().ToStringFixedEnum();
                     continue;
                 }
+                if (prop.NameEquals("fixedUnion"u8))
+                {
+                    if (prop.Value.ValueKind == JsonValueKind.Null)
+                    {
+                        continue;
+                    }
+                    fixedUnion = prop.Value.GetString().ToStringFixedUnion();
+                    continue;
+                }
+                if (prop.NameEquals("numericEnum"u8))
+                {
+                    if (prop.Value.ValueKind == JsonValueKind.Null)
+                    {
+                        continue;
+                    }
+                    numericEnum = prop.Value.GetInt32().ToIntFixedEnum();
+                    continue;
+                }
                 if (options.Format != "W")
                 {
                     additionalBinaryDataProperties.Add(prop.Name, prop.Value.GetUtf8Bytes());
                 }
             }
-            return new ModelWithRequiredNullableProperties(requiredNullablePrimitive, requiredExtensibleEnum, requiredFixedEnum, additionalBinaryDataProperties);
+            return new ModelWithRequiredNullableProperties(
+                requiredNullablePrimitive,
+                requiredExtensibleEnum,
+                requiredFixedEnum,
+                fixedUnion,
+                numericEnum,
+                additionalBinaryDataProperties);
         }
     }
 }

@@ -10,6 +10,7 @@ using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
+using Microsoft.TypeSpec.Generator.Utilities;
 
 namespace Microsoft.TypeSpec.Generator
 {
@@ -20,23 +21,74 @@ namespace Microsoft.TypeSpec.Generator
                 && !modifiers.HasFlag(MethodSignatureModifiers.Private);
 
         internal static bool ContainsSameParameters(MethodSignature method1, MethodSignature method2)
+            => TryMatchParameterOrder(method2.Parameters, method1.Parameters, out _);
+
+        internal static bool TryMatchParameterOrder(
+            IReadOnlyList<ParameterProvider> currentParameters,
+            IReadOnlyList<ParameterProvider> previousParameters,
+            out ParameterProvider[] matchedParameters)
         {
-            var count = method1.Parameters.Count;
-            if (count != method2.Parameters.Count)
+            matchedParameters = [];
+            if (currentParameters.Count != previousParameters.Count)
             {
                 return false;
             }
 
-            HashSet<ParameterProvider> method1Parameters = new(method1.Parameters, new ParameterProviderVariableNameComparer());
-            foreach (var method2Param in method2.Parameters)
+            var inputNames = new Dictionary<string, ParameterProvider?>(StringComparer.Ordinal);
+            var declaredNames = new Dictionary<string, ParameterProvider?>(StringComparer.Ordinal);
+            var normalizedNames = new Dictionary<string, ParameterProvider?>(StringComparer.OrdinalIgnoreCase);
+            foreach (var parameter in currentParameters)
             {
-                if (!method1Parameters.Contains(method2Param))
+                AddAlias(declaredNames, parameter.Name, parameter);
+                AddAlias(normalizedNames, NormalizeParameterName(parameter.Name), parameter);
+                if (parameter.InputParameter is { IsExactName: false } input)
                 {
-                    return false;
+                    AddAlias(inputNames, input.OriginalName, parameter);
+                    AddAlias(inputNames, input.Name, parameter);
+                    AddAlias(normalizedNames, NormalizeParameterName(input.OriginalName), parameter);
+                    AddAlias(normalizedNames, NormalizeParameterName(input.Name), parameter);
                 }
             }
 
+            var ordered = new ParameterProvider[previousParameters.Count];
+            var used = new HashSet<ParameterProvider>(ReferenceEqualityComparer.Instance);
+            for (int i = 0; i < previousParameters.Count; i++)
+            {
+                var previous = previousParameters[i];
+                inputNames.TryGetValue(previous.Name, out var match);
+                if (match is null)
+                {
+                    declaredNames.TryGetValue(previous.Name, out match);
+                }
+                if (match is null)
+                {
+                    normalizedNames.TryGetValue(NormalizeParameterName(previous.Name), out match);
+                }
+                if (match is null || !previous.Type.AreNamesEqual(match.Type)
+                    || !match.Attributes.SequenceEqual(previous.Attributes) || !used.Add(match))
+                {
+                    return false;
+                }
+                ordered[i] = match;
+            }
+
+            matchedParameters = ordered;
             return true;
+
+            static string NormalizeParameterName(string name)
+                => name.NormalizeCSharpAcronyms(useCamelCase: true).ToVariableName();
+
+            static void AddAlias(Dictionary<string, ParameterProvider?> aliases, string name, ParameterProvider parameter)
+            {
+                if (aliases.TryGetValue(name, out var existing) && !ReferenceEquals(existing, parameter))
+                {
+                    aliases[name] = null;
+                }
+                else
+                {
+                    aliases[name] = parameter;
+                }
+            }
         }
 
         internal static bool HaveSameParametersInSameOrder(MethodSignature method1, MethodSignature method2)
@@ -307,31 +359,6 @@ namespace Microsoft.TypeSpec.Generator
             }
 
             return count;
-        }
-
-        private sealed class ParameterProviderVariableNameComparer : IEqualityComparer<ParameterProvider>
-        {
-            public bool Equals(ParameterProvider? x, ParameterProvider? y)
-            {
-                if (ReferenceEquals(x, y))
-                {
-                    return true;
-                }
-
-                if (x is null || y is null)
-                {
-                    return false;
-                }
-
-                return x.Type.AreNamesEqual(y.Type)
-                    && x.Name.ToVariableName() == y.Name.ToVariableName()
-                    && x.Attributes.SequenceEqual(y.Attributes);
-            }
-
-            public int GetHashCode(ParameterProvider obj)
-            {
-                return HashCode.Combine(obj.Name.ToVariableName());
-            }
         }
     }
 }

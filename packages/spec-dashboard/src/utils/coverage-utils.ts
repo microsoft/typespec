@@ -1,5 +1,9 @@
-import type { ScenarioData } from "@typespec/spec-coverage-sdk";
+import type { ScenarioData, ScenarioStatus } from "@typespec/spec-coverage-sdk";
 import type { GeneratorCoverageSuiteReport } from "../apis.js";
+
+export function isScenarioCompleted(status: ScenarioStatus | undefined): boolean {
+  return status === "pass" || status === "not-applicable" || status === "not-supported";
+}
 
 /**
  * Calculates the ratio of completed (pass, not-applicable, not-supported) scenarios.
@@ -17,7 +21,7 @@ export function getCompletedRatio(
   let coveredCount = 0;
   for (const scenario of filtered) {
     const status = report.results[scenario.name];
-    if (status === "pass" || status === "not-applicable" || status === "not-supported") {
+    if (isScenarioCompleted(status)) {
       coveredCount++;
     }
   }

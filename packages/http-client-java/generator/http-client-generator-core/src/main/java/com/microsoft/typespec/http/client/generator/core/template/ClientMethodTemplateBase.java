@@ -282,10 +282,8 @@ public abstract class ClientMethodTemplateBase implements IJavaTemplate<ClientMe
                 isRequired, isRequiredForCreate, false);
             commentBlock.line(indent + "]");
         } else if (type instanceof EnumType) {
-            String values = ((EnumType) type).getValues()
-                .stream()
-                .map(ClientEnumValue::getValue)
-                .collect(Collectors.joining("/"));
+            String values = CodeNamer.escapeComment(
+                ((EnumType) type).getValues().stream().map(ClientEnumValue::getValue).collect(Collectors.joining("/")));
             if (name != null) {
                 commentBlock.line(indent + name + ": String(" + values + ")"
                     + appendOptionalOrRequiredAttribute(isRequired, isRequiredForCreate, isRootSchema));

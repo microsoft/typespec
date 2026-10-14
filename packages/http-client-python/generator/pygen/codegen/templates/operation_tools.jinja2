@@ -31,6 +31,11 @@
 {%- endif -%}
 {{ normalized_string | replace("\\", "\\\\") | wordwrap(width=width, break_long_words=False, break_on_hyphens=False, wrapstring=wrapstring)}}{% endmacro %}
 
+{# Escape quotes after wrapping so wrapping cannot split an escape sequence. #}
+{% macro wrap_docstring(string, wrapstring, width=95) -%}
+{{ wrap_string(string, wrapstring, width) | replace('"', '\\"') }}
+{%- endmacro %}
+
 {% macro description(builder, serializer) %}
 {% set example_template = serializer.example_template(builder) %}
 {% set param_description_and_response_docstring = serializer.param_description_and_response_docstring(builder) %}

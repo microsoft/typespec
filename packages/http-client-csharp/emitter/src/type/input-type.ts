@@ -59,6 +59,12 @@ export interface InputNamespace extends DecoratedType {
 
 interface DecoratedType {
   decorators?: DecoratorInfo[];
+  experimental?: InputExperimentalDetails;
+}
+
+export interface InputExperimentalDetails {
+  diagnosticId?: string;
+  dependsOn: string[];
 }
 
 interface InputTypeBase extends DecoratedType {

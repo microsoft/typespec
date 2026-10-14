@@ -31,6 +31,7 @@ import {
   getMaxValueExclusive,
   getMinValueExclusive,
   getSummary,
+  resolveEncodedEnumMemberValue,
 } from "@typespec/compiler";
 import type { MetadataInfo } from "@typespec/http";
 import { getOneOf } from "./decorators.js";
@@ -161,10 +162,17 @@ export class OpenAPI31SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPISch
     const shouldSeal = this.shouldSealSchema(model);
     if (!shouldSeal && !model.indexer) return;
 
-    const unevaluatedPropertiesSchema = shouldSeal
+    const indexerSchema = shouldSeal
       ? { not: {} }
       : this.emitter.emitTypeReference(model.indexer!.value);
-    setProperty(schema, "unevaluatedProperties", unevaluatedPropertiesSchema);
+
+    // A declared indexer describes a dictionary, and `additionalProperties` is the keyword for that.
+    // Sealing keeps `unevaluatedProperties`, and so does a model that also extends another model:
+    // both have to account for the properties evaluated by the `allOf` subschema holding the base
+    // model, which `additionalProperties` cannot see and would therefore constrain.
+    const indexerKeyword =
+      shouldSeal || model.baseModel ? "unevaluatedProperties" : "additionalProperties";
+    setProperty(schema, indexerKeyword, indexerSchema);
   }
 
   getRawBinarySchema(): OpenAPISchema3_1 {
@@ -197,8 +205,9 @@ export class OpenAPI31SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPISch
     const enumTypes = new Set<JsonType>();
     const enumValues = new Set<string | number>();
     for (const member of en.members.values()) {
-      enumTypes.add(typeof member.value === "number" ? "number" : "string");
-      enumValues.add(member.value ?? member.name);
+      const value = resolveEncodedEnumMemberValue(program, member, "application/json");
+      enumTypes.add(typeof value === "number" ? "number" : "string");
+      enumValues.add(value);
     }
 
     const enumTypesArray = [...enumTypes];
@@ -215,7 +224,7 @@ export class OpenAPI31SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPISch
     const program = this.emitter.getProgram();
     const oneOf: OpenAPISchema3_1[] = [];
     for (const member of en.members.values()) {
-      const value = member.value ?? member.name;
+      const value = resolveEncodedEnumMemberValue(program, member, "application/json");
       const subschema: OpenAPISchema3_1 = { const: value };
       const title = getSummary(program, member);
       if (title !== undefined) {
@@ -380,9 +389,12 @@ export class OpenAPI31SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPISch
   }
 
   tupleLiteral(tuple: Tuple): EmitterOutput<Record<string, any>> {
+    const size = tuple.values.length;
     return new ObjectBuilder({
       type: "array",
       prefixItems: this.emitter.emitTupleLiteralValues(tuple),
+      minItems: size,
+      maxItems: size,
     });
   }
 

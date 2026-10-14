@@ -23,6 +23,32 @@ namespace Microsoft.TypeSpec.Generator.Tests.Statements
             MockHelpers.LoadMockGenerator();
         }
 
+        [TestCase("OUTER001")]
+        [TestCase("INNER001")]
+        public void NestedSuppressionsDoNotRestoreOuterDiagnostics(string innerId)
+        {
+            var body = new SuppressionStatement(
+                new MethodBodyStatements(
+                [
+                    new SuppressionStatement(This.Invoke("First").Terminate(), Literal(innerId), "Inner."),
+                    This.Invoke("Second").Terminate()
+                ]),
+                Literal("OUTER001"), "Outer.");
+            using var writer = new CodeWriter();
+            body.Write(writer);
+            var code = writer.ToString(false);
+
+            Assert.AreEqual(1, code.Split("#pragma warning disable OUTER001").Length - 1);
+            Assert.AreEqual(1, code.Split("#pragma warning restore OUTER001").Length - 1);
+            Assert.Greater(code.IndexOf("#pragma warning restore OUTER001", StringComparison.Ordinal),
+                code.IndexOf("Second()", StringComparison.Ordinal));
+            if (innerId != "OUTER001")
+            {
+                Assert.Less(code.IndexOf("#pragma warning restore INNER001", StringComparison.Ordinal),
+                    code.IndexOf("Second()", StringComparison.Ordinal));
+            }
+        }
+
         [Test]
         public void CreateForStatement()
         {

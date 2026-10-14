@@ -536,7 +536,7 @@ model Snake {
 
 You can generate a schema with `additionalProperties` with the TypeSpec `Record` construct.
 
-**Note:** `unevaluatedProperties` is used instead of `additionalProperties` when emitting Open API 3.1 specs.
+**Note:** when emitting Open API 3.1 and 3.2 specs, `unevaluatedProperties` is used instead of `additionalProperties` for schemas that compose with `allOf`: sealed schemas, and models that declare a `Record` indexer while also extending another model. `additionalProperties` cannot see the properties evaluated by the `allOf` subschema, so it would constrain the inherited ones.
 
 ```typespec
   bar: Record<unknown>;
