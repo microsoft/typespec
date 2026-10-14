@@ -27,6 +27,7 @@ export interface InputOperation {
   generateConvenienceMethod: boolean;
   examples?: InputHttpOperationExample[];
   crossLanguageDefinitionId: string;
+  /** Includes effective `Azure.Core.Legacy.@overrideApiVersion` metadata for this operation. */
   decorators?: DecoratorInfo[];
   namespace?: string;
   experimental?: InputExperimentalDetails;

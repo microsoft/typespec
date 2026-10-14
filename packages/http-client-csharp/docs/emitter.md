@@ -142,3 +142,39 @@ License information for the generated client code.
 **Type:** `object`
 
 The SDK context options that implement the `CreateSdkContextOptions` interface from the [`@azure-tools/typespec-client-generator-core`](https://www.npmjs.com/package/@azure-tools/typespec-client-generator-core) package to be used by the CSharp emitter.
+
+## API-version override code-model metadata
+
+The emitter preserves the effective `@Azure.Core.Legacy.overrideApiVersion` in
+`InputClient.decorators` and `InputOperation.decorators` (accessible through
+`InputClient.methods[].operation`). The marker is included in `tspCodeModel.json`:
+
+```json
+{
+  "name": "Azure.Core.Legacy.@overrideApiVersion",
+  "arguments": { "version": "opaque legacy wire value" }
+}
+```
+
+The marker's presence indicates an explicit override, including an inherited override,
+even when its value equals the ordinary API-version default or a supported version.
+`arguments.version` is the unmodified, non-empty wire-value string; it need not belong
+to `apiVersions`. The supported-version metadata and parameter defaults are not changed
+by this metadata translation.
+
+Overrides resolve from the declaring interface and then the nearest enclosing namespace,
+including namespaces absent from the client hierarchy. Operations without an override in
+their own declaring scope also consult their `sourceOperation` chain, so relocated aliases
+retain source overrides. The operation marker is authoritative for each operation.
+
+A client receives its declaring scope's effective override. If that scope has none, a
+common override is also preserved on the client when all its own operations have the same
+explicit override. A mixed client has no inferred client-wide marker; consumers must
+inspect its operations individually. Clients and operations without an effective override
+have no marker. Existing unrelated decorators are preserved.
+
+Downstream C# consumers can read this marker through `InputClient.Decorators` and
+`InputOperation.Decorators`, with the version in `InputDecoratorInfo.Arguments["version"]`
+as a JSON string. No additional decorator allow-list configuration is required. This
+metadata does not implement API-version override behavior in the base C# generator;
+downstream emitters and generators remain responsible for interpreting it.

@@ -28,6 +28,8 @@ export interface InputExternalTypeMetadata {
 
 /**
  * The input client type for the CSharp emitter.
+ * `decorators` includes effective `Azure.Core.Legacy.@overrideApiVersion` metadata,
+ * with the wire value in `arguments.version`; marker presence preserves override intent.
  * @beta
  */
 export interface InputClient extends DecoratedType {

@@ -76,6 +76,7 @@ import type { OperationResponse } from "../type/operation-response.js";
 import { RequestLocation } from "../type/request-location.js";
 import { parseHttpRequestMethod } from "../type/request-method.js";
 import { ResponseLocation } from "../type/response-location.js";
+import { getOperationApiVersionOverride, withApiVersionOverride } from "./api-version-override.js";
 import { getExternalDocs, getOperationId } from "./decorators.js";
 import { fromSdkHttpExamples } from "./example-converter.js";
 import { getExperimentalDetails } from "./experimental.js";
@@ -246,7 +247,10 @@ export function fromSdkServiceMethodOperation(
     generateProtocolMethod: shouldGenerateProtocol(sdkContext, method.operation.__raw.operation),
     generateConvenienceMethod: generateConvenience,
     crossLanguageDefinitionId: method.crossLanguageDefinitionId,
-    decorators: method.decorators,
+    decorators: withApiVersionOverride(
+      method.decorators,
+      getOperationApiVersionOverride(sdkContext.program, method.operation.__raw.operation),
+    ),
     examples: method.operation.examples
       ? diagnostics.pipe(fromSdkHttpExamples(sdkContext, method.operation.examples))
       : undefined,

@@ -19,6 +19,7 @@ import type {
   InputParameter,
   InputType,
 } from "../type/input-type.js";
+import { getClientApiVersionOverride, withApiVersionOverride } from "./api-version-override.js";
 import { getExperimentalDetails } from "./experimental.js";
 import { createDiagnostic } from "./lib.js";
 import {
@@ -96,7 +97,10 @@ function fromSdkClient(
       .filter((m) => m !== undefined),
     parameters: clientParameters,
     initializedBy: client.clientInitialization.initializedBy,
-    decorators: client.decorators,
+    decorators: withApiVersionOverride(
+      client.decorators,
+      getClientApiVersionOverride(sdkContext.program, client),
+    ),
     crossLanguageDefinitionId: client.crossLanguageDefinitionId,
     apiVersions: client.apiVersions,
     parent: undefined,
