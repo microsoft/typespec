@@ -249,9 +249,6 @@ catalogs:
     clsx:
       specifier: ^2.1.1
       version: 2.1.1
-    concurrently:
-      specifier: ^10.0.5
-      version: 10.0.5
     cross-env:
       specifier: ^10.1.0
       version: 10.1.0
@@ -885,9 +882,6 @@ importers:
       '@typespec/compiler':
         specifier: workspace:^
         version: link:../compiler
-      concurrently:
-        specifier: 'catalog:'
-        version: 10.0.5
       pathe:
         specifier: 'catalog:'
         version: 2.0.3
@@ -1061,9 +1055,6 @@ importers:
       '@vitest/ui':
         specifier: 'catalog:'
         version: 5.0.3(vitest@5.0.3)
-      concurrently:
-        specifier: 'catalog:'
-        version: 10.0.5
       rimraf:
         specifier: 'catalog:'
         version: 6.1.3
@@ -1134,9 +1125,6 @@ importers:
       '@typespec/http':
         specifier: workspace:^
         version: link:../http
-      concurrently:
-        specifier: 'catalog:'
-        version: 10.0.5
       prettier:
         specifier: 'catalog:'
         version: 3.9.9
@@ -1240,9 +1228,6 @@ importers:
       change-case:
         specifier: 'catalog:'
         version: 5.4.4
-      concurrently:
-        specifier: 'catalog:'
-        version: 10.0.5
       cross-env:
         specifier: 'catalog:'
         version: 10.1.0
@@ -1510,9 +1495,6 @@ importers:
       '@typespec/openapi3':
         specifier: workspace:^
         version: link:../openapi3
-      concurrently:
-        specifier: 'catalog:'
-        version: 10.0.5
       rimraf:
         specifier: 'catalog:'
         version: 6.1.3
@@ -1669,9 +1651,6 @@ importers:
       '@typespec/compiler':
         specifier: workspace:^
         version: link:../compiler
-      concurrently:
-        specifier: 'catalog:'
-        version: 10.0.5
       prettier:
         specifier: 'catalog:'
         version: 3.9.9
@@ -1933,9 +1912,6 @@ importers:
       '@vitejs/plugin-react':
         specifier: 'catalog:'
         version: 6.1.2(vite@8.3.3(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
-      concurrently:
-        specifier: 'catalog:'
-        version: 10.0.5
       cross-env:
         specifier: 'catalog:'
         version: 10.1.0
@@ -2192,9 +2168,6 @@ importers:
       '@vitest/ui':
         specifier: 'catalog:'
         version: 5.0.3(vitest@5.0.3)
-      concurrently:
-        specifier: 'catalog:'
-        version: 10.0.5
       rimraf:
         specifier: 'catalog:'
         version: 6.1.3
@@ -2424,9 +2397,6 @@ importers:
       '@vitejs/plugin-react':
         specifier: 'catalog:'
         version: 6.1.2(vite@8.3.3(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
-      concurrently:
-        specifier: 'catalog:'
-        version: 10.0.5
       rimraf:
         specifier: 'catalog:'
         version: 6.1.3
@@ -7389,11 +7359,6 @@ packages:
     resolution: {integrity: sha512-dnN3ibLeoRf2HNC+OlCiNc5d2zxbLJXOtiZUudNFSXZrNSydxcCsSpRzXwfu7BBWCIfHPw+xTayeBvJCP/D8Ng==}
     engines: {node: '>= 18'}
 
-  concurrently@10.0.5:
-    resolution: {integrity: sha512-JaP/CoftUrCcAFW/g//RbgEGwlelnEae6cfBLgH6ZdO6s8jPkn6p9SB9u6pdVxYXoiSnFqseOlHfrEfF82TVOg==}
-    engines: {node: '>=22'}
-    hasBin: true
-
   confbox@0.1.8:
     resolution: {integrity: sha512-RMtmw0iFkeR4YV+fUOSucriAQNb9g8zFR52MWCtl+cCZOFRNL6zeB395vPzFhEjjn4fMxXudmELnl/KF/WrK6w==}
 
@@ -9946,9 +9911,6 @@ packages:
   rw@1.3.3:
     resolution: {integrity: sha512-PdhdWy89SiZogBLaw42zdeqtRJ//zFd2PgQavcICDUgJT5oW10QCRKbJ6bg4r0/UY2M6BWd5tkxuGFRvCkgfHQ==}
 
-  rxjs@7.8.2:
-    resolution: {integrity: sha512-dhKf903U/PQZY6boNNtAGdWbG85WAbjT/1xYoZIC7FAY0yWapOBQVsVrDl58W86//e1VpMNBtRV4MaXfdMySFA==}
-
   s.color@0.0.15:
     resolution: {integrity: sha512-AUNrbEUHeKY8XsYr/DYpl+qk5+aM+DChopnWOPEzn8YKzOhv4l2zH6LzZms3tOZP3wwdOyc0RmTciyi46HLIuA==}
 
@@ -10034,10 +9996,6 @@ packages:
   shebang-regex@3.0.0:
     resolution: {integrity: sha512-7++dFhtcx3353uBaq8DDR4NuxBetBzC7ZQOhmTQInHEd6bSrXdiEyzCvG07Z44UYdLShWUyXt5M/yhz8ekcb1A==}
     engines: {node: '>=8'}
-
-  shell-quote@1.9.0:
-    resolution: {integrity: sha512-Iov+JwFv/2HcTpcwNMKd8+IWNb8tboQJNQTkAY/LLVK7gGH9jy+LGkVqPxfekHl+yMmiqXszdGWXgkfml7hjqA==}
-    engines: {node: '>= 0.4'}
 
   shiki@4.5.0:
     resolution: {integrity: sha512-OcRW72ngQvc+MSVWBRIovC/BTW589iUE/Vxav7VeM4RcY9MUjqB+IR6ILG1k9nuW6LiG/nct9uma4/MBtnZbmQ==}
@@ -10233,10 +10191,6 @@ packages:
   suf-log@2.5.3:
     resolution: {integrity: sha512-KvC8OPjzdNOe+xQ4XWJV2whQA0aM1kGVczMQ8+dStAO6KfEB140JEVQ9dE76ONZ0/Ylf67ni4tILPJB41U0eow==}
 
-  supports-color@10.2.2:
-    resolution: {integrity: sha512-SS+jx45GF1QjgEXQx4NJZV9ImqmO2NPz5FNsIHrsDjh2YsHnawpan7SNQ1o8NuhrbHZy9AZhIoCUiCeaW/C80g==}
-    engines: {node: '>=18'}
-
   supports-color@5.5.0:
     resolution: {integrity: sha512-QjVjwdXIt408MIiAqCX4oUKsgU2EqAGzs2Ppkm4aQYbjm+ZEWEcW4SfFNTr4uMNZma0ey4f5lgLrkB0aX0QMow==}
     engines: {node: '>=4'}
@@ -10381,10 +10335,6 @@ packages:
   tr46@5.1.1:
     resolution: {integrity: sha512-hdF5ZgjTqgAntKkklYw0R03MG2x/bSzTtkxmIRw/sTNV8YXsCJ1tfLAX23lhxhHJlEf3CRCOCGGWw3vI3GaSPw==}
     engines: {node: '>=18'}
-
-  tree-kill@1.2.2:
-    resolution: {integrity: sha512-L0Orpi8qGpRG//Nd+H90vFB+3iHnue1zSSGmNOOCh1GLJ7rUKVwV2HvijphGQS2UmhUZewS9VgvxYIdgr+fG1A==}
-    hasBin: true
 
   tree-sitter-c-sharp@0.23.5:
     resolution: {integrity: sha512-xJGOeXPMmld0nES5+080N/06yY6LQi+KWGWV4LfZaZe6srJPtUtfhIbRSN7EZN6IaauzW28v6W4QHFwmeUW6HQ==}
@@ -11130,10 +11080,6 @@ packages:
 
   yargs-parser@22.0.0:
     resolution: {integrity: sha512-rwu/ClNdSMpkSrUb+d6BRsSkLUq1fmfsY6TOpYzTwvwkg1/NRG85KBy3kq++A8LKQwX6lsu+aWad+2khvuXrqw==}
-    engines: {node: ^20.19.0 || ^22.12.0 || >=23}
-
-  yargs@18.0.0:
-    resolution: {integrity: sha512-4UEqdc2RYGHZc7Doyqkrqiln3p9X2DZVxaGbwhn2pi7MrRagKaOcIKe8L3OxYcbhXLgLFUS3zAYuQjKBQgmuNg==}
     engines: {node: ^20.19.0 || ^22.12.0 || >=23}
 
   yargs@18.2.0:
@@ -16282,15 +16228,6 @@ snapshots:
 
   common-ancestor-path@2.0.0: {}
 
-  concurrently@10.0.5:
-    dependencies:
-      chalk: 5.6.2
-      rxjs: 7.8.2
-      shell-quote: 1.9.0
-      supports-color: 10.2.2
-      tree-kill: 1.2.2
-      yargs: 18.0.0
-
   confbox@0.1.8: {}
 
   confbox@0.3.1: {}
@@ -19535,10 +19472,6 @@ snapshots:
 
   rw@1.3.3: {}
 
-  rxjs@7.8.2:
-    dependencies:
-      tslib: 2.8.1
-
   s.color@0.0.15: {}
 
   safe-buffer@5.1.2: {}
@@ -19658,8 +19591,6 @@ snapshots:
       shebang-regex: 3.0.0
 
   shebang-regex@3.0.0: {}
-
-  shell-quote@1.9.0: {}
 
   shiki@4.5.0:
     dependencies:
@@ -19873,8 +19804,6 @@ snapshots:
     dependencies:
       s.color: 0.0.15
 
-  supports-color@10.2.2: {}
-
   supports-color@5.5.0:
     dependencies:
       has-flag: 3.0.0
@@ -20036,8 +19965,6 @@ snapshots:
   tr46@5.1.1:
     dependencies:
       punycode: 2.3.1
-
-  tree-kill@1.2.2: {}
 
   tree-sitter-c-sharp@0.23.5:
     dependencies:
@@ -20626,15 +20553,6 @@ snapshots:
   yargs-parser@21.1.1: {}
 
   yargs-parser@22.0.0: {}
-
-  yargs@18.0.0:
-    dependencies:
-      cliui: 9.0.1
-      escalade: 3.2.0
-      get-caller-file: 2.0.5
-      string-width: 7.2.0
-      y18n: 5.0.8
-      yargs-parser: 22.0.0
 
   yargs@18.2.0:
     dependencies:

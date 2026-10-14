@@ -46,7 +46,6 @@
     "@types/node": "catalog:",
     "@typespec/compiler": "workspace:^",
     "@typespec/http": "workspace:^",
-    "concurrently": "catalog:",
     "prettier": "catalog:"
   }
 }

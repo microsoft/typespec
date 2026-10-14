@@ -25,7 +25,7 @@
     "upload-coverage": "tsp-spector upload-coverage --generatorName @typespec/http-specs --generatorVersion 0.1.0-alpha.4 --containerName coverages --generatorMode standard --storageAccountName typespec",
     "validate-mock-apis": "tsp-spector validate-mock-apis ./specs",
     "check-scenario-coverage": "tsp-spector check-coverage ./specs",
-    "validate-client-server": "concurrently \"tsp-spector server start ./specs\" \"pnpm knock\"; code=$?; tsp-spector server stop; exit $code",
+    "validate-client-server": "node ../../eng/common/scripts/validate-spector.ts",
     "build:smoke": "tsp compile smoke/petstore --warn-as-error --no-emit && tsp compile smoke/todoapp --warn-as-error --no-emit",
     "client": "pnpm knock",
     "knock": "tsp-spector knock ./specs",
@@ -58,7 +58,6 @@
     "@typespec/json-schema": "workspace:^",
     "@typespec/openapi": "workspace:^",
     "@typespec/openapi3": "workspace:^",
-    "concurrently": "catalog:",
     "rimraf": "catalog:",
     "typescript": "catalog:"
   },
