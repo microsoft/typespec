@@ -12,4 +12,4 @@ packages:
   - "@typespec/spec-dashboard"
 ---
 
-Replace concurrently in development watchers and Spector validation with native Node process lifecycle management.
+Replace concurrently in development watchers and Spector validation with existing process tooling.

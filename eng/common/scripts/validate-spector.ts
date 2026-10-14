@@ -1,12 +1,4 @@
-import { resolveNodeBin, runMain, runNode } from "./node-process.ts";
+import { run } from "./run.ts";
 import { withSpectorServer } from "./spector-server.ts";
 
-await runMain((signal) => {
-  const spector = resolveNodeBin("@typespec/spector", "tsp-spector");
-  return withSpectorServer(
-    [spector, "serve", "./specs"],
-    3000,
-    (signal) => runNode([spector, "knock", "./specs"], signal),
-    signal,
-  );
-});
+await withSpectorServer(["./specs"], 3000, () => run("tsp-spector", ["knock", "./specs"]));

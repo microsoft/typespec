@@ -1,18 +1,12 @@
-import { repoRoot } from "./helpers.ts";
-import { resolveNodeBin, runMain, runParallel } from "./node-process.ts";
+import { run } from "./run.ts";
 
-await runMain((signal) =>
-  runParallel(
-    [
-      [resolveNodeBin("vite", "vite"), "build", "--watch", "--emptyOutDir", "false"],
-      [
-        resolveNodeBin("typescript-native", "tsc", repoRoot),
-        "-p",
-        "tsconfig.declaration.json",
-        "--watch",
-      ],
-    ],
-    signal,
-    true,
-  ),
-);
+const watchers = [
+  run("vite", ["build", "--watch", "--emptyOutDir", "false"]),
+  run("tsc", ["-p", "tsconfig.declaration.json", "--watch"]),
+];
+try {
+  await Promise.race(watchers);
+} finally {
+  for (const watcher of watchers) watcher.kill();
+  await Promise.allSettled(watchers);
+}
