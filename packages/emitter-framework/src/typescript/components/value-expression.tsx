@@ -1,6 +1,7 @@
 import { type Children } from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
-import { compilerAssert, type Value } from "@typespec/compiler";
+import { compilerAssert, resolveEncodedEnumMemberValue, type Value } from "@typespec/compiler";
+import { useTsp } from "../../core/context/tsp-context.js";
 
 /**
  * Properties for the {@link ValueExpression} component.
@@ -50,7 +51,13 @@ export function ValueExpression(props: Readonly<ValueExpressionProps>): Children
         jsProperties[key] = ValueExpression({ value: value.value });
       }
       return <ts.ObjectExpression jsValue={jsProperties} />;
-    case "EnumValue":
-      return <ts.ValueExpression jsValue={props.value.value.value ?? props.value.value.name} />;
+    case "EnumValue": {
+      const { $ } = useTsp();
+      return (
+        <ts.ValueExpression
+          jsValue={resolveEncodedEnumMemberValue($.program, props.value.value, "application/json")}
+        />
+      );
+    }
   }
 }

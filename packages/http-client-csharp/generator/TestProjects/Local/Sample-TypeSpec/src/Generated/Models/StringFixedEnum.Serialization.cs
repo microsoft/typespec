@@ -17,6 +17,11 @@ namespace SampleTypeSpec
             StringFixedEnum.One => "1",
             StringFixedEnum.Two => "2",
             StringFixedEnum.Four => "4",
+            StringFixedEnum.IP => "ip",
+            StringFixedEnum.DB => "db",
+            StringFixedEnum.OS => "os",
+            StringFixedEnum.IPv4 => "ipv4",
+            StringFixedEnum.IPv6 => "ipv6",
             _ => throw new ArgumentOutOfRangeException(nameof(value), value, "Unknown StringFixedEnum value.")
         };
 
@@ -34,6 +39,26 @@ namespace SampleTypeSpec
             if (StringComparer.OrdinalIgnoreCase.Equals(value, "4"))
             {
                 return StringFixedEnum.Four;
+            }
+            if (StringComparer.OrdinalIgnoreCase.Equals(value, "ip"))
+            {
+                return StringFixedEnum.IP;
+            }
+            if (StringComparer.OrdinalIgnoreCase.Equals(value, "db"))
+            {
+                return StringFixedEnum.DB;
+            }
+            if (StringComparer.OrdinalIgnoreCase.Equals(value, "os"))
+            {
+                return StringFixedEnum.OS;
+            }
+            if (StringComparer.OrdinalIgnoreCase.Equals(value, "ipv4"))
+            {
+                return StringFixedEnum.IPv4;
+            }
+            if (StringComparer.OrdinalIgnoreCase.Equals(value, "ipv6"))
+            {
+                return StringFixedEnum.IPv6;
             }
             throw new ArgumentOutOfRangeException(nameof(value), value, "Unknown StringFixedEnum value.");
         }

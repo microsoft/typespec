@@ -38,7 +38,7 @@ namespace Sample
                 switch (prop.Value.ValueKind)
                 {
                     case global::System.Text.Json.JsonValueKind.String:
-                        additionalProperties.Add(prop.Name, prop.Value.GetString());
+                        additionalProperties[prop.Name] = prop.Value.GetString();
                         continue;
                 }
                 patch.Set([.. "$."u8, .. global::System.Text.Encoding.UTF8.GetBytes(prop.Name)], prop.Value.GetUtf8Bytes());

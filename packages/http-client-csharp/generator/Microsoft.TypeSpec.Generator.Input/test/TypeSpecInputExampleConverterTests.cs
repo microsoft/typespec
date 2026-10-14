@@ -1,5 +1,8 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
 
@@ -7,6 +10,384 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
 {
     public class TypeSpecInputExampleConverterTests
     {
+        [Test]
+        public void OpaqueExamplesPreserveReferenceProperties(
+            [Values("unknown", "union")] string kind,
+            [Values("https://example.com/person.schema.json", "1")] string id,
+            [Values] bool isArray,
+            [Values("array", "model", "dict")] string containerKind)
+        {
+            const string prefix = "$";
+            var payload = $$"""
+                {
+                  "type": "object",
+                  "{{prefix}}id": "{{id}}",
+                  "{{prefix}}schema": "https://json-schema.org/draft/2020-12/schema",
+                  "{{prefix}}ref": "missing",
+                  "$$id": "literal-double-dollar",
+                  "$$$id": "literal-triple-dollar",
+                  "{{prefix}}values": [
+                    { "{{prefix}}id": "{{id}}", "kind": "model", "name": "NotAReference" },
+                    { "{{prefix}}ref": "1" },
+                    { "{{prefix}}id": 42, "{{prefix}}values": null }
+                  ],
+                  "properties": { "age": { "type": "integer" } }
+                }
+                """;
+            var exampleValue = $$"""
+                {
+                  "kind": "{{kind}}",
+                  "type": { "kind": "unknown" },
+                  "value": {{(isArray ? $"[{payload}]" : payload)}}
+                }
+                """;
+            var container = $$"""
+                {
+                  "kind": "array",
+                  "type": { "kind": "array", "name": "Array", "valueType": { "kind": "unknown" } },
+                  "value": [{{exampleValue}}, {{exampleValue}}, {{exampleValue}}, {{exampleValue}}, {{exampleValue}}, {{exampleValue}}]
+                }
+                """;
+            if (containerKind != "array")
+            {
+                var type = containerKind == "model"
+                    ? """{ "$id": "container", "kind": "model", "name": "Container", "properties": [] }"""
+                    : """{ "kind": "dict", "keyType": { "kind": "string" }, "valueType": { "kind": "unknown" } }""";
+                container = $$"""
+                    {
+                      "kind": "{{containerKind}}",
+                      "type": {{type}},
+                      "value": { "unknown": {{container}} }
+                    }
+                    """;
+            }
+            var result = DeserializeExampleValue(container);
+            var value = (InputExampleListValue)(containerKind == "array" ? result : ((InputExampleObjectValue)result).Values["unknown"]);
+
+            Assert.AreEqual(6, value.Values.Count);
+            foreach (var item in value.Values)
+            {
+                var actual = ExtractObjectValues((InputExampleObjectValue)(isArray ? ((InputExampleListValue)item).Values[0] : item));
+                var expected = new Dictionary<string, object>
+                {
+                    { "type", "object" },
+                    { "$id", id },
+                    { "$schema", "https://json-schema.org/draft/2020-12/schema" },
+                    { "$ref", "missing" },
+                    { "$$id", "literal-double-dollar" },
+                    { "$$$id", "literal-triple-dollar" },
+                    { "$values[0].$id", id },
+                    { "$values[0].kind", "model" },
+                    { "$values[0].name", "NotAReference" },
+                    { "$values[1].$ref", "1" },
+                    { "$values[2].$id", 42 },
+                    { "$values[2].$values", null! },
+                    { "properties.age.type", "integer" }
+                };
+                Assert.AreEqual(expected, actual);
+            }
+        }
+
+        [Test]
+        public void ObjectExamplesPreserveReferencePropertyNames([Values("model", "dict")] string kind)
+        {
+            const string prefix = "$";
+            var type = kind == "model"
+                ? """{ "$id": "payload-type", "kind": "model", "name": "Payload", "properties": [] }"""
+                : """{ "kind": "dict", "keyType": { "kind": "string" }, "valueType": { "kind": "string" } }""";
+            var value = (InputExampleObjectValue)DeserializeExampleValue($$"""
+                {
+                  "kind": "{{kind}}",
+                  "type": {{type}},
+                  "value": {
+                    "{{prefix}}id": { "kind": "string", "type": { "$id": "string", "kind": "string" }, "value": "payload-id" },
+                    "{{prefix}}ref": { "kind": "string", "type": { "$ref": "string" }, "value": "payload-ref" },
+                    "{{prefix}}values": { "kind": "string", "type": { "$ref": "string" }, "value": "payload-values" },
+                    "$$id": { "kind": "string", "type": { "$ref": "string" }, "value": "literal-double-dollar" },
+                    "$$$id": { "kind": "string", "type": { "$ref": "string" }, "value": "literal-triple-dollar" }
+                  }
+                }
+                """);
+
+            Assert.AreEqual(new Dictionary<string, object>
+            {
+                { "$id", "payload-id" },
+                { "$ref", "payload-ref" },
+                { "$values", "payload-values" },
+                { "$$id", "literal-double-dollar" },
+                { "$$$id", "literal-triple-dollar" }
+            }, ExtractObjectValues(value));
+            Assert.AreSame(value.Values["$id"].Type, value.Values["$ref"].Type);
+        }
+
+        [TestCase("unknown")]
+        [TestCase("union")]
+        public void OpaqueExampleCannotDefineModelReference(string kind)
+        {
+            var content = $$"""
+                {
+                  "kind": "{{kind}}",
+                  "type": {
+                    "kind": "array", "name": "Array", "valueType": { "$ref": "payload" }
+                  },
+                  "value": { "$id": "payload", "kind": "model", "name": "NotAReference" }
+                }
+                """;
+
+            var exception = Assert.Throws<JsonException>(() => DeserializeExampleValue(content));
+
+            Assert.That(exception!.Message, Does.Contain("cannot resolve reference payload"));
+        }
+
+        [TestCase("unknown")]
+        [TestCase("union")]
+        public void OpaqueExamplesPreserveDeepPayloads(string kind)
+        {
+            var payload = new string('[', 70) + """{ "$$id": "literal" }""" + new string(']', 70);
+            var value = DeserializeExampleValue($$"""
+                {
+                  "kind": "{{kind}}",
+                  "type": { "kind": "unknown" },
+                  "value": {{payload}}
+                }
+                """);
+
+            for (var i = 0; i < 70; i++)
+            {
+                value = ((InputExampleListValue)value).Values[0];
+            }
+            Assert.AreEqual("literal", ((InputExampleRawValue)((InputExampleObjectValue)value).Values["$$id"]).RawValue);
+        }
+
+        [Test]
+        public void OpaqueExamplesInReferencedDefinitions(
+            [Values("client", "child", "method", "operation")] string target,
+            [Values] bool definitionsFirst,
+            [Values] bool shadowsDefinition)
+        {
+            var payloadId = "1";
+            var value = (InputExampleObjectValue)DeserializeExampleValue("""
+                {
+                  "kind": "unknown",
+                  "type": { "kind": "unknown" },
+                  "value": { "$id": "1", "nested": { "$id": "1" } }
+                }
+                """, root =>
+            {
+                var client = root["clients"]![0]!;
+                var child = client["children"]![0]!;
+                var method = child["methods"]![0]!;
+                var definition = target switch
+                {
+                    "client" => client,
+                    "child" => child,
+                    "method" => method,
+                    _ => method["operation"]!
+                };
+                if (shadowsDefinition)
+                {
+                    payloadId = definition["$id"]!.GetValue<string>();
+                    var payload = method["operation"]!["examples"]![0]!["parameters"]![0]!["value"]!["value"]!;
+                    payload["$id"] = payloadId;
+                    payload["nested"]!["$id"] = payloadId;
+                }
+                var reference = new JsonObject { ["$ref"] = definition["$id"]!.GetValue<string>() };
+                var copy = definition.DeepClone();
+                definition.ReplaceWith(reference);
+                var extension = new JsonObject
+                {
+                    ["kind"] = "union",
+                    ["type"] = new JsonObject(),
+                    ["value"] = copy
+                };
+                if (definitionsFirst)
+                {
+                    root.AsObject().Insert(0, "extension", extension);
+                }
+                else
+                {
+                    root["extension"] = extension;
+                }
+            });
+
+            Assert.AreEqual(payloadId, ((InputExampleRawValue)value.Values["$id"]).RawValue);
+            Assert.AreEqual(payloadId, ((InputExampleRawValue)((InputExampleObjectValue)value.Values["nested"]).Values["$id"]).RawValue);
+        }
+
+        [Test]
+        public void PreservesManyIdenticalOpaqueExamples()
+        {
+            var examples = new JsonArray();
+            for (var i = 0; i < 2000; i++)
+            {
+                examples.Add(JsonNode.Parse("""
+                    {
+                      "kind": "unknown",
+                      "type": { "kind": "unknown" },
+                      "value": { "$id": "1" }
+                    }
+                    """));
+            }
+            var value = (InputExampleListValue)DeserializeExampleValue($$"""
+                {
+                  "kind": "array",
+                  "type": { "kind": "array", "name": "Array", "valueType": { "kind": "unknown" } },
+                  "value": {{examples.ToJsonString()}}
+                }
+                """);
+
+            Assert.AreEqual(2000, value.Values.Count);
+            foreach (var item in value.Values)
+            {
+                Assert.AreEqual("1", ((InputExampleRawValue)((InputExampleObjectValue)item).Values["$id"]).RawValue);
+            }
+        }
+
+        [Test]
+        public void PayloadReferencesCannotMakeDecoratorDataOpaque()
+        {
+            var value = DeserializeExampleValue("""
+                { "kind": "unknown", "type": { "kind": "unknown" }, "value": {} }
+                """, root =>
+            {
+                var client = root["clients"]![0]!;
+                var id = client["$id"]!.GetValue<string>();
+                var payload = client["children"]![0]!["methods"]![0]!["operation"]!["examples"]![0]!["parameters"]![0]!["value"]!["value"]!;
+                payload["$id"] = id;
+                payload["methods"] = JsonNode.Parse("""[{ "$ref": "decorator-method" }]""");
+                client["decorators"] = JsonNode.Parse("""
+                    [{
+                      "name": "example",
+                      "arguments": {
+                        "method": {
+                          "$id": "decorator-method", "kind": "basic",
+                          "operation": {
+                            "examples": [{
+                              "parameters": [{
+                                "value": {
+                                  "kind": "unknown", "type": {},
+                                  "value": { "$id": "model", "kind": "model", "name": "SharedModel" }
+                                }
+                              }]
+                            }]
+                          }
+                        }
+                      }
+                    }]
+                    """);
+                root["extension"] = client.DeepClone();
+                client.ReplaceWith(new JsonObject { ["$ref"] = id });
+                root["models"]!.AsArray().Add(new JsonObject { ["$ref"] = "model" });
+            });
+
+            var methods = (InputExampleListValue)((InputExampleObjectValue)value).Values["methods"];
+            Assert.AreEqual("decorator-method", ((InputExampleRawValue)((InputExampleObjectValue)methods.Values[0]).Values["$ref"]).RawValue);
+        }
+
+        [Test]
+        public void PagingExamplesPreserveOpaquePayloads([Values("basic", "paging", "lropaging")] string methodKind)
+        {
+            var directory = Helpers.GetAssetFileOrDirectoryPath(false, method: nameof(LoadOperationExamples));
+            var root = JsonNode.Parse(File.ReadAllText(Path.Combine(directory, "tspCodeModel.json")))!;
+            var method = root["clients"]![0]!["children"]![0]!["methods"]![0]!;
+            var operation = method["operation"]!;
+            var examples = operation["examples"]!.DeepClone();
+            operation["examples"] = new JsonArray();
+            examples[0]!["parameters"]![0]!["value"] = JsonNode.Parse("""
+                {
+                  "kind": "unknown",
+                  "type": { "kind": "unknown" },
+                  "value": { "$id": "payload-model", "kind": "model", "name": "PayloadModel" }
+                }
+                """);
+            method["kind"] = methodKind;
+            method["pagingMetadata"] = new JsonObject
+            {
+                ["nextLink"] = new JsonObject
+                {
+                    ["responseSegments"] = new JsonArray("nextLink"),
+                    ["responseLocation"] = "body",
+                    ["operation"] = new JsonObject
+                    {
+                        ["$id"] = "next-operation",
+                        ["name"] = "Next",
+                        ["httpMethod"] = "GET",
+                        ["uri"] = "https://example.com",
+                        ["path"] = "/",
+                        ["crossLanguageDefinitionId"] = "Test.Next",
+                        ["examples"] = examples
+                    }
+                }
+            };
+            method["lroMetadata"] = new JsonObject();
+            root["models"]!.AsArray().Add(new JsonObject { ["$ref"] = "payload-model" });
+
+            if (methodKind == "basic")
+            {
+                var input = TypeSpecSerialization.Deserialize(root.ToJsonString())!;
+                Assert.AreEqual("PayloadModel", input.Models[^1].Name);
+            }
+            else
+            {
+                var exception = Assert.Throws<JsonException>(() => TypeSpecSerialization.Deserialize(root.ToJsonString()));
+                Assert.That(exception!.Message, Does.Contain("cannot resolve reference payload-model"));
+            }
+        }
+
+        [Test]
+        public void LoadsReferenceDefinedInOpaqueExampleType([Values("unknown", "union")] string kind)
+        {
+            var value = DeserializeExampleValue($$"""
+                {
+                  "kind": "{{kind}}",
+                  "type": { "$id": "model", "kind": "model", "name": "SharedModel" },
+                  "value": { "$id": "model", "name": "Payload" }
+                }
+                """, root => root["models"]!.AsArray().Add(new JsonObject { ["$ref"] = "model" }));
+
+            Assert.AreEqual("SharedModel", value.Type.Name);
+            Assert.AreEqual("Payload", ((InputExampleRawValue)((InputExampleObjectValue)value).Values["name"]).RawValue);
+        }
+
+        [Test]
+        public void OpaqueExampleTypeStillDefinesReferences()
+        {
+            var value = DeserializeExampleValue("""
+                {
+                  "kind": "unknown",
+                  "type": {
+                    "kind": "array", "name": "Array",
+                    "valueType": { "$ref": "element" },
+                    "decorators": [{
+                      "name": "example",
+                      "arguments": {
+                        "payload": {
+                          "kind": "unknown", "type": {},
+                          "value": { "$id": "element", "kind": "model", "name": "Element", "properties": [] }
+                        }
+                      }
+                    }]
+                  },
+                  "value": { "$id": "element" }
+                }
+                """);
+
+            Assert.AreEqual("Element", ((InputArrayType)value.Type).ValueType.Name);
+            Assert.AreEqual("element", ((InputExampleRawValue)((InputExampleObjectValue)value).Values["$id"]).RawValue);
+        }
+
+        private static InputExampleValue DeserializeExampleValue(string exampleValue, Action<JsonNode>? update = null)
+        {
+            var directory = Helpers.GetAssetFileOrDirectoryPath(false, method: nameof(LoadOperationExamples));
+            var root = JsonNode.Parse(File.ReadAllText(Path.Combine(directory, "tspCodeModel.json")))!;
+            var example = root["clients"]![0]!["children"]![0]!["methods"]![0]!["operation"]!["examples"]![0]!["parameters"]![0]!;
+            example["value"] = JsonNode.Parse(exampleValue, documentOptions: new JsonDocumentOptions { MaxDepth = 128 });
+            update?.Invoke(root);
+
+            var input = TypeSpecSerialization.Deserialize(root.ToJsonString(new JsonSerializerOptions { MaxDepth = 128 }))!;
+            return input.Clients[0].Children[0].Methods[0].Operation.Examples[0].Parameters[0].ExampleValue;
+        }
+
         [Test]
         public void LoadOperationExamples()
         {

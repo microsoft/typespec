@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <Compile Remove="**\TestData\**\*.cs" />
+    <Compile Include="ModelReaderWriterValidation\TestProjects\Sample_TypeSpec\TestData\ExternalModelPropertiesTests\*.cs" />
   </ItemGroup>
 
   <ItemGroup>

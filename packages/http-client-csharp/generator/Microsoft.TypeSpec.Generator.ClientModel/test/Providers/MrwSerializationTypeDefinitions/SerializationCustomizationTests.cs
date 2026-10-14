@@ -63,6 +63,47 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         }
 
         [Test]
+        public async Task ConcreteListPropertyType()
+        {
+            var inputModel = InputFactory.Model("Model", properties: [
+                    InputFactory.Property("requiredNames", InputFactory.Array(InputPrimitiveType.String), isRequired: true),
+                    InputFactory.Property("requiredNullableNames", new InputNullableType(InputFactory.Array(InputPrimitiveType.String)), isRequired: true),
+                    InputFactory.Property("optionalNames", InputFactory.Array(InputPrimitiveType.String))
+                ],
+                usage: InputModelTypeUsage.Json);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider);
+            var serializationProvider = modelProvider.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition);
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                serializationProvider, name => name is "DeserializeModel" or "JsonModelWriteCore"));
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), writer.Write().Content);
+        }
+
+        [Test]
+        public async Task ConcreteOptionalNullableCollectionsStartUndefined()
+        {
+            var inputModel = InputFactory.Model("Model", properties: [
+                    InputFactory.Property("concreteNames", new InputNullableType(InputFactory.Array(InputPrimitiveType.String))),
+                    InputFactory.Property("concreteLabels", new InputNullableType(InputFactory.Dictionary(InputPrimitiveType.String))),
+                    InputFactory.Property("trackedNames", new InputNullableType(InputFactory.Array(InputPrimitiveType.String))),
+                    InputFactory.Property("trackedLabels", new InputNullableType(InputFactory.Dictionary(InputPrimitiveType.String)))
+                ],
+                usage: InputModelTypeUsage.Json);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider);
+            var serializationProvider = (MrwSerializationTypeDefinition)modelProvider.SerializationProviders.Single();
+            var content = serializationProvider.BuildDeserializationMethod().BodyStatements!.ToDisplayString();
+
+            StringAssert.Contains(Helpers.GetExpectedFromFile().ReplaceLineEndings("\n"), content);
+        }
+
+        [Test]
         public async Task CanCustomizeSerializationMethod()
         {
             var inputModel = InputFactory.Model("mockInputModel", properties: [
@@ -257,6 +298,43 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             new TestCaseData(InputFactory.StringEnum("EnumType", [("value", "value")], isExtensible: true)),
             new TestCaseData(InputFactory.Int32Enum("EnumType", [("one", 1)], isExtensible: true)),
         ];
+
+        [Test]
+        public async Task BackCompat_EnumChangedToExtensibleUsesCurrentSerialization(
+            [Values(false, true)] bool customizeEnum)
+        {
+            var inputEnum = InputFactory.StringEnum(
+                "StatusEnum",
+                [("Active", "active"), ("Inactive", "inactive")],
+                isExtensible: true);
+            var inputModel = InputFactory.Model("MockInputModel", properties: [
+                    InputFactory.Property("status", inputEnum, isRequired: true),
+                    InputFactory.Property("optionalStatus", inputEnum),
+                    InputFactory.Property("statuses", InputFactory.Array(inputEnum)),
+                    InputFactory.Property("statusMap", InputFactory.Dictionary(inputEnum))
+                ],
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputEnums: () => [inputEnum],
+                inputModels: () => [inputModel],
+                compilation: customizeEnum
+                    ? async () => await Helpers.GetCompilationFromDirectoryAsync("Custom")
+                    : null,
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync("Previous"));
+
+            var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.OfType<ModelProvider>().Single();
+            var serializationProvider = modelProvider.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition);
+            modelProvider.EnsureBuilt();
+            serializationProvider.EnsureBuilt();
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                serializationProvider, name => name is "DeserializeMockInputModel" or "JsonModelWriteCore"));
+            var content = writer.Write().Content;
+            StringAssert.DoesNotContain("ToSerialString", content);
+            StringAssert.DoesNotContain(".ToStatusEnum()", content);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
 
         [TestCaseSource(nameof(ExtensibleEnumCases))]
         public async Task CanCustomizeExtensibleEnum(InputEnumType enumType)

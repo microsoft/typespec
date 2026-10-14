@@ -76,6 +76,7 @@ import { parseHttpRequestMethod } from "../type/request-method.js";
 import { ResponseLocation } from "../type/response-location.js";
 import { getExternalDocs } from "./decorators.js";
 import { fromSdkHttpExamples } from "./example-converter.js";
+import { getExperimentalDetails } from "./experimental.js";
 import { createDiagnostic } from "./lib.js";
 import { fromSdkType } from "./type-converter.js";
 import { getClientNamespaceString, isReadOnly } from "./utils.js";
@@ -246,6 +247,9 @@ export function fromSdkServiceMethodOperation(
     namespace: method.__raw?.namespace
       ? getClientNamespace(sdkContext, method.__raw.namespace)
       : undefined,
+    experimental: diagnostics.pipe(
+      getExperimentalDetails(sdkContext, method.operation.__raw.operation),
+    ),
   };
 
   sdkContext.__typeCache.updateSdkOperationReferences(method.operation, operation);
@@ -680,6 +684,8 @@ export function fromMethodParameter(
     return diagnostics.wrap(retVar as InputMethodParameter);
   }
 
+  // C# cannot apply ExperimentalAttribute directly to a parameter.
+  diagnostics.pipe(getExperimentalDetails(sdkContext, p.__raw, false));
   const parameterType = diagnostics.pipe(fromSdkType(sdkContext, p.type, p, namespace));
 
   const paramAlias = p.__raw ? getParamAlias(sdkContext, p.__raw) : undefined;
@@ -922,6 +928,7 @@ function loadPagingServiceMetadata(
   let nextLink: InputNextLink | undefined;
   if (method.pagingMetadata.nextLinkSegments) {
     nextLink = {
+      verb: method.pagingMetadata.nextLinkVerb,
       responseSegments: method.pagingMetadata.nextLinkSegments.map((segment) =>
         getResponseSegmentName(segment),
       ),

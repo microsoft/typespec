@@ -1,5 +1,62 @@
 # Change Log - @typespec/http-client-python
 
+## 0.39.0
+
+### Features
+
+- [#12150](https://github.com/microsoft/typespec/pull/12150) Make automatic SSE reconnection opt-in with the `enable-sse-reconnect` emitter option, which defaults to `false`. Without this option, SSE streams end at EOF without reconnect callbacks, retry delays, or `Last-Event-ID` request plumbing. SSE parsing, event ID and retry metadata (including metadata-only blocks), terminal events, and stream cleanup remain available.
+
+  Enable reconnection when generating the client:
+
+  ```yaml
+  emit:
+    - "@typespec/http-client-python"
+  options:
+    "@typespec/http-client-python":
+      enable-sse-reconnect: true
+  ```
+
+### Bug Fixes
+
+- [#11897](https://github.com/microsoft/typespec/pull/11897) Escape quotes in enum and enum member documentation so embedded Python string delimiters remain documentation in generated code.
+
+
+## 0.38.1
+
+### Bump dependencies
+
+- Bump dependencies of `@typespec/*` and `@azure-tools/*` to latest versions
+
+## 0.38.0
+
+### Features
+
+- [#11904](https://github.com/microsoft/typespec/pull/11904) Automatically reconnect SSE streams after an unexpected disconnect, honoring server-provided retry delays and resuming with the latest event ID.
+
+  ```python
+  with client.events.stream() as stream:
+      for event in stream:
+          print(event)
+  ```
+
+### Bug Fixes
+
+- [#12024](https://github.com/microsoft/typespec/pull/12024) Return long-running operation response bodies when generating TypedDict-only models.
+- [#12017](https://github.com/microsoft/typespec/pull/12017) Prevent duplicate named union aliases, and preserve parameter types in generated body overloads when a flattened parameter is filtered out.
+
+### Bump dependencies
+
+- [#12023](https://github.com/microsoft/typespec/pull/12023) Update transitive development dependencies `morgan` to 1.12.1 and `multer` to 2.3.0 to address log forging, denial of service, and file size limit bypass vulnerabilities.
+
+
+## 0.37.3
+
+### Bug Fixes
+
+- [#11964](https://github.com/microsoft/typespec/pull/11964) Generate complete ETag handling for operations in nested operation groups.
+- [#11946](https://github.com/microsoft/typespec/pull/11946) Fix named single-member unions to emit valid Python type aliases without generating lone overloads.
+
+
 ## 0.37.2
 
 ### Bump dependencies

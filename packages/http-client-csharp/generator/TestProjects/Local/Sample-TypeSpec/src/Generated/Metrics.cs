@@ -164,20 +164,20 @@ namespace SampleTypeSpec
         /// <param name="day"></param>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult<GetWidgetMetricsResponse> GetWidgetMetrics(DaysOfWeekExtensibleEnum day, CancellationToken cancellationToken = default)
+        public virtual ClientResult<GetWidgetMetricsResult> GetWidgetMetrics(DaysOfWeekExtensibleEnum day, CancellationToken cancellationToken = default)
         {
             ClientResult result = GetWidgetMetrics(day.ToString(), cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue((GetWidgetMetricsResponse)result, result.GetRawResponse());
+            return ClientResult.FromValue((GetWidgetMetricsResult)result, result.GetRawResponse());
         }
 
         /// <summary> Get Widget metrics for given day of week. </summary>
         /// <param name="day"></param>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult<GetWidgetMetricsResponse>> GetWidgetMetricsAsync(DaysOfWeekExtensibleEnum day, CancellationToken cancellationToken = default)
+        public virtual async Task<ClientResult<GetWidgetMetricsResult>> GetWidgetMetricsAsync(DaysOfWeekExtensibleEnum day, CancellationToken cancellationToken = default)
         {
             ClientResult result = await GetWidgetMetricsAsync(day.ToString(), cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue((GetWidgetMetricsResponse)result, result.GetRawResponse());
+            return ClientResult.FromValue((GetWidgetMetricsResult)result, result.GetRawResponse());
         }
     }
 }

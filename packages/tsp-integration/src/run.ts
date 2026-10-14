@@ -2,13 +2,22 @@ import pc from "picocolors";
 import type { IntegrationTestSuite } from "./config/types.js";
 import { findPackages, printPackages } from "./find-packages.js";
 import { ensureRepoState, validateGitClean } from "./git.js";
-import { patchPackageJson } from "./patch-package-json.js";
+import {
+  detectPackageManager,
+  getInstallCommand,
+  withPreservedLockfile,
+} from "./package-manager.js";
+import {
+  discardDependencyPatch,
+  patchDependencies,
+  restoreDependencies,
+} from "./patch-dependencies.js";
 import { TaskRunner } from "./runner.js";
 import { action, execWithSpinner, log, repoRoot } from "./utils.js";
 import { validateSpecs } from "./validate.js";
 
 export interface RunIntegrationTestSuiteOptions {
-  /** Only run specific stages. */
+  /** Only run specific stages. After a failed install, rerun patch before retrying install. */
   stages?: Stage[];
   /** Clean the temp directory. By default tries to reuse the repo by reseting and pulling latest changes. */
   clean?: boolean;
@@ -38,6 +47,7 @@ export async function runIntegrationTestSuite(
     await ensureRepoState(config, wd, {
       clean: options.clean,
     });
+    await discardDependencyPatch(wd);
   });
 
   await runner.stage("patch", async () => {
@@ -49,19 +59,25 @@ export async function runIntegrationTestSuite(
       return packages;
     });
 
-    await action("Patching package.json", async () => {
-      await patchPackageJson(wd, packages);
+    await action("Patching dependency configuration", async () => {
+      const manager = await detectPackageManager(wd);
+      log(`Using ${manager} in ${wd}`);
+      await patchDependencies(wd, packages, manager);
     });
   });
 
   await runner.stage("install", async () => {
     await action("Installing dependencies", async (spinner) => {
-      await execWithSpinner(spinner, "npm", ["install", "--no-package-lock"], {
-        cwd: wd,
-      });
-      await execWithSpinner(spinner, "git", ["checkout", "--", "package.json"], {
-        cwd: wd,
-      });
+      try {
+        const manager = await detectPackageManager(wd);
+        const { command, args } = getInstallCommand(manager);
+        log(`Using ${command} in ${wd}`);
+        await withPreservedLockfile(wd, manager, () =>
+          execWithSpinner(spinner, command, args, { cwd: wd }),
+        );
+      } finally {
+        await restoreDependencies(wd);
+      }
     });
   });
 

@@ -7,6 +7,7 @@ from types import SimpleNamespace
 
 import pytest
 
+from pygen import OptionsDict
 from pygen.codegen.models.response import (
     StreamingEvent,
     _get_terminal_event_names,
@@ -37,6 +38,7 @@ def _discriminated_payload(value, annotation="Payload"):
         discriminator_property=SimpleNamespace(wire_name="kind"),
         discriminator_value=value,
         type_annotation=lambda **kwargs: annotation,
+        serialization_type=lambda **kwargs: annotation,
     )
 
 
@@ -83,7 +85,8 @@ def test_inconsistent_unnamed_discriminators_are_ambiguous():
     ("async_mode", "stream_class"),
     [(False, "Stream"), (True, "AsyncStream")],
 )
-def test_generated_unnamed_discriminator_dispatch_and_terminal_predicate(async_mode, stream_class):
+@pytest.mark.parametrize("reconnect_options", [{}, {"enable-sse-reconnect": False}, {"enable-sse-reconnect": True}])
+def test_generated_unnamed_discriminator_dispatch_and_terminal_predicate(async_mode, stream_class, reconnect_options):
     connected = _streaming_event(payload_type=_discriminated_payload("connected", "_models.Connected"))
     disconnected = _streaming_event(
         payload_type=_discriminated_payload("disconnected", "_models.Disconnected"),
@@ -99,12 +102,28 @@ def test_generated_unnamed_discriminator_dispatch_and_terminal_predicate(async_m
         stream_class_name=lambda is_async: "AsyncStream" if is_async else "Stream",
     )
     code_model = SimpleNamespace(
-        options={"models-mode": "dpg"},
+        is_azure_flavor=False,
+        options=OptionsDict({"models-mode": "dpg", **reconnect_options}),
+        generate_typeddict_only=False,
         get_serialize_namespace=lambda *args, **kwargs: "test",
     )
     serializer = OperationSerializer(code_model, async_mode=async_mode, client_namespace="test")
+    builder = SimpleNamespace(
+        responses=[response],
+        success_status_codes=[200],
+        stream_value=True,
+        non_default_errors=[],
+        exceptions=[
+            SimpleNamespace(
+                status_codes=["default"],
+                type=object(),
+                default_content_type="application/json",
+            )
+        ],
+        default_error_deserialization=lambda _namespace: "_models.Error,",
+    )
 
-    generated = "\n".join(serializer.handle_structured_stream_response(SimpleNamespace(responses=[response])))
+    generated = "\n".join(serializer.handle_structured_stream_response(builder))
 
     assert ("if isinstance(_event_json, dict) and " "_event_json.get('kind') == 'connected':") in generated
     assert "_deserialize(_models.Connected, _event_json)" in generated
@@ -117,6 +136,34 @@ def test_generated_unnamed_discriminator_dispatch_and_terminal_predicate(async_m
     assert generated.count("return cls(pipeline_response, deserialized, {})") == 1
     assert 'raise ValueError(f"Unknown SSE event type: {_event.event!r}")' in generated
     assert not any(line.strip().startswith("_event.event =") for line in generated.splitlines())
+    if not reconnect_options.get("enable-sse-reconnect"):
+        assert "_reconnect" not in generated
+        assert "_last_event_id" not in generated
+        assert "_transport" not in generated
+        assert "_read_sse_response" not in generated
+        return
+    assert (
+        "async def _reconnect(_last_event_id, _reconnect_delay):"
+        if async_mode
+        else "def _reconnect(_last_event_id, _reconnect_delay):"
+    ) in generated
+    assert "_transport: Any = pipeline_response.context.transport" in generated
+    assert f"{'await ' if async_mode else ''}_transport.sleep(_reconnect_delay)" in generated
+    assert (
+        f"_reconnect_response = {'await ' if async_mode else ''}"
+        "self._client.send_request(_request, stream=True, **kwargs)"
+    ) in generated
+    assert (
+        f"{'await ' if async_mode else ''}_read_sse_response" f"{'_async' if async_mode else ''}(_reconnect_response)"
+    ) in generated
+    assert "_update_sse_request_headers(_request, _last_event_id)" in generated
+    assert "if _reconnect_response.status_code not in [200, 204]:" in generated
+    assert "error = _failsafe_deserialize(" in generated
+    assert "_models.Error," in generated
+    assert "_reconnect_response," in generated
+    assert "raise HttpResponseError(response=_reconnect_response, model=error)" in generated
+    assert "last_event_id=_last_event_id" in generated
+    assert "reconnect_callback=_reconnect" in generated
 
 
 def test_named_terminal_event_uses_explicit_event_name():
@@ -126,6 +173,39 @@ def test_named_terminal_event_uses_explicit_event_name():
     ]
 
     assert _get_terminal_event_names(events) == ["complete"]
+
+
+def test_reconnect_error_uses_reconnect_pipeline_response_for_legacy_models():
+    response = SimpleNamespace(
+        is_structured_stream=True,
+        streaming_kind="sse",
+        streaming_events=[_streaming_event(payload_type=_discriminated_payload("event"))],
+        terminal_event=None,
+        terminal_event_names=[],
+        stream_item_annotation=lambda **kwargs: "Payload",
+        stream_class_name=lambda is_async: "AsyncStream" if is_async else "Stream",
+    )
+    code_model = SimpleNamespace(
+        is_azure_flavor=False,
+        options=OptionsDict({"models-mode": "msrest", "enable-sse-reconnect": True}),
+        generate_typeddict_only=False,
+        get_serialize_namespace=lambda *args, **kwargs: "test",
+    )
+    serializer = OperationSerializer(code_model, async_mode=False, client_namespace="test")
+    builder = SimpleNamespace(
+        responses=[response],
+        success_status_codes=[200],
+        stream_value=True,
+        non_default_errors=[],
+        exceptions=[],
+        default_error_deserialization=lambda _namespace: "'object',",
+    )
+
+    generated = "\n".join(serializer.handle_structured_stream_response(builder))
+
+    assert "if _reconnect_response.status_code not in [200, 204]:" in generated
+    assert "PipelineResponse(_request, _reconnect_response, pipeline_response.context)," in generated
+    assert "raise HttpResponseError(response=_reconnect_response, model=error)" in generated
 
 
 @pytest.mark.parametrize(

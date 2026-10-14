@@ -210,7 +210,7 @@ describe("ObjectValue", () => {
 describe("EnumValue", () => {
   it("different EnumValue types", async () => {
     // Can be replaced with TypeKit once #6976 is implemented
-    const { Red, Green, Blue } = await Tester.compile(t.code`
+    const { program, Red, Green, Blue } = await Tester.compile(t.code`
         enum ${t.enum("Color")} {
           Red,
           Green: 3,
@@ -221,17 +221,33 @@ describe("EnumValue", () => {
         const ${t.value("Blue")} = ${t.enumValue("Color.Blue")};
       `);
 
-    await testValueExpression(Red, `"Red"`);
-    await testValueExpression(Green, `3`);
-    await testValueExpression(Blue, `"cyan"`);
+    await testValueExpression(Red, `"Red"`, program);
+    await testValueExpression(Green, `3`, program);
+    await testValueExpression(Blue, `"cyan"`, program);
+  });
+
+  it("renders the json encoded name of a member without a value", async () => {
+    const { program, Red } = await Tester.compile(t.code`
+        enum ${t.enum("Color")} {
+          @encodedName("application/json", "red")
+          Red,
+        }
+        const ${t.value("Red")} = ${t.enumValue("Color.Red")};
+      `);
+
+    await testValueExpression(Red, `"red"`, program);
   });
 });
 
 /**
  * Helper that renders a value expression and checks the output against the expected value.
  */
-async function testValueExpression(value: Value, expected: string) {
-  expect(getOutput(program, [<Atom value={value} />])).toRenderTo(`${expected}`);
+async function testValueExpression(
+  value: Value,
+  expected: string,
+  valueProgram: Program = program,
+) {
+  expect(getOutput(valueProgram, [<Atom value={value} />])).toRenderTo(`${expected}`);
 }
 
 /**

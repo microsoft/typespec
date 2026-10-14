@@ -10,7 +10,7 @@
 
 {{ serializer.declare_literal_enum(enum) }}
 {% if enum.yaml_data.get("description") %}
-"""{{ op_tools.wrap_string(enum.yaml_data["description"], "\n") }}"""
+"""{{ op_tools.wrap_docstring(enum.yaml_data["description"], "\n") }}"""
 {% endif %}
 {% endfor %}
 {% for model in models %}

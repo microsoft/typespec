@@ -7,8 +7,9 @@
   "type": "module",
   "scripts": {
     "clean": "rimraf ./dist ./temp",
-    "build": "vite build",
-    "watch": "vite build --watch",
+    "build": "vite build && pnpm build:types",
+    "build:types": "tsc -p tsconfig.declaration.json",
+    "watch": "concurrently --kill-others \"vite build --watch --emptyOutDir false\" \"pnpm build:types --watch\"",
     "test:skip": "vitest run",
     "test:ui": "vitest --ui",
     "test:ci": "vitest run --coverage --reporter=junit --reporter=default",
@@ -47,11 +48,11 @@
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "catalog:",
+    "concurrently": "catalog:",
     "rimraf": "catalog:",
     "rollup-plugin-visualizer": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",
-    "vite-plugin-checker": "catalog:",
-    "vite-plugin-dts": "catalog:"
+    "vite-plugin-checker": "catalog:"
   }
 }

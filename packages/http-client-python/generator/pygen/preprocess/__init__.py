@@ -54,13 +54,14 @@ def add_overload(yaml_data: dict[str, Any], body_type: dict[str, Any], for_flatt
     if yaml_data.get("initialOperation"):
         overload["initialOperation"] = yaml_data["initialOperation"]
 
+    # Reattach shared type objects before filtering parameters so positional
+    # alignment with the original operation is preserved.
+    for overload_p, original_p in zip(overload["parameters"], yaml_data["parameters"]):
+        overload_p["type"] = original_p["type"]
     if for_flatten_params:
         overload["bodyParameter"]["flattened"] = True
     else:
         overload["parameters"] = [p for p in overload["parameters"] if not p.get("inFlattenedBody")]
-    # for yaml sync, we need to make sure all of the responses, parameters, and exceptions' types have the same yaml id
-    for overload_p, original_p in zip(overload["parameters"], yaml_data["parameters"]):
-        overload_p["type"] = original_p["type"]
     update_overload_section(overload, yaml_data, "responses")
     update_overload_section(overload, yaml_data, "exceptions")
 
@@ -264,9 +265,6 @@ def _process_operation_etag_headers(
     if_match_candidates: list[dict[str, Any]] = []
     if_none_match_candidates: list[dict[str, Any]] = []
     for p in operation["parameters"]:
-        wire_name_lower = get_wire_name_lower(p)
-        if p["location"] == "header" and wire_name_lower == "client-request-id":
-            client["requestIdHeaderName"] = wire_name_lower
         if version_tolerant and p["location"] == "header":
             role = _get_etag_role(p)
             if role == "ifMatch":
@@ -275,7 +273,6 @@ def _process_operation_etag_headers(
                 if_none_match_candidates.append(p)
 
     property_if_match, property_if_none_match = _resolve_etag_pair(if_match_candidates, if_none_match_candidates)
-
     if property_if_match and property_if_none_match:
         etag_params = {id(property_if_match), id(property_if_none_match)}
         operation["parameters"] = [item for item in operation["parameters"] if id(item) not in etag_params] + [
@@ -284,6 +281,21 @@ def _process_operation_etag_headers(
         ]
         operation["hasEtag"] = True
         client["hasEtag"] = True
+
+
+def _process_operation_group_etag_headers(
+    operation_groups: list[dict[str, Any]],
+    client: dict[str, Any],
+    version_tolerant: bool,
+) -> None:
+    for operation_group in operation_groups:
+        for operation in operation_group.get("operations", []):
+            _process_operation_etag_headers(operation, client, version_tolerant)
+        _process_operation_group_etag_headers(
+            operation_group.get("operationGroups", []),
+            client,
+            version_tolerant,
+        )
 
 
 def headers_convert(yaml_data: dict[str, Any], replace_data: Any) -> None:
@@ -607,9 +619,16 @@ class PreProcessPlugin(YamlUpdatePlugin):
         if prop_name.endswith("Client"):
             prop_name = prop_name[: len(prop_name) - len("Client")]
         yaml_data["builderPadName"] = to_snake_case(prop_name)
-        for og in yaml_data.get("operationGroups", []):
-            for o in og["operations"]:
-                _process_operation_etag_headers(o, yaml_data, self.version_tolerant)
+        for operation_group in yaml_data.get("operationGroups", []):
+            for operation in operation_group.get("operations", []):
+                for parameter in operation["parameters"]:
+                    if parameter["location"] == "header" and get_wire_name_lower(parameter) == "client-request-id":
+                        yaml_data["requestIdHeaderName"] = "client-request-id"
+        _process_operation_group_etag_headers(
+            yaml_data.get("operationGroups", []),
+            yaml_data,
+            self.version_tolerant,
+        )
 
         # add client signature cloud_setting for arm
         if self.azure_arm and yaml_data["parameters"]:

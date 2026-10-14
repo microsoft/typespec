@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
@@ -91,7 +92,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             foreach (var kvp in currentMethodSignatures)
             {
                 var currentSignature = kvp.Key;
-                if (currentSignature.Name.Equals(previousSignature.Name)
+                if (!kvp.Value.IsPartialMethod && currentSignature.Name.Equals(previousSignature.Name)
                     && currentSignature.ReturnType?.AreNamesEqual(previousSignature.ReturnType) == true
                     && MethodSignatureHelper.ContainsSameParameters(previousSignature, currentSignature))
                 {
@@ -169,8 +170,16 @@ namespace Microsoft.TypeSpec.Generator.Utilities
 
             foreach (var method in currentMethods)
             {
+                // Custom partial declarations choose their names explicitly and take precedence over the last contract.
+                if (method.IsPartialMethod)
+                {
+                    continue;
+                }
+
                 var modifiers = method.Signature.Modifiers;
-                if (!modifiers.HasFlag(MethodSignatureModifiers.Public) && !modifiers.HasFlag(MethodSignatureModifiers.Protected))
+                var isPublicOrProtected = modifiers.HasFlag(MethodSignatureModifiers.Public)
+                    || modifiers.HasFlag(MethodSignatureModifiers.Protected);
+                if (!isPublicOrProtected)
                 {
                     continue;
                 }
@@ -197,7 +206,21 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                     var inputParameter = parameter.InputParameter;
                     if (inputParameter is not null && !parameter.IsContentParameter)
                     {
-                        preservedName = FindPreviousParameterName(lastContractView, inputParameter.OriginalName, method.Signature.Name);
+                        if (matchingPrevious != null)
+                        {
+                            preservedName = matchingPrevious.Signature.Parameters.FirstOrDefault(p =>
+                                string.Equals(p.Name, inputParameter.OriginalName, StringComparison.OrdinalIgnoreCase))?.Name;
+                        }
+                        else
+                        {
+                            // Date/time inputs keep the legacy fallback even when their names also contain acronyms.
+                            var hasAcronymRename = inputParameter.Name != inputParameter.Name.NormalizeCSharpAcronyms(useCamelCase: true);
+                            if (!hasAcronymRename || inputParameter.Type.IsDateTimeInputType())
+                            {
+                                preservedName = FindPreviousParameterName(
+                                    lastContractView, inputParameter.OriginalName, method.Signature.Name);
+                            }
+                        }
                     }
 
                     // Fall back to a positional match for synthesized parameters
@@ -274,31 +297,31 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             MethodSignature previousSignature)
         {
             var currentSignature = methodToReorder.Signature;
-            if (MethodSignatureHelper.HaveSameParametersInSameOrder(currentSignature, previousSignature))
+            if (methodToReorder.IsPartialMethod
+                || !MethodSignatureHelper.TryMatchParameterOrder(currentSignature.Parameters, previousSignature.Parameters, out var reorderedParameters))
             {
                 return false;
             }
 
-            var parametersByName = currentSignature.Parameters.ToDictionary(p => p.Name.ToVariableName());
-            var reorderedParameters = new List<ParameterProvider>(currentSignature.Parameters.Count);
-
-            foreach (var previousParam in previousSignature.Parameters)
+            bool orderChanged = false;
+            for (int i = 0; i < reorderedParameters.Length; i++)
             {
-                if (parametersByName.TryGetValue(previousParam.Name.ToVariableName(), out var matchingParam))
+                if (!ReferenceEquals(currentSignature.Parameters[i], reorderedParameters[i]))
                 {
-                    reorderedParameters.Add(matchingParam);
+                    orderChanged = true;
+                    break;
                 }
             }
-
-            if (reorderedParameters.Count != currentSignature.Parameters.Count)
+            if (!orderChanged)
             {
                 return false;
             }
 
-            foreach (var previousParam in previousSignature.Parameters)
+            for (int i = 0; i < reorderedParameters.Length; i++)
             {
-                if (parametersByName.TryGetValue(previousParam.Name.ToVariableName(), out var matchingParam)
-                    && matchingParam.DefaultValue is not null
+                var matchingParam = reorderedParameters[i];
+                var previousParam = previousSignature.Parameters[i];
+                if (matchingParam.DefaultValue is not null
                     && previousParam.DefaultValue is not null)
                 {
                     matchingParam.Update(defaultValue: previousParam.DefaultValue);
@@ -487,12 +510,34 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                     continue;
                 }
 
+                ApplyCurrentExperimentalMetadata(
+                    enclosingType,
+                    overload,
+                    optionalityMatch ?? newOptionalMatch ?? nullabilityMatch!);
                 candidates.Add(overload);
                 methods.Add(overload);
                 CodeModelGenerator.Instance.Emitter.Debug(
                     $"Added back-compat overload for '{enclosingType.Name}.{previousSignature.Name}' {reason}",
                     category);
             }
+        }
+
+        private static void ApplyCurrentExperimentalMetadata(TypeProvider enclosingType, MethodProvider overload, MethodProvider currentMethod)
+        {
+            var customMethod = currentMethod.IsPartialMethod
+                ? enclosingType.CustomCodeView?.Methods.FirstOrDefault(
+                    method => MethodSignatureBase.SignatureComparer.Equals(method.Signature, currentMethod.Signature))
+                : null;
+            var attribute = customMethod?.Signature.Attributes.FirstOrDefault(ExperimentalApiHelpers.IsExperimentalAttribute)
+                ?? currentMethod.Signature.Attributes.FirstOrDefault(ExperimentalApiHelpers.IsExperimentalAttribute);
+
+            // Graduation and custom partial attributes follow the current API, not the last contract.
+            overload.Signature.Update(attributes:
+            [
+                .. overload.Signature.Attributes.Where(a => !ExperimentalApiHelpers.IsExperimentalAttribute(a)),
+                .. attribute is null ? Array.Empty<AttributeStatement>() : [attribute]
+            ]);
+            overload.Update(suppressions: ExperimentalApiHelpers.MergeSuppressions(overload.Suppressions, currentMethod.Suppressions));
         }
 
         // Returns true when both signatures have the same return type (matched by name); a null return type
@@ -644,7 +689,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 signature,
                 body,
                 enclosingType,
-                previousMethod.XmlDocs);
+                BuildOverloadXmlDocs(currentMethod, signature, enclosingType));
         }
 
         // Forwards a previous parameter to the current method. When the parameter's value-type nullability
@@ -859,7 +904,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 signature,
                 body,
                 enclosingType,
-                previousMethod.XmlDocs);
+                BuildOverloadXmlDocs(currentMethod, signature, enclosingType));
         }
 
         // Given two signatures already known to have equal parameter count and types (including nullability),
@@ -956,45 +1001,75 @@ namespace Microsoft.TypeSpec.Generator.Utilities
 
             var body = BuildDelegatingBody(enclosingType, currentSignature, arguments);
             var signature = BuildHiddenOverloadSignature(previousSignature, shimParameters);
-            var xmlDocs = BuildXmlDocsWithoutParameter(previousMethod.XmlDocs, droppedParameter.Name.ToVariableName());
 
             return new MethodProvider(
                 signature,
                 body,
                 enclosingType,
-                xmlDocs);
+                BuildOverloadXmlDocs(currentMethod, signature, enclosingType));
         }
 
-        // Rebuilds an XML doc provider without any reference to the dropped parameter: its &lt;param&gt;
-        // entry is removed and every &lt;exception&gt; that referenced it is rebuilt without that
-        // &lt;paramref&gt; (exceptions that referenced only the dropped parameter are removed entirely).
-        // This avoids stale-doc compile errors (CS1572/CS1734) on the reduced-arity overload.
-        private static XmlDocProvider BuildXmlDocsWithoutParameter(XmlDocProvider docs, string droppedVariableName)
+        // Released XML has already been flattened by NamedTypeSymbolProvider. Use the current
+        // documentation, binding parameter tags/references to the shim without mutating either method.
+        private static XmlDocProvider BuildOverloadXmlDocs(
+            MethodProvider currentMethod,
+            MethodSignature signature,
+            TypeProvider enclosingType)
         {
-            var filteredParameters = docs.Parameters
-                .Where(p => p.Parameter.Name.ToVariableName() != droppedVariableName)
-                .ToList();
+            var docs = currentMethod.XmlDocs;
+            var parametersByName = signature.Parameters.ToDictionary(p => p.Name.ToVariableName());
+            var parameterDocsByName = docs.Parameters.ToDictionary(p => p.Parameter.Name.ToVariableName());
+            var parameters = new List<XmlDocParamStatement>();
+            foreach (var parameter in signature.Parameters)
+            {
+                if (parameterDocsByName.TryGetValue(parameter.Name.ToVariableName(), out var parameterDoc))
+                {
+                    parameters.Add(new XmlDocParamStatement(parameter, parameterDoc.Lines, [.. parameterDoc.InnerStatements]));
+                }
+            }
 
-            var filteredExceptions = new List<XmlDocExceptionStatement>(docs.Exceptions.Count);
+            var exceptions = new List<XmlDocExceptionStatement>();
             foreach (var exceptionDoc in docs.Exceptions)
             {
                 var remaining = exceptionDoc.Parameters
-                    .Where(p => p.Name.ToVariableName() != droppedVariableName)
-                    .ToList();
+                    .Select(p => parametersByName.GetValueOrDefault(p.Name.ToVariableName()))
+                    .OfType<ParameterProvider>()
+                    .ToArray();
 
-                // Drop an exception that referenced only the removed parameter; keep an unrelated one as-is;
-                // otherwise rebuild it without the removed paramref.
-                if (exceptionDoc.Parameters.Count > 0 && remaining.Count == 0)
+                if (exceptionDoc.Parameters.Count > 0 && remaining.Length == 0)
                 {
                     continue;
                 }
 
-                filteredExceptions.Add(remaining.Count == exceptionDoc.Parameters.Count
-                    ? exceptionDoc
-                    : new XmlDocExceptionStatement(exceptionDoc.ExceptionType, remaining));
+                exceptions.Add(exceptionDoc.WithParameters(remaining));
             }
 
-            return new XmlDocProvider(docs.Summary, filteredParameters, filteredExceptions, docs.Returns, docs.Inherit);
+            // The shim can validate more than its target, notably before unwrapping T? to T.
+            foreach (var exceptionDoc in MethodProviderHelpers.BuildXmlDocs(signature, enclosingType).Exceptions)
+            {
+                AddValidationException(exceptionDoc);
+            }
+            var currentParametersByName = currentMethod.Signature.Parameters.ToDictionary(p => p.Name.ToVariableName());
+            var unwrappedParameters = signature.Parameters.Where(p =>
+                currentParametersByName.TryGetValue(p.Name.ToVariableName(), out var currentParameter)
+                && IsNullabilityRelaxedValueType(p.Type, currentParameter.Type)).ToArray();
+            if (unwrappedParameters.Length > 0)
+            {
+                AddValidationException(new XmlDocExceptionStatement(typeof(ArgumentNullException), unwrappedParameters));
+            }
+
+            return new XmlDocProvider(docs.Summary, parameters, exceptions, docs.Returns, docs.Inherit);
+
+            void AddValidationException(XmlDocExceptionStatement exceptionDoc)
+            {
+                var documentedParameters = exceptions.Where(e => e.ExceptionType == exceptionDoc.ExceptionType)
+                    .SelectMany(e => e.Parameters).ToHashSet();
+                var missingParameters = exceptionDoc.Parameters.Where(p => !documentedParameters.Contains(p)).ToArray();
+                if (missingParameters.Length > 0)
+                {
+                    exceptions.Add(exceptionDoc.WithParameters(missingParameters));
+                }
+            }
         }
     }
 }

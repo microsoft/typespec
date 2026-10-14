@@ -5,6 +5,12 @@ import { dirname, join, relative, resolve } from "pathe";
 import pc from "picocolors";
 import type { Entrypoint, IntegrationTestSuite } from "./config/types.js";
 import { registerConsoleShortcuts } from "./keyboard-api.js";
+import {
+  detectPackageManager,
+  getCompileCommand,
+  withPreservedLockfile,
+  type PackageManager,
+} from "./package-manager.js";
 import type { TaskRunner } from "./runner.js";
 import { log, runWithConcurrency, ValidationFailedError } from "./utils.js";
 
@@ -55,6 +61,7 @@ export class TspRunner {
   #runner: TaskRunner;
   #projectDirs: string[];
   #options: ValidateSpecsOptions;
+  #packageManager?: PackageManager;
 
   constructor(
     runner: TaskRunner,
@@ -88,7 +95,10 @@ export class TspRunner {
   }
   async #execWorker(projectsToRun: string[]): Promise<BatchRunResult> {
     this.isCancelling = false;
-    const result = await runValidation(this.#runner, this, projectsToRun);
+    const manager = (this.#packageManager ??= await detectPackageManager(this.dir));
+    const result = await withPreservedLockfile(this.dir, manager, () =>
+      runValidation(this.#runner, this, projectsToRun, manager),
+    );
     if (this.#options.interactive) {
       log(
         `\nPress ${pc.yellow("a")} to rerun all tests, ${pc.yellow("f")} to rerun failed tests, or ${pc.yellow("q")} to quit.`,
@@ -138,6 +148,7 @@ async function runValidation(
   runner: TaskRunner,
   tspRunner: TspRunner,
   projectsToRun: string[],
+  manager: PackageManager,
 ): Promise<BatchRunResult> {
   let successCount = 0;
   let failureCount = 0;
@@ -150,7 +161,7 @@ async function runValidation(
       runner.reportTaskWithDetails("skip", relative(tspRunner.dir, projectDir), "Cancelled");
       return { dir: projectDir, result: { status: "skip", output: "Cancelled" } };
     }
-    const result = await verifyProject(runner, tspRunner.dir, projectDir, tspRunner.suite);
+    const result = await verifyProject(runner, tspRunner.dir, projectDir, tspRunner.suite, manager);
     runner.reportTaskWithDetails(result.status, relative(tspRunner.dir, projectDir), result.output);
     return { dir: projectDir, result };
   };
@@ -228,6 +239,7 @@ async function verifyProject(
   workspaceDir: string,
   dir: string,
   suite: IntegrationTestSuite,
+  manager: PackageManager,
 ): Promise<ProjectTestResult> {
   const entrypoints = await findTspEntrypoints(dir, suite);
 
@@ -243,6 +255,7 @@ async function verifyProject(
   let output = "";
   for (const entrypoint of entrypoints) {
     const result = await execTspCompile(
+      manager,
       workspaceDir,
       join(dir, entrypoint.name),
       entrypoint.options,
@@ -258,21 +271,19 @@ async function verifyProject(
 }
 
 async function execTspCompile(
+  manager: PackageManager,
   directory: string,
   file: string,
   args: string[] = [],
 ): Promise<{ success: boolean; output: string }> {
-  const { failed, all } = await execa(
-    "npm",
-    ["exec", "--no", "--", "tsp", "compile", file, "--warn-as-error", ...args],
-    {
-      cwd: directory,
-      stdio: "pipe",
-      all: true,
-      reject: false,
-      env: { FORCE_COLOR: pc.isColorSupported ? "1" : undefined }, // Force color output
-    },
-  );
+  const { command, args: commandArgs } = getCompileCommand(manager, file, args);
+  const { failed, all } = await execa(command, commandArgs, {
+    cwd: directory,
+    stdio: "pipe",
+    all: true,
+    reject: false,
+    env: { FORCE_COLOR: pc.isColorSupported ? "1" : undefined }, // Force color output
+  });
   return {
     success: !failed,
     output: all,

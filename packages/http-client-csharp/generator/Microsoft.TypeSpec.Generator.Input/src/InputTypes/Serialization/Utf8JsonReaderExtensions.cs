@@ -168,8 +168,10 @@ namespace Microsoft.TypeSpec.Generator.Input
             var result = new Dictionary<string, T>();
             while (reader.TokenType != JsonTokenType.EndObject)
             {
-                // Skip $id metadata (reference tracking), just like TryReadReferenceId does
-                if (reader.TryReadReferenceId(ref id))
+                // A string $id is metadata; an object-valued $id can be an example's wire property.
+                var valueReader = reader;
+                valueReader.Read();
+                if (valueReader.TokenType == JsonTokenType.String && reader.TryReadReferenceId(ref id))
                 {
                     continue;
                 }
@@ -185,10 +187,57 @@ namespace Microsoft.TypeSpec.Generator.Input
 
         public static T? ReadWithConverter<T>(this ref Utf8JsonReader reader, JsonSerializerOptions options)
         {
+            var resolver = (options.ReferenceHandler as TypeSpecReferenceHandler)?.CurrentResolver;
+            var definitionReader = reader;
+            var id = resolver == null ? null : TryGetReferenceDefinitionId(ref definitionReader);
+
             var converter = (JsonConverter<T>)options.GetConverter(typeof(T));
-            var value = converter.Read(ref reader, typeof(T), options);
+            var enteredReferenceDefinition = false;
+            if (id != null && resolver != null)
+            {
+                resolver.EnterReferenceDefinition(id);
+                enteredReferenceDefinition = true;
+            }
+            T? value;
+            try
+            {
+                value = converter.Read(ref reader, typeof(T), options);
+            }
+            finally
+            {
+                if (enteredReferenceDefinition && resolver != null && id != null)
+                {
+                    resolver.ExitReferenceDefinition(id);
+                }
+            }
             reader.Read();
+            if (id != null && resolver != null && resolver.GetPreviouslyResolvedReference(id) is T canonical)
+            {
+                return canonical;
+            }
             return value;
+        }
+
+        private static string? TryGetReferenceDefinitionId(ref Utf8JsonReader reader)
+        {
+            if (reader.TokenType != JsonTokenType.StartObject)
+            {
+                return null;
+            }
+
+            reader.Read();
+            while (reader.TokenType == JsonTokenType.PropertyName)
+            {
+                var isReferenceId = reader.ValueTextEquals("$id");
+                reader.Read();
+                if (isReferenceId)
+                {
+                    return reader.TokenType == JsonTokenType.String ? reader.GetString() : null;
+                }
+                reader.SkipValue();
+            }
+
+            return null;
         }
 
         public static T? ReadReferenceAndResolve<T>(this ref Utf8JsonReader reader, ReferenceResolver resolver) where T : class
@@ -197,6 +246,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             {
                 throw new JsonException();
             }
+            var objectReader = reader;
             reader.Read();
 
             if (reader.TokenType != JsonTokenType.PropertyName)
@@ -206,12 +256,36 @@ namespace Microsoft.TypeSpec.Generator.Input
 
             if (reader.GetString() != "$ref")
             {
+                if (reader.GetString() == "$id" && resolver is TypeSpecReferenceHandler.TypeSpecReferenceResolver indexedResolver)
+                {
+                    var idReader = reader;
+                    idReader.Read();
+                    if (idReader.TokenType != JsonTokenType.String)
+                    {
+                        throw new JsonException($"$id must be a string but was {idReader.TokenType}");
+                    }
+
+                    var existing = indexedResolver.GetPreviouslyResolvedReference(idReader.GetString()!);
+                    if (existing != null)
+                    {
+                        // A forward reference may have already materialized this definition.
+                        objectReader.Skip();
+                        reader = objectReader;
+                        return (T)existing;
+                    }
+                }
                 return null;
             }
 
             reader.Read();
-            var idRef = reader.GetString() ?? throw new JsonException("$ref can't be null");
-            var result = (T)resolver.ResolveReference(idRef);
+            if (reader.TokenType != JsonTokenType.String)
+            {
+                throw new JsonException($"$ref must be a string but was {reader.TokenType}");
+            }
+            var idRef = reader.GetString()!;
+            var result = resolver is TypeSpecReferenceHandler.TypeSpecReferenceResolver typeSpecResolver
+                ? typeSpecResolver.ResolveReference<T>(idRef)
+                : (T)resolver.ResolveReference(idRef);
 
             reader.Read();
             if (reader.TokenType != JsonTokenType.EndObject)

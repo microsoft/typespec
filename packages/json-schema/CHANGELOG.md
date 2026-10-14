@@ -1,5 +1,25 @@
 # Change Log - @typespec/json-schema
 
+## 1.17.0
+
+### Features
+
+- [#11019](https://github.com/microsoft/typespec/pull/11019) Support `model`, `enum`, `union`, and `scalar` declarations used in expression position. Anonymous declaration expressions are inlined, while named ones are hoisted into their own schema.
+  
+  ```tsp
+  model Foo {
+    status: enum { active, inactive }; // inlined
+    unit: scalar extends string; // inlined
+    inner: model Inner { x: string }; // hoisted as `Inner.json`
+  }
+  ```
+
+### Bug Fixes
+
+- [#11893](https://github.com/microsoft/typespec/pull/11893) Emit `minItems` and `maxItems` for tuple types so generated schemas enforce the tuple's exact length.
+- [#11915](https://github.com/microsoft/typespec/pull/11915) Emit tuple value referencing a declared model as a `$ref`.
+
+
 ## 1.16.0
 
 ### Bug Fixes

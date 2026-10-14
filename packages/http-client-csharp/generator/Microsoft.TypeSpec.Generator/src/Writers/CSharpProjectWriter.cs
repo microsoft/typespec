@@ -40,6 +40,10 @@ public class CSharpProjectWriter
 
     public CSProjProperty? GenerateDocumentationFile { get; init; }
 
+    public CSProjProperty? IsTestProject { get; init; }
+
+    public CSProjProperty? IsPackable { get; init; }
+
     public CSProjProperty? NoWarn { get; init; }
 
     public CSProjProperty? TreatWarningsAsErrors { get; init; }

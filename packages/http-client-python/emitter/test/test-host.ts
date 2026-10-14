@@ -6,6 +6,7 @@ import jsyaml from "js-yaml";
 import { tmpdir } from "os";
 import { join } from "path";
 import { $onEmit } from "../src/emitter.js";
+import { $lib, type PythonEmitterOptions } from "../src/lib.js";
 
 const PythonTester = createTester(resolvePath(import.meta.dirname, "../.."), {
   libraries: ["@azure-tools/typespec-client-generator-core"],
@@ -20,10 +21,13 @@ export const EmitterTester = PythonTester.files({
   "node_modules/@typespec/http-client-python/package.json": JSON.stringify({
     name: "@typespec/http-client-python",
     version: "0.0.0",
+    tspMain: "./lib.tsp",
     exports: { ".": "./index.js" },
   }),
+  "node_modules/@typespec/http-client-python/lib.tsp": 'import "./index.js";',
   "node_modules/@typespec/http-client-python/index.js": mockFile.js({
     $onEmit,
+    $lib,
   }),
 }).emit("@typespec/http-client-python", {
   "generate-packaging-files": false,
@@ -48,7 +52,12 @@ export interface CodeModel {
  */
 export async function emitCodeModel(
   code: string,
-): Promise<{ codeModel: CodeModel; diagnostics: readonly Diagnostic[] }> {
+  options: PythonEmitterOptions = {},
+): Promise<{
+  codeModel: CodeModel;
+  commandArgs: Record<string, unknown>;
+  diagnostics: readonly Diagnostic[];
+}> {
   const outputDir = await mkdtemp(join(tmpdir(), "typespec-python-"));
   let yamlPath: string | undefined;
   try {
@@ -56,6 +65,7 @@ export async function emitCodeModel(
       compilerOptions: {
         options: {
           "@typespec/http-client-python": {
+            ...options,
             "emit-yaml-only": true,
             "emitter-output-dir": outputDir,
           },
@@ -71,9 +81,10 @@ export async function emitCodeModel(
     if (!pointerName) {
       throw new Error("Emitter did not produce a code model.");
     }
-    ({ yamlPath } = JSON.parse(await readFile(join(outputDir, pointerName), "utf-8")));
+    const pointer = JSON.parse(await readFile(join(outputDir, pointerName), "utf-8"));
+    ({ yamlPath } = pointer);
     const codeModel = jsyaml.load(await readFile(yamlPath!, "utf-8")) as CodeModel;
-    return { codeModel, diagnostics };
+    return { codeModel, commandArgs: pointer.commandArgs, diagnostics };
   } finally {
     await rm(outputDir, { recursive: true, force: true });
     if (yamlPath) {

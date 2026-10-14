@@ -20,45 +20,25 @@ namespace Streaming.Sse._Protocol
 
         public ClientPipeline Pipeline => throw null;
 
-#pragma warning disable SCME0005 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-        public virtual Task<AsyncStreamingClientResult<SseItem<BinaryData>>> IdAsync(RequestOptions options) => throw null;
-#pragma warning restore SCME0005 // Type is for evaluation purposes only and is subject to change or removal in future updates.
+        public virtual Task<AsyncStreamingResult<SseItem<BinaryData>>> IdAsync(RequestOptions options) => throw null;
 
-#pragma warning disable SCME0005 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-        public virtual Task<AsyncStreamingClientResult<SseItem<ProtocolInfo>>> IdAsync(CancellationToken cancellationToken = default) => throw null;
-#pragma warning restore SCME0005 // Type is for evaluation purposes only and is subject to change or removal in future updates.
+        public virtual Task<AsyncStreamingResult<SseItem<ProtocolInfo>>> IdAsync(CancellationToken cancellationToken = default) => throw null;
 
-#pragma warning disable SCME0005 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-        public virtual Task<AsyncStreamingClientResult<SseItem<BinaryData>>> InvalidIdAsync(RequestOptions options) => throw null;
-#pragma warning restore SCME0005 // Type is for evaluation purposes only and is subject to change or removal in future updates.
+        public virtual Task<AsyncStreamingResult<SseItem<BinaryData>>> InvalidIdAsync(RequestOptions options) => throw null;
 
-#pragma warning disable SCME0005 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-        public virtual Task<AsyncStreamingClientResult<SseItem<ProtocolInfo>>> InvalidIdAsync(CancellationToken cancellationToken = default) => throw null;
-#pragma warning restore SCME0005 // Type is for evaluation purposes only and is subject to change or removal in future updates.
+        public virtual Task<AsyncStreamingResult<SseItem<ProtocolInfo>>> InvalidIdAsync(CancellationToken cancellationToken = default) => throw null;
 
-#pragma warning disable SCME0005 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-        public virtual Task<AsyncStreamingClientResult<SseItem<BinaryData>>> RetryAsync(RequestOptions options) => throw null;
-#pragma warning restore SCME0005 // Type is for evaluation purposes only and is subject to change or removal in future updates.
+        public virtual Task<AsyncStreamingResult<SseItem<BinaryData>>> RetryAsync(RequestOptions options) => throw null;
 
-#pragma warning disable SCME0005 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-        public virtual Task<AsyncStreamingClientResult<SseItem<ProtocolInfo>>> RetryAsync(CancellationToken cancellationToken = default) => throw null;
-#pragma warning restore SCME0005 // Type is for evaluation purposes only and is subject to change or removal in future updates.
+        public virtual Task<AsyncStreamingResult<SseItem<ProtocolInfo>>> RetryAsync(CancellationToken cancellationToken = default) => throw null;
 
-#pragma warning disable SCME0005 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-        public virtual Task<AsyncStreamingClientResult<SseItem<BinaryData>>> InvalidRetryAsync(RequestOptions options) => throw null;
-#pragma warning restore SCME0005 // Type is for evaluation purposes only and is subject to change or removal in future updates.
+        public virtual Task<AsyncStreamingResult<SseItem<BinaryData>>> InvalidRetryAsync(RequestOptions options) => throw null;
 
-#pragma warning disable SCME0005 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-        public virtual Task<AsyncStreamingClientResult<SseItem<ProtocolInfo>>> InvalidRetryAsync(CancellationToken cancellationToken = default) => throw null;
-#pragma warning restore SCME0005 // Type is for evaluation purposes only and is subject to change or removal in future updates.
+        public virtual Task<AsyncStreamingResult<SseItem<ProtocolInfo>>> InvalidRetryAsync(CancellationToken cancellationToken = default) => throw null;
 
-#pragma warning disable SCME0005 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-        public virtual Task<AsyncStreamingClientResult<SseItem<BinaryData>>> ReconnectAsync(RequestOptions options) => throw null;
-#pragma warning restore SCME0005 // Type is for evaluation purposes only and is subject to change or removal in future updates.
+        public virtual Task<AsyncStreamingResult<SseItem<BinaryData>>> ReconnectAsync(RequestOptions options) => throw null;
 
-#pragma warning disable SCME0005 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-        public virtual Task<AsyncStreamingClientResult<SseItem<ProtocolInfo>>> ReconnectAsync(CancellationToken cancellationToken = default) => throw null;
-#pragma warning restore SCME0005 // Type is for evaluation purposes only and is subject to change or removal in future updates.
+        public virtual Task<AsyncStreamingResult<SseItem<ProtocolInfo>>> ReconnectAsync(CancellationToken cancellationToken = default) => throw null;
 
         public virtual ProtocolData GetProtocolDataClient() => throw null;
     }

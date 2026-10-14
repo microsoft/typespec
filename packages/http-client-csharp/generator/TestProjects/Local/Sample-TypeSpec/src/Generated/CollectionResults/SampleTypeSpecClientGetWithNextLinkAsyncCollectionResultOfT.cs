@@ -38,7 +38,7 @@ namespace SampleTypeSpec
                 ClientResult result = await GetNextResponseAsync(message).ConfigureAwait(false);
                 yield return result;
 
-                nextPageUri = ((ListWithNextLinkResponse)result).Next;
+                nextPageUri = ((ListWithNextLinkResult)result).Next;
                 if (nextPageUri == null)
                 {
                     yield break;
@@ -52,7 +52,7 @@ namespace SampleTypeSpec
         /// <returns> The continuation token for the specified page. </returns>
         public override ContinuationToken GetContinuationToken(ClientResult page)
         {
-            Uri nextPage = ((ListWithNextLinkResponse)page).Next;
+            Uri nextPage = ((ListWithNextLinkResult)page).Next;
             if (nextPage != null)
             {
                 return ContinuationToken.FromBytes(BinaryData.FromString(nextPage.IsAbsoluteUri ? nextPage.AbsoluteUri : nextPage.OriginalString));
@@ -68,7 +68,7 @@ namespace SampleTypeSpec
         /// <returns> The values from the specified page. </returns>
         protected override async IAsyncEnumerable<Thing> GetValuesFromPageAsync(ClientResult page)
         {
-            foreach (Thing item in ((ListWithNextLinkResponse)page).Things)
+            foreach (Thing item in ((ListWithNextLinkResult)page).Things)
             {
                 yield return item;
                 await Task.Yield();
