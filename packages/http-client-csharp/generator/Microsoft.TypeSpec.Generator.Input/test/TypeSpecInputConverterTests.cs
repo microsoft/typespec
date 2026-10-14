@@ -10,7 +10,6 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
 {
     public class TypeSpecInputConverterTests
     {
-<<<<<<< HEAD
         [TestCase(false)]
         [TestCase(true)]
         public void LoadsOperationWithoutResourceName(bool includeLegacyResourceName)
@@ -42,7 +41,8 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
             Assert.AreEqual("/widgets", operation.Path);
             Assert.AreEqual("Test.getWidget", operation.CrossLanguageDefinitionId);
             Assert.IsNull(typeof(InputOperation).GetProperty("ResourceName"));
-=======
+        }
+
         [TestCase("model", "\"properties\": []")]
         [TestCase("enum", "\"values\": [], \"valueType\": {\"kind\":\"string\"}")]
         [TestCase("string", "\"crossLanguageDefinitionId\": \"External.Value\"")]
@@ -812,7 +812,6 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
             var value = reader.ReadWithConverter<JsonElement>(options);
 
             Assert.AreEqual(content, value.GetRawText());
->>>>>>> origin/main
         }
 
         [Test]
