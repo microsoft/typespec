@@ -679,7 +679,23 @@ try {
     } else {
         Write-Host "Regenerating emitter version dashboard..."
         $dashboardScript = Join-Path $tempDir "doc/GeneratorVersions/Emitter_Version_Dashboard.ps1"
-        & $dashboardScript -RepoRoot $tempDir
+        $previousErrorAction = $ErrorActionPreference
+        $ErrorActionPreference = "Stop"
+        try {
+            $global:LASTEXITCODE = 0
+            & $dashboardScript -RepoRoot $tempDir
+            if ($LASTEXITCODE -ne 0) {
+                throw "Emitter version dashboard regeneration failed with exit code $LASTEXITCODE."
+            }
+        } catch {
+            # Management approval must still block PRs that update management dependencies.
+            if ($RegenerateMgmtLibraries) {
+                throw
+            }
+            Register-StepFailure "Emitter version dashboard regeneration failed: $($_.Exception.Message). Continuing with data-plane PR creation without updating management dependencies."
+        } finally {
+            $ErrorActionPreference = $previousErrorAction
+        }
     }
 
     # For manual runs, fail the pipeline if any step reported a failure instead of
@@ -824,8 +840,12 @@ try {
     Write-Host "Successfully created PR: $prUrl"
 
 } catch {
-    Write-Error "Error creating PR: $_"
-    exit 1
+    if ($FailOnError) {
+        Write-Error "Error creating PR: $_"
+        exit 1
+    }
+    Register-StepFailure "Error creating PR: $_"
+    exit 0
 } finally {
     Pop-Location
     # Clean up temp directory
