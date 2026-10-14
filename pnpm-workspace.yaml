@@ -35,7 +35,7 @@ catalog:
   "@azure/identity": ^4.13.2
   "@azure/storage-blob": ^12.34.0
   "@babel/code-frame": ^8.0.0
-  "@babel/core": ^8.0.1
+  "@babel/core": ^8.0.7
   "@chronus/chronus": ^1.5.0
   "@chronus/github": ^1.2.0
   "@chronus/github-pr-commenter": ^1.1.1
