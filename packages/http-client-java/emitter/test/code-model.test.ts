@@ -1,7 +1,7 @@
 import { NodeHost, compile } from "@typespec/compiler";
 import { expectDiagnosticEmpty, expectDiagnostics } from "@typespec/compiler/testing";
 import { fileURLToPath } from "node:url";
-import { describe, expect, it } from "vitest";
+import { assert, describe, expect, it } from "vitest";
 import { parse, stringify } from "yaml";
 import { CodeModelBuilder } from "../src/code-model-builder.js";
 import { addSubClient, createClient } from "../src/common/client.js";
@@ -339,10 +339,10 @@ describe("code model characterization", () => {
         if (operation === voidOperation && flavor !== "azure") {
           expect(operation.responses![0].protocol.http).not.toHaveProperty("mediaTypes");
         } else {
-          expect(operation.responses![0].protocol.http.mediaTypes).toEqual(["application/json"]);
+          expect(operation.responses![0].protocol.http?.mediaTypes).toEqual(["application/json"]);
         }
         expect(operation.exceptions).toHaveLength(1);
-        expect(operation.exceptions![0].protocol.http.statusCodes).toEqual(["400"]);
+        expect(operation.exceptions![0].protocol.http?.statusCodes).toEqual(["400"]);
         expect(isSchemaResponse(operation.exceptions![0])).toBe(true);
         expect(operation.exceptions![0]).toMatchObject({
           schema: {
@@ -487,7 +487,8 @@ describe("code model characterization", () => {
         expect(operation.internalApi).toBe(internalApi);
         expect(operation.responses).toHaveLength(1);
         expect(operation.responses![0]).toMatchObject({ schema: bodySchema });
-        const header = operation.responses![0].protocol.http.headers![0];
+        const header = operation.responses![0].protocol.http?.headers?.[0];
+        assert.isDefined(header);
         expect(header).toMatchObject({
           header: "x-response-state",
           schema: { language: { default: { name: "ResponseState" } } },
