@@ -2502,14 +2502,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             }
         }
 
-        [TestCase("GetByResourceGroup", "ListByResourceGroup", false)]
-        [TestCase("GetByResourceGroup", "ListByResourceGroup", true)]
-        [TestCase("GetAll", "List", false)]
-        [TestCase("GetAll", "List", true)]
-        [TestCase("ListAll", "List", false)]
-        [TestCase("ListAll", "List", true)]
+        [TestCase("GetByResourceGroup", "ListByResourceGroup", false, false)]
+        [TestCase("GetByResourceGroup", "ListByResourceGroup", true, false)]
+        [TestCase("GetByResourceGroup", "ListByResourceGroup", false, true)]
+        [TestCase("GetByResourceGroup", "ListByResourceGroup", true, true)]
+        [TestCase("GetByResourceGroupAsync", "ListByResourceGroup", false, false)]
+        [TestCase("GetByResourceGroupAsync", "ListByResourceGroup", true, false)]
+        [TestCase("GetAll", "List", false, false)]
+        [TestCase("GetAll", "List", true, false)]
+        [TestCase("ListAll", "List", false, false)]
+        [TestCase("ListAll", "List", true, false)]
         public void ListNormalizationPreservesDistinctRequestBuilders(
-            string getName, string listName, bool reverseOrder)
+            string getName, string listName, bool reverseOrder, bool exactGetName)
         {
             const string collectionPath = "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.Resources/singletonTrackedResources";
             var resource = InputFactory.Model("Resource");
@@ -2530,10 +2534,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             ];
             var getOperation = InputFactory.Operation(
                 getName, parameters: operationParameters, path: collectionPath + "/default",
-                responses: [InputFactory.OperationResponse([200], resource)]);
+                responses: [InputFactory.OperationResponse([200], resource)], isExactName: exactGetName);
             var getMethod = InputFactory.BasicServiceMethod(
                 getName, getOperation, parameters: methodParameters,
-                response: InputFactory.ServiceMethodResponse(resource, null));
+                response: InputFactory.ServiceMethodResponse(resource, null), isExactName: exactGetName);
             var listOperation = InputFactory.Operation(
                 listName, parameters: operationParameters, path: collectionPath,
                 responses: [InputFactory.OperationResponse([200], page)]);
@@ -2606,6 +2610,49 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 CollectionAssert.Contains(requestCalls, listRequest.Signature.Name);
                 CollectionAssert.Contains(requestCalls, $"CreateNext{listName}Request");
                 CollectionAssert.DoesNotContain(requestCalls, getRequest.Signature.Name);
+            }
+        }
+
+        private static IEnumerable<TestCaseData> ListNormalizationOverloadCases()
+        {
+            yield return new TestCaseData(InputPrimitiveType.String, null);
+            yield return new TestCaseData(InputPrimitiveType.String, InputPrimitiveType.Int32);
+            yield return new TestCaseData(InputPrimitiveType.Int32, new InputNullableType(InputPrimitiveType.Int32));
+            yield return new TestCaseData(InputFactory.Array(InputPrimitiveType.Int32), InputFactory.Array(new InputNullableType(InputPrimitiveType.Int32)));
+        }
+
+        [TestCaseSource(nameof(ListNormalizationOverloadCases))]
+        public void ListNormalizationPreservesOverloads(InputType getParameterType, InputType? listParameterType)
+        {
+            var resource = InputFactory.Model("Resource");
+            var page = InputFactory.Model("Page", properties: [InputFactory.Property("value", InputFactory.Array(resource))]);
+            var getOperation = InputFactory.Operation(
+                "GetWidgets", parameters: [InputFactory.QueryParameter("id", getParameterType, isRequired: true)],
+                responses: [InputFactory.OperationResponse([200], resource)]);
+            var getMethod = InputFactory.BasicServiceMethod(
+                "GetWidgets", getOperation,
+                parameters: [InputFactory.MethodParameter("id", getParameterType, isRequired: true, location: InputRequestLocation.Query)],
+                response: InputFactory.ServiceMethodResponse(resource, null));
+            var listOperation = InputFactory.Operation(
+                "ListWidgets",
+                parameters: listParameterType is null ? [] : [InputFactory.QueryParameter("count", listParameterType, isRequired: true)],
+                responses: [InputFactory.OperationResponse([200], page)]);
+            var listMethod = InputFactory.PagingServiceMethod(
+                "ListWidgets", listOperation,
+                parameters: listParameterType is null ? [] : [InputFactory.MethodParameter("count", listParameterType, isRequired: true, location: InputRequestLocation.Query)],
+                response: InputFactory.ServiceMethodResponse(page, null),
+                pagingMetadata: InputFactory.PagingMetadata(["value"], null, null));
+            var inputClient = InputFactory.Client("TestClient", methods: [getMethod, listMethod]);
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient], inputModels: () => [resource, page]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+
+            Assert.AreEqual("GetWidgets", listMethod.Name);
+            foreach (var operation in new[] { getOperation, listOperation })
+            {
+                Assert.AreEqual("CreateGetWidgetsRequest", client.RestClient.GetCreateRequestMethod(operation).Signature.Name);
+                CollectionAssert.AreEquivalent(
+                    new[] { "GetWidgets", "GetWidgetsAsync", "GetWidgets", "GetWidgetsAsync" },
+                    client.GetMethodCollectionByOperation(operation).Select(method => method.Signature.Name));
             }
         }
 

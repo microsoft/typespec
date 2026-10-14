@@ -209,9 +209,11 @@ namespace Microsoft.TypeSpec.Generator
         /// <c>int?</c> are different parameter types, while C# erases reference type nullability so
         /// <c>string</c> and <c>string?</c> are the same one.
         /// </summary>
-        private static bool AreEquivalentParameterTypes(CSharpType type, CSharpType otherType)
+        internal static bool AreEquivalentParameterTypes(CSharpType type, CSharpType otherType)
             => (!type.IsValueType || type.IsNullable == otherType.IsNullable)
-                && type.AreNamesEqual(otherType);
+                && type.AreNamesEqual(otherType)
+                && type.Arguments.Zip(otherType.Arguments).All(pair =>
+                    AreEquivalentParameterTypes(pair.First, pair.Second));
 
         /// <summary>
         /// Removes the default values from the leading parameters of <paramref name="signature"/> so it

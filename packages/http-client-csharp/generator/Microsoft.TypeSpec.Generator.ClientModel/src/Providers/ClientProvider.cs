@@ -114,6 +114,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         public ClientProvider(InputClient inputClient)
         {
             _inputClient = inputClient;
+            IsMultiServiceClient = _inputClient.IsMultiServiceClient;
             CleanOperationNames(inputClient);
 
             _inputAuth = ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Auth;
@@ -125,8 +126,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 && DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public)
                 ? new ClientSettingsProvider(_inputClient, this)
                 : null;
-            IsMultiServiceClient = _inputClient.IsMultiServiceClient;
-
             var apiKey = _inputAuth?.ApiKey;
             var keyCredentialType = ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.KeyCredentialType;
             if (apiKey != null && keyCredentialType != null)
@@ -259,7 +258,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     var otherOperationName = other.IsExactName
                         ? otherOriginalName
                         : NormalizeListOperationName(otherOriginalName);
-                    return otherOriginalName != originalName && otherOperationName == operationName;
+                    return otherOriginalName != originalName &&
+                        OperationNamesCollide(otherOperationName, operationName) &&
+                        OperationSignaturesCollide(serviceMethod, other, otherOperationName == operationName);
                 }))
             {
                 operationName = originalName;
@@ -289,6 +290,29 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return normalizedName;
+        }
+
+        private bool OperationSignaturesCollide(InputServiceMethod first, InputServiceMethod second, bool requestNamesCollide)
+        {
+            foreach (var kind in new[] { ScmMethodKind.CreateRequest, ScmMethodKind.Protocol, ScmMethodKind.Convenience })
+            {
+                if (kind == ScmMethodKind.CreateRequest && !requestNamesCollide ||
+                    kind == ScmMethodKind.Convenience && (!first.Operation.GenerateConvenienceMethod || !second.Operation.GenerateConvenienceMethod))
+                {
+                    continue;
+                }
+
+                var firstParameters = RestClientProvider.GetMethodParameters(first, kind, this);
+                var secondParameters = RestClientProvider.GetMethodParameters(second, kind, this);
+                if (firstParameters.Count == secondParameters.Count &&
+                    firstParameters.Zip(secondParameters).All(pair =>
+                        MethodSignatureHelper.AreEquivalentParameterTypes(pair.First.Type, pair.Second.Type)))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private static string NormalizeListOperationName(string operationName)
