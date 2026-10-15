@@ -1643,74 +1643,117 @@ export interface OperationStatementNode extends BaseNode, DeclarationNode, Templ
   readonly parent?: TypeSpecScriptNode | NamespaceStatementNode | InterfaceStatementNode;
 }
 
+/** Named model declaration whose checked type is registered in the enclosing namespace. */
 export interface ModelStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
+  /** Distinguishes a namespace declaration from a keyword-form model in expression position. */
   readonly kind: SyntaxKind.ModelStatement;
+  /** Own property declarations and spreads in source order; inherited properties are not inserted here. */
   readonly properties: readonly (ModelPropertyNode | ModelSpreadPropertyNode)[];
+  /** Range including body braces, or `{-1, -1}` when an `is` declaration has no body. */
   readonly bodyRange: TextRange;
+  /** Base model expression following `extends`; mutually exclusive with `is` in parsed syntax. */
   readonly extends?: Expression;
+  /** Model expression following `is`, whose properties and decorators are copied by the checker. */
   readonly is?: Expression;
+  /** Decorator annotations as written, before semantic evaluation. */
   readonly decorators: readonly DecoratorExpressionNode[];
+  /** Syntactic containing file or namespace after binding, including for blockless namespaces. */
   readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;
 }
 
 /**
  * A `model` declaration used in expression position (e.g. `alias M = model { x: string }`
  * or a property type). May carry a name (kept on the resulting type but never registered)
- * and is always `expression: true`. Template parameters are syntactically accepted for
- * error recovery but rejected by the checker.
+ * and produces a model type with `expression: true`. Checking requires the
+ * `declaration-expressions` feature. Template parameters are syntactically accepted
+ * for error recovery but rejected by the checker.
  */
 export interface ModelDeclarationExpressionNode
   extends BaseNode, OptionallyNamedDeclarationNode, TemplateDeclarationNode {
+  /** Identifies keyword-form model syntax in expression position, not a bare `{ ... }` model type. */
   readonly kind: SyntaxKind.ModelDeclarationExpression;
+  /** Own property declarations and spreads in source order, before inheritance or copying is resolved. */
   readonly properties: readonly (ModelPropertyNode | ModelSpreadPropertyNode)[];
+  /** Range including body braces, or `{-1, -1}` when an `is` expression omits a body. */
   readonly bodyRange: TextRange;
+  /** Base model expression following `extends`, absent when `is` is used. */
   readonly extends?: Expression;
+  /** Source model expression following `is`, absent when `extends` is used. */
   readonly is?: Expression;
+  /** Annotations applied to the resulting model type, not to the enclosing expression's owner. */
   readonly decorators: readonly DecoratorExpressionNode[];
 }
 
+/** Named scalar declaration with an optional base scalar and named constructor signatures. */
 export interface ScalarStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
+  /** Distinguishes a namespace scalar declaration from a scalar declaration expression. */
   readonly kind: SyntaxKind.ScalarStatement;
+  /** Base scalar reference following `extends`, including any template arguments. */
   readonly extends?: TypeReferenceNode;
+  /** Decorator annotations on this scalar in source order. */
   readonly decorators: readonly DecoratorExpressionNode[];
+  /** Constructor signatures written in this body, excluding inherited constructors. */
   readonly members: readonly ScalarConstructorNode[];
+  /** Range including constructor-body braces, or `{-1, -1}` for a bodyless declaration. */
   readonly bodyRange: TextRange;
+  /** Syntactic containing file or namespace after binding. */
   readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;
 }
 
 /**
  * A `scalar` declaration used in expression position (e.g. `alias S = scalar extends int32`).
- * May carry a name (kept on the resulting type but never registered) and is always
- * `expression: true`. Template parameters are syntactically accepted for error recovery but
- * rejected by the checker.
+ * May carry a name (kept on the resulting type but never registered) and
+ * produces a scalar type with `expression: true`. Checking requires the
+ * `declaration-expressions` feature. Template parameters are syntactically accepted
+ * for error recovery but rejected by the checker.
  */
 export interface ScalarDeclarationExpressionNode
   extends BaseNode, OptionallyNamedDeclarationNode, TemplateDeclarationNode {
+  /** Identifies a scalar used as an expression without introducing a namespace binding. */
   readonly kind: SyntaxKind.ScalarDeclarationExpression;
+  /** Base scalar reference following `extends`, or `undefined` when omitted. */
   readonly extends?: TypeReferenceNode;
+  /** Annotations applied to the scalar type produced by this expression. */
   readonly decorators: readonly DecoratorExpressionNode[];
+  /** Constructor signatures written in the optional scalar body. */
   readonly members: readonly ScalarConstructorNode[];
+  /** Range including constructor-body braces, or `{-1, -1}` when no body was written. */
   readonly bodyRange: TextRange;
 }
 
+/** Named scalar constructor signature written `init name(parameters);`. */
 export interface ScalarConstructorNode extends BaseNode {
+  /** Distinguishes a constructor declaration from a call to that constructor. */
   readonly kind: SyntaxKind.ScalarConstructor;
+  /** Constructor name following `init`. */
   readonly id: IdentifierNode;
+  /** Constructor parameters in source order, using function-parameter syntax rather than model properties. */
   readonly parameters: FunctionParameterNode[];
+  /** Scalar declaration or scalar declaration expression containing this signature after binding. */
   readonly parent?: ScalarStatementNode | ScalarDeclarationExpressionNode;
 }
 
+/** Named interface declaration grouping operations and optionally extending other interfaces. */
 export interface InterfaceStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
+  /** Identifies an interface declaration, not one of its operation members. */
   readonly kind: SyntaxKind.InterfaceStatement;
+  /** Operations explicitly written in this body; inherited operations exist only in the checked type. */
   readonly operations: readonly OperationStatementNode[];
+  /** Range including the braces surrounding the operation list. */
   readonly bodyRange: TextRange;
+  /** Base interface references in source order; empty when no `extends` clause was written. */
   readonly extends: readonly TypeReferenceNode[];
+  /** Annotations on the interface itself, separate from annotations on individual operations. */
   readonly decorators: readonly DecoratorExpressionNode[];
+  /** Syntactic containing file or namespace after binding. */
   readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;
 }
 
+/** Named keyword-form union whose alternatives may have individually addressable names. */
 export interface UnionStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
+  /** Distinguishes a named union declaration from an infix `|` expression. */
   readonly kind: SyntaxKind.UnionStatement;
+  /** Variant nodes in source order, including both named and unnamed alternatives. */
   readonly options: readonly UnionVariantNode[];
   /**
    * Type that every variant of this union must be assignable to.
@@ -1721,19 +1764,24 @@ export interface UnionStatementNode extends BaseNode, DeclarationNode, TemplateD
    * @experimental
    */
   readonly extends?: Expression;
+  /** Annotations on the union itself, separate from variant annotations. */
   readonly decorators: readonly DecoratorExpressionNode[];
+  /** Syntactic containing file or namespace after binding. */
   readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;
 }
 
 /**
  * A keyword-form `union` declaration used in expression position
  * (e.g. `alias U = union { string, int32 }`). May carry a name (kept on the resulting type
- * but never registered) and is always `expression: true`. Template parameters are
- * syntactically accepted for error recovery but rejected by the checker.
+ * but never registered) and produces a union type with `expression: true`.
+ * Checking requires the `declaration-expressions` feature. Template parameters
+ * are syntactically accepted for error recovery but rejected by the checker.
  */
 export interface UnionDeclarationExpressionNode
   extends BaseNode, OptionallyNamedDeclarationNode, TemplateDeclarationNode {
+  /** Identifies keyword-form union syntax in expression position, not an infix `|` expression. */
   readonly kind: SyntaxKind.UnionDeclarationExpression;
+  /** Named or unnamed variants in source order; retained as members of this union when used in a larger `|`. */
   readonly options: readonly UnionVariantNode[];
   /**
    * Type that every variant of this union must be assignable to.
@@ -1744,45 +1792,69 @@ export interface UnionDeclarationExpressionNode
    * @experimental
    */
   readonly extends?: Expression;
+  /** Annotations applied to the union type produced by this expression. */
   readonly decorators: readonly DecoratorExpressionNode[];
 }
 
+/** One alternative in a keyword-form union, with an optional name before `:`. */
 export interface UnionVariantNode extends BaseNode {
+  /** Identifies a declaration-body alternative rather than an operand of an infix union. */
   readonly kind: SyntaxKind.UnionVariant;
+  /** Explicit variant name; absent for an unnamed alternative such as `string`. */
   readonly id?: IdentifierNode;
+  /** Type expression for this alternative, whether or not a name was provided. */
   readonly value: Expression;
+  /** Annotations on this variant, not on its containing union. */
   readonly decorators: readonly DecoratorExpressionNode[];
+  /** Containing union declaration or union declaration expression after binding. */
   readonly parent?: UnionStatementNode | UnionDeclarationExpressionNode;
 }
 
+/** Named enum declaration containing explicit members and enum spreads. */
 export interface EnumStatementNode extends BaseNode, DeclarationNode {
+  /** Distinguishes a namespace enum declaration from an enum declaration expression. */
   readonly kind: SyntaxKind.EnumStatement;
+  /** Members and spread references as written; spreads are not expanded in the syntax tree. */
   readonly members: readonly (EnumMemberNode | EnumSpreadMemberNode)[];
+  /** Annotations on this enum, separate from member annotations. */
   readonly decorators: readonly DecoratorExpressionNode[];
+  /** Syntactic containing file or namespace after binding. */
   readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;
 }
 
 /**
  * An `enum` declaration used in expression position (e.g. `alias E = enum { a, b }`).
- * May carry a name (kept on the resulting type but never registered) and is always
- * `expression: true`.
+ * May carry a name (kept on the resulting type but never registered) and produces
+ * an enum type with `expression: true`. Checking requires the `declaration-expressions` feature.
  */
 export interface EnumDeclarationExpressionNode extends BaseNode, OptionallyNamedDeclarationNode {
+  /** Identifies enum syntax used as an expression without introducing a namespace binding. */
   readonly kind: SyntaxKind.EnumDeclarationExpression;
+  /** Members and spreads in source order, before enum spreads are resolved by the checker. */
   readonly members: readonly (EnumMemberNode | EnumSpreadMemberNode)[];
+  /** Annotations applied to the enum type produced by this expression. */
   readonly decorators: readonly DecoratorExpressionNode[];
 }
 
+/** Enum member declaration with an optional explicit string or numeric literal after `:`. */
 export interface EnumMemberNode extends BaseNode {
+  /** Identifies an explicit member rather than an enum spread. */
   readonly kind: SyntaxKind.EnumMember;
+  /** Member name, including decoded names accepted through quoted-identifier syntax. */
   readonly id: IdentifierNode;
+  /** Explicit literal value; absent when the member is declared by name alone. */
   readonly value?: StringLiteralNode | NumericLiteralNode;
+  /** Annotations on this member, not its containing enum. */
   readonly decorators: readonly DecoratorExpressionNode[];
+  /** Containing enum declaration or enum declaration expression after binding. */
   readonly parent?: EnumStatementNode | EnumDeclarationExpressionNode;
 }
 
+/** An enum-body `...OtherEnum` entry whose members are copied during type checking. */
 export interface EnumSpreadMemberNode extends BaseNode {
+  /** Distinguishes a spread reference from an explicitly named enum member. */
   readonly kind: SyntaxKind.EnumSpreadMember;
+  /** Reference to the enum supplying the copied members. */
   readonly target: TypeReferenceNode;
 }
 
