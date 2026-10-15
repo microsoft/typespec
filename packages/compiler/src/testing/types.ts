@@ -234,12 +234,18 @@ export interface TestHost extends Pick<
   | "compilerHost"
   | "fs"
 > {
+  /** Most recently compiled program; accessing it before any compilation throws. */
   program: Program;
+  /** Libraries registered on this host, excluding the automatically mounted standard library. */
   libraries: TypeSpecTestLibrary[];
+  /** Mutable collection populated by `@test` decorators and retained across host compilations. */
   testTypes: Record<string, Type>;
 
+  /** Compile a previously added virtual entrypoint and return collected test types, asserting no diagnostics. */
   compile(main: string, options?: CompilerOptions): Promise<Record<string, Type>>;
+  /** Compile a previously added virtual entrypoint and return all warnings and errors. */
   diagnose(main: string, options?: CompilerOptions): Promise<readonly Diagnostic[]>;
+  /** Compile a virtual entrypoint and return the host's collected test types together with diagnostics. */
   compileAndDiagnose(
     main: string,
     options?: CompilerOptions,
@@ -248,42 +254,55 @@ export interface TestHost extends Pick<
 
 /** @deprecated Use {@link Tester} */
 export interface TestFiles {
+  /** Directory to search, relative to the library's real package root. */
   realDir: string;
+  /** Glob selecting paths within `realDir`; test and spec source files are excluded. */
   pattern: string;
+  /** Destination directory in the virtual filesystem, preserving the matched relative paths. */
   virtualPath: string;
 }
 
 /** @deprecated Use {@link Tester} */
 export interface TypeSpecTestLibraryInit {
+  /** Package name used as the virtual `node_modules` directory name. */
   name: string;
+  /** Real package directory from which the manifest, TypeSpec sources, and JavaScript are loaded. */
   packageRoot: string;
   /**
-   * Folder @default "lib"
+   * TypeSpec source folder relative to `packageRoot`; recursively includes `.tsp` files.
+   * @default "lib"
    */
   typespecFileFolder?: string;
 
   /**
-   * JS files folder. @default "dist/src"
+   * JavaScript folder relative to `packageRoot`; recursively includes `.js` modules.
+   * @default "dist/src"
    */
   jsFileFolder?: string;
 }
 
 /** @deprecated Use {@link Tester} */
 export interface TypeSpecTestLibrary {
+  /** Package name used by legacy wrappers when generating default imports. */
   name: string;
+  /** Real package root against which each file mapping's `realDir` is resolved. */
   packageRoot: string;
+  /** Ordered mappings that mount selected real files into the virtual filesystem. */
   files: TestFiles[];
 }
 
 /** @deprecated Use {@link Tester} */
 export interface TestHostConfig {
+  /** Additional libraries to mount after the standard library; omitted to load only compiler support. */
   libraries?: TypeSpecTestLibrary[];
 }
 
 /** @deprecated Use {@link Tester} */
 export class TestHostError extends Error {
+  /** Create a virtual-host lookup failure with the corresponding filesystem or module error code. */
   constructor(
     message: string,
+    /** Distinguishes a missing virtual file from an unregistered JavaScript module. */
     public code: "ENOENT" | "ERR_MODULE_NOT_FOUND",
   ) {
     super(message);
@@ -292,26 +311,29 @@ export class TestHostError extends Error {
 
 /** @deprecated Use {@link TesterInstance} */
 export interface BasicTestRunner {
+  /** Most recently compiled program from the underlying host; throws before the first compilation. */
   readonly program: Program;
+  /** Mutable virtual text files, keyed by resolved paths and shared with the underlying host. */
   readonly fs: Map<string, string>;
 
   /**
-   * Position to offset the automatically added code.
+   * UTF-16 length of the generated import/using prefix prepended to each input.
+   * Does not include code introduced by a custom wrapper.
    */
   readonly autoCodeOffset: number;
 
   /**
-   * Compile the given code and assert no diagnostics are present.
+   * Wrap the input as `main.tsp` and return collected test types, asserting no warnings or errors.
    */
   compile(code: string, options?: CompilerOptions): Promise<Record<string, Type>>;
 
   /**
-   * Compile the code and return the list of diagnostics.
+   * Wrap the input as `main.tsp` and return all diagnostics without asserting success.
    */
   diagnose(code: string, options?: CompilerOptions): Promise<readonly Diagnostic[]>;
 
   /**
-   * Compile the code and return the test types as well as the list of diagnostics.
+   * Wrap the input as `main.tsp` and return the host's collected test types and all diagnostics.
    */
   compileAndDiagnose(
     code: string,

@@ -59,18 +59,21 @@ export function createTestLibrary(init: TypeSpecTestLibraryInit): TypeSpecTestLi
 
 /** @deprecated Use {@link Tester} instead */
 export interface TestWrapperOptions {
+  /** Transform user source before the generated imports and usings are prepended. */
   wrapper?: (code: string) => string;
 
   /**
-   * List of imports to include automatically.
+   * Imports prepended to `main.tsp`. Defaults to registered host libraries other than the compiler;
+   * an empty array disables those default imports.
    */
   autoImports?: string[];
 
   /**
-   * List of usings to include automatically.
+   * Namespace `using` statements appended to the generated imports. Defaults to none.
    */
   autoUsings?: string[];
 
+  /** Default compiler options, shallow-merged with each call's options; nested objects are replaced. */
   compilerOptions?: CompilerOptions;
 }
 /** @deprecated Use {@link createTester} instead */
@@ -120,6 +123,11 @@ export function createTestWrapper(
 }
 /* eslint-enable @typescript-eslint/no-deprecated */
 
+/**
+ * Slice off space-only text before the first newline and after the last newline.
+ * Other whitespace is not trimmed. If no trailing space-only text is removed,
+ * the slice's end offset is zero and the result is empty.
+ */
 export function trimBlankLines(code: string) {
   let start = 0;
   for (let i = 0; i < code.length; i++) {
