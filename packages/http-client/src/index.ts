@@ -1,3 +1,4 @@
+/** TypeSpec namespace used to register the shared HTTP client library's decorators. */
 export const namespace = "TypeSpec.HttpClient";
 export * from "./context/index.js";
 export type {
