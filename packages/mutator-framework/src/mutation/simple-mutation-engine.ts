@@ -43,39 +43,61 @@ import { ScalarMutation } from "./scalar.js";
 import { UnionVariantMutation } from "./union-variant.js";
 import { UnionMutation } from "./union.js";
 
+/** Strategy instance types that expose one mutation node for each supported kind. */
 export interface SimpleMutations<TOptions extends SimpleMutationOptions> {
+  /** Connects an operation to its parameter model and return type. */
   Operation: SimpleOperationMutation<TOptions>;
+  /** Connects an interface to its operations. */
   Interface: SimpleInterfaceMutation<TOptions>;
+  /** Connects a model to its base, properties, and indexer. */
   Model: SimpleModelMutation<TOptions>;
+  /** Connects a scalar to its base scalar. */
   Scalar: SimpleScalarMutation<TOptions>;
+  /** Connects a property to its resolved underlying type. */
   ModelProperty: SimpleModelPropertyMutation<TOptions>;
+  /** Connects a union to its variants. */
   Union: SimpleUnionMutation<TOptions>;
+  /** Connects a variant to its resolved underlying type. */
   UnionVariant: SimpleUnionVariantMutation<TOptions>;
+  /** Exposes a node for a string literal without traversing children. */
   String: SimpleLiteralMutation<TOptions>;
+  /** Exposes a node for a numeric literal without traversing children. */
   Number: SimpleLiteralMutation<TOptions>;
+  /** Exposes a node for a boolean literal without traversing children. */
   Boolean: SimpleLiteralMutation<TOptions>;
+  /** Exposes a node for a compiler intrinsic without traversing children. */
   Intrinsic: SimpleIntrinsicMutation<TOptions>;
 }
 
+/** Union of the single-node strategies listed in {@link SimpleMutations}. */
 export type SimpleMutation = SimpleMutations<SimpleMutationOptions>[keyof SimpleMutations<any>];
 
+/** Initialization shape accepted by {@link SimpleMutationOptions}. */
 export interface SimpleMutationOptionsInit {
+  /** Optional reference connection; currently not consumed by the options constructor. */
   referenceEdge?: HalfEdge<any, any>;
 }
 
+/** Default options for simple strategies; inherits the empty mutation cache key. */
 export class SimpleMutationOptions extends MutationOptions {
+  /** Creates default options. The initializer is currently accepted but not stored. */
   constructor(init?: SimpleMutationOptionsInit) {
     super();
   }
 }
 
 /**
- * The simple mutation engine and it's associated mutation classes allow for
- * creating a mutated node for types in the type graph.
+ * Supplies single-node strategies for models, properties, operations, interfaces,
+ * scalars, unions, variants, literals, and intrinsics.
+ *
+ * Traversal establishes graph connections without eagerly cloning source types.
+ * Customize these strategies to mutate their nodes; omitted constructors use the
+ * simple defaults where available and otherwise the base engine's defaults.
  */
 export class SimpleMutationEngine<
   TCustomMutations extends CustomMutationClasses,
 > extends MutationEngine<TCustomMutations> {
+  /** Creates an engine using the given typekit and any custom strategy constructors. */
   constructor($: Typekit, mutatorClasses: ConstructorsFor<TCustomMutations>) {
     const defaultedMutatorClasses = {
       Operation: mutatorClasses.Operation ?? SimpleOperationMutation,
@@ -110,8 +132,11 @@ export class SimpleMutationEngine<
   }
 }
 
+/** Contract for a strategy exposing a single node in the parallel type graph. */
 export interface SingleMutationNode<T extends Type> {
+  /** Node tracking the source type, changes, and references from other nodes. */
   mutationNode: MutationNodeForType<T>;
+  /** Current output type; identical to the source until the node needs to change. */
   mutatedType: T;
 }
 
