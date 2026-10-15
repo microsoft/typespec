@@ -209,9 +209,9 @@ model VisibilityFilter
 #### Properties
 | Name | Type | Description |
 |------|------|-------------|
-| any? | `EnumMember[]` |  |
-| all? | `EnumMember[]` |  |
-| none? | `EnumMember[]` |  |
+| any? | `EnumMember[]` | Require at least one of these visibility modifiers.<br />Omit to impose no such requirement; an empty array matches no properties. |
+| all? | `EnumMember[]` | Require every one of these visibility modifiers.<br />Omit or pass an empty array to impose no such requirement. |
+| none? | `EnumMember[]` | Exclude properties with any of these visibility modifiers.<br />Omit or pass an empty array to exclude no properties by this condition. |
 
 ### `ArrayEncoding` {#ArrayEncoding}
 
