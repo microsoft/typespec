@@ -14,6 +14,22 @@ import type { LanguageConfiguration, SnippetExtractor } from "./snippet-extracto
 const SCENARIOS_UPDATE =
   process.env["RECORD"] === "true" || process.env["SCENARIOS_UPDATE"] === "true";
 
+/**
+ * Registers Vitest suites from every file recursively discovered beneath `scenariosLocation`.
+ * Call during suite definition, not inside a running test. Files are treated as Markdown:
+ * H1 sections define scenarios, TypeSpec fences supply input, and other fences use
+ * `<language> <output-path> [class|function|interface|type|enum <name>]` expectations.
+ *
+ * Emission errors fail the scenario; warnings are logged. Expected and actual excerpts
+ * are normalized with the supplied formatter. Titles containing `only:` or `skip:`
+ * select focused or skipped suites.
+ *
+ * Setting `SCENARIOS_UPDATE=true` or `RECORD=true` before loading this module rewrites
+ * expected excerpts in the source files instead of comparing them.
+ *
+ * @param tester - Configured emitter tester that compiles each scenario's TypeSpec input.
+ * @param snippetExtractor - Extractor matching the configured language for named-declaration queries.
+ */
 export async function executeScenarios(
   tester: EmitterTester,
   languageConfiguration: LanguageConfiguration,
