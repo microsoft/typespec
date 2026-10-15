@@ -285,6 +285,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         result.GetRawResponse()))
                 ];
             }
+            else if (ContainsModelType(responseBodyType))
+            {
+                methodBody =
+                [
+                    .. GetStackVariablesForProtocolParamConversion(convenienceBodyParameters, out var paramDeclarations),
+                    Declare("result", This.Invoke(protocolMethod.Signature, [.. GetProtocolMethodArguments(paramDeclarations)], isAsync).ToApi<ClientResponseApi>(), out ClientResponseApi result),
+                    Declare("data", result.GetRawResponse().Content(), out var data),
+                    Return(result.FromValue(
+                        Static(typeof(ModelReaderWriter)).Invoke(
+                            nameof(ModelReaderWriter.Read),
+                            [data, ClientModelReaderWriterOptions, ModelReaderWriterContextSnippets.Default],
+                            [responseBodyType]).CastTo(responseBodyType.OutputType),
+                        result.GetRawResponse()))
+                ];
+            }
             else
             {
                 methodBody =

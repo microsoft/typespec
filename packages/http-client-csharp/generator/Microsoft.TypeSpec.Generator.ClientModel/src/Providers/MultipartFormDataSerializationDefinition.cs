@@ -100,7 +100,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     continue;
                 }
 
-                statements.Add(ExperimentalApiHelpers.Suppress(BuildAddPartStatement(contentVar, prop, optionsParameter.As<ModelReaderWriterOptions>()),
+                statements.Add(ExperimentalApiHelpers.Suppress(
+                    BuildAddPartStatement(contentVar, prop, optionsParameter.As<ModelReaderWriterOptions>()),
                     ExperimentalApiHelpers.GetMemberSuppressions(prop)));
             }
 
