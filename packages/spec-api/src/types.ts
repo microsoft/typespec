@@ -102,6 +102,10 @@ export interface ServiceRequest {
    * are compared byte-for-byte. Multipart validation requires a custom handler.
    */
   body?: MockBody | MockMultipartBody;
+  /**
+   * Ignored by built-in request validation and service-call generation.
+   * The mock response status is configured through {@link MockResponse.status}, not this field.
+   */
   status?: number;
   /**
    * Expected query entries; extra query parameters are allowed. Dynamic values and
@@ -118,6 +122,11 @@ export interface ServiceRequest {
    * parsed request headers. The default handler skips Content-Type validation.
    */
   headers?: Record<string, unknown>;
+  /**
+   * Ignored by built-in request validation and service-call generation.
+   * Supply multipart file inputs through {@link MockMultipartBody.files} on body instead,
+   * and validate incoming uploads in a custom handler.
+   */
   files?: ServiceRequestFile[];
 }
 
