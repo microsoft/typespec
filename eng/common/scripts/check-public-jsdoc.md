@@ -34,6 +34,16 @@ The checker resolves aliases and follows the semantic public type graph:
 named types, object/enum members, static and instance class members, all overloads'
 parameter/return types, generic containers, constraints, defaults, and index types.
 It follows type predicates, inherited base contracts and conditional result branches.
+Documentation is deduplicated by declaration, independently from semantic traversal
+of each concrete type instance. For example, visiting `Box<string>` must not hide
+an undocumented type exposed later through `Box<Metadata>`. Generic aliases are
+followed through their resolved members/signatures, not by blindly traversing alias
+arguments that a mapped type may omit.
+Fresh bound parameters recreated by recursive generic methods are memoized by
+declaration, constraint and default, not by their transient TypeScript object IDs.
+Standard-library `Extract`/`Exclude` filter fields constrain existing members;
+they are not separate member-summary obligations. Their resolved value types
+still participate in traversal.
 Mapped types expose their resolved properties, not every syntactic type argument:
 `Omit<Helper, "implementationDetail">` does not expose the omitted member or require
 the helper's own summary. Loaded module augmentations are also checked. Workspace
@@ -69,6 +79,9 @@ path, HTML viewer's separately bundled emitter root, and the formatter's `.mjs`
 wrapper. The wrapper is checked rather than dropping this package.
 Exceptions are pinned to manifest targets and become errors when obsolete.
 New unresolved mappings, including a new source-less package root, fail.
+Containment and ownership comparisons normalize TypeScript/native separators and
+filesystem case sensitivity. Serialized identities remain source-relative with
+forward slashes on Windows as well as Unix.
 
 ## Retiring existing debt
 

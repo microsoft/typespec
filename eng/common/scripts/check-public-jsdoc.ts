@@ -72,6 +72,15 @@ function isJavaScript(file: string): boolean {
   return /\.(?:[cm]?js|[cm]?tsx?)$/.test(file);
 }
 
+function comparablePath(file: string): string {
+  const normalized = resolve(file).replace(/\\/g, "/").replace(/\/$/, "");
+  return ts.sys.useCaseSensitiveFileNames ? normalized : normalized.toLowerCase();
+}
+
+function containsPath(parent: string, file: string): boolean {
+  return comparablePath(file).startsWith(`${comparablePath(parent)}/`);
+}
+
 function loadPackage(dir: string, manifest: Manifest): Package {
   const configPath =
     ["tsconfig.build.json", "tsconfig.json"].map((name) => join(dir, name)).find(existsSync) ??
@@ -136,9 +145,9 @@ function sourceFor(pkg: Package, route: string, target: string): string | undefi
     return file;
   }
   const output = resolve(pkg.dir, target);
-  const outDir = pkg.config.options.outDir ?? join(pkg.dir, "dist");
+  const outDir = resolve(pkg.config.options.outDir ?? join(pkg.dir, "dist"));
   const stem = relative(outDir, output).replace(/(?:\.d)?\.[cm]?[jt]sx?$/, "");
-  const stems = output.startsWith(`${outDir}${sep}`)
+  const stems = containsPath(outDir, output)
     ? [
         resolve(pkg.config.options.rootDir ?? pkg.dir, stem),
         join(pkg.dir, stem),
@@ -146,13 +155,13 @@ function sourceFor(pkg: Package, route: string, target: string): string | undefi
       ]
     : [output.replace(/(?:\.d)?\.[cm]?[jt]sx?$/, "")];
   const candidates = [
-    ...new Set(
+    ...new Map(
       stems.flatMap((stem) =>
         [".ts", ".tsx", ".mts", ".cts", ".mjs", ".js", ".d.ts", ".d.mts", ".d.cts"].map(
-          (ext) => stem + ext,
+          (ext) => [comparablePath(stem + ext), stem + ext] as const,
         ),
       ),
-    ),
+    ).values(),
   ].filter(existsSync);
   // A declaration and its implementation are one source, not competing entry points.
   const implementations = candidates.filter((x) => !/\.d\.[cm]?ts$/.test(x));
@@ -204,8 +213,11 @@ for (const pkg of packages) {
 
 function localFile(pkg: Package, file: string): boolean {
   return (
-    file.startsWith(`${pkg.dir}${sep}`) &&
-    !relative(pkg.dir, file).split(sep).includes("node_modules")
+    containsPath(pkg.dir, file) &&
+    !comparablePath(file)
+      .slice(comparablePath(pkg.dir).length + 1)
+      .split("/")
+      .includes("node_modules")
   );
 }
 
@@ -345,7 +357,9 @@ function inspectEntry(pkg: Package, route: string, entry: string) {
   }
   const seenTypes = new Set<ts.Type>();
   const seenSymbols = new Set<ts.Symbol>();
-  const seenNamedTypes = new Map<ts.Symbol, Set<"instance" | "value">>();
+  const checkedNamedDeclarations = new Set<ts.Symbol>();
+  const seenNamedInstances = new Map<ts.Symbol, Set<string>>();
+  const cacheIds = new Map<object, number>();
   let typeDepth = 0;
   const docsInProgress = new Set<ts.Symbol>();
   const prefix = `${pkg.manifest.name}|${route}|`;
@@ -356,6 +370,37 @@ function inspectEntry(pkg: Package, route: string, entry: string) {
   }
   function declarations(symbol: ts.Symbol): readonly ts.Declaration[] {
     return symbol.getDeclarations() ?? [];
+  }
+  function cacheId(value: object): number {
+    let id = cacheIds.get(value);
+    if (id === undefined) cacheIds.set(value, (id = cacheIds.size));
+    return id;
+  }
+  function argumentKey(type: ts.Type, active = new Set<ts.Type>()): string {
+    // Generic methods recreate bound parameters. Canonicalize those by declaration
+    // and bounds, without treating alias arguments as additional public types.
+    const symbol = type.aliasSymbol ?? type.getSymbol();
+    const owner = symbol ? cacheId(declarations(symbol)[0] ?? symbol) : cacheId(type);
+    if (active.has(type)) return `recursive:${owner}`;
+    active.add(type);
+    try {
+      if (type.flags & ts.TypeFlags.TypeParameter) {
+        const constraint = checker.getBaseConstraintOfType(type);
+        const defaultType = (type as ts.TypeParameter).getDefault();
+        return `parameter:${owner}:${constraint ? argumentKey(constraint, active) : ""}:${defaultType ? argumentKey(defaultType, active) : ""}`;
+      }
+      const arguments_ =
+        type.aliasTypeArguments ??
+        (type.flags & ts.TypeFlags.Object &&
+        (type as ts.ObjectType).objectFlags & ts.ObjectFlags.Reference
+          ? checker.getTypeArguments(type as ts.TypeReference)
+          : undefined);
+      if (arguments_)
+        return `${owner}<${arguments_.map((arg) => argumentKey(arg, active)).join(",")}>`;
+      return `type:${cacheId(type)}`;
+    } finally {
+      active.delete(type);
+    }
   }
   function excludedDeclaration(decl: ts.Declaration): boolean {
     for (let node: ts.Node | undefined = decl; node && !ts.isSourceFile(node); node = node.parent) {
@@ -454,6 +499,24 @@ function inspectEntry(pkg: Package, route: string, entry: string) {
       docsInProgress.delete(symbol);
     }
   }
+  function isUtilityFilterMember(symbol: ts.Symbol): boolean {
+    return declarations(symbol).some((decl) => {
+      for (let node: ts.Node = decl; node.parent; node = node.parent) {
+        const parent = node.parent;
+        if (ts.isTypeReferenceNode(parent) && parent.typeArguments?.[1] === node) {
+          const reference = checker.getSymbolAtLocation(parent.typeName);
+          const target = reference && unalias(reference);
+          if (
+            target &&
+            ["Extract", "Exclude"].includes(target.name) &&
+            declarations(target).some((d) => program.isSourceFileDefaultLibrary(d.getSourceFile()))
+          )
+            return true;
+        }
+      }
+      return false;
+    });
+  }
   function record(symbol: ts.Symbol, id = identity(symbol)) {
     itemCount++;
     const decl = declarations(symbol)[0];
@@ -463,7 +526,9 @@ function inspectEntry(pkg: Package, route: string, entry: string) {
       foreign && !id.startsWith("export:")
         ? `${foreign.manifest.name}|(exposed type)|${id}`
         : prefix + id;
-    if (!hasDocs(symbol)) missing.add(key);
+    // Conditional narrowing can synthesize intersections with an Extract/Exclude
+    // filter. Its fields constrain existing members; they are not new API members.
+    if (!isUtilityFilterMember(symbol) && !hasDocs(symbol)) missing.add(key);
   }
   function visitSymbol(input: ts.Symbol, exportedName?: string) {
     const symbol = unalias(input);
@@ -530,6 +595,13 @@ function inspectEntry(pkg: Package, route: string, entry: string) {
       named &&
       declarations(named).some((decl) => "name" in decl && !!decl.name) &&
       !declarations(named).some(ts.isSourceFile);
+    if (local && meaningfulName) {
+      const key = argumentKey(type);
+      let instances = seenNamedInstances.get(named);
+      if (instances?.has(key)) return;
+      if (!instances) seenNamedInstances.set(named, (instances = new Set()));
+      instances.add(key);
+    }
     // Follow real generic container elements (Map<K,V>, Promise<T>, arrays, etc.),
     // not syntactic alias arguments such as the hidden keys in Omit<Helper, "hidden">.
     if (
@@ -539,20 +611,14 @@ function inspectEntry(pkg: Package, route: string, entry: string) {
       for (const argument of checker.getTypeArguments(type as ts.TypeReference))
         visitType(argument);
     }
-    if (local && meaningfulName) {
-      const side =
-        named.flags & ts.SymbolFlags.Class &&
-        checker.getSignaturesOfType(type, ts.SignatureKind.Construct).length
-          ? "value"
-          : "instance";
-      let seen = seenNamedTypes.get(named);
-      if (seen?.has(side)) return;
-      if (!seen) seenNamedTypes.set(named, (seen = new Set()));
-      seen.add(side);
+    // Documentation and declaration metadata are shared, but each concrete type
+    // instance can expose different members, signatures or conditional results.
+    if (local && meaningfulName && !checkedNamedDeclarations.has(named)) {
+      checkedNamedDeclarations.add(named);
       if (named.flags & ts.SymbolFlags.Type) {
         record(named);
       }
-      if (side === "instance" && named.flags & (ts.SymbolFlags.Class | ts.SymbolFlags.Interface)) {
+      if (named.flags & (ts.SymbolFlags.Class | ts.SymbolFlags.Interface)) {
         for (const base of checker.getBaseTypes(
           checker.getDeclaredTypeOfSymbol(named) as ts.InterfaceType,
         ) ?? [])
