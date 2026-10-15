@@ -486,6 +486,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             return valueType.FrameworkType switch
             {
+                Type t when t == typeof(ulong) => value.CastTo(typeof(decimal)),
                 Type t when t == typeof(DateTimeOffset) => serializationFormat switch
                 {
                     _ => value.Invoke(nameof(ToString), Literal(serializationFormat.ToFormatSpecifier()))
