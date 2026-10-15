@@ -1,4 +1,0 @@
-enable:
-  compiler/unused-using: true
-disable:
-  compiler/unused-template-parameter: Only check unused usings.

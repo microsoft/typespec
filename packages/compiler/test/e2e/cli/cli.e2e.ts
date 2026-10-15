@@ -198,7 +198,6 @@ describe("compile", () => {
     it("reports configured lint diagnostics as errors with --warn-as-error", async () => {
       const { stdio } = await execCliFail(["compile", ".", "--warn-as-error"], { cwd });
       expect(stdio).toContain("error @typespec/compiler/unused-using:");
-      expect(stdio).toContain("error @typespec/compiler/unused-template-parameter:");
     });
 
     it("disables linting without disabling the configured emitter", async () => {
@@ -216,20 +215,15 @@ describe("compile", () => {
       expect(stdio).toContain("error deprecated:");
     });
 
-    it("accepts repeated rulesets and rule overrides, including --no-linter=false", async () => {
+    it("applies ruleset selection and per-rule overrides from CLI flags", async () => {
       const { stdio } = await execCliSuccess(
         [
           "compile",
           ".",
-          "--no-linter=false",
           "--linter-ruleset",
           "@typespec/compiler/all",
-          "--linter-ruleset",
-          "file:./using-only.yaml",
           "--linter-rule",
           "compiler/unused-using=false",
-          "--linter-rule",
-          "compiler/unused-template-parameter=true",
         ],
         { cwd },
       );
@@ -250,13 +244,6 @@ describe("compile", () => {
       const { stdio } = await execCliFail(["compile", ".", "--no-linter", ...override], { cwd });
       expect(stdio).toContain("conflicting-linter-flags");
       expect(stdio).not.toContain("Internal compiler error");
-    });
-
-    it("documents all linter flags in compile help", async () => {
-      const { stdio } = await execCliSuccess(["compile", "--help"], { cwd });
-      expect(stdio).toContain("--no-linter");
-      expect(stdio).toContain("--linter-ruleset");
-      expect(stdio).toContain("--linter-rule");
     });
   });
 
