@@ -1,8 +1,13 @@
 import type { Diagnostic, Service } from "@typespec/compiler";
 import type { Contact, ExtensionKey, License } from "@typespec/openapi";
 
+/**
+ * Intersection used by helpers that build schema keywords across supported versions.
+ * This is not a separate schema dialect: emitted keywords must still follow the selected OpenAPI version.
+ */
 export type CommonOpenAPI3Schema = OpenAPI3Schema & OpenAPISchema3_1 & OpenAPISchema3_2;
 
+/** Schema shapes accepted across supported OpenAPI versions; interpret keywords using the enclosing document's version. */
 export type SupportedOpenAPISchema = OpenAPI3Schema | OpenAPISchema3_1 | OpenAPISchema3_2;
 
 export type SupportedOpenAPIDocuments = OpenAPI3Document | OpenAPIDocument3_1 | OpenAPIDocument3_2;
@@ -233,6 +238,7 @@ export type OpenAPI3RequestBody = Extensions & {
   required?: boolean;
 };
 
+/** Authentication scheme definitions referenced by name from document or operation security requirements. */
 export type OpenAPI3SecurityScheme =
   | OpenAPI3ApiKeySecurityScheme
   | OpenAPI3OAuth2SecurityScheme
@@ -281,7 +287,7 @@ export interface OpenAPI3HttpSecurityScheme extends OpenAPI3SecuritySchemeBase {
  * defines an OAuth2 security scheme that can be used by the operations
  */
 export interface OpenAPI3OAuth2SecurityScheme extends OpenAPI3SecuritySchemeBase {
-  /* OAuth2 */
+  /** Selects OAuth 2.0 authentication; the supported grant types are described in `flows`. */
   type: "oauth2";
 
   /** An object containing configuration information for the flow types supported. */
@@ -374,8 +380,11 @@ export interface OpenAPI3Example {
   externalValue?: string;
 }
 
+/** Selects among alternative payload schemas using a property value; does not replace schema validation. */
 export interface OpenAPI3Discriminator extends Extensions {
+  /** Payload property whose value identifies the applicable schema. */
   propertyName: string;
+  /** Explicit mapping from discriminator values to schema names or references. */
   mapping?: Record<string, string>;
 }
 
@@ -387,16 +396,28 @@ export interface OpenAPIDiscriminator3_2 extends OpenAPI3Discriminator {
   defaultMapping?: string;
 }
 
+/** Single-type values for OpenAPI 3.0 schemas; nullability is expressed separately with `nullable`. */
 export type JsonType = "array" | "boolean" | "integer" | "number" | "object" | "string";
 
+/** XML serialization metadata for a schema, separate from its JSON property names and structure. */
 export type OpenAPI3XmlSchema = Extensions & {
+  /** Overrides the XML element or attribute name. */
   name?: string;
+  /** Absolute URI identifying the XML namespace. */
   namespace?: string;
+  /** Namespace prefix used in the XML representation. */
   prefix?: string;
+  /** Serializes this property as an XML attribute instead of an element; defaults to false. */
   attribute?: boolean;
+  /** Wraps array item elements in a container element; only applies to arrays and defaults to false. */
   wrapped?: boolean;
 };
 
+/**
+ * Schema shape used for OpenAPI 3.0, whose vocabulary differs from the JSON
+ * Schema-based 3.1 and 3.2 shapes. For example, exclusive bounds are booleans
+ * modifying `minimum`/`maximum`, and nullability uses `nullable`.
+ */
 export type OpenAPI3Schema = Extensions & {
   /**
    * This attribute is a string that provides a short description of the instance property.
@@ -420,9 +441,9 @@ export type OpenAPI3Schema = Extensions & {
   maximum?: number;
 
   /**
-   * Representing an exclusive upper limit for a numeric instance.
-   * This keyword validates only if the instance is strictly less than (not equal to) to "exclusiveMaximum".
-   * @see https://datatracker.ietf.org/doc/html/draft-wright-json-schema-validation-00#section-5.3
+   * When true, `maximum` is an exclusive bound; otherwise it is inclusive.
+   * Unlike OpenAPI 3.1 and later, this field is not itself a numeric bound.
+   * @see https://spec.openapis.org/oas/v3.0.4.html#schema-object
    */
   exclusiveMaximum?: boolean;
 
@@ -434,9 +455,9 @@ export type OpenAPI3Schema = Extensions & {
   minimum?: number;
 
   /**
-   * Representing an exclusive lower limit for a numeric instance.
-   * This keyword validates only if the instance is strictly greater than (not equal to) to "exclusiveMinimum".
-   * @see https://datatracker.ietf.org/doc/html/draft-wright-json-schema-validation-00#section-5.5
+   * When true, `minimum` is an exclusive bound; otherwise it is inclusive.
+   * Unlike OpenAPI 3.1 and later, this field is not itself a numeric bound.
+   * @see https://spec.openapis.org/oas/v3.0.4.html#schema-object
    */
   exclusiveMinimum?: boolean;
 
@@ -597,7 +618,7 @@ export type OpenAPI3Schema = Extensions & {
    */
   default?: string | boolean | number | Record<string, any>;
 
-  /** Allows sending a null value for the defined schema. Default value is false. */
+  /** Allows null in addition to an explicitly specified `type`; defaults to false. OpenAPI 3.1 and later use the `"null"` type instead. */
   nullable?: boolean;
 
   /**
@@ -626,6 +647,7 @@ export type OpenAPI3Schema = Extensions & {
   xml?: OpenAPI3XmlSchema;
 };
 
+/** Shared parameter and header fields. Use either `schema` with serialization fields or single-entry `content`, not both. */
 export type OpenAPI3ParameterBase = Extensions & {
   /**A brief description of the parameter. This could contain examples of use. CommonMark syntax MAY be used for rich text representation. */
   description?: string;
@@ -639,19 +661,23 @@ export type OpenAPI3ParameterBase = Extensions & {
   /** When this is true, parameter values of type array or object generate separate parameters for each value of the array or key-value pair of the map. For other types of parameters this property has no effect. When style is form, the default value is true. For all other styles, the default value is false.  */
   explode?: boolean;
 
+  /** Value schema for style-based serialization; mutually exclusive with `content`. */
   schema?: Refable<OpenAPI3Schema>;
 
   /** A free-form property to include an example of an instance for this schema. To represent examples that cannot be naturally represented in JSON or YAML, a string value can be used to contain the example with escaping where necessary. */
   example?: any;
 
+  /** Named examples or references; mutually exclusive with `example` and overriding schema-level examples. */
   examples?: Record<string, Refable<OpenAPI3Example>>;
   /** A map containing the representations for the parameter. The key is the media type and the value describes it. The map MUST only contain one entry. */
   content?: Record<string, OpenAPI3MediaType>;
 };
 
+/** One named URL query parameter; `style` and `explode` describe its serialization. */
 export type OpenAPI3QueryParameter = OpenAPI3ParameterBase & {
   /** Name of the parameter. */
   name: string;
+  /** Selects an individual query parameter, not the entire query string. */
   in: "query";
   /**
    * Describes how the parameter value will be serialized depending on the type of the parameter value.
@@ -661,9 +687,11 @@ export type OpenAPI3QueryParameter = OpenAPI3ParameterBase & {
    */
   style?: "form" | "spaceDelimited" | "pipeDelimited" | "deepObject";
 };
+/** A path-template substitution. Its name must match a placeholder and `required` must be true. */
 export type OpenAPI3PathParameter = OpenAPI3ParameterBase & {
   /** Name of the parameter. */
   name: string;
+  /** Selects a URL path-template parameter. */
   in: "path";
   /**
    * Describes how the parameter value will be serialized depending on the type of the parameter value.
@@ -673,9 +701,11 @@ export type OpenAPI3PathParameter = OpenAPI3ParameterBase & {
    */
   style?: "simple" | "label" | "matrix";
 };
+/** A named HTTP request header; header names are case-insensitive. */
 export type OpenAPI3HeaderParameter = OpenAPI3ParameterBase & {
   /** Name of the parameter. */
   name: string;
+  /** Selects a request header, rather than a response Header Object. */
   in: "header";
   /**
    * Describes how the parameter value will be serialized depending on the type of the parameter value.
@@ -685,23 +715,27 @@ export type OpenAPI3HeaderParameter = OpenAPI3ParameterBase & {
    */
   style?: "simple";
 };
+/** A named request cookie, using form-style serialization in OpenAPI 3.0. */
 export type OpenAPI3CookieParameter = OpenAPI3ParameterBase & {
   /** Name of the parameter. */
   name: string;
+  /** Selects a cookie carried in the request. */
   in: "cookie";
   /**
    * Describes how the parameter value will be serialized depending on the type of the parameter value.
    *
-   * Default value for header parameters is simple.
+   * Default value for cookie parameters is form.
    * @see https://spec.openapis.org/oas/v3.0.4.html#style-values
    */
   style?: "form";
 };
+/** A request parameter discriminated by `in`; a parameter's identity is its name/location pair. */
 export type OpenAPI3Parameter =
   | OpenAPI3HeaderParameter
   | OpenAPI3QueryParameter
   | OpenAPI3PathParameter
   | OpenAPI3CookieParameter;
+/** Supported named parameter locations, excluding request bodies. */
 export type OpenAPI3ParameterType = OpenAPI3Parameter["in"];
 
 /**
@@ -742,9 +776,16 @@ export interface Ref<T> {
 
 export type Refable<T> = Ref<T> | T;
 
+/** JSON Schema type names, including `"null"` for the schema vocabulary used in OpenAPI 3.1 and later. */
 export type JsonSchemaType =
   "array" | "boolean" | "integer" | "null" | "number" | "object" | "string";
 
+/**
+ * JSON Schema 2020-12 keywords modeled by this package for OpenAPI 3.1 and later.
+ * Unlike the 3.0 shape, supports type arrays, numeric exclusive bounds and tuple prefixes.
+ *
+ * @template AdditionalVocabularies Extra keyword fields, also available on recursively nested schemas.
+ */
 export type JsonSchema<AdditionalVocabularies extends {} = {}> = AdditionalVocabularies & {
   /**
    * The JSON type for the schema.
