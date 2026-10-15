@@ -3102,7 +3102,7 @@ export interface LogInfo {
   level: LogLevel;
   /** Human-readable text delivered to the sink when the message passes filtering. */
   message: string;
-  /** Optional diagnostic identifier or trace-area name; absent for uncoded messages. */
+  /** Optional diagnostic identifier or trace-area name; absent for messages without a code. */
   code?: string;
   /** Optional location-bearing target; absent or {@link NoTarget} produces no source location. */
   target?: DiagnosticTarget | typeof NoTarget;
@@ -3169,11 +3169,11 @@ export interface LogSink {
  * report program diagnostics or change compilation success.
  */
 export interface Logger {
-  /** Logs an uncoded trace message, subject to the configured minimum log level. */
+  /** Logs a trace message without a code, subject to the configured minimum log level. */
   trace(message: string): void;
-  /** Logs an uncoded warning without creating a program diagnostic. */
+  /** Logs a warning without a code or a program diagnostic. */
   warn(message: string): void;
-  /** Logs an uncoded error without creating a program diagnostic. */
+  /** Logs an error without a code or a program diagnostic. */
   error(message: string): void;
   /** Filters by severity, resolves the optional target, and forwards the entry to the sink. */
   log(log: LogInfo): void;
