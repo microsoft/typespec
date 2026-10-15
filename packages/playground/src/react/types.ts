@@ -1,16 +1,23 @@
 import type { DiagnosticTarget, Program } from "@typespec/compiler";
 import type { ReactNode } from "react";
 
+/** Compilation failed with an exception rather than returning a program with diagnostics. */
 export type CompilationCrashed = {
+  /** Original thrown value, retained for error reporting. */
   readonly internalCompilerError: any;
 };
 
+/** A returned compiler program and the emitted files available for viewing. */
 export type CompileResult = {
+  /** Compiled program, which may still contain error diagnostics. */
   readonly program: Program;
+  /** Paths relative to `tsp-output`; the playground may preserve earlier output during transient errors. */
   readonly outputFiles: string[];
 };
+/** Distinguish an exception from a returned program by checking for `internalCompilerError`. */
 export type CompilationState = CompileResult | CompilationCrashed;
 
+/** Emitter-specific compiler options keyed first by emitter package name, then by option name. */
 export type EmitterOptions = Record<string, Record<string, unknown>>;
 
 export interface OutputViewerProps {
