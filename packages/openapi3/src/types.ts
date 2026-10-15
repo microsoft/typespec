@@ -132,6 +132,7 @@ export interface OpenAPI3Tag extends Extensions {
 export type OpenAPI3HttpMethod =
   "get" | "put" | "post" | "delete" | "options" | "head" | "patch" | "trace";
 
+/** Named method fields in OpenAPI 3.2, adding `query` to the methods supported in earlier versions. */
 export type OpenAPIHttpMethod3_2 = OpenAPI3HttpMethod | "query";
 
 export type HttpMethod = OpenAPI3HttpMethod | OpenAPIHttpMethod3_2;
@@ -379,6 +380,7 @@ export interface OpenAPI3Discriminator extends Extensions {
   mapping?: Record<string, string>;
 }
 
+/** OpenAPI 3.2 discriminator metadata, including a fallback for missing or unmapped discriminator values. */
 export interface OpenAPIDiscriminator3_2 extends OpenAPI3Discriminator {
   /**
    * The default mapping value to be used when no other mapping matches.
@@ -1074,6 +1076,7 @@ export type JsonSchema<AdditionalVocabularies extends {} = {}> = AdditionalVocab
   externalDocs?: OpenAPI3ExternalDocs;
 };
 
+/** OpenAPI 3.1 schema vocabulary: JSON Schema 2020-12 keywords plus OpenAPI metadata and vendor extensions. */
 export type OpenAPISchema3_1 = JsonSchema<
   {
     /**
@@ -1100,7 +1103,9 @@ export type OpenAPISchema3_1 = JsonSchema<
   } & Extensions
 >;
 
+/** An OpenAPI 3.1 document, introducing JSON Schema-based schemas, webhooks and reusable path items. */
 export interface OpenAPIDocument3_1 extends Extensions {
+  /** OpenAPI specification version; `info.version` separately identifies the API version. */
   openapi: "3.1.0";
 
   /**
@@ -1152,23 +1157,36 @@ export interface OpenAPIDocument3_1 extends Extensions {
   security?: Record<string, string[]>[];
 }
 
+/** Reusable OpenAPI 3.1 definitions, including callbacks and path items not modeled in the 3.0 component shape. */
 export interface OpenAPIComponents3_1 extends Extensions {
+  /** Named schemas using the 3.1 JSON Schema vocabulary rather than the 3.0 schema subset. */
   schemas?: Record<string, OpenAPISchema3_1>;
+  /** Response definitions or aliases, referenced from an operation's response map. */
   responses?: Record<string, Refable<OpenAPI3Response>>;
+  /** Parameter definitions or aliases; each definition supplies its own name and location. */
   parameters?: Record<string, Refable<OpenAPI3Parameter>>;
+  /** Named examples for reuse by parameters or media types. */
   examples?: Record<string, Refable<OpenAPI3Example>>;
+  /** Request body definitions or aliases, separate from named parameters. */
   requestBodies?: Record<string, Refable<OpenAPI3RequestBody>>;
+  /** Header definitions or aliases; usage sites supply the header name. */
   headers?: Record<string, Refable<OpenAPI3Header>>;
+  /** Authentication definitions selected by name in security requirements. */
   securitySchemes?: Record<string, Refable<OpenAPI3SecurityScheme>>;
+  /** Reusable relationships from a response to another operation. */
   links?: Record<string, Refable<OpenAPI3Link>>;
+  /** Named callbacks mapping runtime URL expressions to the requests the API may initiate. */
   callbacks?: Record<string, Record<string, OpenAPI3PathItem>>;
+  /** Named path definitions reusable independently of a concrete URL path. */
   pathItems?: Record<string, OpenAPI3PathItem>;
 }
 
+/** OpenAPI 3.2 document shape, replacing version-sensitive 3.1 fields with their 3.2 counterparts. */
 export interface OpenAPIDocument3_2 extends Omit<
   OpenAPIDocument3_1,
   "openapi" | "servers" | "components" | "webhooks" | "paths" | "tags"
 > {
+  /** OpenAPI specification version; `info.version` separately identifies the API version. */
   openapi: "3.2.0";
   /**
    * This string MUST be in the form of a URI reference as defined.
@@ -1200,6 +1218,7 @@ export interface OpenAPIDocument3_2 extends Omit<
   components?: OpenAPIComponents3_2;
 }
 
+/** A server endpoint with the optional stable name introduced in OpenAPI 3.2. */
 export interface OpenAPIServer3_2 extends OpenAPI3Server {
   /**
    * An optional unique string to refer to the host designated by the URL.
@@ -1208,6 +1227,7 @@ export interface OpenAPIServer3_2 extends OpenAPI3Server {
   name?: string;
 }
 
+/** OpenAPI 3.2 encoding metadata supporting nested multipart structures and positional array encodings. */
 export interface OpenAPIEncoding3_2 extends OpenAPI3Encoding {
   /**
    * Applies nested Encoding Objects in the same manner as the {@link OpenAPIMediaType3_2.encoding} field
@@ -1226,6 +1246,7 @@ export interface OpenAPIEncoding3_2 extends OpenAPI3Encoding {
   itemEncoding?: OpenAPIEncoding3_2;
 }
 
+/** OpenAPI 3.2 media representation, with stream item schemas and nested or positional encodings. */
 export interface OpenAPIMediaType3_2 extends Omit<OpenAPI3MediaType, "examples" | "schema"> {
   /** The schema defining the content of the request, response, or parameter. */
   schema?: Refable<OpenAPISchema3_2>;
@@ -1255,6 +1276,7 @@ export interface OpenAPIMediaType3_2 extends Omit<OpenAPI3MediaType, "examples" 
   examples?: Record<string, Refable<OpenAPIExample3_2>>;
 }
 
+/** Reusable OpenAPI 3.2 definitions, adding media type components and version-specific referenced objects. */
 export interface OpenAPIComponents3_2 extends Omit<
   OpenAPIComponents3_1,
   | "responses"
@@ -1313,10 +1335,13 @@ export interface OpenAPIComponents3_2 extends Omit<
   parameters?: Record<string, Refable<OpenAPIParameter3_2>>;
 }
 
+/** OpenAPI 3.2 operation responses keyed by status code, range, or the `default` fallback. */
 export type OpenAPIResponses3_2 = {
+  /** Response or reference for the corresponding status, with 3.2 media type support. */
   [status: OpenAPI3StatusCode]: Refable<OpenAPIResponse3_2>;
 } & Extensions;
 
+/** OpenAPI 3.2 response, allowing a short summary and references to reusable media types. */
 export interface OpenAPIResponse3_2 extends Omit<OpenAPI3Response, "content"> {
   /** A map containing descriptions of potential response payloads. The key is a media type or media type range and the value describes it. For responses that match multiple keys, only the most specific key is applicable. e.g. text/plain overrides text/* */
   content?: Record<string, Refable<OpenAPIMediaType3_2>>;
@@ -1327,6 +1352,7 @@ export interface OpenAPIResponse3_2 extends Omit<OpenAPI3Response, "content"> {
   summary?: string;
 }
 
+/** Shared security scheme metadata with the deprecation flag introduced in OpenAPI 3.2. */
 export interface OpenAPISecuritySchemeBase3_2 extends OpenAPI3SecuritySchemeBase {
   /**
    * Specifies that a security scheme is deprecated and SHOULD be transitioned out of usage.
@@ -1336,28 +1362,33 @@ export interface OpenAPISecuritySchemeBase3_2 extends OpenAPI3SecuritySchemeBase
   deprecated?: boolean;
 }
 
+/** API key authentication in OpenAPI 3.2, retaining the key name/location and adding deprecation metadata. */
 export interface OpenAPIApiKeySecurityScheme3_2
   extends OpenAPISecuritySchemeBase3_2, OpenAPI3ApiKeySecurityScheme {}
 
+/** OAuth 2.0 authentication in OpenAPI 3.2, including optional device authorization flow configuration. */
 export interface OpenAPIOAuth2SecurityScheme3_2
   extends OpenAPISecuritySchemeBase3_2, Omit<OpenAPI3OAuth2SecurityScheme, "flows"> {
   /** An object containing configuration information for the flow types supported. */
   flows: OpenAPIOAuthFlows3_2;
 }
 
+/** OpenID Connect discovery in OpenAPI 3.2, with optional security scheme deprecation metadata. */
 export interface OpenAPIOpenIdConnectSecurityScheme3_2
   extends OpenAPISecuritySchemeBase3_2, OpenAPI3OpenIdConnectSecurityScheme {}
 
+/** HTTP authentication in OpenAPI 3.2, with optional security scheme deprecation metadata. */
 export interface OpenAPIHttpSecurityScheme3_2
   extends OpenAPISecuritySchemeBase3_2, OpenAPI3HttpSecurityScheme {}
 
+/** Authentication scheme shapes modeled for OpenAPI 3.2, selected by their `type` field. */
 export type OpenAPISecurityScheme3_2 =
   | OpenAPIApiKeySecurityScheme3_2
   | OpenAPIOAuth2SecurityScheme3_2
   | OpenAPIOpenIdConnectSecurityScheme3_2
   | OpenAPIHttpSecurityScheme3_2;
 
-/** Configuration for the OAuth Client Credentials flow. Previously called application in OpenAPI 2.0. */
+/** OAuth 2.0 Device Authorization Grant endpoints and scopes, supported starting in OpenAPI 3.2. */
 export interface OpenAPIDeviceAuthorizationFlow3_2 extends OpenAPI3OAuth2Flow {
   /** The token URL to be used for this flow. This MUST be in the form of a URL. */
   tokenUrl: string;
@@ -1398,6 +1429,7 @@ export interface OpenAPIExample3_2 extends OpenAPI3Example {
   serializedValue?: string;
 }
 
+/** OpenAPI 3.2 schema vocabulary, extending the JSON Schema-based shape with 3.2 XML and discriminator metadata. */
 export type OpenAPISchema3_2 = JsonSchema<
   {
     /**
@@ -1406,7 +1438,7 @@ export type OpenAPISchema3_2 = JsonSchema<
      */
     xml?: OpenAPIXmlSchema3_2;
     /**
-     *
+     * Selects a payload schema by discriminator value, with an optional fallback for missing or unmapped values.
      * @see https://spec.openapis.org/oas/v3.2.0.html#fixed-fields-20
      */
     discriminator?: OpenAPIDiscriminator3_2;
@@ -1419,29 +1451,36 @@ export type OpenAPISchema3_2 = JsonSchema<
   } & Extensions
 >;
 
+/** OpenAPI 3.2 XML metadata, using `nodeType` in place of the legacy attribute and array-wrapper flags. */
 export interface OpenAPIXmlSchema3_2 extends Omit<OpenAPI3XmlSchema, "attribute" | "wrapped"> {
   /**
+   * Legacy switch for serializing a property as an attribute; must not accompany `nodeType`.
    * @deprecated This property is deprecated and SHOULD be replaced by the {@link nodeType} property.
    */
   attribute?: boolean;
   /**
+   * Legacy array-wrapper switch; must not accompany `nodeType`.
    * @deprecated This property is deprecated and SHOULD be replaced by the {@link nodeType} property.
    */
   wrapped?: boolean;
   /**
-   * The type of the XML DOM node.
+   * The type of the XML DOM node. Defaults to `"none"` for arrays or reference
+   * schemas, and `"element"` otherwise.
    * @see https://spec.openapis.org/oas/v3.2.0.html#xml-node-types
-   * @default "none"
    */
   nodeType?: "element" | "attribute" | "text" | "cdata" | "comment" | "none";
 }
 
+/** OpenAPI 3.2 operation using version-specific parameters, responses and request media types. */
 export type OpenAPIOperation3_2 = Omit<
   OpenAPI3Operation,
   "responses" | "parameters" | "requestBody"
 > & {
+  /** Status-keyed responses using the 3.2 response shape. */
   responses?: Refable<OpenAPIResponses3_2>;
+  /** Operation-specific parameters, overriding path-level parameters with the same name/location pair. */
   parameters?: Refable<OpenAPIParameter3_2>[];
+  /** Request payload with support for reusable media type definitions. */
   requestBody?: Refable<OpenAPIRequestBody3_2>;
 };
 
@@ -1453,26 +1492,37 @@ export type OpenAPIOperation3_2 = Omit<
 export type OpenAPIPathItem3_2 = Omit<OpenAPI3PathItem, OpenAPI3HttpMethod | "parameters"> & {
   [method in OpenAPIHttpMethod3_2]?: OpenAPIOperation3_2;
 } & {
+  /** Operations for HTTP methods without a named path-item field, keyed by case-sensitive method name. */
   additionalOperations?: Record<string, OpenAPIOperation3_2>;
+  /** Parameters shared by all operations on the path, subject to operation-level overrides. */
   parameters?: Refable<OpenAPIParameter3_2>[];
 };
+/** Shared OpenAPI 3.2 parameter fields, using version-specific schemas, examples and reusable media types. */
 export type OpenAPIParameterBase3_2 = Omit<
   OpenAPI3ParameterBase,
   "content" | "examples" | "schema"
 > & {
   /** A map containing the representations for the parameter. The key is the media type and the value describes it. The map MUST only contain one entry. */
   content?: Record<string, Refable<OpenAPIMediaType3_2>>;
+  /** Named data or serialized examples; mutually exclusive with `example`. */
   examples?: Record<string, Refable<OpenAPIExample3_2>>;
+  /** Value schema for style-based serialization; mutually exclusive with `content`. */
   schema?: Refable<OpenAPISchema3_2>;
 };
+/**
+ * An OpenAPI 3.2 parameter describing the entire query string through `content`.
+ * Must not coexist with individual `query` parameters for the same operation.
+ */
 export type OpenAPIQueryStringParameter3_2 = Omit<
   OpenAPIParameterBase3_2,
   "style" | "explode" | "allowReserved" | "schema"
 > & {
   /** Name of the parameter. */
   name: string;
+  /** Selects the entire query string rather than a single named query value. */
   in: "querystring";
 };
+/** OpenAPI 3.2 cookie parameter, adding cookie-specific serialization to the earlier form style. */
 export type OpenAPICookieParameter3_2 = Omit<
   OpenAPI3CookieParameter,
   "content" | "examples" | "style"
@@ -1481,25 +1531,31 @@ export type OpenAPICookieParameter3_2 = Omit<
     /**
      * Describes how the parameter value will be serialized depending on the type of the parameter value.
      *
-     * Default value for header parameters is simple.
+     * Defaults to form for compatibility; OpenAPI 3.2 recommends cookie style for cookie parameters.
      * @see https://spec.openapis.org/oas/latest#fixed-fields-9
      */
     style?: "form" | "cookie";
   };
+/** Request header parameter with OpenAPI 3.2 schema, example and media type fields. */
 export type OpenAPIHeaderParameter3_2 = Omit<OpenAPI3HeaderParameter, "content" | "examples"> &
   OpenAPIParameterBase3_2;
+/** Required path-template parameter with OpenAPI 3.2 schema, example and media type fields. */
 export type OpenAPIPathParameter3_2 = Omit<OpenAPI3PathParameter, "content" | "examples"> &
   OpenAPIParameterBase3_2;
+/** Individual named query parameter, distinct from the 3.2 whole-query-string parameter. */
 export type OpenAPIQueryParameter3_2 = Omit<OpenAPI3QueryParameter, "content" | "examples"> &
   OpenAPIParameterBase3_2;
+/** OpenAPI 3.2 request parameter union, including the whole-query-string location added in this version. */
 export type OpenAPIParameter3_2 =
   | OpenAPIHeaderParameter3_2
   | OpenAPIQueryParameter3_2
   | OpenAPIQueryStringParameter3_2
   | OpenAPIPathParameter3_2
   | OpenAPICookieParameter3_2;
+/** Parameter locations modeled for OpenAPI 3.2, including `querystring` but excluding request bodies. */
 export type OpenAPIParameterType3_2 = OpenAPIParameter3_2["in"];
 
+/** OpenAPI 3.2 tag metadata, supporting display summaries, parent-child organization and categorization. */
 export interface OpenAPITag3_2 extends OpenAPI3Tag {
   /**
    * A short summary of the tag, used for display purposes.
@@ -1518,6 +1574,7 @@ export interface OpenAPITag3_2 extends OpenAPI3Tag {
   kind?: string;
 }
 
+/** OpenAPI 3.2 request body, whose media representations can be embedded inline or referenced. */
 export interface OpenAPIRequestBody3_2 extends Omit<OpenAPI3RequestBody, "content"> {
   /** A map containing descriptions of potential request payloads. The key is a media type or media type range and the value describes it. For requests that match multiple keys, only the most specific key is applicable. e.g. text/plain overrides text/* */
   content: Record<string, Refable<OpenAPIMediaType3_2>>;
