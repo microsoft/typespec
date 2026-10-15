@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "build": "turbo build && pnpm check:eng && pnpm gen-compiler-extern-signature",
-    "check:eng": "tsc -p ./tsconfig.eng.json --noEmit",
+    "check:eng": "tsc -p ./tsconfig.eng.json --noEmit && pnpm check:public-jsdoc",
+    "check:public-jsdoc": "node eng/common/scripts/check-public-jsdoc.ts",
     "setup:min": "pnpm install && pnpm --filter \"@typespec/prettier-plugin-typespec...\" --filter \"@typespec/tspd...\" run build",
     "check-catalog": "node eng/common/scripts/check-catalog.ts",
     "check-lockfile": "node eng/common/scripts/check-lockfile.ts",
