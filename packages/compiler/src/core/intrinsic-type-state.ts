@@ -41,7 +41,7 @@ export function getMinValueForScalar(program: Program, target: Type): ScalarValu
   return !isNumeric(value) ? value : undefined;
 }
 
-/** Get the minimum value for a numeric type. If the value cannot be represented as a JS number(Overflow) undefined will be returned */
+/** Read the precise numeric `@minValue` constraint, or undefined if no numeric constraint is stored. */
 export function getMinValueAsNumeric(program: Program, target: Type): Numeric | undefined {
   const value = getMinValueRaw(program, target);
   return isNumeric(value) ? value : undefined;
@@ -73,7 +73,7 @@ export function getMaxValueForScalar(program: Program, target: Type): ScalarValu
   return !isNumeric(value) ? value : undefined;
 }
 
-/** Get the maximum value for a numeric type. If the value cannot be represented as a JS number(Overflow) undefined will be returned */
+/** Read the precise numeric `@maxValue` constraint, or undefined if no numeric constraint is stored. */
 export function getMaxValueAsNumeric(program: Program, target: Type): Numeric | undefined {
   const value = getMaxValueRaw(program, target);
   return isNumeric(value) ? value : undefined;
@@ -108,7 +108,7 @@ export function getMinValueExclusiveForScalar(
   return !isNumeric(value) ? value : undefined;
 }
 
-/** Get the minimum value exclusive for a numeric type. If the value cannot be represented as a JS number(Overflow) undefined will be returned */
+/** Read the precise numeric `@minValueExclusive` constraint, or undefined if no numeric constraint is stored. */
 export function getMinValueExclusiveAsNumeric(program: Program, target: Type): Numeric | undefined {
   const value = getMinValueExclusiveRaw(program, target);
   return isNumeric(value) ? value : undefined;
@@ -143,7 +143,7 @@ export function getMaxValueExclusiveForScalar(
   return !isNumeric(value) ? value : undefined;
 }
 
-/** Get the maximum value exclusive for a numeric type. If the value cannot be represented as a JS number(Overflow) undefined will be returned */
+/** Read the precise numeric `@maxValueExclusive` constraint, or undefined if no numeric constraint is stored. */
 export function getMaxValueExclusiveAsNumeric(program: Program, target: Type): Numeric | undefined {
   const value = getMaxValueExclusiveRaw(program, target);
   return isNumeric(value) ? value : undefined;

@@ -184,7 +184,7 @@ export interface Program {
   getSourceFileLocationContext(sourceFile: SourceFile): LocationContext;
 
   /**
-   * Project root. If a tsconfig was found/specified this is the directory for the tsconfig.json. Otherwise directory where the entrypoint is located.
+   * Directory of the resolved TypeSpec configuration file, or the entry point's directory when no config is supplied.
    */
   readonly projectRoot: string;
 

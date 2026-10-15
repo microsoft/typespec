@@ -29,11 +29,13 @@ import { ListenerFlow } from "./types.js";
 /** Control which template and inheritance relationships a semantic graph traversal follows. */
 export interface NavigationOptions {
   /**
-   * Skip non instantiated templates.
+   * Include uninstantiated template declarations in addition to finished types.
+   * @default false
    */
   includeTemplateDeclaration?: boolean;
   /**
-   * Visit derived types.
+   * Follow a model's derived models as well as its base model and property types.
+   * @default false
    */
   visitDerivedTypes?: boolean;
 }
@@ -41,7 +43,7 @@ export interface NavigationOptions {
 /** Restrict a semantic traversal to a namespace and, by default, its descendants. */
 export interface NamespaceNavigationOptions {
   /**
-   * Recursively navigate sub namespaces.
+   * Exclude types declared in child namespaces, restricting traversal to the given namespace.
    * @default false
    */
   skipSubNamespaces?: boolean;
