@@ -14,10 +14,13 @@ export type TspContext = {
  * Supplies the program for a component subtree. {@link Output} installs this provider.
  * A custom provider may supply a typekit; otherwise {@link useTsp} creates and caches one.
  */
-export const TspContext: ComponentContext<{ program: Program; $?: Typekit }> = createNamedContext<{
+export const TspContext: ComponentContext<{
   /** Program whose types the subtree renders. */
   program: Program;
   /** Optional preconfigured typekit; omission defers creation until the first {@link useTsp} call. */
+  $?: Typekit;
+}> = createNamedContext<{
+  program: Program;
   $?: Typekit;
 }>("TspContext");
 
