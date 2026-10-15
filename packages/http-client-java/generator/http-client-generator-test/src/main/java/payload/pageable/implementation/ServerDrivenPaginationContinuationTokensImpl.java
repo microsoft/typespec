@@ -9,7 +9,6 @@ import com.azure.core.annotation.Get;
 import com.azure.core.annotation.HeaderParam;
 import com.azure.core.annotation.Host;
 import com.azure.core.annotation.HostParam;
-import com.azure.core.annotation.QueryParam;
 import com.azure.core.annotation.ReturnType;
 import com.azure.core.annotation.ServiceInterface;
 import com.azure.core.annotation.ServiceMethod;
@@ -29,6 +28,7 @@ import com.azure.core.http.rest.RestProxy;
 import com.azure.core.util.BinaryData;
 import com.azure.core.util.Context;
 import com.azure.core.util.FluxUtil;
+import com.azure.core.util.UrlBuilder;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -73,8 +73,7 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Mono<Response<BinaryData>> requestQueryResponseBody(@HostParam("endpoint") String endpoint,
-            @QueryParam("token") String token, @HeaderParam("Accept") String accept, RequestOptions requestOptions,
-            Context context);
+            @HeaderParam("Accept") String accept, RequestOptions requestOptions, Context context);
 
         @Get("/payload/pageable/server-driven-pagination/continuationtoken/request-query-response-body")
         @ExpectedResponses({ 200 })
@@ -83,8 +82,7 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Response<BinaryData> requestQueryResponseBodySync(@HostParam("endpoint") String endpoint,
-            @QueryParam("token") String token, @HeaderParam("Accept") String accept, RequestOptions requestOptions,
-            Context context);
+            @HeaderParam("Accept") String accept, RequestOptions requestOptions, Context context);
 
         @Get("/payload/pageable/server-driven-pagination/continuationtoken/request-header-response-body")
         @ExpectedResponses({ 200 })
@@ -93,8 +91,7 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Mono<Response<BinaryData>> requestHeaderResponseBody(@HostParam("endpoint") String endpoint,
-            @HeaderParam("token") String token, @HeaderParam("Accept") String accept, RequestOptions requestOptions,
-            Context context);
+            @HeaderParam("Accept") String accept, RequestOptions requestOptions, Context context);
 
         @Get("/payload/pageable/server-driven-pagination/continuationtoken/request-header-response-body")
         @ExpectedResponses({ 200 })
@@ -103,8 +100,7 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Response<BinaryData> requestHeaderResponseBodySync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("token") String token, @HeaderParam("Accept") String accept, RequestOptions requestOptions,
-            Context context);
+            @HeaderParam("Accept") String accept, RequestOptions requestOptions, Context context);
 
         @Get("/payload/pageable/server-driven-pagination/continuationtoken/request-query-response-header")
         @ExpectedResponses({ 200 })
@@ -113,8 +109,7 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Mono<Response<BinaryData>> requestQueryResponseHeader(@HostParam("endpoint") String endpoint,
-            @QueryParam("token") String token, @HeaderParam("Accept") String accept, RequestOptions requestOptions,
-            Context context);
+            @HeaderParam("Accept") String accept, RequestOptions requestOptions, Context context);
 
         @Get("/payload/pageable/server-driven-pagination/continuationtoken/request-query-response-header")
         @ExpectedResponses({ 200 })
@@ -123,8 +118,7 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Response<BinaryData> requestQueryResponseHeaderSync(@HostParam("endpoint") String endpoint,
-            @QueryParam("token") String token, @HeaderParam("Accept") String accept, RequestOptions requestOptions,
-            Context context);
+            @HeaderParam("Accept") String accept, RequestOptions requestOptions, Context context);
 
         @Get("/payload/pageable/server-driven-pagination/continuationtoken/request-header-response-header")
         @ExpectedResponses({ 200 })
@@ -133,8 +127,7 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Mono<Response<BinaryData>> requestHeaderResponseHeader(@HostParam("endpoint") String endpoint,
-            @HeaderParam("token") String token, @HeaderParam("Accept") String accept, RequestOptions requestOptions,
-            Context context);
+            @HeaderParam("Accept") String accept, RequestOptions requestOptions, Context context);
 
         @Get("/payload/pageable/server-driven-pagination/continuationtoken/request-header-response-header")
         @ExpectedResponses({ 200 })
@@ -143,8 +136,7 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Response<BinaryData> requestHeaderResponseHeaderSync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("token") String token, @HeaderParam("Accept") String accept, RequestOptions requestOptions,
-            Context context);
+            @HeaderParam("Accept") String accept, RequestOptions requestOptions, Context context);
 
         @Get("/payload/pageable/server-driven-pagination/continuationtoken/request-query-nested-response-body")
         @ExpectedResponses({ 200 })
@@ -153,8 +145,7 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Mono<Response<BinaryData>> requestQueryNestedResponseBody(@HostParam("endpoint") String endpoint,
-            @QueryParam("token") String token, @HeaderParam("Accept") String accept, RequestOptions requestOptions,
-            Context context);
+            @HeaderParam("Accept") String accept, RequestOptions requestOptions, Context context);
 
         @Get("/payload/pageable/server-driven-pagination/continuationtoken/request-query-nested-response-body")
         @ExpectedResponses({ 200 })
@@ -163,8 +154,7 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Response<BinaryData> requestQueryNestedResponseBodySync(@HostParam("endpoint") String endpoint,
-            @QueryParam("token") String token, @HeaderParam("Accept") String accept, RequestOptions requestOptions,
-            Context context);
+            @HeaderParam("Accept") String accept, RequestOptions requestOptions, Context context);
 
         @Get("/payload/pageable/server-driven-pagination/continuationtoken/request-header-nested-response-body")
         @ExpectedResponses({ 200 })
@@ -173,8 +163,7 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Mono<Response<BinaryData>> requestHeaderNestedResponseBody(@HostParam("endpoint") String endpoint,
-            @HeaderParam("token") String token, @HeaderParam("Accept") String accept, RequestOptions requestOptions,
-            Context context);
+            @HeaderParam("Accept") String accept, RequestOptions requestOptions, Context context);
 
         @Get("/payload/pageable/server-driven-pagination/continuationtoken/request-header-nested-response-body")
         @ExpectedResponses({ 200 })
@@ -183,8 +172,7 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Response<BinaryData> requestHeaderNestedResponseBodySync(@HostParam("endpoint") String endpoint,
-            @HeaderParam("token") String token, @HeaderParam("Accept") String accept, RequestOptions requestOptions,
-            Context context);
+            @HeaderParam("Accept") String accept, RequestOptions requestOptions, Context context);
     }
 
     /**
@@ -215,7 +203,6 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      * }
      * </pre>
      * 
-     * @param token The token parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -224,12 +211,11 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      * @return the response body along with {@link PagedResponse} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<PagedResponse<BinaryData>> requestQueryResponseBodySinglePageAsync(String token,
-        RequestOptions requestOptions) {
+    private Mono<PagedResponse<BinaryData>> requestQueryResponseBodySinglePageAsync(RequestOptions requestOptions) {
         final String accept = "application/json";
         return FluxUtil
-            .withContext(context -> service.requestQueryResponseBody(this.client.getEndpoint(), token, accept,
-                requestOptions, context))
+            .withContext(
+                context -> service.requestQueryResponseBody(this.client.getEndpoint(), accept, requestOptions, context))
             .map(res -> new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
                 getValues(res.getValue(), "pets"), getNextLink(res.getValue(), "nextToken"), null));
     }
@@ -270,8 +256,24 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedFlux<BinaryData> requestQueryResponseBodyAsync(RequestOptions requestOptions) {
-        return new PagedFlux<>(() -> requestQueryResponseBodySinglePageAsync(null, requestOptions),
-            token -> requestQueryResponseBodySinglePageAsync(token, requestOptions));
+        return new PagedFlux<>(() -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> {
+                UrlBuilder urlBuilder = UrlBuilder.parse(requestLocal.getUrl());
+                urlBuilder.setQueryParameter("token", null);
+                requestLocal.setUrl(urlBuilder.toString());
+            });
+            return requestQueryResponseBodySinglePageAsync(requestOptionsLocal);
+        }, (token) -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> {
+                UrlBuilder urlBuilder = UrlBuilder.parse(requestLocal.getUrl());
+                urlBuilder.setQueryParameter("token", null);
+                requestLocal.setUrl(urlBuilder.toString());
+            });
+            requestOptionsLocal.addQueryParam("token", token, false);
+            return requestQueryResponseBodySinglePageAsync(requestOptionsLocal);
+        });
     }
 
     /**
@@ -302,7 +304,6 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      * }
      * </pre>
      * 
-     * @param token The token parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -311,10 +312,10 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      * @return the response body along with {@link PagedResponse}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private PagedResponse<BinaryData> requestQueryResponseBodySinglePage(String token, RequestOptions requestOptions) {
+    private PagedResponse<BinaryData> requestQueryResponseBodySinglePage(RequestOptions requestOptions) {
         final String accept = "application/json";
-        Response<BinaryData> res = service.requestQueryResponseBodySync(this.client.getEndpoint(), token, accept,
-            requestOptions, Context.NONE);
+        Response<BinaryData> res
+            = service.requestQueryResponseBodySync(this.client.getEndpoint(), accept, requestOptions, Context.NONE);
         return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
             getValues(res.getValue(), "pets"), getNextLink(res.getValue(), "nextToken"), null);
     }
@@ -355,8 +356,24 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<BinaryData> requestQueryResponseBody(RequestOptions requestOptions) {
-        return new PagedIterable<>(() -> requestQueryResponseBodySinglePage(null, requestOptions),
-            token -> requestQueryResponseBodySinglePage(token, requestOptions));
+        return new PagedIterable<>(() -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> {
+                UrlBuilder urlBuilder = UrlBuilder.parse(requestLocal.getUrl());
+                urlBuilder.setQueryParameter("token", null);
+                requestLocal.setUrl(urlBuilder.toString());
+            });
+            return requestQueryResponseBodySinglePage(requestOptionsLocal);
+        }, (token) -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> {
+                UrlBuilder urlBuilder = UrlBuilder.parse(requestLocal.getUrl());
+                urlBuilder.setQueryParameter("token", null);
+                requestLocal.setUrl(urlBuilder.toString());
+            });
+            requestOptionsLocal.addQueryParam("token", token, false);
+            return requestQueryResponseBodySinglePage(requestOptionsLocal);
+        });
     }
 
     /**
@@ -387,7 +404,6 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      * }
      * </pre>
      * 
-     * @param token The token parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -396,12 +412,10 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      * @return the response body along with {@link PagedResponse} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<PagedResponse<BinaryData>> requestHeaderResponseBodySinglePageAsync(String token,
-        RequestOptions requestOptions) {
+    private Mono<PagedResponse<BinaryData>> requestHeaderResponseBodySinglePageAsync(RequestOptions requestOptions) {
         final String accept = "application/json";
-        return FluxUtil
-            .withContext(context -> service.requestHeaderResponseBody(this.client.getEndpoint(), token, accept,
-                requestOptions, context))
+        return FluxUtil.withContext(
+            context -> service.requestHeaderResponseBody(this.client.getEndpoint(), accept, requestOptions, context))
             .map(res -> new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
                 getValues(res.getValue(), "pets"), getNextLink(res.getValue(), "nextToken"), null));
     }
@@ -442,8 +456,16 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedFlux<BinaryData> requestHeaderResponseBodyAsync(RequestOptions requestOptions) {
-        return new PagedFlux<>(() -> requestHeaderResponseBodySinglePageAsync(null, requestOptions),
-            token -> requestHeaderResponseBodySinglePageAsync(token, requestOptions));
+        return new PagedFlux<>(() -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> requestLocal.getHeaders().remove("token"));
+            return requestHeaderResponseBodySinglePageAsync(requestOptionsLocal);
+        }, (token) -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> requestLocal.getHeaders().remove("token"));
+            requestOptionsLocal.setHeader("token", token);
+            return requestHeaderResponseBodySinglePageAsync(requestOptionsLocal);
+        });
     }
 
     /**
@@ -474,7 +496,6 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      * }
      * </pre>
      * 
-     * @param token The token parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -483,10 +504,10 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      * @return the response body along with {@link PagedResponse}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private PagedResponse<BinaryData> requestHeaderResponseBodySinglePage(String token, RequestOptions requestOptions) {
+    private PagedResponse<BinaryData> requestHeaderResponseBodySinglePage(RequestOptions requestOptions) {
         final String accept = "application/json";
-        Response<BinaryData> res = service.requestHeaderResponseBodySync(this.client.getEndpoint(), token, accept,
-            requestOptions, Context.NONE);
+        Response<BinaryData> res
+            = service.requestHeaderResponseBodySync(this.client.getEndpoint(), accept, requestOptions, Context.NONE);
         return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
             getValues(res.getValue(), "pets"), getNextLink(res.getValue(), "nextToken"), null);
     }
@@ -527,8 +548,16 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<BinaryData> requestHeaderResponseBody(RequestOptions requestOptions) {
-        return new PagedIterable<>(() -> requestHeaderResponseBodySinglePage(null, requestOptions),
-            token -> requestHeaderResponseBodySinglePage(token, requestOptions));
+        return new PagedIterable<>(() -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> requestLocal.getHeaders().remove("token"));
+            return requestHeaderResponseBodySinglePage(requestOptionsLocal);
+        }, (token) -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> requestLocal.getHeaders().remove("token"));
+            requestOptionsLocal.setHeader("token", token);
+            return requestHeaderResponseBodySinglePage(requestOptionsLocal);
+        });
     }
 
     /**
@@ -559,7 +588,6 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      * }
      * </pre>
      * 
-     * @param token The token parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -568,12 +596,10 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      * @return the response body along with {@link PagedResponse} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<PagedResponse<BinaryData>> requestQueryResponseHeaderSinglePageAsync(String token,
-        RequestOptions requestOptions) {
+    private Mono<PagedResponse<BinaryData>> requestQueryResponseHeaderSinglePageAsync(RequestOptions requestOptions) {
         final String accept = "application/json";
-        return FluxUtil
-            .withContext(context -> service.requestQueryResponseHeader(this.client.getEndpoint(), token, accept,
-                requestOptions, context))
+        return FluxUtil.withContext(
+            context -> service.requestQueryResponseHeader(this.client.getEndpoint(), accept, requestOptions, context))
             .map(res -> new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
                 getValues(res.getValue(), "pets"), res.getHeaders().getValue(HttpHeaderName.fromString("next-token")),
                 null));
@@ -615,8 +641,24 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedFlux<BinaryData> requestQueryResponseHeaderAsync(RequestOptions requestOptions) {
-        return new PagedFlux<>(() -> requestQueryResponseHeaderSinglePageAsync(null, requestOptions),
-            token -> requestQueryResponseHeaderSinglePageAsync(token, requestOptions));
+        return new PagedFlux<>(() -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> {
+                UrlBuilder urlBuilder = UrlBuilder.parse(requestLocal.getUrl());
+                urlBuilder.setQueryParameter("token", null);
+                requestLocal.setUrl(urlBuilder.toString());
+            });
+            return requestQueryResponseHeaderSinglePageAsync(requestOptionsLocal);
+        }, (token) -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> {
+                UrlBuilder urlBuilder = UrlBuilder.parse(requestLocal.getUrl());
+                urlBuilder.setQueryParameter("token", null);
+                requestLocal.setUrl(urlBuilder.toString());
+            });
+            requestOptionsLocal.addQueryParam("token", token, false);
+            return requestQueryResponseHeaderSinglePageAsync(requestOptionsLocal);
+        });
     }
 
     /**
@@ -647,7 +689,6 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      * }
      * </pre>
      * 
-     * @param token The token parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -656,11 +697,10 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      * @return the response body along with {@link PagedResponse}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private PagedResponse<BinaryData> requestQueryResponseHeaderSinglePage(String token,
-        RequestOptions requestOptions) {
+    private PagedResponse<BinaryData> requestQueryResponseHeaderSinglePage(RequestOptions requestOptions) {
         final String accept = "application/json";
-        Response<BinaryData> res = service.requestQueryResponseHeaderSync(this.client.getEndpoint(), token, accept,
-            requestOptions, Context.NONE);
+        Response<BinaryData> res
+            = service.requestQueryResponseHeaderSync(this.client.getEndpoint(), accept, requestOptions, Context.NONE);
         return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
             getValues(res.getValue(), "pets"), res.getHeaders().getValue(HttpHeaderName.fromString("next-token")),
             null);
@@ -702,8 +742,24 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<BinaryData> requestQueryResponseHeader(RequestOptions requestOptions) {
-        return new PagedIterable<>(() -> requestQueryResponseHeaderSinglePage(null, requestOptions),
-            token -> requestQueryResponseHeaderSinglePage(token, requestOptions));
+        return new PagedIterable<>(() -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> {
+                UrlBuilder urlBuilder = UrlBuilder.parse(requestLocal.getUrl());
+                urlBuilder.setQueryParameter("token", null);
+                requestLocal.setUrl(urlBuilder.toString());
+            });
+            return requestQueryResponseHeaderSinglePage(requestOptionsLocal);
+        }, (token) -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> {
+                UrlBuilder urlBuilder = UrlBuilder.parse(requestLocal.getUrl());
+                urlBuilder.setQueryParameter("token", null);
+                requestLocal.setUrl(urlBuilder.toString());
+            });
+            requestOptionsLocal.addQueryParam("token", token, false);
+            return requestQueryResponseHeaderSinglePage(requestOptionsLocal);
+        });
     }
 
     /**
@@ -734,7 +790,6 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      * }
      * </pre>
      * 
-     * @param token The token parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -743,12 +798,10 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      * @return the response body along with {@link PagedResponse} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<PagedResponse<BinaryData>> requestHeaderResponseHeaderSinglePageAsync(String token,
-        RequestOptions requestOptions) {
+    private Mono<PagedResponse<BinaryData>> requestHeaderResponseHeaderSinglePageAsync(RequestOptions requestOptions) {
         final String accept = "application/json";
-        return FluxUtil
-            .withContext(context -> service.requestHeaderResponseHeader(this.client.getEndpoint(), token, accept,
-                requestOptions, context))
+        return FluxUtil.withContext(
+            context -> service.requestHeaderResponseHeader(this.client.getEndpoint(), accept, requestOptions, context))
             .map(res -> new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
                 getValues(res.getValue(), "pets"), res.getHeaders().getValue(HttpHeaderName.fromString("next-token")),
                 null));
@@ -790,8 +843,16 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedFlux<BinaryData> requestHeaderResponseHeaderAsync(RequestOptions requestOptions) {
-        return new PagedFlux<>(() -> requestHeaderResponseHeaderSinglePageAsync(null, requestOptions),
-            token -> requestHeaderResponseHeaderSinglePageAsync(token, requestOptions));
+        return new PagedFlux<>(() -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> requestLocal.getHeaders().remove("token"));
+            return requestHeaderResponseHeaderSinglePageAsync(requestOptionsLocal);
+        }, (token) -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> requestLocal.getHeaders().remove("token"));
+            requestOptionsLocal.setHeader("token", token);
+            return requestHeaderResponseHeaderSinglePageAsync(requestOptionsLocal);
+        });
     }
 
     /**
@@ -822,7 +883,6 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      * }
      * </pre>
      * 
-     * @param token The token parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -831,11 +891,10 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      * @return the response body along with {@link PagedResponse}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private PagedResponse<BinaryData> requestHeaderResponseHeaderSinglePage(String token,
-        RequestOptions requestOptions) {
+    private PagedResponse<BinaryData> requestHeaderResponseHeaderSinglePage(RequestOptions requestOptions) {
         final String accept = "application/json";
-        Response<BinaryData> res = service.requestHeaderResponseHeaderSync(this.client.getEndpoint(), token, accept,
-            requestOptions, Context.NONE);
+        Response<BinaryData> res
+            = service.requestHeaderResponseHeaderSync(this.client.getEndpoint(), accept, requestOptions, Context.NONE);
         return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
             getValues(res.getValue(), "pets"), res.getHeaders().getValue(HttpHeaderName.fromString("next-token")),
             null);
@@ -877,8 +936,16 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<BinaryData> requestHeaderResponseHeader(RequestOptions requestOptions) {
-        return new PagedIterable<>(() -> requestHeaderResponseHeaderSinglePage(null, requestOptions),
-            token -> requestHeaderResponseHeaderSinglePage(token, requestOptions));
+        return new PagedIterable<>(() -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> requestLocal.getHeaders().remove("token"));
+            return requestHeaderResponseHeaderSinglePage(requestOptionsLocal);
+        }, (token) -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> requestLocal.getHeaders().remove("token"));
+            requestOptionsLocal.setHeader("token", token);
+            return requestHeaderResponseHeaderSinglePage(requestOptionsLocal);
+        });
     }
 
     /**
@@ -909,7 +976,6 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      * }
      * </pre>
      * 
-     * @param token The token parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -918,11 +984,11 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      * @return the response body along with {@link PagedResponse} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<PagedResponse<BinaryData>> requestQueryNestedResponseBodySinglePageAsync(String token,
-        RequestOptions requestOptions) {
+    private Mono<PagedResponse<BinaryData>>
+        requestQueryNestedResponseBodySinglePageAsync(RequestOptions requestOptions) {
         final String accept = "application/json";
         return FluxUtil
-            .withContext(context -> service.requestQueryNestedResponseBody(this.client.getEndpoint(), token, accept,
+            .withContext(context -> service.requestQueryNestedResponseBody(this.client.getEndpoint(), accept,
                 requestOptions, context))
             .map(res -> new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
                 getValues(res.getValue(), "nestedItems", "pets"),
@@ -965,8 +1031,24 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedFlux<BinaryData> requestQueryNestedResponseBodyAsync(RequestOptions requestOptions) {
-        return new PagedFlux<>(() -> requestQueryNestedResponseBodySinglePageAsync(null, requestOptions),
-            token -> requestQueryNestedResponseBodySinglePageAsync(token, requestOptions));
+        return new PagedFlux<>(() -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> {
+                UrlBuilder urlBuilder = UrlBuilder.parse(requestLocal.getUrl());
+                urlBuilder.setQueryParameter("token", null);
+                requestLocal.setUrl(urlBuilder.toString());
+            });
+            return requestQueryNestedResponseBodySinglePageAsync(requestOptionsLocal);
+        }, (token) -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> {
+                UrlBuilder urlBuilder = UrlBuilder.parse(requestLocal.getUrl());
+                urlBuilder.setQueryParameter("token", null);
+                requestLocal.setUrl(urlBuilder.toString());
+            });
+            requestOptionsLocal.addQueryParam("token", token, false);
+            return requestQueryNestedResponseBodySinglePageAsync(requestOptionsLocal);
+        });
     }
 
     /**
@@ -997,7 +1079,6 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      * }
      * </pre>
      * 
-     * @param token The token parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -1006,10 +1087,9 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      * @return the response body along with {@link PagedResponse}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private PagedResponse<BinaryData> requestQueryNestedResponseBodySinglePage(String token,
-        RequestOptions requestOptions) {
+    private PagedResponse<BinaryData> requestQueryNestedResponseBodySinglePage(RequestOptions requestOptions) {
         final String accept = "application/json";
-        Response<BinaryData> res = service.requestQueryNestedResponseBodySync(this.client.getEndpoint(), token, accept,
+        Response<BinaryData> res = service.requestQueryNestedResponseBodySync(this.client.getEndpoint(), accept,
             requestOptions, Context.NONE);
         return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
             getValues(res.getValue(), "nestedItems", "pets"), getNextLink(res.getValue(), "nestedNext", "nextToken"),
@@ -1052,8 +1132,24 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<BinaryData> requestQueryNestedResponseBody(RequestOptions requestOptions) {
-        return new PagedIterable<>(() -> requestQueryNestedResponseBodySinglePage(null, requestOptions),
-            token -> requestQueryNestedResponseBodySinglePage(token, requestOptions));
+        return new PagedIterable<>(() -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> {
+                UrlBuilder urlBuilder = UrlBuilder.parse(requestLocal.getUrl());
+                urlBuilder.setQueryParameter("token", null);
+                requestLocal.setUrl(urlBuilder.toString());
+            });
+            return requestQueryNestedResponseBodySinglePage(requestOptionsLocal);
+        }, (token) -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> {
+                UrlBuilder urlBuilder = UrlBuilder.parse(requestLocal.getUrl());
+                urlBuilder.setQueryParameter("token", null);
+                requestLocal.setUrl(urlBuilder.toString());
+            });
+            requestOptionsLocal.addQueryParam("token", token, false);
+            return requestQueryNestedResponseBodySinglePage(requestOptionsLocal);
+        });
     }
 
     /**
@@ -1084,7 +1180,6 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      * }
      * </pre>
      * 
-     * @param token The token parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -1093,11 +1188,11 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      * @return the response body along with {@link PagedResponse} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<PagedResponse<BinaryData>> requestHeaderNestedResponseBodySinglePageAsync(String token,
-        RequestOptions requestOptions) {
+    private Mono<PagedResponse<BinaryData>>
+        requestHeaderNestedResponseBodySinglePageAsync(RequestOptions requestOptions) {
         final String accept = "application/json";
         return FluxUtil
-            .withContext(context -> service.requestHeaderNestedResponseBody(this.client.getEndpoint(), token, accept,
+            .withContext(context -> service.requestHeaderNestedResponseBody(this.client.getEndpoint(), accept,
                 requestOptions, context))
             .map(res -> new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
                 getValues(res.getValue(), "nestedItems", "pets"),
@@ -1140,8 +1235,16 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedFlux<BinaryData> requestHeaderNestedResponseBodyAsync(RequestOptions requestOptions) {
-        return new PagedFlux<>(() -> requestHeaderNestedResponseBodySinglePageAsync(null, requestOptions),
-            token -> requestHeaderNestedResponseBodySinglePageAsync(token, requestOptions));
+        return new PagedFlux<>(() -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> requestLocal.getHeaders().remove("token"));
+            return requestHeaderNestedResponseBodySinglePageAsync(requestOptionsLocal);
+        }, (token) -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> requestLocal.getHeaders().remove("token"));
+            requestOptionsLocal.setHeader("token", token);
+            return requestHeaderNestedResponseBodySinglePageAsync(requestOptionsLocal);
+        });
     }
 
     /**
@@ -1172,7 +1275,6 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      * }
      * </pre>
      * 
-     * @param token The token parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -1181,10 +1283,9 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      * @return the response body along with {@link PagedResponse}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private PagedResponse<BinaryData> requestHeaderNestedResponseBodySinglePage(String token,
-        RequestOptions requestOptions) {
+    private PagedResponse<BinaryData> requestHeaderNestedResponseBodySinglePage(RequestOptions requestOptions) {
         final String accept = "application/json";
-        Response<BinaryData> res = service.requestHeaderNestedResponseBodySync(this.client.getEndpoint(), token, accept,
+        Response<BinaryData> res = service.requestHeaderNestedResponseBodySync(this.client.getEndpoint(), accept,
             requestOptions, Context.NONE);
         return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
             getValues(res.getValue(), "nestedItems", "pets"), getNextLink(res.getValue(), "nestedNext", "nextToken"),
@@ -1227,8 +1328,16 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<BinaryData> requestHeaderNestedResponseBody(RequestOptions requestOptions) {
-        return new PagedIterable<>(() -> requestHeaderNestedResponseBodySinglePage(null, requestOptions),
-            token -> requestHeaderNestedResponseBodySinglePage(token, requestOptions));
+        return new PagedIterable<>(() -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> requestLocal.getHeaders().remove("token"));
+            return requestHeaderNestedResponseBodySinglePage(requestOptionsLocal);
+        }, (token) -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> requestLocal.getHeaders().remove("token"));
+            requestOptionsLocal.setHeader("token", token);
+            return requestHeaderNestedResponseBodySinglePage(requestOptionsLocal);
+        });
     }
 
     private List<BinaryData> getValues(BinaryData binaryData, String... path) {

@@ -57,20 +57,6 @@ public class MethodUtil {
 
     public static final String CONTENT_TYPE_APPLICATION_JSON_ERROR_WEIGHT = "application/json;q=0.9";
 
-    /**
-     * Checks whether a parameter carries a paging continuation token.
-     *
-     * @param parameter the operation parameter.
-     * @return whether the parameter is the paging continuation token.
-     */
-    public static boolean isContinuationTokenParameter(Parameter parameter) {
-        Operation operation = parameter.getOperation();
-        return operation != null
-            && operation.isPageable()
-            && operation.getExtensions().getXmsPageable().getContinuationToken() != null
-            && operation.getExtensions().getXmsPageable().getContinuationToken().getParameter() == parameter;
-    }
-
     private static final Set<HttpMethod> REPEATABILITY_REQUEST_HTTP_METHODS
         = EnumSet.of(HttpMethod.PUT, HttpMethod.PATCH, HttpMethod.DELETE, HttpMethod.POST);
 

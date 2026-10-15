@@ -146,27 +146,33 @@ public class PageableTests {
                     .filter(parameter -> parameter.startsWith("token="))
                     .collect(Collectors.toList());
                 Assertions.assertEquals(1, tokenParameters.size());
-                Assertions.assertEquals(token,
-                    URLDecoder.decode(tokenParameters.get(0).substring("token=".length()), StandardCharsets.UTF_8));
-                body = "{\"pets\":[{\"id\":\"2\",\"name\":\"cat\"}]}";
+                String actualToken
+                    = URLDecoder.decode(tokenParameters.get(0).substring("token=".length()), StandardCharsets.UTF_8);
+                if (token.equals(actualToken)) {
+                    body = "{\"pets\":[{\"id\":\"2\",\"name\":\"cat\"}],\"nextToken\":\"" + token + "next\"}";
+                } else {
+                    Assertions.assertEquals(token + "next", actualToken);
+                    body = "{\"pets\":[{\"id\":\"3\",\"name\":\"bird\"}]}";
+                }
             } else {
                 body = "{\"pets\":[{\"id\":\"1\",\"name\":\"dog\"}],\"nextToken\":\"" + token + "\"}";
             }
             return Mono
                 .just(new MockHttpResponse(request, 200, new HttpHeaders(), body.getBytes(StandardCharsets.UTF_8)));
         });
-        assertPetIds(
-            mockBuilder.buildServerDrivenPaginationContinuationTokenClient().requestQueryResponseBody("foo", "bar"),
-            "1", "2");
-        Assertions.assertEquals(2, requests.size());
+        PagedIterable<Pet> result
+            = mockBuilder.buildServerDrivenPaginationContinuationTokenClient().requestQueryResponseBody("foo", "bar");
+        assertPetIds(result, "1", "2", "3");
+        assertPetIds(result, "1", "2", "3");
+        Assertions.assertEquals(6, requests.size());
         requests.clear();
-        Assertions.assertEquals(List.of("1", "2"),
+        Assertions.assertEquals(List.of("1", "2", "3"),
             mockBuilder.buildServerDrivenPaginationContinuationTokenAsyncClient()
                 .requestQueryResponseBody("foo", "bar")
                 .map(Pet::getId)
                 .collectList()
                 .block(Duration.ofSeconds(10)));
-        Assertions.assertEquals(2, requests.size());
+        Assertions.assertEquals(3, requests.size());
     }
 
     @Test

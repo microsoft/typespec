@@ -1205,8 +1205,8 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                 ? clientMethod.getProxyMethod().getPagingSinglePageMethodName()
                 : clientMethod.getProxyMethod().getPagingAsyncSinglePageMethodName();
             String firstPage = getPagingSinglePageExpression(clientMethod, methodName, firstArguments, settings);
-            String nextPage = getPagingSinglePageExpression(clientMethod, methodName, clientMethod.getArgumentList(),
-                settings, tokenParameter.getName());
+            String nextPage = getPagingSinglePageExpression(clientMethod, methodName, firstArguments, settings,
+                clientMethod.getMethodPageDetails().getContinuationToken().getRequestParameter().getName());
             function.line("return new %s<>(", sync ? "PagedIterable" : "PagedFlux");
             function.indent(() -> {
                 function.line(firstPage + ",");
@@ -1927,18 +1927,61 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
 
     private String getPagingSinglePageExpression(ClientMethod clientMethod, String methodName, String argumentLine,
         JavaSettings settings, String continuationParameter) {
-        if (settings.isDataPlaneClient() && settings.isPageSizeEnabled()) {
-            Optional<String> maxPageSizeSerializedName
-                = MethodUtil.serializedNameOfMaxPageSizeParameter(clientMethod.getProxyMethod());
+        Optional<String> maxPageSizeSerializedName = settings.isDataPlaneClient() && settings.isPageSizeEnabled()
+            ? MethodUtil.serializedNameOfMaxPageSizeParameter(clientMethod.getProxyMethod())
+            : Optional.empty();
+        boolean continuationToken = settings.isAzureV1() && hasContinuationToken(clientMethod);
+        if (continuationToken || maxPageSizeSerializedName.isPresent()) {
+            argumentLine = argumentLine.replace("requestOptions", "requestOptionsLocal");
+            StringBuilder expression = new StringBuilder("(");
+            if (continuationParameter != null) {
+                expression.append(continuationParameter);
+            }
             if (maxPageSizeSerializedName.isPresent()) {
-                argumentLine = argumentLine.replace("requestOptions", "requestOptionsLocal");
-                StringBuilder expression = new StringBuilder();
-                expression.append(continuationParameter == null
-                    ? "(pageSize) -> {"
-                    : "(" + continuationParameter + ", pageSize) -> {");
-                expression.append(
-                    "RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;")
-                    .append("if (pageSize != null) {")
+                expression.append(continuationParameter == null ? "pageSize" : ", pageSize");
+            }
+            expression.append(") -> {")
+                .append(
+                    "RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;");
+            if (continuationToken) {
+                // Clear tokens from earlier callbacks before applying the current page's token.
+                ProxyMethodParameter token
+                    = clientMethod.getMethodPageDetails().getContinuationToken().getRequestParameter();
+                String name = ClassType.STRING.defaultValueExpression(token.getRequestParameterName());
+                if (token.getRequestParameterLocation() == RequestParameterLocation.QUERY) {
+                    expression.append("requestOptionsLocal.addRequestCallback(requestLocal -> {")
+                        .append("UrlBuilder urlBuilder = UrlBuilder.parse(requestLocal.getUrl());")
+                        .append("urlBuilder.setQueryParameter(")
+                        .append(name)
+                        .append(", null);")
+                        .append("requestLocal.setUrl(urlBuilder.toString());")
+                        .append("});");
+                    if (continuationParameter != null) {
+                        expression.append("requestOptionsLocal.addQueryParam(")
+                            .append(name)
+                            .append(", ")
+                            .append(continuationParameter)
+                            .append(", ")
+                            .append(token.getAlreadyEncoded())
+                            .append(");");
+                    }
+                } else {
+                    expression
+                        .append(
+                            "requestOptionsLocal.addRequestCallback(requestLocal -> requestLocal.getHeaders().remove(")
+                        .append(name)
+                        .append("));");
+                    if (continuationParameter != null) {
+                        expression.append("requestOptionsLocal.setHeader(")
+                            .append(name)
+                            .append(", ")
+                            .append(continuationParameter)
+                            .append(");");
+                    }
+                }
+            }
+            if (maxPageSizeSerializedName.isPresent()) {
+                expression.append("if (pageSize != null) {")
                     .append("  requestOptionsLocal.addRequestCallback(requestLocal -> {")
                     .append("    UrlBuilder urlBuilder = UrlBuilder.parse(requestLocal.getUrl());")
                     .append("    urlBuilder.setQueryParameter(\"")
@@ -1946,11 +1989,10 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                     .append("\", String.valueOf(pageSize));")
                     .append("    requestLocal.setUrl(urlBuilder.toString());")
                     .append("  });")
-                    .append("}")
-                    .append(String.format("return %s(%s);", methodName, argumentLine));
-                expression.append("}");
-                return expression.toString();
+                    .append("}");
             }
+            expression.append(String.format("return %s(%s);", methodName, argumentLine)).append("}");
+            return expression.toString();
         }
 
         if (settings.isAzureV1()) {

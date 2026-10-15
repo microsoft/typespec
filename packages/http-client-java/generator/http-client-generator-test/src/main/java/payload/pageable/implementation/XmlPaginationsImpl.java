@@ -10,7 +10,6 @@ import com.azure.core.annotation.HeaderParam;
 import com.azure.core.annotation.Host;
 import com.azure.core.annotation.HostParam;
 import com.azure.core.annotation.PathParam;
-import com.azure.core.annotation.QueryParam;
 import com.azure.core.annotation.ReturnType;
 import com.azure.core.annotation.ServiceInterface;
 import com.azure.core.annotation.ServiceMethod;
@@ -29,6 +28,7 @@ import com.azure.core.http.rest.RestProxy;
 import com.azure.core.util.BinaryData;
 import com.azure.core.util.Context;
 import com.azure.core.util.FluxUtil;
+import com.azure.core.util.UrlBuilder;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -73,8 +73,7 @@ public final class XmlPaginationsImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Mono<Response<BinaryData>> listWithContinuation(@HostParam("endpoint") String endpoint,
-            @QueryParam("marker") String marker, @HeaderParam("Accept") String accept, RequestOptions requestOptions,
-            Context context);
+            @HeaderParam("Accept") String accept, RequestOptions requestOptions, Context context);
 
         @Get("/payload/pageable/xml/list-with-continuation")
         @ExpectedResponses({ 200 })
@@ -83,8 +82,7 @@ public final class XmlPaginationsImpl {
         @UnexpectedResponseExceptionType(value = ResourceModifiedException.class, code = { 409 })
         @UnexpectedResponseExceptionType(HttpResponseException.class)
         Response<BinaryData> listWithContinuationSync(@HostParam("endpoint") String endpoint,
-            @QueryParam("marker") String marker, @HeaderParam("Accept") String accept, RequestOptions requestOptions,
-            Context context);
+            @HeaderParam("Accept") String accept, RequestOptions requestOptions, Context context);
 
         @Get("/payload/pageable/xml/list-with-next-link")
         @ExpectedResponses({ 200 })
@@ -145,7 +143,6 @@ public final class XmlPaginationsImpl {
      * }
      * </pre>
      * 
-     * @param marker The marker parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -155,11 +152,11 @@ public final class XmlPaginationsImpl {
      * {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private Mono<PagedResponse<BinaryData>> listWithContinuationSinglePageAsync(String marker,
-        RequestOptions requestOptions) {
+    private Mono<PagedResponse<BinaryData>> listWithContinuationSinglePageAsync(RequestOptions requestOptions) {
         final String accept = "application/xml";
-        return FluxUtil.withContext(
-            context -> service.listWithContinuation(this.client.getEndpoint(), marker, accept, requestOptions, context))
+        return FluxUtil
+            .withContext(
+                context -> service.listWithContinuation(this.client.getEndpoint(), accept, requestOptions, context))
             .map(res -> new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
                 getXmlValues(res.getValue(), reader -> {
                     try {
@@ -193,8 +190,24 @@ public final class XmlPaginationsImpl {
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedFlux<BinaryData> listWithContinuationAsync(RequestOptions requestOptions) {
-        return new PagedFlux<>(() -> listWithContinuationSinglePageAsync(null, requestOptions),
-            marker -> listWithContinuationSinglePageAsync(marker, requestOptions));
+        return new PagedFlux<>(() -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> {
+                UrlBuilder urlBuilder = UrlBuilder.parse(requestLocal.getUrl());
+                urlBuilder.setQueryParameter("marker", null);
+                requestLocal.setUrl(urlBuilder.toString());
+            });
+            return listWithContinuationSinglePageAsync(requestOptionsLocal);
+        }, (marker) -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> {
+                UrlBuilder urlBuilder = UrlBuilder.parse(requestLocal.getUrl());
+                urlBuilder.setQueryParameter("marker", null);
+                requestLocal.setUrl(urlBuilder.toString());
+            });
+            requestOptionsLocal.addQueryParam("marker", marker, false);
+            return listWithContinuationSinglePageAsync(requestOptionsLocal);
+        });
     }
 
     /**
@@ -217,7 +230,6 @@ public final class XmlPaginationsImpl {
      * }
      * </pre>
      * 
-     * @param marker The marker parameter.
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -226,10 +238,10 @@ public final class XmlPaginationsImpl {
      * @return the XML response for listing pets along with {@link PagedResponse}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    private PagedResponse<BinaryData> listWithContinuationSinglePage(String marker, RequestOptions requestOptions) {
+    private PagedResponse<BinaryData> listWithContinuationSinglePage(RequestOptions requestOptions) {
         final String accept = "application/xml";
         Response<BinaryData> res
-            = service.listWithContinuationSync(this.client.getEndpoint(), marker, accept, requestOptions, Context.NONE);
+            = service.listWithContinuationSync(this.client.getEndpoint(), accept, requestOptions, Context.NONE);
         return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
             getXmlValues(res.getValue(), reader -> {
                 try {
@@ -262,8 +274,24 @@ public final class XmlPaginationsImpl {
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<BinaryData> listWithContinuation(RequestOptions requestOptions) {
-        return new PagedIterable<>(() -> listWithContinuationSinglePage(null, requestOptions),
-            marker -> listWithContinuationSinglePage(marker, requestOptions));
+        return new PagedIterable<>(() -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> {
+                UrlBuilder urlBuilder = UrlBuilder.parse(requestLocal.getUrl());
+                urlBuilder.setQueryParameter("marker", null);
+                requestLocal.setUrl(urlBuilder.toString());
+            });
+            return listWithContinuationSinglePage(requestOptionsLocal);
+        }, (marker) -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> {
+                UrlBuilder urlBuilder = UrlBuilder.parse(requestLocal.getUrl());
+                urlBuilder.setQueryParameter("marker", null);
+                requestLocal.setUrl(urlBuilder.toString());
+            });
+            requestOptionsLocal.addQueryParam("marker", marker, false);
+            return listWithContinuationSinglePage(requestOptionsLocal);
+        });
     }
 
     /**

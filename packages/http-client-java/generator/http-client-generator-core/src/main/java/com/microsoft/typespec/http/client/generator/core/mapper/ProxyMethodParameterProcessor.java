@@ -63,7 +63,6 @@ final class ProxyMethodParameterProcessor {
                 // The protocol APIs (by Data Plane Generator) will put required path, body, query, header parameters
                 // to method signature.
                 if (parameter.isRequired()
-                    || MethodUtil.isContinuationTokenParameter(parameter)
                     || proxyMethodParameter.isConstant()
                     || proxyMethodParameter.isFromClient()
                     || isApiVersionParameter(parameter)) {
