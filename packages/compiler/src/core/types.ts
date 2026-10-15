@@ -1533,8 +1533,14 @@ export interface ImportStatementNode extends BaseNode {
   readonly parent?: TypeSpecScriptNode;
 }
 
+/** Name token used for declarations, references, member selectors, and other named syntax. */
 export interface IdentifierNode extends BaseNode {
+  /** Identifies the name token itself, not a reference or declaration containing it. */
   readonly kind: SyntaxKind.Identifier;
+  /**
+   * Decoded name without quoting or escapes; identifier tokens are NFC-normalized.
+   * Read the source range instead when the original spelling is needed.
+   */
   readonly sv: string;
 }
 
@@ -1560,6 +1566,10 @@ export interface DirectiveExpressionNode extends BaseNode {
 
 export type DirectiveArgument = StringLiteralNode | IdentifierNode;
 
+/**
+ * Syntax accepted in expression positions, including type expressions and value-producing syntax.
+ * Whether an expression denotes a type, value, or constraint is determined during checking.
+ */
 export type Expression =
   | ArrayExpressionNode
   | MemberExpressionNode
@@ -1588,13 +1598,19 @@ export type Expression =
 
 export type ParenthesizedExpression = Expression & { readonly parenthesized: true };
 
+/** Name-reference syntax accepted by resolution utilities, including the intrinsic `void` and `never` keywords. */
 export type ReferenceExpression =
   TypeReferenceNode | MemberExpressionNode | IdentifierNode | VoidKeywordNode | NeverKeywordNode;
 
+/** One step of a qualified reference, such as `Namespace.Type` or `Operation::parameters`. */
 export interface MemberExpressionNode extends BaseNode {
+  /** Identifies a selected name segment rather than a complete reference with template arguments. */
   readonly kind: SyntaxKind.MemberExpression;
+  /** Name immediately following this node's selector. */
   readonly id: IdentifierNode;
+  /** Reference prefix to the left of the selector; longer chains nest through this property. */
   readonly base: MemberExpressionNode | IdentifierNode;
+  /** `.` selects namespace or type members; `::` selects compiler-provided metatype members. */
   readonly selector: "." | "::";
 }
 
@@ -1798,9 +1814,13 @@ export interface ConstStatementNode extends BaseNode, DeclarationNode {
   readonly type?: Expression;
   readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;
 }
+/** Invocation of a function or scalar constructor, usable as an expression or call statement. */
 export interface CallExpressionNode extends BaseNode {
+  /** Distinguishes invocation with `(...)` from a name reference with optional `<...>` arguments. */
   readonly kind: SyntaxKind.CallExpression;
+  /** Function name or qualified constructor reference, without the argument list. */
   readonly target: MemberExpressionNode | IdentifierNode;
+  /** Explicit argument expressions in source order; no implicit context argument is stored here. */
   readonly arguments: Expression[];
 }
 
@@ -1925,79 +1945,127 @@ export interface StringTemplateTailNode extends StringTemplateLiteralLikeNode {
   readonly kind: SyntaxKind.StringTemplateTail;
 }
 
+/** `extern` modifier token for a declaration implemented in JavaScript. */
 export interface ExternKeywordNode extends BaseNode {
+  /** Selects the externally implemented declaration modifier in {@link Modifier}. */
   readonly kind: SyntaxKind.ExternKeyword;
 }
 
+/** `internal` modifier token restricting a declaration's visibility to its package. */
 export interface InternalKeywordNode extends BaseNode {
+  /** Selects the package-visibility modifier in {@link Modifier}. */
   readonly kind: SyntaxKind.InternalKeyword;
 }
 
+/** `auto` modifier token requesting a compiler-provided decorator implementation. */
 export interface AutoKeywordNode extends BaseNode {
+  /** Selects the automatic-implementation modifier, mutually exclusive with `extern` on decorators. */
   readonly kind: SyntaxKind.AutoKeyword;
 }
 
+/** Intrinsic `void` type syntax, used for operations with no return value. */
 export interface VoidKeywordNode extends BaseNode {
+  /** Identifies the intrinsic keyword rather than an identifier named `void`. */
   readonly kind: SyntaxKind.VoidKeyword;
 }
 
+/** Intrinsic `never` type syntax, denoting a type with no possible values. */
 export interface NeverKeywordNode extends BaseNode {
+  /** Identifies the intrinsic keyword rather than a name resolved through lookup. */
   readonly kind: SyntaxKind.NeverKeyword;
 }
 
+/** Intrinsic `unknown` type syntax; the historical interface name does not imply an `any` keyword. */
 export interface AnyKeywordNode extends BaseNode {
+  /** Uses `UnknownKeyword` because the source spelling is `unknown`. */
   readonly kind: SyntaxKind.UnknownKeyword;
 }
 
+/** Infix type union such as `A | B`, distinct from a keyword-form union with variant declarations. */
 export interface UnionExpressionNode extends BaseNode {
+  /** Identifies infix union syntax rather than a named or inline keyword-form declaration. */
   readonly kind: SyntaxKind.UnionExpression;
+  /** Operand expressions in source order; parenthesized unions remain nested rather than being flattened here. */
   readonly options: readonly Expression[];
 }
 
+/** Infix intersection such as `A & B`, resolved to a model type by the checker. */
 export interface IntersectionExpressionNode extends BaseNode {
+  /** Identifies intersection syntax rather than an explicit model body. */
   readonly kind: SyntaxKind.IntersectionExpression;
+  /** Operand expressions in source order, before their properties are combined during checking. */
   readonly options: readonly Expression[];
 }
 
+/** Value constraint `valueof T`, permitting values whose types are assignable to the target type. */
 export interface ValueOfExpressionNode extends BaseNode {
+  /** Identifies a value constraint, not the type-of-value query written `typeof`. */
   readonly kind: SyntaxKind.ValueOfExpression;
+  /** Type expression following `valueof`. */
   readonly target: Expression;
 }
 
+/** Type query `typeof value`, obtaining the type of a value-producing expression. */
 export interface TypeOfExpressionNode extends BaseNode {
+  /** Identifies a type query rather than a `valueof` constraint. */
   readonly kind: SyntaxKind.TypeOfExpression;
+  /** Value-producing expression whose type is requested. */
   readonly target: Expression;
 }
 
+/** Name reference with an optional template argument list, interpreted in its checking context. */
 export interface TypeReferenceNode extends BaseNode {
+  /** Identifies a complete reference rather than a bare identifier or member-selection segment. */
   readonly kind: SyntaxKind.TypeReference;
+  /** Unqualified name or nested qualified name, excluding template arguments. */
   readonly target: MemberExpressionNode | IdentifierNode;
+  /** Explicit template arguments in source order; does not include inferred or default arguments. */
   readonly arguments: readonly TemplateArgumentNode[];
 }
 
+/** One positional expression or `name = expression` argument in a reference's `<...>` list. */
 export interface TemplateArgumentNode extends BaseNode {
+  /** Identifies an argument at a reference site, not a parameter declaration. */
   readonly kind: SyntaxKind.TemplateArgument;
+  /** Parameter name for a named argument; absent for positional arguments. */
   readonly name?: IdentifierNode;
+  /** Supplied argument expression, which may be checked as a type or value according to the parameter. */
   readonly argument: Expression;
 }
 
+/** Template parameter syntax, optionally constrained with `extends` and defaulted with `=`. */
 export interface TemplateParameterDeclarationNode extends BaseNode {
+  /** Identifies a declared template parameter rather than an argument supplied at a reference. */
   readonly kind: SyntaxKind.TemplateParameterDeclaration;
+  /** Explicit type, value, or mixed constraint following `extends`, absent when omitted. */
   readonly constraint?: Expression;
+  /** Argument expression to use when this parameter is omitted, absent when no default was written. */
   readonly default?: Expression;
+  /** Owning declaration after binding; declaration-expression owners may retain invalid template syntax for recovery. */
   readonly parent?: TemplateableNode;
+  /** Name introduced into the owning declaration's template scope. */
   readonly id: IdentifierNode;
 }
 
+/**
+ * Bit mask derived from a declaration's modifier tokens.
+ * Presence records parsed syntax, not validity; the checker enforces allowed and required combinations.
+ */
 export const enum ModifierFlags {
+  /** No modifier tokens were written. */
   None,
+  /** An `extern` token requests a JavaScript implementation. */
   Extern = 1 << 1,
+  /** An `internal` token requests package-local visibility. */
   Internal = 1 << 2,
+  /** An `auto` token requests a compiler-provided decorator implementation. */
   Auto = 1 << 3,
 
+  /** Mask of every recognized modifier bit, not a combination valid on every declaration. */
   All = Extern | Internal | Auto,
 }
 
+/** Individual declaration modifier tokens, preserved separately from their combined bit mask. */
 export type Modifier = ExternKeywordNode | InternalKeywordNode | AutoKeywordNode;
 
 /**
@@ -2008,6 +2076,7 @@ export type Modifier = ExternKeywordNode | InternalKeywordNode | AutoKeywordNode
  * ```
  */
 export interface DecoratorDeclarationStatementNode extends BaseNode, DeclarationNode {
+  /** Identifies a decorator signature declaration, not an application of that decorator. */
   readonly kind: SyntaxKind.DecoratorDeclarationStatement;
   /**
    * Decorator target. First parameter.
@@ -2018,12 +2087,20 @@ export interface DecoratorDeclarationStatementNode extends BaseNode, Declaration
    * Additional parameters
    */
   readonly parameters: FunctionParameterNode[];
+  /** Syntactic containing file or namespace after binding. */
   readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;
 }
 
+/**
+ * Parameter syntax shared by functions, decorators, and scalar constructors.
+ * Invalid optional/rest combinations remain in the AST and are reported as diagnostics.
+ */
 export interface FunctionParameterNode extends BaseNode {
+  /** Identifies signature-parameter syntax rather than an operation's model-property parameter. */
   readonly kind: SyntaxKind.FunctionParameter;
+  /** Parameter name without an optional marker or rest prefix. */
   readonly id: IdentifierNode;
+  /** Constraint following `:`; absent when omitted, in which case checking uses `unknown`. */
   readonly type?: Expression;
 
   /**
@@ -2046,9 +2123,13 @@ export interface FunctionParameterNode extends BaseNode {
  * ```
  */
 export interface FunctionDeclarationStatementNode extends BaseNode, DeclarationNode {
+  /** Identifies a named function declaration, distinct from an anonymous function type expression. */
   readonly kind: SyntaxKind.FunctionDeclarationStatement;
+  /** Declared parameters in source order; the JavaScript context parameter is not part of this list. */
   readonly parameters: FunctionParameterNode[];
+  /** Constraint following `:`, absent when omitted; checking defaults the result constraint to `unknown`. */
   readonly returnType?: Expression;
+  /** Syntactic containing file or namespace after binding. */
   readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;
 }
 
@@ -2061,26 +2142,43 @@ export interface FunctionDeclarationStatementNode extends BaseNode, DeclarationN
  * ```
  */
 export interface FunctionTypeExpressionNode extends BaseNode {
+  /** Identifies anonymous function type syntax, not a named function declaration. */
   readonly kind: SyntaxKind.FunctionTypeExpression;
+  /** Signature parameters in source order, including optional and rest markers. */
   readonly parameters: FunctionParameterNode[];
+  /** Constraint following `=>`, absent when omitted; checking defaults the result constraint to `unknown`. */
   readonly returnType?: Expression;
 }
 
+/** Syntactic role of an identifier, used to choose reference resolution and completion behavior. */
 export interface IdentifierContext {
+  /** Context category, not the semantic type or symbol category of the identifier. */
   kind: IdentifierKind;
+  /** First ancestor that is not a member-expression segment, retaining the construct that gives the name its role. */
   node: Node;
 }
 
+/** Identifier roles classified by `getIdentifierContext`, independently of whether lookup succeeds. */
 export enum IdentifierKind {
+  /** Name within a type reference, including segments of a qualified target. */
   TypeReference,
+  /** Named template argument's parameter name, not the expression supplied as its argument. */
   TemplateArgument,
+  /** Decorator name in an attached annotation or out-of-line augment statement. */
   Decorator,
+  /** Invocation target in a call expression, not a function declaration's name. */
   Function,
+  /** Namespace name targeted by a `using` statement. */
   Using,
+  /** Declaration name not classified by one of the property-specific roles. */
   Declaration,
+  /** Property name in a structural model expression, including operation parameters. */
   ModelExpressionProperty,
+  /** Property name in a model statement or keyword-form model declaration expression. */
   ModelStatementProperty,
+  /** Property name in a `#{ ... }` object value literal. */
   ObjectLiteralProperty,
+  /** Name in syntax without a more specific resolution or declaration role. */
   Other,
 }
 
