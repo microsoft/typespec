@@ -26,6 +26,7 @@ import type {
 } from "./types.js";
 import { ListenerFlow } from "./types.js";
 
+/** Control which template and inheritance relationships a semantic graph traversal follows. */
 export interface NavigationOptions {
   /**
    * Skip non instantiated templates.
@@ -37,6 +38,7 @@ export interface NavigationOptions {
   visitDerivedTypes?: boolean;
 }
 
+/** Restrict a semantic traversal to a namespace and, by default, its descendants. */
 export interface NamespaceNavigationOptions {
   /**
    * Recursively navigate sub namespaces.
@@ -111,6 +113,7 @@ export function scopeNavigationToNamespace<T extends SemanticNodeListener>(
   return wrappedListeners as any;
 }
 
+/** Traverse types in a namespace, preventing traversal into unrelated namespaces. */
 export function navigateTypesInNamespace(
   namespace: Namespace,
   listeners: SemanticNodeListener,
@@ -493,7 +496,7 @@ function navigateTypeInternal(entity: Type | Value, context: NavigationContext) 
   }
 }
 
-// Return property from type, nesting into baseTypes as needed.
+/** Find a model property by name, searching base models only when no own property matches. */
 export function getProperty(type: Model, propertyName: string): ModelProperty | undefined {
   while (type.baseModel) {
     if (type.properties.has(propertyName)) {
@@ -504,9 +507,11 @@ export function getProperty(type: Model, propertyName: string): ModelProperty | 
   return type.properties.get(propertyName);
 }
 
+/** Dispatch typed events synchronously to listeners in their registration order. */
 export class EventEmitter<T extends { [key: string]: (...args: any) => any }> {
   private listeners: Map<keyof T, Array<(...args: any[]) => any>> = new Map();
 
+  /** Register another listener; registering the same callback again adds another invocation. */
   public on<K extends keyof T>(name: K, listener: (...args: Parameters<T[K]>) => any) {
     const array = this.listeners.get(name);
     if (array) {
@@ -516,6 +521,7 @@ export class EventEmitter<T extends { [key: string]: (...args: any) => any }> {
     }
   }
 
+  /** Invoke listeners for the event, ignoring their return values and propagating thrown errors. */
   public emit<K extends keyof T>(name: K, ...args: Parameters<T[K]>) {
     const listeners = this.listeners.get(name);
     if (listeners) {

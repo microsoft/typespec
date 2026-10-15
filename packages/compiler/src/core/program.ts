@@ -87,18 +87,24 @@ import { NoTarget, SymbolFlags } from "./types.js";
  */
 export type CompilationStage = "parsing" | "checking" | "validating" | "linting" | "emitting";
 
+/** A compilation's source files, semantic type graph, diagnostics, and library-owned state. */
 export interface Program {
+  /** Options used by this compilation, including resolved defaults. */
   compilerOptions: CompilerOptions;
   /** @internal */
   mainFile?: TypeSpecScriptNode;
   /** All source files in the program, keyed by their file path. */
   sourceFiles: Map<string, TypeSpecScriptNode>;
+  /** Loaded JavaScript modules, keyed by their file path. */
   jsSourceFiles: Map<string, JsSourceFileNode>;
 
   /** @internal */
   literalTypes: Map<string | number | boolean | Numeric, LiteralType>;
+  /** Host that supplies file-system access, module loading, and logging. */
   host: CompilerHost;
+  /** Trace logger configured with this program's trace filters. */
   tracer: Tracer;
+  /** Log a trace message when the named area matches the configured trace filters. */
   trace(area: string, message: string): void;
   /**
    * **DANGER** Using the checker is reserved for advanced usage and should be used with caution.
@@ -108,7 +114,9 @@ export interface Program {
   /** @internal */
   resolver: NameResolver;
 
+  /** Loaded emitters and their resolved options, in compilation emission order. */
   emitters: EmitterRef[];
+  /** Diagnostics reported so far, after suppression and warning-as-error handling. */
   readonly diagnostics: readonly Diagnostic[];
   /** @internal */
   loadTypeSpecScript(typespecScript: SourceFile): Promise<TypeSpecScriptNode>;
@@ -135,16 +143,21 @@ export interface Program {
   getTypeInfo(target: Type): TypeInfo | undefined;
   /** @internal */
   getOption(key: string): string | undefined;
+  /** Get the mutable, program-local set for a library's state key, creating it if needed. */
   stateSet(key: symbol): Set<Type>;
   /** @internal */
   stateSets: Map<symbol, Set<Type>>;
+  /** Get the mutable, program-local map for a library's state key, creating it if needed. */
   stateMap(key: symbol): Map<Type, any>;
   /**@internal */
   stats: Stats;
   /** @internal */
   stateMaps: Map<symbol, Map<Type, unknown>>;
+  /** Whether an unsuppressed error has been reported, including promoted warnings. */
   hasError(): boolean;
+  /** Add a diagnostic, applying suppression and the warning-as-error option. */
   reportDiagnostic(diagnostic: Diagnostic): void;
+  /** Report each diagnostic using the same handling as {@link reportDiagnostic}. */
   reportDiagnostics(diagnostics: readonly Diagnostic[]): void;
 
   /** @internal */
@@ -155,8 +168,13 @@ export interface Program {
   /** @internal Resolver for short/full diagnostic and linter rule codes. */
   readonly diagnosticCodeResolver: DiagnosticCodeResolver | undefined;
 
+  /** Get the unnamed root namespace containing this program's top-level declarations. */
   getGlobalNamespaceType(): Namespace;
 
+  /**
+   * Resolve a textual type reference in global scope, returning the type and any diagnostics.
+   * A failed resolution returns `undefined`; diagnostics are returned rather than reported.
+   */
   resolveTypeReference(reference: string): [Type | undefined, readonly Diagnostic[]];
 
   /** @internal */
@@ -176,12 +194,19 @@ export interface Program {
   readonly currentStage: CompilationStage;
 }
 
+/** An emitter loaded for this compilation, with its entry point and resolved configuration. */
 interface EmitterRef {
+  /** The emitter module's `$onEmit` entry point. */
   emitFunction: EmitterFunc;
+  /** Resolved path of the emitter's JavaScript entry point. */
   main: string;
+  /** Library identity used for diagnostics and external-error reporting. */
   metadata: LibraryMetadata;
+  /** Output directory passed to this emitter's emission context. */
   emitterOutputDir: string;
+  /** Emitter-specific options after compiler configuration has been applied. */
   options: Record<string, unknown>;
+  /** Loaded library instance associated with the emitter. */
   readonly library: LibraryInstance;
 }
 
@@ -202,6 +227,11 @@ interface TypeSpecLibraryReference {
   manifest: PackageJson;
 }
 
+/**
+ * Load and check a TypeSpec entry point, run validation and linting, and invoke configured emitters.
+ * Returns a program containing diagnostics even when compilation cannot proceed.
+ * @param oldProgram Previous compilation whose unchanged sources may be reused.
+ */
 export async function compile(
   host: CompilerHost,
   mainFile: string,

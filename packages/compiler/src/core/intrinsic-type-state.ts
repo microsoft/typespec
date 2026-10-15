@@ -173,6 +173,10 @@ export function getMinLengthAsNumeric(program: Program, target: Type): Numeric |
   return program.stateMap(stateKeys.minLength).get(target);
 }
 
+/**
+ * Read the target's `@minLength` constraint, or undefined if absent or not exactly representable
+ * as a JavaScript number. Use {@link getMinLengthAsNumeric} to preserve precision.
+ */
 export function getMinLength(program: Program, target: Type): number | undefined {
   return getMinLengthAsNumeric(program, target)?.asNumber() ?? undefined;
 }
@@ -184,7 +188,7 @@ export function setMaxLength(program: Program, target: Type, value: Numeric): vo
 }
 
 /**
- * Get the minimum length of a string type as a {@link Numeric} value.
+ * Get the maximum length of a string type as a {@link Numeric} value.
  * @param program Current program
  * @param target Type with the `@maxLength` decorator
  */
@@ -192,6 +196,10 @@ export function getMaxLengthAsNumeric(program: Program, target: Type): Numeric |
   return program.stateMap(stateKeys.maxLength).get(target);
 }
 
+/**
+ * Read the target's `@maxLength` constraint, or undefined if absent or not exactly representable
+ * as a JavaScript number. Use {@link getMaxLengthAsNumeric} to preserve precision.
+ */
 export function getMaxLength(program: Program, target: Type): number | undefined {
   return getMaxLengthAsNumeric(program, target)?.asNumber() ?? undefined;
 }
@@ -202,10 +210,15 @@ export function setMinItems(program: Program, target: Type, value: Numeric): voi
   program.stateMap(stateKeys.minItems).set(target, value);
 }
 
+/** Read the target's precise `@minItems` constraint, or undefined when none is stored. */
 export function getMinItemsAsNumeric(program: Program, target: Type): Numeric | undefined {
   return program.stateMap(stateKeys.minItems).get(target);
 }
 
+/**
+ * Read `@minItems` as a JavaScript number, or undefined if absent or not exactly representable.
+ * Use {@link getMinItemsAsNumeric} to preserve precision.
+ */
 export function getMinItems(program: Program, target: Type): number | undefined {
   return getMinItemsAsNumeric(program, target)?.asNumber() ?? undefined;
 }
@@ -216,10 +229,15 @@ export function setMaxItems(program: Program, target: Type, value: Numeric): voi
   program.stateMap(stateKeys.maxItems).set(target, value);
 }
 
+/** Read the target's precise `@maxItems` constraint, or undefined when none is stored. */
 export function getMaxItemsAsNumeric(program: Program, target: Type): Numeric | undefined {
   return program.stateMap(stateKeys.maxItems).get(target);
 }
 
+/**
+ * Read `@maxItems` as a JavaScript number, or undefined if absent or not exactly representable.
+ * Use {@link getMaxItemsAsNumeric} to preserve precision.
+ */
 export function getMaxItems(program: Program, target: Type): number | undefined {
   return getMaxItemsAsNumeric(program, target)?.asNumber() ?? undefined;
 }
@@ -230,6 +248,7 @@ export function getMaxItems(program: Program, target: Type): number | undefined 
 /** @internal */
 export type DocTarget = "self" | "returns" | "errors";
 
+/** Documentation text together with whether it originated in a decorator or a source doc comment. */
 export interface DocData {
   /**
    * Doc value.
@@ -288,7 +307,9 @@ export function getDocData(program: Program, target: Type): DocData | undefined 
 
 // #region discriminator
 
+/** Metadata identifying the property used by an inheritance-based `@discriminator`. */
 export interface Discriminator {
+  /** Name of the property whose literal values select derived models. */
   readonly propertyName: string;
 }
 
@@ -296,10 +317,12 @@ export function setDiscriminator(program: Program, entity: Type, discriminator: 
   program.stateMap(stateKeys.discriminator).set(entity, discriminator);
 }
 
+/** Read the target's stored `@discriminator` metadata, or undefined if none is set. */
 export function getDiscriminator(program: Program, entity: Type): Discriminator | undefined {
   return program.stateMap(stateKeys.discriminator).get(entity);
 }
 
+/** List targets with stored `@discriminator` metadata, preserving state-map insertion order. */
 export function getDiscriminatedTypes(program: Program): [Model | Union, Discriminator][] {
   return [...program.stateMap(stateKeys.discriminator).entries()] as any;
 }
