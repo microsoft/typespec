@@ -874,15 +874,17 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
             writeMethod(typeBlock, clientMethod.getMethodVisibility(), clientMethod.getDeclaration(), function -> {
                 addOptionalVariables(function, clientMethod);
 
-                function.line("RequestOptions requestOptionsForNextPage = new RequestOptions();");
-                function.line(
-                    "requestOptionsForNextPage.setContext(requestOptions != null && requestOptions.getContext() != null ? requestOptions.getContext() : "
-                        + TemplateUtil.getContextNone() + ");");
+                String nextOptions
+                    = availablePagingVariableName("requestOptionsForNextPage", pagingVariableNames(clientMethod));
+                function.line("RequestOptions %s = new RequestOptions();", nextOptions);
+                function.line(nextOptions
+                    + ".setContext(requestOptions != null && requestOptions.getContext() != null ? requestOptions.getContext() : "
+                    + TemplateUtil.getContextNone() + ");");
 
                 MethodPageDetails.NextLinkReInjection nextLinkReInjection
                     = clientMethod.getMethodPageDetails().getNextLinkReInjection();
                 if (nextLinkReInjection != null) {
-                    addQueryParameterReInjectionLogic(nextLinkReInjection, function);
+                    addQueryParameterReInjectionLogic(nextLinkReInjection, clientMethod, function);
                 }
 
                 function.line("return new PagedIterable<>(");
@@ -1098,18 +1100,17 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
             writeMethod(typeBlock, clientMethod.getMethodVisibility(), clientMethod.getDeclaration(), function -> {
                 addOptionalVariables(function, clientMethod);
                 if (settings.isDataPlaneClient()) {
-                    function.line("RequestOptions requestOptionsForNextPage = new RequestOptions();");
-                    function.line(
-                        "requestOptionsForNextPage.setContext(requestOptions != null && requestOptions.getContext() != null ? requestOptions.getContext() : "
-                            + TemplateUtil.getContextNone() + ");");
+                    String nextOptions
+                        = availablePagingVariableName("requestOptionsForNextPage", pagingVariableNames(clientMethod));
+                    function.line("RequestOptions %s = new RequestOptions();", nextOptions);
+                    function.line(nextOptions
+                        + ".setContext(requestOptions != null && requestOptions.getContext() != null ? requestOptions.getContext() : "
+                        + TemplateUtil.getContextNone() + ");");
                 }
 
                 function.line("return new PagedIterable<>(");
 
-                String nextMethodArgs = clientMethod.getMethodPageDetails()
-                    .getNextMethod()
-                    .getArgumentList()
-                    .replace("requestOptions", "requestOptionsForNextPage");
+                String nextMethodArgs = clientMethod.getMethodPageDetails().getNextMethod().getArgumentList();
                 String firstPageArgs = clientMethod.getArgumentList();
                 function.indent(() -> {
                     function.line("%s,", this.getPagingSinglePageExpression(clientMethod,
@@ -1146,16 +1147,18 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
             writeMethod(typeBlock, clientMethod.getMethodVisibility(), clientMethod.getDeclaration(), function -> {
                 addOptionalVariables(function, clientMethod);
                 if (settings.isDataPlaneClient()) {
-                    function.line("RequestOptions requestOptionsForNextPage = new RequestOptions();");
-                    function.line(
-                        "requestOptionsForNextPage.setContext(requestOptions != null && requestOptions.getContext() != null ? requestOptions.getContext() : "
-                            + TemplateUtil.getContextNone() + ");");
+                    String nextOptions
+                        = availablePagingVariableName("requestOptionsForNextPage", pagingVariableNames(clientMethod));
+                    function.line("RequestOptions %s = new RequestOptions();", nextOptions);
+                    function.line(nextOptions
+                        + ".setContext(requestOptions != null && requestOptions.getContext() != null ? requestOptions.getContext() : "
+                        + TemplateUtil.getContextNone() + ");");
                 }
 
                 MethodPageDetails.NextLinkReInjection reinjectedParams
                     = clientMethod.getMethodPageDetails().getNextLinkReInjection();
                 if (reinjectedParams != null) {
-                    addQueryParameterReInjectionLogic(reinjectedParams, function);
+                    addQueryParameterReInjectionLogic(reinjectedParams, clientMethod, function);
                 }
 
                 function.line("return new PagedFlux<>(");
@@ -1201,12 +1204,37 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
             .map(ClientMethodParameter::getName)
             .forEach(usedNames::add);
         String baseName = token.getRequestParameter().getName();
+        return availablePagingVariableName(baseName, usedNames);
+    }
+
+    private static Set<String> pagingVariableNames(ClientMethod clientMethod) {
+        return clientMethod.getParameters()
+            .stream()
+            .map(ClientMethodParameter::getName)
+            .collect(Collectors.toCollection(HashSet::new));
+    }
+
+    private static String availablePagingVariableName(String baseName, Set<String> usedNames) {
         String name = baseName;
         int suffix = 1;
-        while (usedNames.contains(name)) {
+        while (!usedNames.add(name)) {
             name = baseName + suffix++;
         }
         return name;
+    }
+
+    private static String replacePagingArgument(String arguments, String name, String replacement) {
+        return List.of(arguments.split(", "))
+            .stream()
+            .map(argument -> argument.equals(name) ? replacement : argument)
+            .collect(Collectors.joining(", "));
+    }
+
+    private static String pagingQueryCallback(String options, String request, String builder, String name,
+        String value) {
+        return options + ".addRequestCallback(" + request + " -> {" + "UrlBuilder " + builder + " = UrlBuilder.parse("
+            + request + ".getUrl());" + builder + ".setQueryParameter(" + ClassType.STRING.defaultValueExpression(name)
+            + ", " + value + ");" + request + ".setUrl(" + builder + ".toString());});";
     }
 
     private void generateContinuationTokenPaging(ClientMethod clientMethod, JavaType typeBlock, JavaSettings settings,
@@ -1266,18 +1294,23 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
     }
 
     protected void addQueryParameterReInjectionLogic(MethodPageDetails.NextLinkReInjection nextLinkReInjection,
-        JavaBlock javaBlock) {
+        ClientMethod clientMethod, JavaBlock javaBlock) {
+        Set<String> usedNames = pagingVariableNames(clientMethod);
+        String nextOptions = availablePagingVariableName("requestOptionsForNextPage", usedNames);
+        String httpRequest = availablePagingVariableName("httpRequest", usedNames);
+        String urlBuilder = availablePagingVariableName("urlBuilder", usedNames);
+        String queryParams = availablePagingVariableName("queryParams", usedNames);
         javaBlock.line("if (requestOptions != null) {");
         javaBlock.indent(() -> {
-            javaBlock.line("requestOptions.addRequestCallback(httpRequest -> {");
+            javaBlock.line("requestOptions.addRequestCallback(%s -> {", httpRequest);
             javaBlock.indent(() -> {
-                javaBlock.line("UrlBuilder urlBuilder = UrlBuilder.parse(httpRequest.getUrl().toString());");
-                javaBlock.line("Map<String, String> queryParams = urlBuilder.getQuery();");
+                javaBlock.line("UrlBuilder %s = UrlBuilder.parse(%s.getUrl().toString());", urlBuilder, httpRequest);
+                javaBlock.line("Map<String, String> %s = %s.getQuery();", queryParams, urlBuilder);
                 for (String paramSerializedName : nextLinkReInjection.getQueryParameterSerializedNames()) {
-                    javaBlock.line("if (queryParams.containsKey(\"" + paramSerializedName + "\")) {");
+                    String name = ClassType.STRING.defaultValueExpression(paramSerializedName);
+                    javaBlock.line("if (%s.containsKey(%s)) {", queryParams, name);
                     javaBlock.indent(() -> {
-                        javaBlock.line("requestOptionsForNextPage.addQueryParam(\"" + paramSerializedName
-                            + "\", queryParams.get(\"" + paramSerializedName + "\"));");
+                        javaBlock.line("%s.addQueryParam(%s, %s.get(%s));", nextOptions, name, queryParams, name);
                     });
                     javaBlock.line("}");
                 }
@@ -1959,32 +1992,40 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         boolean continuationToken
             = settings.isAzureV1() && settings.isDataPlaneClient() && hasContinuationToken(clientMethod);
         if (continuationToken || maxPageSizeSerializedName.isPresent()) {
-            argumentLine = argumentLine.replace("requestOptions", "requestOptionsLocal");
+            Set<String> usedNames = pagingVariableNames(clientMethod);
+            if (continuationParameter != null) {
+                usedNames.add(continuationParameter);
+            }
+            String requestOptionsLocal = availablePagingVariableName("requestOptionsLocal", usedNames);
+            String requestLocal = availablePagingVariableName("requestLocal", usedNames);
+            String urlBuilder = availablePagingVariableName("urlBuilder", usedNames);
+            String pageSize = availablePagingVariableName("pageSize", usedNames);
+            argumentLine = replacePagingArgument(argumentLine, "requestOptions", requestOptionsLocal);
             StringBuilder expression = new StringBuilder("(");
             if (continuationParameter != null) {
                 expression.append(continuationParameter);
             }
             if (maxPageSizeSerializedName.isPresent()) {
-                expression.append(continuationParameter == null ? "pageSize" : ", pageSize");
+                if (continuationParameter != null) {
+                    expression.append(", ");
+                }
+                expression.append(pageSize);
             }
             expression.append(") -> {")
-                .append(
-                    "RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;");
+                .append("RequestOptions ")
+                .append(requestOptionsLocal)
+                .append(" = requestOptions == null ? new RequestOptions() : requestOptions;");
             if (continuationToken) {
                 // Clear tokens from earlier callbacks before applying the current page's token.
                 ProxyMethodParameter token
                     = clientMethod.getMethodPageDetails().getContinuationToken().getRequestParameter();
                 String name = ClassType.STRING.defaultValueExpression(token.getRequestParameterName());
                 if (token.getRequestParameterLocation() == RequestParameterLocation.QUERY) {
-                    expression.append("requestOptionsLocal.addRequestCallback(requestLocal -> {")
-                        .append("UrlBuilder urlBuilder = UrlBuilder.parse(requestLocal.getUrl());")
-                        .append("urlBuilder.setQueryParameter(")
-                        .append(name)
-                        .append(", null);")
-                        .append("requestLocal.setUrl(urlBuilder.toString());")
-                        .append("});");
+                    expression.append(pagingQueryCallback(requestOptionsLocal, requestLocal, urlBuilder,
+                        token.getRequestParameterName(), "null"));
                     if (continuationParameter != null) {
-                        expression.append("requestOptionsLocal.addQueryParam(")
+                        expression.append(requestOptionsLocal)
+                            .append(".addQueryParam(")
                             .append(name)
                             .append(", ")
                             .append(continuationParameter)
@@ -1993,13 +2034,17 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                             .append(");");
                     }
                 } else {
-                    expression
-                        .append(
-                            "requestOptionsLocal.addRequestCallback(requestLocal -> requestLocal.getHeaders().remove(")
+                    expression.append(requestOptionsLocal)
+                        .append(".addRequestCallback(")
+                        .append(requestLocal)
+                        .append(" -> ")
+                        .append(requestLocal)
+                        .append(".getHeaders().remove(")
                         .append(name)
                         .append("));");
                     if (continuationParameter != null) {
-                        expression.append("requestOptionsLocal.setHeader(")
+                        expression.append(requestOptionsLocal)
+                            .append(".setHeader(")
                             .append(name)
                             .append(", ")
                             .append(continuationParameter)
@@ -2008,14 +2053,11 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                 }
             }
             if (maxPageSizeSerializedName.isPresent()) {
-                expression.append("if (pageSize != null) {")
-                    .append("  requestOptionsLocal.addRequestCallback(requestLocal -> {")
-                    .append("    UrlBuilder urlBuilder = UrlBuilder.parse(requestLocal.getUrl());")
-                    .append("    urlBuilder.setQueryParameter(\"")
-                    .append(maxPageSizeSerializedName.get())
-                    .append("\", String.valueOf(pageSize));")
-                    .append("    requestLocal.setUrl(urlBuilder.toString());")
-                    .append("  });")
+                expression.append("if (")
+                    .append(pageSize)
+                    .append(" != null) {")
+                    .append(pagingQueryCallback(requestOptionsLocal, requestLocal, urlBuilder,
+                        maxPageSizeSerializedName.get(), "String.valueOf(" + pageSize + ")"))
                     .append("}");
             }
             expression.append(String.format("return %s(%s);", methodName, argumentLine)).append("}");
@@ -2033,23 +2075,33 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
 
     private String getPagingNextPageExpression(ClientMethod clientMethod, String methodName, String argumentLine,
         JavaSettings settings) {
+        Set<String> usedNames = pagingVariableNames(clientMethod);
+        String nextOptions = availablePagingVariableName("requestOptionsForNextPage", usedNames);
+        String nextLink = availablePagingVariableName("nextLink", usedNames);
+        argumentLine = replacePagingArgument(argumentLine, "nextLink", nextLink);
         if (settings.isDataPlaneClient() && settings.isPageSizeEnabled()) {
             Optional<String> maxPageSizeSerializedName
                 = MethodUtil.serializedNameOfMaxPageSizeParameter(clientMethod.getProxyMethod());
             if (maxPageSizeSerializedName.isPresent()) {
-                argumentLine = argumentLine.replace("requestOptions", "requestOptionsLocal");
+                String requestOptionsLocal = availablePagingVariableName("requestOptionsLocal", usedNames);
+                String requestLocal = availablePagingVariableName("requestLocal", usedNames);
+                String urlBuilder = availablePagingVariableName("urlBuilder", usedNames);
+                String pageSize = availablePagingVariableName("pageSize", usedNames);
+                argumentLine = replacePagingArgument(argumentLine, "requestOptions", requestOptionsLocal);
                 StringBuilder expression = new StringBuilder();
-                expression.append("(nextLink, pageSize) -> {");
-                expression.append("RequestOptions requestOptionsLocal = new RequestOptions();")
-                    .append("requestOptionsLocal.setContext(requestOptionsForNextPage.getContext());")
-                    .append("if (pageSize != null) {")
-                    .append("  requestOptionsLocal.addRequestCallback(requestLocal -> {")
-                    .append("    UrlBuilder urlBuilder = UrlBuilder.parse(requestLocal.getUrl());")
-                    .append("    urlBuilder.setQueryParameter(\"")
-                    .append(maxPageSizeSerializedName.get())
-                    .append("\", String.valueOf(pageSize));")
-                    .append("    requestLocal.setUrl(urlBuilder.toString());")
-                    .append("  });")
+                expression.append("(").append(nextLink).append(", ").append(pageSize).append(") -> {");
+                expression.append("RequestOptions ")
+                    .append(requestOptionsLocal)
+                    .append(" = new RequestOptions();")
+                    .append(requestOptionsLocal)
+                    .append(".setContext(")
+                    .append(nextOptions)
+                    .append(".getContext());")
+                    .append("if (")
+                    .append(pageSize)
+                    .append(" != null) {")
+                    .append(pagingQueryCallback(requestOptionsLocal, requestLocal, urlBuilder,
+                        maxPageSizeSerializedName.get(), "String.valueOf(" + pageSize + ")"))
                     .append("}")
                     .append(String.format("return %s(%s);", methodName, argumentLine));
                 expression.append("}");
@@ -2058,13 +2110,13 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         }
 
         if (settings.isDataPlaneClient()) {
-            argumentLine = argumentLine.replace("requestOptions", "requestOptionsForNextPage");
+            argumentLine = replacePagingArgument(argumentLine, "requestOptions", nextOptions);
         }
 
         if (settings.isAzureV1()) {
-            return String.format("nextLink -> %s(%s)", methodName, argumentLine);
+            return String.format("%s -> %s(%s)", nextLink, methodName, argumentLine);
         } else {
-            return String.format("(pagingOptions, nextLink) -> { %s return %s(%s); }",
+            return String.format("(pagingOptions, %s) -> { %s return %s(%s); }", nextLink,
                 getLogExceptionExpressionForPagingOptions(clientMethod), methodName, argumentLine);
         }
     }
