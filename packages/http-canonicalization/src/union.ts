@@ -96,7 +96,7 @@ interface VariantTestDefinition {
 
 /**
  * Canonicalizes union types, tracking discriminators and runtime variant tests.
- * Undiscriminated unions get ordered test plans for each projection; construction
+ * Unions without discriminators get ordered test plans for each projection; construction
  * through the engine throws if visible variants cannot be distinguished.
  */
 export class UnionHttpCanonicalization
@@ -130,7 +130,7 @@ export class UnionHttpCanonicalization
    */
   variantDescriptors: VariantDescriptor[] = [];
   /**
-   * Ordered guards for language values in undiscriminated unions; stop at the
+   * Ordered guards for language values in unions without discriminators; stop at the
    * first matching entry. Empty for discriminated unions or no visible variants.
    */
   languageVariantTests: {
