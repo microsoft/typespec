@@ -13,6 +13,10 @@ import type {
   TypeSpecTestLibraryInit,
 } from "./types.js";
 
+/**
+ * Resolve path segments against the virtual test root (`/test`, or `Z:/test` on Windows).
+ * Absolute segments replace earlier segments, following the compiler's path-resolution rules.
+ */
 export function resolveVirtualPath(path: string, ...paths: string[]) {
   // NB: We should always resolve an absolute path, and there is no absolute
   // path that works across OSes. This ensures that we can still rely on API

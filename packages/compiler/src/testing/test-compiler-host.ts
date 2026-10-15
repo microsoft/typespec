@@ -26,9 +26,13 @@ export const StandardTestLibrary: TypeSpecTestLibrary = {
   ],
 };
 
+/** Filesystem lookup and host customization for {@link createTestFileSystem}. */
 export interface TestHostOptions {
+  /** Make file and JavaScript-module lookups case-insensitive. Defaults to case-sensitive lookup. */
   caseInsensitiveFileSystem?: boolean;
+  /** Omit the test-decorator library directory from the host's library search paths. Defaults to `false`. */
   excludeTestLib?: boolean;
+  /** Replace individual host operations; overrides are applied after the virtual host's defaults. */
   compilerHostOverrides?: Partial<CompilerHost>;
 }
 
