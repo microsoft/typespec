@@ -57,6 +57,10 @@ import {
   replaceTemplatedStringFromProperties,
 } from "./utils.js";
 
+/**
+ * Replaces key properties in the target model with clones carrying the given visibility, but only when
+ * they have no explicit visibility settings. Does not walk base models or change non-key properties.
+ */
 export const $withDefaultKeyVisibility: WithDefaultKeyVisibilityDecorator = (
   context: DecoratorContext,
   entity: Model,
@@ -124,6 +128,10 @@ function getOperationVisibilityConfig(
   return config;
 }
 
+/**
+ * Sets the operation parameter visibility constraint to match any of the supplied modifiers.
+ * Reports an error and leaves the configuration unchanged when no modifiers are supplied.
+ */
 export const $parameterVisibility: ParameterVisibilityDecorator = (
   context: DecoratorContext,
   operation: Operation,
@@ -155,7 +163,9 @@ export const $parameterVisibility: ParameterVisibilityDecorator = (
  * default unless otherwise explicitly specified.
  */
 export interface VisibilityProvider {
+  /** Supplies the parameter filter when the operation has no explicit `@parameterVisibility` constraint. */
   parameters(program: Program, operation: Operation): VisibilityFilter;
+  /** Supplies the result filter when the operation has no explicit `@returnTypeVisibility` constraint. */
   returnType(program: Program, operation: Operation): VisibilityFilter;
 }
 
@@ -171,8 +181,7 @@ export const EmptyVisibilityProvider: VisibilityProvider = {
 };
 
 /**
- * Get the visibility filter that should apply to the parameters of the given operation, or `undefined` if no parameter
- * visibility is set.
+ * Gets the operation's explicit parameter visibility as an `any` filter, or delegates to the supplied provider.
  *
  * If you are not working in a protocol that has specific implicit visibility semantics, you can use the
  * {@link EmptyVisibilityProvider} as a default provider. If you working in a protocol or context where parameters have
@@ -181,9 +190,9 @@ export const EmptyVisibilityProvider: VisibilityProvider = {
  *
  * @param program - the Program in which the operation is defined
  * @param operation - the Operation to get the parameter visibility filter for
- * @param defaultProvider - a provider for visibility filters that apply when no visibility constraints are explicitly
- *                         set. Defaults to an empty provider that returns an empty filter if not provided.
- * @returns a visibility filter for the parameters of the operation, or `undefined` if no parameter visibility is set
+ * @param defaultProvider - required provider used when no explicit constraint is set; pass
+ *                         {@link EmptyVisibilityProvider} to consider all properties visible by default.
+ * @returns a filter containing the explicit modifiers, or the provider's parameter filter
  */
 export function getParameterVisibilityFilter(
   program: Program,
@@ -208,6 +217,10 @@ export function getParameterVisibilityFilter(
   };
 }
 
+/**
+ * Sets the operation return type visibility constraint to match any of the supplied modifiers.
+ * Reports an error and leaves the configuration unchanged when no modifiers are supplied.
+ */
 export const $returnTypeVisibility: ReturnTypeVisibilityDecorator = (
   context: DecoratorContext,
   operation: Operation,
@@ -230,14 +243,13 @@ export const $returnTypeVisibility: ReturnTypeVisibilityDecorator = (
 };
 
 /**
- * Get the visibility filter that should apply to the return type of the given operation, or `undefined` if no return
- * type visibility is set.
+ * Gets the operation's explicit return type visibility as an `any` filter, or delegates to the supplied provider.
  *
  * @param program - the Program in which the operation is defined
  * @param operation - the Operation to get the return type visibility filter for
- * @param defaultProvider - a provider for visibility filters that apply when no visibility constraints are explicitly
- *                          set. Defaults to an empty provider that returns an empty filter if not provided.
- * @returns a visibility filter for the return type of the operation, or `undefined` if no return type visibility is set
+ * @param defaultProvider - required provider used when no explicit constraint is set; pass
+ *                         {@link EmptyVisibilityProvider} to consider all properties visible by default.
+ * @returns a filter containing the explicit modifiers, or the provider's return type filter
  */
 export function getReturnTypeVisibilityFilter(
   program: Program,
@@ -268,6 +280,10 @@ export function getReturnTypeVisibilityFilter(
 
 // -- @visibility decorator ---------------------
 
+/**
+ * Adds active visibility modifiers to a property. For each previously unconfigured visibility class,
+ * initializes its explicit modifier set with the supplied modifiers rather than that class's defaults.
+ */
 export const $visibility: VisibilityDecorator = (
   context: DecoratorContext,
   target: ModelProperty,
@@ -283,6 +299,7 @@ export const $visibility: VisibilityDecorator = (
 
 // -- @removeVisibility decorator ---------------------
 
+/** Removes modifiers from a property, starting from class defaults when that class has no explicit settings. */
 export const $removeVisibility: RemoveVisibilityDecorator = (
   context: DecoratorContext,
   target: ModelProperty,
@@ -297,6 +314,7 @@ export const $removeVisibility: RemoveVisibilityDecorator = (
 
 // -- @invisible decorator ---------------------
 
+/** Clears all active modifiers for a visibility class on a property, overriding the class's defaults. */
 export const $invisible: InvisibleDecorator = (
   context: DecoratorContext,
   target: ModelProperty,
@@ -307,6 +325,10 @@ export const $invisible: InvisibleDecorator = (
 
 // -- @defaultVisibility decorator ------------------
 
+/**
+ * Defines the modifiers used for properties without explicit settings for this visibility class.
+ * Supplied modifiers must belong to the target enum; an empty list makes the default set empty.
+ */
 export const $defaultVisibility: DefaultVisibilityDecorator = (
   context: DecoratorContext,
   target: Enum,
@@ -336,6 +358,10 @@ export const $defaultVisibility: DefaultVisibilityDecorator = (
 
 // -- @withVisibility decorator ---------------------
 
+/**
+ * Removes properties from the target model in place unless they match all supplied visibility modifiers.
+ * Resets the retained properties' settings for the selected classes to their defaults; does not recurse into property types.
+ */
 export const $withVisibility: WithVisibilityDecorator = (
   context: DecoratorContext,
   target: Model,
@@ -452,6 +478,10 @@ export function applyVisibilityFilter(
   return type;
 }
 
+/**
+ * Replaces the target's properties with a recursively visibility-filtered model graph.
+ * Referenced types are transformed without changing the originals; `nameTemplate` optionally names the derived types.
+ */
 export const $withVisibilityFilter: WithVisibilityFilterDecorator = (
   context: DecoratorContext,
   target: Model,
@@ -522,6 +552,10 @@ export function applyLifecycleUpdate(
   return type;
 }
 
+/**
+ * Replaces the target's properties with those visible for lifecycle Update, recursively transforming property types
+ * to allow Create or Update visibility. `nameTemplate` optionally names the derived types.
+ */
 export const $withLifecycleUpdate: WithLifecycleUpdateDecorator = (
   context: DecoratorContext,
   target: Model,
