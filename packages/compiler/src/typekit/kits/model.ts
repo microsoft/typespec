@@ -119,6 +119,8 @@ export interface ModelKit {
   /**
    * Gets all properties from a model, explicitly defined and implicitly defined.
    * @param model model to get the properties from
+   * @param options.includeExtended Include properties from the full base-model chain. Defaults to false.
+   * Properties already in the result take precedence over inherited properties with the same name.
    */
   getProperties(
     model: Model,
