@@ -4,7 +4,11 @@ import {
   type TypeSpecTestLibrary,
 } from "@typespec/compiler/testing";
 
-/** @deprecated Use `createTester` from `@typespec/compiler/testing` instead */
+/**
+ * Registers the library linter's package files with the legacy compiler test host.
+ *
+ * @deprecated Use `createTester` from `@typespec/compiler/testing` instead
+ */
 /* eslint-disable @typescript-eslint/no-deprecated */
 export const LibraryLinterTestLibrary: TypeSpecTestLibrary = createTestLibrary({
   name: "@typespec/library-linter",
