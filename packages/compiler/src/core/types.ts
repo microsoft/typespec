@@ -2178,6 +2178,11 @@ export interface JsNamespaceDeclarationNode extends DeclarationNode, BaseNode {
   readonly kind: SyntaxKind.JsNamespaceDeclaration;
 }
 
+/**
+ * Implementation of a library's `$onEmit` hook, invoked during emission after checking,
+ * validation, and linting. The compiler awaits a returned promise before continuing.
+ * Report issues through the context's program rather than returning diagnostics.
+ */
 export type EmitterFunc = (context: EmitContext) => Promise<void> | void;
 
 export interface SourceFile {
@@ -2922,7 +2927,7 @@ export interface TypeSpecLibrary<
 }
 
 /**
- * Get the options for the onEmit of this library.
+ * Extracts the custom emitter-option type declared by a TypeSpec library for its `$onEmit` hook.
  */
 export type EmitOptionsFor<C> = C extends TypeSpecLibrary<infer _T, infer E> ? E : never;
 
@@ -3010,19 +3015,22 @@ export interface FunctionContext extends InvocationContext {
   functionCallTarget: DiagnosticTarget;
 }
 
+/** Per-emitter compilation context supplied to `$onEmit`, including options and performance reporting. */
 export interface EmitContext<TOptions extends object = Record<string, never>> {
   /**
-   * TypeSpec Program.
+   * Checked program being emitted. Use its reporting APIs to report emitter diagnostics.
    */
   program: Program;
 
   /**
-   * Configured output dir for the emitter. Emitter should emit all output under that directory.
+   * Resolved output directory for this emitter, including its configured override if any.
+   * Emit all output beneath this directory rather than the program's shared output directory.
    */
   emitterOutputDir: string;
 
   /**
-   * Emitter custom options defined in createTypeSpecLibrary
+   * Custom options configured for this emitter, validated when the library declares an options schema.
+   * The compiler's `emitter-output-dir` option is removed and exposed as `emitterOutputDir` instead.
    */
   options: TOptions;
 
@@ -3034,13 +3042,22 @@ export interface EmitContext<TOptions extends object = Record<string, never>> {
   readonly perf: PerfReporter;
 }
 
+/** Elapsed-time measurement handle returned by compiler performance utilities. */
 export interface Timer {
+  /**
+   * Returns milliseconds since the timer started. A reporting timer also records
+   * the measurement under its label; repeated calls measure again from the original start.
+   */
   end: () => number;
 }
 
+/**
+ * Records an emitter's named performance measurements for compiler statistics.
+ * Measurements use milliseconds; recording the same label replaces its previous value.
+ */
 export interface PerfReporter {
   /**
-   * Start timer for the given label.
+   * Starts a timer whose measurement is recorded under the label when `end()` is called.
    *
    * @example
    * ```ts
@@ -3050,9 +3067,9 @@ export interface PerfReporter {
    * ```
    */
   startTimer(label: string): Timer;
-  /** Report a sync function elapsed time.  */
+  /** Calls the callback immediately, records elapsed time on successful return, and returns its result. */
   time<T>(label: string, callback: () => T): T;
-  /** Report an async function elapsed time.  */
+  /** Calls and awaits the callback, records elapsed time on successful resolution, and returns its result. */
   timeAsync<T>(label: string, callback: () => Promise<T>): Promise<T>;
 
   /**
@@ -3076,23 +3093,33 @@ export interface PerfReporter {
   readonly measures: Readonly<Record<string, number>>;
 }
 
+/** Log severity, ordered from verbose tracing through warnings to errors for logger filtering. */
 export type LogLevel = "trace" | "warning" | "error";
 
+/** Input to a logger before its optional target is resolved to a source location. */
 export interface LogInfo {
+  /** Severity used by the logger's configured minimum-level filter. */
   level: LogLevel;
+  /** Human-readable text delivered to the sink when the message passes filtering. */
   message: string;
+  /** Optional diagnostic identifier or trace-area name; absent for uncoded messages. */
   code?: string;
+  /** Optional location-bearing target; absent or {@link NoTarget} produces no source location. */
   target?: DiagnosticTarget | typeof NoTarget;
 }
 
+/** Log entry ready for a sink, with any source target already resolved to a location. */
 export interface ProcessedLog {
+  /** Severity to display; filtering is normally performed before sink delivery. */
   level: LogLevel;
+  /** Human-readable message to display. */
   message: string;
+  /** Optional diagnostic identifier or trace-area name associated with the message. */
   code?: string;
   /** Documentation for the error code. */
   url?: string;
 
-  /** Log location */
+  /** Resolved location when a target was supplied; may be synthetic when no actual source is available. */
   sourceLocation?: SourceLocation;
 
   /** @internal */
@@ -3119,7 +3146,9 @@ export interface TrackActionTask {
   stop(status: TaskStatus, message?: string): void;
 }
 
+/** Destination for processed compiler log entries, such as a console or editor integration. */
 export interface LogSink {
+  /** Consumes one processed log entry; delivery does not itself add a diagnostic to a program. */
   log(log: ProcessedLog): void;
 
   /** @internal */
@@ -3135,10 +3164,18 @@ export interface LogSink {
   ): Promise<T>;
 }
 
+/**
+ * Filters and forwards log messages to a sink. Logging warnings or errors does not
+ * report program diagnostics or change compilation success.
+ */
 export interface Logger {
+  /** Logs an uncoded trace message, subject to the configured minimum log level. */
   trace(message: string): void;
+  /** Logs an uncoded warning without creating a program diagnostic. */
   warn(message: string): void;
+  /** Logs an uncoded error without creating a program diagnostic. */
   error(message: string): void;
+  /** Filters by severity, resolves the optional target, and forwards the entry to the sink. */
   log(log: LogInfo): void;
 
   /** @internal */
@@ -3149,19 +3186,26 @@ export interface Logger {
   ): Promise<T>;
 }
 
+/** Selects which dot-separated trace areas a tracer forwards to its logger. */
 export interface TracerOptions {
+  /**
+   * Area prefixes to enable, such as `"http"` or `"http.route"`; `"*"` enables all areas.
+   * A prefix enables its descendants. Omitted or empty filters disable tracing.
+   */
   filter?: string[];
 }
+/** Hierarchical tracing whose enabled areas are controlled by {@link TracerOptions}. */
 export interface Tracer {
   /**
-   * Trace
-   * @param area
-   * @param message
+   * Logs a message under a dot-separated area when that area is enabled.
+   * The default compiler tracer uses the area as the log code and does not forward
+   * the optional target to its logger.
    */
   trace(area: string, message: string, target?: DiagnosticTarget): void;
 
   /**
-   * @param subarea
+   * Returns a child tracer that prefixes subsequent areas with this subarea,
+   * separated by a dot. Child tracers share the parent's filtering and log destination.
    */
   sub(subarea: string): Tracer;
 }
