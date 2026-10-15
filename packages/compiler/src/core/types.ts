@@ -6,6 +6,11 @@ import type { Numeric } from "./numeric.js";
 import type { Program } from "./program.js";
 import type { TokenFlags } from "./scanner.js";
 
+/**
+ * JavaScript-facing type mapping for compiler values.
+ * Numeric values may use {@link Numeric} to preserve precision, while scalar constructor values
+ * retain their compiler representation.
+ */
 // prettier-ignore
 export type MarshalledValue<Value>  = 
 Value extends StringValue ? string
@@ -345,6 +350,10 @@ export interface ModelProperty extends BaseType, DecoratedType {
 }
 
 //#region Values
+/**
+ * A checked TypeSpec value, distinct from the {@link Type} describing what values are allowed.
+ * Narrow with `valueKind` to inspect primitive payloads, collection contents, or constructor calls.
+ */
 export type Value =
   | ScalarValue
   | NumericValue
@@ -359,8 +368,11 @@ export type Value =
 /** @internal */
 export type ValueWithTemplate = Value | TemplateValue;
 
+/** Common identity and storage-type metadata inherited by checked values. */
 interface BaseValue {
+  /** Distinguishes a concrete value from a type or parameter constraint. */
   readonly entityKind: "Value";
+  /** Discriminant identifying how the value's contents are represented. */
   readonly valueKind: string;
   /**
    * Represent the storage type of a value.
@@ -374,51 +386,91 @@ interface BaseValue {
   type: Type;
 }
 
+/** An object value with checked named entries, rather than a model type's property declarations. */
 export interface ObjectValue extends BaseValue {
+  /** Discriminant for object contents stored in a property map. */
   valueKind: "ObjectValue";
+  /** Object literal that produced the value, when available. */
   node?: ObjectLiteralNode;
+  /** Actual entries keyed by property name; each descriptor contains a value, not a property type. */
   properties: Map<string, ObjectValuePropertyDescriptor>;
 }
 
+/** One named entry in an {@link ObjectValue}, with its checked value and optional source. */
 export interface ObjectValuePropertyDescriptor {
+  /** Property syntax that supplied this entry, when available. */
   node?: ObjectLiteralPropertyNode;
+  /** Entry name matching its key in the containing object's property map. */
   name: string;
+  /** Checked contents of the entry. */
   value: Value;
 }
 
+/** An array value containing checked elements, distinct from an array model or tuple type. */
 export interface ArrayValue extends BaseValue {
+  /** Discriminant for array contents stored as an element list. */
   valueKind: "ArrayValue";
+  /** Array literal that produced the value, when available. */
   node?: ArrayLiteralNode;
+  /** Element values in array order. */
   values: Value[];
 }
 
+/** A scalar constructor call retained as a scalar, constructor name, and checked arguments. */
 export interface ScalarValue extends BaseValue {
+  /** Discriminant for a retained constructor call rather than a primitive payload. */
   valueKind: "ScalarValue";
+  /** Scalar instantiated by the constructor call. */
   scalar: Scalar;
-  value: { name: string; args: Value[] };
+  // prettier-ignore
+  /** Constructor invocation used to create the value. */
+  value: {
+    /** Constructor name on the scalar. */
+    name: string;
+    /** Checked arguments in call order. */
+    args: Value[]
+  };
 }
 
+/** A numeric value whose exact contents are preserved independently of JavaScript number precision. */
 export interface NumericValue extends BaseValue {
+  /** Discriminant for an exact numeric payload. */
   valueKind: "NumericValue";
+  /** Selected numeric scalar, or undefined for a literal without an inferred or explicit scalar. */
   scalar: Scalar | undefined;
+  /** Exact numeric contents; use Numeric conversion methods when a JavaScript number is needed. */
   value: Numeric;
 }
+/** A string value, optionally associated with a scalar selected by its context or construction. */
 export interface StringValue extends BaseValue {
+  /** Discriminant for a JavaScript string payload. */
   valueKind: "StringValue";
+  /** Selected string scalar, or undefined when the value has no scalar association. */
   scalar: Scalar | undefined;
+  /** String contents, independent of the value's storage type. */
   value: string;
 }
+/** A boolean value, optionally associated with a scalar selected by its context or construction. */
 export interface BooleanValue extends BaseValue {
+  /** Discriminant for a JavaScript boolean payload. */
   valueKind: "BooleanValue";
+  /** Selected boolean scalar, or undefined when the value has no scalar association. */
   scalar: Scalar | undefined;
+  /** Boolean contents, independent of the value's storage type. */
   value: boolean;
 }
+/** A value referring to an enum member, retaining member identity rather than only its assigned value. */
 export interface EnumValue extends BaseValue {
+  /** Discriminant for a value backed by an enum member. */
   valueKind: "EnumValue";
+  /** Referenced member, including its owning enum and any explicit string or numeric value. */
   value: EnumMember;
 }
+/** The concrete null value, distinct from the intrinsic type used to describe it. */
 export interface NullValue extends BaseValue {
+  /** Discriminant for the null payload. */
   valueKind: "NullValue";
+  /** Null contents; absence of a value is not represented by this field being undefined. */
   value: null;
 }
 
@@ -841,7 +893,9 @@ export interface FunctionValue<
   Parameters extends unknown[] = never[],
   ReturnType = unknown,
 > extends BaseValue {
+  /** Discriminant for callable function values rather than data values. */
   valueKind: "Function";
+  /** Source `fn` declaration, when the function originates in a declaration. */
   node?: FunctionDeclarationStatementNode;
   /**
    * The function's name as declared in the TypeSpec source, if any.
