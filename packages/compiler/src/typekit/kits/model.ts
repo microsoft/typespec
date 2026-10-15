@@ -119,12 +119,16 @@ export interface ModelKit {
   /**
    * Gets all properties from a model, explicitly defined and implicitly defined.
    * @param model model to get the properties from
-   * @param options.includeExtended Include properties from the full base-model chain. Defaults to false.
-   * Properties already in the result take precedence over inherited properties with the same name.
    */
   getProperties(
     model: Model,
-    options?: { /** Include base properties; defaults to false. */ includeExtended?: boolean },
+    options?: {
+      /**
+       * Include properties from the full base-model chain. Defaults to false.
+       * Existing result properties take precedence over inherited properties with the same name.
+       */
+      includeExtended?: boolean;
+    },
   ): RekeyableMap<string, ModelProperty>;
   /**
    * Get the record representing additional properties, if there are additional properties.
