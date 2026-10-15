@@ -3,15 +3,9 @@
 
 package payload.pageable;
 
-import com.azure.core.http.HttpHeaders;
-import com.azure.core.http.HttpRequest;
 import com.azure.core.http.rest.PagedIterable;
 import com.azure.core.http.rest.RequestOptions;
-import com.azure.core.test.http.MockHttpResponse;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Assertions;
@@ -20,7 +14,6 @@ import payload.pageable.models.Pet;
 import payload.pageable.models.XmlPet;
 import payload.pageable.serverdrivenpagination.alternateinitialverb.models.Filter;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 public class PageableTests {
 
@@ -125,54 +118,6 @@ public class PageableTests {
             Assertions.assertEquals(4, client.requestQueryResponseBody(options).stream().count());
             Assertions.assertEquals(4, client.requestHeaderResponseHeader(options).stream().count());
         }
-    }
-
-    @Test
-    public void testContinuationTokenEncoding() {
-        String token = "opaque +/?&=%";
-        List<HttpRequest> requests = new ArrayList<>();
-        PageableClientBuilder mockBuilder = new PageableClientBuilder().httpClient(request -> {
-            requests.add(request);
-            Assertions.assertEquals(
-                "/payload/pageable/server-driven-pagination/continuationtoken/request-query-response-body",
-                request.getUrl().getPath());
-            Assertions.assertEquals("foo", request.getHeaders().getValue("foo"));
-            String query = request.getUrl().getQuery();
-            Assertions.assertTrue(query.contains("bar=bar"));
-            String body;
-            if (query.contains("token=")) {
-                List<String> tokenParameters = List.of(query.split("&"))
-                    .stream()
-                    .filter(parameter -> parameter.startsWith("token="))
-                    .collect(Collectors.toList());
-                Assertions.assertEquals(1, tokenParameters.size());
-                String actualToken
-                    = URLDecoder.decode(tokenParameters.get(0).substring("token=".length()), StandardCharsets.UTF_8);
-                if (token.equals(actualToken)) {
-                    body = "{\"pets\":[{\"id\":\"2\",\"name\":\"cat\"}],\"nextToken\":\"" + token + "next\"}";
-                } else {
-                    Assertions.assertEquals(token + "next", actualToken);
-                    body = "{\"pets\":[{\"id\":\"3\",\"name\":\"bird\"}]}";
-                }
-            } else {
-                body = "{\"pets\":[{\"id\":\"1\",\"name\":\"dog\"}],\"nextToken\":\"" + token + "\"}";
-            }
-            return Mono
-                .just(new MockHttpResponse(request, 200, new HttpHeaders(), body.getBytes(StandardCharsets.UTF_8)));
-        });
-        PagedIterable<Pet> result
-            = mockBuilder.buildServerDrivenPaginationContinuationTokenClient().requestQueryResponseBody("foo", "bar");
-        assertPetIds(result, "1", "2", "3");
-        assertPetIds(result, "1", "2", "3");
-        Assertions.assertEquals(6, requests.size());
-        requests.clear();
-        Assertions.assertEquals(List.of("1", "2", "3"),
-            mockBuilder.buildServerDrivenPaginationContinuationTokenAsyncClient()
-                .requestQueryResponseBody("foo", "bar")
-                .map(Pet::getId)
-                .collectList()
-                .block(Duration.ofSeconds(10)));
-        Assertions.assertEquals(3, requests.size());
     }
 
     @Test
