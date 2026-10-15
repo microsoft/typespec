@@ -6,9 +6,11 @@ import { generateMain } from "./generators/generate-main.js";
 import { transform } from "./transforms/transforms.js";
 import { createContext } from "./utils/context.js";
 
+/** Controls reference handling and the service namespace when converting an OpenAPI document to TypeSpec source. */
 export interface ConvertOpenAPI3DocumentOptions {
   /**
-   * Whether external $ref pointers will be resolved and included in the output.
+   * Reject external `$ref` pointers instead of resolving them. Document-local
+   * references remain allowed. Defaults to false.
    */
   disableExternalRefs?: boolean;
   /**
@@ -17,6 +19,14 @@ export interface ConvertOpenAPI3DocumentOptions {
   namespace?: string;
 }
 
+/**
+ * Converts a supported OpenAPI document to TypeSpec source text without writing files.
+ * References are dereferenced before transformation; external references can be
+ * rejected through `disableExternalRefs`.
+ *
+ * @returns Generated source, formatted when possible, or the unformatted source if formatting fails.
+ * @throws If dereferencing fails, including when a disabled external reference is encountered.
+ */
 export async function convertOpenAPI3Document(
   document: SupportedOpenAPIDocuments,
   { disableExternalRefs, namespace }: ConvertOpenAPI3DocumentOptions = {},
