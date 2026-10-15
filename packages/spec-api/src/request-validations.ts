@@ -4,10 +4,18 @@ import { matchValues, type MockValueMatcher } from "./match-engine.js";
 import type { CollectionFormat, RequestExt, Resolver, ResolverConfig } from "./types.js";
 import { ValidationError } from "./validation-error.js";
 
+/** Base mismatch message; matcher-aware validators append the comparison detail. */
 export const BODY_NOT_EQUAL_ERROR_MESSAGE = "Body provided doesn't match expected body";
+/** Message used for a missing required body and for a nonempty raw body in validateBodyEmpty. */
 export const BODY_EMPTY_ERROR_MESSAGE = "Body should exists";
+/** Message used by validateBodyEmpty when a parsed Buffer contains unexpected bytes. */
 export const BODY_NOT_EMPTY_ERROR_MESSAGE = "Body should be empty";
 
+/**
+ * Compares raw payloads without parsing or converting strings to Buffers.
+ * An undefined expectation accepts an absent, empty-string or zero-length raw body.
+ * @throws {ValidationError} when the raw payload differs.
+ */
 export const validateRawBodyEquals = (
   request: RequestExt,
   expectedRawBody: string | Buffer | undefined,
@@ -26,6 +34,11 @@ export const validateRawBodyEquals = (
   }
 };
 
+/**
+ * Compares the parsed body with matchValues, allowing nested expected matchers.
+ * A null or undefined expectation checks raw-body emptiness instead.
+ * @throws {ValidationError} when the payload differs.
+ */
 export const validateBodyEquals = (
   request: RequestExt,
   expectedBody: unknown | undefined,
@@ -47,6 +60,14 @@ export const validateBodyEquals = (
   }
 };
 
+/**
+ * Parses and compares XML bodies, ignoring declarations and using string-valued tag content.
+ * A plain expected string is prefixed with an XML declaration; a Resolver supplies its
+ * own serialized XML. Matchers collected from a dyn template replace matching parsed
+ * text values before comparison.
+ * @param config Dynamic-value context; defaults to an empty base URL.
+ * @throws {ValidationError} when the raw body is empty or parsed values differ.
+ */
 export const validateXmlBodyEquals = (
   request: RequestExt,
   expectedBody: string | Resolver,
@@ -112,6 +133,13 @@ function substituteMatchers(value: unknown, matcherMap: Map<string, MockValueMat
   return value;
 }
 
+/**
+ * JSON-round-trips the actual body and normalizes UTC datetime strings before
+ * matcher-aware comparison, leaving the expectation unchanged. Removes 3–7 fractional
+ * digits and converts zero UTC offsets to `Z`; this is not general timezone conversion.
+ * A null or undefined expectation checks raw-body emptiness.
+ * @throws {ValidationError} when the payload differs.
+ */
 export const validateCoercedDateBodyEquals = (
   request: RequestExt,
   expectedBody: unknown | undefined,
@@ -133,6 +161,11 @@ export const validateCoercedDateBodyEquals = (
   }
 };
 
+/**
+ * Requires an absent or zero-length raw body and rejects a nonempty parsed Buffer.
+ * Parsed non-Buffer values do not determine emptiness.
+ * @throws {ValidationError} when a body is present.
+ */
 export const validateBodyEmpty = (request: RequestExt): void => {
   if (isBodyEmpty(request.rawBody)) {
     if (request.body instanceof Buffer) {
@@ -145,6 +178,10 @@ export const validateBodyEmpty = (request: RequestExt): void => {
   }
 };
 
+/**
+ * Requires a nonempty raw body or, when rawBody is empty, a nonempty parsed Buffer.
+ * @throws {ValidationError} when neither payload contains content.
+ */
 export const validateBodyNotEmpty = (request: RequestExt): void => {
   if (isBodyEmpty(request.rawBody)) {
     if (request.body instanceof Buffer) {
@@ -166,7 +203,9 @@ const isBodyEmpty = (body: string | Buffer | undefined | null) => {
 };
 
 /**
- * Check whether the request header contains the given name/value pair
+ * Requires strict equality of one parsed header value. Use a lowercase header name;
+ * names and values are not normalized here, and unrelated headers are ignored.
+ * @throws {ValidationError} when the header is absent or differs.
  */
 export const validateHeader = (request: RequestExt, headerName: string, expected: string): void => {
   const actual = request.headers[headerName];
@@ -176,8 +215,11 @@ export const validateHeader = (request: RequestExt, headerName: string, expected
 };
 
 /**
- * Check whether the query string contains the given parameter name and value.
- * Supports query param as string or collection. e.g. if it's a collection, one can call the method like this: validateQueryParam(request, ["a", "b", "c"], "multi")
+ * Checks one parsed query parameter, leaving unrelated parameters unchecked.
+ * String expectations use strict equality. For arrays, `multi` requires a matching
+ * array in the same order; delimiter formats join expected elements and compare
+ * against the URI-decoded actual string. Supply a collection format for array values.
+ * @throws {ValidationError} when the parameter is absent or differs.
  */
 export const validateQueryParam = (
   request: RequestExt,
@@ -227,7 +269,9 @@ const coerceDate = (targetObject: Record<string, unknown>): Record<string, unkno
 };
 
 /**
- * Check whether the value follow the right format.
+ * Checks a string against the UUID, HTTP-date or RFC 3339 pattern used by the mock API.
+ * This checks syntax, not calendar validity; the RFC 3339 pattern allows an omitted zone.
+ * @throws {ValidationError} when the value fails the pattern or the format is unsupported.
  */
 export const validateValueFormat = (
   value: string,

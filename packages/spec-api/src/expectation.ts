@@ -13,47 +13,52 @@ import type { CollectionFormat, RequestExt, Resolver, ResolverConfig } from "./t
 import { ValidationError } from "./validation-error.js";
 
 /**
- * Class containing all the expectations that can be run on the request.
+ * Assertions against one incoming request. A mismatch throws {@link ValidationError}
+ * with expected and actual values; successful assertions return normally.
  */
 export class RequestExpectation {
+  /** Binds assertions to the supplied request without copying its data. */
   public constructor(private originalRequest: RequestExt) {}
   /**
-   * Expect the raw body of the request to match the given string.
-   * @param rawBody Raw request body.
-   * @throws {ValidationError} if there is an error.
+   * Requires strict equality of raw strings or Buffer bytes, without converting between them.
+   * An undefined expectation requires an empty raw payload.
+   * @throws {ValidationError} when the payload differs.
    */
   public rawBodyEquals(expectedRawBody: string | Buffer | undefined): void {
     validateRawBodyEquals(this.originalRequest, expectedRawBody);
   }
 
   /**
-   * Expect the body of the request to match the given object.
-   * @param rawBody Raw request body.
-   * @throws {ValidationError} if there is an error.
+   * Compares the parsed body using {@link matchValues}, including nested value matchers.
+   * A null or undefined expectation instead requires an empty raw payload.
+   * @throws {ValidationError} when the payload differs.
    */
   public bodyEquals(expectedRawBody: unknown | undefined): void {
     validateBodyEquals(this.originalRequest, expectedRawBody);
   }
 
   /**
-   * Expect the coerced body of the request to match the given object.
-   * @param rawBody Raw request body.
-   * @throws {ValidationError} if there is an error.
+   * JSON-round-trips the actual body and normalizes UTC datetime strings before
+   * matcher-aware comparison. Removes 3–7 fractional digits and replaces zero offsets
+   * with `Z`; the expected value is not normalized.
+   * A null or undefined expectation requires an empty raw payload.
+   * @throws {ValidationError} when the payload differs.
    */
   public coercedBodyEquals(expectedRawBody: unknown | undefined): void {
     validateCoercedDateBodyEquals(this.originalRequest, expectedRawBody);
   }
 
   /**
-   * Expect the body of the request to be empty.
-   * @throws {ValidationError} if there is an error.
+   * Requires an empty raw body and rejects a nonempty parsed Buffer.
+   * Other parsed values do not determine emptiness.
+   * @throws {ValidationError} when a body is present.
    */
   public bodyEmpty(): void {
     validateBodyEmpty(this.originalRequest);
   }
 
   /**
-   * Expect the body of the request to be not empty.
+   * Requires a nonempty raw payload, falling back to the parsed Buffer when rawBody is empty.
    * @throws {ValidationError} if there is an error.
    */
   public bodyNotEmpty(): void {
@@ -61,19 +66,19 @@ export class RequestExpectation {
   }
 
   /**
-   * Expect the header of the request contains the expected key/value pair
-   * @param headerName Key expected in header
-   * @param expectedValue Values expected in header
-   * @throws {ValidationError} if there is an error.
+   * Requires the parsed header value to equal the expected string exactly.
+   * Use a lowercase header name; other headers are not checked.
+   * @throws {ValidationError} when the header is absent or differs.
    */
   public containsHeader(headerName: string, expectedValue: string): void {
     validateHeader(this.originalRequest, headerName, expectedValue);
   }
 
   /**
-   * Expect the query string of the request contains the expected name/value pair.
-   * @param paramName Name of the query parameter.
-   * @param expectedValue Value expected of the query parameter.
+   * Requires a query parameter to equal the expected string or encoded collection.
+   * For arrays, specify `multi` for repeated parameters or a delimiter format;
+   * array element order is significant. Other query parameters are not checked.
+   * @throws {ValidationError} when the parameter is absent or differs.
    */
   public containsQueryParam(
     paramName: string,
@@ -84,9 +89,10 @@ export class RequestExpectation {
   }
 
   /**
-   * Check if two requests are equal
-   * @param actual Actual value
-   * @param expected Expected value
+   * Compares arbitrary values using {@link matchValues}, accepting matchers in the
+   * expected tree. The failure message includes the first mismatching value's path.
+   * @param message Prefix for the mismatch detail.
+   * @throws {ValidationError} when the values do not match.
    */
   public deepEqual(actual: unknown, expected: unknown, message = "Values not deep equal"): void {
     const result = matchValues(actual, expected);
@@ -96,12 +102,11 @@ export class RequestExpectation {
   }
 
   /**
-   * Expect the body of the request to be semantically equivalent to the provided XML.
-   * Accepts a plain string or a Resolver (e.g. from `xml\`...\``).
-   * When a Resolver with matchers is provided, matcher-aware comparison is used.
-   * The XML declaration prefix will automatically be added.
-   * @param expectedBody expected XML body as a string or Resolver.
-   * @param config resolver config (required when expectedBody is a Resolver).
+   * Compares parsed XML using string-valued tag content. A dyn template preserves
+   * embedded matchers for text-value comparison. Plain strings have an XML declaration
+   * added; Resolvers supply their own serialized XML.
+   * @param expectedBody Expected XML as a string or Resolver (for example, from the xml tag).
+   * @param config Context for resolving dynamic values; defaults to an empty base URL.
    * @throws {ValidationError} if there is an error.
    */
   public xmlBodyEquals(expectedBody: string | Resolver, config?: ResolverConfig): void {
