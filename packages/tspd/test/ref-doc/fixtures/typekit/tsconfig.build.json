@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "target": "ES2024",
+    "module": "NodeNext",
+    "strict": true,
+    "skipLibCheck": true,
+    "types": []
+  },
+  "files": ["index.ts"]
+}

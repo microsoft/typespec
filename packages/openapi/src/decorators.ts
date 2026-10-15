@@ -314,10 +314,11 @@ function omitUndefined<T extends Record<string, unknown>>(data: T): T {
   return Object.fromEntries(Object.entries(data).filter(([k, v]) => v !== undefined)) as any;
 }
 
-/** Get TagsMetadata set with `@tagMetadata` decorator */
-const [getTagsMetadata, setTagsMetadata] = useStateMap<Type, TagMetadataWithName[]>(
-  OpenAPIKeys.tagsMetadata,
-);
+const [
+  /** Get TagsMetadata set with `@tagMetadata` decorator */
+  getTagsMetadata,
+  setTagsMetadata,
+] = useStateMap<Type, TagMetadataWithName[]>(OpenAPIKeys.tagsMetadata);
 
 /**
  * State set tracking namespaces that have used the array form of @tagMetadata.

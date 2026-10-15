@@ -1,0 +1,8 @@
+{
+  "name": "@typespec/tspd-typekit-docs-fixture",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./typekit": "./index.ts"
+  }
+}

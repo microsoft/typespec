@@ -54,7 +54,7 @@
     "lint:fix": "oxlint . --fix",
     "regen-docs": "tspd doc .  --enable-experimental --llmstxt --output-dir ../../website/src/content/docs/docs/emitters/openapi3/reference",
     "regen-specs": "cross-env RECORD=true vitest run",
-    "api-extractor": "api-extractor run --local --verbose"
+    "check-api-docs": "node ../../eng/tsp-core/scripts/check-api-docs.ts"
   },
   "files": [
     "lib/*.tsp",
