@@ -136,7 +136,7 @@ export class MutationEdge<THead extends Type, TTail extends Type> {
 
   /**
    * Detaches this edge and dispatches `onTailReplaced` with `reconnect: true`.
-   * The old tail defaults to this edge's tail; this method does not retarget the edge.
+   * The old tail defaults to this edge's tail; this method does not change the edge's endpoints.
    */
   tailReplaced(newTail: MutationNode<Type>, oldTail?: MutationNode<TTail>) {
     if (this.#deleted || this.head.isDeleted) return;
