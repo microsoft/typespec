@@ -33,6 +33,49 @@ options:
     option: value
 ```
 
+## Inline discriminated unions
+
+In the default `models-mode: dpg`, inline discriminated unions keep their named
+Python union alias and their models' declared inheritance:
+
+```tsp
+model PetBase {
+  kind: string;
+  name: string;
+}
+model Cat extends PetBase {
+  kind: "cat";
+  meows: boolean;
+}
+model Dog extends PetBase {
+  kind: "dog";
+  barks: boolean;
+}
+@discriminated(#{ envelope: "none" })
+union Pet extends PetBase {
+  cat: Cat,
+  dog: Dog,
+}
+```
+
+Enable `features: [union-extends]` in `tspconfig.yaml` while union constraints are
+experimental. `Pet` is an annotated `Union[Cat, Dog]`, not an alias for `PetBase`.
+Responses and model properties typed as `Pet` select the variant using the inline
+discriminator. Models serialize through their existing literal discriminator
+properties, producing JSON such as
+`{"kind":"cat","name":"Whiskers","meows":true}` without an envelope.
+`discriminatorPropertyName` and JSON-encoded property names are honored.
+Arrays, dictionaries, optional properties, and recursive references preserve this
+dispatch. Direct `PetBase` and variant uses retain their existing behavior.
+
+Initial support requires an explicit model constraint, nominally derived named
+model variants, and matching required string-literal discriminator properties.
+Missing or unknown response tags raise `DeserializationError`; the constraint is
+not an implicit default variant. Object envelopes, unnamed default variants,
+structural variants, and variants without declared literal discriminator
+properties are rejected with an `unsupported-discriminated-union` diagnostic.
+Ordinary untagged unions and `@discriminator` model hierarchies are unchanged.
+
 ## Emitter options
 
 ### `emitter-output-dir`

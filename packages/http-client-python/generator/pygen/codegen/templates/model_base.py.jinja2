@@ -15,6 +15,7 @@ import re
 import typing
 import enum
 import email.utils
+import importlib
 from datetime import datetime, date, time, timedelta, timezone
 from json import JSONEncoder
 import xml.etree.ElementTree as ET
@@ -405,6 +406,14 @@ def get_deserializer(annotation: typing.Any, rf: typing.Optional["_RestField"] =
 
 
 def _get_type_alias_type(module_name: str, alias_name: str):
+    if alias_name.startswith("_unions."):
+        unions = importlib.import_module(".._unions", __package__)
+        alias = getattr(unions, alias_name.split(".", 1)[1])
+        if typing.get_origin(alias) is typing.Annotated and any(
+            isinstance(item, _DiscriminatedUnion) for item in typing.get_args(alias)[1:]
+        ):
+            return alias
+        return alias_name
     types = {
         k: v
         for k, v in sys.modules[module_name].__dict__.items()
@@ -1170,6 +1179,22 @@ def _deserialize_with_optional(if_obj_deserializer: typing.Optional[typing.Calla
     return _deserialize_with_callable(if_obj_deserializer, obj)
 
 
+class _DiscriminatedUnion:
+    def __init__(self, property_name: str, variants: dict[str, typing.Any]):
+        self.property_name = property_name
+        self.variants = variants
+
+    def deserialize(self, obj):
+        if not isinstance(obj, MutableMapping):
+            raise DeserializationError("Expected an object for a discriminated union.")
+        tag = obj.get(self.property_name)
+        if not isinstance(tag, str) or tag not in self.variants:
+            raise DeserializationError(
+                f"Missing or unknown discriminator {self.property_name!r}: {tag!r}."
+            )
+        return _deserialize(self.variants[tag], obj)
+
+
 def _deserialize_with_union(deserializers, obj):
     for deserializer in deserializers:
         try:
@@ -1260,7 +1285,16 @@ def _get_deserialize_callable_from_annotation(  # pylint: disable=too-many-retur
         except AttributeError:
             model_name = annotation
         if module is not None:
-            annotation = _get_model(module, model_name)  # type: ignore
+            annotation = _get_type_alias_type(module, model_name)
+            if isinstance(annotation, str):
+                annotation = _get_model(module, model_name)  # type: ignore
+
+    if typing.get_origin(annotation) is typing.Annotated:
+        inner, *metadata = typing.get_args(annotation)
+        for item in metadata:
+            if isinstance(item, _DiscriminatedUnion):
+                return item.deserialize
+        return _get_deserialize_callable_from_annotation(inner, module, rf)
 
     try:
         if module and _is_model(annotation):
