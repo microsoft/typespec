@@ -281,7 +281,7 @@ export function getReturnTypeVisibilityFilter(
 // -- @visibility decorator ---------------------
 
 /**
- * Adds active visibility modifiers to a property. For each previously unconfigured visibility class,
+ * Adds active visibility modifiers to a property. For each visibility class without explicit settings,
  * initializes its explicit modifier set with the supplied modifiers rather than that class's defaults.
  */
 export const $visibility: VisibilityDecorator = (
