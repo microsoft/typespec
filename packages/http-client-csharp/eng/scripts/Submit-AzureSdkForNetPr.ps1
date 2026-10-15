@@ -681,10 +681,15 @@ try {
     } else {
         Write-Host "Regenerating emitter version dashboard..."
         $dashboardScript = Join-Path $tempDir "doc/GeneratorVersions/Emitter_Version_Dashboard.ps1"
+        $dashboardOutputPath = Join-Path $tempDir "Emitter_Version_Dashboard.generated.md"
         $previousErrorAction = $ErrorActionPreference
         $ErrorActionPreference = "Stop"
         try {
-            & $dashboardScript -RepoRoot $tempDir
+            & $dashboardScript -RepoRoot $tempDir -OutputPath $dashboardOutputPath
+            if (-not (Test-Path $dashboardOutputPath)) {
+                throw "Emitter version dashboard did not produce its output file."
+            }
+            Copy-Item $dashboardOutputPath (Join-Path $tempDir "doc/GeneratorVersions/Emitter_Version_Dashboard.md") -Force
         } catch {
             # Management approval must still block PRs that update management dependencies.
             if ($RegenerateMgmtLibraries) {
