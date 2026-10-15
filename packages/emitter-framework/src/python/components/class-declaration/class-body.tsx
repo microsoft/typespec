@@ -5,10 +5,15 @@ import { createRekeyableMap } from "@typespec/compiler/utils";
 import { useTsp } from "../../../core/context/tsp-context.js";
 import { ClassMember } from "./class-member.js";
 
+/** Type-derived members and appended custom content for an existing Python class scope. */
 export interface ClassBodyProps {
+  /** Model properties, including inherited ones, or interface operations to render as members. */
   type: Model | Interface;
+  /** Abstract flag forwarded to operation members; does not itself add ABC to the enclosing class. */
   abstract?: boolean;
+  /** Instance, class, or static method selection forwarded to operation members. */
   methodType?: "method" | "class" | "static";
+  /** Extra class content emitted after the source-derived members. */
   children?: Children;
 }
 

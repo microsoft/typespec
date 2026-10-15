@@ -6,22 +6,38 @@ import { buildParameterDescriptors, getReturnType } from "../../utils/operation.
 import { DocElement } from "../doc-element/doc-element.js";
 import { TypeExpression } from "../type-expression/type-expression.js";
 
+/**
+ * Default method kind for a class subtree. An explicit Method `methodType` wins;
+ * absent both a prop and a provider, methods are instance methods.
+ */
 export const MethodContext = createContext<"method" | "static" | "class" | undefined>(undefined);
+/** Provides a method-kind default for descendants without changing individually specified kinds. */
 export const MethodProvider = MethodContext.Provider;
 
+/** Operation-derived method signature with optional Alloy overrides and decorator content. */
 export interface MethodPropsWithType extends Omit<py.MethodDeclarationBaseProps, "name"> {
+  /** Operation supplying default documentation, parameters, and the non-error return type. */
   type: Operation;
+  /** Explicit method name; otherwise applies the Python function naming policy to the operation name. */
   name?: string;
   doc?: Children;
+  /** Overrides the enclosing method context; falls back to an instance method if neither is set. */
   methodType?: "method" | "class" | "static";
+  /** Emits an abstract-method decorator when true; the enclosing class must supply an appropriate base. */
   abstract?: boolean;
+  /** Complete decorator lines, emitted in order above intrinsic class/static/abstract decorators. */
   decorators?: Children[];
   /** If true, parameters replaces operation parameters instead of adding to them as keyword-only */
   replaceParameters?: boolean;
 }
 
+/** Selects an operation-derived method or a manually specified Alloy method with decorator lines. */
 export type MethodProps =
-  MethodPropsWithType | (py.MethodDeclarationBaseProps & { decorators?: Children[] });
+  | MethodPropsWithType
+  | (py.MethodDeclarationBaseProps & {
+      /** Complete decorator lines in top-to-bottom source order; falsy entries are skipped. */
+      decorators?: Children[];
+    });
 
 /**
  * Get the method component based on the resolved method type.
