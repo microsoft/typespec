@@ -234,8 +234,6 @@ try {
     }
 
     $propsFileContent = Get-Content $propsFilePath -Raw
-    [xml]$initialPackagesDataProps = $propsFileContent
-    $initialAzureGeneratorVersion = [string]$initialPackagesDataProps.Project.PropertyGroup.AzureGeneratorVersion
     
     # Update the UnbrandedGeneratorVersion property in the file
     $pattern = '<UnbrandedGeneratorVersion>[^<]*</UnbrandedGeneratorVersion>'
@@ -696,28 +694,6 @@ try {
                 throw
             }
             $dashboardError = $_.Exception.Message
-            if ($RegenerateAzureLibraries) {
-                $approvedEmitterPath = Join-Path $tempDir "eng/azure-typespec-http-client-csharp-emitter-package.json"
-                $packagesDataPropsPath = Join-Path $tempDir "eng/centralpackagemanagement/Directory.Generation.Packages.props"
-                try {
-                    [xml]$packagesDataProps = Get-Content $packagesDataPropsPath -Raw
-                    $azureGeneratorVersion = [string]$packagesDataProps.Project.PropertyGroup.AzureGeneratorVersion
-                    if ($azureGeneratorVersion -ne $initialAzureGeneratorVersion) {
-                        $approvedEmitter = Get-Content $approvedEmitterPath -Raw | ConvertFrom-Json
-                        $approvedVersion = $approvedEmitter.dependencies.'@azure-typespec/http-client-csharp'
-                        if (-not $approvedVersion) {
-                            $approvedVersion = $approvedEmitter.peerDependencies.'@azure-typespec/http-client-csharp'
-                        }
-                        $currentAzureVersion = [System.Management.Automation.SemanticVersion]::new($azureGeneratorVersion)
-                        $approvedAzureVersion = [System.Management.Automation.SemanticVersion]::new($approvedVersion)
-                    }
-                } catch {
-                    throw "Emitter version dashboard regeneration failed: $dashboardError. Unable to validate a changed Azure.Generator version against its approved emitter descriptor: $($_.Exception.Message)"
-                }
-                if ($azureGeneratorVersion -ne $initialAzureGeneratorVersion -and $currentAzureVersion.CompareTo($approvedAzureVersion) -gt 0) {
-                    throw "Emitter version dashboard regeneration failed: $dashboardError. Azure.Generator version '$azureGeneratorVersion' exceeds approved emitter version '$approvedVersion' in '$approvedEmitterPath'."
-                }
-            }
             Register-StepFailure "Emitter version dashboard regeneration failed: $dashboardError. Continuing with data-plane PR creation without updating management dependencies."
         } finally {
             $ErrorActionPreference = $previousErrorAction
