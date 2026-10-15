@@ -289,30 +289,46 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // Keep distinct input operations distinct before public names and request builders are projected.
             foreach (var other in _inputClient.Methods)
             {
-                var otherOriginalName = (other.IsExactName
-                    ? other.Operation.Name
-                    : other.Operation.OriginalName ?? other.Operation.Name).ToIdentifierName();
-                var otherOperationName = other.IsExactName
-                    ? otherOriginalName
-                    : NormalizeName(otherOriginalName);
-                if (otherOriginalName == originalName || !OperationNamesCollide(otherOperationName, normalizedName))
+                if (ReferenceEquals(serviceMethod, other))
                 {
                     continue;
                 }
 
-                foreach (var kind in new[] { ScmMethodKind.CreateRequest, ScmMethodKind.Protocol, ScmMethodKind.Convenience })
+                var otherInputName = other.IsExactName
+                    ? other.Operation.Name
+                    : (other.Operation.OriginalName ?? other.Operation.Name).ToIdentifierName();
+                if (otherInputName == originalName)
                 {
-                    if (kind == ScmMethodKind.CreateRequest && otherOperationName != normalizedName ||
-                        kind == ScmMethodKind.Convenience && (!serviceMethod.Operation.GenerateConvenienceMethod || !other.Operation.GenerateConvenienceMethod))
+                    continue;
+                }
+
+                var otherRestName = (other.IsExactName ? otherInputName.ToIdentifierName() : NormalizeName(otherInputName)).ToIdentifierName();
+                if (otherRestName == normalizedName &&
+                    HasEquivalentParameterTypes(
+                        RestClientProvider.GetMethodParameters(serviceMethod, ScmMethodKind.CreateRequest, this),
+                        RestClientProvider.GetMethodParameters(other, ScmMethodKind.CreateRequest, this)))
+                {
+                    return false;
+                }
+
+                var candidatePublicName = normalizedName;
+                var otherPublicName = other.IsExactName
+                    ? other.Operation.Name
+                    : NormalizeName(otherInputName);
+                foreach (var kind in new[] { ScmMethodKind.Protocol, ScmMethodKind.Convenience })
+                {
+                    if (kind == ScmMethodKind.Convenience &&
+                        (!serviceMethod.Operation.GenerateConvenienceMethod || !other.Operation.GenerateConvenienceMethod))
                     {
                         continue;
                     }
 
-                    var parameters = RestClientProvider.GetMethodParameters(serviceMethod, kind, this);
-                    var otherParameters = RestClientProvider.GetMethodParameters(other, kind, this);
-                    if (parameters.Count == otherParameters.Count &&
-                        parameters.Zip(otherParameters).All(pair =>
-                            MethodSignatureHelper.AreEquivalentParameterTypes(pair.First.Type, pair.Second.Type)))
+                    var candidateNames = GetEmittedMethodNames(serviceMethod, candidatePublicName, kind);
+                    var otherNames = GetEmittedMethodNames(other, otherPublicName, kind);
+                    if (candidateNames.Intersect(otherNames, StringComparer.Ordinal).Any() &&
+                        HasEquivalentParameterTypes(
+                            RestClientProvider.GetMethodParameters(serviceMethod, kind, this),
+                            RestClientProvider.GetMethodParameters(other, kind, this)))
                     {
                         return false;
                     }
@@ -320,6 +336,33 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return true;
+
+            static bool HasEquivalentParameterTypes(IReadOnlyList<ParameterProvider> first, IReadOnlyList<ParameterProvider> second)
+                => first.Count == second.Count &&
+                    first.Zip(second).All(pair =>
+                        MethodSignatureHelper.AreEquivalentParameterTypes(pair.First.Type, pair.Second.Type));
+
+            static string[] GetEmittedMethodNames(InputServiceMethod method, string operationName, ScmMethodKind kind)
+            {
+                bool hasStreamingResponse = method.Operation.Responses
+                    .FirstOrDefault(response => !response.IsErrorResponse)?.BodyType is InputStreamingType;
+                if (kind == ScmMethodKind.Protocol)
+                {
+                    return hasStreamingResponse
+                        ? [$"{operationName}Async"]
+                        : [operationName, $"{operationName}Async"];
+                }
+
+                if (!method.Operation.GenerateConvenienceMethod)
+                {
+                    return [];
+                }
+
+                bool hasStreamingRequest = method.Parameters.Any(parameter => parameter.Type is InputStreamingType);
+                return hasStreamingResponse || method is not InputPagingServiceMethod && hasStreamingRequest
+                    ? [$"{operationName}Async"]
+                    : [operationName, $"{operationName}Async"];
+            }
 
             static string NormalizeName(string operationName)
             {

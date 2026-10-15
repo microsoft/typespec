@@ -2648,6 +2648,61 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.AreEqual(Helpers.GetExpectedFromFile(), generatedCode);
         }
 
+        [Test]
+        public void ListNormalizationIgnoresUnavailableStreamingMethodName()
+        {
+            var streamType = new InputStreamingType(
+                "Stream", "Sample.Stream", InputPrimitiveType.String, ["application/jsonl"], streamKind: "jsonl");
+            var listOperation = InputFactory.Operation(
+                "ListWidgets",
+                responses: [InputFactory.OperationResponse([200], streamType)],
+                bufferResponse: false);
+            var listMethod = InputFactory.BasicServiceMethod(
+                "ListWidgets", listOperation,
+                response: InputFactory.ServiceMethodResponse(streamType, null));
+            var getOperation = InputFactory.Operation(
+                "GetWidgetsAsync",
+                responses: [InputFactory.OperationResponse([200], streamType)],
+                bufferResponse: false);
+            var getMethod = InputFactory.BasicServiceMethod(
+                "GetWidgetsAsync", getOperation,
+                response: InputFactory.ServiceMethodResponse(streamType, null));
+            var inputClient = InputFactory.Client("TestClient", methods: [listMethod, getMethod]);
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+
+            Assert.AreEqual("GetWidgets", listMethod.Name);
+            CollectionAssert.AreEquivalent(
+                new[] { "GetWidgetsAsync", "GetWidgetsAsync" },
+                client.GetMethodCollectionByOperation(listOperation).Select(method => method.Signature.Name));
+            CollectionAssert.AreEquivalent(
+                new[] { "GetWidgetsAsyncAsync", "GetWidgetsAsyncAsync" },
+                client.GetMethodCollectionByOperation(getOperation).Select(method => method.Signature.Name));
+        }
+
+        [Test]
+        public void ListNormalizationPreservesLowercaseExactPublicName()
+        {
+            var listOperation = InputFactory.Operation("ListWidgets");
+            var listMethod = InputFactory.BasicServiceMethod("ListWidgets", listOperation);
+            var getOperation = InputFactory.Operation("getWidgetsAsync", isExactName: true);
+            var getMethod = InputFactory.BasicServiceMethod("getWidgetsAsync", getOperation, isExactName: true);
+            var inputClient = InputFactory.Client("TestClient", methods: [listMethod, getMethod]);
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+
+            Assert.AreEqual("GetWidgets", listMethod.Name);
+            Assert.AreEqual("getWidgetsAsync", getMethod.Name);
+            Assert.AreEqual("CreateGetWidgetsRequest", client.RestClient.GetCreateRequestMethod(listOperation).Signature.Name);
+            Assert.AreEqual("CreateGetWidgetsAsyncRequest", client.RestClient.GetCreateRequestMethod(getOperation).Signature.Name);
+            CollectionAssert.AreEquivalent(
+                new[] { "GetWidgets", "GetWidgetsAsync", "GetWidgets", "GetWidgetsAsync" },
+                client.GetMethodCollectionByOperation(listOperation).Select(method => method.Signature.Name));
+            CollectionAssert.AreEquivalent(
+                new[] { "getWidgetsAsync", "getWidgetsAsyncAsync", "getWidgetsAsync", "getWidgetsAsyncAsync" },
+                client.GetMethodCollectionByOperation(getOperation).Select(method => method.Signature.Name));
+        }
+
         private static IEnumerable<TestCaseData> ListNormalizationOverloadCases()
         {
             yield return new TestCaseData(InputPrimitiveType.String, null);
