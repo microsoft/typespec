@@ -234,7 +234,7 @@ export interface ServerSourceFile extends SourceFile {
   readonly document?: TextDocument;
 }
 
-/** Workspace root paired with its local path for project entry-point discovery. */
+/** Workspace root paired with its normalized local path. */
 export interface ServerWorkspaceFolder extends WorkspaceFolder {
   /** Resolved, normalized path with a trailing separator, suitable for directory-prefix comparisons. */
   path: string;
@@ -265,7 +265,7 @@ export enum SemanticTokenKind {
   Variable,
   /** Model, object, and union properties, including union variants. */
   Property,
-  /** Enum member declarations and references. */
+  /** Enum member declaration names. */
   EnumMember,
   /** LSP event category, reserved in the legend. */
   Event,
