@@ -2325,31 +2325,54 @@ export interface TemplateInstanceTarget {
   readonly templateMapper: TypeMapper;
 }
 
+/** Semantic or syntax target resolved to a location when reporting, or an explicit source range. */
 export type DiagnosticTarget = TypeSpecDiagnosticTarget | SourceLocation;
 
+/** Whether an issue prevents successful compilation or is a potentially suppressible warning. */
 export type DiagnosticSeverity = "error" | "warning";
 
+/**
+ * A fully formatted compiler or library issue. Creating a diagnostic does not report it;
+ * pass it to the program's reporting APIs or return it to the caller as appropriate.
+ */
 export interface Diagnostic {
+  /** Diagnostic identifier, qualified as `<library-name>/<code>` for library diagnostics. */
   code: string;
   /** @internal Diagnostic documentation url */
   readonly url?: string;
+  /** Severity before any program-level warning-as-error handling. */
   severity: DiagnosticSeverity;
+  /** Human-readable message with any diagnostic format arguments already substituted. */
   message: string;
+  /** Location-bearing target, or {@link NoTarget} for an issue without a source location. */
   target: DiagnosticTarget | typeof NoTarget;
+  /** Available fixes offered to consumers; attaching a fix does not execute it. */
   readonly codefixes?: readonly CodeFix[];
 }
 
+/** A suggested source change that is resolved only when a consumer requests the fix. */
 export interface CodeFix {
+  /** Stable identifier used to select this fix, including by command-line code-fix selection. */
   readonly id: string;
+  /** Human-readable action label shown to users choosing a fix. */
   readonly label: string;
+  /**
+   * Computes edits when the fix is resolved, not when its diagnostic is reported.
+   * Context helpers only construct edits: return them to have the caller apply them.
+   * Returning nothing, including from an asynchronous callback, contributes no edits.
+   */
   readonly fix: (fixContext: CodeFixContext) => CodeFixEdit | CodeFixEdit[] | Promise<void> | void;
 }
 
+/** A UTF-16 insertion offset associated with a particular source-text snapshot. */
 export interface FilePos {
+  /** Zero-based offset from the start of the file's text. */
   readonly pos: number;
+  /** Source snapshot whose text the offset indexes. */
   readonly file: SourceFile;
 }
 
+/** Factories for text edits; calling them does not modify the source file. */
 export interface CodeFixContext {
   /** Add the given text before the range or pos given. */
   readonly prependText: (location: SourceLocation | FilePos, text: string) => InsertTextCodeFixEdit;
@@ -2359,18 +2382,31 @@ export interface CodeFixContext {
   readonly replaceText: (location: SourceLocation, newText: string) => ReplaceTextCodeFixEdit;
 }
 
+/**
+ * Text insertion or half-open range replacement against an original source snapshot.
+ * Fixes must provide compatible, non-overlapping edits; application orders edits by offset.
+ */
 export type CodeFixEdit = InsertTextCodeFixEdit | ReplaceTextCodeFixEdit;
 
+/** Inserts text at an offset without removing any existing characters. */
 export interface InsertTextCodeFixEdit {
+  /** Selects insertion rather than range replacement. */
   readonly kind: "insert-text";
+  /** Text to insert verbatim. */
   readonly text: string;
+  /** Zero-based UTF-16 offset in the original file text. */
   readonly pos: number;
+  /** Source snapshot to edit; its path identifies the output file. */
   readonly file: SourceFile;
 }
 
+/** Replaces the inherited half-open range; an empty replacement deletes the range. */
 export interface ReplaceTextCodeFixEdit extends TextRange {
+  /** Selects replacement of a source range. */
   readonly kind: "replace-text";
+  /** Replacement text, or an empty string to remove the range. */
   readonly text: string;
+  /** Source snapshot to edit; range offsets refer to its original text. */
   readonly file: SourceFile;
 }
 
@@ -2378,27 +2414,41 @@ export interface ReplaceTextCodeFixEdit extends TextRange {
  * Return type of accessor functions in TypeSpec.
  * Tuple composed of:
  * - 0: Actual result of an accessor function
- * - 1: List of diagnostics that were emitted while retrieving the data.
+ * - 1: Diagnostics produced while retrieving the data, in collection order.
+ *
+ * Callers own reporting or propagating the returned diagnostics; the tuple itself
+ * does not report them to a program. An empty list indicates no collected issues.
  */
 export type DiagnosticResult<T> = [T, readonly Diagnostic[]];
 
+/** Syntax origin shared by interpreted compiler directives. */
 export interface DirectiveBase {
+  /** Original directive expression used to locate diagnostics about the directive. */
   node: DirectiveExpressionNode;
 }
 
+/** Interpreted suppression or deprecation directive attached to a declaration. */
 export type Directive = SuppressDirective | DeprecatedDirective;
 
+/** A `#suppress` directive requesting suppression of a matching warning in its scope. */
 export interface SuppressDirective extends DirectiveBase {
+  /** Selects warning-suppression semantics. */
   name: "suppress";
+  /** Diagnostic or linter rule code to suppress; error diagnostics cannot be suppressed. */
   code: string;
+  /** Author-supplied explanation for suppressing the warning. */
   message: string;
 }
 
+/** A `#deprecated` directive marking a declaration as deprecated for its consumers. */
 export interface DeprecatedDirective extends DirectiveBase {
+  /** Selects deprecation rather than warning suppression. */
   name: "deprecated";
+  /** Explanation surfaced when the deprecated declaration is used. */
   message: string;
 }
 
+/** Controls whether a host removal operation descends into a directory's contents. */
 export interface RmOptions {
   /**
    * If `true`, perform a recursive directory removal. In
@@ -2409,6 +2459,10 @@ export interface RmOptions {
   recursive?: boolean;
 }
 
+/**
+ * Asynchronous file-system and URL capabilities used by compiler infrastructure.
+ * Hosts can be backed by a real or virtual file system; I/O failures reject the returned promises.
+ */
 export interface SystemHost {
   /** read a file at the given url. */
   readUrl(url: string): Promise<SourceFile>;
@@ -2442,36 +2496,44 @@ export interface SystemHost {
    */
   mkdirp(path: string): Promise<string | undefined>;
 
-  // get info about a path
+  /** Inspects a path; the returned predicates identify directories and regular files respectively. */
   stat(path: string): Promise<{ isDirectory(): boolean; isFile(): boolean }>;
 
-  // get the real path of a possibly symlinked path
+  /** Resolves a possibly symlinked path to its real file-system path. */
   realpath(path: string): Promise<string>;
 }
 
+/**
+ * Host capabilities required to compile TypeSpec, extending file I/O with module loading,
+ * source-kind detection, standard-library discovery, and log delivery.
+ */
 export interface CompilerHost extends SystemHost {
   /**
    * Optional cache to reuse the results of parsing and binding across programs.
+   * Entries are keyed by source-file identity, not path; reuse a source snapshot only
+   * while its text is unchanged.
    */
   parseCache?: WeakMap<SourceFile, TypeSpecScriptNode>;
 
-  // get the directory TypeSpec is executing from
+  /** Returns the compiler's installation root, used to locate bundled compiler resources. */
   getExecutionRoot(): string;
 
-  // get the directories we should load standard library files from
+  /** Returns directories containing standard-library entry points to load for compilation. */
   getLibDirs(): string[];
 
-  // get a promise for the ESM module shape of a JS module
+  /** Loads a JavaScript module and returns its module namespace object, including TypeSpec hook exports. */
   getJsImport(path: string): Promise<Record<string, any>>;
 
+  /** Classifies a source path for loading, or returns undefined when the host does not recognize it. */
   getSourceFileKind(path: string): SourceFileKind | undefined;
 
-  // convert a file URL to a path in a file system
+  /** Converts a file URL into a path understood by this host's file-system operations. */
   fileURLToPath(url: string): string;
 
-  // convert a file system path to a URL
+  /** Converts a host file-system path into a file URL. */
   pathToFileURL(path: string): string;
 
+  /** Receives processed log messages produced by compiler logging. */
   logSink: LogSink;
 }
 
@@ -2548,22 +2610,28 @@ export interface TypeInfoContext {
  */
 export type TypeInfoProvider = (context: TypeInfoContext) => TypeInfo | undefined;
 
+/** Input to a diagnostic factory before a source target is attached. */
 export type DiagnosticReportWithoutTarget<
   T extends { [code: string]: DiagnosticMessages },
   C extends keyof T,
   M extends keyof T[C] = "default",
 > = {
+  /** Unqualified code declared in the diagnostic map. */
   code: C;
+  /** Message variant to format; omitted selects `"default"`. */
   messageId?: M;
+  /** Optional fixes to attach to the created diagnostic without executing them. */
   readonly codefixes?: readonly CodeFix[];
 } & DiagnosticFormat<T, C, M>;
 
+/** Complete diagnostic-factory input, including a source-location target or explicit {@link NoTarget}. */
 export type DiagnosticReport<
   T extends { [code: string]: DiagnosticMessages },
   C extends keyof T,
   M extends keyof T[C] = "default",
 > = DiagnosticReportWithoutTarget<T, C, M> & { target: DiagnosticTarget | typeof NoTarget };
 
+/** Requires a `format` map of named string substitutions when the selected message is a callable message template. */
 export type DiagnosticFormat<
   T extends { [code: string]: DiagnosticMessages },
   C extends keyof T,
@@ -2610,31 +2678,47 @@ export interface DiagnosticDefinition<M extends DiagnosticMessages> {
   readonly docs?: string | FileRef;
 }
 
+/** Named message variants for one diagnostic or linter rule; `"default"` is used when no variant is selected. */
 export interface DiagnosticMessages {
+  /** Literal text or a formatter keyed by the message variant name. */
   readonly [messageId: string]: string | CallableMessage<string[]>;
 }
 
+/** Message formatter produced by {@link paramMessage}, with its substitution names retained for typing. */
 export interface CallableMessage<T extends string[]> {
+  /** Substitution names in template order; names may repeat when referenced more than once. */
   keys: T;
+  /** Formats the message using the supplied string value for each substitution name. */
   (dict: Record<T[number], string>): string;
 }
 
+/** Diagnostic definitions keyed by unqualified diagnostic code, preserving each code's message variants. */
 export type DiagnosticMap<T extends { [code: string]: DiagnosticMessages }> = {
+  /** Severity, message variants, and optional metadata for this diagnostic code. */
   readonly [code in keyof T]: DiagnosticDefinition<T[code]>;
 };
 
+/** Typed factory and reporting operations for a fixed set of diagnostic definitions. */
 export interface DiagnosticCreator<T extends { [code: string]: DiagnosticMessages }> {
+  /** Type-only carrier for message inference; not populated by the diagnostic creator at runtime. */
   readonly type: T;
+  /** Definitions used to determine severity and format messages. */
   readonly diagnostics: DiagnosticMap<T>;
+  /**
+   * Formats a diagnostic without reporting it. Throws if the code or selected message
+   * is not defined; library-scoped creators qualify the resulting diagnostic code.
+   */
   createDiagnostic<C extends keyof T, M extends keyof T[C] = "default">(
     diag: DiagnosticReport<T, C, M>,
   ): Diagnostic;
+  /** Creates and reports the diagnostic through the program, which applies its reporting policies. */
   reportDiagnostic<C extends keyof T, M extends keyof T[C] = "default">(
     program: Program,
     diag: DiagnosticReport<T, C, M>,
   ): void;
 }
 
+/** Extracts the code-to-message type from a diagnostic definition map for reuse in generic APIs. */
 export type TypeOfDiagnostics<T extends DiagnosticMap<any>> =
   T extends DiagnosticMap<infer D> ? D : never;
 
