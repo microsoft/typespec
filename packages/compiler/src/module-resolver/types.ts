@@ -8,7 +8,9 @@ export interface ResolveModuleHost {
   realpath(path: string): Promise<string>;
 
   /**
-   * Get information about the given path
+   * Inspect a path without reading its contents.
+   * The result's `isDirectory()` and `isFile()` predicates distinguish package directories
+   * from candidate entry-point files. Reject with a host error such as `ENOENT` for a missing path.
    */
   stat(path: string): Promise<{ isDirectory(): boolean; isFile(): boolean }>;
 
