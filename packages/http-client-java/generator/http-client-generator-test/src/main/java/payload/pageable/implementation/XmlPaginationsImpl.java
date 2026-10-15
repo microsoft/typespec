@@ -165,7 +165,7 @@ public final class XmlPaginationsImpl {
                     } catch (javax.xml.stream.XMLStreamException e) {
                         throw new IllegalStateException(e);
                     }
-                }, "Pets", "Pet"), getXmlNextLink(res.getValue(), "NextMarker"), null));
+                }, "Pets", "Pet"), getXmlNextLink(res.getValue(), false, null, "NextMarker"), null));
     }
 
     /**
@@ -249,7 +249,7 @@ public final class XmlPaginationsImpl {
                 } catch (javax.xml.stream.XMLStreamException e) {
                     throw new IllegalStateException(e);
                 }
-            }, "Pets", "Pet"), getXmlNextLink(res.getValue(), "NextMarker"), null);
+            }, "Pets", "Pet"), getXmlNextLink(res.getValue(), false, null, "NextMarker"), null);
     }
 
     /**
@@ -329,7 +329,7 @@ public final class XmlPaginationsImpl {
                     } catch (javax.xml.stream.XMLStreamException e) {
                         throw new IllegalStateException(e);
                     }
-                }, "Pets", "Pet"), getXmlNextLink(res.getValue(), "NextLink"), null));
+                }, "Pets", "Pet"), getXmlNextLink(res.getValue(), false, null, "NextLink"), null));
     }
 
     /**
@@ -393,7 +393,7 @@ public final class XmlPaginationsImpl {
                 } catch (javax.xml.stream.XMLStreamException e) {
                     throw new IllegalStateException(e);
                 }
-            }, "Pets", "Pet"), getXmlNextLink(res.getValue(), "NextLink"), null);
+            }, "Pets", "Pet"), getXmlNextLink(res.getValue(), false, null, "NextLink"), null);
     }
 
     /**
@@ -462,7 +462,7 @@ public final class XmlPaginationsImpl {
                     } catch (javax.xml.stream.XMLStreamException e) {
                         throw new IllegalStateException(e);
                     }
-                }, "Pets", "Pet"), getXmlNextLink(res.getValue(), "NextLink"), null));
+                }, "Pets", "Pet"), getXmlNextLink(res.getValue(), false, null, "NextLink"), null));
     }
 
     /**
@@ -498,7 +498,7 @@ public final class XmlPaginationsImpl {
                 } catch (javax.xml.stream.XMLStreamException e) {
                     throw new IllegalStateException(e);
                 }
-            }, "Pets", "Pet"), getXmlNextLink(res.getValue(), "NextLink"), null);
+            }, "Pets", "Pet"), getXmlNextLink(res.getValue(), false, null, "NextLink"), null);
     }
 
     private List<BinaryData> getValues(BinaryData binaryData, String... path) {
@@ -555,24 +555,27 @@ public final class XmlPaginationsImpl {
         return values;
     }
 
-    private String getXmlNextLink(BinaryData binaryData, String... path) {
+    private String getXmlNextLink(BinaryData binaryData, boolean attribute, String namespace, String... path) {
         try (com.azure.xml.XmlReader reader = com.azure.xml.XmlReader.fromStream(binaryData.toStream())) {
             reader.nextElement();
-            return getXmlNextLink(reader, path, 0);
+            return getXmlNextLink(reader, attribute, namespace, path, 0);
         } catch (javax.xml.stream.XMLStreamException e) {
             throw new IllegalStateException("Failed to read XML pageable response.", e);
         }
     }
 
-    private String getXmlNextLink(com.azure.xml.XmlReader reader, String[] path, int pathIndex)
-        throws javax.xml.stream.XMLStreamException {
+    private String getXmlNextLink(com.azure.xml.XmlReader reader, boolean attribute, String namespace, String[] path,
+        int pathIndex) throws javax.xml.stream.XMLStreamException {
+        if (attribute && pathIndex == path.length - 1) {
+            return reader.getStringAttribute(namespace, path[pathIndex]);
+        }
         while (reader.nextElement() != com.azure.xml.XmlToken.END_ELEMENT) {
-            if (!reader.elementNameMatches(path[pathIndex])) {
+            if (!reader.elementNameMatches(pathIndex == path.length - 1 ? namespace : null, path[pathIndex])) {
                 reader.skipElement();
             } else if (pathIndex == path.length - 1) {
                 return reader.getStringElement();
             } else {
-                return getXmlNextLink(reader, path, pathIndex + 1);
+                return getXmlNextLink(reader, attribute, namespace, path, pathIndex + 1);
             }
         }
         return null;

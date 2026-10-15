@@ -333,7 +333,8 @@ public class TemplateUtil {
                     .line("return reader.getStringAttribute(namespace, path[pathIndex]);"));
                 block.line("while (reader.nextElement() != com.azure.xml.XmlToken.END_ELEMENT) {");
                 block.indent(() -> {
-                    block.line("if (!reader.elementNameMatches(path[pathIndex])) {");
+                    block.line(
+                        "if (!reader.elementNameMatches(pathIndex == path.length - 1 ? namespace : null, path[pathIndex])) {");
                     block.indent(() -> block.line("reader.skipElement();"));
                     block.line("} else if (pathIndex == path.length - 1) {");
                     block.indent(() -> block.line("return reader.getStringElement();"));

@@ -62,7 +62,9 @@ public class XmlContinuationTokenTests {
         "true,false,true",
         "true,true,true",
         "false,false,false",
-        "false,true,false" })
+        "false,true,false",
+        "false,false,true",
+        "false,true,true" })
     public void readsXmlToken(boolean attribute, boolean nested, boolean namespaced) throws Exception {
         new MockUnitJavagen() {
             @Override
@@ -150,14 +152,17 @@ public class XmlContinuationTokenTests {
         Assertions.assertEquals(0, result, () -> diagnostics.toString(StandardCharsets.UTF_8) + "\n" + source);
         String marker = namespaced ? "p:NextMarker" : "NextMarker";
         String token = attribute ? " " + marker + "=\"page2\"" : "<" + marker + ">page2</" + marker + ">";
+        String decoys = namespaced && !attribute
+            ? "<q:NextMarker>wrongNamespace</q:NextMarker><NextMarker>unqualified</NextMarker>"
+            : "";
         String element = nested ? "Paging" : "PetListResult";
         String xml = attribute
             ? "<" + element + token + "></" + element + ">"
-            : "<" + element + ">" + token + "</" + element + ">";
+            : "<" + element + ">" + decoys + token + "</" + element + ">";
         if (nested) {
             xml = "<PetListResult>" + xml + "</PetListResult>";
         }
-        xml = xml.replaceFirst("<PetListResult", "<PetListResult xmlns:p=\"urn:paging\"");
+        xml = xml.replaceFirst("<PetListResult", "<PetListResult xmlns:p=\"urn:paging\" xmlns:q=\"urn:other\"");
         try (URLClassLoader loader
             = new URLClassLoader(new URL[] { compilationDirectory.toUri().toURL() }, getClass().getClassLoader())) {
             Class<?> generated = loader.loadClass("test.XmlPagingCompilation");
