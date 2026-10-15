@@ -31,7 +31,7 @@ export interface TypeSpecBundlePluginOptions {
  * The factory returns synchronously; Vite's asynchronous build-start hook bundles
  * the libraries using the resolved Vite root. The Vite build command minifies the
  * modules and emits them as assets under {@link TypeSpecBundlePluginOptions.folderName}.
- * The development server serves unminified modules and watches the libraries,
+ * The development server serves modules without minification and watches the libraries,
  * triggering a full browser reload after a bundle update.
  *
  * The import map covers package names and selected subpath exports. Bundle manifests
