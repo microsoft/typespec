@@ -1813,61 +1813,103 @@ export interface EmptyStatementNode extends BaseNode {
   readonly kind: SyntaxKind.EmptyStatement;
 }
 
+/**
+ * Structural model type written `{ ... }`, also used for operation parameter lists.
+ * Unlike a model declaration expression, it has no declaration name, modifiers, or heritage clauses.
+ */
 export interface ModelExpressionNode extends BaseNode {
+  /** Identifies structural model syntax rather than an object value written `#{ ... }`. */
   readonly kind: SyntaxKind.ModelExpression;
+  /** Explicit property declarations and spreads in source order, before spreads are expanded. */
   readonly properties: (ModelPropertyNode | ModelSpreadPropertyNode)[];
+  /** Range including the surrounding braces, or parentheses when used as an operation parameter list. */
   readonly bodyRange: TextRange;
 }
 
+/** Array type formed by applying a postfix `[]` to an element type expression. */
 export interface ArrayExpressionNode extends BaseNode {
+  /** Identifies an array type rather than an array value literal. */
   readonly kind: SyntaxKind.ArrayExpression;
+  /** Expression before this `[]`; nested array types contain another array expression here. */
   readonly elementType: Expression;
 }
+/** Fixed-length tuple type written `[A, B]`, distinct from an array value `#[a, b]`. */
 export interface TupleExpressionNode extends BaseNode {
+  /** Identifies tuple type syntax rather than value-literal syntax. */
   readonly kind: SyntaxKind.TupleExpression;
+  /** Element type expressions in tuple index order. */
   readonly values: readonly Expression[];
 }
 
+/** Property type declaration in a model body, or parameter declaration in an operation signature. */
 export interface ModelPropertyNode extends BaseNode {
+  /** Identifies an explicitly declared property rather than a property spread. */
   readonly kind: SyntaxKind.ModelProperty;
+  /** Property name, decoded from identifier or legacy quoted-name syntax. */
   readonly id: IdentifierNode;
+  /** Declared type expression following `:`, not the property's default value. */
   readonly value: Expression;
+  /** Property or parameter annotations in source order. */
   readonly decorators: readonly DecoratorExpressionNode[];
+  /** Whether `?` was written after the property name. */
   readonly optional: boolean;
+  /** Default-value expression following `=`, absent when no default was written. */
   readonly default?: Expression;
+  /** Containing model syntax or operation-parameter model after parent links are established. */
   readonly parent?: ModelStatementNode | ModelExpressionNode | ModelDeclarationExpressionNode;
 }
 
+/** Model-body or operation-parameter spread written `...SourceModel`. */
 export interface ModelSpreadPropertyNode extends BaseNode {
+  /** Identifies a spread that contributes properties during checking, not an explicit property node. */
   readonly kind: SyntaxKind.ModelSpreadProperty;
+  /** Model reference, including any template arguments, supplying the copied properties. */
   readonly target: TypeReferenceNode;
+  /** Containing model syntax or operation-parameter model after binding. */
   readonly parent?: ModelStatementNode | ModelExpressionNode | ModelDeclarationExpressionNode;
 }
 
+/** Object value literal written `#{ ... }`, not a structural model type. */
 export interface ObjectLiteralNode extends BaseNode {
+  /** Distinguishes value-producing object syntax from a model expression. */
   readonly kind: SyntaxKind.ObjectLiteral;
+  /** Property initializers and object spreads in source order, before evaluation. */
   readonly properties: (ObjectLiteralPropertyNode | ObjectLiteralSpreadPropertyNode)[];
+  /** Range including the `#{` opening token and closing brace. */
   readonly bodyRange: TextRange;
 }
 
+/** Named object-value initializer written `name: expression` inside `#{ ... }`. */
 export interface ObjectLiteralPropertyNode extends BaseNode {
+  /** Identifies an explicit initializer rather than an object spread. */
   readonly kind: SyntaxKind.ObjectLiteralProperty;
+  /** Decoded object property name. */
   readonly id: IdentifierNode;
+  /** Initializer expression, evaluated as a value rather than a property type annotation. */
   readonly value: Expression;
+  /** Object literal containing this initializer after binding. */
   readonly parent?: ObjectLiteralNode;
 }
 
+/** Object-value spread written `...source` inside `#{ ... }`. */
 export interface ObjectLiteralSpreadPropertyNode extends BaseNode {
+  /** Identifies property copying from an object value rather than from a model type. */
   readonly kind: SyntaxKind.ObjectLiteralSpreadProperty;
+  /** Reference to the object value whose properties are copied during evaluation. */
   readonly target: TypeReferenceNode;
+  /** Object literal containing this spread after binding. */
   readonly parent?: ObjectLiteralNode;
 }
 
+/** Array value literal written `#[ ... ]`, not a tuple type expression. */
 export interface ArrayLiteralNode extends BaseNode {
+  /** Distinguishes value-producing array syntax from tuple and array type syntax. */
   readonly kind: SyntaxKind.ArrayLiteral;
+  /** Element expressions in array index order, evaluated as values. */
   readonly values: readonly Expression[];
 }
 
+/** Primitive literal nodes and string-template text fragments; excludes whole templates and structural literals. */
 export type LiteralNode =
   | StringLiteralNode
   | NumericLiteralNode
@@ -1876,52 +1918,76 @@ export type LiteralNode =
   | StringTemplateMiddleNode
   | StringTemplateTailNode;
 
+/** Quoted string without unescaped interpolation, including triple-quoted strings. */
 export interface StringLiteralNode extends BaseNode {
+  /** Identifies a complete string literal rather than a fragment of an interpolated string. */
   readonly kind: SyntaxKind.StringLiteral;
+  /** Decoded content without delimiters; triple-quoted strings also have indentation removed. */
   readonly value: string;
 }
 
+/** Numeric literal retaining its source spelling independently of JavaScript number precision. */
 export interface NumericLiteralNode extends BaseNode {
+  /** Identifies numeric literal syntax, including decimal, hexadecimal, and binary forms. */
   readonly kind: SyntaxKind.NumericLiteral;
+  /** JavaScript `Number` conversion of the token, which may lose precision or overflow. */
   readonly value: number;
+  /** Original numeric token spelling, preserving radix, exponent, and precision for exact numeric handling. */
   readonly valueAsString: string;
 }
 
+/** Boolean literal written `true` or `false`. */
 export interface BooleanLiteralNode extends BaseNode {
+  /** Identifies a boolean literal rather than a reference named by an identifier. */
   readonly kind: SyntaxKind.BooleanLiteral;
+  /** `true` for the `true` keyword and `false` for the `false` keyword. */
   readonly value: boolean;
 }
 
+/** Interpolated string split into initial text and ordered expression/text pairs. */
 export interface StringTemplateExpressionNode extends BaseNode {
+  /** Identifies a string containing substitutions rather than a plain string literal. */
   readonly kind: SyntaxKind.StringTemplateExpression;
+  /** Text before the first substitution, possibly empty. */
   readonly head: StringTemplateHeadNode;
+  /** One span per substitution in source order; the final span ends in a tail node. */
   readonly spans: readonly StringTemplateSpanNode[];
 }
 
-// Each of these corresponds to a substitution expression and a template literal, in that order.
-// The template literal must have kind TemplateMiddleLiteral or TemplateTailLiteral.
+/** A `${expression}` substitution paired with the string text immediately following it. */
 export interface StringTemplateSpanNode extends BaseNode {
+  /** Identifies an expression/text pair, not a standalone string token. */
   readonly kind: SyntaxKind.StringTemplateSpan;
+  /** Expression inside the substitution's braces. */
   readonly expression: Expression;
+  /** Following text: a middle fragment if another substitution follows, otherwise the closing tail. */
   readonly literal: StringTemplateMiddleNode | StringTemplateTailNode;
 }
 
+/** Shared decoded-text contract for the head, middle, and tail fragments of an interpolated string. */
 export interface StringTemplateLiteralLikeNode extends BaseNode {
+  /** Text without string or substitution delimiters, with escapes and triple-quote indentation processed. */
   readonly value: string;
 
   /** @internal */
   readonly tokenFlags: TokenFlags;
 }
 
+/** Opening text fragment before an interpolated string's first `${...}` substitution. */
 export interface StringTemplateHeadNode extends StringTemplateLiteralLikeNode {
+  /** Identifies the initial fragment stored in {@link StringTemplateExpressionNode.head}. */
   readonly kind: SyntaxKind.StringTemplateHead;
 }
 
+/** Text fragment after one substitution and before the next in an interpolated string. */
 export interface StringTemplateMiddleNode extends StringTemplateLiteralLikeNode {
+  /** Indicates that another substitution follows this fragment. */
   readonly kind: SyntaxKind.StringTemplateMiddle;
 }
 
+/** Closing text fragment after the last substitution in an interpolated string. */
 export interface StringTemplateTailNode extends StringTemplateLiteralLikeNode {
+  /** Indicates that this fragment ends the interpolated string. */
   readonly kind: SyntaxKind.StringTemplateTail;
 }
 
