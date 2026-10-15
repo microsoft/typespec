@@ -16,6 +16,10 @@ import type { HeaderProperty, HttpProperty } from "./http-property.js";
 
 export type HttpVerb = "get" | "put" | "post" | "patch" | "delete" | "head";
 
+/**
+ * Authentication requirements extracted from `@useAuth`.
+ * Each option is an alternative; schemes within an option must be used together.
+ */
 export interface Authentication {
   /**
    * Either one of those options can be used independently to authenticate.
@@ -23,6 +27,7 @@ export interface Authentication {
   options: AuthenticationOption[];
 }
 
+/** One alternative way to authenticate, requiring every scheme in {@link AuthenticationOption.schemes}. */
 export interface AuthenticationOption {
   /**
    * For this authentication option all the given auth have to be used together.
@@ -30,6 +35,7 @@ export interface AuthenticationOption {
   schemes: HttpAuth[];
 }
 
+/** An authentication scheme extracted from a TypeSpec authentication model. */
 export type HttpAuth =
   | BasicAuth
   | BearerAuth
@@ -38,14 +44,16 @@ export type HttpAuth =
   | OpenIDConnectAuth
   | NoAuth;
 
+/** Source information shared by all extracted authentication schemes. */
 export interface HttpAuthBase {
   /**
-   * Id of the authentication scheme.
+   * Scheme identifier, initially derived from the model name or authentication type.
+   * Service authentication resolution disambiguates conflicting identifiers.
    */
   id: string;
 
   /**
-   * Optional description.
+   * Documentation from the authentication model, when provided.
    */
   description?: string;
 
@@ -62,7 +70,9 @@ export interface HttpAuthBase {
  * ```
  */
 export interface BasicAuth extends HttpAuthBase {
+  /** Identifies an HTTP Authorization-header scheme. */
   type: "http";
+  /** Uses base64-encoded username and password credentials. */
   scheme: "Basic";
 }
 
@@ -75,10 +85,13 @@ export interface BasicAuth extends HttpAuthBase {
  * ```
  */
 export interface BearerAuth extends HttpAuthBase {
+  /** Identifies an HTTP Authorization-header scheme. */
   type: "http";
+  /** Sends an access token using the Bearer authorization scheme. */
   scheme: "Bearer";
 }
 
+/** Request locations supported by API-key authentication. */
 type ApiKeyLocation = "header" | "query" | "cookie";
 
 /**
@@ -105,8 +118,11 @@ export interface ApiKeyAuth<
   TLocation extends ApiKeyLocation,
   TName extends string,
 > extends HttpAuthBase {
+  /** Identifies an API-key scheme rather than an Authorization-header scheme. */
   type: "apiKey";
+  /** Request location in which the client must send the key. */
   in: TLocation;
+  /** Header, query parameter, or cookie name carrying the key. */
   name: TName;
 }
 
@@ -117,58 +133,85 @@ export interface ApiKeyAuth<
  * For more information about OAuth 2.0, see oauth.net and RFC 6749.
  */
 export interface Oauth2Auth<TFlows extends OAuth2Flow[]> extends HttpAuthBase {
+  /** Identifies an OAuth 2.0 scheme. */
   type: "oauth2";
+  /**
+   * Supported token acquisition flows, with scopes resolved for each flow.
+   * A flow without explicit scopes uses the authentication model's default scopes.
+   */
   flows: TFlows;
 }
 
+/** Supported OAuth 2.0 token acquisition configurations. */
 export type OAuth2Flow =
   AuthorizationCodeFlow | ImplicitFlow | PasswordFlow | ClientCredentialsFlow;
 
+/** Discriminant values for the supported OAuth 2.0 flows. */
 export type OAuth2FlowType = OAuth2Flow["type"];
 
 /**
- * Authorization Code flow
+ * OAuth 2.0 flow that exchanges an authorization code for an access token.
  */
 export interface AuthorizationCodeFlow {
+  /** Selects the authorization-code grant. */
   type: "authorizationCode";
+  /** Endpoint to which the resource owner is redirected for authorization. */
   authorizationUrl: string;
+  /** Endpoint used to exchange the authorization code for a token. */
   tokenUrl: string;
+  /** Token refresh endpoint, when separately specified. */
   refreshUrl?: string;
+  /** Scope requirements after applying flow-specific or default scopes. */
   scopes: OAuth2Scope[];
 }
 
 /**
- * Implicit flow
+ * OAuth 2.0 flow that obtains an access token from the authorization endpoint.
  */
 export interface ImplicitFlow {
+  /** Selects the implicit grant. */
   type: "implicit";
+  /** Endpoint to which the resource owner is redirected to obtain a token. */
   authorizationUrl: string;
+  /** Token refresh endpoint, when specified by the authentication model. */
   refreshUrl?: string;
+  /** Scope requirements after applying flow-specific or default scopes. */
   scopes: OAuth2Scope[];
 }
 
 /**
- * Resource Owner Password flow
+ * OAuth 2.0 resource-owner password flow configuration extracted from the model.
  */
 export interface PasswordFlow {
+  /** Selects the resource-owner password grant. */
   type: "password";
+  /** Authorization URL carried by the source configuration, if supplied. */
   authorizationUrl: string;
+  /** Token refresh endpoint, when specified by the authentication model. */
   refreshUrl?: string;
+  /** Scope requirements after applying flow-specific or default scopes. */
   scopes: OAuth2Scope[];
 }
 
 /**
- * Client credentials flow
+ * OAuth 2.0 flow in which a client authenticates using its own credentials.
  */
 export interface ClientCredentialsFlow {
+  /** Selects the client-credentials grant. */
   type: "clientCredentials";
+  /** Endpoint used to exchange client credentials for an access token. */
   tokenUrl: string;
+  /** Token refresh endpoint, when specified by the authentication model. */
   refreshUrl?: string;
+  /** Scope requirements after applying flow-specific or default scopes. */
   scopes: OAuth2Scope[];
 }
 
+/** A named OAuth 2.0 permission requested by a flow. */
 export interface OAuth2Scope {
+  /** Scope name sent to the authorization server. */
   value: string;
+  /** Human-readable explanation of the permission, when available. */
   description?: string;
 }
 
@@ -183,7 +226,9 @@ export interface OAuth2Scope {
  * ```
  */
 export interface OpenIDConnectAuth extends HttpAuthBase {
+  /** Identifies an OpenID Connect discovery-based scheme. */
   type: "openIdConnect";
+  /** Discovery metadata URL; it may be relative to the service's server URL. */
   openIdConnectUrl: string;
   /** Scope names required for operations that use this scheme. */
   scopes: string[];
@@ -194,13 +239,18 @@ export interface OpenIDConnectAuth extends HttpAuthBase {
  * It might be useful when overriding authentication on interface of operation level.
  */
 export interface NoAuth extends HttpAuthBase {
+  /** Explicitly permits access without credentials, including as an auth alternative. */
   type: "noAuth";
 }
 
+/** A service-level scheme reference with the requirements of a particular auth option. */
 export type HttpAuthRef = AnyHttpAuthRef | OAuth2HttpAuthRef | NoHttpAuthRef;
 
+/** A non-OAuth2, authenticated requirement referencing a resolved service scheme. */
 export interface AnyHttpAuthRef {
+  /** Selects the general scheme reference rather than OAuth2 or no-auth. */
   readonly kind: "any";
+  /** Resolved scheme shared with the service's scheme collection. */
   readonly auth: HttpAuth;
   /**
    * Scope names required for this scheme in the containing auth option. Empty
@@ -210,18 +260,28 @@ export interface AnyHttpAuthRef {
   readonly scopes: string[];
 }
 
+/** An authentication alternative that explicitly requires no credentials. */
 export interface NoHttpAuthRef {
+  /** Selects an unauthenticated requirement. */
   readonly kind: "noAuth";
+  /** Source scheme declaring that authentication is not required. */
   readonly auth: NoAuth;
 }
 
-/* Holder of this reference needs only a `scopes` subset of all scopes defined at `auth` */
+/**
+ * An OAuth2 requirement with local scopes, which may be a subset of the scopes
+ * accumulated on the resolved service scheme.
+ */
 export interface OAuth2HttpAuthRef {
+  /** Selects an OAuth2 requirement with per-option scopes. */
   readonly kind: "oauth2";
+  /** Service scheme whose flows can include scopes used by other operations. */
   readonly auth: Oauth2Auth<OAuth2Flow[]>;
+  /** Distinct scope names required by this option, collected across its local flows. */
   readonly scopes: string[];
 }
 
+/** Authentication alternatives normalized to references to service-level schemes. */
 export interface AuthenticationReference {
   /**
    * Either one of those options can be used independently to authenticate.
@@ -229,6 +289,7 @@ export interface AuthenticationReference {
   readonly options: AuthenticationOptionReference[];
 }
 
+/** A single normalized alternative requiring all of its referenced schemes. */
 export interface AuthenticationOptionReference {
   /**
    * For this authentication option all the given auth have to be used together.
@@ -236,6 +297,10 @@ export interface AuthenticationOptionReference {
   readonly all: HttpAuthRef[];
 }
 
+/**
+ * Service-wide scheme catalog and normalized requirements from {@link resolveAuthentication}.
+ * Requirements retain their local scopes even when scheme definitions are shared.
+ */
 export interface HttpServiceAuthentication {
   /**
    * All the authentication schemes used in this service.
@@ -244,12 +309,13 @@ export interface HttpServiceAuthentication {
   readonly schemes: HttpAuth[];
 
   /**
-   * Default authentication for operations in this service.
+   * Default service requirements. Contains no options when the service declares no authentication.
    */
   readonly defaultAuth: AuthenticationReference;
 
   /**
-   * Authentication overrides for individual operations.
+   * Requirements for operations with resolved authentication, keyed by source operation.
+   * Operations without an entry use the service default.
    */
   readonly operationsAuth: Map<Operation, AuthenticationReference>;
 }
