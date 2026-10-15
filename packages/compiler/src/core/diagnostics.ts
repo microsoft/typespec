@@ -112,6 +112,7 @@ function getValueNode(value: Value): Node | undefined {
 export interface SourceLocationOptions {
   /**
    * If trying to resolve the location of a type with an ID, show the location of the ID node instead of the entire type.
+   * For type references, show the reference target without template arguments.
    * This makes sure that the location range is not too large and hard to read.
    */
   locateId?: boolean;
@@ -187,8 +188,12 @@ function getSourceLocationOfNode(node: Node, options: SourceLocationOptions): So
     );
   }
 
-  if (options.locateId && "id" in node && node.id !== undefined) {
-    node = node.id;
+  if (options.locateId) {
+    if (node.kind === SyntaxKind.TypeReference) {
+      node = node.target;
+    } else if ("id" in node && node.id !== undefined) {
+      node = node.id;
+    }
   }
 
   return {
