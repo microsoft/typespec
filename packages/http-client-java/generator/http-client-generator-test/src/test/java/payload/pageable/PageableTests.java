@@ -3,7 +3,15 @@
 
 package payload.pageable;
 
+import com.azure.core.http.HttpHeaders;
+import com.azure.core.http.HttpRequest;
 import com.azure.core.http.rest.PagedIterable;
+import com.azure.core.http.rest.RequestOptions;
+import com.azure.core.test.http.MockHttpResponse;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Assertions;
@@ -11,6 +19,8 @@ import org.junit.jupiter.api.Test;
 import payload.pageable.models.Pet;
 import payload.pageable.models.XmlPet;
 import payload.pageable.serverdrivenpagination.alternateinitialverb.models.Filter;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 public class PageableTests {
 
@@ -54,13 +64,128 @@ public class PageableTests {
             pagedIterable.stream().map(XmlPet::getId).collect(Collectors.toList()));
     }
 
-    /*
-     * Continuation-token scenarios are intentionally not covered here. Azure V1 currently emits a single-page
-     * PagedIterable for them because it does not propagate a response continuation token into the next request.
-     *
-     * XML continuation-token paging is also intentionally not covered because it has the same token propagation
-     * limitation.
-     */
+    @Test
+    public void testContinuationToken() {
+        ServerDrivenPaginationContinuationTokenClient client
+            = builder.buildServerDrivenPaginationContinuationTokenClient();
+        assertPetIds(client.requestQueryResponseBody("foo", "bar"));
+        assertPetIds(client.requestHeaderResponseBody("foo", "bar"));
+        assertPetIds(client.requestQueryResponseHeader("foo", "bar"));
+        assertPetIds(client.requestHeaderResponseHeader("foo", "bar"));
+        assertPetIds(client.requestQueryNestedResponseBody("foo", "bar"));
+        assertPetIds(client.requestHeaderNestedResponseBody("foo", "bar"));
+    }
+
+    @Test
+    public void testContinuationTokenAsync() {
+        ServerDrivenPaginationContinuationTokenAsyncClient client
+            = builder.buildServerDrivenPaginationContinuationTokenAsyncClient();
+        List<Flux<Pet>> results = List.of(client.requestQueryResponseBody("foo", "bar"),
+            client.requestHeaderResponseBody("foo", "bar"), client.requestQueryResponseHeader("foo", "bar"),
+            client.requestHeaderResponseHeader("foo", "bar"), client.requestQueryNestedResponseBody("foo", "bar"),
+            client.requestHeaderNestedResponseBody("foo", "bar"));
+        for (Flux<Pet> result : results) {
+            Assertions.assertEquals(List.of("1", "2", "3", "4"),
+                result.map(Pet::getId).collectList().block(Duration.ofSeconds(10)));
+        }
+    }
+
+    @Test
+    public void testResumeWithContinuationToken() {
+        ServerDrivenPaginationContinuationTokenClient client
+            = builder.buildServerDrivenPaginationContinuationTokenClient();
+        Assertions.assertEquals(List.of("3", "4"),
+            client.requestQueryResponseBody("foo", "bar")
+                .streamByPage("page2")
+                .flatMap(page -> page.getValue().stream())
+                .map(Pet::getId)
+                .collect(Collectors.toList()));
+        Assertions.assertEquals(List.of("3", "4"),
+            client.requestHeaderResponseHeader("foo", "bar")
+                .streamByPage("page2")
+                .flatMap(page -> page.getValue().stream())
+                .map(Pet::getId)
+                .collect(Collectors.toList()));
+        Assertions.assertEquals(List.of("3", "4"),
+            builder.buildServerDrivenPaginationContinuationTokenAsyncClient()
+                .requestQueryNestedResponseBody("foo", "bar")
+                .byPage("page2")
+                .flatMapIterable(page -> page.getValue())
+                .map(Pet::getId)
+                .collectList()
+                .block(Duration.ofSeconds(10)));
+    }
+
+    @Test
+    public void testProtocolContinuationTokenPreservesOptions() {
+        RequestOptions options = new RequestOptions().addHeader("foo", "foo").addQueryParam("bar", "bar");
+        ServerDrivenPaginationContinuationTokenClient client
+            = builder.buildServerDrivenPaginationContinuationTokenClient();
+        for (int i = 0; i < 2; i++) {
+            Assertions.assertEquals(4, client.requestQueryResponseBody(options).stream().count());
+            Assertions.assertEquals(4, client.requestHeaderResponseHeader(options).stream().count());
+        }
+    }
+
+    @Test
+    public void testContinuationTokenEncoding() {
+        String token = "opaque +/?&=%";
+        List<HttpRequest> requests = new ArrayList<>();
+        PageableClientBuilder mockBuilder = new PageableClientBuilder().httpClient(request -> {
+            requests.add(request);
+            Assertions.assertEquals(
+                "/payload/pageable/server-driven-pagination/continuationtoken/request-query-response-body",
+                request.getUrl().getPath());
+            Assertions.assertEquals("foo", request.getHeaders().getValue("foo"));
+            String query = request.getUrl().getQuery();
+            Assertions.assertTrue(query.contains("bar=bar"));
+            String body;
+            if (query.contains("token=")) {
+                List<String> tokenParameters = List.of(query.split("&"))
+                    .stream()
+                    .filter(parameter -> parameter.startsWith("token="))
+                    .collect(Collectors.toList());
+                Assertions.assertEquals(1, tokenParameters.size());
+                Assertions.assertEquals(token,
+                    URLDecoder.decode(tokenParameters.get(0).substring("token=".length()), StandardCharsets.UTF_8));
+                body = "{\"pets\":[{\"id\":\"2\",\"name\":\"cat\"}]}";
+            } else {
+                body = "{\"pets\":[{\"id\":\"1\",\"name\":\"dog\"}],\"nextToken\":\"" + token + "\"}";
+            }
+            return Mono
+                .just(new MockHttpResponse(request, 200, new HttpHeaders(), body.getBytes(StandardCharsets.UTF_8)));
+        });
+        assertPetIds(
+            mockBuilder.buildServerDrivenPaginationContinuationTokenClient().requestQueryResponseBody("foo", "bar"),
+            "1", "2");
+        Assertions.assertEquals(2, requests.size());
+        requests.clear();
+        Assertions.assertEquals(List.of("1", "2"),
+            mockBuilder.buildServerDrivenPaginationContinuationTokenAsyncClient()
+                .requestQueryResponseBody("foo", "bar")
+                .map(Pet::getId)
+                .collectList()
+                .block(Duration.ofSeconds(10)));
+        Assertions.assertEquals(2, requests.size());
+    }
+
+    @Test
+    public void testXmlContinuationToken() {
+        Assertions.assertEquals(List.of("1", "2", "3", "4"),
+            builder.buildXmlPaginationClient()
+                .listWithContinuation()
+                .stream()
+                .map(XmlPet::getId)
+                .collect(Collectors.toList()));
+        Assertions.assertEquals(List.of("3", "4"),
+            builder.buildXmlPaginationAsyncClient()
+                .listWithContinuation()
+                .byPage("page2")
+                .flatMapIterable(page -> page.getValue())
+                .map(XmlPet::getId)
+                .collectList()
+                .block(Duration.ofSeconds(10)));
+    }
 
     private static void assertPetIds(PagedIterable<Pet> pagedIterable) {
         assertPetIds(pagedIterable, "1", "2", "3", "4");

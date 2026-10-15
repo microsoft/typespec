@@ -43,6 +43,13 @@ options:
     option: value
 ```
 
+### Pagination
+
+Azure clients support both `@nextLink` and `@continuationToken` pagination. Continuation-token
+parameters are hidden from client method signatures. To resume from a token, use
+`streamByPage(token)` on the returned `PagedIterable`, or `byPage(token)` on `PagedFlux`.
+The service must omit the response token when there are no more pages; `has_more` is not interpreted.
+
 ## Emitter options
 
 ### `emitter-output-dir`

@@ -171,6 +171,11 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                 // Parameter is required and will be part of the method signature.
                 continue;
             }
+            if (clientMethod.isPageStreamingType()
+                && clientMethod.getMethodPageDetails().getContinuationToken() != null
+                && parameter == clientMethod.getMethodPageDetails().getContinuationToken().getClientMethodParameter()) {
+                continue;
+            }
             final String defaultValue = parameterDefaultValueExpression(parameter);
             function.line("final %s %s = %s;", parameter.getClientType(), parameter.getName(),
                 defaultValue == null ? "null" : defaultValue);
@@ -859,6 +864,10 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
 
     protected void generateProtocolPagingPlainSync(ClientMethod clientMethod, JavaType typeBlock,
         JavaSettings settings) {
+        if (settings.isAzureV1() && hasContinuationToken(clientMethod)) {
+            generateContinuationTokenPaging(clientMethod, typeBlock, settings, true);
+            return;
+        }
         addServiceMethodAnnotation(typeBlock, ReturnType.COLLECTION);
         if (clientMethod.getMethodPageDetails().nonNullNextLink()) {
             writeMethod(typeBlock, clientMethod.getMethodVisibility(), clientMethod.getDeclaration(), function -> {
@@ -1051,6 +1060,8 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
             } else {
                 function.line(nextLinkLine(clientMethod));
             }
+        } else if (clientMethod.getMethodPageDetails().getContinuationToken() != null) {
+            function.line(continuationTokenExpression(clientMethod, settings) + ",");
         } else {
             function.line("null,");
         }
@@ -1066,12 +1077,21 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         addServiceMethodAnnotation(typeBlock, ReturnType.COLLECTION);
         writeMethod(typeBlock, clientMethod.getMethodVisibility(), clientMethod.getDeclaration(), function -> {
             addOptionalVariables(function, clientMethod);
+            String arguments = clientMethod.getMethodParameters()
+                .stream()
+                .filter(p -> !clientMethod.getMethodPageDetails().shouldHideParameter(p))
+                .map(ClientMethodParameter::getName)
+                .collect(Collectors.joining(", "));
             function.methodReturn(String.format("new PagedIterable<>(%s(%s))",
-                MethodNamer.getSimpleAsyncMethodName(clientMethod.getName()), clientMethod.getArgumentList()));
+                MethodNamer.getSimpleAsyncMethodName(clientMethod.getName()), arguments));
         });
     }
 
     protected void generatePagingPlainSync(ClientMethod clientMethod, JavaType typeBlock, JavaSettings settings) {
+        if (settings.isAzureV1() && hasContinuationToken(clientMethod)) {
+            generateContinuationTokenPaging(clientMethod, typeBlock, settings, true);
+            return;
+        }
         addServiceMethodAnnotation(typeBlock, ReturnType.COLLECTION);
         if (clientMethod.getMethodPageDetails().nonNullNextLink()) {
             writeMethod(typeBlock, clientMethod.getMethodVisibility(), clientMethod.getDeclaration(), function -> {
@@ -1116,6 +1136,10 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
     }
 
     protected void generatePagingAsync(ClientMethod clientMethod, JavaType typeBlock, JavaSettings settings) {
+        if (settings.isAzureV1() && hasContinuationToken(clientMethod)) {
+            generateContinuationTokenPaging(clientMethod, typeBlock, settings, false);
+            return;
+        }
         addServiceMethodAnnotation(typeBlock, ReturnType.COLLECTION);
         if (clientMethod.getMethodPageDetails().nonNullNextLink()) {
             writeMethod(typeBlock, clientMethod.getMethodVisibility(), clientMethod.getDeclaration(), function -> {
@@ -1159,6 +1183,60 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
 
     private static void addServiceMethodAnnotation(JavaType typeBlock, ReturnType returnType) {
         typeBlock.annotation("ServiceMethod(returns = ReturnType." + returnType.name() + ")");
+    }
+
+    private static boolean hasContinuationToken(ClientMethod clientMethod) {
+        return !clientMethod.getMethodPageDetails().nonNullNextLink()
+            && clientMethod.getMethodPageDetails().getContinuationToken() != null;
+    }
+
+    private void generateContinuationTokenPaging(ClientMethod clientMethod, JavaType typeBlock, JavaSettings settings,
+        boolean sync) {
+        addServiceMethodAnnotation(typeBlock, ReturnType.COLLECTION);
+        writeMethod(typeBlock, clientMethod.getMethodVisibility(), clientMethod.getDeclaration(), function -> {
+            addOptionalVariables(function, clientMethod);
+            ClientMethodParameter tokenParameter
+                = clientMethod.getMethodPageDetails().getContinuationToken().getClientMethodParameter();
+            String firstArguments = clientMethod.getMethodParameters()
+                .stream()
+                .map(p -> p == tokenParameter ? "null" : p.getName())
+                .collect(Collectors.joining(", "));
+            String methodName = sync
+                ? clientMethod.getProxyMethod().getPagingSinglePageMethodName()
+                : clientMethod.getProxyMethod().getPagingAsyncSinglePageMethodName();
+            String firstPage = getPagingSinglePageExpression(clientMethod, methodName, firstArguments, settings);
+            String nextPage = getPagingSinglePageExpression(clientMethod, methodName, clientMethod.getArgumentList(),
+                settings, tokenParameter.getName());
+            function.line("return new %s<>(", sync ? "PagedIterable" : "PagedFlux");
+            function.indent(() -> {
+                function.line(firstPage + ",");
+                function.line(nextPage + ");");
+            });
+        });
+    }
+
+    private static String continuationTokenExpression(ClientMethod clientMethod, JavaSettings settings) {
+        MethodPageDetails.ContinuationToken token = clientMethod.getMethodPageDetails().getContinuationToken();
+        if (token.getResponseHeaderSerializedName() != null) {
+            return "res.getHeaders().getValue(HttpHeaderName.fromString("
+                + ClassType.STRING.defaultValueExpression(token.getResponseHeaderSerializedName()) + "))";
+        }
+        List<ModelPropertySegment> properties = token.getResponsePropertyReference();
+        if (CoreUtils.isNullOrEmpty(properties)) {
+            throw new IllegalStateException("Continuation-token paging requires a response token property or header.");
+        }
+        if (isXmlPagingResponse(clientMethod, settings)) {
+            return "getXmlNextLink(res.getValue(), " + xmlPropertyPath(properties) + ")";
+        } else if (settings.isDataPlaneClient()) {
+            return "getNextLink(res.getValue(), " + serializedPropertyPath(properties) + ")";
+        }
+        String expression = "res.getValue()";
+        StringBuilder nullChecks = new StringBuilder(expression + " == null");
+        for (ModelPropertySegment property : properties) {
+            expression += "." + CodeNamer.getModelNamer().modelPropertyGetterName(property.getProperty()) + "()";
+            nullChecks.append(" || ").append(expression).append(" == null");
+        }
+        return nullChecks + " ? null : " + expression;
     }
 
     protected void addQueryParameterReInjectionLogic(MethodPageDetails.NextLinkReInjection nextLinkReInjection,
@@ -1516,6 +1594,8 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                         } else {
                             function.line(nextLinkLine(clientMethod));
                         }
+                    } else if (clientMethod.getMethodPageDetails().getContinuationToken() != null) {
+                        function.line(continuationTokenExpression(clientMethod, settings) + ",");
                     } else {
                         function.line("null,");
                     }
@@ -1842,13 +1922,20 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
 
     private String getPagingSinglePageExpression(ClientMethod clientMethod, String methodName, String argumentLine,
         JavaSettings settings) {
+        return getPagingSinglePageExpression(clientMethod, methodName, argumentLine, settings, null);
+    }
+
+    private String getPagingSinglePageExpression(ClientMethod clientMethod, String methodName, String argumentLine,
+        JavaSettings settings, String continuationParameter) {
         if (settings.isDataPlaneClient() && settings.isPageSizeEnabled()) {
             Optional<String> maxPageSizeSerializedName
                 = MethodUtil.serializedNameOfMaxPageSizeParameter(clientMethod.getProxyMethod());
             if (maxPageSizeSerializedName.isPresent()) {
                 argumentLine = argumentLine.replace("requestOptions", "requestOptionsLocal");
                 StringBuilder expression = new StringBuilder();
-                expression.append("(pageSize) -> {");
+                expression.append(continuationParameter == null
+                    ? "(pageSize) -> {"
+                    : "(" + continuationParameter + ", pageSize) -> {");
                 expression.append(
                     "RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;")
                     .append("if (pageSize != null) {")
@@ -1867,7 +1954,8 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         }
 
         if (settings.isAzureV1()) {
-            return String.format("() -> %s(%s)", methodName, argumentLine);
+            return String.format("%s -> %s(%s)", continuationParameter == null ? "()" : continuationParameter,
+                methodName, argumentLine);
         } else {
             return String.format("pagingOptions -> { %s return %s(%s); }",
                 getLogExceptionExpressionForPagingOptions(clientMethod), methodName, argumentLine);

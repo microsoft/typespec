@@ -75,7 +75,7 @@ final class ClientMethodParameterProcessor {
             // Required path, body, header and query parameters are allowed
             codeModelParameters = request.getParameters().stream().filter(p -> {
                 RequestParameterLocation location = p.getProtocol().getHttp().getIn();
-                return p.isRequired()
+                return (p.isRequired() || MethodUtil.isContinuationTokenParameter(p))
                     && (location == RequestParameterLocation.PATH
                         || location == RequestParameterLocation.BODY
                         || location == RequestParameterLocation.HEADER
