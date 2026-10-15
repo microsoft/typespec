@@ -81,6 +81,22 @@ function containsPath(parent: string, file: string): boolean {
   return comparablePath(file).startsWith(`${comparablePath(parent)}/`);
 }
 
+function isStaticDeclaration(node: ts.Node): boolean {
+  return !!(
+    ts.canHaveModifiers(node) &&
+    ts.getModifiers(node)?.some((modifier) => modifier.kind === ts.SyntaxKind.StaticKeyword)
+  );
+}
+
+function qualifiedDeclarationName(node: ts.Node, fallback?: string): string | undefined {
+  const name = ts.isSourceFile(node)
+    ? "(module)"
+    : "name" in node && node.name && typeof (node.name as ts.Node).getText === "function"
+      ? (node.name as ts.Node).getText()
+      : fallback;
+  return name === undefined ? undefined : isStaticDeclaration(node) ? `static ${name}` : name;
+}
+
 function loadPackage(dir: string, manifest: Manifest): Package {
   const configPath =
     ["tsconfig.build.json", "tsconfig.json"].map((name) => join(dir, name)).find(existsSync) ??
@@ -435,12 +451,10 @@ function inspectEntry(pkg: Package, route: string, entry: string) {
   function identity(symbol: ts.Symbol): string {
     const decl = declarations(symbol)[0];
     if (!decl) throw new Error(`No declaration for exposed symbol ${symbol.name}`);
-    const declaredName =
-      "name" in decl && decl.name ? (decl.name as ts.Node).getText() : symbol.name;
-    const names = [ts.isSourceFile(decl) ? "(module)" : declaredName];
+    const names = [qualifiedDeclarationName(decl, symbol.name)!];
     for (let node = decl.parent; node && !ts.isSourceFile(node); node = node.parent) {
-      if ("name" in node && node.name && typeof (node.name as ts.Node).getText === "function")
-        names.unshift((node.name as ts.Node).getText());
+      const name = qualifiedDeclarationName(node);
+      if (name !== undefined) names.unshift(name);
     }
     const owner = packages.find((p) => localFile(p, decl.getSourceFile().fileName));
     const source = relative(owner?.dir ?? pkg.dir, decl.getSourceFile().fileName)
@@ -489,7 +503,12 @@ function inspectEntry(pkg: Package, route: string, entry: string) {
         ) {
           const ownerType = checker.getTypeAtLocation(owner) as ts.InterfaceType;
           for (const base of checker.getBaseTypes(ownerType) ?? []) {
-            const inherited = checker.getPropertyOfType(base, symbol.name);
+            const baseSymbol = base.getSymbol();
+            const receiver =
+              isStaticDeclaration(decl) && baseSymbol
+                ? checker.getTypeOfSymbolAtLocation(baseSymbol, decl)
+                : base;
+            const inherited = checker.getPropertyOfType(receiver, symbol.name);
             if (inherited && hasDocs(inherited)) return true;
           }
         }

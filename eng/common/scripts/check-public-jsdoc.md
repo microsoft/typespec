@@ -92,6 +92,10 @@ export binding or source-module/qualified symbol/member. Computed member names u
 their source spelling, not TypeScript's generated symbol IDs. Shared workspace
 types reached through foreign packages use a canonical `(exposed type)` identity
 to avoid multiplying identical debt across every consuming package.
+Static class members use a `static ` name qualifier, including in ancestor names
+for nested parameter/return types. For example, `VersionMap.static getVersions`
+cannot consume debt for the instance member `VersionMap.getVersions`. Instance
+identities are unchanged, and inherited summaries follow the matching receiver.
 
 After documenting or removing APIs, run:
 
