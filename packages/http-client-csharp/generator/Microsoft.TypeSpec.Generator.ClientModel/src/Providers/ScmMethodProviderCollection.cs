@@ -270,27 +270,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     Return(This.Invoke(protocolMethod.Signature, [.. GetMethodArguments(protocolMethod.Signature, declarations, convenienceBodyParameters, methodSignature.Parameters[^1])], isAsync))
                 ];
             }
-            else if (ContainsModelType(responseBodyType))
+            else if (ContainsModelType(responseBodyType) && !HasOnlyPlainTextContentType())
             {
                 methodBody =
                 [
                     .. GetStackVariablesForProtocolParamConversion(convenienceBodyParameters, out var paramDeclarations),
-                    Declare("result", This.Invoke(protocolMethod.Signature, [.. GetProtocolMethodArguments(paramDeclarations)], isAsync).ToApi<ClientResponseApi>(), out ClientResponseApi result),
-                    Declare("data", result.GetRawResponse().Content(), out var data),
-                    Return(result.FromValue(
-                        Static(typeof(ModelReaderWriter)).Invoke(
-                            nameof(ModelReaderWriter.Read),
-                            [data, ClientModelReaderWriterOptions, ModelReaderWriterContextSnippets.Default],
-                            [responseBodyType]).CastTo(responseBodyType),
-                        result.GetRawResponse()))
-                ];
-            }
-            else if (ContainsModelType(responseBodyType))
-            {
-                methodBody =
-                [
-                    .. GetStackVariablesForProtocolParamConversion(convenienceBodyParameters, out var paramDeclarations),
-                    Declare("result", This.Invoke(protocolMethod.Signature, [.. GetProtocolMethodArguments(paramDeclarations)], isAsync).ToApi<ClientResponseApi>(), out ClientResponseApi result),
+                    Declare("result", This.Invoke(protocolMethod.Signature, [.. GetMethodArguments(protocolMethod.Signature, paramDeclarations, convenienceBodyParameters, methodSignature.Parameters[^1])], isAsync).ToApi<ClientResponseApi>(), out ClientResponseApi result),
                     Declare("data", result.GetRawResponse().Content(), out var data),
                     Return(result.FromValue(
                         Static(typeof(ModelReaderWriter)).Invoke(

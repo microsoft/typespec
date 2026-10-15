@@ -82,6 +82,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
 
             // The generated collection retains the client and its cached MRW options.
             Assert.AreEqual(2, ctorParameters.Count);
+            Assert.AreEqual("modelReaderWriterOptions", ctorParameters[1].Name);
         }
 
         [Test]

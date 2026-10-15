@@ -1581,12 +1581,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                         invocation.Expression is MemberAccessExpressionSyntax member && member.Name.Identifier.ValueText == request.Signature.Name).ArgumentList.Arguments
                     : syntax.DescendantNodes().OfType<ObjectCreationExpressionSyntax>().Single(construction =>
                         construction.Type.ToString().Contains("CollectionResult", StringComparison.Ordinal)).ArgumentList!.Arguments;
+                if (!isStreaming)
+                {
+                    Assert.AreEqual("_modelReaderWriterOptions", arguments[1].Expression.ToString());
+                }
                 CollectionAssert.AreEqual(
                     new[] { omitPathParameter ? "null" : "targetDBName", "sourceIPAddress", "cancellationToken.ToRequestOptions()" },
-                    arguments.Skip(isStreaming ? 0 : 1).Select(argument => argument.Expression.ToString()));
+                    arguments.Skip(isStreaming ? 0 : 2).Select(argument => argument.Expression.ToString()));
                 CollectionAssert.AreEqual(
                     omitPathParameter ? new[] { "targetDBName", "sourceIPAddress", "options" } : new string?[] { null, null, null },
-                    arguments.Skip(isStreaming ? 0 : 1).Select(argument => argument.NameColon?.Name.Identifier.ValueText));
+                    arguments.Skip(isStreaming ? 0 : 2).Select(argument => argument.NameColon?.Name.Identifier.ValueText));
             }
         }
 

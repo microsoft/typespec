@@ -1563,6 +1563,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
 
             Assert.IsNotNull(toBinaryContentMethod, "ToBinaryContent method should be generated for JSON-only models");
+            Assert.AreEqual(typeof(ModelReaderWriterOptions), toBinaryContentMethod!.Signature.Parameters[0].Type.FrameworkType);
         }
 
         [Test]
@@ -1578,6 +1579,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal));
 
             Assert.IsNotNull(toBinaryContentMethod, "ToBinaryContent method should be generated for XML-only models");
+            Assert.AreEqual(typeof(ModelReaderWriterOptions), toBinaryContentMethod!.Signature.Parameters[0].Type.FrameworkType);
         }
 
         [Test]

@@ -11,6 +11,7 @@ namespace Sample
     public partial class ParentClient
     {
         private readonly global::System.Uri _endpoint;
+        private readonly global::System.ClientModel.Primitives.ModelReaderWriterOptions _modelReaderWriterOptions;
 #pragma warning disable CUSTOM_CLIENT // This generated code depends on experimental functionality.
         private global::Sample.ChildClient _cachedChildClient;
 #pragma warning restore CUSTOM_CLIENT // This generated code depends on experimental functionality.
@@ -30,6 +31,7 @@ namespace Sample
             options ??= new global::Sample.SampleClientOptions();
 
             _endpoint = endpoint;
+            _modelReaderWriterOptions = (options.ModelReaderWriterOptions == null) ? global::Sample.ModelSerializationExtensions.WireOptions : new global::System.ClientModel.Primitives.ModelReaderWriterOptions("W", options.ModelReaderWriterOptions);
             if ((authenticationPolicy != null))
             {
                 Pipeline = global::System.ClientModel.Primitives.ClientPipeline.Create(options, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>(), new global::System.ClientModel.Primitives.PipelinePolicy[] { new global::System.ClientModel.Primitives.UserAgentPolicy(typeof(global::Sample.ParentClient).Assembly), authenticationPolicy }, Array.Empty<global::System.ClientModel.Primitives.PipelinePolicy>());
@@ -49,7 +51,7 @@ namespace Sample
 #pragma warning disable CUSTOM_CLIENT // This generated code depends on experimental functionality.
         public virtual global::Sample.ChildClient GetChildClient()
         {
-            return (global::System.Threading.Volatile.Read(ref _cachedChildClient) ?? (global::System.Threading.Interlocked.CompareExchange(ref _cachedChildClient, new global::Sample.ChildClient(Pipeline, _endpoint), null) ?? _cachedChildClient));
+            return (global::System.Threading.Volatile.Read(ref _cachedChildClient) ?? (global::System.Threading.Interlocked.CompareExchange(ref _cachedChildClient, new global::Sample.ChildClient(Pipeline, _modelReaderWriterOptions, _endpoint), null) ?? _cachedChildClient));
         }
 #pragma warning restore CUSTOM_CLIENT // This generated code depends on experimental functionality.
     }
