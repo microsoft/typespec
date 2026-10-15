@@ -626,6 +626,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.IsNotNull(methodBody);
         }
 
+        [Test]
+        public void NestedModelReadsUseClientOptionsForSingleValuesAndCollections()
+        {
+            var child = InputFactory.Model("Child", properties: [InputFactory.Property("name", InputPrimitiveType.String)]);
+            var parent = InputFactory.Model("Parent", properties:
+            [
+                InputFactory.Property("child", child),
+                InputFactory.Property("children", InputFactory.Array(child))
+            ]);
+            var (_, serialization) = CreateModelAndSerialization(parent);
+
+            var body = serialization.BuildDeserializationMethod().BodyStatements!.ToDisplayString();
+
+            Assert.AreEqual(2, body.Split("ModelReaderWriter.Read<global::Sample.Models.Child>").Length - 1);
+            StringAssert.Contains("ModelSerializationExtensions.WireOptions", body);
+        }
+
         [TestCase(true)]
         [TestCase(false)]
         public void SerializedNameIsUsed(bool isRequired)

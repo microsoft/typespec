@@ -1984,8 +1984,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     valueType.ToEnum(ScmCodeModelGenerator.Instance.TypeFactory.DeserializeJsonValue(
                         valueType.UnderlyingEnumType!, jsonElement, data,
                         _mrwOptionsParameterSnippet, serializationFormat)),
-                _ => GetDeserializationMethodInvocationForType(valueType, jsonElement, data,
-                    _mrwOptionsParameterSnippet)
+                _ => CreateNestedModelValueExpression(valueType, jsonElement, data)
             };
 
             if (valueType.IsFrameworkType && valueType.FrameworkType == typeof(Uri))
@@ -1997,6 +1996,28 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return result;
+        }
+
+        private ValueExpression CreateNestedModelValueExpression(
+            CSharpType valueType,
+            ScopedApi<JsonElement> jsonElement,
+            ValueExpression data)
+        {
+            var deserialize = GetDeserializationMethodInvocationForType(
+                valueType, jsonElement, data, _mrwOptionsParameterSnippet);
+            if (!ScmCodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(valueType, out var provider) ||
+                provider is not ModelProvider)
+            {
+                return deserialize;
+            }
+
+            return new TernaryConditionalExpression(
+                _mrwOptionsParameterSnippet.Equal(ModelSerializationExtensionsSnippets.Wire),
+                deserialize,
+                Static(typeof(ModelReaderWriter)).Invoke(
+                    nameof(ModelReaderWriter.Read),
+                    [data, _mrwOptionsParameterSnippet, ModelReaderWriterContextSnippets.Default],
+                    [valueType]).CastTo(valueType));
         }
 
         private MethodBodyStatement CreateDeserializeDictionaryValueStatement(
