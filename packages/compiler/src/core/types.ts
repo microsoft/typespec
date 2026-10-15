@@ -87,6 +87,10 @@ export interface BaseType {
   kind: string;
   /** Node used to construct this type. If the node is undefined it means the type was dynamically built. With typekit for example. */
   node?: Node;
+  /**
+   * Legacy instantiation metadata. The compiler's type checker does not populate this field,
+   * so its absence does not indicate whether this type is a template instance.
+   */
   instantiationParameters?: Type[];
 
   /**
