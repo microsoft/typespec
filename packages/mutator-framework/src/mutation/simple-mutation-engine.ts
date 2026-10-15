@@ -115,6 +115,11 @@ export interface SingleMutationNode<T extends Type> {
   mutatedType: T;
 }
 
+/**
+ * Model traversal backed by one engine-cached model node.
+ * Default traversal connects the source base, properties, and indexer; override
+ * `mutate()` and edit `mutationNode` to transform the output.
+ */
 export class SimpleModelMutation<TOptions extends SimpleMutationOptions>
   extends ModelMutation<
     SimpleMutations<TOptions>,
@@ -123,6 +128,7 @@ export class SimpleModelMutation<TOptions extends SimpleMutationOptions>
   >
   implements SingleMutationNode<Model>
 {
+  /** Acquires the model node using the selected mutation key and synthetic metadata. */
   constructor(
     engine: SimpleMutationEngine<SimpleMutations<TOptions>>,
     sourceType: Model,
@@ -137,12 +143,14 @@ export class SimpleModelMutation<TOptions extends SimpleMutationOptions>
     });
   }
 
+  /** Defers connecting the model node's base until the related strategy is resolved. */
   startBaseEdge() {
     return this.#createHalfEdge("base", (tail) =>
       this.#mutationNode.connectBase(tail.mutationNode as ModelMutationNode),
     );
   }
 
+  /** Defers a property connection and declares a model-property slot for synthetic wrapping. */
   startPropertyEdge() {
     return new MutationHalfEdge(
       "property",
@@ -152,12 +160,14 @@ export class SimpleModelMutation<TOptions extends SimpleMutationOptions>
     );
   }
 
+  /** Defers connecting the model's indexer key to the resolved scalar strategy's node. */
   startIndexerKeyEdge() {
     return this.#createHalfEdge("indexerKey", (tail) =>
       this.#mutationNode.connectIndexerKey(tail.mutationNode as ScalarMutationNode),
     );
   }
 
+  /** Defers connecting the model's indexer value to the resolved type strategy's node. */
   startIndexerValueEdge() {
     return this.#createHalfEdge("indexerValue", (tail) =>
       this.#mutationNode.connectIndexerValue(tail.mutationNode as MutationNodeForType<Type>),
@@ -172,15 +182,21 @@ export class SimpleModelMutation<TOptions extends SimpleMutationOptions>
   }
 
   #mutationNode: ModelMutationNode;
+  /** Shared model node controlling output changes and reference propagation. */
   get mutationNode() {
     return this.#mutationNode;
   }
 
+  /** Current node output, initially the source model rather than an eager clone. */
   get mutatedType() {
     return this.#mutationNode.mutatedType;
   }
 }
 
+/**
+ * Property traversal backed by one engine-cached property node.
+ * Resolves the source reference chain and connects the resulting type node.
+ */
 export class SimpleModelPropertyMutation<TOptions extends SimpleMutationOptions>
   extends ModelPropertyMutation<
     SimpleMutations<TOptions>,
@@ -189,6 +205,7 @@ export class SimpleModelPropertyMutation<TOptions extends SimpleMutationOptions>
   >
   implements SingleMutationNode<ModelProperty>
 {
+  /** Acquires the property node using the selected mutation key and synthetic metadata. */
   constructor(
     engine: SimpleMutationEngine<SimpleMutations<TOptions>>,
     sourceType: ModelProperty,
@@ -203,6 +220,7 @@ export class SimpleModelPropertyMutation<TOptions extends SimpleMutationOptions>
     });
   }
 
+  /** Defers the property's underlying-type connection; accepts a target of any type kind. */
   startTypeEdge(): MutationHalfEdge {
     return new MutationHalfEdge("type", this, (tail) => {
       this.#mutationNode.connectType(tail.mutationNode as MutationNodeForType<Type>);
@@ -210,10 +228,12 @@ export class SimpleModelPropertyMutation<TOptions extends SimpleMutationOptions>
   }
 
   #mutationNode: ModelPropertyMutationNode;
+  /** Shared property node controlling the output's type and owner references. */
   get mutationNode() {
     return this.#mutationNode;
   }
 
+  /** Current node output, initially the source property rather than an eager clone. */
   get mutatedType() {
     return this.#mutationNode.mutatedType;
   }
@@ -300,6 +320,7 @@ export class SimpleUnionVariantMutation<TOptions extends SimpleMutationOptions>
   }
 }
 
+/** Connects source parameter and return-type traversal to one engine-cached operation node. */
 export class SimpleOperationMutation<TOptions extends SimpleMutationOptions>
   extends OperationMutation<
     TOptions,
@@ -308,6 +329,7 @@ export class SimpleOperationMutation<TOptions extends SimpleMutationOptions>
   >
   implements SingleMutationNode<Operation>
 {
+  /** Acquires the operation node using the selected mutation key and synthetic metadata. */
   constructor(
     engine: SimpleMutationEngine<SimpleMutations<TOptions>>,
     sourceType: Operation,
@@ -335,19 +357,23 @@ export class SimpleOperationMutation<TOptions extends SimpleMutationOptions>
   }
 
   #mutationNode: OperationMutationNode;
+  /** Shared operation node exposing parameter, result, and owner connections. */
   get mutationNode() {
     return this.#mutationNode;
   }
 
+  /** Current operation output; acquiring the node alone does not clone the source. */
   get mutatedType() {
     return this.#mutationNode.mutatedType;
   }
 }
 
+/** Connects source operation traversal to one engine-cached interface node. */
 export class SimpleInterfaceMutation<TOptions extends SimpleMutationOptions>
   extends InterfaceMutation<TOptions, SimpleMutations<TOptions>>
   implements SingleMutationNode<Interface>
 {
+  /** Acquires the interface node using the selected mutation key and synthetic metadata. */
   constructor(
     engine: SimpleMutationEngine<SimpleMutations<TOptions>>,
     sourceType: Interface,
@@ -369,10 +395,12 @@ export class SimpleInterfaceMutation<TOptions extends SimpleMutationOptions>
   }
 
   #mutationNode: InterfaceMutationNode;
+  /** Shared interface node controlling operation-map connections. */
   get mutationNode() {
     return this.#mutationNode;
   }
 
+  /** Current interface output; acquiring the node alone does not clone the source. */
   get mutatedType() {
     return this.#mutationNode.mutatedType;
   }
