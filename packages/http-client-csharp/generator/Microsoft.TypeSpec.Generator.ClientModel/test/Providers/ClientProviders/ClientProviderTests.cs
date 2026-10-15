@@ -2644,7 +2644,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             var protocolMethodBodies = client.GetMethodCollectionByOperation(getOperation)
                 .Where(method => method.Kind == ScmMethodKind.Protocol)
                 .Select(method => method.BodyStatements!.ToDisplayString());
-            var generatedCode = string.Join(Environment.NewLine + Environment.NewLine, protocolMethodBodies);
+            var generatedCode = string.Join(Environment.NewLine + Environment.NewLine, protocolMethodBodies).ReplaceLineEndings("\n");
             Assert.AreEqual(Helpers.GetExpectedFromFile(), generatedCode);
         }
 
