@@ -124,7 +124,7 @@ export interface ModelKit {
    */
   getProperties(
     model: Model,
-    options?: { includeExtended?: boolean },
+    options?: { /** Include base properties; defaults to false. */ includeExtended?: boolean },
   ): RekeyableMap<string, ModelProperty>;
   /**
    * Get the record representing additional properties, if there are additional properties.
