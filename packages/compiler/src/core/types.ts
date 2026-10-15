@@ -911,7 +911,13 @@ export interface SignatureFunctionParameter extends FunctionParameterBase {
  */
 export type FunctionParameter = MixedFunctionParameter | SignatureFunctionParameter;
 
+/**
+ * Binding identity used for name lookup before and during type checking.
+ * Declaration symbols collect contributing nodes in `declarations`; expression and
+ * late-bound symbols instead use `node` or `type`.
+ */
 export interface Sym {
+  /** Combined category, visibility, and binding-state bits for this symbol. */
   readonly flags: SymbolFlags;
 
   /**
@@ -955,7 +961,7 @@ export interface Sym {
   readonly members?: SymbolTable;
 
   /**
-   * Symbol table
+   * Metatype members selected with `::`, such as an operation's `parameters`.
    */
   readonly metatypeMembers?: SymbolTable;
 
@@ -1102,36 +1108,58 @@ export interface MutableSymbolTable extends SymbolTable {
   include(source: SymbolTable, parentSym?: Sym): void;
 }
 
+/**
+ * Bit flags describing a symbol's category and how it is bound.
+ * Category bits may be combined with flags such as `Declaration`, `Member`, or `Internal`.
+ */
 // prettier-ignore
 export const enum SymbolFlags {
+  /** No category or binding-state bits are set. */
   None                  = 0,
+  /** A model declaration or structural model expression. */
   Model                 = 1 << 1,
+  /** A scalar declaration, including a scalar declaration expression. */
   Scalar                = 1 << 2,
+  /** An operation, either namespace-level or an interface member. */
   Operation             = 1 << 3,
+  /** An enum whose members can be looked up by name. */
   Enum                  = 1 << 4,
+  /** An interface containing operation members. */
   Interface             = 1 << 5,
+  /** A keyword-form union containing variant members. */
   Union                 = 1 << 6,
+  /** An alias whose target must be resolved before accessing the underlying type. */
   Alias                 = 1 << 7,
+  /** A namespace that can merge declarations and export contained symbols. */
   Namespace             = 1 << 8,
+  /** A decorator signature or JavaScript decorator implementation. */
   Decorator             = 1 << 9,
+  /** A parameter declared in a template's `<...>` list. */
   TemplateParameter     = 1 << 10,
+  /** A function signature or JavaScript function implementation. */
   Function              = 1 << 11,
+  /** A named parameter in a function, decorator, or scalar constructor signature. */
   FunctionParameter     = 1 << 12,
+  /** A lookup binding introduced by `using`, forwarding to `symbolSource`. */
   Using                 = 1 << 13,
+  /** A using binding made ambiguous by another using binding with the same name. */
   DuplicateUsing        = 1 << 14,
+  /** A file-level container for exported declarations. */
   SourceFile            = 1 << 15,
+  /** A symbol accessed as a member of its containing model, scalar, enum, union, or interface. */
   Member                = 1 << 16,
+  /** A constant declaration whose initializer produces a value. */
   Const                 = 1 << 17,
 
 
   /**
    * A symbol which represents a declaration. Such symbols will have at least
-   * one entry in the `declarations[]` array referring to a node with an `id`.
-   * 
-   * Symbols which do not represent declarations 
+   * one entry in the `declarations` array. Non-declaration symbols instead store
+   * their originating node in `node`, when one exists.
    */
   Declaration           = 1 << 20,
 
+  /** A JavaScript implementation to be merged with its TypeSpec decorator or function signature. */
   Implementation        = 1 << 21,
   
   /**
@@ -1145,6 +1173,7 @@ export const enum SymbolFlags {
    */
   Internal = 1 << 23,
 
+  /** Categories that store contained declarations in their `exports` table. */
   ExportContainer = Namespace | SourceFile,
   /**
    * Symbols whose members will be late bound (and stored on the type)
@@ -1156,7 +1185,9 @@ export const enum SymbolFlags {
  * Maps type arguments to instantiated type.
  */
 export interface TypeInstantiationMap {
+  /** Retrieve the cached instantiation for an ordered argument list, or `undefined` if absent. */
   get(args: readonly (Type | Value | IndeterminateEntity)[]): Type | undefined;
+  /** Cache an instantiated type under its ordered list of type or value arguments. */
   set(args: readonly (Type | Value | IndeterminateEntity)[], type: Type): void;
 }
 
@@ -1258,7 +1289,9 @@ export enum SyntaxKind {
   EnumDeclarationExpression,
 }
 
+/** Parser error-state and origin bits attached to syntax nodes. */
 export const enum NodeFlags {
+  /** No error-state or synthetic-origin bits have been set. */
   None = 0,
   /**
    * If this is set, the DescendantHasError bit can be trusted. If this not set,
@@ -1290,11 +1323,20 @@ export const enum NodeFlags {
   Synthetic = 1 << 3,
 }
 
+/**
+ * Shared source range and metadata for syntax nodes.
+ * Parent and binding information need not be available on a freshly parsed or synthetic tree.
+ */
 export interface BaseNode extends TextRange {
+  /** Discriminant used to narrow the node to a specific syntax interface. */
   readonly kind: SyntaxKind;
+  /** Enclosing syntax node once parent links have been established; absent at roots. */
   readonly parent?: Node;
+  /** Compiler directives attached to this node, in source order when present. */
   readonly directives?: readonly DirectiveExpressionNode[];
+  /** Attached documentation comments when documentation parsing is enabled. */
   readonly docs?: readonly DocNode[];
+  /** Parse-error cache state and synthetic-origin markers; use `hasParseError` for errors. */
   readonly flags: NodeFlags;
   /**
    * Could be undefined but making this optional creates a lot of noise. In practice,
@@ -1306,9 +1348,13 @@ export interface BaseNode extends TextRange {
   _id?: number;
 }
 
+/** Syntax shared by declarations that accept template parameter lists. */
 export interface TemplateDeclarationNode {
+  /** Parameters in declaration order; empty when no template list was written. */
   readonly templateParameters: readonly TemplateParameterDeclarationNode[];
+  /** Range including `<` and `>`; positions are `-1` when the list is absent. */
   readonly templateParametersRange: TextRange;
+  /** Local bindings, including template parameters, populated during binding when applicable. */
   readonly locals?: SymbolTable;
 }
 
@@ -1316,11 +1362,17 @@ export interface TemplateDeclarationNode {
  * owner node and other related information according to the position
  */
 export interface PositionDetail {
+  /** Most specific node accepted by the position query, or `undefined` when none matches. */
   readonly node: Node | undefined;
+  /** Queried zero-based UTF-16 offset in the source file. */
   readonly position: number;
+  /** UTF-16 code unit at `position`, or `NaN` outside the source text. */
   readonly char: number;
+  /** UTF-16 code unit immediately before `position`, or `NaN` outside the source text. */
   readonly preChar: number;
+  /** UTF-16 code unit immediately after `position`, or `NaN` outside the source text. */
   readonly nextChar: number;
+  /** Whether the position query identifies whitespace or comment trivia at this offset. */
   readonly inTrivia: boolean;
 
   /**
@@ -1347,6 +1399,10 @@ export interface PositionDetail {
   readonly getPositionDetailAfterTrivia: () => PositionDetail;
 }
 
+/**
+ * Discriminated union of syntax nodes visited by the parser's AST utilities.
+ * Comment ranges are tracked separately as {@link Comment}, not as child nodes.
+ */
 export type Node =
   | TypeSpecScriptNode
   | JsSourceFileNode
@@ -1411,6 +1467,7 @@ export type MemberContainerNode =
   | ScalarStatementNode
   | ScalarDeclarationExpressionNode;
 
+/** Syntax declarations that introduce members of a model, enum, interface, union, or scalar. */
 export type MemberNode =
   | ModelPropertyNode
   | EnumMemberNode
@@ -1418,6 +1475,7 @@ export type MemberNode =
   | UnionVariantNode
   | ScalarConstructorNode;
 
+/** Semantic types whose named members can be resolved through member access. */
 export type MemberContainerType = Model | Enum | Interface | Union | Scalar;
 
 /**
@@ -1425,12 +1483,17 @@ export type MemberContainerType = Model | Enum | Interface | Union | Scalar;
  */
 export type MemberType = ModelProperty | EnumMember | Operation | UnionVariant | ScalarConstructor;
 
+/** Source comment ranges collected separately from the syntax tree when requested by {@link ParseOptions}. */
 export type Comment = LineComment | BlockComment;
 
+/** Range of a `//` comment, excluding the terminating line break. */
 export interface LineComment extends TextRange {
+  /** Identifies a line-comment range rather than a block-comment range. */
   readonly kind: SyntaxKind.LineComment;
 }
+/** Range of a `/* ... *\/` comment, including its delimiters. */
 export interface BlockComment extends TextRange {
+  /** Identifies a block-comment range, including documentation comments. */
   readonly kind: SyntaxKind.BlockComment;
   /** If that comment was parsed as a doc comment. If parserOptions.docs=false this will always be false. */
   readonly parsedAsDocs?: boolean;
