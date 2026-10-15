@@ -219,6 +219,7 @@ export class SimpleModelPropertyMutation<TOptions extends SimpleMutationOptions>
   }
 }
 
+/** Connects source variant traversal to one engine-cached union node. */
 export class SimpleUnionMutation<TOptions extends SimpleMutationOptions>
   extends UnionMutation<
     TOptions,
@@ -227,6 +228,7 @@ export class SimpleUnionMutation<TOptions extends SimpleMutationOptions>
   >
   implements SingleMutationNode<Union>
 {
+  /** Acquires the union node using the selected mutation key and synthetic metadata. */
   constructor(
     engine: SimpleMutationEngine<SimpleMutations<TOptions>>,
     sourceType: Union,
@@ -253,15 +255,18 @@ export class SimpleUnionMutation<TOptions extends SimpleMutationOptions>
   }
 
   #mutationNode: UnionMutationNode;
+  /** Shared union node controlling variant-map connections and reference propagation. */
   get mutationNode() {
     return this.#mutationNode;
   }
 
+  /** Current union output, initially the source rather than an eager clone. */
   get mutatedType() {
     return this.#mutationNode.mutatedType;
   }
 }
 
+/** Connects a source variant's resolved type traversal to one engine-cached variant node. */
 export class SimpleUnionVariantMutation<TOptions extends SimpleMutationOptions>
   extends UnionVariantMutation<
     TOptions,
@@ -270,6 +275,7 @@ export class SimpleUnionVariantMutation<TOptions extends SimpleMutationOptions>
   >
   implements SingleMutationNode<UnionVariant>
 {
+  /** Acquires the variant node using the selected mutation key and synthetic metadata. */
   constructor(
     engine: SimpleMutationEngine<SimpleMutations<TOptions>>,
     sourceType: UnionVariant,
@@ -291,10 +297,12 @@ export class SimpleUnionVariantMutation<TOptions extends SimpleMutationOptions>
   }
 
   #mutationNode: UnionVariantMutationNode;
+  /** Shared variant node controlling underlying-type and owner references. */
   get mutationNode() {
     return this.#mutationNode;
   }
 
+  /** Current variant output, initially the source rather than an eager clone. */
   get mutatedType() {
     return this.#mutationNode.mutatedType;
   }
@@ -378,6 +386,7 @@ export class SimpleInterfaceMutation<TOptions extends SimpleMutationOptions>
   }
 }
 
+/** Connects source base-scalar traversal to one engine-cached scalar node. */
 export class SimpleScalarMutation<TOptions extends SimpleMutationOptions>
   extends ScalarMutation<
     TOptions,
@@ -386,6 +395,7 @@ export class SimpleScalarMutation<TOptions extends SimpleMutationOptions>
   >
   implements SingleMutationNode<Scalar>
 {
+  /** Acquires the scalar node using the selected mutation key and synthetic metadata. */
   constructor(
     engine: SimpleMutationEngine<SimpleMutations<TOptions>>,
     sourceType: Scalar,
@@ -407,15 +417,18 @@ export class SimpleScalarMutation<TOptions extends SimpleMutationOptions>
   }
 
   #mutationNode: ScalarMutationNode;
+  /** Shared scalar node controlling the output's base-scalar connection. */
   get mutationNode() {
     return this.#mutationNode;
   }
 
+  /** Current scalar output, initially the source rather than an eager clone. */
   get mutatedType() {
     return this.#mutationNode.mutatedType;
   }
 }
 
+/** Leaf strategy exposing one engine-cached node for a primitive literal. */
 export class SimpleLiteralMutation<TOptions extends SimpleMutationOptions>
   extends LiteralMutation<
     TOptions,
@@ -424,6 +437,7 @@ export class SimpleLiteralMutation<TOptions extends SimpleMutationOptions>
   >
   implements SingleMutationNode<StringLiteral | NumericLiteral | BooleanLiteral>
 {
+  /** Acquires the literal node using the selected mutation key and synthetic metadata. */
   constructor(
     engine: SimpleMutationEngine<SimpleMutations<TOptions>>,
     sourceType: StringLiteral | NumericLiteral | BooleanLiteral,
@@ -439,15 +453,18 @@ export class SimpleLiteralMutation<TOptions extends SimpleMutationOptions>
   }
 
   #mutationNode: LiteralMutationNode;
+  /** Shared leaf node on which custom strategies can mutate or replace the literal. */
   get mutationNode() {
     return this.#mutationNode;
   }
 
+  /** Current literal output, initially the source rather than an eager clone. */
   get mutatedType() {
     return this.#mutationNode.mutatedType;
   }
 }
 
+/** Leaf strategy exposing one engine-cached node for a compiler intrinsic. */
 export class SimpleIntrinsicMutation<TOptions extends SimpleMutationOptions>
   extends IntrinsicMutation<
     TOptions,
@@ -456,6 +473,7 @@ export class SimpleIntrinsicMutation<TOptions extends SimpleMutationOptions>
   >
   implements SingleMutationNode<IntrinsicType>
 {
+  /** Acquires the intrinsic node using the selected mutation key and synthetic metadata. */
   constructor(
     engine: SimpleMutationEngine<SimpleMutations<TOptions>>,
     sourceType: IntrinsicType,
@@ -471,10 +489,12 @@ export class SimpleIntrinsicMutation<TOptions extends SimpleMutationOptions>
   }
 
   #mutationNode: IntrinsicMutationNode;
+  /** Shared leaf node on which custom strategies can mutate or replace the intrinsic. */
   get mutationNode() {
     return this.#mutationNode;
   }
 
+  /** Current intrinsic output, initially the source rather than an eager clone. */
   get mutatedType() {
     return this.#mutationNode.mutatedType;
   }
