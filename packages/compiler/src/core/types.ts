@@ -1436,6 +1436,7 @@ export interface BlockComment extends TextRange {
   readonly parsedAsDocs?: boolean;
 }
 
+/** Controls optional comment collection and documentation parsing without changing the source text. */
 export interface ParseOptions {
   /** When true, collect comment ranges in {@link TypeSpecScriptNode.comments}. */
   readonly comments?: boolean;
@@ -1443,21 +1444,39 @@ export interface ParseOptions {
   readonly docs?: boolean;
 }
 
+/**
+ * Root syntax node for a TypeSpec source file.
+ * Parsing creates statements and diagnostics; binding later populates namespace,
+ * using, and local-symbol indexes without replacing the source-order statement tree.
+ */
 export interface TypeSpecScriptNode extends BaseNode {
+  /** Identifies a TypeSpec file root, rather than a loaded JavaScript module. */
   readonly kind: SyntaxKind.TypeSpecScript;
+  /** Synthetic identifier whose spelling is the source file path. */
   readonly id: IdentifierNode;
+  /** Top-level statements in source order, including recovery and empty statements. */
   readonly statements: readonly Statement[];
+  /** Source text and path from which this tree was parsed. */
   readonly file: SourceFile;
+  /** Blockless file namespace and its enclosing namespace segments, populated during binding. */
   readonly inScopeNamespaces: readonly NamespaceStatementNode[]; // namespaces that declarations in this file belong to
+  /** All namespace declaration nodes encountered during binding, including nested segments. */
   readonly namespaces: NamespaceStatementNode[]; // list of namespaces in this file (initialized during binding)
+  /** Using statements from all scopes in this file, collected during binding. */
   readonly usings: readonly UsingStatementNode[];
+  /** Source-order comment ranges; empty unless comment collection was requested. */
   readonly comments: readonly Comment[];
+  /** Diagnostics produced while parsing, independent of later binding and checking diagnostics. */
   readonly parseDiagnostics: readonly Diagnostic[];
+  /** Whether parser recovery left a tree that the formatter can safely print. */
   readonly printable: boolean; // If this ast tree can safely be printed/formatted.
+  /** File-local lookup bindings; initialized by the binder, not by parsing alone. */
   readonly locals: SymbolTable;
+  /** Options supplied to the parser for this tree. */
   readonly parseOptions: ParseOptions; // Options used to parse this file
 }
 
+/** Syntax allowed in a statement list, including declarations, calls, and error-recovery nodes. */
 export type Statement =
   | ImportStatementNode
   | ModelStatementNode
@@ -1477,6 +1496,10 @@ export type Statement =
   | EmptyStatementNode
   | InvalidStatementNode;
 
+/**
+ * Shared shape for named statement declarations.
+ * Parsed modifiers preserve source order and may include combinations later rejected by the checker.
+ */
 export interface DeclarationNode {
   /**
    * Identifier that this node declares.
@@ -1507,18 +1530,20 @@ export interface OptionallyNamedDeclarationNode {
   readonly id?: IdentifierNode;
 
   /**
-   * Modifier nodes applied to this declaration.
+   * Modifier nodes applied to this declaration. Empty for parsed declaration expressions.
    */
   readonly modifiers: Modifier[];
 
   /**
-   * Combined modifier flags for this declaration.
+   * Combined modifier flags for this declaration. `None` for parsed declaration expressions.
    */
   readonly modifierFlags: ModifierFlags;
 }
 
+/** Statement variants that introduce a named declaration and carry declaration modifiers. */
 export type Declaration = Extract<Statement, DeclarationNode>;
 
+/** Syntax nodes used as lexical scopes for declaration and reference lookup. */
 export type ScopeNode =
   | NamespaceStatementNode
   | ModelStatementNode
@@ -1527,9 +1552,13 @@ export type ScopeNode =
   | TypeSpecScriptNode
   | JsSourceFileNode;
 
+/** File or package import written `import "path";` at the source-file level. */
 export interface ImportStatementNode extends BaseNode {
+  /** Distinguishes module loading from namespace lookup through a `using` statement. */
   readonly kind: SyntaxKind.ImportStatement;
+  /** Quoted module specifier; its decoded value may be a relative path or package name. */
   readonly path: StringLiteralNode;
+  /** Source file containing the import once parent links have been established. */
   readonly parent?: TypeSpecScriptNode;
 }
 
@@ -1538,26 +1567,41 @@ export interface IdentifierNode extends BaseNode {
   readonly sv: string;
 }
 
+/** An `@decorator(...)` annotation attached to a declaration or member. */
 export interface DecoratorExpressionNode extends BaseNode {
+  /** Distinguishes an attached annotation from an out-of-line `@@` application. */
   readonly kind: SyntaxKind.DecoratorExpression;
+  /** Decorator name, without the leading `@`, optionally qualified by a namespace. */
   readonly target: IdentifierNode | MemberExpressionNode;
+  /** Explicit arguments in source order; the decorated entity is supplied separately by the checker. */
   readonly arguments: readonly Expression[];
 }
 
+/** An out-of-line decorator application, such as `@@doc(MyModel, "description");`. */
 export interface AugmentDecoratorStatementNode extends BaseNode {
+  /** Identifies the `@@` statement form rather than a declaration annotation. */
   readonly kind: SyntaxKind.AugmentDecoratorStatement;
+  /** Decorator name without the leading `@@`. */
   readonly target: IdentifierNode | MemberExpressionNode;
+  /** First source argument: the reference to the entity being decorated. */
   readonly targetType: TypeReferenceNode;
+  /** Remaining source arguments, excluding the decorated entity reference. */
   readonly arguments: readonly Expression[];
+  /** Containing file or namespace after binding. */
   readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;
 }
 
+/** A line-oriented compiler directive, such as `#suppress "code" "reason"`. */
 export interface DirectiveExpressionNode extends BaseNode {
+  /** Identifies a `#` directive rather than an `@` decorator annotation. */
   readonly kind: SyntaxKind.DirectiveExpression;
+  /** Directive name without the leading `#`. */
   readonly target: IdentifierNode;
+  /** Identifier or quoted-string arguments before the terminating newline. */
   readonly arguments: readonly DirectiveArgument[];
 }
 
+/** Directive arguments are names or quoted strings, not arbitrary TypeSpec expressions. */
 export type DirectiveArgument = StringLiteralNode | IdentifierNode;
 
 export type Expression =
@@ -1598,17 +1642,33 @@ export interface MemberExpressionNode extends BaseNode {
   readonly selector: "." | "::";
 }
 
+/**
+ * One segment of a namespace declaration.
+ * Dotted namespaces are nested nodes, while a blockless namespace scopes subsequent file statements.
+ */
 export interface NamespaceStatementNode extends BaseNode, DeclarationNode {
+  /** Identifies a source namespace declaration, not a namespace synthesized for JavaScript. */
   readonly kind: SyntaxKind.NamespaceStatement;
+  /**
+   * Block statements, a nested segment of a dotted name, or `undefined` for the
+   * innermost segment of a blockless namespace.
+   */
   readonly statements?: readonly Statement[] | NamespaceStatementNode;
+  /** Annotations on this segment; outer segments synthesized for a dotted name have none. */
   readonly decorators: readonly DecoratorExpressionNode[];
+  /** Local lookup bindings initialized during binding, separate for each declaration of a merged namespace. */
   readonly locals?: SymbolTable;
+  /** Enclosing file or namespace segment after binding. */
   readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;
 }
 
+/** Brings a namespace's exported names into the containing lookup scope without loading a module. */
 export interface UsingStatementNode extends BaseNode {
+  /** Identifies namespace lookup syntax rather than a file import. */
   readonly kind: SyntaxKind.UsingStatement;
+  /** Namespace reference to make available for unqualified name lookup. */
   readonly name: IdentifierNode | MemberExpressionNode;
+  /** Syntactic container after binding; effective blockless namespace scope is in `scopeNamespace`. */
   readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;
 
   /**
@@ -1622,24 +1682,40 @@ export interface UsingStatementNode extends BaseNode {
   readonly scopeNamespace?: NamespaceStatementNode;
 }
 
+/** Explicit `(parameters): ReturnType` portion of an operation declaration. */
 export interface OperationSignatureDeclarationNode extends BaseNode {
+  /** Selects the explicit-signature branch of {@link OperationSignature}. */
   readonly kind: SyntaxKind.OperationSignatureDeclaration;
+  /** Parameter list represented as model properties and spreads, with parentheses as its body range. */
   readonly parameters: ModelExpressionNode;
+  /** Type expression following the signature's colon. */
   readonly returnType: Expression;
 }
 
+/** `is BaseOperation` portion of an operation that reuses another operation's signature. */
 export interface OperationSignatureReferenceNode extends BaseNode {
+  /** Selects signature reuse rather than an explicit parameter list and return type. */
   readonly kind: SyntaxKind.OperationSignatureReference;
+  /** Referenced operation, including any explicit template arguments. */
   readonly baseOperation: TypeReferenceNode;
 }
 
+/** An operation either declares its own signature or reuses one through `is`. */
 export type OperationSignature =
   OperationSignatureDeclarationNode | OperationSignatureReferenceNode;
 
+/**
+ * Named operation declared in a namespace or interface.
+ * The `op` keyword is optional for interface members, but both forms use this node shape.
+ */
 export interface OperationStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
+  /** Identifies the named operation node rather than its signature child. */
   readonly kind: SyntaxKind.OperationStatement;
+  /** Explicit signature or reference to an operation whose signature is reused. */
   readonly signature: OperationSignature;
+  /** Decorator annotations in source order, not their execution order. */
   readonly decorators: readonly DecoratorExpressionNode[];
+  /** File, namespace, or interface syntactically containing this operation after binding. */
   readonly parent?: TypeSpecScriptNode | NamespaceStatementNode | InterfaceStatementNode;
 }
 
@@ -1786,16 +1862,25 @@ export interface EnumSpreadMemberNode extends BaseNode {
   readonly target: TypeReferenceNode;
 }
 
+/** Named alias for a type expression, optionally parameterized by template parameters. */
 export interface AliasStatementNode extends BaseNode, DeclarationNode, TemplateDeclarationNode {
+  /** Identifies a named alias declaration rather than the expression it aliases. */
   readonly kind: SyntaxKind.AliasStatement;
+  /** Expression following `=`, resolved in the alias's template and namespace scope. */
   readonly value: Expression;
+  /** Enclosing file or namespace after binding. */
   readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;
 }
 
+/** Named constant value, optionally checked against an explicit type annotation. */
 export interface ConstStatementNode extends BaseNode, DeclarationNode {
+  /** Identifies a value declaration rather than a type alias. */
   readonly kind: SyntaxKind.ConstStatement;
+  /** Initializer following `=`, evaluated as a value by the checker. */
   readonly value: Expression;
+  /** Type annotation following `:`, or `undefined` when the value's type is inferred. */
   readonly type?: Expression;
+  /** Enclosing file or namespace after binding. */
   readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;
 }
 export interface CallExpressionNode extends BaseNode {
@@ -1804,12 +1889,17 @@ export interface CallExpressionNode extends BaseNode {
   readonly arguments: Expression[];
 }
 
+/** Recovery placeholder for source that could not form a recognized statement. */
 export interface InvalidStatementNode extends BaseNode {
+  /** Identifies a parser-recovery node, not a valid declaration. */
   readonly kind: SyntaxKind.InvalidStatement;
+  /** Leading decorators retained while recovering from the invalid statement. */
   readonly decorators: readonly DecoratorExpressionNode[];
 }
 
+/** Standalone semicolon with no associated declaration or expression. */
 export interface EmptyStatementNode extends BaseNode {
+  /** Identifies an intentionally empty statement rather than a recovery placeholder. */
   readonly kind: SyntaxKind.EmptyStatement;
 }
 
