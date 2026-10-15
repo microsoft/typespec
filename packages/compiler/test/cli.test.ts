@@ -344,9 +344,13 @@ describe("compiler: cli", () => {
       });
 
       it("replaces configured extends but retains configured rule overrides", async () => {
+        host.addTypeSpecFile(
+          "ws/template-rules.yaml",
+          stringify({ enable: { [unusedTemplate]: true } }),
+        );
         expectDiagnostics(
           await diagnose(
-            { "linter-ruleset": ["@typespec/compiler/all"] },
+            { "linter-ruleset": ["file:./template-rules.yaml"] },
             {
               linter: {
                 extends: ["not-installed/all"],
@@ -359,14 +363,13 @@ describe("compiler: cli", () => {
         );
       });
 
-      it("applies repeated rulesets in order and resolves CLI files relative to cwd", async () => {
+      it("combines repeated rulesets and resolves CLI files relative to cwd", async () => {
         host.addTypeSpecFile("ws/configs/override.yaml", stringify(allRules));
         host.addTypeSpecFile("ws/rules/first.yaml", stringify({ enable: { [unusedUsing]: true } }));
         host.addTypeSpecFile(
           "ws/rules/second.yaml",
           stringify({
             extends: ["file:./nested.yaml"],
-            disable: { [unusedUsing]: "Only check templates" },
           }),
         );
         host.addTypeSpecFile(
@@ -379,7 +382,7 @@ describe("compiler: cli", () => {
             config: "configs/override.yaml",
             "linter-ruleset": ["file:./rules/first.yaml", "file:./rules/second.yaml"],
           }),
-          { code: unusedTemplate },
+          [{ code: unusedUsing }, { code: unusedTemplate }],
         );
       });
 
@@ -430,7 +433,7 @@ describe("compiler: cli", () => {
         );
       });
 
-      it("replaces configured rule options and parses JSON containing =", async () => {
+      function addBannedNameLinter() {
         const rule = createLinterRule({
           name: "banned-name",
           description: "Disallow a configurable model name",
@@ -459,8 +462,19 @@ describe("compiler: cli", () => {
           JSON.stringify({ name: "@typespec/test-linter", main: "index.js" }),
         );
         host.addJsFile("ws/node_modules/@typespec/test-linter/index.js", {
-          $linter: { rules: [rule] },
+          $linter: {
+            rules: [rule],
+            ruleSets: {
+              invalid: {
+                enable: { "@typespec/test-linter/banned-name": { name: 123 } },
+              },
+            },
+          },
         });
+      }
+
+      it("replaces configured rule options and parses JSON containing =", async () => {
+        addBannedNameLinter();
         const config: TypeSpecRawConfig = {
           linter: {
             enable: { "@typespec/test-linter/banned-name": { suffix: "FromConfig" } },
@@ -497,6 +511,52 @@ describe("compiler: cli", () => {
           { code: "invalid-rule-options" },
         );
       });
+
+      it.each(["library", "file"])(
+        "overrides invalid options inherited from a %s ruleset",
+        async (source) => {
+          addBannedNameLinter();
+          host.addTypeSpecFile(
+            "ws/rules/outer.yaml",
+            stringify({ extends: ["file:./inner.yaml"] }),
+          );
+          host.addTypeSpecFile(
+            "ws/rules/inner.yaml",
+            stringify({
+              enable: { "@typespec/test-linter/banned-name": { name: 123 } },
+            }),
+          );
+          const config: TypeSpecRawConfig = {
+            linter: {
+              extends: ["@typespec/test-linter/invalid"],
+            },
+          };
+          const args: CompileCliArgs =
+            source === "file" ? { "linter-ruleset": ["file:./rules/outer.yaml"] } : {};
+
+          expectDiagnostics(await diagnose(args, config), { code: "invalid-rule-options" });
+          expectDiagnostics(
+            await diagnose({ ...args, "linter-rule": ["compiler/unused-using=false"] }, config),
+            { code: "invalid-rule-options" },
+          );
+          expectDiagnostics(
+            await diagnose(
+              {
+                ...args,
+                "linter-rule": ['test-linter/banned-name={"name":"Example"}'],
+              },
+              config,
+            ),
+            { code: "@typespec/test-linter/banned-name" },
+          );
+          expectDiagnosticEmpty(
+            await diagnose(
+              { ...args, "linter-rule": ["@typespec/test-linter/banned-name=false"] },
+              config,
+            ),
+          );
+        },
+      );
 
       for (const value of [
         "compiler/unused-using",

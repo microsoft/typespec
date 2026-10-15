@@ -430,31 +430,27 @@ async function createProgram(
   const ruleOverrides = new Map(
     linterOverrides?.rules.map(([ref, value]) => [diagnosticCodeResolver.resolveCode(ref), value]),
   );
+  const excludeRules = new Set(ruleOverrides.keys());
   if (linterOverrides?.extends !== undefined) {
-    program.reportDiagnostics(await linter.extendRuleSet({ extends: linterOverrides.extends }));
+    program.reportDiagnostics(
+      await linter.extendRuleSet({ extends: linterOverrides.extends }, { excludeRules }),
+    );
   }
   if (options.linterRuleSet) {
-    const keepConfiguredRule = ([ref]: [string, unknown]) =>
-      !ruleOverrides.has(diagnosticCodeResolver.resolveCode(ref));
-    const ruleSet = linterOverrides
-      ? {
-          ...options.linterRuleSet,
-          extends:
-            linterOverrides.extends === undefined ? options.linterRuleSet.extends : undefined,
-          enable: Object.fromEntries(
-            Object.entries(options.linterRuleSet.enable ?? {}).filter(keepConfiguredRule),
-          ),
-          disable: Object.fromEntries(
-            Object.entries(options.linterRuleSet.disable ?? {}).filter(keepConfiguredRule),
-          ),
-        }
-      : options.linterRuleSet;
+    const ruleSet =
+      linterOverrides?.extends !== undefined
+        ? {
+            ...options.linterRuleSet,
+            extends: undefined,
+          }
+        : options.linterRuleSet;
     program.reportDiagnostics(
       await linter.extendRuleSet(ruleSet, {
         baseDir: program.projectRoot,
         source: options.configFile?.file
           ? { script: options.configFile.file, path: ["linter"] }
           : undefined,
+        excludeRules,
       }),
     );
   }
