@@ -261,7 +261,7 @@ export interface HttpFileModel {
 
 /**
  * Recognizes a model whose contentType, filename, and contents originate from an HTTP file.
- * Returns `undefined` for non-models, missing file properties, or additional retained properties.
+ * Returns `undefined` for non-models, missing file properties, or a retained property count other than three.
  *
  * @param filter Optional filter used only when counting effective properties, for example to
  * exclude HTTP metadata. The returned model and properties are not cloned or filtered.
