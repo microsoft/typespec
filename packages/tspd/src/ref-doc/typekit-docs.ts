@@ -66,6 +66,12 @@ export interface TsFunctionParameter {
   typeExcerpt: Excerpt;
 }
 
+/**
+ * Writes Markdown pages for interfaces tagged `@typekit` in the first matching typekit export.
+ * Uses API Extractor on the library's built declarations and writes its intermediate API model
+ * under the library's `temp` directory. Returns without writing pages if no typekit export exists.
+ * @param outputDir Existing destination directory; matching generated pages are overwritten.
+ */
 export async function writeTypekitDocs(libraryPath: string, outputDir: string): Promise<void> {
   const pkgJson = await readPackageJson(libraryPath);
 

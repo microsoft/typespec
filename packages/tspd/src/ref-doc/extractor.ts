@@ -93,6 +93,16 @@ function getExport(pkgJson: PackageJson, path: string, condition: string) {
   return (pkgJson as any).exports?.[path]?.[condition];
 }
 
+/**
+ * Loads a package's reference model from its TypeSpec exports and JavaScript library metadata.
+ * Compiles the main `typespec` export with documentation parsing enabled and imports the main
+ * `import` or `default` export to inspect `$lib` and `$linter`. Either surface may be absent.
+ *
+ * TypeSpec sub-exports omit files already loaded by the main export; empty or unbuildable
+ * sub-exports are skipped. Returns the model with collected compilation and metadata diagnostics.
+ * Missing declaration documentation is also reported on the compiled programs.
+ * @param libraryPath Directory containing the package.json and built JavaScript entry points.
+ */
 export async function extractLibraryRefDocs(
   libraryPath: string,
 ): Promise<[TypeSpecLibraryRefDoc, readonly Diagnostic[]]> {
@@ -233,14 +243,26 @@ async function extractSubExports(
   return subExports;
 }
 
+/** Selection controls for extracting declarations from an already compiled program. */
 export interface ExtractRefDocOptions {
+  /** Qualified namespace-name controls; see the individual fields for current selection behavior. */
   namespaces?: {
+    /**
+     * Namespace references to resolve and add before normal project namespace discovery.
+     * This does not restrict discovery to these names or deduplicate namespaces.
+     */
     include?: string[];
+    /**
+     * Currently retains only namespaces whose qualified names occur in this list,
+     * despite the field name. An empty list therefore selects no namespaces.
+     */
     exclude?: string[];
   };
   /**
    * Filter to restrict which types are included based on their source file path.
-   * When provided, only types declared in files for which this returns true will be included.
+   * Applied to namespace declarations and collected top-level types with non-synthetic locations.
+   * Synthetic locations bypass this check; members of an included declaration are not
+   * independently filtered. A namespace rejected here is not visited for collection.
    */
   sourceFilter?: (sourcePath: string) => boolean;
 }
@@ -284,6 +306,15 @@ function resolveNamespaces(
   return diagnostics.wrap(namespaceTypes);
 }
 
+/**
+ * Extracts reference records without recompiling the program or writing files.
+ * Discovers project namespaces other than those named `Private`, omits internal declarations,
+ * and removes empty namespace records. Namespaces and their declaration lists are sorted by ID.
+ *
+ * Parse the program with comments and docs enabled to retain source tags and examples.
+ * Returns namespace-resolution diagnostics alongside the model; missing-documentation
+ * diagnostics are reported directly to `program`.
+ */
 export function extractRefDocs(
   program: Program,
   options: ExtractRefDocOptions = {},
