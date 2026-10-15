@@ -18,26 +18,31 @@ Value extends StringValue ? string
   : Value extends ScalarValue ? Value
   : Value
 
-/**
- * Type System types
- */
-
+/** Type or primitive argument accepted by legacy decorator implementations. */
 export type DecoratorArgumentValue = Type | number | string | boolean;
 
+/** A checked decorator argument, retaining both its compiler entity and JavaScript representation. */
 export interface DecoratorArgument {
+  /** Type or value before marshalling for the decorator implementation. */
   value: Type | Value;
   /**
    * Marshalled value for use in Javascript.
    */
   jsValue:
     Type | Value | Record<string, unknown> | unknown[] | string | number | boolean | Numeric | null;
+  /** Argument expression, when the application originates in TypeSpec source. */
   node?: Node;
 }
 
+/** A decorator application attached to a type, including its checked arguments. */
 export interface DecoratorApplication {
+  /** TypeSpec declaration, if the decorator has a corresponding declaration. */
   definition?: Decorator;
+  /** JavaScript implementation invoked when the decorated type is finished. */
   decorator: DecoratorFunction;
+  /** Custom arguments in call order, excluding the decorator context and target. */
   args: DecoratorArgument[];
+  /** Source application, or absent for a programmatically constructed application. */
   node?: DecoratorExpressionNode | AugmentDecoratorStatementNode;
 }
 
@@ -46,16 +51,20 @@ export interface DecoratorApplication {
  * Use `@typespec/tspd` to generate an accurate signature from the `extern dec`
  */
 export interface DecoratorFunction {
+  /** Apply the decorator to its target and optionally register deferred validation. */
   (
     context: DecoratorContext,
     target: any,
     ...customArgs: any[]
   ): DecoratorValidatorCallbacks | void;
+  /** Namespace associated with a JavaScript decorator export. */
   namespace?: string;
 }
 
+/** Deferred decorator validation that returns diagnostics without mutating the type graph. */
 export type ValidatorFn = () => readonly Diagnostic[];
 
+/** Validation hooks returned by a decorator to run after target or graph construction. */
 export interface DecoratorValidatorCallbacks {
   /**
    * Run validation after all decorators are run on the same type. Useful if trying to validate this decorator is compatible with other decorators without relying on the order they are applied.
@@ -70,8 +79,11 @@ export interface DecoratorValidatorCallbacks {
   readonly onGraphFinish?: ValidatorFn;
 }
 
+/** Common identity and construction state shared by semantic types in the compiler graph. */
 export interface BaseType {
+  /** Distinguishes semantic types from values and parameter constraints. */
   readonly entityKind: "Type";
+  /** Discriminant identifying the concrete semantic type. */
   kind: string;
   /** Node used to construct this type. If the node is undefined it means the type was dynamically built. With typekit for example. */
   node?: Node;
@@ -92,7 +104,9 @@ export interface BaseType {
   isFinished: boolean;
 }
 
+/** A semantic type that can carry decorator applications. */
 export interface DecoratedType {
+  /** Applications used when finishing this type, including copied or synthesized applications. */
   decorators: DecoratorApplication[];
 }
 
@@ -101,9 +115,13 @@ export interface DecoratedType {
  */
 export type TemplatedType = Model | Operation | Interface | Union | Scalar;
 
+/** Substitutes template parameters with arguments while constructing a template instance. */
 export interface TypeMapper {
+  /** Whether enclosing arguments have been applied but this template is not fully instantiated. */
   partial: boolean;
+  /** Return the mapped argument, or the original parameter when no substitution is available. */
   getMappedType(type: TemplateParameter): Type | Value | IndeterminateEntity;
+  /** Arguments for this instantiation, with enclosing template arguments first. */
   args: readonly (Type | Value | IndeterminateEntity)[];
   /** @internal Node used to create this type mapper. */
   readonly source: {
@@ -114,8 +132,11 @@ export interface TypeMapper {
   map: Map<TemplateParameter, Type | Value | IndeterminateEntity>;
 }
 
+/** Instantiation metadata carried by types that support template parameters. */
 export interface TemplatedTypeBase {
+  /** Argument substitutions for an instantiation; absent on an uninstantiated declaration. */
   templateMapper?: TypeMapper;
+  /** Originating template node, when retained separately from the type's source node. */
   templateNode?: Node;
 }
 
@@ -127,6 +148,7 @@ export interface TemplatedTypeBase {
  */
 export type Entity = Type | Value | MixedParameterConstraint | IndeterminateEntity;
 
+/** Semantic type graph nodes, including declarations, members, literals, and template placeholders. */
 export type Type =
   | BooleanLiteral
   | Decorator
@@ -152,11 +174,15 @@ export type Type =
   | Union
   | UnionVariant;
 
+/** Standard-library types available by name through {@link Checker.getStdType}. */
 export type StdTypes = {
   // Models
+  /** Generic standard model for integer-indexed collections. */
   Array: Model;
+  /** Generic standard model for string-indexed collections. */
   Record: Model;
 } & Record<IntrinsicScalarName, Scalar>;
+/** Names accepted when looking up a standard-library type. */
 export type StdTypeName = keyof StdTypes;
 
 export interface ObjectType extends BaseType {
@@ -164,8 +190,14 @@ export interface ObjectType extends BaseType {
   properties: Record<string, Type>;
 }
 
+/**
+ * A parameter constraint with independent type and value alternatives.
+ * A `valueof` alternative constrains a value's type rather than accepting the type itself.
+ */
 export interface MixedParameterConstraint {
+  /** Distinguishes this constraint from a type, value, or unresolved literal entity. */
   readonly entityKind: "MixedParameterConstraint";
+  /** Source expression defining the constraint, when available. */
   readonly node?: UnionExpressionNode | Expression;
 
   /** Type constraints */
@@ -177,7 +209,9 @@ export interface MixedParameterConstraint {
 
 /** When an entity that could be used as a type or value has not figured out if it is a value or type yet. */
 export interface IndeterminateEntity {
+  /** Identifies an entity whose type-versus-value interpretation is not yet selected. */
   readonly entityKind: "Indeterminate";
+  /** Literal-like type from which a type or value can be selected by the surrounding context. */
   readonly type:
     | StringLiteral
     | StringTemplate
@@ -188,30 +222,44 @@ export interface IndeterminateEntity {
     | NullType;
 }
 
+/** Compiler-defined special type, rather than a declaration in the standard library. */
 export interface IntrinsicType extends BaseType {
+  /** Discriminant shared by the compiler's special types. */
   kind: "Intrinsic";
+  /** Identifies the special type and its assignability semantics. */
   name: "ErrorType" | "void" | "never" | "unknown" | "null";
 }
 
+/** Error-recovery type used when checking cannot produce a valid type. */
 export interface ErrorType extends IntrinsicType {
+  /** Identifies the error-recovery intrinsic. */
   name: "ErrorType";
 }
 
+/** An operation result with no return value. */
 export interface VoidType extends IntrinsicType {
+  /** Identifies the no-return-value intrinsic. */
   name: "void";
 }
 
+/** Bottom type with no possible values, assignable to every type. */
 export interface NeverType extends IntrinsicType {
+  /** Identifies the bottom type. */
   name: "never";
 }
 
+/** Top type accepting any type without imposing a more specific constraint. */
 export interface UnknownType extends IntrinsicType {
+  /** Identifies the unconstrained top type. */
   name: "unknown";
 }
+/** Singleton type of the `null` value, distinct from an operation returning `void`. */
 export interface NullType extends IntrinsicType {
+  /** Identifies the null singleton type. */
   name: "null";
 }
 
+/** Names of the built-in scalars exposed through the compiler's standard-type lookup. */
 export type IntrinsicScalarName =
   | "bytes"
   | "numeric"
@@ -239,26 +287,51 @@ export type IntrinsicScalarName =
   | "boolean"
   | "url";
 
+/** An indexer shape that admits no keys and consequently has no value type. */
 export type NeverIndexer = {
+  /** Bottom type, allowing no indexed keys. */
   readonly key: NeverType;
+  /** No value type exists for an indexer without keys. */
   readonly value: undefined;
 };
 
+/** Key and element constraints for an indexed model such as an array or record. */
 export type ModelIndexer = {
+  /** Scalar constraining keys; standard arrays use `integer` and records use `string`. */
   readonly key: Scalar;
+  /** Type required for indexed values. */
   readonly value: Type;
 };
 
+/** Model narrowed by {@link isArrayModelType} to have an integer-keyed indexer. */
 export interface ArrayModelType extends Model {
-  indexer: { key: Scalar; value: Type };
+  // prettier-ignore
+  /** Indexer describing the array's element type. */
+  indexer: {
+    /** Integer key scalar used for array positions. */
+    key: Scalar;
+    /** Type of each array element. */
+    value: Type
+  };
 }
 
+/** Model narrowed by {@link isRecordModelType} to have a string-keyed indexer. */
 export interface RecordModelType extends Model {
-  indexer: { key: Scalar; value: Type };
+  // prettier-ignore
+  /** Indexer describing values associated with record keys. */
+  indexer: {
+    /** String key scalar used for record entries. */
+    key: Scalar;
+    /** Type of each record entry. */
+    value: Type
+  };
 }
 
+/** Structured type with ordered own properties, optional indexing, and model inheritance. */
 export interface Model extends BaseType, DecoratedType, TemplatedTypeBase {
+  /** Discriminant for structured model types. */
   kind: "Model";
+  /** Declared name, or an empty string for an anonymous model. */
   name: string;
   node?:
     | ModelStatementNode
@@ -266,7 +339,9 @@ export interface Model extends BaseType, DecoratedType, TemplatedTypeBase {
     | ModelExpressionNode
     | IntersectionExpressionNode
     | ObjectLiteralNode;
+  /** Namespace containing a named declaration, when associated with one. */
   namespace?: Namespace;
+  /** Constraint on indexed entries, if this model supports indexing. */
   indexer?: ModelIndexer;
 
   /**
@@ -316,6 +391,7 @@ export interface Model extends BaseType, DecoratedType, TemplatedTypeBase {
   symbol?: Sym;
 }
 
+/** Records a model-composition input separately from the model's inheritance relationship. */
 export interface SourceModel {
   /**
    * How was this model used.
@@ -331,16 +407,22 @@ export interface SourceModel {
   readonly node?: Node;
 }
 
+/** A named model field, including copied fields introduced by composition. */
 export interface ModelProperty extends BaseType, DecoratedType {
+  /** Discriminant for model fields and operation parameters. */
   kind: "ModelProperty";
   node?: ModelPropertyNode | ModelSpreadPropertyNode | ObjectLiteralPropertyNode;
+  /** Key under which this property appears in its containing model. */
   name: string;
+  /** Type of values accepted by the property, independent of optionality. */
   type: Type;
-  // when spread or intersection operators make new property types,
-  // this tracks the property we copied from.
+  /** Property copied to create this one through composition, when applicable. */
   sourceProperty?: ModelProperty;
+  /** Whether the property may be omitted; this does not add `null` to its type. */
   optional: boolean;
+  /** Checked default value, when a default was supplied. */
   defaultValue?: Value;
+  /** Containing model, when attached; copied properties belong to the receiving model. */
   model?: Model;
 }
 
