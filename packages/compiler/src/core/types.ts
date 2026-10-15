@@ -1176,85 +1176,163 @@ export interface RekeyableMap<K, V> extends Map<K, V> {
 }
 
 /**
- * AST types
+ * Discriminants for syntax nodes, comment ranges, and documentation nodes.
+ * Use a node's `kind` to narrow to its corresponding AST interface.
  */
 export enum SyntaxKind {
+  /** Root of a parsed TypeSpec file, including statements and parse diagnostics. */
   TypeSpecScript,
+  /** Loaded JavaScript module supplying decorator or function implementations. */
   JsSourceFile,
+  /** File or package import such as `import "./models.tsp";`. */
   ImportStatement,
+  /** Name token, with its decoded spelling available as `sv`. */
   Identifier,
+  /** Out-of-line decorator application using `@@decorator(Target, ...)`. */
   AugmentDecoratorStatement,
+  /** Decorator application attached to a declaration using `@decorator(...)`. */
   DecoratorExpression,
+  /** Compiler directive introduced by `#`, such as `#suppress`. */
   DirectiveExpression,
+  /** Qualified name segment selected with `.` or metatype selector `::`. */
   MemberExpression,
+  /** Namespace declaration, including blockless and dotted forms. */
   NamespaceStatement,
+  /** Namespace import into the current lookup scope using `using`. */
   UsingStatement,
+  /** Named operation declaration, either with a signature or an `is` reference. */
   OperationStatement,
+  /** Explicit operation parameter list and return type. */
   OperationSignatureDeclaration,
+  /** Operation signature reused through an `is` reference. */
   OperationSignatureReference,
+  /** Named model declaration registered in its enclosing namespace. */
   ModelStatement,
+  /** Structural model type in braces, also used for operation parameter lists. */
   ModelExpression,
+  /** Model property or operation parameter, including its type and optional default. */
   ModelProperty,
+  /** Model properties copied into a body or parameter list using `...`. */
   ModelSpreadProperty,
+  /** Named scalar declaration with optional base scalar and constructors. */
   ScalarStatement,
+  /** Named interface declaration containing operations. */
   InterfaceStatement,
+  /** Named union declaration containing variant nodes. */
   UnionStatement,
+  /** Named or unnamed alternative in a keyword-form union. */
   UnionVariant,
+  /** Named enum declaration containing members and member spreads. */
   EnumStatement,
+  /** Enum member with an optional explicit string or numeric value. */
   EnumMember,
+  /** Members copied from another enum using `...`. */
   EnumSpreadMember,
+  /** Type alias declaration, optionally parameterized by template parameters. */
   AliasStatement,
+  /** Decorator signature declaration with a separate target parameter. */
   DecoratorDeclarationStatement,
+  /** Named function signature declaration, distinct from a function type expression. */
   FunctionDeclarationStatement,
+  /** Parameter in a function, decorator, or scalar constructor signature. */
   FunctionParameter,
+  /** Infix union type assembled with `|`, not a keyword-form union declaration. */
   UnionExpression,
+  /** Intersection type assembled with `&`. */
   IntersectionExpression,
+  /** Tuple type written `[A, B]`, not an array value literal. */
   TupleExpression,
+  /** Array type formed by an element type followed by `[]`. */
   ArrayExpression,
+  /** Quoted string without interpolation. */
   StringLiteral,
+  /** Numeric token retaining both its spelling and JavaScript numeric value. */
   NumericLiteral,
+  /** The `true` or `false` literal. */
   BooleanLiteral,
+  /** Interpolated string with a head and ordered substitution spans. */
   StringTemplateExpression,
+  /** Text before the first `${...}` substitution in an interpolated string. */
   StringTemplateHead,
+  /** Text between consecutive substitutions in an interpolated string. */
   StringTemplateMiddle,
+  /** Text after the final substitution in an interpolated string. */
   StringTemplateTail,
+  /** A string substitution expression paired with the text that follows it. */
   StringTemplateSpan,
+  /** The `extern` declaration modifier. */
   ExternKeyword,
+  /** The `void` type keyword, typically used for an operation with no return value. */
   VoidKeyword,
+  /** The `never` type keyword, denoting a type with no possible values. */
   NeverKeyword,
+  /** The `unknown` type keyword, represented by {@link AnyKeywordNode}. */
   UnknownKeyword,
+  /** Value constraint introduced by `valueof`. */
   ValueOfExpression,
+  /** Reference to a name with an optional template argument list. */
   TypeReference,
+  /** Template parameter declaration with optional constraint and default. */
   TemplateParameterDeclaration,
+  /** Standalone semicolon without a declaration. */
   EmptyStatement,
+  /** Recovery node for source that could not be parsed as a valid statement. */
   InvalidStatement,
+  /** Single-line comment range collected when comment tracking is enabled. */
   LineComment,
+  /** Block comment range, possibly also parsed as documentation. */
   BlockComment,
+  /** Parsed documentation comment with body content and tags. */
   Doc,
+  /** Text content within a documentation comment or tag. */
   DocText,
+  /** Documentation tag describing a function or operation parameter. */
   DocParamTag,
+  /** Documentation tag describing a model property. */
   DocPropTag,
+  /** Documentation tag describing a return value. */
   DocReturnsTag,
+  /** Documentation tag describing error responses. */
   DocErrorsTag,
+  /** Documentation tag describing a template parameter. */
   DocTemplateTag,
+  /** Documentation tag whose name has no dedicated syntax kind. */
   DocUnknownTag,
+  /** Reserved kind; the parser does not currently produce return-statement nodes. */
   Return,
+  /** Namespace node synthesized while binding JavaScript implementations. */
   JsNamespaceDeclaration,
+  /** Positional or named argument inside a type reference's `<...>` list. */
   TemplateArgument,
+  /** Expression introduced by `typeof` to obtain the type of a value. */
   TypeOfExpression,
+  /** Object value written `#{ ... }`, distinct from a structural model type. */
   ObjectLiteral,
+  /** Named value entry in an object literal. */
   ObjectLiteralProperty,
+  /** Properties copied from an object value using `...`. */
   ObjectLiteralSpreadProperty,
+  /** Array value written `#[ ... ]`, distinct from a tuple type. */
   ArrayLiteral,
+  /** Named constant value with an optional type annotation. */
   ConstStatement,
+  /** Function or scalar-constructor invocation with positional arguments. */
   CallExpression,
+  /** Named `init` signature declared within a scalar. */
   ScalarConstructor,
+  /** The `internal` declaration modifier restricting package visibility. */
   InternalKeyword,
+  /** The `auto` modifier requesting a compiler-provided decorator implementation. */
   AutoKeyword,
+  /** Anonymous function signature written `fn(...) => ...`. */
   FunctionTypeExpression,
+  /** Keyword-form `model` used as an expression without namespace registration. */
   ModelDeclarationExpression,
+  /** Keyword-form `scalar` used as an expression without namespace registration. */
   ScalarDeclarationExpression,
+  /** Keyword-form `union` used as an expression without namespace registration. */
   UnionDeclarationExpression,
+  /** Keyword-form `enum` used as an expression without namespace registration. */
   EnumDeclarationExpression,
 }
 
