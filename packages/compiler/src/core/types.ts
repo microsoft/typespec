@@ -2086,17 +2086,28 @@ export enum IdentifierKind {
 
 // Doc-comment related syntax
 
+/**
+ * Parsed documentation comment, with free-form text separated from its block tags.
+ * These nodes are available when documentation parsing is enabled.
+ */
 export interface DocNode extends BaseNode {
+  /** Identifies a complete documentation comment. */
   readonly kind: SyntaxKind.Doc;
+  /** Text outside block tags, in source order; empty when the comment contains only tags. */
   readonly content: readonly DocContent[];
+  /** Recognized and unrecognized block tags, in source order. */
   readonly tags: readonly DocTag[];
 }
 
+/** Common syntax retained for every documentation block tag. */
 export interface DocTagBaseNode extends BaseNode {
+  /** Written tag name without the leading `@`, including unrecognized names. */
   readonly tagName: IdentifierNode;
+  /** Descriptive text after the tag name and any parameter or property name. */
   readonly content: readonly DocContent[];
 }
 
+/** Supported documentation block tags, including a fallback for unrecognized tags. */
 export type DocTag =
   | DocReturnsTagNode
   | DocErrorsTagNode
@@ -2104,37 +2115,56 @@ export type DocTag =
   | DocPropTagNode
   | DocTemplateTagNode
   | DocUnknownTagNode;
+/** Content within a documentation comment or tag; currently stored as text rather than parsed Markdown. */
 export type DocContent = DocTextNode;
 
+/** A text segment from a documentation comment, retaining Markdown as text. */
 export interface DocTextNode extends BaseNode {
+  /** Identifies documentation text rather than a block tag. */
   readonly kind: SyntaxKind.DocText;
+  /** Text with comment-line prefixes removed, line endings normalized, and outer whitespace trimmed. */
   readonly text: string;
 }
 
+/** Return-value documentation introduced by either `@return` or `@returns`. */
 export interface DocReturnsTagNode extends DocTagBaseNode {
+  /** Identifies either spelling of the return-documentation tag. */
   readonly kind: SyntaxKind.DocReturnsTag;
 }
 
+/** Error-response documentation introduced by `@errors`. */
 export interface DocErrorsTagNode extends DocTagBaseNode {
+  /** Identifies an error-documentation tag. */
   readonly kind: SyntaxKind.DocErrorsTag;
 }
 
+/** Documentation associated with the named parameter of a declaration. */
 export interface DocParamTagNode extends DocTagBaseNode {
+  /** Identifies an `@param` tag. */
   readonly kind: SyntaxKind.DocParamTag;
+  /** Parameter name as written in the comment, not a resolved parameter declaration. */
   readonly paramName: IdentifierNode;
 }
 
+/** Documentation associated with the named property of a model. */
 export interface DocPropTagNode extends DocTagBaseNode {
+  /** Identifies an `@prop` tag. */
   readonly kind: SyntaxKind.DocPropTag;
+  /** Property name as written in the comment, not a resolved property declaration. */
   readonly propName: IdentifierNode;
 }
 
+/** Documentation associated with a named template parameter. */
 export interface DocTemplateTagNode extends DocTagBaseNode {
+  /** Identifies an `@template` tag. */
   readonly kind: SyntaxKind.DocTemplateTag;
+  /** Template parameter name as written in the comment. */
   readonly paramName: IdentifierNode;
 }
 
+/** Unrecognized block tag retained for tools without assigning built-in semantics. */
 export interface DocUnknownTagNode extends DocTagBaseNode {
+  /** Identifies a tag whose name has no specialized documentation node. */
   readonly kind: SyntaxKind.DocUnknownTag;
 }
 ////
@@ -2160,13 +2190,15 @@ export interface LineAndCharacter {
   character: number;
 }
 
+/** Loaded JavaScript module represented in the syntax graph without parsing its JavaScript source. */
 export interface JsSourceFileNode extends DeclarationNode, BaseNode {
+  /** Distinguishes a loaded JavaScript module from a parsed TypeSpec script. */
   readonly kind: SyntaxKind.JsSourceFile;
 
-  /* A source file with empty contents to represent the file on disk. */
+  /** Empty source file carrying the module's path for diagnostic locations. */
   readonly file: SourceFile;
 
-  /* The exports object as comes from `import()` */
+  /** Module namespace object returned by the host's JavaScript import operation. */
   readonly esmExports: any;
 
   /* Any namespaces declared by decorators. */
@@ -2174,12 +2206,18 @@ export interface JsSourceFileNode extends DeclarationNode, BaseNode {
   readonly namespaceSymbols: Sym[];
 }
 
+/** Namespace declaration synthesized while binding JavaScript implementations to TypeSpec namespaces. */
 export interface JsNamespaceDeclarationNode extends DeclarationNode, BaseNode {
+  /** Distinguishes a JavaScript-provided namespace from a namespace written in TypeSpec. */
   readonly kind: SyntaxKind.JsNamespaceDeclaration;
 }
 
 export type EmitterFunc = (context: EmitContext) => Promise<void> | void;
 
+/**
+ * Source text and diagnostic identity shared by syntax nodes and source locations.
+ * Positions and line mappings refer to this text snapshot, not a subsequently modified file.
+ */
 export interface SourceFile {
   /** The source code text. */
   readonly text: string;
@@ -2222,22 +2260,27 @@ export type LocationContext =
 
 /** Defined in the user project. */
 export interface ProjectLocationContext {
+  /** Identifies source belonging to the consuming project rather than a dependency. */
   readonly type: "project";
+  /** Package flags exported by the project's JavaScript code, when available. */
   readonly flags?: PackageFlags;
 }
 
 /** Built-in */
 export interface CompilerLocationContext {
+  /** Identifies the compiler's standard-library source. */
   readonly type: "compiler";
 }
 
 /** Refer to a type that was not declared in a file */
 export interface SyntheticLocationContext {
+  /** Identifies a target for which no source-file location exists. */
   readonly type: "synthetic";
 }
 
 /** Defined in a library. */
 export interface LibraryLocationContext {
+  /** Identifies source loaded from a library package. */
   readonly type: "library";
 
   /** Library metadata */
@@ -2254,16 +2297,24 @@ export interface LibraryLocationContext {
   readonly features?: readonly string[];
 }
 
+/** Resolution and exported contracts of a JavaScript library loaded by the program. */
 export interface LibraryInstance {
+  /** Resolved package or standalone file from which the JavaScript entry point was loaded. */
   module: ModuleResolutionResult;
+  /** Loaded JavaScript entry point and its exports. */
   entrypoint: JsSourceFileNode;
+  /** Package metadata, or standalone-file metadata when no package was resolved. */
   metadata: LibraryMetadata;
+  /** The entry point's `$lib` export, if it declares a TypeSpec library. */
   definition?: TypeSpecLibrary<any>;
+  /** Resolved `$linter` export; populated when the entry point provides a linter. */
   linter: LinterResolvedDefinition;
 }
 
+/** Metadata discriminated by whether the library resolved to a package or a standalone file. */
 export type LibraryMetadata = FileLibraryMetadata | ModuleLibraryMetadata;
 
+/** Optional package information used to describe a library and direct consumers to support resources. */
 interface LibraryMetadataBase {
   /** Library homepage. */
   homepage?: string;
@@ -2271,13 +2322,16 @@ interface LibraryMetadataBase {
   /** Library version */
   version?: string;
 
+  /** Issue-tracker metadata, when supplied by the package. */
   bugs?: {
     /** Url where to file bugs for this library. */
     url?: string;
   };
 }
 
+/** Metadata for a standalone JavaScript file, whose name may come from its `$lib` export. */
 export interface FileLibraryMetadata extends LibraryMetadataBase {
+  /** Identifies a library resolved directly to a file rather than a package. */
   type: "file";
 
   /** Library name as specified in the package.json or in exported $lib. */
@@ -2286,15 +2340,17 @@ export interface FileLibraryMetadata extends LibraryMetadataBase {
 
 /** Data for a library. Either loaded via a node_modules package or a standalone js file  */
 export interface ModuleLibraryMetadata extends LibraryMetadataBase {
+  /** Identifies a library resolved through a package manifest. */
   readonly type: "module";
 
   /** Library name as specified in the package.json or in exported $lib. */
   readonly name: string;
 }
 
+/** Half-open range of UTF-16 code-unit offsets in a source string. */
 export interface TextRange {
   /**
-   * The starting position of the ranger measured in UTF-16 code units from the
+   * The starting position of the range measured in UTF-16 code units from the
    * start of the full string. Inclusive.
    */
   readonly pos: number;
@@ -2306,8 +2362,11 @@ export interface TextRange {
   readonly end: number;
 }
 
+/** A source range together with the text snapshot to which its offsets refer. */
 export interface SourceLocation extends TextRange {
+  /** Source text and path used to resolve the range into line and character coordinates. */
   file: SourceFile;
+  /** True when the location is a placeholder rather than a range in actual source text. */
   isSynthetic?: boolean;
 }
 
