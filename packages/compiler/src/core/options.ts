@@ -74,9 +74,21 @@ export interface CompilerOptions {
   /** Ruleset to enable for linting. */
   linterRuleSet?: LinterRuleSet;
 
-  /** @internal CLI ruleset selection and ordered per-rule overrides. */
+  /**
+   * CLI ruleset selection and per-rule overrides taking precedence over configuration.
+   *
+   * @internal
+   */
   linterRuleSetOverrides?: {
+    /**
+     * Replacement ruleset extensions. When undefined, preserve the configured extensions.
+     * CLI `file:` references have already been resolved to absolute paths.
+     */
     extends?: RuleSetRef[];
+    /**
+     * Rule reference and boolean or options-object pairs, in CLI order.
+     * The last entry for a canonical rule overrides its inherited and configured settings.
+     */
     rules: [RuleRef, LinterRuleEnableValue][];
   };
 

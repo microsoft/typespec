@@ -33,8 +33,14 @@ export interface CompileCliArgs {
   "warn-as-error"?: boolean;
   "list-files"?: boolean;
   "no-emit"?: boolean;
+  /** Disable all linter rules for this compilation without suppressing other diagnostics. */
   "no-linter"?: boolean;
+  /**
+   * Ruleset references replacing the configured extends list, in CLI order.
+   * Relative `file:` references resolve from the current working directory.
+   */
   "linter-ruleset"?: string[];
+  /** Ordered `<rule-reference>=<value>` overrides accepting JSON booleans or options objects. */
   "linter-rule"?: string[];
   "dry-run"?: boolean;
   "ignore-deprecated"?: boolean;
