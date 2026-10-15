@@ -28,11 +28,11 @@ namespace Microsoft.TypeSpec.Generator
             using DirectoryCatalog directoryCatalog = new(AppContext.BaseDirectory);
             using AggregateCatalog catalog = new(directoryCatalog);
 
-            AddPluginDlls(catalog);
+            AddPluginDlls(catalog, AppContext.BaseDirectory, options.IsHosted);
 
             // Load plugins specified via the 'plugins' configuration option
             var configuration = Configuration.Load(options.OutputDirectory);
-            AddConfiguredPluginDlls(catalog, configuration);
+            AddConfiguredPluginDlls(catalog, configuration, options.IsHosted);
 
             using CompositionContainer container = new(catalog);
 
@@ -42,9 +42,14 @@ namespace Microsoft.TypeSpec.Generator
             SelectGenerator(options);
         }
 
-        private static void AddPluginDlls(AggregateCatalog catalog)
+        internal static void AddPluginDlls(AggregateCatalog catalog, string pluginDirectoryStart, bool isHosted = false)
         {
-            string? rootDirectory = FindRootDirectory(AppContext.BaseDirectory);
+            if (isHosted)
+            {
+                return;
+            }
+
+            string? rootDirectory = FindRootDirectory(pluginDirectoryStart);
             if (rootDirectory == null)
             {
                 return;
@@ -142,12 +147,17 @@ namespace Microsoft.TypeSpec.Generator
         /// Loads plugin assemblies from directory paths specified via the 'plugins' configuration option.
         /// If a directory contains a .csproj file, the project is built first to produce the plugin assembly.
         /// </summary>
-        internal static void AddConfiguredPluginDlls(AggregateCatalog catalog, Configuration configuration)
+        internal static void AddConfiguredPluginDlls(AggregateCatalog catalog, Configuration configuration, bool isHosted = false)
         {
             var pluginPaths = configuration.PluginPaths;
             if (pluginPaths == null || pluginPaths.Count == 0)
             {
                 return;
+            }
+
+            if (isHosted)
+            {
+                throw new InvalidOperationException("Custom plugins are disabled in hosted mode.");
             }
 
             using var emitter = new Emitter(Console.OpenStandardOutput());
@@ -501,6 +511,7 @@ namespace Microsoft.TypeSpec.Generator
                 {
                     CodeModelGenerator.Instance = generator.Value;
                     CodeModelGenerator.Instance.IsNewProject = options.IsNewProject;
+                    CodeModelGenerator.Instance.IsHosted = options.IsHosted;
 
                     // Apply discovered plugins (if any)
                     if (Plugins != null)

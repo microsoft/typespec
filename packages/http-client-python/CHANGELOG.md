@@ -1,5 +1,88 @@
 # Change Log - @typespec/http-client-python
 
+## 0.39.0
+
+### Features
+
+- [#12150](https://github.com/microsoft/typespec/pull/12150) Make automatic SSE reconnection opt-in with the `enable-sse-reconnect` emitter option, which defaults to `false`. Without this option, SSE streams end at EOF without reconnect callbacks, retry delays, or `Last-Event-ID` request plumbing. SSE parsing, event ID and retry metadata (including metadata-only blocks), terminal events, and stream cleanup remain available.
+
+  Enable reconnection when generating the client:
+
+  ```yaml
+  emit:
+    - "@typespec/http-client-python"
+  options:
+    "@typespec/http-client-python":
+      enable-sse-reconnect: true
+  ```
+
+### Bug Fixes
+
+- [#11897](https://github.com/microsoft/typespec/pull/11897) Escape quotes in enum and enum member documentation so embedded Python string delimiters remain documentation in generated code.
+
+
+## 0.38.1
+
+### Bump dependencies
+
+- Bump dependencies of `@typespec/*` and `@azure-tools/*` to latest versions
+
+## 0.38.0
+
+### Features
+
+- [#11904](https://github.com/microsoft/typespec/pull/11904) Automatically reconnect SSE streams after an unexpected disconnect, honoring server-provided retry delays and resuming with the latest event ID.
+
+  ```python
+  with client.events.stream() as stream:
+      for event in stream:
+          print(event)
+  ```
+
+### Bug Fixes
+
+- [#12024](https://github.com/microsoft/typespec/pull/12024) Return long-running operation response bodies when generating TypedDict-only models.
+- [#12017](https://github.com/microsoft/typespec/pull/12017) Prevent duplicate named union aliases, and preserve parameter types in generated body overloads when a flattened parameter is filtered out.
+
+### Bump dependencies
+
+- [#12023](https://github.com/microsoft/typespec/pull/12023) Update transitive development dependencies `morgan` to 1.12.1 and `multer` to 2.3.0 to address log forging, denial of service, and file size limit bypass vulnerabilities.
+
+
+## 0.37.3
+
+### Bug Fixes
+
+- [#11964](https://github.com/microsoft/typespec/pull/11964) Generate complete ETag handling for operations in nested operation groups.
+- [#11946](https://github.com/microsoft/typespec/pull/11946) Fix named single-member unions to emit valid Python type aliases without generating lone overloads.
+
+
+## 0.37.2
+
+### Bump dependencies
+
+- [#11919](https://github.com/microsoft/typespec/pull/11919) Update dependencies for TypeSpec 1.16.0.
+
+## 0.37.1
+
+### Bug Fixes
+
+- [#11823](https://github.com/microsoft/typespec/pull/11823) Allow `no-sdk-clients` warnings to be suppressed by reporting them on the TypeSpec service namespace.
+- [#11811](https://github.com/microsoft/typespec/pull/11811) Fix playground bundle publish failing with esbuild errors ("Could not resolve child_process/crypto/fs/promises/os") by moving the browser-safe YAML serialization helper out of a module that also contains Node-only code
+
+## 0.37.0
+
+### Features
+
+- [#11594](https://github.com/microsoft/typespec/pull/11594) Generate structured streaming client methods: operations whose HTTP response is a JSONL (`application/jsonl`) or SSE (`text/event-stream`) stream now return `Stream[T]` / `AsyncStream[T]`, yielding deserialized model instances instead of raw bytes.
+
+### Bug Fixes
+
+- [#11638](https://github.com/microsoft/typespec/pull/11638) Fix invalid Python type annotations generated in `types.py` files. Internal enums used as TypedDict fields are now imported (as a bare symbol) from their private `_enums` submodule so the annotation resolves; duplicate runtime + `TYPE_CHECKING` imports of the same symbol are deduplicated to avoid `no-redef`; and TypedDicts that change an inherited field's requiredness are emitted as a flat (non-inheriting) TypedDict to satisfy PEP 589.
+- [#11300](https://github.com/microsoft/typespec/pull/11300) Forward package index and Python mirror environment variables to tox test environments so tests can install dependencies from configured feeds.
+- [#11250](https://github.com/microsoft/typespec/pull/11250) Always populate the operation `error_map` with the standard azure-core error types (401 → `ClientAuthenticationError`, 404 → `ResourceNotFoundError`, 409 → `ResourceExistsError`, 304 → `ResourceNotModifiedError`), even when a customized error model covers those status codes. Previously, a standard status code covered by a customized ranged or default error model fell back to a generic `HttpResponseError`; it now raises its dedicated error type via `map_error`. The customized error body continues to be deserialized and attached to the `HttpResponseError` raised for other (non-standard) status codes.
+
+
 ## 0.36.0
 
 ### Features

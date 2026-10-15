@@ -11,6 +11,10 @@ export const compilerFeatures = {
     description:
       "Allows use of function declarations without experimental warnings in project code.",
   },
+  "declaration-expressions": {
+    description:
+      "Allows use of declaration expressions (named or anonymous model, scalar, enum and union declarations in expression position) in project code.",
+  },
   "auto-decorators": {
     description:
       "Allows use of auto decorator declarations without experimental warnings in project code.",
@@ -18,6 +22,9 @@ export const compilerFeatures = {
   "type-info-provider": {
     description:
       "Enables the experimental `$provideTypeInfo` provider allowing libraries to contribute extra information about types to IDE hover and tooling (queried via `program.getTypeInfo`).",
+  },
+  "union-extends": {
+    description: "Enables experimental union `extends` clauses in project code.",
   },
 } as const satisfies Record<string, CompilerFeatureDefinition>;
 

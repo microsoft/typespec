@@ -1,6 +1,7 @@
 import { DataLineRegular } from "@fluentui/react-icons";
 import { TypeGraph } from "@typespec/html-program-viewer/react";
-import "@typespec/html-program-viewer/style.css";
+// Keep runtime styles out of the emitted declarations.
+import {} from "@typespec/html-program-viewer/style.css";
 import { useCallback } from "react";
 import type { OutputViewerProps, ProgramViewer } from "../types.js";
 import style from "./output-view.module.css";
@@ -9,6 +10,7 @@ const TypeGraphViewerComponent = ({
   program,
   viewerState,
   onViewerStateChange,
+  onRevealSource,
 }: OutputViewerProps) => {
   const currentPath = viewerState?.["type-graph:path"] || "";
 
@@ -29,6 +31,7 @@ const TypeGraphViewerComponent = ({
         program={program}
         currentPath={currentPath}
         onNavigationChange={handleNavigationChange}
+        onRevealSource={onRevealSource}
       />
     </div>
   );

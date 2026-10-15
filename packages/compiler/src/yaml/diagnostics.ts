@@ -33,7 +33,10 @@ function findYamlNode(
       if (isLast) {
         if (kind === "value" || !isMap(current)) {
           if (Array.isArray(current.items) && current.items.every((item) => isScalar(item))) {
-            return current.items.find((m: any) => m.source && m.source === key) as any;
+            const match = current.items.find((m: any) => m.source && m.source === key) as any;
+            // Fall back to an index lookup so callers that only know the position of an entry
+            // (e.g. when the value was rewritten after parsing) can still locate it.
+            return match ?? (current.get(key, true) as any);
           } else {
             return current.get(key, true);
           }

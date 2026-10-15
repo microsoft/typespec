@@ -1,5 +1,13 @@
 # Change Log - @typespec/rest
 
+## 0.87.0
+
+No changes, version bump only.
+
+## 0.86.0
+
+No changes, version bump only.
+
 ## 0.85.0
 
 No changes, version bump only.

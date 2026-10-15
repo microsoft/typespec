@@ -52,10 +52,44 @@ public final class FormDataHttpPartsClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    Response<Void> jsonArrayAndFileArrayWithResponse(BinaryData body, RequestOptions requestOptions) {
+    Response<Void> jsonArrayAndFileArrayWithResponseInternal(BinaryData body, RequestOptions requestOptions) {
         // Operation 'jsonArrayAndFileArray' is of content-type 'multipart/form-data'. Protocol API is not usable and
         // hence not generated.
-        return this.serviceClient.jsonArrayAndFileArrayWithResponse(body, requestOptions);
+        return this.serviceClient.jsonArrayAndFileArrayWithResponseInternal(body, requestOptions);
+    }
+
+    /**
+     * Test content-type: multipart/form-data for mixed scenarios.
+     * 
+     * @param body The body parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> jsonArrayAndFileArrayWithResponse(ComplexHttpPartsModelRequest body,
+        RequestOptions requestOptions) {
+        // Generated convenience method for jsonArrayAndFileArrayWithResponseInternal
+        requestOptions = requestOptions == null ? new RequestOptions() : requestOptions;
+        return jsonArrayAndFileArrayWithResponseInternal(
+            new MultipartFormDataHelper(requestOptions).serializeTextField("id", body.getId())
+                .serializeJsonField("address", body.getAddress())
+                .serializeFileField("profileImage", body.getProfileImage().getContent(),
+                    body.getProfileImage().getContentType(), body.getProfileImage().getFilename())
+                .serializeJsonField("previousAddresses", body.getPreviousAddresses())
+                .serializeFileFields("pictures",
+                    body.getPictures().stream().map(FileRequiredMetaData::getContent).collect(Collectors.toList()),
+                    body.getPictures().stream().map(FileRequiredMetaData::getContentType).collect(Collectors.toList()),
+                    body.getPictures().stream().map(FileRequiredMetaData::getFilename).collect(Collectors.toList()))
+                .end()
+                .getRequestBody(),
+            requestOptions);
     }
 
     /**
@@ -72,9 +106,9 @@ public final class FormDataHttpPartsClient {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void jsonArrayAndFileArray(ComplexHttpPartsModelRequest body) {
-        // Generated convenience method for jsonArrayAndFileArrayWithResponse
+        // Generated convenience method for jsonArrayAndFileArrayWithResponseInternal
         RequestOptions requestOptions = new RequestOptions();
-        jsonArrayAndFileArrayWithResponse(
+        jsonArrayAndFileArrayWithResponseInternal(
             new MultipartFormDataHelper(requestOptions).serializeTextField("id", body.getId())
                 .serializeJsonField("address", body.getAddress())
                 .serializeFileField("profileImage", body.getProfileImage().getContent(),

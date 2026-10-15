@@ -93,7 +93,8 @@ public final class FormDataHttpPartsImpl {
      * @return the {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> jsonArrayAndFileArrayWithResponseAsync(BinaryData body, RequestOptions requestOptions) {
+    public Mono<Response<Void>> jsonArrayAndFileArrayWithResponseInternalAsync(BinaryData body,
+        RequestOptions requestOptions) {
         final String contentType = "multipart/form-data";
         return FluxUtil.withContext(context -> service.jsonArrayAndFileArray(this.client.getEndpoint(), contentType,
             body, requestOptions, context));
@@ -111,7 +112,7 @@ public final class FormDataHttpPartsImpl {
      * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> jsonArrayAndFileArrayWithResponse(BinaryData body, RequestOptions requestOptions) {
+    public Response<Void> jsonArrayAndFileArrayWithResponseInternal(BinaryData body, RequestOptions requestOptions) {
         final String contentType = "multipart/form-data";
         return service.jsonArrayAndFileArraySync(this.client.getEndpoint(), contentType, body, requestOptions,
             Context.NONE);

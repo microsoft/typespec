@@ -254,6 +254,38 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         }
 
         [Test]
+        public async Task PropagateCustomizedDynamicConcreteListProperty()
+        {
+            var otherDynamicModel = InputFactory.Model(
+                "foo",
+                isDynamicModel: true,
+                properties:
+                [
+                    InputFactory.Property("someOtherProperty", InputPrimitiveType.String, isRequired: true)
+                ]);
+
+            var inputModel = InputFactory.Model(
+                "dynamicModel",
+                isDynamicModel: true,
+                properties:
+                [
+                    InputFactory.Property("prop1", InputFactory.Array(otherDynamicModel))
+                ]);
+
+            await MockHelpers.LoadMockGeneratorAsync(
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                inputModels: () => [inputModel, otherDynamicModel]);
+            var model = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.OfType<ClientModel.Providers.ScmModelProvider>().Single(m => m.Name == "DynamicModel");
+            var serialization = model.SerializationProviders.Single();
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                serialization,
+                name => name is "PropagateGet" or "PropagateSet" or "TryResolveProp2Array" or "ActiveProp2"));
+            var actual = writer.Write().Content;
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), actual);
+        }
+
+        [Test]
         public async Task PropagateCustomizedDynamicListPropertyMixed()
         {
             var otherDynamicModel = InputFactory.Model(
@@ -330,6 +362,37 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var file = writer.Write();
 
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void PropagateNullableModelProperty(bool isRequired)
+        {
+            var child = InputFactory.Model("anotherDynamic", isDynamicModel: true);
+            var inputModel = InputFactory.Model(
+                "dynamicModel",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json,
+                isDynamicModel: true,
+                properties:
+                [
+                    InputFactory.Property("p1", new InputNullableType(child), isRequired: isRequired)
+                ]);
+
+            MockHelpers.LoadMockGenerator(inputModels: () => [inputModel, child]);
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
+            var constructor = model.Constructors.Single(c => c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+
+            Assert.That(constructor.Signature.Parameters.Count, Is.EqualTo(isRequired ? 1 : 0));
+            if (isRequired)
+            {
+                Assert.That(constructor.Signature.Parameters[0].Validation, Is.EqualTo(ParameterValidationType.None));
+            }
+            StringAssert.Contains("_patch.SetPropagators(PropagateSet, PropagateGet);", constructor.BodyStatements!.ToDisplayString());
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                model.SerializationProviders.Single(),
+                name => name is "PropagateGet" or "PropagateSet"));
+            Assert.That(writer.Write().Content, Is.EqualTo(Helpers.GetExpectedFromFile(method: nameof(PropagateModelProperty))));
         }
 
         [Test]
@@ -1268,6 +1331,46 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
 
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(isDynamicModel.ToString()), file.Content);
+        }
+
+        [TestCase(InputStreamingType.JsonLinesStreamKind, "application/jsonl")]
+        [TestCase(InputStreamingType.SseStreamKind, "text/event-stream")]
+        public void StreamingResponseDoesNotHaveExplicitClientResultOperator(string streamKind, string contentType)
+        {
+            var inputModel = InputFactory.Model(
+               "cat",
+               properties:
+               [
+                    InputFactory.Property("foo", InputPrimitiveType.String, isRequired: true),
+               ]);
+            var streamType = new InputStreamingType(
+                "CatStream",
+                "Sample.CatStream",
+                inputModel,
+                [contentType],
+                streamKind);
+            var operation = InputFactory.Operation(
+                "getCats",
+                responses: [InputFactory.OperationResponse([200], streamType)],
+                bufferResponse: false);
+            var method = InputFactory.BasicServiceMethod(
+                "GetCats",
+                operation,
+                response: InputFactory.ServiceMethodResponse(streamType, null));
+            MockHelpers.LoadMockGenerator(
+                inputModels: () => [inputModel],
+                clients: () => [InputFactory.Client("TestClient", methods: [method])]);
+
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel) as ClientModel.Providers.ScmModelProvider;
+
+            Assert.IsNotNull(model);
+            var serialization = model!.SerializationProviders.SingleOrDefault();
+            Assert.IsNotNull(serialization);
+            Assert.That(
+                serialization!.Methods.Any(m =>
+                    m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Explicit) &&
+                    m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Operator)),
+                Is.False);
         }
 
         [Test]

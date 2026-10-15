@@ -1,5 +1,16 @@
 # Change Log - @typespec/spector
 
+## 0.1.0-alpha.30
+
+No changes, version bump only.
+
+## 0.1.0-alpha.29
+
+### Bug Fixes
+
+- [#11590](https://github.com/microsoft/typespec/pull/11590) Exclude build artifacts from published packages
+
+
 ## 0.1.0-alpha.28
 
 ### Features

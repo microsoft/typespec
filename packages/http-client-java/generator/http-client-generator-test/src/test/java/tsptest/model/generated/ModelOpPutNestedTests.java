@@ -17,7 +17,7 @@ public final class ModelOpPutNestedTests extends ModelClientTestBase {
     @Disabled
     public void testModelOpPutNestedTests() {
         // method invocation
-        NestedModel response = modelClient.putNested(null);
+        NestedModel response = modelClient.putNested((NestedModel) null);
 
         // response assertion
         Assertions.assertNotNull(response);

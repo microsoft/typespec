@@ -1,7 +1,5 @@
 import { code, For, type Children } from "@alloy-js/core";
 import * as cs from "@alloy-js/csharp";
-import { Attribute } from "@alloy-js/csharp";
-import { Serialization } from "@alloy-js/csharp/global/System/Text/Json";
 import {
   isErrorModel,
   isVoidType,
@@ -10,14 +8,18 @@ import {
   type Namespace as TspNamespace,
 } from "@typespec/compiler";
 import { useTsp } from "@typespec/emitter-framework";
-import { getDocComments } from "@typespec/emitter-framework/csharp";
+import { getDocComments, getNullableUnionInnerType } from "@typespec/emitter-framework/csharp";
 import { isStatusCode } from "@typespec/http";
 import { getUniqueItems } from "@typespec/json-schema";
 import { useEmitterOptions } from "../../context/emitter-options-context.js";
 import { getPropertyAttributes } from "../../utils/attributes.jsx";
 import { getSubNamespaceParts } from "../../utils/namespace-utils.js";
 import { CSharpFile } from "../csharp-file.jsx";
-import { efRefkey, TypeExpression } from "../type-expression/type-expression.jsx";
+import {
+  efRefkey,
+  getNullableValueTypeUnionInnerType,
+  TypeExpression,
+} from "../type-expression/type-expression.jsx";
 import { getErrorConstructor } from "./error-models.jsx";
 import {
   getDefaultValueString,
@@ -61,7 +63,10 @@ export function Models(props: ModelsProps): Children {
   return (
     <For each={props.models}>
       {(model) => {
-        const needsJsonNodes = modelNeedsJsonNodes($, model);
+        const isRootError =
+          isErrorModel($.program, model) &&
+          !(model.baseModel && isErrorModel($.program, model.baseModel));
+        const needsJsonNodes = modelNeedsJsonNodes($, model, isRootError);
         const usings = needsJsonNodes ? [...modelUsings, "System.Text.Json.Nodes"] : modelUsings;
         const modelName = getModelEmitName($.program, model);
         const modelFileName = cs.useCSharpNamePolicy().getName(modelName, "class");
@@ -93,7 +98,6 @@ interface ServerClassDeclarationProps {
 /**
  * Server-specific class declaration that matches the old emitter output:
  * - No `required` keyword
- * - No `[JsonPropertyName]` attributes
  * - No nullable `?` suffix on reference types (string, byte[], etc.)
  */
 function ServerClassDeclaration(props: ServerClassDeclarationProps): Children {
@@ -173,7 +177,7 @@ interface ServerPropertyProps {
 
 /**
  * Server-specific property that matches old emitter output.
- * No `required`, no `[JsonPropertyName]`, no nullable `?` for reference types.
+ * No `required`. Nullable reference types are limited to error models.
  */
 function ServerProperty(props: ServerPropertyProps): Children {
   const { $ } = useTsp();
@@ -188,14 +192,6 @@ function ServerProperty(props: ServerPropertyProps): Children {
     if (csharpPropName === props.errorClassName || isDuplicateExceptionName(csharpPropName)) {
       propName = csharpPropName === "Value" ? "ValueName" : `${csharpPropName}Prop`;
     }
-  }
-
-  // Add JsonPropertyName if the C# name differs from the original TypeSpec name
-  const csharpName = namePolicy.getName(propName, "class-property");
-  if (csharpName !== props.type.name) {
-    attrs.unshift(
-      <Attribute name={Serialization.JsonPropertyNameAttribute} args={[`"${props.type.name}"`]} />,
-    );
   }
 
   // Check if this property overrides a base model property (discriminator pattern)
@@ -225,14 +221,20 @@ function ServerProperty(props: ServerPropertyProps): Children {
   const isLiteralOnly = literalInfo !== undefined && defaultValue === undefined;
 
   // Check if the property type is a non-integer enum (C# enums can only be integers)
-  const isFloatEnum =
-    $.enum.is(propType) && hasNonIntegerValues(propType as import("@typespec/compiler").Enum);
+  const isFloatEnum = $.enum.is(propType) && hasNonIntegerValues($.program, propType);
 
   // For error model properties with literal types, use the scalar base type
   // But not for union variant types — those should resolve to the enum type
   const resolveToScalar = (isLiteralOnly && !unionVariantInit) || isErrorProp;
   const resolvedType = resolveToScalar ? getScalarForLiteral(propType) : propType;
-  const needsNullable = props.type.optional && (isFloatEnum || isValueType($, resolvedType));
+  const nullableUnionInnerType =
+    propType.kind === "Union" ? getNullableUnionInnerType(propType) : undefined;
+  const typeExpressionIncludesNullable =
+    getNullableValueTypeUnionInnerType($, propType) !== undefined;
+  const needsNullable = isErrorProp
+    ? !typeExpressionIncludesNullable &&
+      (props.type.optional || nullableUnionInnerType !== undefined)
+    : props.type.optional && (isFloatEnum || isValueType($, resolvedType));
 
   // Check if this is a @uniqueItems array → ISet<T>
   const isUniqueItems = getUniqueItems($.program, props.type);
@@ -261,7 +263,7 @@ function ServerProperty(props: ServerPropertyProps): Children {
       new={isOverride}
       nullable={needsNullable}
       doc={getDocComments($, props.type)}
-      attributes={attrs.length > 0 ? attrs : undefined}
+      attributes={attrs}
       get
       set={!isLiteralOnly}
       initializer={initializer}

@@ -59,10 +59,10 @@ public final class FormDataClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    Response<Void> basicWithResponse(BinaryData body, RequestOptions requestOptions) {
+    Response<Void> basicWithResponseInternal(BinaryData body, RequestOptions requestOptions) {
         // Operation 'basic' is of content-type 'multipart/form-data'. Protocol API is not usable and hence not
         // generated.
-        return this.serviceClient.basicWithResponse(body, requestOptions);
+        return this.serviceClient.basicWithResponseInternal(body, requestOptions);
     }
 
     /**
@@ -78,10 +78,10 @@ public final class FormDataClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    Response<Void> withWireNameWithResponse(BinaryData body, RequestOptions requestOptions) {
+    Response<Void> withWireNameWithResponseInternal(BinaryData body, RequestOptions requestOptions) {
         // Operation 'withWireName' is of content-type 'multipart/form-data'. Protocol API is not usable and hence not
         // generated.
-        return this.serviceClient.withWireNameWithResponse(body, requestOptions);
+        return this.serviceClient.withWireNameWithResponseInternal(body, requestOptions);
     }
 
     /**
@@ -97,10 +97,10 @@ public final class FormDataClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    Response<Void> optionalPartsWithResponse(BinaryData body, RequestOptions requestOptions) {
+    Response<Void> optionalPartsWithResponseInternal(BinaryData body, RequestOptions requestOptions) {
         // Operation 'optionalParts' is of content-type 'multipart/form-data'. Protocol API is not usable and hence not
         // generated.
-        return this.serviceClient.optionalPartsWithResponse(body, requestOptions);
+        return this.serviceClient.optionalPartsWithResponseInternal(body, requestOptions);
     }
 
     /**
@@ -116,10 +116,10 @@ public final class FormDataClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    Response<Void> fileArrayAndBasicWithResponse(BinaryData body, RequestOptions requestOptions) {
+    Response<Void> fileArrayAndBasicWithResponseInternal(BinaryData body, RequestOptions requestOptions) {
         // Operation 'fileArrayAndBasic' is of content-type 'multipart/form-data'. Protocol API is not usable and hence
         // not generated.
-        return this.serviceClient.fileArrayAndBasicWithResponse(body, requestOptions);
+        return this.serviceClient.fileArrayAndBasicWithResponseInternal(body, requestOptions);
     }
 
     /**
@@ -135,10 +135,10 @@ public final class FormDataClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    Response<Void> jsonPartWithResponse(BinaryData body, RequestOptions requestOptions) {
+    Response<Void> jsonPartWithResponseInternal(BinaryData body, RequestOptions requestOptions) {
         // Operation 'jsonPart' is of content-type 'multipart/form-data'. Protocol API is not usable and hence not
         // generated.
-        return this.serviceClient.jsonPartWithResponse(body, requestOptions);
+        return this.serviceClient.jsonPartWithResponseInternal(body, requestOptions);
     }
 
     /**
@@ -154,10 +154,10 @@ public final class FormDataClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    Response<Void> binaryArrayPartsWithResponse(BinaryData body, RequestOptions requestOptions) {
+    Response<Void> binaryArrayPartsWithResponseInternal(BinaryData body, RequestOptions requestOptions) {
         // Operation 'binaryArrayParts' is of content-type 'multipart/form-data'. Protocol API is not usable and hence
         // not generated.
-        return this.serviceClient.binaryArrayPartsWithResponse(body, requestOptions);
+        return this.serviceClient.binaryArrayPartsWithResponseInternal(body, requestOptions);
     }
 
     /**
@@ -173,10 +173,10 @@ public final class FormDataClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    Response<Void> multiBinaryPartsWithResponse(BinaryData body, RequestOptions requestOptions) {
+    Response<Void> multiBinaryPartsWithResponseInternal(BinaryData body, RequestOptions requestOptions) {
         // Operation 'multiBinaryParts' is of content-type 'multipart/form-data'. Protocol API is not usable and hence
         // not generated.
-        return this.serviceClient.multiBinaryPartsWithResponse(body, requestOptions);
+        return this.serviceClient.multiBinaryPartsWithResponseInternal(body, requestOptions);
     }
 
     /**
@@ -192,10 +192,10 @@ public final class FormDataClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    Response<Void> checkFileNameAndContentTypeWithResponse(BinaryData body, RequestOptions requestOptions) {
+    Response<Void> checkFileNameAndContentTypeWithResponseInternal(BinaryData body, RequestOptions requestOptions) {
         // Operation 'checkFileNameAndContentType' is of content-type 'multipart/form-data'. Protocol API is not usable
         // and hence not generated.
-        return this.serviceClient.checkFileNameAndContentTypeWithResponse(body, requestOptions);
+        return this.serviceClient.checkFileNameAndContentTypeWithResponseInternal(body, requestOptions);
     }
 
     /**
@@ -211,10 +211,37 @@ public final class FormDataClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    Response<Void> anonymousModelWithResponse(BinaryData body, RequestOptions requestOptions) {
+    Response<Void> anonymousModelWithResponseInternal(BinaryData body, RequestOptions requestOptions) {
         // Operation 'anonymousModel' is of content-type 'multipart/form-data'. Protocol API is not usable and hence not
         // generated.
-        return this.serviceClient.anonymousModelWithResponse(body, requestOptions);
+        return this.serviceClient.anonymousModelWithResponseInternal(body, requestOptions);
+    }
+
+    /**
+     * Test content-type: multipart/form-data.
+     * 
+     * @param body The body parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> basicWithResponse(MultiPartRequest body, RequestOptions requestOptions) {
+        // Generated convenience method for basicWithResponseInternal
+        requestOptions = requestOptions == null ? new RequestOptions() : requestOptions;
+        return basicWithResponseInternal(
+            new MultipartFormDataHelper(requestOptions).serializeTextField("id", body.getId())
+                .serializeFileField("profileImage", body.getProfileImage().getContent(),
+                    body.getProfileImage().getContentType(), body.getProfileImage().getFilename())
+                .end()
+                .getRequestBody(),
+            requestOptions);
     }
 
     /**
@@ -231,13 +258,40 @@ public final class FormDataClient {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void basic(MultiPartRequest body) {
-        // Generated convenience method for basicWithResponse
+        // Generated convenience method for basicWithResponseInternal
         RequestOptions requestOptions = new RequestOptions();
-        basicWithResponse(new MultipartFormDataHelper(requestOptions).serializeTextField("id", body.getId())
+        basicWithResponseInternal(new MultipartFormDataHelper(requestOptions).serializeTextField("id", body.getId())
             .serializeFileField("profileImage", body.getProfileImage().getContent(),
                 body.getProfileImage().getContentType(), body.getProfileImage().getFilename())
             .end()
             .getRequestBody(), requestOptions).getValue();
+    }
+
+    /**
+     * Test content-type: multipart/form-data with wire names.
+     * 
+     * @param body The body parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> withWireNameWithResponse(MultiPartRequestWithWireName body, RequestOptions requestOptions) {
+        // Generated convenience method for withWireNameWithResponseInternal
+        requestOptions = requestOptions == null ? new RequestOptions() : requestOptions;
+        return withWireNameWithResponseInternal(
+            new MultipartFormDataHelper(requestOptions).serializeTextField("id", body.getIdentifier())
+                .serializeFileField("profileImage", body.getImage().getContent(), body.getImage().getContentType(),
+                    body.getImage().getFilename())
+                .end()
+                .getRequestBody(),
+            requestOptions);
     }
 
     /**
@@ -254,15 +308,44 @@ public final class FormDataClient {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void withWireName(MultiPartRequestWithWireName body) {
-        // Generated convenience method for withWireNameWithResponse
+        // Generated convenience method for withWireNameWithResponseInternal
         RequestOptions requestOptions = new RequestOptions();
-        withWireNameWithResponse(
+        withWireNameWithResponseInternal(
             new MultipartFormDataHelper(requestOptions).serializeTextField("id", body.getIdentifier())
                 .serializeFileField("profileImage", body.getImage().getContent(), body.getImage().getContentType(),
                     body.getImage().getFilename())
                 .end()
                 .getRequestBody(),
             requestOptions).getValue();
+    }
+
+    /**
+     * Test content-type: multipart/form-data with optional parts.
+     * 
+     * @param body The body parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> optionalPartsWithResponse(MultiPartOptionalRequest body, RequestOptions requestOptions) {
+        // Generated convenience method for optionalPartsWithResponseInternal
+        requestOptions = requestOptions == null ? new RequestOptions() : requestOptions;
+        return optionalPartsWithResponseInternal(
+            new MultipartFormDataHelper(requestOptions).serializeTextField("id", body.getId())
+                .serializeFileField("profileImage",
+                    body.getProfileImage() == null ? null : body.getProfileImage().getContent(),
+                    body.getProfileImage() == null ? null : body.getProfileImage().getContentType(),
+                    body.getProfileImage() == null ? null : body.getProfileImage().getFilename())
+                .end()
+                .getRequestBody(),
+            requestOptions);
     }
 
     /**
@@ -279,15 +362,49 @@ public final class FormDataClient {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void optionalParts(MultiPartOptionalRequest body) {
-        // Generated convenience method for optionalPartsWithResponse
+        // Generated convenience method for optionalPartsWithResponseInternal
         RequestOptions requestOptions = new RequestOptions();
-        optionalPartsWithResponse(new MultipartFormDataHelper(requestOptions).serializeTextField("id", body.getId())
-            .serializeFileField("profileImage",
-                body.getProfileImage() == null ? null : body.getProfileImage().getContent(),
-                body.getProfileImage() == null ? null : body.getProfileImage().getContentType(),
-                body.getProfileImage() == null ? null : body.getProfileImage().getFilename())
-            .end()
-            .getRequestBody(), requestOptions).getValue();
+        optionalPartsWithResponseInternal(
+            new MultipartFormDataHelper(requestOptions).serializeTextField("id", body.getId())
+                .serializeFileField("profileImage",
+                    body.getProfileImage() == null ? null : body.getProfileImage().getContent(),
+                    body.getProfileImage() == null ? null : body.getProfileImage().getContentType(),
+                    body.getProfileImage() == null ? null : body.getProfileImage().getFilename())
+                .end()
+                .getRequestBody(),
+            requestOptions).getValue();
+    }
+
+    /**
+     * Test content-type: multipart/form-data for mixed scenarios.
+     * 
+     * @param body The body parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> fileArrayAndBasicWithResponse(ComplexPartsRequest body, RequestOptions requestOptions) {
+        // Generated convenience method for fileArrayAndBasicWithResponseInternal
+        requestOptions = requestOptions == null ? new RequestOptions() : requestOptions;
+        return fileArrayAndBasicWithResponseInternal(
+            new MultipartFormDataHelper(requestOptions).serializeTextField("id", body.getId())
+                .serializeJsonField("address", body.getAddress())
+                .serializeFileField("profileImage", body.getProfileImage().getContent(),
+                    body.getProfileImage().getContentType(), body.getProfileImage().getFilename())
+                .serializeFileFields("pictures",
+                    body.getPictures().stream().map(PicturesFileDetails::getContent).collect(Collectors.toList()),
+                    body.getPictures().stream().map(PicturesFileDetails::getContentType).collect(Collectors.toList()),
+                    body.getPictures().stream().map(PicturesFileDetails::getFilename).collect(Collectors.toList()))
+                .end()
+                .getRequestBody(),
+            requestOptions);
     }
 
     /**
@@ -304,18 +421,47 @@ public final class FormDataClient {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void fileArrayAndBasic(ComplexPartsRequest body) {
-        // Generated convenience method for fileArrayAndBasicWithResponse
+        // Generated convenience method for fileArrayAndBasicWithResponseInternal
         RequestOptions requestOptions = new RequestOptions();
-        fileArrayAndBasicWithResponse(new MultipartFormDataHelper(requestOptions).serializeTextField("id", body.getId())
-            .serializeJsonField("address", body.getAddress())
-            .serializeFileField("profileImage", body.getProfileImage().getContent(),
-                body.getProfileImage().getContentType(), body.getProfileImage().getFilename())
-            .serializeFileFields("pictures",
-                body.getPictures().stream().map(PicturesFileDetails::getContent).collect(Collectors.toList()),
-                body.getPictures().stream().map(PicturesFileDetails::getContentType).collect(Collectors.toList()),
-                body.getPictures().stream().map(PicturesFileDetails::getFilename).collect(Collectors.toList()))
-            .end()
-            .getRequestBody(), requestOptions).getValue();
+        fileArrayAndBasicWithResponseInternal(
+            new MultipartFormDataHelper(requestOptions).serializeTextField("id", body.getId())
+                .serializeJsonField("address", body.getAddress())
+                .serializeFileField("profileImage", body.getProfileImage().getContent(),
+                    body.getProfileImage().getContentType(), body.getProfileImage().getFilename())
+                .serializeFileFields("pictures",
+                    body.getPictures().stream().map(PicturesFileDetails::getContent).collect(Collectors.toList()),
+                    body.getPictures().stream().map(PicturesFileDetails::getContentType).collect(Collectors.toList()),
+                    body.getPictures().stream().map(PicturesFileDetails::getFilename).collect(Collectors.toList()))
+                .end()
+                .getRequestBody(),
+            requestOptions).getValue();
+    }
+
+    /**
+     * Test content-type: multipart/form-data for scenario contains json part and binary part.
+     * 
+     * @param body The body parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> jsonPartWithResponse(JsonPartRequest body, RequestOptions requestOptions) {
+        // Generated convenience method for jsonPartWithResponseInternal
+        requestOptions = requestOptions == null ? new RequestOptions() : requestOptions;
+        return jsonPartWithResponseInternal(
+            new MultipartFormDataHelper(requestOptions).serializeJsonField("address", body.getAddress())
+                .serializeFileField("profileImage", body.getProfileImage().getContent(),
+                    body.getProfileImage().getContentType(), body.getProfileImage().getFilename())
+                .end()
+                .getRequestBody(),
+            requestOptions);
     }
 
     /**
@@ -332,15 +478,44 @@ public final class FormDataClient {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void jsonPart(JsonPartRequest body) {
-        // Generated convenience method for jsonPartWithResponse
+        // Generated convenience method for jsonPartWithResponseInternal
         RequestOptions requestOptions = new RequestOptions();
-        jsonPartWithResponse(
+        jsonPartWithResponseInternal(
             new MultipartFormDataHelper(requestOptions).serializeJsonField("address", body.getAddress())
                 .serializeFileField("profileImage", body.getProfileImage().getContent(),
                     body.getProfileImage().getContentType(), body.getProfileImage().getFilename())
                 .end()
                 .getRequestBody(),
             requestOptions).getValue();
+    }
+
+    /**
+     * Test content-type: multipart/form-data for scenario contains multi binary parts.
+     * 
+     * @param body The body parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> binaryArrayPartsWithResponse(BinaryArrayPartsRequest body, RequestOptions requestOptions) {
+        // Generated convenience method for binaryArrayPartsWithResponseInternal
+        requestOptions = requestOptions == null ? new RequestOptions() : requestOptions;
+        return binaryArrayPartsWithResponseInternal(
+            new MultipartFormDataHelper(requestOptions).serializeTextField("id", body.getId())
+                .serializeFileFields("pictures",
+                    body.getPictures().stream().map(PicturesFileDetails::getContent).collect(Collectors.toList()),
+                    body.getPictures().stream().map(PicturesFileDetails::getContentType).collect(Collectors.toList()),
+                    body.getPictures().stream().map(PicturesFileDetails::getFilename).collect(Collectors.toList()))
+                .end()
+                .getRequestBody(),
+            requestOptions);
     }
 
     /**
@@ -357,15 +532,45 @@ public final class FormDataClient {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void binaryArrayParts(BinaryArrayPartsRequest body) {
-        // Generated convenience method for binaryArrayPartsWithResponse
+        // Generated convenience method for binaryArrayPartsWithResponseInternal
         RequestOptions requestOptions = new RequestOptions();
-        binaryArrayPartsWithResponse(new MultipartFormDataHelper(requestOptions).serializeTextField("id", body.getId())
-            .serializeFileFields("pictures",
-                body.getPictures().stream().map(PicturesFileDetails::getContent).collect(Collectors.toList()),
-                body.getPictures().stream().map(PicturesFileDetails::getContentType).collect(Collectors.toList()),
-                body.getPictures().stream().map(PicturesFileDetails::getFilename).collect(Collectors.toList()))
+        binaryArrayPartsWithResponseInternal(
+            new MultipartFormDataHelper(requestOptions).serializeTextField("id", body.getId())
+                .serializeFileFields("pictures",
+                    body.getPictures().stream().map(PicturesFileDetails::getContent).collect(Collectors.toList()),
+                    body.getPictures().stream().map(PicturesFileDetails::getContentType).collect(Collectors.toList()),
+                    body.getPictures().stream().map(PicturesFileDetails::getFilename).collect(Collectors.toList()))
+                .end()
+                .getRequestBody(),
+            requestOptions).getValue();
+    }
+
+    /**
+     * Test content-type: multipart/form-data for scenario contains multi binary parts.
+     * 
+     * @param body The body parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> multiBinaryPartsWithResponse(MultiBinaryPartsRequest body, RequestOptions requestOptions) {
+        // Generated convenience method for multiBinaryPartsWithResponseInternal
+        requestOptions = requestOptions == null ? new RequestOptions() : requestOptions;
+        return multiBinaryPartsWithResponseInternal(new MultipartFormDataHelper(requestOptions)
+            .serializeFileField("profileImage", body.getProfileImage().getContent(),
+                body.getProfileImage().getContentType(), body.getProfileImage().getFilename())
+            .serializeFileField("picture", body.getPicture() == null ? null : body.getPicture().getContent(),
+                body.getPicture() == null ? null : body.getPicture().getContentType(),
+                body.getPicture() == null ? null : body.getPicture().getFilename())
             .end()
-            .getRequestBody(), requestOptions).getValue();
+            .getRequestBody(), requestOptions);
     }
 
     /**
@@ -382,9 +587,9 @@ public final class FormDataClient {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void multiBinaryParts(MultiBinaryPartsRequest body) {
-        // Generated convenience method for multiBinaryPartsWithResponse
+        // Generated convenience method for multiBinaryPartsWithResponseInternal
         RequestOptions requestOptions = new RequestOptions();
-        multiBinaryPartsWithResponse(new MultipartFormDataHelper(requestOptions)
+        multiBinaryPartsWithResponseInternal(new MultipartFormDataHelper(requestOptions)
             .serializeFileField("profileImage", body.getProfileImage().getContent(),
                 body.getProfileImage().getContentType(), body.getProfileImage().getFilename())
             .serializeFileField("picture", body.getPicture() == null ? null : body.getPicture().getContent(),
@@ -392,6 +597,34 @@ public final class FormDataClient {
                 body.getPicture() == null ? null : body.getPicture().getFilename())
             .end()
             .getRequestBody(), requestOptions).getValue();
+    }
+
+    /**
+     * Test content-type: multipart/form-data.
+     * 
+     * @param body The body parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> checkFileNameAndContentTypeWithResponse(MultiPartRequest body,
+        RequestOptions requestOptions) {
+        // Generated convenience method for checkFileNameAndContentTypeWithResponseInternal
+        requestOptions = requestOptions == null ? new RequestOptions() : requestOptions;
+        return checkFileNameAndContentTypeWithResponseInternal(
+            new MultipartFormDataHelper(requestOptions).serializeTextField("id", body.getId())
+                .serializeFileField("profileImage", body.getProfileImage().getContent(),
+                    body.getProfileImage().getContentType(), body.getProfileImage().getFilename())
+                .end()
+                .getRequestBody(),
+            requestOptions);
     }
 
     /**
@@ -408,15 +641,42 @@ public final class FormDataClient {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void checkFileNameAndContentType(MultiPartRequest body) {
-        // Generated convenience method for checkFileNameAndContentTypeWithResponse
+        // Generated convenience method for checkFileNameAndContentTypeWithResponseInternal
         RequestOptions requestOptions = new RequestOptions();
-        checkFileNameAndContentTypeWithResponse(
+        checkFileNameAndContentTypeWithResponseInternal(
             new MultipartFormDataHelper(requestOptions).serializeTextField("id", body.getId())
                 .serializeFileField("profileImage", body.getProfileImage().getContent(),
                     body.getProfileImage().getContentType(), body.getProfileImage().getFilename())
                 .end()
                 .getRequestBody(),
             requestOptions).getValue();
+    }
+
+    /**
+     * Test content-type: multipart/form-data.
+     * 
+     * @param body The body parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> anonymousModelWithResponse(AnonymousModelRequest body, RequestOptions requestOptions) {
+        // Generated convenience method for anonymousModelWithResponseInternal
+        requestOptions = requestOptions == null ? new RequestOptions() : requestOptions;
+        return anonymousModelWithResponseInternal(
+            new MultipartFormDataHelper(requestOptions)
+                .serializeFileField("profileImage", body.getProfileImage().getContent(),
+                    body.getProfileImage().getContentType(), body.getProfileImage().getFilename())
+                .end()
+                .getRequestBody(),
+            requestOptions);
     }
 
     /**
@@ -433,9 +693,9 @@ public final class FormDataClient {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void anonymousModel(AnonymousModelRequest body) {
-        // Generated convenience method for anonymousModelWithResponse
+        // Generated convenience method for anonymousModelWithResponseInternal
         RequestOptions requestOptions = new RequestOptions();
-        anonymousModelWithResponse(
+        anonymousModelWithResponseInternal(
             new MultipartFormDataHelper(requestOptions)
                 .serializeFileField("profileImage", body.getProfileImage().getContent(),
                     body.getProfileImage().getContentType(), body.getProfileImage().getFilename())

@@ -52,10 +52,10 @@ public final class FormDataHttpPartsContentTypeClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    Response<Void> imageJpegContentTypeWithResponse(BinaryData body, RequestOptions requestOptions) {
+    Response<Void> imageJpegContentTypeWithResponseInternal(BinaryData body, RequestOptions requestOptions) {
         // Operation 'imageJpegContentType' is of content-type 'multipart/form-data'. Protocol API is not usable and
         // hence not generated.
-        return this.serviceClient.imageJpegContentTypeWithResponse(body, requestOptions);
+        return this.serviceClient.imageJpegContentTypeWithResponseInternal(body, requestOptions);
     }
 
     /**
@@ -71,10 +71,10 @@ public final class FormDataHttpPartsContentTypeClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    Response<Void> requiredContentTypeWithResponse(BinaryData body, RequestOptions requestOptions) {
+    Response<Void> requiredContentTypeWithResponseInternal(BinaryData body, RequestOptions requestOptions) {
         // Operation 'requiredContentType' is of content-type 'multipart/form-data'. Protocol API is not usable and
         // hence not generated.
-        return this.serviceClient.requiredContentTypeWithResponse(body, requestOptions);
+        return this.serviceClient.requiredContentTypeWithResponseInternal(body, requestOptions);
     }
 
     /**
@@ -90,10 +90,38 @@ public final class FormDataHttpPartsContentTypeClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    Response<Void> optionalContentTypeWithResponse(BinaryData body, RequestOptions requestOptions) {
+    Response<Void> optionalContentTypeWithResponseInternal(BinaryData body, RequestOptions requestOptions) {
         // Operation 'optionalContentType' is of content-type 'multipart/form-data'. Protocol API is not usable and
         // hence not generated.
-        return this.serviceClient.optionalContentTypeWithResponse(body, requestOptions);
+        return this.serviceClient.optionalContentTypeWithResponseInternal(body, requestOptions);
+    }
+
+    /**
+     * Test content-type: multipart/form-data.
+     * 
+     * @param body The body parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> imageJpegContentTypeWithResponse(FileWithHttpPartSpecificContentTypeRequest body,
+        RequestOptions requestOptions) {
+        // Generated convenience method for imageJpegContentTypeWithResponseInternal
+        requestOptions = requestOptions == null ? new RequestOptions() : requestOptions;
+        return imageJpegContentTypeWithResponseInternal(
+            new MultipartFormDataHelper(requestOptions)
+                .serializeFileField("profileImage", body.getProfileImage().getContent(),
+                    body.getProfileImage().getContentType(), body.getProfileImage().getFilename())
+                .end()
+                .getRequestBody(),
+            requestOptions);
     }
 
     /**
@@ -110,15 +138,43 @@ public final class FormDataHttpPartsContentTypeClient {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void imageJpegContentType(FileWithHttpPartSpecificContentTypeRequest body) {
-        // Generated convenience method for imageJpegContentTypeWithResponse
+        // Generated convenience method for imageJpegContentTypeWithResponseInternal
         RequestOptions requestOptions = new RequestOptions();
-        imageJpegContentTypeWithResponse(
+        imageJpegContentTypeWithResponseInternal(
             new MultipartFormDataHelper(requestOptions)
                 .serializeFileField("profileImage", body.getProfileImage().getContent(),
                     body.getProfileImage().getContentType(), body.getProfileImage().getFilename())
                 .end()
                 .getRequestBody(),
             requestOptions).getValue();
+    }
+
+    /**
+     * Test content-type: multipart/form-data.
+     * 
+     * @param body The body parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> requiredContentTypeWithResponse(FileWithHttpPartRequiredContentTypeRequest body,
+        RequestOptions requestOptions) {
+        // Generated convenience method for requiredContentTypeWithResponseInternal
+        requestOptions = requestOptions == null ? new RequestOptions() : requestOptions;
+        return requiredContentTypeWithResponseInternal(
+            new MultipartFormDataHelper(requestOptions)
+                .serializeFileField("profileImage", body.getProfileImage().getContent(),
+                    body.getProfileImage().getContentType(), body.getProfileImage().getFilename())
+                .end()
+                .getRequestBody(),
+            requestOptions);
     }
 
     /**
@@ -135,15 +191,43 @@ public final class FormDataHttpPartsContentTypeClient {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void requiredContentType(FileWithHttpPartRequiredContentTypeRequest body) {
-        // Generated convenience method for requiredContentTypeWithResponse
+        // Generated convenience method for requiredContentTypeWithResponseInternal
         RequestOptions requestOptions = new RequestOptions();
-        requiredContentTypeWithResponse(
+        requiredContentTypeWithResponseInternal(
             new MultipartFormDataHelper(requestOptions)
                 .serializeFileField("profileImage", body.getProfileImage().getContent(),
                     body.getProfileImage().getContentType(), body.getProfileImage().getFilename())
                 .end()
                 .getRequestBody(),
             requestOptions).getValue();
+    }
+
+    /**
+     * Test content-type: multipart/form-data for optional content type.
+     * 
+     * @param body The body parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> optionalContentTypeWithResponse(FileWithHttpPartOptionalContentTypeRequest body,
+        RequestOptions requestOptions) {
+        // Generated convenience method for optionalContentTypeWithResponseInternal
+        requestOptions = requestOptions == null ? new RequestOptions() : requestOptions;
+        return optionalContentTypeWithResponseInternal(
+            new MultipartFormDataHelper(requestOptions)
+                .serializeFileField("profileImage", body.getProfileImage().getContent(),
+                    body.getProfileImage().getContentType(), body.getProfileImage().getFilename())
+                .end()
+                .getRequestBody(),
+            requestOptions);
     }
 
     /**
@@ -160,9 +244,9 @@ public final class FormDataHttpPartsContentTypeClient {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void optionalContentType(FileWithHttpPartOptionalContentTypeRequest body) {
-        // Generated convenience method for optionalContentTypeWithResponse
+        // Generated convenience method for optionalContentTypeWithResponseInternal
         RequestOptions requestOptions = new RequestOptions();
-        optionalContentTypeWithResponse(
+        optionalContentTypeWithResponseInternal(
             new MultipartFormDataHelper(requestOptions)
                 .serializeFileField("profileImage", body.getProfileImage().getContent(),
                     body.getProfileImage().getContentType(), body.getProfileImage().getFilename())

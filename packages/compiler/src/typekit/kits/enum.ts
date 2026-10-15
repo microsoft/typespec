@@ -3,7 +3,7 @@ import { $doc, getDoc } from "../../lib/decorators.js";
 import { createRekeyableMap } from "../../utils/misc.js";
 import { defineKit } from "../define-kit.js";
 import type { DecoratorArgs } from "../utils.js";
-import { decoratorApplication } from "../utils.js";
+import { decoratorApplication, resolveExpressionFlag } from "../utils.js";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type { UnionKit } from "./union.js";
 
@@ -12,9 +12,23 @@ import type { UnionKit } from "./union.js";
  */
 interface EnumDescriptor {
   /**
-   * The name of the enum declaration.
+   * The name of the enum. If a non-empty name is provided, it is an enum
+   * declaration. An empty string (`""`) produces an enum expression unless
+   * {@link EnumDescriptor.expression} is set explicitly.
    */
   name: string;
+
+  /**
+   * Whether the enum is used in expression position (`expression: true`). When
+   * omitted, this defaults to `true` for an anonymous enum (empty `name`) and
+   * `false` for a named one. Set this explicitly to create a *named* enum
+   * declaration expression (a name that is kept on the type but not registered
+   * in a namespace).
+   *
+   * A declaration must have a name, so setting `expression: false` on an anonymous
+   * enum throws.
+   */
+  expression?: boolean;
 
   /**
    * Decorators to apply to the enum.
@@ -79,6 +93,7 @@ defineKit<TypekitExtension>({
         name: desc.name,
         decorators: decoratorApplication(this, desc.decorators),
         members: createRekeyableMap(),
+        expression: resolveExpressionFlag("enum", desc.name, desc.expression),
       });
 
       if (Array.isArray(desc.members)) {

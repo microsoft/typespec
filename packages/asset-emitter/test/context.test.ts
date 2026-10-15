@@ -317,6 +317,39 @@ describe("reference context", () => {
     assert.deepStrictEqual(seenContext!, { refFromFoo: true, refFromBar: true });
   });
 
+  it("propagates reference context to types referenced in tuple values", async () => {
+    const seenContexts = new Set<boolean>();
+
+    class TestEmitter extends TypeEmitter<any, any> {
+      modelDeclarationReferenceContext(model: Model): Context {
+        return model.name === "M" ? { refFromM: true } : {};
+      }
+
+      modelDeclaration(model: Model, name: string): EmitterOutput<any> {
+        this.emitter.emitModelProperties(model);
+        if (model.name === "N") {
+          seenContexts.add(this.emitter.getContext().refFromM ?? false);
+        }
+        return this.emitter.result.none();
+      }
+    }
+
+    const host = await getHostForTypeSpecFile(`
+      model M { x: [N] }
+      model N { }
+    `);
+    const emitter = createAssetEmitter(host.program, TestEmitter, {
+      emitterOutputDir: "tsp-output",
+      options: {},
+    } as any);
+
+    await emitter.emitType(host.program.resolveTypeReference("M")[0]!);
+
+    // N is only ever emitted as a value of M's tuple, so it must have been
+    // emitted exactly once, with M's reference context applied.
+    deepStrictEqual([...seenContexts], [true]);
+  });
+
   it("doesn't emit model multiple times when reference context is the same", async () => {
     class TestEmitter extends CodeTypeEmitter {
       modelDeclarationReferenceContext(model: Model): Context {

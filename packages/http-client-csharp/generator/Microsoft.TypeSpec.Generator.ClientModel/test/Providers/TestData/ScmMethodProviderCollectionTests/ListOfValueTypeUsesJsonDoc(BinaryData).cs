@@ -10,7 +10,7 @@ foreach (var item in document.RootElement.EnumerateArray())
     }
     else
     {
-        value.Add(global::System.BinaryData.FromString(item.GetRawText()));
+        value.Add(item.GetUtf8Bytes());
     }
 }
 return global::System.ClientModel.ClientResult.FromValue(((global::System.Collections.Generic.IReadOnlyList<global::System.BinaryData>)value), result.GetRawResponse());

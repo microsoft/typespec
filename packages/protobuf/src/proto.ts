@@ -13,6 +13,7 @@ import type {
   Program,
   StringLiteral,
   Type,
+  UnionVariant,
 } from "@typespec/compiler";
 import { resolvePath } from "@typespec/compiler";
 
@@ -48,10 +49,16 @@ const IMPLEMENTATION_RESERVED_RANGE = [19000, 19999] as const;
 /**
  * Defined in the [ProtoBuf Language Spec](https://developers.google.com/protocol-buffers/docs/reference/proto3-spec#identifiers).
  *
- * ident = letter \{ letter | decimalDigit | "_" \}
+ * letter = "A" ... "Z" | "a" ... "z" | "_"
+ * ident = letter \{ letter | decimalDigit \}
  * fullIdent = ident \{ "." ident \}
  */
-export const PROTO_FULL_IDENT = /([a-zA-Z][a-zA-Z0-9_]*)+/;
+export const PROTO_FULL_IDENT = /^[a-zA-Z_][a-zA-Z0-9_]*(?:\.[a-zA-Z_][a-zA-Z0-9_]*)*$/;
+
+/**
+ * A single Protobuf `ident`, such as a field or `oneof` name. See {@link PROTO_FULL_IDENT}.
+ */
+export const PROTO_IDENT = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
 
 /**
  * Decorate an interface as a service, indicating that it represents a Protobuf `service` declaration.
@@ -78,6 +85,18 @@ export const $package: PackageDecorator = (
   target: Namespace,
   details?: Type,
 ) => {
+  if (details?.kind === "Model") {
+    const nameProperty = details.properties.get("name");
+    const name = nameProperty?.type;
+    if (nameProperty && name?.kind === "String" && !PROTO_FULL_IDENT.test(name.value)) {
+      reportDiagnostic(ctx.program, {
+        code: "invalid-package-name",
+        format: { name: name.value },
+        target: nameProperty,
+      });
+      return;
+    }
+  }
   ctx.program.stateMap(state.package).set(target, details);
 };
 
@@ -140,7 +159,8 @@ export const $message: MessageDecorator = (ctx: DecoratorContext, target: Type) 
 };
 
 /**
- * Decorate a model property with a field index. Field indices are required for all fields of emitted messages.
+ * Decorate a model property or union variant with a field index. Field indices are required for all fields of emitted
+ * messages and all variants of unions that are emitted as a `oneof`.
  *
  * @param param0
  * @param target
@@ -149,7 +169,7 @@ export const $message: MessageDecorator = (ctx: DecoratorContext, target: Type) 
  */
 export const $field: FieldDecorator = (
   ctx: DecoratorContext,
-  target: ModelProperty,
+  target: ModelProperty | UnionVariant,
   fieldIndex: number,
 ) => {
   if (!Number.isInteger(fieldIndex) || fieldIndex <= 0) {

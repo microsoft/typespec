@@ -680,7 +680,7 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
 
   tupleLiteralValues(tuple: Tuple): EmitterOutput<T> {
     for (const value of tuple.values.values()) {
-      this.emitter.emitType(value);
+      this.emitter.emitTypeReference(value);
     }
     return this.emitter.result.none();
   }

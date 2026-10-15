@@ -1,5 +1,55 @@
 # @typespec/http-specs
 
+## 0.1.0-alpha.44
+
+### Features
+
+- [#12038](https://github.com/microsoft/typespec/pull/12038) Add named-model query parameter scenarios for standard expansion, standard continuation, and exploded continuation.
+  
+  ```typespec
+  model ExpandParameters {
+    field: string;
+    value: string;
+  }
+  ```
+
+### Bug Fixes
+
+- [#11940](https://github.com/microsoft/typespec/pull/11940) Include smoke test specifications in the published package.
+
+
+## 0.1.0-alpha.43
+
+### Bug Fixes
+
+- [#11920](https://github.com/microsoft/typespec/pull/11920) Use a unique `ProtocolInfo` model name in the SSE protocol scenarios to avoid model-name collisions in generated clients.
+
+
+## 0.1.0-alpha.42
+
+### Features
+
+- [#11677](https://github.com/microsoft/typespec/pull/11677) Add scenario for an operation whose successful response is either a model body (`200`) or no content (`204`).
+  
+  ```tsp
+  op getBody(): {
+    @statusCode statusCode: 200;
+    @body layout: BlobLayout;
+  } | {
+    @statusCode statusCode: 204;
+  };
+  ```
+- [#11613](https://github.com/microsoft/typespec/pull/11613) Add SSE protocol coverage for event IDs, retry fields, and reconnection
+  
+  ```tsp
+  op reconnect(): SSEStream<ProtocolEvents>;
+  ```
+
+### Bug Fixes
+
+- [#11590](https://github.com/microsoft/typespec/pull/11590) Exclude build artifacts from published packages
+
+
 ## 0.1.0-alpha.41
 
 No changes, version bump only.

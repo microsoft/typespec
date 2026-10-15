@@ -152,10 +152,10 @@ namespace SampleTypeSpec
                 }
                 if (options.Format != "W")
                 {
-                    additionalBinaryDataProperties.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
+                    additionalBinaryDataProperties.Add(prop.Name, prop.Value.GetUtf8Bytes());
                 }
             }
-            return new PageThing(items, additionalBinaryDataProperties);
+            return new PageThing(items ?? new ChangeTrackingList<Thing>(), additionalBinaryDataProperties);
         }
     }
 }

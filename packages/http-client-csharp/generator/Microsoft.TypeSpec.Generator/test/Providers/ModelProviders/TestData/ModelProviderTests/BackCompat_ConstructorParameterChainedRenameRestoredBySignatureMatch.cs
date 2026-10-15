@@ -21,10 +21,10 @@ namespace Sample.Models
             Name = vmName;
         }
 
-        internal MockInputModel(string name, string vmName, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties)
+        internal MockInputModel(string skuName, string name, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties)
         {
-            SkuName = name;
-            Name = vmName;
+            SkuName = skuName;
+            Name = name;
             _additionalBinaryDataProperties = additionalBinaryDataProperties;
         }
 

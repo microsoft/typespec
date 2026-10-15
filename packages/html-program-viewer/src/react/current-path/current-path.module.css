@@ -1,6 +1,15 @@
 .current-path {
-  overflow-y: auto;
+  display: flex;
+  align-items: center;
+  /* Only the path can overflow, and its scrollbar would cover most of this one line tall bar. */
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
   border: 1px solid var(--colorNeutralStroke1);
+}
+
+.current-path::-webkit-scrollbar {
+  display: none;
 }
 
 .current-path.focus {

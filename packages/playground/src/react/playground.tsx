@@ -1,6 +1,7 @@
-import type { Diagnostic } from "@typespec/compiler";
+import type { Diagnostic, DiagnosticTarget } from "@typespec/compiler";
 import { Pane, SplitPane } from "@typespec/react-components";
-import "@typespec/react-components/style.css";
+// Keep runtime styles out of the emitted declarations.
+import {} from "@typespec/react-components/style.css";
 import { editor } from "monaco-editor";
 import {
   useCallback,
@@ -258,6 +259,16 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
     [host.compiler],
   );
 
+  const handleRevealSource = useCallback(
+    (target: DiagnosticTarget) => {
+      const range = getMonacoRange(host.compiler, target);
+      editorRef.current?.setSelection(range);
+      editorRef.current?.revealRangeInCenterIfOutsideViewport(range);
+      editorRef.current?.focus();
+    },
+    [host.compiler],
+  );
+
   const playgroundContext = useMemo(() => {
     return {
       host,
@@ -317,6 +328,7 @@ export const Playground: FunctionComponent<PlaygroundProps> = (props) => {
       compilationState={compilationState}
       isCompiling={isCompiling}
       isOutputStale={isOutputStale}
+      onRevealSource={handleRevealSource}
       editorOptions={props.editorOptions}
       viewers={props.viewers}
       fileViewers={selectedEmitter ? props.emitterViewers?.[selectedEmitter] : undefined}

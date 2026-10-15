@@ -281,6 +281,34 @@ describe("marker position", () => {
   });
 });
 
+describe("compiler options", () => {
+  const FeatureTester = createTester(resolvePath(import.meta.dirname, "../.."), {
+    libraries: [],
+    features: ["declaration-expressions"],
+  });
+
+  it("keeps tester features when per-call options provide their own configFile", async () => {
+    const diagnostics = await FeatureTester.diagnose(
+      `
+        model Foo {
+          status: enum { a, b };
+        }
+      `,
+      {
+        compilerOptions: {
+          configFile: {
+            projectRoot: ".",
+            kind: "project",
+            diagnostics: [],
+            outputDir: "tsp-output",
+          } as any,
+        },
+      },
+    );
+    expect(diagnostics).toEqual([]);
+  });
+});
+
 describe("emitter", () => {
   const EmitterTester = Tester.files({
     "node_modules/dummy-emitter/package.json": JSON.stringify({

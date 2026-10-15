@@ -59,6 +59,12 @@ export interface InputNamespace extends DecoratedType {
 
 interface DecoratedType {
   decorators?: DecoratorInfo[];
+  experimental?: InputExperimentalDetails;
+}
+
+export interface InputExperimentalDetails {
+  diagnosticId?: string;
+  dependsOn: string[];
 }
 
 interface InputTypeBase extends DecoratedType {
@@ -155,6 +161,7 @@ export function isInputUnionType(type: InputType): type is InputUnionType {
 export interface InputModelType extends InputTypeBase {
   kind: "model";
   properties: InputModelProperty[];
+  apiVersions: string[];
   name: string;
   crossLanguageDefinitionId: string;
   access?: AccessFlags;
@@ -192,6 +199,7 @@ export interface InputPropertyTypeBase extends DecoratedType {
 
 export interface InputModelProperty extends InputPropertyTypeBase {
   kind: "property";
+  apiVersions: string[];
   discriminator: boolean;
   serializedName: string;
   serializationOptions: SerializationOptions;
@@ -270,6 +278,7 @@ export interface InputEndpointParameter extends InputPropertyTypeBase {
 
 export interface InputEnumType extends InputTypeBase {
   kind: "enum";
+  apiVersions: string[];
   name: string;
   crossLanguageDefinitionId: string;
   valueType: InputPrimitiveType;

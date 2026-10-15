@@ -5,6 +5,7 @@
 package tsptest.builtin.generated;
 
 import com.azure.core.util.Configuration;
+import java.time.OffsetDateTime;
 import tsptest.builtin.BuiltinClient;
 import tsptest.builtin.BuiltinClientBuilder;
 import tsptest.builtin.models.Builtin;
@@ -14,7 +15,8 @@ public class BuiltinOpRead {
         BuiltinClient builtinClient
             = new BuiltinClientBuilder().endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT")).buildClient();
         // BEGIN:tsptest.builtin.generated.builtin-op-read.builtin-op-read
-        Builtin response = builtinClient.read(null, null, null, "myFilter", null, null);
+        Builtin response = builtinClient.read((String) null, (String) null, (OffsetDateTime) null, "myFilter",
+            (String) null, (String) null);
         // END:tsptest.builtin.generated.builtin-op-read.builtin-op-read
     }
 }

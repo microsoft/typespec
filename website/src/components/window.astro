@@ -64,23 +64,21 @@ const { title, className, hideHeader, children, class: cls, ...others } = Astro.
 </style>
 
 <div class:list={["window", cls]} {...others}>
-  {
-    hideHeader ? (
-      ""
-    ) : (
-      <>
-        <div class="header">
-          <div class="actions">
-            <div class="btn-close" />
-            <div class="btn-minify" />
-            <div class="btn-expand" />
-          </div>
-          <div class="header-title">{title}</div>
-          <div class="header-right-spacer" />
+  {hideHeader ? (
+    ""
+  ) : (
+    <>
+      <div class="header">
+        <div class="actions">
+          <div class="btn-close" />
+          <div class="btn-minify" />
+          <div class="btn-expand" />
         </div>
-        <div class="header-divider" />
-      </>
-    )
-  }
+        <div class="header-title">{title}</div>
+        <div class="header-right-spacer" />
+      </div>
+      <div class="header-divider" />
+    </>
+  )}
   <slot />
 </div>

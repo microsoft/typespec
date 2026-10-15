@@ -57,6 +57,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             IReadOnlyList<InputDecoratorInfo>? decorators = null;
             IReadOnlyList<InputOperationExample>? examples = null;
             bool isExactName = false;
+            InputExperimentalDetails? experimental = null;
 
             while (reader.TokenType != JsonTokenType.EndObject)
             {
@@ -80,7 +81,8 @@ namespace Microsoft.TypeSpec.Generator.Input
                     || reader.TryReadString("crossLanguageDefinitionId", ref crossLanguageDefinitionId)
                     || reader.TryReadComplexType("decorators", options, ref decorators)
                     || reader.TryReadComplexType("examples", options, ref examples)
-                    || reader.TryReadString("namespace", ref ns);
+                    || reader.TryReadString("namespace", ref ns)
+                    || reader.TryReadComplexType("experimental", options, ref experimental);
 
                 if (!isKnownProperty)
                 {
@@ -110,6 +112,7 @@ namespace Microsoft.TypeSpec.Generator.Input
             operation.Decorators = decorators ?? [];
             operation.Examples = examples ?? [];
             operation.Namespace = ns;
+            operation.Experimental = experimental;
 
             return operation;
         }

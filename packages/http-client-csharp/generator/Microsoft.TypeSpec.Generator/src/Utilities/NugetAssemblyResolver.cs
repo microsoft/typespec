@@ -353,14 +353,6 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 }
             }
 
-            // Fall back to a version-range search, then to any cached version, for packages that were not
-            // reachable through the closure (for example when a .nuspec is missing from the cache).
-            if (assemblyPath == null && version != null)
-            {
-                assemblyPath = NugetPackageResolver.FindPackageAssembly(_globalPackagesFolder, simpleName, version.ToString());
-            }
-            assemblyPath ??= NugetPackageResolver.FindPackageAssembly(_globalPackagesFolder, simpleName);
-
             if (assemblyPath == null)
             {
                 _debug($"Could not locate dependency assembly '{simpleName}' under '{_globalPackagesFolder}'.");

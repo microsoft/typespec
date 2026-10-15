@@ -100,7 +100,8 @@ public final class ImplicitBodiesImpl {
      * @return the {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<Void>> simpleWithResponseAsync(BinaryData simpleRequest, RequestOptions requestOptions) {
+    public Mono<Response<Void>> simpleWithResponseInternalAsync(BinaryData simpleRequest,
+        RequestOptions requestOptions) {
         final String contentType = "application/json";
         return FluxUtil.withContext(
             context -> service.simple(this.client.getEndpoint(), contentType, simpleRequest, requestOptions, context));
@@ -127,7 +128,7 @@ public final class ImplicitBodiesImpl {
      * @return the {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<Void> simpleWithResponse(BinaryData simpleRequest, RequestOptions requestOptions) {
+    public Response<Void> simpleWithResponseInternal(BinaryData simpleRequest, RequestOptions requestOptions) {
         final String contentType = "application/json";
         return service.simpleSync(this.client.getEndpoint(), contentType, simpleRequest, requestOptions, Context.NONE);
     }

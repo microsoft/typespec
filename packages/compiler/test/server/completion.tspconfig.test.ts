@@ -134,19 +134,42 @@ describe("Test completion items for features", () => {
   it.each([
     {
       config: `features:\n  - ┆`,
-      expected: ['"auto-decorators"', '"function-declarations"', '"type-info-provider"'],
+      expected: [
+        '"auto-decorators"',
+        '"declaration-expressions"',
+        '"function-declarations"',
+        '"type-info-provider"',
+        '"union-extends"',
+      ],
     },
     {
       config: `features:\n  - "┆"`,
-      expected: ["auto-decorators", "function-declarations", "type-info-provider"],
+      expected: [
+        "auto-decorators",
+        "declaration-expressions",
+        "function-declarations",
+        "type-info-provider",
+        "union-extends",
+      ],
     },
     {
       config: `features:\n  - "function┆"`,
-      expected: ["auto-decorators", "function-declarations", "type-info-provider"],
+      expected: [
+        "auto-decorators",
+        "declaration-expressions",
+        "function-declarations",
+        "type-info-provider",
+        "union-extends",
+      ],
     },
     {
       config: `features:\n  - function-declarations\n  - ┆`,
-      expected: ['"auto-decorators"', '"type-info-provider"'],
+      expected: [
+        '"auto-decorators"',
+        '"declaration-expressions"',
+        '"type-info-provider"',
+        '"union-extends"',
+      ],
     },
   ])("#%# Test features: $config", async ({ config, expected }) => {
     await checkCompletionItems(config, true, expected);
@@ -158,8 +181,10 @@ describe("Test completion items for features", () => {
       true,
       [
         "Allows use of auto decorator declarations without experimental warnings in project code.",
+        "Allows use of declaration expressions (named or anonymous model, scalar, enum and union declarations in expression position) in project code.",
         "Allows use of function declarations without experimental warnings in project code.",
         "Enables the experimental `$provideTypeInfo` provider allowing libraries to contribute extra information about types to IDE hover and tooling (queried via `program.getTypeInfo`).",
+        "Enables experimental union `extends` clauses in project code.",
       ],
       true,
     );

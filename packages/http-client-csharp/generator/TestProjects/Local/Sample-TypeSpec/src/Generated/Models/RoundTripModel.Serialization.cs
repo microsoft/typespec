@@ -539,7 +539,7 @@ namespace SampleTypeSpec
                 }
                 if (prop.NameEquals("requiredUnknown"u8))
                 {
-                    requiredUnknown = BinaryData.FromString(prop.Value.GetRawText());
+                    requiredUnknown = prop.Value.GetUtf8Bytes();
                     continue;
                 }
                 if (prop.NameEquals("optionalUnknown"u8))
@@ -548,7 +548,7 @@ namespace SampleTypeSpec
                     {
                         continue;
                     }
-                    optionalUnknown = BinaryData.FromString(prop.Value.GetRawText());
+                    optionalUnknown = prop.Value.GetUtf8Bytes();
                     continue;
                 }
                 if (prop.NameEquals("requiredRecordUnknown"u8))
@@ -562,7 +562,7 @@ namespace SampleTypeSpec
                         }
                         else
                         {
-                            dictionary.Add(prop0.Name, BinaryData.FromString(prop0.Value.GetRawText()));
+                            dictionary.Add(prop0.Name, prop0.Value.GetUtf8Bytes());
                         }
                     }
                     requiredRecordUnknown = dictionary;
@@ -583,7 +583,7 @@ namespace SampleTypeSpec
                         }
                         else
                         {
-                            dictionary.Add(prop0.Name, BinaryData.FromString(prop0.Value.GetRawText()));
+                            dictionary.Add(prop0.Name, prop0.Value.GetUtf8Bytes());
                         }
                     }
                     optionalRecordUnknown = dictionary;
@@ -600,7 +600,7 @@ namespace SampleTypeSpec
                         }
                         else
                         {
-                            dictionary.Add(prop0.Name, BinaryData.FromString(prop0.Value.GetRawText()));
+                            dictionary.Add(prop0.Name, prop0.Value.GetUtf8Bytes());
                         }
                     }
                     readOnlyRequiredRecordUnknown = dictionary;
@@ -621,7 +621,7 @@ namespace SampleTypeSpec
                         }
                         else
                         {
-                            dictionary.Add(prop0.Name, BinaryData.FromString(prop0.Value.GetRawText()));
+                            dictionary.Add(prop0.Name, prop0.Value.GetUtf8Bytes());
                         }
                     }
                     readOnlyOptionalRecordUnknown = dictionary;
@@ -639,14 +639,14 @@ namespace SampleTypeSpec
                 }
                 if (options.Format != "W")
                 {
-                    additionalBinaryDataProperties.Add(prop.Name, BinaryData.FromString(prop.Value.GetRawText()));
+                    additionalBinaryDataProperties.Add(prop.Name, prop.Value.GetUtf8Bytes());
                 }
             }
             return new RoundTripModel(
                 requiredString,
                 requiredInt,
-                requiredCollection,
-                requiredDictionary,
+                requiredCollection ?? new ChangeTrackingList<StringFixedEnum>(),
+                requiredDictionary ?? new ChangeTrackingDictionary<string, StringExtensibleEnum>(),
                 requiredModel,
                 intExtensibleEnum,
                 intExtensibleEnumCollection ?? new ChangeTrackingList<IntExtensibleEnum>(),
@@ -661,9 +661,9 @@ namespace SampleTypeSpec
                 stringFixedEnum,
                 requiredUnknown,
                 optionalUnknown,
-                requiredRecordUnknown,
+                requiredRecordUnknown ?? new ChangeTrackingDictionary<string, BinaryData>(),
                 optionalRecordUnknown ?? new ChangeTrackingDictionary<string, BinaryData>(),
-                readOnlyRequiredRecordUnknown,
+                readOnlyRequiredRecordUnknown ?? new ChangeTrackingDictionary<string, BinaryData>(),
                 readOnlyOptionalRecordUnknown ?? new ChangeTrackingDictionary<string, BinaryData>(),
                 modelWithRequiredNullable,
                 requiredBytes,

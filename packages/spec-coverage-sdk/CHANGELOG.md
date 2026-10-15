@@ -1,5 +1,12 @@
 # Change Log - @typespec/spec-coverage-sdk
 
+## 0.1.0-alpha.17
+
+### Bug Fixes
+
+- [#11590](https://github.com/microsoft/typespec/pull/11590) Exclude build artifacts from published packages
+
+
 ## 0.1.0-alpha.16
 
 ### Bump dependencies

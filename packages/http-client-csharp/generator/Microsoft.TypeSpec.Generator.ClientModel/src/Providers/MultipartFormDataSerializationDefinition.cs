@@ -16,6 +16,7 @@ using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
+using Microsoft.TypeSpec.Generator.Utilities;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 #pragma warning disable SCME0004 // MultiPartFormContent is evaluation-only.
@@ -99,7 +100,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     continue;
                 }
 
-                statements.Add(BuildAddPartStatement(contentVar, prop, optionsParameter.As<ModelReaderWriterOptions>()));
+                statements.Add(ExperimentalApiHelpers.Suppress(BuildAddPartStatement(contentVar, prop, optionsParameter.As<ModelReaderWriterOptions>()),
+                    ExperimentalApiHelpers.GetMemberSuppressions(prop)));
             }
 
             statements.AddRange(
@@ -145,7 +147,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             var isDefinedCondition = prop.Type is { IsCollection: true, IsReadOnlyMemory: false }
-                ? OptionalSnippets.IsCollectionDefined(prop)
+                ? OptionalSnippets.IsCollectionDefined(prop, prop.Type)
                 : OptionalSnippets.IsDefined(prop);
 
             return new IfStatement(isDefinedCondition) { addStatement };

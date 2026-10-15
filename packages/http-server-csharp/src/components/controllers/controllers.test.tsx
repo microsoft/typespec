@@ -9,6 +9,7 @@ import {
   type OperationHttpCanonicalization,
 } from "@typespec/http-canonicalization";
 import { beforeEach, describe, expect, it } from "vitest";
+import { OperationSources } from "../../context/operation-source-context.js";
 import { BusinessLogicInterface } from "../interfaces/interfaces.jsx";
 import { Controller } from "./controllers.jsx";
 
@@ -77,6 +78,68 @@ it("renders a controller class with an action method", async () => {
         public virtual async Task<IActionResult> ListPets()
         {
             var result = await PetStoreImpl.ListPetsAsync();
+            return Ok(result);
+        }
+    }
+  `);
+});
+
+it("uses the exact source operation to preserve positional argument order", async () => {
+  const { PetStore, getPet, businessGetPet } = await runner.compile(t.code`
+    interface ${t.interface("PetStore")} {
+      @route("/pets/{petId}") @get ${t.op("getPet")}(
+        @path petId: string,
+        @header feature: string,
+        @query apiVersion: string,
+      ): string;
+
+      ${t.op("businessGetPet")}(
+        feature: string,
+        petId: string,
+        apiVersion: string,
+      ): string;
+    }
+  `);
+  const canonOp = canonicalizeOp(getPet);
+
+  expect(
+    <Wrapper>
+      <OperationSources.Provider value={new Map([[canonOp, businessGetPet]])}>
+        <BusinessLogicInterface type={PetStore} canonicalOps={[canonOp]} />
+        {"\n"}
+        <Controller type={PetStore} operations={[canonOp]} />
+      </OperationSources.Provider>
+    </Wrapper>,
+  ).toRenderTo(`
+    using Microsoft.AspNetCore.Mvc;
+
+    public interface IPetStore
+    {
+        Task<string> GetPetAsync(string petId, string feature, string apiVersion);
+
+        Task<string> BusinessGetPetAsync(string feature, string petId, string apiVersion);
+    }
+    [ApiController]
+    public partial class PetStoreController : ControllerBase
+    {
+        internal virtual IPetStore PetStoreImpl { get; }
+        public PetStoreController(IPetStore operations)
+        {
+            PetStoreImpl = operations;
+        }
+
+        [HttpGet]
+        [Route("/pets/{petId}")]
+        [ProducesResponseType((int)HttpStatusCode.OK, Type = typeof(string))]
+        public virtual async Task<IActionResult> GetPet(
+            string petId,
+            [FromHeader(Name="feature")]
+            string feature,
+            [FromQuery(Name="apiVersion")]
+            string apiVersion
+        )
+        {
+            var result = await PetStoreImpl.GetPetAsync(feature, petId, apiVersion);
             return Ok(result);
         }
     }

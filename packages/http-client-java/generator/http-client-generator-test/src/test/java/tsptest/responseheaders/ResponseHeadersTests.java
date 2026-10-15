@@ -8,6 +8,7 @@ import com.azure.core.http.HttpHeaders;
 import com.azure.core.test.http.MockHttpResponse;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.Map;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
@@ -25,7 +26,9 @@ public class ResponseHeadersTests {
     public void testResponseHeadersAsModel() {
         HttpHeaders responseHeaders = new HttpHeaders().set(HttpHeaderName.ETAG, "\"0x8D9\"")
             .set(HttpHeaderName.fromString("x-resource-count"), "42")
-            .set(HttpHeaderName.LAST_MODIFIED, "Mon, 26 Aug 2022 14:38:00 GMT");
+            .set(HttpHeaderName.LAST_MODIFIED, "Mon, 26 Aug 2022 14:38:00 GMT")
+            .set(HttpHeaderName.fromString("X-Ms-Meta-key1"), "value1")
+            .set(HttpHeaderName.fromString("x-ms-meta-key2"), "value2");
 
         ResponseHeaderOpsGetResourceMetadataHeaders headers = createClient(responseHeaders).getResourceMetadata();
 
@@ -35,6 +38,7 @@ public class ResponseHeadersTests {
         Assertions.assertEquals(42, headers.getResourceCount());
         Assertions.assertEquals(OffsetDateTime.of(2022, 8, 26, 14, 38, 0, 0, ZoneOffset.UTC),
             headers.getLastModified());
+        Assertions.assertEquals(Map.of("key1", "value1", "key2", "value2"), headers.getMetadata());
     }
 
     @Test

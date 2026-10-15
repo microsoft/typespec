@@ -16,19 +16,16 @@ namespace SampleTypeSpec
     internal partial class SampleTypeSpecClientGetWithContinuationTokenAsyncCollectionResultOfT : AsyncCollectionResult<Thing>
     {
         private readonly SampleTypeSpecClient _client;
-        private readonly ModelReaderWriterOptions _modelReaderWriterOptions;
         private readonly string _token;
         private readonly RequestOptions _options;
 
         /// <summary> Initializes a new instance of SampleTypeSpecClientGetWithContinuationTokenAsyncCollectionResultOfT, which is used to iterate over the pages of a collection. </summary>
         /// <param name="client"> The SampleTypeSpecClient client used to send requests. </param>
-        /// <param name="modelReaderWriterOptions"> The options used to serialize and deserialize models. </param>
         /// <param name="token"></param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        public SampleTypeSpecClientGetWithContinuationTokenAsyncCollectionResultOfT(SampleTypeSpecClient client, ModelReaderWriterOptions modelReaderWriterOptions, string token, RequestOptions options)
+        public SampleTypeSpecClientGetWithContinuationTokenAsyncCollectionResultOfT(SampleTypeSpecClient client, string token, RequestOptions options)
         {
             _client = client;
-            _modelReaderWriterOptions = modelReaderWriterOptions;
             _token = token;
             _options = options;
         }
@@ -44,7 +41,7 @@ namespace SampleTypeSpec
                 ClientResult result = await GetNextResponseAsync(message).ConfigureAwait(false);
                 yield return result;
 
-                nextToken = ((ListWithContinuationTokenResponse)result).NextToken;
+                nextToken = ((ListWithContinuationTokenResult)result).NextToken;
                 if (string.IsNullOrEmpty(nextToken))
                 {
                     yield break;
@@ -58,7 +55,7 @@ namespace SampleTypeSpec
         /// <returns> The continuation token for the specified page. </returns>
         public override ContinuationToken GetContinuationToken(ClientResult page)
         {
-            string nextPage = ModelReaderWriter.Read<ListWithContinuationTokenResponse>(page.GetRawResponse().Content, _modelReaderWriterOptions, SampleTypeSpecContext.Default).NextToken;
+            string nextPage = ((ListWithContinuationTokenResult)page).NextToken;
             if (!string.IsNullOrEmpty(nextPage))
             {
                 return ContinuationToken.FromBytes(BinaryData.FromString(nextPage));
@@ -74,7 +71,7 @@ namespace SampleTypeSpec
         /// <returns> The values from the specified page. </returns>
         protected override async IAsyncEnumerable<Thing> GetValuesFromPageAsync(ClientResult page)
         {
-            foreach (Thing item in ModelReaderWriter.Read<ListWithContinuationTokenResponse>(page.GetRawResponse().Content, _modelReaderWriterOptions, SampleTypeSpecContext.Default).Things)
+            foreach (Thing item in ((ListWithContinuationTokenResult)page).Things)
             {
                 yield return item;
                 await Task.Yield();

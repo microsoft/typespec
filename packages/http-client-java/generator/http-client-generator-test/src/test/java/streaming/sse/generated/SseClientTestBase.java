@@ -14,6 +14,8 @@ import com.azure.core.test.TestMode;
 import com.azure.core.test.TestProxyTestBase;
 import com.azure.core.util.Configuration;
 import streaming.sse.NamedClient;
+import streaming.sse.ProtocolClient;
+import streaming.sse.ProtocolDataClient;
 import streaming.sse.RetrieveClient;
 import streaming.sse.SseClientBuilder;
 import streaming.sse.UnnamedClient;
@@ -24,6 +26,10 @@ class SseClientTestBase extends TestProxyTestBase {
     protected NamedClient namedClient;
 
     protected RetrieveClient retrieveClient;
+
+    protected ProtocolClient protocolClient;
+
+    protected ProtocolDataClient protocolDataClient;
 
     @Override
     protected void beforeTest() {
@@ -53,6 +59,24 @@ class SseClientTestBase extends TestProxyTestBase {
             retrieveClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
         }
         retrieveClient = retrieveClientbuilder.buildRetrieveClient();
+
+        SseClientBuilder protocolClientbuilder = new SseClientBuilder()
+            .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
+            .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
+        if (getTestMode() == TestMode.RECORD) {
+            protocolClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
+        }
+        protocolClient = protocolClientbuilder.buildProtocolClient();
+
+        SseClientBuilder protocolDataClientbuilder = new SseClientBuilder()
+            .endpoint(Configuration.getGlobalConfiguration().get("ENDPOINT", "http://localhost:3000"))
+            .httpClient(getHttpClientOrUsePlayback(getHttpClients().findFirst().orElse(null)))
+            .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BASIC));
+        if (getTestMode() == TestMode.RECORD) {
+            protocolDataClientbuilder.addPolicy(interceptorManager.getRecordPolicy());
+        }
+        protocolDataClient = protocolDataClientbuilder.buildProtocolDataClient();
 
     }
 }

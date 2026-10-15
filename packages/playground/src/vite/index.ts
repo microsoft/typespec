@@ -9,7 +9,7 @@ export function definePlaygroundViteConfig(config: PlaygroundUserConfig): UserCo
     build: {
       target: "esnext",
       chunkSizeWarningLimit: 5000,
-      rollupOptions: {
+      rolldownOptions: {
         output: {
           manualChunks(id) {
             if (id.includes("/node_modules/monaco-editor/esm/vs/editor")) {

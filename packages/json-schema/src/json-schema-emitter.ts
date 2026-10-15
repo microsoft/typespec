@@ -54,6 +54,7 @@ import {
   isStringType,
   isType,
   joinPaths,
+  resolveEncodedEnumMemberValue,
   sanitizePathSegment,
   serializeValueAsJson,
 } from "@typespec/compiler";
@@ -80,6 +81,16 @@ import {
 } from "./index.js";
 import { type JSONSchemaEmitterOptions, reportDiagnostic } from "./lib.js";
 import { includeDerivedModel } from "./utils.js";
+
+/**
+ * Whether the type is an anonymous declaration expression (e.g. an inline
+ * `enum { ... }` or `scalar extends string` used as a property type): it is in
+ * expression position (`expression: true`) and has no name. Such types are inlined
+ * into the referencing schema rather than hoisted into their own file/`$defs`.
+ */
+function isAnonymousExpression(type: JsonSchemaDeclaration): boolean {
+  return type.expression && !type.name;
+}
 
 /** @internal */
 export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSchemaEmitterOptions> {
@@ -347,12 +358,14 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
   }
 
   enumDeclaration(en: Enum, name: string): EmitterOutput<object> {
+    const program = this.emitter.getProgram();
     const enumTypes = new Set<string>();
     const enumValues = new Set<string | number>();
     for (const member of en.members.values()) {
       // ???: why do we let emitters decide what the default type of an enum is
-      enumTypes.add(typeof member.value === "number" ? "number" : "string");
-      enumValues.add(member.value ?? member.name);
+      const value = resolveEncodedEnumMemberValue(program, member, "application/json");
+      enumTypes.add(typeof value === "number" ? "number" : "string");
+      enumValues.add(value);
     }
 
     const enumTypesArray = [...enumTypes];
@@ -367,27 +380,30 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
 
   enumMemberReference(member: EnumMember): EmitterOutput<Record<string, any>> {
     // would like to dispatch to the same `literal` codepaths but enum members aren't literal types
-    switch (typeof member.value) {
-      case "undefined":
-        return { type: "string", const: member.name };
-      case "string":
-        return { type: "string", const: member.value };
-      case "number":
-        return { type: "number", const: member.value };
-    }
+    const value = resolveEncodedEnumMemberValue(
+      this.emitter.getProgram(),
+      member,
+      "application/json",
+    );
+    return typeof value === "number"
+      ? { type: "number", const: value }
+      : { type: "string", const: value };
   }
 
   tupleLiteral(tuple: Tuple): EmitterOutput<Record<string, any>> {
+    const size = tuple.values.length;
     return new ObjectBuilder({
       type: "array",
       prefixItems: this.emitter.emitTupleLiteralValues(tuple),
+      minItems: size,
+      maxItems: size,
     });
   }
 
   tupleLiteralValues(tuple: Tuple): EmitterOutput<Record<string, any>> {
     const values = new ArrayBuilder();
     for (const value of tuple.values.values()) {
-      values.push(this.emitter.emitType(value));
+      values.push(this.emitter.emitTypeReference(value));
     }
     return values;
   }
@@ -732,6 +748,15 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
   }
 
   #createDeclaration(type: JsonSchemaDeclaration, name: string, schema: ObjectBuilder<unknown>) {
+    // An *anonymous* declaration expression (e.g. an inline `enum { ... }` or
+    // `scalar extends string` used as a property type) has an empty name and is not
+    // registered in a namespace. It must not be hoisted into an (empty-named) `$defs`
+    // schema or its own file; returning the schema directly inlines it. A *named*
+    // declaration expression (e.g. `model Inner { ... }`) keeps its name and is hoisted
+    // like a regular declaration.
+    if (isAnonymousExpression(type)) {
+      return schema;
+    }
     const decl = this.emitter.result.declaration(name, schema);
     const sf = (decl.scope as SourceFileScope<any>).sourceFile;
     sf.meta.shouldEmit = this.#shouldEmitRootSchema(type);
@@ -765,6 +790,10 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
   }
 
   #shouldEmitRootSchema(type: JsonSchemaDeclaration) {
+    // Anonymous declaration expressions are inlined, never emitted as a root schema.
+    if (isAnonymousExpression(type)) {
+      return false;
+    }
     return (
       this.emitter.getOptions().emitAllRefs ||
       this.emitter.getOptions().emitAllModels ||
@@ -877,8 +906,14 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
         return [...type.variants.values()].flatMap((v) => this.#getStringLiteralValues(v.type));
       case "UnionVariant":
         return this.#getStringLiteralValues(type.type);
-      case "EnumMember":
-        return typeof type.value !== "number" ? [type.value ?? type.name] : [];
+      case "EnumMember": {
+        const value = resolveEncodedEnumMemberValue(
+          this.emitter.getProgram(),
+          type,
+          "application/json",
+        );
+        return typeof value === "string" ? [value] : [];
+      }
       default:
         return [];
     }
@@ -1115,6 +1150,11 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
   }
 
   enumDeclarationContext(en: Enum): Context {
+    // An anonymous `enum { ... }` expression is inlined into the referencing schema, so
+    // it must not get its own file scope (which would otherwise be left empty).
+    if (isAnonymousExpression(en)) {
+      return {};
+    }
     return this.#newFileScope(en);
   }
 
@@ -1124,6 +1164,9 @@ export class JsonSchemaEmitter extends TypeEmitter<Record<string, any>, JSONSche
 
   scalarDeclarationContext(scalar: Scalar): Context {
     if (this.#isStdType(scalar)) {
+      return {};
+    } else if (isAnonymousExpression(scalar)) {
+      // An anonymous `scalar extends ...` expression is inlined, so no file scope.
       return {};
     } else {
       return this.#newFileScope(scalar);

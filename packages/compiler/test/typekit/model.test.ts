@@ -67,6 +67,29 @@ it("can get the discriminated union type", async () => {
   expect(union?.variants.get("dog")).toBe(Dog);
 });
 
+it("uses the json encoded name of enum member discriminator values in getDiscriminatedUnion", async () => {
+  const { Pet, Cat, Lion, program } = await Tester.compile(t.code`
+    @discriminator("kind")
+    model ${t.model("Pet")} {}
+
+    enum Kind {
+      @encodedName("application/json", "feline")
+      cat,
+    }
+
+    model ${t.model("Cat")} extends Pet { kind: Kind.cat }
+    model ${t.model("Lion")} extends Pet { kind: "cat" }
+  `);
+
+  assert.ok(Pet.kind === "Model");
+
+  const [union, diagnostics] = $(program).model.getDiscriminatedUnion.withDiagnostics(Pet);
+  expect(diagnostics).toHaveLength(0);
+  expect([...union!.variants.keys()]).toEqual(["feline", "cat"]);
+  expect(union!.variants.get("feline")).toBe(Cat);
+  expect(union!.variants.get("cat")).toBe(Lion);
+});
+
 it("can get diagnostics from getDiscriminatedUnion", async () => {
   const [{ Pet, program }] = await Tester.compileAndDiagnose(t.code`
     @discriminator("kind")
@@ -81,4 +104,37 @@ it("can get diagnostics from getDiscriminatedUnion", async () => {
   expectDiagnostics(diagnostics, {
     code: "missing-discriminator-property",
   });
+});
+
+it("creates a named model declaration (expression: false) by default", async () => {
+  const { program } = await Tester.compile("");
+  const tk = $(program);
+  const model = tk.model.create({ name: "Foo", properties: {} });
+  expect(model.expression).toBe(false);
+  expect(tk.model.isExpresion(model)).toBe(false);
+});
+
+it("creates a model expression when given an empty name", async () => {
+  const { program } = await Tester.compile("");
+  const tk = $(program);
+  const model = tk.model.create({ name: "", properties: {} });
+  expect(model.expression).toBe(true);
+  expect(tk.model.isExpresion(model)).toBe(true);
+});
+
+it("throws when creating an anonymous model declaration", async () => {
+  const { program } = await Tester.compile("");
+  const tk = $(program);
+  expect(() => tk.model.create({ expression: false, properties: {} })).toThrow(
+    /Cannot create an anonymous model declaration/,
+  );
+});
+
+it("creates a named model declaration expression when expression is set explicitly", async () => {
+  const { program } = await Tester.compile("");
+  const tk = $(program);
+  const model = tk.model.create({ name: "Inner", expression: true, properties: {} });
+  expect(model.name).toBe("Inner");
+  expect(model.expression).toBe(true);
+  expect(tk.model.isExpresion(model)).toBe(true);
 });

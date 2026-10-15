@@ -100,6 +100,34 @@ public final class SseClientImpl {
     }
 
     /**
+     * The ProtocolsImpl object to access its operations.
+     */
+    private final ProtocolsImpl protocols;
+
+    /**
+     * Gets the ProtocolsImpl object to access its operations.
+     * 
+     * @return the ProtocolsImpl object.
+     */
+    public ProtocolsImpl getProtocols() {
+        return this.protocols;
+    }
+
+    /**
+     * The ProtocolDatasImpl object to access its operations.
+     */
+    private final ProtocolDatasImpl protocolDatas;
+
+    /**
+     * Gets the ProtocolDatasImpl object to access its operations.
+     * 
+     * @return the ProtocolDatasImpl object.
+     */
+    public ProtocolDatasImpl getProtocolDatas() {
+        return this.protocolDatas;
+    }
+
+    /**
      * Initializes an instance of SseClient client.
      * 
      * @param endpoint Service host.
@@ -133,5 +161,7 @@ public final class SseClientImpl {
         this.unnameds = new UnnamedsImpl(this);
         this.nameds = new NamedsImpl(this);
         this.retrieves = new RetrievesImpl(this);
+        this.protocols = new ProtocolsImpl(this);
+        this.protocolDatas = new ProtocolDatasImpl(this);
     }
 }

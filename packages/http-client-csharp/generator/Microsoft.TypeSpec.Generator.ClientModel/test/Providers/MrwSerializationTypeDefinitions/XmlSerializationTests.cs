@@ -316,6 +316,39 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         }
 
         [Test]
+        public void XmlSerializationSkipsNullCollections(
+            [Values(false, true)] bool supportsJson,
+            [Values(false, true)] bool isRequired,
+            [Values(false, true)] bool isReadOnly,
+            [Values(false, true)] bool unwrapped)
+        {
+            var usage = InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Xml;
+            if (supportsJson)
+            {
+                usage |= InputModelTypeUsage.Json;
+            }
+            var inputModel = InputFactory.Model(
+                "TestXmlModel",
+                usage: usage,
+                properties:
+                [
+                    InputFactory.Property("numbers", new InputNullableType(InputFactory.Array(InputPrimitiveType.Int32)),
+                        isRequired: isRequired, isReadOnly: isReadOnly,
+                        serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("numbers", unwrapped: unwrapped, itemsName: "int32"))),
+                    InputFactory.Property("labels", new InputNullableType(InputFactory.Dictionary(InputPrimitiveType.String)),
+                        isRequired: isRequired, isReadOnly: isReadOnly,
+                        serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("labels", unwrapped: unwrapped)))
+                ]);
+            var generator = MockHelpers.LoadMockGenerator(inputModels: () => [inputModel]);
+            var model = generator.Object.TypeFactory.CreateModel(inputModel)!;
+            var serialization = model.SerializationProviders.Single();
+            var method = serialization.Methods.Single(m => m.Signature.Name == "XmlModelWriteCore");
+
+            Assert.That(method.BodyStatements!.ToDisplayString(),
+                Is.EqualTo(Helpers.GetExpectedFromFile(unwrapped.ToString()).ReplaceLineEndings("\n")));
+        }
+
+        [Test]
         public void XmlSerializationHandlesDateTimeOffsetProperty()
         {
             var inputModel = InputFactory.Model(

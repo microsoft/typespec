@@ -12,7 +12,7 @@ namespace SampleTypeSpec
 {
     /// <summary>
     /// Base animal with discriminator
-    /// Please note this is the abstract base class. The derived classes available for instantiation are: <see cref="Pet"/> and <see cref="Dog"/>.
+    /// Please note this is the abstract base class. The derived classes available for instantiation are: <see cref="Dog"/> and <see cref="Pet"/>.
     /// </summary>
     public abstract partial class Animal
     {

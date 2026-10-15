@@ -31,7 +31,13 @@ import streaming.sse.implementation.SseClientImpl;
 /**
  * A builder for creating a new instance of the SseClient type.
  */
-@ServiceClientBuilder(serviceClients = { UnnamedClient.class, NamedClient.class, RetrieveClient.class })
+@ServiceClientBuilder(
+    serviceClients = {
+        UnnamedClient.class,
+        NamedClient.class,
+        RetrieveClient.class,
+        ProtocolClient.class,
+        ProtocolDataClient.class })
 public final class SseClientBuilder implements HttpTrait<SseClientBuilder>, ProxyTrait<SseClientBuilder>,
     ConfigurationTrait<SseClientBuilder>, EndpointTrait<SseClientBuilder> {
     @Metadata(properties = { MetadataProperties.GENERATED })
@@ -253,5 +259,27 @@ public final class SseClientBuilder implements HttpTrait<SseClientBuilder>, Prox
     public RetrieveClient buildRetrieveClient() {
         SseClientImpl innerClient = buildInnerClient();
         return new RetrieveClient(innerClient.getRetrieves(), innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of ProtocolClient class.
+     * 
+     * @return an instance of ProtocolClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public ProtocolClient buildProtocolClient() {
+        SseClientImpl innerClient = buildInnerClient();
+        return new ProtocolClient(innerClient.getProtocols(), innerClient.getInstrumentation());
+    }
+
+    /**
+     * Builds an instance of ProtocolDataClient class.
+     * 
+     * @return an instance of ProtocolDataClient.
+     */
+    @Metadata(properties = { MetadataProperties.GENERATED })
+    public ProtocolDataClient buildProtocolDataClient() {
+        SseClientImpl innerClient = buildInnerClient();
+        return new ProtocolDataClient(innerClient.getProtocolDatas(), innerClient.getInstrumentation());
     }
 }

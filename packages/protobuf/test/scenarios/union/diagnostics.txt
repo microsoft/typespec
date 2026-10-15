@@ -1,1 +1,2 @@
-/test/main.tsp:14:13 - error @typespec/protobuf/unsupported-field-type: a message field's type may not be a union
+/test/main.tsp:22:3 - error @typespec/protobuf/field-index: field a does not have a field index, but one is required (try using the '@field' decorator)
+/test/main.tsp:23:3 - error @typespec/protobuf/field-index: field b does not have a field index, but one is required (try using the '@field' decorator)

@@ -184,14 +184,23 @@ export type TypeSpecGraphQLDecorators = {
   specifiedBy: SpecifiedByDecorator;
 };
 
+/** Check if the `@TypeSpec.GraphQL.inputType` decorator was applied on the given target. */
 export function isInputType(program: Program, target: Model): boolean {
   return hasAutoDecorator(program, "TypeSpec.GraphQL.inputType", target);
 }
 
+/**
+ * Mark a model as a GraphQL input type in the emitted schema.
+ *
+ * This decorator is applied automatically by the mutation engine when it produces
+ * a model that is used in input position. The emitter uses this to emit the model
+ * as an `input` type rather than an object `type`.
+ */
 export function setInputType(program: Program, target: Model): void {
   setAutoDecorator(program, "TypeSpec.GraphQL.inputType", target);
 }
 
+/** Check if the `@TypeSpec.GraphQL.nullable` decorator was applied on the given target. */
 export function isNullable(
   program: Program,
   target: ModelProperty | Operation | Union | Model,
@@ -199,6 +208,12 @@ export function isNullable(
   return hasAutoDecorator(program, "TypeSpec.GraphQL.nullable", target);
 }
 
+/**
+ * Mark a field, operation, or type as nullable in the emitted GraphQL schema.
+ *
+ * Applied automatically by the mutation engine when it strips `| null` from
+ * union types, and can also be applied directly in TypeSpec source.
+ */
 export function setNullable(
   program: Program,
   target: ModelProperty | Operation | Union | Model,
@@ -206,18 +221,33 @@ export function setNullable(
   setAutoDecorator(program, "TypeSpec.GraphQL.nullable", target);
 }
 
+/** Check if the `@TypeSpec.GraphQL.nullableElements` decorator was applied on the given target. */
 export function isNullableElements(program: Program, target: ModelProperty | Operation): boolean {
   return hasAutoDecorator(program, "TypeSpec.GraphQL.nullableElements", target);
 }
 
+/**
+ * Mark a field or operation as having nullable array elements in the emitted GraphQL schema.
+ *
+ * Applied automatically by the mutation engine when it detects `Array<T | null>`
+ * patterns. Causes the emitter to emit `[T]` instead of `[T!]`.
+ */
 export function setNullableElements(program: Program, target: ModelProperty | Operation): void {
   setAutoDecorator(program, "TypeSpec.GraphQL.nullableElements", target);
 }
 
+/** Check if the `@TypeSpec.GraphQL.oneOf` decorator was applied on the given target. */
 export function isOneOf(program: Program, target: Model): boolean {
   return hasAutoDecorator(program, "TypeSpec.GraphQL.oneOf", target);
 }
 
+/**
+ * Mark a model as a `@oneOf` input object in the emitted GraphQL schema.
+ *
+ * This decorator is applied automatically by the mutation engine when it converts
+ * a union type in input context to a synthetic input object (since GraphQL unions
+ * are output-only). The emitter uses this to emit the `@oneOf` directive.
+ */
 export function setOneOf(program: Program, target: Model): void {
   setAutoDecorator(program, "TypeSpec.GraphQL.oneOf", target);
 }

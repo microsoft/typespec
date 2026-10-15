@@ -7,8 +7,9 @@
 """Tests for TypedDict generation, unions generation, and models-mode interactions."""
 
 from jinja2 import PackageLoader, Environment
+import pytest
 
-from pygen.codegen.models import CodeModel, JSONModelType, DPGModelType, build_type
+from pygen.codegen.models import CodeModel, CombinedType, JSONModelType, DPGModelType, build_type
 from pygen.codegen.models.imports import ImportType, FileImport, TypingSection
 from pygen.codegen.models.model_type import TypedDictModelType
 from pygen.codegen.models.property import Property
@@ -520,6 +521,92 @@ def test_unions_serializer_no_unions():
     output = us.serialize()
     assert "TypedDict" not in output
     assert "Union" not in output
+
+
+def test_unions_serializer_single_member_alias():
+    """A named single-member union must remain a valid static type alias."""
+    code_model = _make_code_model(models_mode="dpg")
+    model = _make_model(code_model, "GenerateVoiceAgentRequest", model_cls=DPGModelType)
+    named_union = CombinedType(
+        {"type": "combined", "name": "GenerateAgentRequest"},
+        code_model,
+        [model],
+    )
+    code_model.named_unions = [named_union]
+
+    output = UnionsSerializer(code_model=code_model, env=_make_env()).serialize()
+
+    assert "from typing import TYPE_CHECKING, TypeAlias, Union" in output
+    assert 'GenerateAgentRequest: TypeAlias = "_models.GenerateVoiceAgentRequest"' in output
+    assert named_union.type_annotation() == '"_unions.GenerateAgentRequest"'
+
+
+def test_unions_serializer_multiple_member_alias():
+    """A named multi-member union remains a Union type alias."""
+    code_model = _make_code_model(models_mode="dpg")
+    voice_model = _make_model(code_model, "GenerateVoiceAgentRequest", model_cls=DPGModelType)
+    text_model = _make_model(code_model, "GenerateTextAgentRequest", model_cls=DPGModelType)
+    named_union = CombinedType(
+        {"type": "combined", "name": "GenerateAgentRequest"},
+        code_model,
+        [voice_model, text_model],
+    )
+    code_model.named_unions = [named_union]
+
+    output = UnionsSerializer(code_model=code_model, env=_make_env()).serialize()
+
+    assert "from typing import TYPE_CHECKING, TypeAlias, Union" in output
+    assert (
+        'GenerateAgentRequest: TypeAlias = Union["_models.GenerateVoiceAgentRequest", '
+        '"_models.GenerateTextAgentRequest"]' in output
+    )
+
+
+@pytest.mark.parametrize("member_count", [1, 2])
+def test_unions_serializer_deduplicates_named_aliases(member_count: int):
+    """Equivalent single- and multi-member copies produce one alias declaration."""
+    code_model = _make_code_model(models_mode="dpg")
+    voice_model = _make_model(code_model, "GenerateVoiceAgentRequest", model_cls=DPGModelType)
+    text_model = _make_model(code_model, "GenerateTextAgentRequest", model_cls=DPGModelType)
+    members = [voice_model, text_model][:member_count]
+    first = CombinedType(
+        {"type": "combined", "name": "GenerateAgentRequest"},
+        code_model,
+        members,
+    )
+    duplicate = CombinedType(
+        {"type": "combined", "name": "GenerateAgentRequest"},
+        code_model,
+        members.copy(),
+    )
+    code_model.named_unions = [first, duplicate]
+
+    output = UnionsSerializer(code_model=code_model, env=_make_env()).serialize()
+
+    assert output.count("GenerateAgentRequest: TypeAlias =") == 1
+
+
+def test_unions_serializer_collapses_same_name_aliases():
+    """Two unions sharing an alias name emit a single declaration (first wins)."""
+    code_model = _make_code_model(models_mode="dpg")
+    voice_model = _make_model(code_model, "GenerateVoiceAgentRequest", model_cls=DPGModelType)
+    text_model = _make_model(code_model, "GenerateTextAgentRequest", model_cls=DPGModelType)
+    code_model.named_unions = [
+        CombinedType(
+            {"type": "combined", "name": "GenerateAgentRequest"},
+            code_model,
+            [voice_model],
+        ),
+        CombinedType(
+            {"type": "combined", "name": "GenerateAgentRequest"},
+            code_model,
+            [text_model],
+        ),
+    ]
+
+    output = UnionsSerializer(code_model=code_model, env=_make_env()).serialize()
+
+    assert output.count("GenerateAgentRequest: TypeAlias =") == 1
 
 
 # ---------- typed-dict-only ----------

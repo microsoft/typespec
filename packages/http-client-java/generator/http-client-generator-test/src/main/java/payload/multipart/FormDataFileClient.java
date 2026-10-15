@@ -54,10 +54,10 @@ public final class FormDataFileClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    Response<Void> uploadFileSpecificContentTypeWithResponse(BinaryData body, RequestOptions requestOptions) {
+    Response<Void> uploadFileSpecificContentTypeWithResponseInternal(BinaryData body, RequestOptions requestOptions) {
         // Operation 'uploadFileSpecificContentType' is of content-type 'multipart/form-data'. Protocol API is not
         // usable and hence not generated.
-        return this.serviceClient.uploadFileSpecificContentTypeWithResponse(body, requestOptions);
+        return this.serviceClient.uploadFileSpecificContentTypeWithResponseInternal(body, requestOptions);
     }
 
     /**
@@ -73,10 +73,10 @@ public final class FormDataFileClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    Response<Void> uploadFileRequiredFilenameWithResponse(BinaryData body, RequestOptions requestOptions) {
+    Response<Void> uploadFileRequiredFilenameWithResponseInternal(BinaryData body, RequestOptions requestOptions) {
         // Operation 'uploadFileRequiredFilename' is of content-type 'multipart/form-data'. Protocol API is not usable
         // and hence not generated.
-        return this.serviceClient.uploadFileRequiredFilenameWithResponse(body, requestOptions);
+        return this.serviceClient.uploadFileRequiredFilenameWithResponseInternal(body, requestOptions);
     }
 
     /**
@@ -92,10 +92,35 @@ public final class FormDataFileClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    Response<Void> uploadFileArrayWithResponse(BinaryData body, RequestOptions requestOptions) {
+    Response<Void> uploadFileArrayWithResponseInternal(BinaryData body, RequestOptions requestOptions) {
         // Operation 'uploadFileArray' is of content-type 'multipart/form-data'. Protocol API is not usable and hence
         // not generated.
-        return this.serviceClient.uploadFileArrayWithResponse(body, requestOptions);
+        return this.serviceClient.uploadFileArrayWithResponseInternal(body, requestOptions);
+    }
+
+    /**
+     * The uploadFileSpecificContentType operation.
+     * 
+     * @param body The body parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> uploadFileSpecificContentTypeWithResponse(UploadFileSpecificContentTypeRequest body,
+        RequestOptions requestOptions) {
+        // Generated convenience method for uploadFileSpecificContentTypeWithResponseInternal
+        requestOptions = requestOptions == null ? new RequestOptions() : requestOptions;
+        return uploadFileSpecificContentTypeWithResponseInternal(
+            new MultipartFormDataHelper(requestOptions).serializeFileField("file", body.getFile().getContent(),
+                body.getFile().getContentType(), body.getFile().getFilename()).end().getRequestBody(),
+            requestOptions);
     }
 
     /**
@@ -112,12 +137,37 @@ public final class FormDataFileClient {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void uploadFileSpecificContentType(UploadFileSpecificContentTypeRequest body) {
-        // Generated convenience method for uploadFileSpecificContentTypeWithResponse
+        // Generated convenience method for uploadFileSpecificContentTypeWithResponseInternal
         RequestOptions requestOptions = new RequestOptions();
-        uploadFileSpecificContentTypeWithResponse(
+        uploadFileSpecificContentTypeWithResponseInternal(
             new MultipartFormDataHelper(requestOptions).serializeFileField("file", body.getFile().getContent(),
                 body.getFile().getContentType(), body.getFile().getFilename()).end().getRequestBody(),
             requestOptions).getValue();
+    }
+
+    /**
+     * The uploadFileRequiredFilename operation.
+     * 
+     * @param body The body parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> uploadFileRequiredFilenameWithResponse(UploadFileRequiredFilenameRequest body,
+        RequestOptions requestOptions) {
+        // Generated convenience method for uploadFileRequiredFilenameWithResponseInternal
+        requestOptions = requestOptions == null ? new RequestOptions() : requestOptions;
+        return uploadFileRequiredFilenameWithResponseInternal(
+            new MultipartFormDataHelper(requestOptions).serializeFileField("file", body.getFile().getContent(),
+                body.getFile().getContentType(), body.getFile().getFilename()).end().getRequestBody(),
+            requestOptions);
     }
 
     /**
@@ -134,12 +184,39 @@ public final class FormDataFileClient {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void uploadFileRequiredFilename(UploadFileRequiredFilenameRequest body) {
-        // Generated convenience method for uploadFileRequiredFilenameWithResponse
+        // Generated convenience method for uploadFileRequiredFilenameWithResponseInternal
         RequestOptions requestOptions = new RequestOptions();
-        uploadFileRequiredFilenameWithResponse(
+        uploadFileRequiredFilenameWithResponseInternal(
             new MultipartFormDataHelper(requestOptions).serializeFileField("file", body.getFile().getContent(),
                 body.getFile().getContentType(), body.getFile().getFilename()).end().getRequestBody(),
             requestOptions).getValue();
+    }
+
+    /**
+     * The uploadFileArray operation.
+     * 
+     * @param body The body parameter.
+     * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the {@link Response}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    public Response<Void> uploadFileArrayWithResponse(UploadFileArrayRequest body, RequestOptions requestOptions) {
+        // Generated convenience method for uploadFileArrayWithResponseInternal
+        requestOptions = requestOptions == null ? new RequestOptions() : requestOptions;
+        return uploadFileArrayWithResponseInternal(new MultipartFormDataHelper(requestOptions)
+            .serializeFileFields("files",
+                body.getFiles().stream().map(FilesFileDetails::getContent).collect(Collectors.toList()),
+                body.getFiles().stream().map(FilesFileDetails::getContentType).collect(Collectors.toList()),
+                body.getFiles().stream().map(FilesFileDetails::getFilename).collect(Collectors.toList()))
+            .end()
+            .getRequestBody(), requestOptions);
     }
 
     /**
@@ -156,9 +233,9 @@ public final class FormDataFileClient {
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void uploadFileArray(UploadFileArrayRequest body) {
-        // Generated convenience method for uploadFileArrayWithResponse
+        // Generated convenience method for uploadFileArrayWithResponseInternal
         RequestOptions requestOptions = new RequestOptions();
-        uploadFileArrayWithResponse(new MultipartFormDataHelper(requestOptions)
+        uploadFileArrayWithResponseInternal(new MultipartFormDataHelper(requestOptions)
             .serializeFileFields("files",
                 body.getFiles().stream().map(FilesFileDetails::getContent).collect(Collectors.toList()),
                 body.getFiles().stream().map(FilesFileDetails::getContentType).collect(Collectors.toList()),

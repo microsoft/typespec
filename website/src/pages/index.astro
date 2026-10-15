@@ -194,8 +194,14 @@ import Button from "../components/button.astro";
         Install the TypeSpec CLI or check out the playground to get started.
       </DescriptionText>
       <div class="closing-buttons">
-        <Button as="a" appearance="primary" href={link(Links.docs)}> Get Started </Button>
-        <Button as="a" appearance="outline" href={link(Links.playground)}> Try it out </Button>
+        <Button as="a" appearance="primary" href={link(Links.docs)}>
+          {" "}
+          Get Started{" "}
+        </Button>
+        <Button as="a" appearance="outline" href={link(Links.playground)}>
+          {" "}
+          Try it out{" "}
+        </Button>
       </div>
     </div>
   </SectionedLayout>

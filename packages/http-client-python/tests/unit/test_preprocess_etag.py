@@ -20,12 +20,18 @@ def _plugin() -> PreProcessPlugin:
     )
 
 
-def _header_param(client_name: str, wire_name: str, etag_role: str | None) -> dict:
+def _header_param(
+    client_name: str,
+    wire_name: str,
+    etag_role: str | None,
+    *,
+    optional: bool = True,
+) -> dict:
     p: dict = {
         "clientName": client_name,
         "wireName": wire_name,
         "location": "header",
-        "optional": True,
+        "optional": optional,
         "implementation": "Method",
         "type": {"type": "string"},
     }
@@ -57,6 +63,49 @@ def _client_yaml(operation_params: list[dict]) -> dict:
 
 def _get_op(client: dict) -> dict:
     return client["operationGroups"][0]["operations"][0]
+
+
+def test_etag_headers_in_nested_operation_group_are_processed():
+    """Nested ETag operations get their partner parameter and enable client helpers."""
+    if_match = _header_param(
+        "if_match",
+        "If-Match",
+        "ifMatch",
+        optional=False,
+    )
+    operation = {
+        "name": "remove",
+        "parameters": [if_match],
+    }
+    client = _client_yaml([])
+    parent_group = {
+        "operations": [],
+        "operationGroups": [
+            {
+                "operations": [operation],
+            }
+        ],
+    }
+    client["operationGroups"] = [parent_group]
+
+    plugin = _plugin()
+    plugin.update_client(client)
+
+    assert client["hasEtag"] is True
+    assert "hasEtag" not in parent_group
+    assert operation["hasEtag"] is True
+    assert len(operation["parameters"]) == 2
+    assert operation["parameters"][0]["etagRole"] == "ifMatch"
+    assert operation["parameters"][1]["etagRole"] == "ifNoneMatch"
+    assert all(parameter["optional"] is False for parameter in operation["parameters"])
+    assert all("clientDefaultValue" not in parameter for parameter in operation["parameters"])
+
+    for parameter in operation["parameters"]:
+        plugin.update_parameter(parameter)
+    assert [parameter["clientName"] for parameter in operation["parameters"]] == [
+        "etag",
+        "match_condition",
+    ]
 
 
 def test_etag_role_preserved_when_only_standard_pair_present():

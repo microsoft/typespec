@@ -133,14 +133,18 @@ const { class: className } = Astro.props;
           class="item icon link"
           href="https://github.com/microsoft/typespec"
           target="_blank"
-          rel="noopener noreferrer"><Icon name="github" label="github" /></Link
+          rel="noopener noreferrer"
         >
+          <Icon name="github" label="github" />
+        </Link>
         <Link
           class="item icon link"
           href="https://aka.ms/typespec/discord"
           target="_blank"
-          rel="noopener noreferrer"><Icon name="discord" label="discord" /></Link
+          rel="noopener noreferrer"
         >
+          <Icon name="discord" label="discord" />
+        </Link>
       </div>
     </div>
     <div class="top-separator"></div>
@@ -160,7 +164,10 @@ const { class: className } = Astro.props;
     </div>
     <div class="general-links">
       <div>
-        <Link href={Links.privacy} title="Microsoft Privacy Policy"> Privacy </Link>
+        <Link href={Links.privacy} title="Microsoft Privacy Policy">
+          {" "}
+          Privacy{" "}
+        </Link>
       </div>
       <div>
         <button
@@ -172,10 +179,16 @@ const { class: className } = Astro.props;
         </button>
       </div>
       <div>
-        <Link href={Links.termsOfUse} title="Microsoft Terms Of Use"> Terms of use </Link>
+        <Link href={Links.termsOfUse} title="Microsoft Terms Of Use">
+          {" "}
+          Terms of use{" "}
+        </Link>
       </div>
       <div>
-        <Link href={Links.trademark} title="Microsoft Trademarks"> Trademarks </Link>
+        <Link href={Links.trademark} title="Microsoft Trademarks">
+          {" "}
+          Trademarks{" "}
+        </Link>
       </div>
     </div>
   </div>

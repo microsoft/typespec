@@ -22,7 +22,6 @@ namespace SampleTypeSpec
     public partial class SampleTypeSpecClient
     {
         private readonly Uri _endpoint;
-        private readonly ModelReaderWriterOptions _modelReaderWriterOptions;
         private const string AuthorizationHeader = "my-api-key";
         /// <summary> The OAuth2 flows supported by the service. </summary>
         private static readonly Dictionary<string, object>[] _flows = new Dictionary<string, object>[] 
@@ -35,6 +34,9 @@ namespace SampleTypeSpec
             }
         };
         private readonly string _apiVersion;
+#pragma warning disable SAMPLE0009 // This generated code depends on experimental functionality.
+        private ExperimentalSamples _cachedExperimentalSamples;
+#pragma warning restore SAMPLE0009 // This generated code depends on experimental functionality.
         private AnimalOperations _cachedAnimalOperations;
         private PetOperations _cachedPetOperations;
         private DogOperations _cachedDogOperations;
@@ -64,7 +66,6 @@ namespace SampleTypeSpec
             options ??= new SampleTypeSpecClientOptions();
 
             _endpoint = endpoint;
-            _modelReaderWriterOptions = options.ModelReaderWriterOptions == null ? ModelSerializationExtensions.WireOptions : new ModelReaderWriterOptions("W", options.ModelReaderWriterOptions);
             if (authenticationPolicy != null)
             {
                 Pipeline = ClientPipeline.Create(options, Array.Empty<PipelinePolicy>(), new PipelinePolicy[] { new UserAgentPolicy(typeof(SampleTypeSpecClient).Assembly), authenticationPolicy }, Array.Empty<PipelinePolicy>());
@@ -168,8 +169,7 @@ namespace SampleTypeSpec
             Argument.AssertNotNullOrEmpty(queryParameter, nameof(queryParameter));
 
             ClientResult result = SayHi(headParameter, queryParameter, optionalQuery, cancellationToken.ToRequestOptions());
-            BinaryData data = result.GetRawResponse().Content;
-            return ClientResult.FromValue(ModelReaderWriter.Read<Thing>(data, _modelReaderWriterOptions, SampleTypeSpecContext.Default), result.GetRawResponse());
+            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
         /// <summary> Return hi. </summary>
@@ -186,8 +186,7 @@ namespace SampleTypeSpec
             Argument.AssertNotNullOrEmpty(queryParameter, nameof(queryParameter));
 
             ClientResult result = await SayHiAsync(headParameter, queryParameter, optionalQuery, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            BinaryData data = result.GetRawResponse().Content;
-            return ClientResult.FromValue(ModelReaderWriter.Read<Thing>(data, _modelReaderWriterOptions, SampleTypeSpecContext.Default), result.GetRawResponse());
+            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
         /// <summary>
@@ -256,10 +255,8 @@ namespace SampleTypeSpec
             Argument.AssertNotNullOrEmpty(p1, nameof(p1));
             Argument.AssertNotNull(action, nameof(action));
 
-            using BinaryContent content = action.ToBinaryContent(_modelReaderWriterOptions);
-            ClientResult result = HelloAgain(p2, p1, content, cancellationToken.ToRequestOptions());
-            BinaryData data = result.GetRawResponse().Content;
-            return ClientResult.FromValue(ModelReaderWriter.Read<RoundTripModel>(data, _modelReaderWriterOptions, SampleTypeSpecContext.Default), result.GetRawResponse());
+            ClientResult result = HelloAgain(p2, p1, action, cancellationToken.ToRequestOptions());
+            return ClientResult.FromValue((RoundTripModel)result, result.GetRawResponse());
         }
 
         /// <summary> Return hi again. </summary>
@@ -276,10 +273,8 @@ namespace SampleTypeSpec
             Argument.AssertNotNullOrEmpty(p1, nameof(p1));
             Argument.AssertNotNull(action, nameof(action));
 
-            using BinaryContent content = action.ToBinaryContent(_modelReaderWriterOptions);
-            ClientResult result = await HelloAgainAsync(p2, p1, content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            BinaryData data = result.GetRawResponse().Content;
-            return ClientResult.FromValue(ModelReaderWriter.Read<RoundTripModel>(data, _modelReaderWriterOptions, SampleTypeSpecContext.Default), result.GetRawResponse());
+            ClientResult result = await HelloAgainAsync(p2, p1, action, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            return ClientResult.FromValue((RoundTripModel)result, result.GetRawResponse());
         }
 
         /// <summary>
@@ -344,8 +339,7 @@ namespace SampleTypeSpec
             Argument.AssertNotNull(info, nameof(info));
 
             ClientResult result = NoContentType(info.P2, info.P1, info.Action, cancellationToken.ToRequestOptions());
-            BinaryData data = result.GetRawResponse().Content;
-            return ClientResult.FromValue(ModelReaderWriter.Read<RoundTripModel>(data, _modelReaderWriterOptions, SampleTypeSpecContext.Default), result.GetRawResponse());
+            return ClientResult.FromValue((RoundTripModel)result, result.GetRawResponse());
         }
 
         /// <summary> Return hi again. </summary>
@@ -358,8 +352,7 @@ namespace SampleTypeSpec
             Argument.AssertNotNull(info, nameof(info));
 
             ClientResult result = await NoContentTypeAsync(info.P2, info.P1, info.Action, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            BinaryData data = result.GetRawResponse().Content;
-            return ClientResult.FromValue(ModelReaderWriter.Read<RoundTripModel>(data, _modelReaderWriterOptions, SampleTypeSpecContext.Default), result.GetRawResponse());
+            return ClientResult.FromValue((RoundTripModel)result, result.GetRawResponse());
         }
 
         /// <summary>
@@ -373,6 +366,7 @@ namespace SampleTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
+        [Experimental("SAMPLE0001")]
         public virtual ClientResult HelloDemo2(RequestOptions options)
         {
             using PipelineMessage message = CreateHelloDemo2Request(options);
@@ -390,6 +384,7 @@ namespace SampleTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
+        [Experimental("SAMPLE0001")]
         public virtual async Task<ClientResult> HelloDemo2Async(RequestOptions options)
         {
             using PipelineMessage message = CreateHelloDemo2Request(options);
@@ -399,21 +394,21 @@ namespace SampleTypeSpec
         /// <summary> Return hi in demo2. </summary>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        [Experimental("SAMPLE0001")]
         public virtual ClientResult<Thing> HelloDemo2(CancellationToken cancellationToken = default)
         {
             ClientResult result = HelloDemo2(cancellationToken.ToRequestOptions());
-            BinaryData data = result.GetRawResponse().Content;
-            return ClientResult.FromValue(ModelReaderWriter.Read<Thing>(data, _modelReaderWriterOptions, SampleTypeSpecContext.Default), result.GetRawResponse());
+            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
         /// <summary> Return hi in demo2. </summary>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        [Experimental("SAMPLE0001")]
         public virtual async Task<ClientResult<Thing>> HelloDemo2Async(CancellationToken cancellationToken = default)
         {
             ClientResult result = await HelloDemo2Async(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            BinaryData data = result.GetRawResponse().Content;
-            return ClientResult.FromValue(ModelReaderWriter.Read<Thing>(data, _modelReaderWriterOptions, SampleTypeSpecContext.Default), result.GetRawResponse());
+            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
         /// <summary>
@@ -467,10 +462,8 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            using BinaryContent content = body.ToBinaryContent(_modelReaderWriterOptions);
-            ClientResult result = CreateLiteral(content, cancellationToken.ToRequestOptions());
-            BinaryData data = result.GetRawResponse().Content;
-            return ClientResult.FromValue(ModelReaderWriter.Read<Thing>(data, _modelReaderWriterOptions, SampleTypeSpecContext.Default), result.GetRawResponse());
+            ClientResult result = CreateLiteral(body, cancellationToken.ToRequestOptions());
+            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
         /// <summary> Create with literal value. </summary>
@@ -482,10 +475,8 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            using BinaryContent content = body.ToBinaryContent(_modelReaderWriterOptions);
-            ClientResult result = await CreateLiteralAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            BinaryData data = result.GetRawResponse().Content;
-            return ClientResult.FromValue(ModelReaderWriter.Read<Thing>(data, _modelReaderWriterOptions, SampleTypeSpecContext.Default), result.GetRawResponse());
+            ClientResult result = await CreateLiteralAsync(body, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
         /// <summary>
@@ -528,8 +519,7 @@ namespace SampleTypeSpec
         public virtual ClientResult<Thing> HelloLiteral(CancellationToken cancellationToken = default)
         {
             ClientResult result = HelloLiteral(cancellationToken.ToRequestOptions());
-            BinaryData data = result.GetRawResponse().Content;
-            return ClientResult.FromValue(ModelReaderWriter.Read<Thing>(data, _modelReaderWriterOptions, SampleTypeSpecContext.Default), result.GetRawResponse());
+            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
         /// <summary> Send literal parameters. </summary>
@@ -538,8 +528,7 @@ namespace SampleTypeSpec
         public virtual async Task<ClientResult<Thing>> HelloLiteralAsync(CancellationToken cancellationToken = default)
         {
             ClientResult result = await HelloLiteralAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            BinaryData data = result.GetRawResponse().Content;
-            return ClientResult.FromValue(ModelReaderWriter.Read<Thing>(data, _modelReaderWriterOptions, SampleTypeSpecContext.Default), result.GetRawResponse());
+            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
         /// <summary>
@@ -585,8 +574,7 @@ namespace SampleTypeSpec
         public virtual ClientResult<Thing> TopAction(DateTimeOffset action, CancellationToken cancellationToken = default)
         {
             ClientResult result = TopAction(action, cancellationToken.ToRequestOptions());
-            BinaryData data = result.GetRawResponse().Content;
-            return ClientResult.FromValue(ModelReaderWriter.Read<Thing>(data, _modelReaderWriterOptions, SampleTypeSpecContext.Default), result.GetRawResponse());
+            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
         /// <summary> top level method. </summary>
@@ -596,8 +584,7 @@ namespace SampleTypeSpec
         public virtual async Task<ClientResult<Thing>> TopActionAsync(DateTimeOffset action, CancellationToken cancellationToken = default)
         {
             ClientResult result = await TopActionAsync(action, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            BinaryData data = result.GetRawResponse().Content;
-            return ClientResult.FromValue(ModelReaderWriter.Read<Thing>(data, _modelReaderWriterOptions, SampleTypeSpecContext.Default), result.GetRawResponse());
+            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
         /// <summary>
@@ -766,8 +753,7 @@ namespace SampleTypeSpec
                 propertyWithSpecialDocs,
                 default);
             ClientResult result = AnonymousBody(spreadModel, cancellationToken.ToRequestOptions());
-            BinaryData data = result.GetRawResponse().Content;
-            return ClientResult.FromValue(ModelReaderWriter.Read<Thing>(data, _modelReaderWriterOptions, SampleTypeSpecContext.Default), result.GetRawResponse());
+            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
         /// <summary> body parameter without body decorator. </summary>
@@ -818,8 +804,7 @@ namespace SampleTypeSpec
                 propertyWithSpecialDocs,
                 default);
             ClientResult result = await AnonymousBodyAsync(spreadModel, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            BinaryData data = result.GetRawResponse().Content;
-            return ClientResult.FromValue(ModelReaderWriter.Read<Thing>(data, _modelReaderWriterOptions, SampleTypeSpecContext.Default), result.GetRawResponse());
+            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
         /// <summary>
@@ -876,8 +861,7 @@ namespace SampleTypeSpec
 
             Friend spreadModel = new Friend(name, default);
             ClientResult result = FriendlyModel(spreadModel, cancellationToken.ToRequestOptions());
-            BinaryData data = result.GetRawResponse().Content;
-            return ClientResult.FromValue(ModelReaderWriter.Read<Friend>(data, _modelReaderWriterOptions, SampleTypeSpecContext.Default), result.GetRawResponse());
+            return ClientResult.FromValue((Friend)result, result.GetRawResponse());
         }
 
         /// <summary> Model can have its friendly name. </summary>
@@ -892,8 +876,7 @@ namespace SampleTypeSpec
 
             Friend spreadModel = new Friend(name, default);
             ClientResult result = await FriendlyModelAsync(spreadModel, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            BinaryData data = result.GetRawResponse().Content;
-            return ClientResult.FromValue(ModelReaderWriter.Read<Friend>(data, _modelReaderWriterOptions, SampleTypeSpecContext.Default), result.GetRawResponse());
+            return ClientResult.FromValue((Friend)result, result.GetRawResponse());
         }
 
         /// <summary>
@@ -1000,8 +983,7 @@ namespace SampleTypeSpec
 
             RenamedModelCustom spreadModel = new RenamedModelCustom(default, otherName);
             ClientResult result = ProjectedNameModel(spreadModel, cancellationToken.ToRequestOptions());
-            BinaryData data = result.GetRawResponse().Content;
-            return ClientResult.FromValue(ModelReaderWriter.Read<RenamedModelCustom>(data, _modelReaderWriterOptions, SampleTypeSpecContext.Default), result.GetRawResponse());
+            return ClientResult.FromValue((RenamedModelCustom)result, result.GetRawResponse());
         }
 
         /// <summary> Model can have its projected name. </summary>
@@ -1016,8 +998,7 @@ namespace SampleTypeSpec
 
             RenamedModelCustom spreadModel = new RenamedModelCustom(default, otherName);
             ClientResult result = await ProjectedNameModelAsync(spreadModel, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            BinaryData data = result.GetRawResponse().Content;
-            return ClientResult.FromValue(ModelReaderWriter.Read<RenamedModelCustom>(data, _modelReaderWriterOptions, SampleTypeSpecContext.Default), result.GetRawResponse());
+            return ClientResult.FromValue((RenamedModelCustom)result, result.GetRawResponse());
         }
 
         /// <summary>
@@ -1057,21 +1038,19 @@ namespace SampleTypeSpec
         /// <summary> return anonymous model. </summary>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult<ReturnsAnonymousModelResponse> ReturnsAnonymousModel(CancellationToken cancellationToken = default)
+        public virtual ClientResult<ReturnsAnonymousModelResult> ReturnsAnonymousModel(CancellationToken cancellationToken = default)
         {
             ClientResult result = ReturnsAnonymousModel(cancellationToken.ToRequestOptions());
-            BinaryData data = result.GetRawResponse().Content;
-            return ClientResult.FromValue(ModelReaderWriter.Read<ReturnsAnonymousModelResponse>(data, _modelReaderWriterOptions, SampleTypeSpecContext.Default), result.GetRawResponse());
+            return ClientResult.FromValue((ReturnsAnonymousModelResult)result, result.GetRawResponse());
         }
 
         /// <summary> return anonymous model. </summary>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult<ReturnsAnonymousModelResponse>> ReturnsAnonymousModelAsync(CancellationToken cancellationToken = default)
+        public virtual async Task<ClientResult<ReturnsAnonymousModelResult>> ReturnsAnonymousModelAsync(CancellationToken cancellationToken = default)
         {
             ClientResult result = await ReturnsAnonymousModelAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            BinaryData data = result.GetRawResponse().Content;
-            return ClientResult.FromValue(ModelReaderWriter.Read<ReturnsAnonymousModelResponse>(data, _modelReaderWriterOptions, SampleTypeSpecContext.Default), result.GetRawResponse());
+            return ClientResult.FromValue((ReturnsAnonymousModelResult)result, result.GetRawResponse());
         }
 
         /// <summary>
@@ -1114,7 +1093,8 @@ namespace SampleTypeSpec
         public virtual ClientResult<DaysOfWeekExtensibleEnum> GetUnknownValue(CancellationToken cancellationToken = default)
         {
             ClientResult result = GetUnknownValue(cancellationToken.ToRequestOptions());
-            return ClientResult.FromValue(new DaysOfWeekExtensibleEnum(result.GetRawResponse().Content.ToObjectFromJson<string>()), result.GetRawResponse());
+            DaysOfWeekExtensibleEnum value = new DaysOfWeekExtensibleEnum(result.GetRawResponse().Content.ToString());
+            return ClientResult.FromValue(value, result.GetRawResponse());
         }
 
         /// <summary> get extensible enum. </summary>
@@ -1123,7 +1103,8 @@ namespace SampleTypeSpec
         public virtual async Task<ClientResult<DaysOfWeekExtensibleEnum>> GetUnknownValueAsync(CancellationToken cancellationToken = default)
         {
             ClientResult result = await GetUnknownValueAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            return ClientResult.FromValue(new DaysOfWeekExtensibleEnum(result.GetRawResponse().Content.ToObjectFromJson<string>()), result.GetRawResponse());
+            DaysOfWeekExtensibleEnum value = new DaysOfWeekExtensibleEnum(result.GetRawResponse().Content.ToString());
+            return ClientResult.FromValue(value, result.GetRawResponse());
         }
 
         /// <summary>
@@ -1171,10 +1152,8 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            using BinaryContent content = body.ToBinaryContent(_modelReaderWriterOptions);
-            ClientResult result = InternalProtocol(content, cancellationToken.ToRequestOptions());
-            BinaryData data = result.GetRawResponse().Content;
-            return ClientResult.FromValue(ModelReaderWriter.Read<Thing>(data, _modelReaderWriterOptions, SampleTypeSpecContext.Default), result.GetRawResponse());
+            ClientResult result = InternalProtocol(body, cancellationToken.ToRequestOptions());
+            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
         /// <summary> When set protocol false and convenient true, then the protocol method should be internal. </summary>
@@ -1186,10 +1165,8 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            using BinaryContent content = body.ToBinaryContent(_modelReaderWriterOptions);
-            ClientResult result = await InternalProtocolAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            BinaryData data = result.GetRawResponse().Content;
-            return ClientResult.FromValue(ModelReaderWriter.Read<Thing>(data, _modelReaderWriterOptions, SampleTypeSpecContext.Default), result.GetRawResponse());
+            ClientResult result = await InternalProtocolAsync(body, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            return ClientResult.FromValue((Thing)result, result.GetRawResponse());
         }
 
         /// <summary>
@@ -1395,7 +1372,7 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual CollectionResult GetWithNextLink(RequestOptions options)
         {
-            return new SampleTypeSpecClientGetWithNextLinkCollectionResult(this, _modelReaderWriterOptions, options);
+            return new SampleTypeSpecClientGetWithNextLinkCollectionResult(this, options);
         }
 
         /// <summary>
@@ -1411,7 +1388,7 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual AsyncCollectionResult GetWithNextLinkAsync(RequestOptions options)
         {
-            return new SampleTypeSpecClientGetWithNextLinkAsyncCollectionResult(this, _modelReaderWriterOptions, options);
+            return new SampleTypeSpecClientGetWithNextLinkAsyncCollectionResult(this, options);
         }
 
         /// <summary> List things with nextlink. </summary>
@@ -1419,7 +1396,7 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual CollectionResult<Thing> GetWithNextLink(CancellationToken cancellationToken = default)
         {
-            return new SampleTypeSpecClientGetWithNextLinkCollectionResultOfT(this, _modelReaderWriterOptions, cancellationToken.ToRequestOptions());
+            return new SampleTypeSpecClientGetWithNextLinkCollectionResultOfT(this, cancellationToken.ToRequestOptions());
         }
 
         /// <summary> List things with nextlink. </summary>
@@ -1427,7 +1404,7 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual AsyncCollectionResult<Thing> GetWithNextLinkAsync(CancellationToken cancellationToken = default)
         {
-            return new SampleTypeSpecClientGetWithNextLinkAsyncCollectionResultOfT(this, _modelReaderWriterOptions, cancellationToken.ToRequestOptions());
+            return new SampleTypeSpecClientGetWithNextLinkAsyncCollectionResultOfT(this, cancellationToken.ToRequestOptions());
         }
 
         /// <summary>
@@ -1443,7 +1420,7 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual CollectionResult GetWithStringNextLink(RequestOptions options)
         {
-            return new SampleTypeSpecClientGetWithStringNextLinkCollectionResult(this, _modelReaderWriterOptions, options);
+            return new SampleTypeSpecClientGetWithStringNextLinkCollectionResult(this, options);
         }
 
         /// <summary>
@@ -1459,7 +1436,7 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual AsyncCollectionResult GetWithStringNextLinkAsync(RequestOptions options)
         {
-            return new SampleTypeSpecClientGetWithStringNextLinkAsyncCollectionResult(this, _modelReaderWriterOptions, options);
+            return new SampleTypeSpecClientGetWithStringNextLinkAsyncCollectionResult(this, options);
         }
 
         /// <summary> List things with nextlink. </summary>
@@ -1467,7 +1444,7 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual CollectionResult<Thing> GetWithStringNextLink(CancellationToken cancellationToken = default)
         {
-            return new SampleTypeSpecClientGetWithStringNextLinkCollectionResultOfT(this, _modelReaderWriterOptions, cancellationToken.ToRequestOptions());
+            return new SampleTypeSpecClientGetWithStringNextLinkCollectionResultOfT(this, cancellationToken.ToRequestOptions());
         }
 
         /// <summary> List things with nextlink. </summary>
@@ -1475,7 +1452,7 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual AsyncCollectionResult<Thing> GetWithStringNextLinkAsync(CancellationToken cancellationToken = default)
         {
-            return new SampleTypeSpecClientGetWithStringNextLinkAsyncCollectionResultOfT(this, _modelReaderWriterOptions, cancellationToken.ToRequestOptions());
+            return new SampleTypeSpecClientGetWithStringNextLinkAsyncCollectionResultOfT(this, cancellationToken.ToRequestOptions());
         }
 
         /// <summary>
@@ -1492,7 +1469,7 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual CollectionResult GetWithContinuationToken(string token, RequestOptions options)
         {
-            return new SampleTypeSpecClientGetWithContinuationTokenCollectionResult(this, _modelReaderWriterOptions, token, options);
+            return new SampleTypeSpecClientGetWithContinuationTokenCollectionResult(this, token, options);
         }
 
         /// <summary>
@@ -1509,7 +1486,7 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual AsyncCollectionResult GetWithContinuationTokenAsync(string token, RequestOptions options)
         {
-            return new SampleTypeSpecClientGetWithContinuationTokenAsyncCollectionResult(this, _modelReaderWriterOptions, token, options);
+            return new SampleTypeSpecClientGetWithContinuationTokenAsyncCollectionResult(this, token, options);
         }
 
         /// <summary> List things with continuation token. </summary>
@@ -1518,7 +1495,7 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual CollectionResult<Thing> GetWithContinuationToken(string token = default, CancellationToken cancellationToken = default)
         {
-            return new SampleTypeSpecClientGetWithContinuationTokenCollectionResultOfT(this, _modelReaderWriterOptions, token, cancellationToken.ToRequestOptions());
+            return new SampleTypeSpecClientGetWithContinuationTokenCollectionResultOfT(this, token, cancellationToken.ToRequestOptions());
         }
 
         /// <summary> List things with continuation token. </summary>
@@ -1527,7 +1504,7 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual AsyncCollectionResult<Thing> GetWithContinuationTokenAsync(string token = default, CancellationToken cancellationToken = default)
         {
-            return new SampleTypeSpecClientGetWithContinuationTokenAsyncCollectionResultOfT(this, _modelReaderWriterOptions, token, cancellationToken.ToRequestOptions());
+            return new SampleTypeSpecClientGetWithContinuationTokenAsyncCollectionResultOfT(this, token, cancellationToken.ToRequestOptions());
         }
 
         /// <summary>
@@ -1544,7 +1521,7 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual CollectionResult GetWithContinuationTokenHeaderResponse(string token, RequestOptions options)
         {
-            return new SampleTypeSpecClientGetWithContinuationTokenHeaderResponseCollectionResult(this, _modelReaderWriterOptions, token, options);
+            return new SampleTypeSpecClientGetWithContinuationTokenHeaderResponseCollectionResult(this, token, options);
         }
 
         /// <summary>
@@ -1561,7 +1538,7 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual AsyncCollectionResult GetWithContinuationTokenHeaderResponseAsync(string token, RequestOptions options)
         {
-            return new SampleTypeSpecClientGetWithContinuationTokenHeaderResponseAsyncCollectionResult(this, _modelReaderWriterOptions, token, options);
+            return new SampleTypeSpecClientGetWithContinuationTokenHeaderResponseAsyncCollectionResult(this, token, options);
         }
 
         /// <summary> List things with continuation token header response. </summary>
@@ -1570,7 +1547,7 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual CollectionResult<Thing> GetWithContinuationTokenHeaderResponse(string token = default, CancellationToken cancellationToken = default)
         {
-            return new SampleTypeSpecClientGetWithContinuationTokenHeaderResponseCollectionResultOfT(this, _modelReaderWriterOptions, token, cancellationToken.ToRequestOptions());
+            return new SampleTypeSpecClientGetWithContinuationTokenHeaderResponseCollectionResultOfT(this, token, cancellationToken.ToRequestOptions());
         }
 
         /// <summary> List things with continuation token header response. </summary>
@@ -1579,7 +1556,7 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual AsyncCollectionResult<Thing> GetWithContinuationTokenHeaderResponseAsync(string token = default, CancellationToken cancellationToken = default)
         {
-            return new SampleTypeSpecClientGetWithContinuationTokenHeaderResponseAsyncCollectionResultOfT(this, _modelReaderWriterOptions, token, cancellationToken.ToRequestOptions());
+            return new SampleTypeSpecClientGetWithContinuationTokenHeaderResponseAsyncCollectionResultOfT(this, token, cancellationToken.ToRequestOptions());
         }
 
         /// <summary>
@@ -1595,7 +1572,7 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual CollectionResult GetWithPaging(RequestOptions options)
         {
-            return new SampleTypeSpecClientGetWithPagingCollectionResult(this, _modelReaderWriterOptions, options);
+            return new SampleTypeSpecClientGetWithPagingCollectionResult(this, options);
         }
 
         /// <summary>
@@ -1611,7 +1588,7 @@ namespace SampleTypeSpec
         /// <returns> The response returned from the service. </returns>
         public virtual AsyncCollectionResult GetWithPagingAsync(RequestOptions options)
         {
-            return new SampleTypeSpecClientGetWithPagingAsyncCollectionResult(this, _modelReaderWriterOptions, options);
+            return new SampleTypeSpecClientGetWithPagingAsyncCollectionResult(this, options);
         }
 
         /// <summary> List things with paging. </summary>
@@ -1619,7 +1596,7 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual CollectionResult<Thing> GetWithPaging(CancellationToken cancellationToken = default)
         {
-            return new SampleTypeSpecClientGetWithPagingCollectionResultOfT(this, _modelReaderWriterOptions, cancellationToken.ToRequestOptions());
+            return new SampleTypeSpecClientGetWithPagingCollectionResultOfT(this, cancellationToken.ToRequestOptions());
         }
 
         /// <summary> List things with paging. </summary>
@@ -1627,7 +1604,7 @@ namespace SampleTypeSpec
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         public virtual AsyncCollectionResult<Thing> GetWithPagingAsync(CancellationToken cancellationToken = default)
         {
-            return new SampleTypeSpecClientGetWithPagingAsyncCollectionResultOfT(this, _modelReaderWriterOptions, cancellationToken.ToRequestOptions());
+            return new SampleTypeSpecClientGetWithPagingAsyncCollectionResultOfT(this, cancellationToken.ToRequestOptions());
         }
 
         /// <summary>
@@ -1695,8 +1672,7 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            using BinaryContent content = body.ToBinaryContent(_modelReaderWriterOptions);
-            return EmbeddedParameters(body.RequiredHeader, body.RequiredQuery, content, body.OptionalHeader, body.OptionalQuery, cancellationToken.ToRequestOptions());
+            return EmbeddedParameters(body.RequiredHeader, body.RequiredQuery, body, body.OptionalHeader, body.OptionalQuery, cancellationToken.ToRequestOptions());
         }
 
         /// <summary> An operation with embedded parameters within the body. </summary>
@@ -1708,8 +1684,7 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            using BinaryContent content = body.ToBinaryContent(_modelReaderWriterOptions);
-            return await EmbeddedParametersAsync(body.RequiredHeader, body.RequiredQuery, content, body.OptionalHeader, body.OptionalQuery, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            return await EmbeddedParametersAsync(body.RequiredHeader, body.RequiredQuery, body, body.OptionalHeader, body.OptionalQuery, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
         }
 
         /// <summary>
@@ -1725,6 +1700,8 @@ namespace SampleTypeSpec
         /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
+#pragma warning disable SCME0001 // This generated code depends on experimental functionality.
+        [Experimental("SAMPLE0002")]
         public virtual ClientResult DynamicModelOperation(BinaryContent content, RequestOptions options = null)
         {
             Argument.AssertNotNull(content, nameof(content));
@@ -1732,6 +1709,7 @@ namespace SampleTypeSpec
             using PipelineMessage message = CreateDynamicModelOperationRequest(content, options);
             return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
+#pragma warning restore SCME0001 // This generated code depends on experimental functionality.
 
         /// <summary>
         /// [Protocol Method] An operation with a dynamic model
@@ -1746,6 +1724,8 @@ namespace SampleTypeSpec
         /// <exception cref="ArgumentNullException"> <paramref name="content"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
+#pragma warning disable SCME0001 // This generated code depends on experimental functionality.
+        [Experimental("SAMPLE0002")]
         public virtual async Task<ClientResult> DynamicModelOperationAsync(BinaryContent content, RequestOptions options = null)
         {
             Argument.AssertNotNull(content, nameof(content));
@@ -1753,32 +1733,37 @@ namespace SampleTypeSpec
             using PipelineMessage message = CreateDynamicModelOperationRequest(content, options);
             return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
+#pragma warning restore SCME0001 // This generated code depends on experimental functionality.
 
         /// <summary> An operation with a dynamic model. </summary>
         /// <param name="body"></param>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+#pragma warning disable SCME0001 // This generated code depends on experimental functionality.
+        [Experimental("SAMPLE0002")]
         public virtual ClientResult DynamicModelOperation(DynamicModel body, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            using BinaryContent content = body.ToBinaryContent(_modelReaderWriterOptions);
-            return DynamicModelOperation(content, cancellationToken.ToRequestOptions());
+            return DynamicModelOperation(body, cancellationToken.ToRequestOptions());
         }
+#pragma warning restore SCME0001 // This generated code depends on experimental functionality.
 
         /// <summary> An operation with a dynamic model. </summary>
         /// <param name="body"></param>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="body"/> is null. </exception>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+#pragma warning disable SCME0001 // This generated code depends on experimental functionality.
+        [Experimental("SAMPLE0002")]
         public virtual async Task<ClientResult> DynamicModelOperationAsync(DynamicModel body, CancellationToken cancellationToken = default)
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            using BinaryContent content = body.ToBinaryContent(_modelReaderWriterOptions);
-            return await DynamicModelOperationAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            return await DynamicModelOperationAsync(body, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
         }
+#pragma warning restore SCME0001 // This generated code depends on experimental functionality.
 
         /// <summary>
         /// [Protocol Method] Get an advanced XML model with various property types
@@ -1820,8 +1805,7 @@ namespace SampleTypeSpec
         public virtual ClientResult<XmlAdvancedModel> GetXmlAdvancedModel(CancellationToken cancellationToken = default)
         {
             ClientResult result = GetXmlAdvancedModel(cancellationToken.ToRequestOptions());
-            BinaryData data = result.GetRawResponse().Content;
-            return ClientResult.FromValue(ModelReaderWriter.Read<XmlAdvancedModel>(data, _modelReaderWriterOptions, SampleTypeSpecContext.Default), result.GetRawResponse());
+            return ClientResult.FromValue((XmlAdvancedModel)result, result.GetRawResponse());
         }
 
         /// <summary> Get an advanced XML model with various property types. </summary>
@@ -1830,8 +1814,7 @@ namespace SampleTypeSpec
         public virtual async Task<ClientResult<XmlAdvancedModel>> GetXmlAdvancedModelAsync(CancellationToken cancellationToken = default)
         {
             ClientResult result = await GetXmlAdvancedModelAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            BinaryData data = result.GetRawResponse().Content;
-            return ClientResult.FromValue(ModelReaderWriter.Read<XmlAdvancedModel>(data, _modelReaderWriterOptions, SampleTypeSpecContext.Default), result.GetRawResponse());
+            return ClientResult.FromValue((XmlAdvancedModel)result, result.GetRawResponse());
         }
 
         /// <summary>
@@ -1885,10 +1868,8 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            using BinaryContent content = body.ToBinaryContent(_modelReaderWriterOptions);
-            ClientResult result = UpdateXmlAdvancedModel(content, cancellationToken.ToRequestOptions());
-            BinaryData data = result.GetRawResponse().Content;
-            return ClientResult.FromValue(ModelReaderWriter.Read<XmlAdvancedModel>(data, _modelReaderWriterOptions, SampleTypeSpecContext.Default), result.GetRawResponse());
+            ClientResult result = UpdateXmlAdvancedModel(body, cancellationToken.ToRequestOptions());
+            return ClientResult.FromValue((XmlAdvancedModel)result, result.GetRawResponse());
         }
 
         /// <summary> Update an advanced XML model with various property types. </summary>
@@ -1900,10 +1881,8 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            using BinaryContent content = body.ToBinaryContent(_modelReaderWriterOptions);
-            ClientResult result = await UpdateXmlAdvancedModelAsync(content, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            BinaryData data = result.GetRawResponse().Content;
-            return ClientResult.FromValue(ModelReaderWriter.Read<XmlAdvancedModel>(data, _modelReaderWriterOptions, SampleTypeSpecContext.Default), result.GetRawResponse());
+            ClientResult result = await UpdateXmlAdvancedModelAsync(body, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+            return ClientResult.FromValue((XmlAdvancedModel)result, result.GetRawResponse());
         }
 
         /// <summary>
@@ -1964,7 +1943,7 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            using MultiPartFormContent content = body.ToMultipartFormContent(_modelReaderWriterOptions);
+            using MultiPartFormContent content = body.ToMultipartFormContent();
             return UploadCat(content, content.MediaType, cancellationToken.ToRequestOptions());
         }
 
@@ -1978,7 +1957,7 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(body, nameof(body));
 
-            using MultiPartFormContent content = body.ToMultipartFormContent(_modelReaderWriterOptions);
+            using MultiPartFormContent content = body.ToMultipartFormContent();
             return await UploadCatAsync(content, content.MediaType, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
         }
 
@@ -2048,26 +2027,22 @@ namespace SampleTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-#pragma warning disable SCME0005 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-        public virtual async Task<AsyncStreamingClientResult<BinaryData>> ReceiveJsonLinesAsync(RequestOptions options)
+        public virtual async Task<AsyncStreamingResult<BinaryData>> ReceiveJsonLinesAsync(RequestOptions options)
         {
             using PipelineMessage message = CreateReceiveJsonLinesRequest(options);
             message.BufferResponse = false;
-            return AsyncStreamingClientResult.CreateJsonLines(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+            return AsyncStreamingResult.CreateJsonLines(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
-#pragma warning restore SCME0005 // Type is for evaluation purposes only and is subject to change or removal in future updates.
 
         /// <summary> ReceiveJsonLines. </summary>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-#pragma warning disable SCME0005 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-        public virtual async Task<AsyncStreamingClientResult<StreamingItem>> ReceiveJsonLinesAsync(CancellationToken cancellationToken = default)
+        public virtual async Task<AsyncStreamingResult<StreamingItem>> ReceiveJsonLinesAsync(CancellationToken cancellationToken = default)
         {
             using PipelineMessage message = CreateReceiveJsonLinesRequest(cancellationToken.ToRequestOptions());
             message.BufferResponse = false;
-            return AsyncStreamingClientResult.CreateJsonLines<StreamingItem>(await Pipeline.ProcessMessageAsync(message, cancellationToken.ToRequestOptions()).ConfigureAwait(false), data => ModelReaderWriter.Read<StreamingItem>(data, ModelSerializationExtensions.WireOptions, SampleTypeSpecContext.Default), cancellationToken);
+            return AsyncStreamingResult.CreateJsonLines<StreamingItem>(await Pipeline.ProcessMessageAsync(message, cancellationToken.ToRequestOptions()).ConfigureAwait(false), data => ModelReaderWriter.Read<StreamingItem>(data, ModelSerializationExtensions.WireOptions, SampleTypeSpecContext.Default), cancellationToken);
         }
-#pragma warning restore SCME0005 // Type is for evaluation purposes only and is subject to change or removal in future updates.
 
         /// <summary>
         /// [Protocol Method] ReceiveSse
@@ -2080,49 +2055,237 @@ namespace SampleTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
-#pragma warning disable SCME0005 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-        public virtual async Task<AsyncStreamingClientResult<SseItem<BinaryData>>> ReceiveSseAsync(RequestOptions options)
+        public virtual async Task<AsyncStreamingResult<SseItem<BinaryData>>> ReceiveSseAsync(RequestOptions options)
         {
             using PipelineMessage message = CreateReceiveSseRequest(options);
             message.BufferResponse = false;
-            return AsyncStreamingClientResult.CreateSse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false), item => item.Data.ToString() == "[DONE]");
+            return AsyncStreamingResult.CreateSse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false), item => item.Data.ToString() == "[DONE]");
         }
-#pragma warning restore SCME0005 // Type is for evaluation purposes only and is subject to change or removal in future updates.
 
         /// <summary> ReceiveSse. </summary>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-#pragma warning disable SCME0005 // Type is for evaluation purposes only and is subject to change or removal in future updates.
-        public virtual async Task<AsyncStreamingClientResult<SseItem<StreamingItem>>> ReceiveSseAsync(CancellationToken cancellationToken = default)
+        public virtual async Task<AsyncStreamingResult<SseItem<StreamingItem>>> ReceiveSseAsync(CancellationToken cancellationToken = default)
         {
             using PipelineMessage message = CreateReceiveSseRequest(cancellationToken.ToRequestOptions());
             message.BufferResponse = false;
-            return AsyncStreamingClientResult.CreateSse<StreamingItem>(await Pipeline.ProcessMessageAsync(message, cancellationToken.ToRequestOptions()).ConfigureAwait(false), (@_, data) => ModelReaderWriter.Read<StreamingItem>(BinaryData.FromBytes(data.ToArray()), ModelSerializationExtensions.WireOptions, SampleTypeSpecContext.Default), item => item.Data.ToString() == "[DONE]", cancellationToken);
+            return AsyncStreamingResult.CreateSse<StreamingItem>(await Pipeline.ProcessMessageAsync(message, cancellationToken.ToRequestOptions()).ConfigureAwait(false), (@_, data) => ModelReaderWriter.Read<StreamingItem>(BinaryData.FromBytes(data.ToArray()), ModelSerializationExtensions.WireOptions, SampleTypeSpecContext.Default), item => item.Data.ToString() == "[DONE]", cancellationToken);
         }
-#pragma warning restore SCME0005 // Type is for evaluation purposes only and is subject to change or removal in future updates.
+
+        /// <summary>
+        /// [Protocol Method] ReceiveExperimentalJsonLines
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+#pragma warning disable SAMPLE0003 // This generated code depends on experimental functionality.
+        public virtual async Task<AsyncStreamingResult<BinaryData>> ReceiveExperimentalJsonLinesAsync(RequestOptions options)
+        {
+            using PipelineMessage message = CreateReceiveExperimentalJsonLinesRequest(options);
+            message.BufferResponse = false;
+            return AsyncStreamingResult.CreateJsonLines(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+#pragma warning restore SAMPLE0003 // This generated code depends on experimental functionality.
+
+        /// <summary> ReceiveExperimentalJsonLines. </summary>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+#pragma warning disable SAMPLE0003 // This generated code depends on experimental functionality.
+        public virtual async Task<AsyncStreamingResult<PreviewDetails>> ReceiveExperimentalJsonLinesAsync(CancellationToken cancellationToken = default)
+        {
+            using PipelineMessage message = CreateReceiveExperimentalJsonLinesRequest(cancellationToken.ToRequestOptions());
+            message.BufferResponse = false;
+            return AsyncStreamingResult.CreateJsonLines<PreviewDetails>(await Pipeline.ProcessMessageAsync(message, cancellationToken.ToRequestOptions()).ConfigureAwait(false), data => ModelReaderWriter.Read<PreviewDetails>(data, ModelSerializationExtensions.WireOptions, SampleTypeSpecContext.Default), cancellationToken);
+        }
+#pragma warning restore SAMPLE0003 // This generated code depends on experimental functionality.
+
+        /// <summary>
+        /// [Protocol Method] Send acronym-named path, query, and header parameters.
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="targetDBName"></param>
+        /// <param name="sourceIPAddress"></param>
+        /// <param name="guestOSType"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="targetDBName"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="targetDBName"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult GetAcronymParameters(string targetDBName, string sourceIPAddress, string guestOSType, RequestOptions options)
+        {
+            Argument.AssertNotNullOrEmpty(targetDBName, nameof(targetDBName));
+
+            using PipelineMessage message = CreateGetAcronymParametersRequest(targetDBName, sourceIPAddress, guestOSType, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
+
+        /// <summary>
+        /// [Protocol Method] Send acronym-named path, query, and header parameters.
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="targetDBName"></param>
+        /// <param name="sourceIPAddress"></param>
+        /// <param name="guestOSType"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="targetDBName"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="targetDBName"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> GetAcronymParametersAsync(string targetDBName, string sourceIPAddress, string guestOSType, RequestOptions options)
+        {
+            Argument.AssertNotNullOrEmpty(targetDBName, nameof(targetDBName));
+
+            using PipelineMessage message = CreateGetAcronymParametersRequest(targetDBName, sourceIPAddress, guestOSType, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> Send acronym-named path, query, and header parameters. </summary>
+        /// <param name="targetDBName"></param>
+        /// <param name="sourceIPAddress"></param>
+        /// <param name="guestOSType"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="targetDBName"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="targetDBName"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult GetAcronymParameters(string targetDBName, string sourceIPAddress = default, string guestOSType = default, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNullOrEmpty(targetDBName, nameof(targetDBName));
+
+            return GetAcronymParameters(targetDBName, sourceIPAddress, guestOSType, cancellationToken.ToRequestOptions());
+        }
+
+        /// <summary> Send acronym-named path, query, and header parameters. </summary>
+        /// <param name="targetDBName"></param>
+        /// <param name="sourceIPAddress"></param>
+        /// <param name="guestOSType"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="targetDBName"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="targetDBName"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult> GetAcronymParametersAsync(string targetDBName, string sourceIPAddress = default, string guestOSType = default, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNullOrEmpty(targetDBName, nameof(targetDBName));
+
+            return await GetAcronymParametersAsync(targetDBName, sourceIPAddress, guestOSType, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// [Protocol Method] Send parameters with leading IP version acronyms.
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="ipv4Address"></param>
+        /// <param name="ipv6Address"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="ipv4Address"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="ipv4Address"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual ClientResult SetAcronymAddresses(string ipv4Address, string ipv6Address, RequestOptions options)
+        {
+            Argument.AssertNotNullOrEmpty(ipv4Address, nameof(ipv4Address));
+
+            using PipelineMessage message = CreateSetAcronymAddressesRequest(ipv4Address, ipv6Address, options);
+            return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
+        }
+
+        /// <summary>
+        /// [Protocol Method] Send parameters with leading IP version acronyms.
+        /// <list type="bullet">
+        /// <item>
+        /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
+        /// </item>
+        /// </list>
+        /// </summary>
+        /// <param name="ipv4Address"></param>
+        /// <param name="ipv6Address"></param>
+        /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="ipv4Address"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="ipv4Address"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        /// <returns> The response returned from the service. </returns>
+        public virtual async Task<ClientResult> SetAcronymAddressesAsync(string ipv4Address, string ipv6Address, RequestOptions options)
+        {
+            Argument.AssertNotNullOrEmpty(ipv4Address, nameof(ipv4Address));
+
+            using PipelineMessage message = CreateSetAcronymAddressesRequest(ipv4Address, ipv6Address, options);
+            return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
+        }
+
+        /// <summary> Send parameters with leading IP version acronyms. </summary>
+        /// <param name="ipv4Address"></param>
+        /// <param name="ipv6Address"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="ipv4Address"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="ipv4Address"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual ClientResult SetAcronymAddresses(string ipv4Address, string ipv6Address = default, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNullOrEmpty(ipv4Address, nameof(ipv4Address));
+
+            return SetAcronymAddresses(ipv4Address, ipv6Address, cancellationToken.ToRequestOptions());
+        }
+
+        /// <summary> Send parameters with leading IP version acronyms. </summary>
+        /// <param name="ipv4Address"></param>
+        /// <param name="ipv6Address"></param>
+        /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
+        /// <exception cref="ArgumentNullException"> <paramref name="ipv4Address"/> is null. </exception>
+        /// <exception cref="ArgumentException"> <paramref name="ipv4Address"/> is an empty string, and was expected to be non-empty. </exception>
+        /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+        public virtual async Task<ClientResult> SetAcronymAddressesAsync(string ipv4Address, string ipv6Address = default, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNullOrEmpty(ipv4Address, nameof(ipv4Address));
+
+            return await SetAcronymAddressesAsync(ipv4Address, ipv6Address, cancellationToken.ToRequestOptions()).ConfigureAwait(false);
+        }
+
+        /// <summary> Initializes a new instance of ExperimentalSamples. </summary>
+#pragma warning disable SAMPLE0009 // This generated code depends on experimental functionality.
+        public virtual ExperimentalSamples GetExperimentalSamplesClient()
+        {
+            return Volatile.Read(ref _cachedExperimentalSamples) ?? Interlocked.CompareExchange(ref _cachedExperimentalSamples, new ExperimentalSamples(Pipeline, _endpoint), null) ?? _cachedExperimentalSamples;
+        }
+#pragma warning restore SAMPLE0009 // This generated code depends on experimental functionality.
 
         /// <summary> Initializes a new instance of AnimalOperations. </summary>
         public virtual AnimalOperations GetAnimalOperationsClient()
         {
-            return Volatile.Read(ref _cachedAnimalOperations) ?? Interlocked.CompareExchange(ref _cachedAnimalOperations, new AnimalOperations(Pipeline, _modelReaderWriterOptions, _endpoint), null) ?? _cachedAnimalOperations;
+            return Volatile.Read(ref _cachedAnimalOperations) ?? Interlocked.CompareExchange(ref _cachedAnimalOperations, new AnimalOperations(Pipeline, _endpoint), null) ?? _cachedAnimalOperations;
         }
 
         /// <summary> Initializes a new instance of PetOperations. </summary>
         public virtual PetOperations GetPetOperationsClient()
         {
-            return Volatile.Read(ref _cachedPetOperations) ?? Interlocked.CompareExchange(ref _cachedPetOperations, new PetOperations(Pipeline, _modelReaderWriterOptions, _endpoint), null) ?? _cachedPetOperations;
+            return Volatile.Read(ref _cachedPetOperations) ?? Interlocked.CompareExchange(ref _cachedPetOperations, new PetOperations(Pipeline, _endpoint), null) ?? _cachedPetOperations;
         }
 
         /// <summary> Initializes a new instance of DogOperations. </summary>
         public virtual DogOperations GetDogOperationsClient()
         {
-            return Volatile.Read(ref _cachedDogOperations) ?? Interlocked.CompareExchange(ref _cachedDogOperations, new DogOperations(Pipeline, _modelReaderWriterOptions, _endpoint), null) ?? _cachedDogOperations;
+            return Volatile.Read(ref _cachedDogOperations) ?? Interlocked.CompareExchange(ref _cachedDogOperations, new DogOperations(Pipeline, _endpoint), null) ?? _cachedDogOperations;
         }
 
         /// <summary> Initializes a new instance of PlantOperations. </summary>
         public virtual PlantOperations GetPlantOperationsClient()
         {
-            return Volatile.Read(ref _cachedPlantOperations) ?? Interlocked.CompareExchange(ref _cachedPlantOperations, new PlantOperations(Pipeline, _modelReaderWriterOptions, _endpoint), null) ?? _cachedPlantOperations;
+            return Volatile.Read(ref _cachedPlantOperations) ?? Interlocked.CompareExchange(ref _cachedPlantOperations, new PlantOperations(Pipeline, _endpoint), null) ?? _cachedPlantOperations;
         }
 
         /// <summary> Initializes a new instance of Metrics. </summary>
@@ -2132,7 +2295,7 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(metricsNamespace, nameof(metricsNamespace));
 
-            return new Metrics(Pipeline, _modelReaderWriterOptions, _endpoint, metricsNamespace);
+            return new Metrics(Pipeline, _endpoint, metricsNamespace);
         }
 
         /// <summary> Initializes a new instance of Notebooks. </summary>
@@ -2142,7 +2305,7 @@ namespace SampleTypeSpec
         {
             Argument.AssertNotNull(notebook, nameof(notebook));
 
-            return new Notebooks(Pipeline, _modelReaderWriterOptions, _endpoint, notebook);
+            return new Notebooks(Pipeline, _endpoint, notebook);
         }
     }
 }

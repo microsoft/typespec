@@ -1,8 +1,31 @@
 import { ok, strictEqual } from "assert";
 import { describe, it } from "vitest";
-import type { Model, Union, UnionVariant } from "../../src/core/types.js";
-import { expectTypeEquals, mockFile, t } from "../../src/testing/index.js";
+import type { Model, Scalar, Union, UnionVariant } from "../../src/core/types.js";
+import {
+  type TestCompileOptions,
+  expectDiagnosticEmpty,
+  expectDiagnostics,
+  expectTypeEquals,
+  mockFile,
+  t,
+} from "../../src/testing/index.js";
 import { Tester } from "../tester.js";
+
+const unionExtendsOptions: TestCompileOptions = {
+  compilerOptions: {
+    configFile: {
+      projectRoot: ".",
+      kind: "project",
+      features: ["union-extends"],
+      diagnostics: [],
+      outputDir: "tsp-output",
+    },
+  },
+};
+
+function diagnoseUnionExtends(code: string) {
+  return Tester.diagnose(code, unionExtendsOptions);
+}
 
 describe("declarations", () => {
   it("can be declared and decorated", async () => {
@@ -69,6 +92,574 @@ describe("declarations", () => {
     strictEqual(varX.kind, "UnionVariant");
     strictEqual(varXType.kind, "Scalar");
     strictEqual(varXType.name, "int32");
+  });
+});
+
+describe("extends", () => {
+  it("reports an error when the feature is not enabled", async () => {
+    const diagnostics = await Tester.diagnose(`
+      model PetBase { name: string }
+      union Pet extends PetBase { base: PetBase }
+    `);
+
+    expectDiagnostics(diagnostics, {
+      code: "union-extends-disabled",
+      severity: "error",
+      message:
+        "Union `extends` clauses require the 'union-extends' feature to be enabled. Add 'union-extends' to the 'features' list in your tspconfig.yaml.",
+    });
+  });
+
+  it("does not report an error when the feature is enabled", async () => {
+    const diagnostics = await diagnoseUnionExtends(`
+      model PetBase { name: string }
+      union Pet extends PetBase { base: PetBase }
+    `);
+
+    expectDiagnosticEmpty(diagnostics);
+  });
+
+  it("supports an enum base type", async () => {
+    const diagnostics = await diagnoseUnionExtends(`
+      enum PetKind {
+        cat,
+        dog,
+      }
+
+      union Pet extends PetKind {
+        cat: PetKind.cat,
+        dog: PetKind.dog,
+      }
+    `);
+
+    expectDiagnosticEmpty(diagnostics);
+  });
+
+  it.each([
+    {
+      name: "interface",
+      declaration: "interface Base {}",
+      baseType: "Base",
+    },
+    {
+      name: "operation",
+      declaration: "op base(): void;",
+      baseType: "base",
+    },
+    {
+      name: "function type",
+      declaration: "",
+      baseType: "fn () => string",
+    },
+    {
+      name: "tuple",
+      declaration: "",
+      baseType: "[string]",
+    },
+    {
+      name: "literal",
+      declaration: "",
+      baseType: '"base"',
+    },
+    {
+      name: "intrinsic type",
+      declaration: "",
+      baseType: "unknown",
+    },
+  ])("rejects a $name as the base type", async ({ declaration, baseType }) => {
+    const diagnostics = await diagnoseUnionExtends(`
+      ${declaration}
+      union Pet extends ${baseType} { value: string }
+    `);
+
+    expectDiagnostics(diagnostics, {
+      code: "extend-union",
+      message: "Union `extends` must specify a model, scalar, enum, or union.",
+    });
+  });
+
+  it("rejects a model expression as the base type", async () => {
+    const diagnostics = await diagnoseUnionExtends(`
+      union Pet extends { name: string } {
+        cat: { name: "cat" },
+      }
+    `);
+
+    expectDiagnostics(diagnostics, {
+      code: "extend-union",
+      message: "Unions cannot extend model expressions.",
+    });
+  });
+
+  it("rejects an aliased model expression as the base type", async () => {
+    const diagnostics = await diagnoseUnionExtends(`
+      alias PetBase = { name: string };
+      union Pet extends PetBase {
+        cat: { name: "cat" },
+      }
+    `);
+
+    expectDiagnostics(diagnostics, {
+      code: "extend-union",
+      message: "Unions cannot extend model expressions.",
+    });
+  });
+
+  it("sets baseType on the union type", async () => {
+    const { Pet, PetBase } = await Tester.compile(
+      t.code`
+        model ${t.model("PetBase")} { name: string }
+        model Cat extends PetBase { toy: string }
+        model Dog extends PetBase { food: string }
+
+        union ${t.union("Pet")} extends PetBase {
+          cat: Cat,
+          dog: Dog,
+        }
+      `,
+      unionExtendsOptions,
+    );
+
+    expectTypeEquals(Pet.baseType, PetBase);
+  });
+
+  it("baseType is undefined when there is no extends clause", async () => {
+    const { Pet } = await Tester.compile(t.code`
+      model Cat { name: string }
+      union ${t.union("Pet")} { cat: Cat }
+    `);
+
+    strictEqual(Pet.baseType, undefined);
+  });
+
+  it("does not add the base type as a variant", async () => {
+    const { Pet } = await Tester.compile(
+      t.code`
+        model PetBase { name: string }
+        model Cat extends PetBase { toy: string }
+
+        union ${t.union("Pet")} extends PetBase { cat: Cat }
+      `,
+      unionExtendsOptions,
+    );
+
+    strictEqual(Pet.variants.size, 1);
+    ok(Pet.variants.has("cat"));
+  });
+
+  it("accepts variants that structurally satisfy the base type without extending it", async () => {
+    // Per the design, `extends` is an assignability constraint, not a nominal one.
+    const diagnostics = await diagnoseUnionExtends(`
+      model PetBase { name: string }
+      model Cat { name: string, toy: string }
+      model Dog extends PetBase { food: string }
+
+      union Pet extends PetBase {
+        cat: Cat,
+        dog: Dog,
+      }
+    `);
+    expectDiagnosticEmpty(diagnostics);
+  });
+
+  it("accepts the base type itself as a variant", async () => {
+    const diagnostics = await diagnoseUnionExtends(`
+      model PetBase { name: string }
+      model Cat extends PetBase { toy: string }
+
+      union Pet extends PetBase {
+        cat: Cat,
+        base: PetBase,
+      }
+    `);
+    expectDiagnosticEmpty(diagnostics);
+  });
+
+  it("emits a diagnostic on the variant that doesn't satisfy the constraint", async () => {
+    const diagnostics = await diagnoseUnionExtends(`
+      model PetBase { name: string }
+      model Cat extends PetBase { toy: string }
+      model Rock { hardness: int32 }
+
+      union Pet extends PetBase {
+        cat: Cat,
+        rock: Rock,
+      }
+    `);
+    expectDiagnostics(diagnostics, {
+      code: "unassignable",
+      message: /Type 'Rock' is not assignable to type 'PetBase'/,
+    });
+  });
+
+  it("emits one diagnostic per offending variant", async () => {
+    const diagnostics = await diagnoseUnionExtends(`
+      model PetBase { name: string }
+      model Rock { hardness: int32 }
+      model Tree { height: int32 }
+
+      union Pet extends PetBase {
+        rock: Rock,
+        tree: Tree,
+      }
+    `);
+    expectDiagnostics(diagnostics, [
+      { code: "unassignable", message: /Type 'Rock' is not assignable to type 'PetBase'/ },
+      { code: "unassignable", message: /Type 'Tree' is not assignable to type 'PetBase'/ },
+    ]);
+  });
+
+  it("works with unnamed variants", async () => {
+    const diagnostics = await diagnoseUnionExtends(`
+      union Status extends string {
+        "start",
+        "stop",
+      }
+    `);
+    expectDiagnosticEmpty(diagnostics);
+  });
+
+  it("emits a diagnostic for an unnamed variant that doesn't satisfy the constraint", async () => {
+    const diagnostics = await diagnoseUnionExtends(`
+      union Status extends string {
+        "start",
+        123,
+      }
+    `);
+    expectDiagnostics(diagnostics, {
+      code: "unassignable",
+      message: "Type '123' is not assignable to type 'string'",
+    });
+  });
+
+  it("supports composing unions declared with extends", async () => {
+    const diagnostics = await diagnoseUnionExtends(`
+      union OperationStatus extends string {
+        "Running",
+        "Succeeded",
+        "Failure",
+      }
+
+      union ServiceOperationStatus extends string {
+        OperationStatus,
+        "NotStarted",
+      }
+    `);
+    expectDiagnosticEmpty(diagnostics);
+  });
+
+  it("supports a scalar base type", async () => {
+    const { Status, string: stringType } = await Tester.compile(
+      t.code`
+        union ${t.union("Status")} extends ${t.scalar("string")} {
+          "start",
+          "stop",
+        }
+      `,
+      unionExtendsOptions,
+    );
+    expectTypeEquals(Status.baseType, stringType);
+  });
+
+  it("supports a union expression as the base type", async () => {
+    const { Foo } = await Tester.compile(
+      t.code`
+        union ${t.union("Foo")} extends string | int32 {
+          a: string,
+          b: int32,
+        }
+      `,
+      unionExtendsOptions,
+    );
+    strictEqual(Foo.baseType?.kind, "Union");
+  });
+
+  it("emits a diagnostic when a variant doesn't satisfy a union expression base type", async () => {
+    const diagnostics = await diagnoseUnionExtends(`
+      union Foo extends string | int32 {
+        a: string,
+        b: boolean,
+      }
+    `);
+    expectDiagnostics(diagnostics, {
+      code: "unassignable",
+      message: "Type 'boolean' is not assignable to type 'string | int32'",
+    });
+  });
+
+  it("supports an intersection as the base type", async () => {
+    const diagnostics = await diagnoseUnionExtends(`
+      model A { a: string }
+      model B { b: string }
+      model AB { a: string, b: string, c: string }
+
+      union Foo extends A & B {
+        ab: AB,
+      }
+    `);
+    expectDiagnosticEmpty(diagnostics);
+  });
+
+  it("supports a templated base type reference", async () => {
+    const diagnostics = await diagnoseUnionExtends(`
+      model Wrapper<T> { value: T }
+
+      union Foo extends Wrapper<string> {
+        a: Wrapper<string>,
+      }
+    `);
+    expectDiagnosticEmpty(diagnostics);
+  });
+
+  describe("templates", () => {
+    it("checks the constraint on instantiation", async () => {
+      const diagnostics = await diagnoseUnionExtends(`
+        union Foo<T> extends string {
+          value: T,
+        }
+
+        alias Bad = Foo<int32>;
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "unassignable",
+        message: "Type 'int32' is not assignable to type 'string'",
+      });
+    });
+
+    it("does not report on a valid instantiation", async () => {
+      const diagnostics = await diagnoseUnionExtends(`
+        union Foo<T> extends string {
+          value: T,
+        }
+
+        alias Good = Foo<"abc">;
+      `);
+      expectDiagnosticEmpty(diagnostics);
+    });
+
+    it("does not report on the uninstantiated template declaration", async () => {
+      const diagnostics = await diagnoseUnionExtends(`
+        union Foo<T> extends string {
+          value: T,
+        }
+      `);
+      expectDiagnosticEmpty(diagnostics);
+    });
+
+    it("sets the base type before an uninstantiated template's variants are validated", async () => {
+      const { Foo, string: stringType } = await Tester.compile(
+        t.code`
+          union ${t.union("Foo")}<T> extends ${t.scalar("string")} {
+            value: T,
+          }
+        `,
+        unionExtendsOptions,
+      );
+
+      expectTypeEquals(Foo.baseType, stringType);
+      strictEqual(Foo.variants.get("value")?.type.kind, "TemplateParameter");
+    });
+
+    it("supports a template parameter as the base type", async () => {
+      const { Foo, string: stringType } = await Tester.compile(
+        t.code`
+          union Template<T> extends T {
+            value: string,
+          }
+
+          alias ${t.union("Foo")} = Template<${t.scalar("string")}>;
+        `,
+        unionExtendsOptions,
+      );
+      expectTypeEquals(Foo.baseType, stringType);
+    });
+
+    it("emits a diagnostic when a variant doesn't satisfy a template parameter base type", async () => {
+      const diagnostics = await diagnoseUnionExtends(`
+        union Template<T> extends T {
+          value: string,
+        }
+
+        alias Bad = Template<int32>;
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "unassignable",
+        message: "Type 'string' is not assignable to type 'int32'",
+      });
+    });
+  });
+
+  describe("circular references", () => {
+    it("reports a diagnostic when a union extends itself", async () => {
+      const diagnostics = await diagnoseUnionExtends(`union a extends a { x: string }`);
+      expectDiagnostics(diagnostics, {
+        code: "circular-base-type",
+        message: "Type 'a' recursively references itself as a base type.",
+      });
+    });
+
+    it("reports a diagnostic when a union extends itself via another union", async () => {
+      const diagnostics = await diagnoseUnionExtends(`
+        union a extends b { x: string }
+        union b extends a { x: string }
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "circular-base-type",
+        message: "Type 'a' recursively references itself as a base type.",
+      });
+    });
+
+    it("reports a diagnostic when a union extends itself via an alias", async () => {
+      const diagnostics = await diagnoseUnionExtends(`
+        union a extends b { x: string }
+        alias b = a;
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "circular-base-type",
+        message: "Type 'a' recursively references itself as a base type.",
+      });
+    });
+
+    it("reports a diagnostic when a union references itself in a union expression", async () => {
+      const diagnostics = await diagnoseUnionExtends(`union a extends a | string { x: string }`);
+      expectDiagnostics(diagnostics, {
+        code: "circular-base-type",
+        message: "Type 'a' recursively references itself as a base type.",
+      });
+    });
+
+    it("reports a diagnostic when a union references itself in a nested union expression", async () => {
+      const diagnostics = await diagnoseUnionExtends(
+        `union a extends string | (int32 | a) { x: string }`,
+      );
+      expectDiagnostics(diagnostics, {
+        code: "circular-base-type",
+        message: "Type 'a' recursively references itself as a base type.",
+      });
+    });
+
+    it("reports a diagnostic when a union references itself in a union expression via an alias", async () => {
+      const diagnostics = await diagnoseUnionExtends(`
+        union a extends b { x: string }
+        alias b = a | string;
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "circular-base-type",
+        message: "Type 'a' recursively references itself as a base type.",
+      });
+    });
+
+    it("doesn't set a base type when a circular reference is reported", async () => {
+      const [{ a }, diagnostics] = await Tester.compileAndDiagnose(
+        t.code`union ${t.union("a")} extends a | string { x: string }`,
+        unionExtendsOptions,
+      );
+      expectDiagnostics(diagnostics, { code: "circular-base-type" });
+      strictEqual(a.baseType, undefined);
+    });
+
+    it("allows a union to reference itself from a model reachable from the base type", async () => {
+      // Cyclic type graphs are legal in TypeSpec (e.g. `model Foo { foo: Foo }`) so this must
+      // not be reported as a circular base type.
+      const [{ a }, diagnostics] = await Tester.compileAndDiagnose(
+        t.code`
+          model Box { inner: a }
+          union ${t.union("a")} extends Box { x: Box }
+        `,
+        unionExtendsOptions,
+      );
+      expectDiagnosticEmpty(diagnostics);
+      strictEqual(a.baseType?.kind, "Model");
+    });
+  });
+
+  it("doesn't cascade errors when the base type cannot be resolved", async () => {
+    const diagnostics = await diagnoseUnionExtends(`
+      union Foo extends NotDefined {
+        a: string,
+      }
+    `);
+    expectDiagnostics(diagnostics, {
+      code: "invalid-ref",
+      message: "Unknown identifier NotDefined",
+    });
+  });
+
+  it("reports a diagnostic when the base type is a value", async () => {
+    const diagnostics = await diagnoseUnionExtends(`
+      union Foo extends #{ a: 1 } {
+        a: string,
+      }
+    `);
+    expectDiagnostics(diagnostics, [{ code: "value-in-type" }]);
+  });
+
+  describe("deprecation", () => {
+    it("reports the deprecation of the base type", async () => {
+      const diagnostics = await diagnoseUnionExtends(`
+        #deprecated "Use NewBase instead"
+        model Base {}
+
+        union Foo extends Base {
+          a: {},
+        }
+      `);
+      expectDiagnostics(diagnostics, [
+        { code: "deprecated", message: "Deprecated: Use NewBase instead" },
+      ]);
+    });
+
+    it("doesn't report the deprecation of the base type when the union is deprecated", async () => {
+      // Same mitigation as `model Foo extends Base`: a deprecated declaration is allowed to
+      // reference deprecated types without adding noise.
+      const diagnostics = await diagnoseUnionExtends(`
+        #deprecated "Use NewBase instead"
+        model Base {}
+
+        #deprecated "Use NewFoo instead"
+        union Foo extends Base {
+          a: {},
+        }
+      `);
+      expectDiagnosticEmpty(diagnostics);
+    });
+
+    it("doesn't copy the deprecation of the base type onto the union", async () => {
+      // `extends` on a union is a constraint, not inheritance, so the deprecation must not
+      // propagate to the union the way it does for `scalar`.
+      const diagnostics = await diagnoseUnionExtends(`
+        #deprecated "Use NewBase instead"
+        model Base {}
+
+        union Foo extends Base {
+          a: {},
+        }
+
+        model Usage {
+          foo: Foo,
+        }
+      `);
+      expectDiagnostics(diagnostics, [
+        { code: "deprecated", message: "Deprecated: Use NewBase instead" },
+      ]);
+    });
+  });
+
+  it("keeps a per-instantiation base type", async () => {
+    const { Foo, Bar } = await Tester.compile(
+      t.code`
+        union Template<T> extends T {
+          value: T,
+        }
+
+        alias ${t.union("Foo")} = Template<string>;
+        alias ${t.union("Bar")} = Template<int32>;
+      `,
+      unionExtendsOptions,
+    );
+
+    strictEqual((Foo.baseType as Scalar).name, "string");
+    strictEqual((Bar.baseType as Scalar).name, "int32");
   });
 });
 

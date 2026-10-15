@@ -19,7 +19,6 @@ namespace SampleTypeSpec
     public partial class Notebooks
     {
         private readonly Uri _endpoint;
-        private readonly ModelReaderWriterOptions _modelReaderWriterOptions;
         private const string AuthorizationHeader = "my-api-key";
         /// <summary> The OAuth2 flows supported by the service. </summary>
         private static readonly Dictionary<string, object>[] _flows = new Dictionary<string, object>[] 
@@ -40,14 +39,12 @@ namespace SampleTypeSpec
 
         /// <summary> Initializes a new instance of Notebooks. </summary>
         /// <param name="pipeline"> The HTTP pipeline for sending and receiving REST requests and responses. </param>
-        /// <param name="modelReaderWriterOptions"></param>
         /// <param name="endpoint"> Service endpoint. </param>
         /// <param name="notebook"></param>
-        internal Notebooks(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint, string notebook)
+        internal Notebooks(ClientPipeline pipeline, Uri endpoint, string notebook)
         {
             _endpoint = endpoint;
             Pipeline = pipeline;
-            _modelReaderWriterOptions = modelReaderWriterOptions;
             _notebook = notebook;
         }
 
@@ -84,7 +81,6 @@ namespace SampleTypeSpec
             options ??= new SampleTypeSpecClientOptions();
 
             _endpoint = endpoint;
-            _modelReaderWriterOptions = options.ModelReaderWriterOptions == null ? ModelSerializationExtensions.WireOptions : new ModelReaderWriterOptions("W", options.ModelReaderWriterOptions);
             _notebook = notebook;
             if (authenticationPolicy != null)
             {
@@ -165,21 +161,19 @@ namespace SampleTypeSpec
         /// <summary> Get a notebook by name. </summary>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult<GetNotebookResponse> GetNotebook(CancellationToken cancellationToken = default)
+        public virtual ClientResult<GetNotebookResult> GetNotebook(CancellationToken cancellationToken = default)
         {
             ClientResult result = GetNotebook(cancellationToken.ToRequestOptions());
-            BinaryData data = result.GetRawResponse().Content;
-            return ClientResult.FromValue(ModelReaderWriter.Read<GetNotebookResponse>(data, _modelReaderWriterOptions, SampleTypeSpecContext.Default), result.GetRawResponse());
+            return ClientResult.FromValue((GetNotebookResult)result, result.GetRawResponse());
         }
 
         /// <summary> Get a notebook by name. </summary>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult<GetNotebookResponse>> GetNotebookAsync(CancellationToken cancellationToken = default)
+        public virtual async Task<ClientResult<GetNotebookResult>> GetNotebookAsync(CancellationToken cancellationToken = default)
         {
             ClientResult result = await GetNotebookAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
-            BinaryData data = result.GetRawResponse().Content;
-            return ClientResult.FromValue(ModelReaderWriter.Read<GetNotebookResponse>(data, _modelReaderWriterOptions, SampleTypeSpecContext.Default), result.GetRawResponse());
+            return ClientResult.FromValue((GetNotebookResult)result, result.GetRawResponse());
         }
     }
 }

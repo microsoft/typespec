@@ -86,11 +86,11 @@ function numericValueToJs(type: NumericValue, valueConstraint: Type | undefined)
 }
 
 function objectValueToJs(type: ObjectValue): Record<string, unknown> {
-  const result: Record<string, unknown> = {};
-  for (const [key, value] of type.properties) {
-    result[key] = marshalTypeForJs(value.value, undefined);
-  }
-  return result;
+  // Object.fromEntries defines every member as an own property, so special names
+  // like `__proto__` or `constructor` never interact with Object.prototype.
+  return Object.fromEntries(
+    [...type.properties].map(([key, value]) => [key, marshalTypeForJs(value.value, undefined)]),
+  );
 }
 function arrayValueToJs(type: ArrayValue) {
   return type.values.map((x) => marshalTypeForJs(x, undefined));

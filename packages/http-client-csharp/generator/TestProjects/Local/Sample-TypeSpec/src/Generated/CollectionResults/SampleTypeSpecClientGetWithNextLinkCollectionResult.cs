@@ -15,17 +15,14 @@ namespace SampleTypeSpec
     internal partial class SampleTypeSpecClientGetWithNextLinkCollectionResult : CollectionResult
     {
         private readonly SampleTypeSpecClient _client;
-        private readonly ModelReaderWriterOptions _modelReaderWriterOptions;
         private readonly RequestOptions _options;
 
         /// <summary> Initializes a new instance of SampleTypeSpecClientGetWithNextLinkCollectionResult, which is used to iterate over the pages of a collection. </summary>
         /// <param name="client"> The SampleTypeSpecClient client used to send requests. </param>
-        /// <param name="modelReaderWriterOptions"> The options used to serialize and deserialize models. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-        public SampleTypeSpecClientGetWithNextLinkCollectionResult(SampleTypeSpecClient client, ModelReaderWriterOptions modelReaderWriterOptions, RequestOptions options)
+        public SampleTypeSpecClientGetWithNextLinkCollectionResult(SampleTypeSpecClient client, RequestOptions options)
         {
             _client = client;
-            _modelReaderWriterOptions = modelReaderWriterOptions;
             _options = options;
         }
 
@@ -40,7 +37,7 @@ namespace SampleTypeSpec
                 ClientResult result = GetNextResponse(message);
                 yield return result;
 
-                nextPageUri = ((ListWithNextLinkResponse)result).Next;
+                nextPageUri = ((ListWithNextLinkResult)result).Next;
                 if (nextPageUri == null)
                 {
                     yield break;
@@ -54,7 +51,7 @@ namespace SampleTypeSpec
         /// <returns> The continuation token for the specified page. </returns>
         public override ContinuationToken GetContinuationToken(ClientResult page)
         {
-            Uri nextPage = ModelReaderWriter.Read<ListWithNextLinkResponse>(page.GetRawResponse().Content, _modelReaderWriterOptions, SampleTypeSpecContext.Default).Next;
+            Uri nextPage = ((ListWithNextLinkResult)page).Next;
             if (nextPage != null)
             {
                 return ContinuationToken.FromBytes(BinaryData.FromString(nextPage.IsAbsoluteUri ? nextPage.AbsoluteUri : nextPage.OriginalString));

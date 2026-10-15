@@ -21,8 +21,16 @@ namespace Sample
             {
                 int propertyLength = "p1"u8.Length;
                 global::System.ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
+                if ((P1 == null))
+                {
+                    return false;
+                }
                 string key = currentSlice.GetFirstPropertyName(out int i);
                 if (!P1.TryGetValue(key, out global::Sample.Models.DynamicDictionary item))
+                {
+                    return false;
+                }
+                if ((item == null))
                 {
                     return false;
                 }
@@ -32,11 +40,19 @@ namespace Sample
             {
                 int propertyLength = "p2"u8.Length;
                 global::System.ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
+                if ((P2 == null))
+                {
+                    return false;
+                }
                 if (currentSlice.IsEmpty)
                 {
                     return TryResolveP2Array(out value);
                 }
                 if ((!currentSlice.TryGetIndex(out int index, out int bytesConsumed) || (index >= P2.Count)))
+                {
+                    return false;
+                }
+                if ((P2[index] == null))
                 {
                     return false;
                 }
@@ -46,11 +62,19 @@ namespace Sample
             {
                 int propertyLength = "p3"u8.Length;
                 global::System.ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
+                if ((P3 == null))
+                {
+                    return false;
+                }
                 if (currentSlice.IsEmpty)
                 {
                     return TryResolveP3Array(out value);
                 }
                 if ((!currentSlice.TryGetIndex(out int index, out int bytesConsumed) || (index >= P3.Count)))
+                {
+                    return false;
+                }
+                if ((P3[index] == null))
                 {
                     return false;
                 }
@@ -60,12 +84,24 @@ namespace Sample
             {
                 int propertyLength = "p4"u8.Length;
                 global::System.ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
+                if ((P4 == null))
+                {
+                    return false;
+                }
                 if ((!currentSlice.TryGetIndex(out int index, out int bytesConsumed) || (index >= P4.Count)))
                 {
                     return false;
                 }
                 currentSlice = currentSlice.Slice(bytesConsumed);
+                if ((P4[index] == null))
+                {
+                    return false;
+                }
                 if ((!currentSlice.TryGetIndex(out int index0, out int bytesConsumed0) || (index0 >= P4[index].Count)))
+                {
+                    return false;
+                }
+                if ((P4[index][index0] == null))
                 {
                     return false;
                 }
@@ -75,17 +111,33 @@ namespace Sample
             {
                 int propertyLength = "p5"u8.Length;
                 global::System.ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
+                if ((P5 == null))
+                {
+                    return false;
+                }
                 if ((!currentSlice.TryGetIndex(out int index, out int bytesConsumed) || (index >= P5.Count)))
                 {
                     return false;
                 }
                 currentSlice = currentSlice.Slice(bytesConsumed);
+                if ((P5[index] == null))
+                {
+                    return false;
+                }
                 if ((!currentSlice.TryGetIndex(out int index0, out int bytesConsumed0) || (index0 >= P5[index].Count)))
                 {
                     return false;
                 }
                 currentSlice = currentSlice.Slice(bytesConsumed0);
+                if ((P5[index][index0] == null))
+                {
+                    return false;
+                }
                 if ((!currentSlice.TryGetIndex(out int index1, out int bytesConsumed1) || (index1 >= P5[index][index0].Count)))
+                {
+                    return false;
+                }
+                if ((P5[index][index0][index1] == null))
                 {
                     return false;
                 }
@@ -95,13 +147,25 @@ namespace Sample
             {
                 int propertyLength = "p6"u8.Length;
                 global::System.ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
+                if ((P6 == null))
+                {
+                    return false;
+                }
                 string key = currentSlice.GetFirstPropertyName(out int i);
                 if (!P6.TryGetValue(key, out global::System.Collections.Generic.IList<global::Sample.Models.DynamicDictionary> item))
                 {
                     return false;
                 }
                 currentSlice = currentSlice.GetRemainder(i);
+                if ((item == null))
+                {
+                    return false;
+                }
                 if ((!currentSlice.TryGetIndex(out int index, out int bytesConsumed) || (index >= item.Count)))
+                {
+                    return false;
+                }
+                if ((item[index] == null))
                 {
                     return false;
                 }
@@ -120,8 +184,16 @@ namespace Sample
             {
                 int propertyLength = "p1"u8.Length;
                 global::System.ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
+                if ((P1 == null))
+                {
+                    return false;
+                }
                 string key = currentSlice.GetFirstPropertyName(out int i);
                 if (!P1.TryGetValue(key, out global::Sample.Models.DynamicDictionary item))
+                {
+                    return false;
+                }
+                if ((item == null))
                 {
                     return false;
                 }
@@ -132,7 +204,15 @@ namespace Sample
             {
                 int propertyLength = "p2"u8.Length;
                 global::System.ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
+                if ((P2 == null))
+                {
+                    return false;
+                }
                 if ((!currentSlice.TryGetIndex(out int index, out int bytesConsumed) || (index >= P2.Count)))
+                {
+                    return false;
+                }
+                if ((P2[index] == null))
                 {
                     return false;
                 }
@@ -143,7 +223,15 @@ namespace Sample
             {
                 int propertyLength = "p3"u8.Length;
                 global::System.ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
+                if ((P3 == null))
+                {
+                    return false;
+                }
                 if ((!currentSlice.TryGetIndex(out int index, out int bytesConsumed) || (index >= P3.Count)))
+                {
+                    return false;
+                }
+                if ((P3[index] == null))
                 {
                     return false;
                 }
@@ -154,12 +242,24 @@ namespace Sample
             {
                 int propertyLength = "p4"u8.Length;
                 global::System.ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
+                if ((P4 == null))
+                {
+                    return false;
+                }
                 if ((!currentSlice.TryGetIndex(out int index, out int bytesConsumed) || (index >= P4.Count)))
                 {
                     return false;
                 }
                 currentSlice = currentSlice.Slice(bytesConsumed);
+                if ((P4[index] == null))
+                {
+                    return false;
+                }
                 if ((!currentSlice.TryGetIndex(out int index0, out int bytesConsumed0) || (index0 >= P4[index].Count)))
+                {
+                    return false;
+                }
+                if ((P4[index][index0] == null))
                 {
                     return false;
                 }
@@ -170,17 +270,33 @@ namespace Sample
             {
                 int propertyLength = "p5"u8.Length;
                 global::System.ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
+                if ((P5 == null))
+                {
+                    return false;
+                }
                 if ((!currentSlice.TryGetIndex(out int index, out int bytesConsumed) || (index >= P5.Count)))
                 {
                     return false;
                 }
                 currentSlice = currentSlice.Slice(bytesConsumed);
+                if ((P5[index] == null))
+                {
+                    return false;
+                }
                 if ((!currentSlice.TryGetIndex(out int index0, out int bytesConsumed0) || (index0 >= P5[index].Count)))
                 {
                     return false;
                 }
                 currentSlice = currentSlice.Slice(bytesConsumed0);
+                if ((P5[index][index0] == null))
+                {
+                    return false;
+                }
                 if ((!currentSlice.TryGetIndex(out int index1, out int bytesConsumed1) || (index1 >= P5[index][index0].Count)))
+                {
+                    return false;
+                }
+                if ((P5[index][index0][index1] == null))
                 {
                     return false;
                 }
@@ -191,13 +307,25 @@ namespace Sample
             {
                 int propertyLength = "p6"u8.Length;
                 global::System.ReadOnlySpan<byte> currentSlice = local.Slice(propertyLength);
+                if ((P6 == null))
+                {
+                    return false;
+                }
                 string key = currentSlice.GetFirstPropertyName(out int i);
                 if (!P6.TryGetValue(key, out global::System.Collections.Generic.IList<global::Sample.Models.DynamicDictionary> item))
                 {
                     return false;
                 }
                 currentSlice = currentSlice.GetRemainder(i);
+                if ((item == null))
+                {
+                    return false;
+                }
                 if ((!currentSlice.TryGetIndex(out int index, out int bytesConsumed) || (index >= item.Count)))
+                {
+                    return false;
+                }
+                if ((item[index] == null))
                 {
                     return false;
                 }

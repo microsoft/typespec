@@ -1,5 +1,19 @@
 # Change Log - @typespec/playground
 
+## 0.18.0
+
+### Features
+
+- [#11810](https://github.com/microsoft/typespec/pull/11810) Clicking the source location of a type in the type graph now selects its declaration in the editor.
+
+
+## 0.17.1
+
+### Bug Fixes
+
+- [#11660](https://github.com/microsoft/typespec/pull/11660) Preserve a sample's preferred emitter and compiler options when loading it in the playground.
+
+
 ## 0.17.0
 
 ### Features
