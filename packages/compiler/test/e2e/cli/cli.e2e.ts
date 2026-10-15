@@ -188,6 +188,78 @@ describe("format", () => {
 });
 
 describe("compile", () => {
+  describe("linter overrides", () => {
+    const cwd = getScenarioDir("linter");
+
+    beforeEach(async () => {
+      await cleanOutputDir("linter");
+    });
+
+    it("reports configured lint diagnostics as errors with --warn-as-error", async () => {
+      const { stdio } = await execCliFail(["compile", ".", "--warn-as-error"], { cwd });
+      expect(stdio).toContain("error @typespec/compiler/unused-using:");
+      expect(stdio).toContain("error @typespec/compiler/unused-template-parameter:");
+    });
+
+    it("disables linting without disabling the configured emitter", async () => {
+      const { stdio } = await execCliSuccess(["compile", ".", "--no-linter", "--warn-as-error"], {
+        cwd,
+      });
+      expect(stdio).not.toContain("compiler/unused-");
+      expect(await readFile(resolvePath(cwd, "tsp-output/out.txt"), "utf8")).toBe("Hello, world!");
+    });
+
+    it("does not suppress compiler warnings with --no-linter", async () => {
+      const { stdio } = await execCliFail(["compile", ".", "--no-linter", "--warn-as-error"], {
+        cwd: getScenarioDir("warn"),
+      });
+      expect(stdio).toContain("error deprecated:");
+    });
+
+    it("accepts repeated rulesets and rule overrides, including --no-linter=false", async () => {
+      const { stdio } = await execCliSuccess(
+        [
+          "compile",
+          ".",
+          "--no-linter=false",
+          "--linter-ruleset",
+          "@typespec/compiler/all",
+          "--linter-ruleset",
+          "file:./using-only.yaml",
+          "--linter-rule",
+          "compiler/unused-using=false",
+          "--linter-rule",
+          "compiler/unused-template-parameter=true",
+        ],
+        { cwd },
+      );
+      expect(stdio).not.toContain("warning @typespec/compiler/unused-using:");
+      expect(stdio).toContain("warning @typespec/compiler/unused-template-parameter:");
+    });
+
+    it.each(["linter-ruleset", "linter-rule"])("requires a value for --%s", async (flag) => {
+      const { stdio } = await execCliFail(["compile", ".", `--${flag}`], { cwd });
+      expect(stdio).toContain(`Not enough arguments following: ${flag}`);
+      expect(stdio).not.toContain("Internal compiler error");
+    });
+
+    it.each([
+      ["--linter-ruleset", "@typespec/compiler/all"],
+      ["--linter-rule", "compiler/unused-using=true"],
+    ])("rejects --no-linter with %s", async (...override) => {
+      const { stdio } = await execCliFail(["compile", ".", "--no-linter", ...override], { cwd });
+      expect(stdio).toContain("conflicting-linter-flags");
+      expect(stdio).not.toContain("Internal compiler error");
+    });
+
+    it("documents all linter flags in compile help", async () => {
+      const { stdio } = await execCliSuccess(["compile", "--help"], { cwd });
+      expect(stdio).toContain("--no-linter");
+      expect(stdio).toContain("--linter-ruleset");
+      expect(stdio).toContain("--linter-rule");
+    });
+  });
+
   describe("compiling spec with warning", () => {
     it("logs warning and succeed", async () => {
       const { stdout } = await execCliSuccess(["compile", ".", "--pretty", "false"], {

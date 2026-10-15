@@ -37,7 +37,7 @@ type LinterLibraryInstance = { linter: LinterResolvedDefinition };
 /**
  * Where a ruleset came from. `file:` references need a directory to resolve against, so they are
  * only supported for rulesets anchored to a location on disk (the project config or another ruleset
- * file). Rulesets defined by a library are not anchored anywhere and cannot use them.
+ * file, or a CLI invocation). Rulesets defined by a library are not anchored anywhere and cannot use them.
  */
 type RuleSetOrigin =
   | {

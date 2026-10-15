@@ -1,5 +1,11 @@
 import type { EmitterOptions, TypeSpecConfig } from "../config/types.js";
-import type { LinterRuleSet, ParseOptions } from "./types.js";
+import type {
+  LinterRuleEnableValue,
+  LinterRuleSet,
+  ParseOptions,
+  RuleRef,
+  RuleSetRef,
+} from "./types.js";
 
 export interface CompilerOptions {
   miscOptions?: Record<string, unknown>;
@@ -67,6 +73,12 @@ export interface CompilerOptions {
 
   /** Ruleset to enable for linting. */
   linterRuleSet?: LinterRuleSet;
+
+  /** @internal CLI ruleset selection and ordered per-rule overrides. */
+  linterRuleSetOverrides?: {
+    extends?: RuleSetRef[];
+    rules: [RuleRef, LinterRuleEnableValue][];
+  };
 
   /** @internal */
   readonly configFile?: TypeSpecConfig;

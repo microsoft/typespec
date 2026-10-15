@@ -1,0 +1,5 @@
+emit:
+  - ../with-emitter/emitter.js
+linter:
+  extends:
+    - "@typespec/compiler/all"
