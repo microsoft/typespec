@@ -49,6 +49,11 @@ function normalizeFragment(fragment: string, trimLast = false) {
   return fragment;
 }
 
+/**
+ * Joins route fragments, adding a slash when a fragment lacks a recognized separator
+ * and trimming one trailing slash from non-final fragments. Preserves URI-template path expansions.
+ * An empty input returns an empty string.
+ */
 export function joinPathSegments(rest: string[]) {
   let current = "";
   for (const [index, segment] of rest.entries()) {
@@ -249,6 +254,11 @@ const styleToOperator: Record<PathParameterOptions["style"], string> = {
   fragment: "#",
 };
 
+/**
+ * Builds a URI-template expression for a resolved path parameter.
+ * Optional parameters use path-segment expansion; otherwise reserved-character handling
+ * takes precedence over the configured style. Appends `*` when explode is enabled.
+ */
 export function getUriTemplatePathParam(param: HttpOperationPathParameter) {
   const operator = param.param.optional
     ? "/"
@@ -262,6 +272,10 @@ function getUriTemplateQueryParamPart(param: HttpOperationQueryParameter) {
   return `${escapeUriTemplateParamName(param.name)}${param.explode ? "*" : ""}`;
 }
 
+/**
+ * Appends one query expansion containing only the supplied query parameters, in input order.
+ * Encodes parameter names and preserves explode modifiers. Does not merge with existing expansions.
+ */
 export function addQueryParamsToUriTemplate(uriTemplate: string, params: HttpOperationParameter[]) {
   const queryParams = params.filter((x) => x.type === "query");
 
@@ -307,6 +321,7 @@ export function setRouteOptionsForNamespace(
   program.stateMap(HttpStateKeys.routeOptions).set(namespace, options);
 }
 
+/** Reads options stored directly on a namespace, without merging options from its ancestors. */
 export function getRouteOptionsForNamespace(
   program: Program,
   namespace: Namespace,
@@ -314,6 +329,10 @@ export function getRouteOptionsForNamespace(
   return program.stateMap(HttpStateKeys.routeOptions).get(namespace);
 }
 
+/**
+ * Reads the target's declared route fragment and, for operations, its shared-route flag.
+ * Returns `undefined` when no nonempty route is stored; does not prepend containing routes.
+ */
 export function getRoutePath(
   program: Program,
   entity: Namespace | Interface | Operation,

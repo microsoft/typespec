@@ -32,6 +32,10 @@ import type {
   QueryParameterOptions,
 } from "./types.js";
 
+/**
+ * A visible request or response property classified by its HTTP role.
+ * The discriminant distinguishes wire metadata, explicit body roots, and implicit body members.
+ */
 export type HttpProperty =
   | HeaderProperty
   | CookieProperty
@@ -44,38 +48,58 @@ export type HttpProperty =
   | MultipartBodyProperty
   | BodyPropertyProperty;
 
+/** Source location shared by classified HTTP properties, including nested properties. */
 export interface HttpPropertyBase {
+  /** Original TypeSpec property supplying this value or annotation. */
   readonly property: ModelProperty;
   /** Path from the root of the operation parameters/returnType to the property. */
   readonly path: (string | number)[];
 }
 
+/** A property carried in a header, other than a separately classified Content-Type header. */
 export interface HeaderProperty extends HttpPropertyBase {
+  /** Selects header metadata rather than payload data. */
   readonly kind: "header";
+  /** Header wire name and configured serialization options. */
   readonly options: HeaderFieldOptions;
 }
 
+/** A property carried in a request cookie. */
 export interface CookieProperty extends HttpPropertyBase {
+  /** Selects cookie metadata rather than payload data. */
   readonly kind: "cookie";
+  /** Cookie options with the wire name resolved. */
   readonly options: CookieParameterOptions;
 }
 
+/** A Content-Type header used to determine the payload's supported media types. */
 export interface ContentTypeProperty extends HttpPropertyBase {
+  /** Selects media-type metadata rather than an ordinary header. */
   readonly kind: "contentType";
 }
 
+/** A query parameter declared by `@query` or inferred from a URI template. */
 export interface QueryProperty extends HttpPropertyBase {
+  /** Selects URI query metadata rather than payload data. */
   readonly kind: "query";
+  /** Query wire name and serialization settings with defaults resolved. */
   readonly options: Required<QueryOptions>;
 }
+/** A path parameter declared by `@path` or inferred from a URI template. */
 export interface PathProperty extends HttpPropertyBase {
+  /** Selects URI path interpolation rather than payload data. */
   readonly kind: "path";
+  /** Path wire name and expansion settings with defaults resolved. */
   readonly options: Required<PathOptions>;
 }
+/** A property whose type or constraints determine response status codes. */
 export interface StatusCodeProperty extends HttpPropertyBase {
+  /** Selects response status metadata rather than payload data. */
   readonly kind: "statusCode";
 }
+/** A property marked `@body`, whose type supplies the complete payload. */
 export interface BodyProperty extends HttpPropertyBase {
+  /** Selects an explicit body whose nested HTTP annotations are ignored. */
   readonly kind: "body";
 }
 
@@ -83,14 +107,19 @@ export interface BodyProperty extends HttpPropertyBase {
 export interface BodyIgnoreProperty extends HttpPropertyBase {
   readonly kind: "bodyIgnore";
 }
+/** A property marked `@bodyRoot`, allowing metadata to be resolved within its type. */
 export interface BodyRootProperty extends HttpPropertyBase {
+  /** Selects a body root whose nested metadata remains applicable. */
   readonly kind: "bodyRoot";
 }
+/** A property marked `@multipartBody`, whose model or tuple describes the parts. */
 export interface MultipartBodyProperty extends HttpPropertyBase {
+  /** Selects explicit multipart body resolution. */
   readonly kind: "multipartBody";
 }
 /** Property to include inside the body */
 export interface BodyPropertyProperty extends HttpPropertyBase {
+  /** Selects an unannotated property contributing to an implicit body. */
   readonly kind: "bodyProperty";
 }
 
