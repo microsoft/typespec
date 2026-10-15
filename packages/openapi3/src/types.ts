@@ -5,13 +5,17 @@ export type CommonOpenAPI3Schema = OpenAPI3Schema & OpenAPISchema3_1 & OpenAPISc
 
 export type SupportedOpenAPISchema = OpenAPI3Schema | OpenAPISchema3_1 | OpenAPISchema3_2;
 
+/** Documents for the supported OpenAPI versions; narrow on `openapi` before using version-specific fields. */
 export type SupportedOpenAPIDocuments = OpenAPI3Document | OpenAPIDocument3_1 | OpenAPIDocument3_2;
 
+/** Vendor extension fields, whose names must begin with `x-`. */
 export type Extensions = {
   [key in ExtensionKey]?: any;
 };
 
+/** An OpenAPI 3.0 document, using the 3.0 schema vocabulary rather than JSON Schema 2020-12. */
 export interface OpenAPI3Document extends Extensions {
+  /** OpenAPI specification version, independent of the API version in `info.version`. */
   openapi: "3.0.0";
 
   /**
@@ -47,12 +51,13 @@ export interface OpenAPI3Document extends Extensions {
 }
 
 /**
- * A record containing the the OpenAPI 3 documents corresponding to
- * a particular service definition.
+ * Documents and diagnostics for a TypeSpec service. Narrow on `versioned` to
+ * access either one document or the service's version snapshots.
  */
 export type OpenAPI3ServiceRecord =
   OpenAPI3UnversionedServiceRecord | OpenAPI3VersionedServiceRecord;
 
+/** A service emitted as one document, including services with only transient dependency versioning. */
 export interface OpenAPI3UnversionedServiceRecord {
   /** The service that generated this OpenAPI document */
   readonly service: Service;
@@ -67,6 +72,7 @@ export interface OpenAPI3UnversionedServiceRecord {
   readonly diagnostics: readonly Diagnostic[];
 }
 
+/** A versioned service whose documents are grouped by API version, not OpenAPI specification version. */
 export interface OpenAPI3VersionedServiceRecord {
   /** The service that generated this OpenAPI document */
   readonly service: Service;
@@ -79,9 +85,8 @@ export interface OpenAPI3VersionedServiceRecord {
 }
 
 /**
- * A record containing an unversioned OpenAPI document and associated metadata.
+ * One API-version snapshot of a versioned service, with its document-specific diagnostics.
  */
-
 export interface OpenAPI3VersionedDocumentRecord {
   /** The OpenAPI document*/
   readonly document: SupportedOpenAPIDocuments;
@@ -89,51 +94,76 @@ export interface OpenAPI3VersionedDocumentRecord {
   /** The service that generated this OpenAPI document. */
   readonly service: Service;
 
-  /** The version of the service. Absent if the service is unversioned. */
+  /** The service's API version for this snapshot, not the OpenAPI specification version. */
   readonly version: string;
 
   /** The diagnostics created for this version. */
   readonly diagnostics: readonly Diagnostic[];
 }
 
+/** API metadata shared by the document versions supported by this package. */
 export interface OpenAPI3Info extends Extensions {
+  /** Human-readable API title, not an identifier for operations or schemas. */
   title: string;
+  /** Longer API description; CommonMark may be used for rich text. */
   description?: string;
+  /** URL of the API's terms of service. */
   termsOfService?: string;
+  /** API or document version; does not select the OpenAPI specification version. */
   version: string;
+  /** Contact details for questions about this API. */
   contact?: Contact;
+  /** License governing use of the API. */
   license?: License;
+  /** Short API summary, supported by OpenAPI 3.1 and later. */
   summary?: string;
 }
 
+/** A target endpoint whose URL can contain named variable substitutions. */
 export interface OpenAPI3Server {
+  /** Absolute or relative endpoint URL, with optional `{variable}` placeholders. */
   url: string;
+  /** Human-readable explanation of when to use this endpoint. */
   description?: string;
+  /** Substitutions keyed by the placeholder names used in `url`. */
   variables?: Record<string, OpenAPI3ServerVariable>;
 }
 
+/** A string substitution for a server URL placeholder, with a required fallback value. */
 export interface OpenAPI3ServerVariable {
+  /** Allowed substitutions; when supplied, must include `default`. */
   enum?: string[];
+  /** Substitution used when the caller does not supply a value. */
   default: string;
+  /** Explanation of the substitution, which may use CommonMark. */
   description?: string;
 }
 
+/** A link to documentation outside the OpenAPI document. */
 export interface OpenAPI3ExternalDocs {
+  /** URL at which the additional documentation can be found. */
   url: string;
+  /** Explanation of the linked material, which may use CommonMark. */
   description?: string;
 }
 
+/** Metadata for an operation tag; operations refer to it by `name`. */
 export interface OpenAPI3Tag extends Extensions {
+  /** Tag identifier, unique within the document's tag list. */
   name: string;
+  /** Explanation of the group of operations, which may use CommonMark. */
   description?: string;
+  /** Additional documentation for the tagged operations. */
   externalDocs?: OpenAPI3ExternalDocs;
 }
 
+/** HTTP method fields available on OpenAPI 3.0 and 3.1 Path Item Objects. */
 export type OpenAPI3HttpMethod =
   "get" | "put" | "post" | "delete" | "options" | "head" | "patch" | "trace";
 
 export type OpenAPIHttpMethod3_2 = OpenAPI3HttpMethod | "query";
 
+/** Named HTTP method fields supported across versions; does not include arbitrary 3.2 `additionalOperations` keys. */
 export type HttpMethod = OpenAPI3HttpMethod | OpenAPIHttpMethod3_2;
 
 /**
@@ -143,25 +173,41 @@ export type HttpMethod = OpenAPI3HttpMethod | OpenAPIHttpMethod3_2;
  */
 export type OpenAPI3PathItem = {
   [method in OpenAPI3HttpMethod]?: OpenAPI3Operation;
-} & { parameters?: OpenAPI3Parameter[] } & Extensions;
+} & {
+  /** Parameters shared by every operation on this path; operations can override matching name/location pairs. */
+  parameters?: OpenAPI3Parameter[];
+} & Extensions;
 
+/** Reusable OpenAPI 3.0 definitions. A component has no effect until an operation or another definition references it. */
 export interface OpenAPI3Components extends Extensions {
+  /** Named schemas addressed through `#/components/schemas/{name}`. */
   schemas?: Record<string, OpenAPI3Schema>;
+  /** Reusable response or multipart headers; the map key supplies each header's name. */
   headers?: Record<string, OpenAPI3Header>;
+  /** Reusable response descriptions, payloads and headers. */
   responses?: Record<string, OpenAPI3Response>;
+  /** Reusable parameters, each retaining its own name and location. */
   parameters?: Record<string, OpenAPI3Parameter>;
+  /** Named examples that media types or parameters can reference. */
   examples?: Record<string, OpenAPI3Example>;
+  /** Reusable request payload descriptions and media types. */
   requestBodies?: Record<string, OpenAPI3RequestBody>;
+  /** Authentication definitions selected by name in security requirements. */
   securitySchemes?: Record<string, OpenAPI3SecurityScheme>;
+  /** Named relationships from a response to another operation. */
   links?: Record<string, OpenAPI3Link>;
 }
 
+/** Response map key: an HTTP status code, a status-code range such as `2XX`, or the `default` fallback. */
 export type OpenAPI3StatusCode = string | "default" | "1XX" | "2XX" | "3XX" | "4XX" | "5XX";
 
+/** Responses for an operation, keyed by status; an explicit code takes precedence over a range. */
 export type OpenAPI3Responses = {
+  /** Response definition or reference for a status code, range, or `default`. */
   [status: OpenAPI3StatusCode]: Refable<OpenAPI3Response>;
 } & Extensions;
 
+/** One possible operation response, independent of the status key under which it is used. */
 export type OpenAPI3Response = Extensions & {
   /** A short description of the response. CommonMark syntax MAY be used for rich text representation. */
   description: string;
@@ -352,6 +398,7 @@ export interface OpenAPI3OpenIdConnectSecurityScheme extends OpenAPI3SecuritySch
   openIdConnectUrl: string;
 }
 
+/** Identifies a related operation by either a reference or an operation ID, but not both. */
 export type OpenAPI3Link =
   | {
       /** A relative or absolute reference to an OAS operation. This field is mutually exclusive of the operationId field, and MUST point to an Operation Object. Relative operationRef values MAY be used to locate an existing Operation Object in the OpenAPI definition.  */
@@ -363,14 +410,18 @@ export type OpenAPI3Link =
     };
 
 /**
- *  Allows sharing examples for operation responses.
+ * A reusable parameter or payload example, supplied inline or by an external URL.
  *
- * @see https://spec.openapis.org/oas/v2.0.html#example-object
+ * @see https://spec.openapis.org/oas/v3.0.4.html#example-object
  */
 export interface OpenAPI3Example {
+  /** Short label that distinguishes this example from others. */
   summary?: string;
+  /** Explanation of the example, which may use CommonMark. */
   description?: string;
+  /** Inline example data; mutually exclusive with `externalValue`. */
   value?: unknown;
+  /** URL of example data that cannot be included inline; mutually exclusive with `value`. */
   externalValue?: string;
 }
 
@@ -721,25 +772,46 @@ export type OpenAPI3Header = OpenAPI3ParameterBase & {
   style?: "simple";
 };
 
+/** An operation attached to an HTTP method on a path, with its inputs, responses and security overrides. */
 export type OpenAPI3Operation = Extensions & {
+  /** Detailed explanation of the operation, which may use CommonMark. */
   description?: string;
+  /** Short explanation suitable for operation lists. */
   summary?: string;
+  /** Possible responses, including status-specific entries and an optional default. */
   responses?: Refable<OpenAPI3Responses>;
+  /** Tag names used to group this operation; document-level tag metadata is optional. */
   tags?: string[];
+  /** Identifier that must be unique among operations in the API. */
   operationId?: string;
+  /** Payload accepted by this operation, separate from path, query, header and cookie parameters. */
   requestBody?: Refable<OpenAPI3RequestBody>;
+  /** Operation parameters; matching name/location pairs override path-level parameters. */
   parameters: Refable<OpenAPI3Parameter>[];
+  /** Marks an operation that consumers should stop using; absence means false. */
   deprecated?: boolean;
+  /**
+   * Overrides document-level security. Entries are alternatives; schemes within
+   * an entry are all required. An empty array removes inherited requirements.
+   */
   security?: Record<string, string[]>[];
 };
 
+/**
+ * A reference to a definition of `T`, which is not resolved or validated by this type.
+ * `summary` and `description` siblings are supported on Reference Objects in OpenAPI 3.1 and later.
+ */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export interface Ref<T> {
+  /** URI reference locating the target, often a document-local `#/components/...` JSON Pointer. */
   $ref: string;
+  /** Description override where supported by the referring object and OpenAPI version. */
   description?: string;
+  /** Summary override where supported by the referring object and OpenAPI version. */
   summary?: string;
 }
 
+/** A definition embedded inline or supplied by a `$ref`; check for `$ref` before accessing definition fields. */
 export type Refable<T> = Ref<T> | T;
 
 export type JsonSchemaType =
