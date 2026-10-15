@@ -38,6 +38,7 @@ import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.http.models.HttpHeaderName;
 import io.clientcore.core.utils.CoreUtils;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -1190,6 +1191,24 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
             && clientMethod.getMethodPageDetails().getContinuationToken() != null;
     }
 
+    private static String continuationTokenParameterName(ClientMethod clientMethod) {
+        MethodPageDetails.ContinuationToken token = clientMethod.getMethodPageDetails().getContinuationToken();
+        Set<String> usedNames
+            = new HashSet<>(List.of("requestOptions", "requestOptionsLocal", "requestLocal", "urlBuilder", "pageSize"));
+        clientMethod.getParameters()
+            .stream()
+            .filter(parameter -> parameter != token.getClientMethodParameter())
+            .map(ClientMethodParameter::getName)
+            .forEach(usedNames::add);
+        String baseName = token.getRequestParameter().getName();
+        String name = baseName;
+        int suffix = 1;
+        while (usedNames.contains(name)) {
+            name = baseName + suffix++;
+        }
+        return name;
+    }
+
     private void generateContinuationTokenPaging(ClientMethod clientMethod, JavaType typeBlock, JavaSettings settings,
         boolean sync) {
         addServiceMethodAnnotation(typeBlock, ReturnType.COLLECTION);
@@ -1205,8 +1224,15 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                 ? clientMethod.getProxyMethod().getPagingSinglePageMethodName()
                 : clientMethod.getProxyMethod().getPagingAsyncSinglePageMethodName();
             String firstPage = getPagingSinglePageExpression(clientMethod, methodName, firstArguments, settings);
-            String nextPage = getPagingSinglePageExpression(clientMethod, methodName, firstArguments, settings,
-                clientMethod.getMethodPageDetails().getContinuationToken().getRequestParameter().getName());
+            String tokenName = continuationTokenParameterName(clientMethod);
+            String nextArguments = settings.isDataPlaneClient()
+                ? firstArguments
+                : clientMethod.getMethodParameters()
+                    .stream()
+                    .map(p -> p == tokenParameter ? tokenName : p.getName())
+                    .collect(Collectors.joining(", "));
+            String nextPage
+                = getPagingSinglePageExpression(clientMethod, methodName, nextArguments, settings, tokenName);
             function.line("return new %s<>(", sync ? "PagedIterable" : "PagedFlux");
             function.indent(() -> {
                 function.line(firstPage + ",");
@@ -1930,7 +1956,8 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         Optional<String> maxPageSizeSerializedName = settings.isDataPlaneClient() && settings.isPageSizeEnabled()
             ? MethodUtil.serializedNameOfMaxPageSizeParameter(clientMethod.getProxyMethod())
             : Optional.empty();
-        boolean continuationToken = settings.isAzureV1() && hasContinuationToken(clientMethod);
+        boolean continuationToken
+            = settings.isAzureV1() && settings.isDataPlaneClient() && hasContinuationToken(clientMethod);
         if (continuationToken || maxPageSizeSerializedName.isPresent()) {
             argumentLine = argumentLine.replace("requestOptions", "requestOptionsLocal");
             StringBuilder expression = new StringBuilder("(");
