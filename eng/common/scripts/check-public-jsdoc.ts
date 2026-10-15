@@ -509,9 +509,19 @@ function inspectEntry(pkg: Package, route: string, entry: string) {
           if (
             target &&
             ["Extract", "Exclude"].includes(target.name) &&
-            declarations(target).some((d) => program.isSourceFileDefaultLibrary(d.getSourceFile()))
-          )
-            return true;
+            declarations(target).some((d) =>
+              program.isSourceFileDefaultLibrary(d.getSourceFile()),
+            ) &&
+            ts.isTypeLiteralNode(node) &&
+            decl.parent === node &&
+            parent.typeArguments[0]
+          ) {
+            const existing = checker.getPropertyOfType(
+              checker.getTypeFromTypeNode(parent.typeArguments[0]),
+              symbol.name,
+            );
+            if (existing && declarations(existing).some((d) => d !== decl)) return true;
+          }
         }
       }
       return false;

@@ -41,9 +41,10 @@ followed through their resolved members/signatures, not by blindly traversing al
 arguments that a mapped type may omit.
 Fresh bound parameters recreated by recursive generic methods are memoized by
 declaration, constraint and default, not by their transient TypeScript object IDs.
-Standard-library `Extract`/`Exclude` filter fields constrain existing members;
-they are not separate member-summary obligations. Their resolved value types
-still participate in traversal.
+Top-level standard-library `Extract`/`Exclude` filter fields that repeat an existing
+payload member are not separate member-summary obligations. Newly introduced or
+nested filter fields are not exempted, and resolved value types still participate
+in traversal.
 Mapped types expose their resolved properties, not every syntactic type argument:
 `Omit<Helper, "implementationDetail">` does not expose the omitted member or require
 the helper's own summary. Loaded module augmentations are also checked. Workspace
