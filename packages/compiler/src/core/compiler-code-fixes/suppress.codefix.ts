@@ -32,6 +32,10 @@ const mapGroupBy: typeof Map.groupBy =
     return result;
   });
 
+/**
+ * Create a fix that inserts a `#suppress` directive before the nearest supported suppression target.
+ * The fix produces no edits if the diagnostic target has no suitable source location.
+ */
 export function createSuppressCodeFix(
   diagnosticTarget: DiagnosticTarget,
   warningCode: string,
