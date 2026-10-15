@@ -256,37 +256,67 @@ export interface HttpServiceAuthentication {
 
 export type OperationContainer = Namespace | Interface;
 
-/** @experimental */
+/**
+ * Overrides method selection during request resolution.
+ * Returning `undefined` falls back to an explicit verb, an overload's verb, or body-based inference.
+ * @experimental
+ */
 export type OperationVerbSelector = (
   program: Program,
   operation: Operation,
 ) => HttpVerb | undefined;
 
-/** @experimental */
+/**
+ * Customizes request parameter resolution without changing the source operation.
+ * @experimental
+ */
 export interface OperationParameterOptions {
+  /** Optional method selector, consulted before the operation's HTTP verb decorator. */
   verbSelector?: OperationVerbSelector;
 }
 
-/** @experimental */
+/**
+ * Options passed to a route producer, including request parameter customization.
+ * Namespace options are shallowly merged from outer to inner scopes, then overridden by call-site options.
+ * @experimental
+ */
 export interface RouteOptions {
-  // Other options can be passed through the interface
+  /** Additional producer-specific options; the default HTTP resolver does not interpret unknown keys. */
   [prop: string]: any;
 
+  /** Options passed to request parameter and method resolution. */
   paramOptions?: OperationParameterOptions;
 }
 
-/** @experimental */
+/**
+ * Route production options with operation-enumeration settings for container queries.
+ * @experimental
+ */
 export interface RouteResolutionOptions extends RouteOptions {
+  /** Options for listing operations; service resolution supplies its own namespace recursion policy. */
   listOptions?: ListOperationOptions;
 }
 
-/** @experimental */
+/**
+ * URI template and request bindings produced together so implicit parameters match the route.
+ * @experimental
+ */
 export interface RouteProducerResult {
+  /** Produced URI template, before the resolver normalizes its leading path separator. */
   uriTemplate: string;
+  /** Resolved request parameters and body, including the selected HTTP method. */
   parameters: HttpOperationParameters;
 }
 
-/** @experimental */
+/**
+ * Callback supplying a URI template and resolved request bindings for an operation.
+ * The caller normalizes the resulting path and validates references to URI parameters.
+ *
+ * @param parentSegments Containing namespace/interface route fragments, ordered outermost first.
+ * @param overloadBase Resolved base operation, if this operation is an overload.
+ * @param options Merged namespace and call-site route options.
+ * @experimental
+ */
 export type RouteProducer = (
   program: Program,
   operation: Operation,

@@ -200,7 +200,12 @@ function getUriTemplateAndParameters(
   ];
 }
 
-/** @experimental */
+/**
+ * Produces the standard route from containing fragments and the operation's own route,
+ * or reuses the overload base's template when the overload declares no route.
+ * Resolves request parameters and appends path/query parameters not already referenced in the template.
+ * @experimental
+ */
 export function DefaultRouteProducer(
   program: Program,
   operation: Operation,
@@ -287,6 +292,10 @@ function escapeUriTemplateParamName(name: string) {
   });
 }
 
+/**
+ * Registers a custom producer for this operation, replacing any previous producer.
+ * Used by the experimental `unsafe_setRouteProducer` export.
+ */
 export function setRouteProducer(
   program: Program,
   operation: Operation,
@@ -295,10 +304,18 @@ export function setRouteProducer(
   program.stateMap(HttpStateKeys.routeProducer).set(operation, routeProducer);
 }
 
+/**
+ * Reads the custom producer registered on this operation.
+ * Returns `undefined` at runtime when none is registered; route resolution then uses the default producer.
+ */
 export function getRouteProducer(program: Program, operation: Operation): RouteProducer {
   return program.stateMap(HttpStateKeys.routeProducer).get(operation);
 }
 
+/**
+ * Replaces the options stored directly on a namespace.
+ * During route resolution these are shallowly merged with ancestor options and overridden by call-site options.
+ */
 export function setRouteOptionsForNamespace(
   program: Program,
   namespace: Namespace,
