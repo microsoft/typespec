@@ -2613,6 +2613,41 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             }
         }
 
+        [Test]
+        public void ListNormalizationProtocolMethodBodyMatchesBaseline()
+        {
+            var resource = InputFactory.Model("Resource");
+            var page = InputFactory.Model("Page", properties:
+            [
+                InputFactory.Property("value", InputFactory.Array(resource)),
+                InputFactory.Property("nextLink", InputPrimitiveType.String)
+            ]);
+            var getOperation = InputFactory.Operation(
+                "GetWidgets",
+                path: "/widgets/default",
+                responses: [InputFactory.OperationResponse([200], resource)]);
+            var getMethod = InputFactory.BasicServiceMethod(
+                "GetWidgets", getOperation,
+                response: InputFactory.ServiceMethodResponse(resource, null));
+            var listOperation = InputFactory.Operation(
+                "ListWidgets",
+                path: "/widgets",
+                responses: [InputFactory.OperationResponse([200], page)]);
+            var listMethod = InputFactory.PagingServiceMethod(
+                "ListWidgets", listOperation,
+                response: InputFactory.ServiceMethodResponse(page, null),
+                pagingMetadata: InputFactory.NextLinkPagingMetadata(["value"], ["nextLink"], InputResponseLocation.Body));
+            var inputClient = InputFactory.Client("TestClient", methods: [getMethod, listMethod]);
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient], inputModels: () => [resource, page]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+
+            var protocolMethodBodies = client.GetMethodCollectionByOperation(getOperation)
+                .Where(method => method.Kind == ScmMethodKind.Protocol)
+                .Select(method => method.BodyStatements!.ToDisplayString());
+            var generatedCode = string.Join(Environment.NewLine + Environment.NewLine, protocolMethodBodies);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), generatedCode);
+        }
+
         private static IEnumerable<TestCaseData> ListNormalizationOverloadCases()
         {
             yield return new TestCaseData(InputPrimitiveType.String, null);
