@@ -9,7 +9,7 @@ import { TestHostError } from "./types.js";
 
 /**
  * File mappings for the compiler's built JavaScript support and standard TypeSpec library.
- * Legacy hosts mount these files explicitly; modern testers make them available automatically.
+ * `createTestHost` and modern testers mount these files automatically.
  */
 // eslint-disable-next-line @typescript-eslint/no-deprecated
 export const StandardTestLibrary: TypeSpecTestLibrary = {
