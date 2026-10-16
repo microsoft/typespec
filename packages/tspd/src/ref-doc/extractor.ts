@@ -98,8 +98,9 @@ function getExport(pkgJson: PackageJson, path: string, condition: string) {
  * Compiles the main `typespec` export with documentation parsing enabled and imports the main
  * `import` or `default` export to inspect `$lib` and `$linter`. Either surface may be absent.
  *
- * TypeSpec sub-exports omit files already loaded by the main export; empty or unbuildable
- * sub-exports are skipped. Returns the model with collected compilation and metadata diagnostics.
+ * TypeSpec sub-exports omit files already loaded by the main export. Empty results and
+ * thrown processing failures are skipped; compiler diagnostics alone do not prevent extraction.
+ * Returns the model with collected compilation and metadata diagnostics.
  * Missing declaration documentation is also reported on the compiled programs.
  * @param libraryPath Directory containing the package.json and built JavaScript entry points.
  */
