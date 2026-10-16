@@ -2732,6 +2732,27 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 "GetUrlAsync");
         }
 
+        [TestCase("GetUri")]
+        [TestCase("GetUriAsync")]
+        public void ListUrlNormalizationFallsBackBeforeUrlProjection(string getName)
+        {
+            var listOperation = InputFactory.Operation("ListUrl");
+            var listMethod = InputFactory.BasicServiceMethod("ListUrl", listOperation);
+            var getOperation = InputFactory.Operation(getName);
+            var getMethod = InputFactory.BasicServiceMethod(getName, getOperation);
+            var inputClient = InputFactory.Client("TestClient", methods: [listMethod, getMethod]);
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+
+            Assert.AreEqual("GetUrl", listMethod.Name);
+            Assert.AreEqual(getName, getMethod.Name);
+            CollectionAssert.AreEquivalent(
+                new[] { "GetUrl", "GetUrlAsync", "GetUrl", "GetUrlAsync" },
+                client.GetMethodCollectionByOperation(listOperation)
+                    .Select(method => method.Signature.Name)
+                    .Where(name => name.StartsWith("Get", StringComparison.Ordinal)));
+        }
+
         private static IEnumerable<TestCaseData> ListNormalizationOverloadCases()
         {
             yield return new TestCaseData(InputPrimitiveType.String, null);
@@ -6252,7 +6273,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             var newPublicMethodName = newWrapperMethods.Single(m =>
                 m.Kind == ScmMethodKind.Convenience &&
                 !m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Async)).Signature.Name;
-            Assert.AreEqual("ListUri", newPublicMethodName);
+            Assert.AreEqual("GetUrl", newPublicMethodName);
             Assert.AreEqual(
                 capturedRequestMethodName,
                 clientProvider.RestClient.GetCreateRequestMethod(listOperation).Signature.Name);

@@ -349,19 +349,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             RestClientProvider.GetMethodParameters(serviceMethod, kind, this),
                             RestClientProvider.GetMethodParameters(other, kind, this)))
                     {
-                        var candidateNamesBeforeAcronymNormalization = GetEmittedMethodNames(
-                            serviceMethod,
-                            ProjectPublicName(serviceMethod, normalizedName, normalizeAcronyms: false),
-                            kind);
-                        var otherNamesBeforeAcronymNormalization = GetEmittedMethodNames(
+                        var candidateNamesBeforeProjection = GetEmittedMethodNames(serviceMethod, normalizedName, kind);
+                        var otherNamesBeforeProjection = GetEmittedMethodNames(
                             other,
-                            ProjectPublicName(
-                                other,
-                                other.IsExactName ? other.Operation.Name : NormalizeName(otherInputName),
-                                normalizeAcronyms: false),
+                            other.IsExactName ? other.Operation.Name : NormalizeName(otherInputName),
                             kind);
-                        if (candidateNamesBeforeAcronymNormalization
-                            .Intersect(otherNamesBeforeAcronymNormalization, StringComparer.Ordinal).Any())
+                        if (candidateNamesBeforeProjection
+                            .Intersect(otherNamesBeforeProjection, StringComparer.Ordinal).Any())
                         {
                             return false;
                         }
