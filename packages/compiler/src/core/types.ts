@@ -236,30 +236,25 @@ export interface IntrinsicType extends BaseType {
 
 /** Error-recovery type used when checking cannot produce a valid type. */
 export interface ErrorType extends IntrinsicType {
-  /** Identifies the error-recovery intrinsic. */
   name: "ErrorType";
 }
 
 /** An operation result with no return value. */
 export interface VoidType extends IntrinsicType {
-  /** Identifies the no-return-value intrinsic. */
   name: "void";
 }
 
 /** Bottom type with no possible values, assignable to every type. */
 export interface NeverType extends IntrinsicType {
-  /** Identifies the bottom type. */
   name: "never";
 }
 
 /** Top type accepting any type without imposing a more specific constraint. */
 export interface UnknownType extends IntrinsicType {
-  /** Identifies the unconstrained top type. */
   name: "unknown";
 }
 /** Singleton type of the `null` value, distinct from an operation returning `void`. */
 export interface NullType extends IntrinsicType {
-  /** Identifies the null singleton type. */
   name: "null";
 }
 
