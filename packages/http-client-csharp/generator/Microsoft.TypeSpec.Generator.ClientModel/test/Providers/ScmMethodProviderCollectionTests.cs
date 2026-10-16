@@ -2550,11 +2550,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 var methods = new ScmMethodProviderCollection(serviceMethod, client);
                 foreach (var method in methods.Where(m => m.Kind == ScmMethodKind.Convenience))
                 {
+                    AppendMethodSignature(generatedCode, method);
                     generatedCode.Append(method.BodyStatements!.ToDisplayString());
                 }
             }
 
-            Assert.AreEqual(Helpers.GetExpectedFromFile(), generatedCode.ToString());
+            Assert.AreEqual(Helpers.GetExpectedFromFile(kind.ToString()), generatedCode.ToString());
         }
 
         [TestCase(InputPrimitiveTypeKind.Int16)]
@@ -2583,12 +2584,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                     var methods = new ScmMethodProviderCollection(serviceMethod, client);
                     foreach (var method in methods.Where(m => m.Kind == ScmMethodKind.Convenience))
                     {
+                        AppendMethodSignature(generatedCode, method);
                         generatedCode.Append(method.BodyStatements!.ToDisplayString());
                     }
                 }
             }
 
             Assert.AreEqual(Helpers.GetExpectedFromFile(kind.ToString()), generatedCode.ToString());
+        }
+
+        private static void AppendMethodSignature(StringBuilder generatedCode, MethodProvider method)
+        {
+            generatedCode.Append("// ")
+                .Append(method.Signature.ReturnType)
+                .Append(' ')
+                .Append(method.Signature.Name)
+                .Append('(')
+                .Append(string.Join(", ", method.Signature.Parameters.Select(parameter => $"{parameter.Type} {parameter.Name}")))
+                .AppendLine(")");
         }
 
         [TestCase(typeof(int))]

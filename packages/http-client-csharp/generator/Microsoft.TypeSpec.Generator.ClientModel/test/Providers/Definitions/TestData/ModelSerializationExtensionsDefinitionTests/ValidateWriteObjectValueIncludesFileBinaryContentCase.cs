@@ -92,7 +92,7 @@ namespace Sample
                     break;
                 case global::System.Collections.IEnumerable objectEnumerable:
                     writer.WriteStartArray();
-                    foreach (object item in objectEnumerable)
+                    foreach (var item in objectEnumerable)
                     {
                         writer.WriteObjectValue<object>(item, options);
                     }

@@ -38,6 +38,13 @@ namespace Microsoft.TypeSpec.Generator.Statements
             ItemVariable = item;
         }
 
+        public ForEachStatement(string itemName, ValueExpression enumerable, CSharpType itemType, out VariableExpression item)
+            : this(null, new CodeWriterDeclaration(itemName), enumerable, false)
+        {
+            item = new VariableExpression(itemType, Item);
+            ItemVariable = item;
+        }
+
         public ForEachStatement(string itemName, ScopedApi enumerable, out VariableExpression item)
             : this(null, new CodeWriterDeclaration(itemName), enumerable, false)
         {

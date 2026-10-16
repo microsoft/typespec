@@ -758,7 +758,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     objectEnumerable => new MethodBodyStatement[]
                     {
                         writer.WriteStartArray(),
-                        new ForEachStatement(typeof(object), "item", objectEnumerable, false, out var item)
+                        new ForEachStatement("item", objectEnumerable, typeof(object), out var item)
                         {
                             writer.WriteObjectValue(item.As<object>(), options)
                         },
