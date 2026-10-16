@@ -2532,6 +2532,35 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         [TestCase(InputPrimitiveTypeKind.UInt16)]
         [TestCase(InputPrimitiveTypeKind.UInt32)]
         [TestCase(InputPrimitiveTypeKind.UInt64)]
+        public void NestedIntegerCollectionRequestsUseBinaryContentHelpers(InputPrimitiveTypeKind kind)
+        {
+            MockHelpers.LoadMockGenerator();
+            var generatedCode = new StringBuilder();
+            foreach (var isDictionary in new[] { false, true })
+            {
+                var elementType = new InputPrimitiveType(kind, kind.ToString(), $"TypeSpec.{kind.ToString().ToLowerInvariant()}");
+                var arrayType = InputFactory.Array(elementType);
+                var bodyType = isDictionary ? (InputType)InputFactory.Dictionary(arrayType) : InputFactory.Array(arrayType);
+                var name = isDictionary ? "SendRecord" : "SendNested";
+                var operation = InputFactory.Operation(name, parameters: [InputFactory.BodyParameter("body", bodyType, isRequired: true)]);
+                var serviceMethod = InputFactory.BasicServiceMethod(name, operation,
+                    parameters: [InputFactory.MethodParameter("body", bodyType, location: InputRequestLocation.Body, isRequired: true)]);
+                var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+                var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+                var methods = new ScmMethodProviderCollection(serviceMethod, client);
+                foreach (var method in methods.Where(m => m.Kind == ScmMethodKind.Convenience))
+                {
+                    generatedCode.Append(method.BodyStatements!.ToDisplayString());
+                }
+            }
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), generatedCode.ToString());
+        }
+
+        [TestCase(InputPrimitiveTypeKind.Int16)]
+        [TestCase(InputPrimitiveTypeKind.UInt16)]
+        [TestCase(InputPrimitiveTypeKind.UInt32)]
+        [TestCase(InputPrimitiveTypeKind.UInt64)]
         public void IntegerCollectionResponsesUseUtf8JsonReader(InputPrimitiveTypeKind kind)
         {
             MockHelpers.LoadMockGenerator();

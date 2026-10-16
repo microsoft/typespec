@@ -5,9 +5,11 @@ using System;
 using System.Buffers;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using SampleTypeSpec;
 
@@ -32,6 +34,56 @@ namespace TestProjects.Local.Tests
             writer.Flush();
 
             Assert.AreEqual(expected, Encoding.UTF8.GetString(buffer.WrittenSpan));
+        }
+
+        private static IEnumerable<TestCaseData> NestedIntegerCollections()
+            => IntegerCollections<short>(short.MinValue, short.MaxValue, "-32768,32767")
+                .Concat(IntegerCollections<ushort>(ushort.MinValue, ushort.MaxValue, "0,65535"))
+                .Concat(IntegerCollections<uint>(uint.MinValue, uint.MaxValue, "0,4294967295"))
+                .Concat(IntegerCollections<ulong>(ulong.MinValue, ulong.MaxValue, "0,18446744073709551615"));
+
+        private static IEnumerable<TestCaseData> IntegerCollections<T>(T min, T max, string numbers) where T : struct
+        {
+            (object Collection, string Expected)[] collections =
+            [
+                (new T[] { min, max }, $"[{numbers}]"),
+                (new List<T> { min, max }, $"[{numbers}]"),
+                (new T?[] { min, null, max }, $"[{numbers.Replace(",", ",null,")}]"),
+                (Array.Empty<T>(), "[]")
+            ];
+            foreach (var (collection, expected) in collections)
+            {
+                foreach (var isDictionary in new[] { false, true })
+                {
+                    foreach (var isAsync in new[] { false, true })
+                    {
+                        yield return new TestCaseData(collection, expected, isDictionary, isAsync);
+                    }
+                }
+            }
+        }
+
+        [TestCaseSource(nameof(NestedIntegerCollections))]
+        public async Task NestedIntegerRequestBodiesSerialize(
+            object collection,
+            string expected,
+            bool isDictionary,
+            bool isAsync)
+        {
+            using var content = isDictionary
+                ? BinaryContentHelper.FromDictionary(new Dictionary<string, object> { ["numbers"] = collection })
+                : BinaryContentHelper.FromEnumerable<object>(new[] { collection });
+            using var stream = new MemoryStream();
+            if (isAsync)
+            {
+                await content.WriteToAsync(stream, default);
+            }
+            else
+            {
+                content.WriteTo(stream, default);
+            }
+
+            Assert.AreEqual(isDictionary ? $"{{\"numbers\":{expected}}}" : $"[{expected}]", Encoding.UTF8.GetString(stream.ToArray()));
         }
 
         [Test]
