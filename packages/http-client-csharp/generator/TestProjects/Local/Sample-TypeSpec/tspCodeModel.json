@@ -10821,7 +10821,6 @@
             "$id": "762",
             "name": "sayHi",
             "isExactName": false,
-            "resourceName": "SampleTypeSpec",
             "doc": "Return hi",
             "accessibility": "public",
             "parameters": [
@@ -11067,7 +11066,6 @@
             "$id": "778",
             "name": "helloAgain",
             "isExactName": false,
-            "resourceName": "SampleTypeSpec",
             "doc": "Return hi again",
             "accessibility": "public",
             "parameters": [
@@ -11355,7 +11353,6 @@
             "$id": "794",
             "name": "noContentType",
             "isExactName": false,
-            "resourceName": "SampleTypeSpec",
             "doc": "Return hi again",
             "accessibility": "public",
             "parameters": [
@@ -11662,7 +11659,6 @@
             "$id": "809",
             "name": "helloDemo2",
             "isExactName": false,
-            "resourceName": "SampleTypeSpec",
             "doc": "Return hi in demo2",
             "accessibility": "public",
             "parameters": [
@@ -11768,7 +11764,6 @@
             "$id": "813",
             "name": "createLiteral",
             "isExactName": false,
-            "resourceName": "SampleTypeSpec",
             "doc": "Create with literal value",
             "accessibility": "public",
             "parameters": [
@@ -11963,7 +11958,6 @@
             "$id": "821",
             "name": "helloLiteral",
             "isExactName": false,
-            "resourceName": "SampleTypeSpec",
             "doc": "Send literal parameters",
             "accessibility": "public",
             "parameters": [
@@ -12188,7 +12182,6 @@
             "$id": "831",
             "name": "topAction",
             "isExactName": false,
-            "resourceName": "SampleTypeSpec",
             "doc": "top level method",
             "accessibility": "public",
             "parameters": [
@@ -12357,7 +12350,6 @@
             "$id": "841",
             "name": "topAction2",
             "isExactName": false,
-            "resourceName": "SampleTypeSpec",
             "doc": "top level method2",
             "accessibility": "public",
             "parameters": [
@@ -12459,7 +12451,6 @@
             "$id": "845",
             "name": "patchAction",
             "isExactName": false,
-            "resourceName": "SampleTypeSpec",
             "doc": "top level patch",
             "accessibility": "public",
             "parameters": [
@@ -12654,7 +12645,6 @@
             "$id": "853",
             "name": "anonymousBody",
             "isExactName": false,
-            "resourceName": "SampleTypeSpec",
             "doc": "body parameter without body decorator",
             "accessibility": "public",
             "parameters": [
@@ -13360,7 +13350,6 @@
             "$id": "896",
             "name": "friendlyModel",
             "isExactName": false,
-            "resourceName": "SampleTypeSpec",
             "doc": "Model can have its friendly name",
             "accessibility": "public",
             "parameters": [
@@ -13559,7 +13548,6 @@
             "$id": "905",
             "name": "addTimeHeader",
             "isExactName": false,
-            "resourceName": "SampleTypeSpec",
             "accessibility": "public",
             "parameters": [
               {
@@ -13670,7 +13658,6 @@
             "$id": "913",
             "name": "projectedNameModel",
             "isExactName": false,
-            "resourceName": "SampleTypeSpec",
             "doc": "Model can have its projected name",
             "accessibility": "public",
             "parameters": [
@@ -13870,7 +13857,6 @@
             "$id": "922",
             "name": "returnsAnonymousModel",
             "isExactName": false,
-            "resourceName": "SampleTypeSpec",
             "doc": "return anonymous model",
             "accessibility": "public",
             "parameters": [
@@ -13972,7 +13958,6 @@
             "$id": "926",
             "name": "getUnknownValue",
             "isExactName": false,
-            "resourceName": "SampleTypeSpec",
             "doc": "get extensible enum",
             "accessibility": "public",
             "parameters": [
@@ -14070,7 +14055,6 @@
             "$id": "930",
             "name": "internalProtocol",
             "isExactName": false,
-            "resourceName": "SampleTypeSpec",
             "doc": "When set protocol false and convenient true, then the protocol method should be internal",
             "accessibility": "public",
             "parameters": [
@@ -14265,7 +14249,6 @@
             "$id": "938",
             "name": "stillConvenient",
             "isExactName": false,
-            "resourceName": "SampleTypeSpec",
             "doc": "When set protocol false and convenient true, the convenient method should be generated even it has the same signature as protocol one",
             "accessibility": "public",
             "parameters": [],
@@ -14311,7 +14294,6 @@
             "$id": "940",
             "name": "headAsBoolean",
             "isExactName": false,
-            "resourceName": "SampleTypeSpec",
             "doc": "head as boolean.",
             "accessibility": "public",
             "parameters": [
@@ -14410,7 +14392,6 @@
             "$id": "946",
             "name": "WithApiVersion",
             "isExactName": false,
-            "resourceName": "SampleTypeSpec",
             "doc": "Return hi again",
             "accessibility": "public",
             "parameters": [
@@ -14569,7 +14550,6 @@
             "$id": "958",
             "name": "ListWithNextLink",
             "isExactName": false,
-            "resourceName": "SampleTypeSpec",
             "doc": "List things with nextlink",
             "accessibility": "public",
             "parameters": [
@@ -14687,7 +14667,6 @@
             "$id": "962",
             "name": "ListWithStringNextLink",
             "isExactName": false,
-            "resourceName": "SampleTypeSpec",
             "doc": "List things with nextlink",
             "accessibility": "public",
             "parameters": [
@@ -14805,7 +14784,6 @@
             "$id": "966",
             "name": "ListWithContinuationToken",
             "isExactName": false,
-            "resourceName": "SampleTypeSpec",
             "doc": "List things with continuation token",
             "accessibility": "public",
             "parameters": [
@@ -14973,7 +14951,6 @@
             "$id": "974",
             "name": "ListWithContinuationTokenHeaderResponse",
             "isExactName": false,
-            "resourceName": "SampleTypeSpec",
             "doc": "List things with continuation token header response",
             "accessibility": "public",
             "parameters": [
@@ -15153,7 +15130,6 @@
             "$id": "983",
             "name": "ListWithPaging",
             "isExactName": false,
-            "resourceName": "SampleTypeSpec",
             "doc": "List things with paging",
             "accessibility": "public",
             "parameters": [
@@ -15264,7 +15240,6 @@
             "$id": "987",
             "name": "EmbeddedParameters",
             "isExactName": false,
-            "resourceName": "SampleTypeSpec",
             "doc": "An operation with embedded parameters within the body",
             "accessibility": "public",
             "parameters": [
@@ -15589,7 +15564,6 @@
             "$id": "1005",
             "name": "DynamicModelOperation",
             "isExactName": false,
-            "resourceName": "SampleTypeSpec",
             "doc": "An operation with a dynamic model",
             "accessibility": "public",
             "parameters": [
@@ -15736,7 +15710,6 @@
             "$id": "1011",
             "name": "GetXmlAdvancedModel",
             "isExactName": false,
-            "resourceName": "SampleTypeSpec",
             "doc": "Get an advanced XML model with various property types",
             "accessibility": "public",
             "parameters": [
@@ -15846,7 +15819,6 @@
             "$id": "1015",
             "name": "UpdateXmlAdvancedModel",
             "isExactName": false,
-            "resourceName": "SampleTypeSpec",
             "doc": "Update an advanced XML model with various property types",
             "accessibility": "public",
             "parameters": [
@@ -16046,7 +16018,6 @@
             "$id": "1023",
             "name": "uploadCat",
             "isExactName": false,
-            "resourceName": "SampleTypeSpec",
             "accessibility": "public",
             "parameters": [
               {
@@ -16179,7 +16150,6 @@
             "$id": "1029",
             "name": "sendJsonLines",
             "isExactName": false,
-            "resourceName": "SampleTypeSpec",
             "accessibility": "public",
             "parameters": [
               {
@@ -16354,7 +16324,6 @@
             "$id": "1038",
             "name": "receiveJsonLines",
             "isExactName": false,
-            "resourceName": "SampleTypeSpec",
             "accessibility": "public",
             "parameters": [
               {
@@ -16482,7 +16451,6 @@
             "$id": "1044",
             "name": "receiveSse",
             "isExactName": false,
-            "resourceName": "SampleTypeSpec",
             "accessibility": "public",
             "parameters": [
               {
@@ -16621,7 +16589,6 @@
             "$id": "1051",
             "name": "receiveExperimentalJsonLines",
             "isExactName": false,
-            "resourceName": "SampleTypeSpec",
             "accessibility": "public",
             "parameters": [
               {
@@ -16750,7 +16717,6 @@
             "$id": "1057",
             "name": "getAcronymParameters",
             "isExactName": false,
-            "resourceName": "SampleTypeSpec",
             "doc": "Send acronym-named path, query, and header parameters.",
             "accessibility": "public",
             "parameters": [
@@ -16945,7 +16911,6 @@
             "$id": "1071",
             "name": "setAcronymAddresses",
             "isExactName": false,
-            "resourceName": "SampleTypeSpec",
             "doc": "Send parameters with leading IP version acronyms.",
             "accessibility": "public",
             "parameters": [
@@ -17130,7 +17095,6 @@
                 "$id": "1084",
                 "name": "read",
                 "isExactName": false,
-                "resourceName": "ExperimentalSamples",
                 "accessibility": "public",
                 "parameters": [
                   {
@@ -17230,7 +17194,6 @@
                 "$id": "1088",
                 "name": "list",
                 "isExactName": false,
-                "resourceName": "ExperimentalSamples",
                 "accessibility": "public",
                 "parameters": [
                   {
@@ -17387,7 +17350,6 @@
                 "$id": "1095",
                 "name": "updatePetAsAnimal",
                 "isExactName": false,
-                "resourceName": "AnimalOperations",
                 "doc": "Update a pet as an animal",
                 "accessibility": "public",
                 "parameters": [
@@ -17582,7 +17544,6 @@
                 "$id": "1103",
                 "name": "updateDogAsAnimal",
                 "isExactName": false,
-                "resourceName": "AnimalOperations",
                 "doc": "Update a dog as an animal",
                 "accessibility": "public",
                 "parameters": [
@@ -17820,7 +17781,6 @@
                 "$id": "1114",
                 "name": "updatePetAsPet",
                 "isExactName": false,
-                "resourceName": "PetOperations",
                 "doc": "Update a pet as a pet",
                 "accessibility": "public",
                 "parameters": [
@@ -18015,7 +17975,6 @@
                 "$id": "1122",
                 "name": "updateDogAsPet",
                 "isExactName": false,
-                "resourceName": "PetOperations",
                 "doc": "Update a dog as a pet",
                 "accessibility": "public",
                 "parameters": [
@@ -18253,7 +18212,6 @@
                 "$id": "1133",
                 "name": "updateDogAsDog",
                 "isExactName": false,
-                "resourceName": "DogOperations",
                 "doc": "Update a dog as a dog",
                 "accessibility": "public",
                 "parameters": [
@@ -18491,7 +18449,6 @@
                 "$id": "1144",
                 "name": "getTree",
                 "isExactName": false,
-                "resourceName": "PlantOperations",
                 "doc": "Get a tree as a plant",
                 "accessibility": "public",
                 "parameters": [
@@ -18601,7 +18558,6 @@
                 "$id": "1148",
                 "name": "getTreeAsJson",
                 "isExactName": false,
-                "resourceName": "PlantOperations",
                 "doc": "Get a tree as a plant",
                 "accessibility": "public",
                 "parameters": [
@@ -18711,7 +18667,6 @@
                 "$id": "1152",
                 "name": "updateTree",
                 "isExactName": false,
-                "resourceName": "PlantOperations",
                 "doc": "Update a tree as a plant",
                 "accessibility": "public",
                 "parameters": [
@@ -18912,7 +18867,6 @@
                 "$id": "1160",
                 "name": "updateTreeAsJson",
                 "isExactName": false,
-                "resourceName": "PlantOperations",
                 "doc": "Update a tree as a plant",
                 "accessibility": "public",
                 "parameters": [
@@ -19156,7 +19110,6 @@
                 "$id": "1171",
                 "name": "getWidgetMetrics",
                 "isExactName": false,
-                "resourceName": "Metrics",
                 "doc": "Get Widget metrics for given day of week",
                 "accessibility": "public",
                 "parameters": [
@@ -19395,7 +19348,6 @@
                 "$id": "1184",
                 "name": "getNotebook",
                 "isExactName": false,
-                "resourceName": "Notebooks",
                 "doc": "Get a notebook by name",
                 "accessibility": "public",
                 "parameters": [
