@@ -5,7 +5,7 @@ import { TypeExpression } from "./type-expression.jsx";
 
 /** Operation-backed class method options; the operation determines the generated signature. */
 export interface ClassMethodPropsWithType extends Omit<ts.ClassMethodProps, "name"> {
-  /** Operation supplying parameters and the non-error return type. */
+  /** Operation supplying parameters and return type, filtering error variants only from unions. */
   type: Operation;
   /** Method name override; otherwise the operation name uses the TypeScript function naming policy. */
   name?: string;

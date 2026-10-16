@@ -69,7 +69,7 @@ export function FunctionDeclaration(props: FunctionDeclarationProps) {
 
 /** Parameter-list options for {@link FunctionDeclaration.Parameters} backed by a TypeSpec model. */
 export interface TypedFunctionParametersProps extends Omit<ts.FunctionDeclarationProps, "name"> {
-  /** Model whose properties become parameters, including inherited properties. */
+  /** Model supplying parameters from its declared properties, excluding inherited base-model properties. */
   type: Model;
   /** Accepted for declaration-props compatibility; does not affect the rendered parameter list. */
   name?: string;

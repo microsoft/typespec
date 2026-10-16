@@ -7,7 +7,8 @@ import { efRefkey } from "./refkey.js";
 
 /**
  * Gets an operation's return type for application code, removing error variants from unions
- * by default. Requires a TypeSpec render context; non-union return types are unchanged.
+ * by default. Non-union return types, including standalone `@error` models, are unchanged.
+ * Requires a TypeSpec render context.
  */
 export function getReturnType(
   type: Operation,
@@ -37,7 +38,7 @@ export interface BuildParameterDescriptorsOptions {
 }
 
 /**
- * Builds descriptors from model properties, including inherited properties, in model order.
+ * Builds descriptors in model property order, excluding inherited base-model properties.
  * Explicit parameters are merged according to `mode`. Default-valued properties are optional;
  * their default expressions are not emitted. Requires a TypeSpec render context.
  */

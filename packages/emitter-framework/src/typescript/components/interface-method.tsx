@@ -7,7 +7,7 @@ import { TypeExpression } from "./type-expression.jsx";
 
 /** Operation-backed method signature with Alloy overrides for documentation and signature parts. */
 export interface InterfaceMethodPropsWithType extends Omit<ts.InterfaceMethodProps, "name"> {
-  /** Operation supplying default parameters, documentation, and the non-error return type. */
+  /** Operation supplying default parameters, documentation, and return type, filtering error variants only from unions. */
   type: Operation;
   /** Explicit method name; otherwise the operation name uses the TypeScript function naming policy. */
   name?: string;
