@@ -1130,3 +1130,41 @@ op getAcronymParameters(
 @post
 @convenientAPI(true, "csharp")
 op setAcronymAddresses(@query ipV4Address: string, @query ipV6Address?: string): void;
+
+interface IntegerCollections<T> {
+  @route("/nested-array")
+  @post
+  sendNested(@body body: T[][]): void;
+
+  @route("/record-of-arrays")
+  @post
+  sendRecord(@body body: Record<T[]>): void;
+
+  @route("/array")
+  @get
+  getArray(): T[];
+
+  @route("/record")
+  @get
+  getRecord(): Record<T>;
+
+  @route("/nullable-array")
+  @get
+  getNullableArray(): (T | null)[];
+
+  @route("/nullable-record")
+  @get
+  getNullableRecord(): Record<T | null>;
+}
+
+@route("/int16-collections")
+interface Int16Collections extends IntegerCollections<int16> {}
+
+@route("/uint16-collections")
+interface UInt16Collections extends IntegerCollections<uint16> {}
+
+@route("/uint32-collections")
+interface UInt32Collections extends IntegerCollections<uint32> {}
+
+@route("/uint64-collections")
+interface UInt64Collections extends IntegerCollections<uint64> {}

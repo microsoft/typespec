@@ -34,6 +34,31 @@ namespace TestProjects.Local.Tests
             Assert.AreEqual(expected, Encoding.UTF8.GetString(buffer.WrittenSpan));
         }
 
+        [Test]
+        public void WriteObjectValuePreservesDictionaryAndByteArrayHandling()
+        {
+            var buffer = new ArrayBufferWriter<byte>();
+            using var writer = new Utf8JsonWriter(buffer);
+
+            writer.WriteObjectValue(new Dictionary<string, object>
+            {
+                ["bytes"] = new byte[] { 0, 1, 255 },
+                ["nested"] = new Dictionary<string, object> { ["count"] = 1 }
+            });
+            writer.Flush();
+
+            Assert.AreEqual("""{"bytes":"AAH/","nested":{"count":1}}""", Encoding.UTF8.GetString(buffer.WrittenSpan));
+        }
+
+        [Test]
+        public void WriteObjectValueRejectsUnsupportedCollectionElements()
+        {
+            var buffer = new ArrayBufferWriter<byte>();
+            using var writer = new Utf8JsonWriter(buffer);
+
+            Assert.Throws<NotSupportedException>(() => writer.WriteObjectValue(new[] { new object() }));
+        }
+
         [TestCase("{ \"text\": \"こんにちは 🌍\", \"escaped\": \"\\u0061\" }")]
         [TestCase("[1, true, null, {\"nested\": []}]")]
         [TestCase("\"hello\"")]

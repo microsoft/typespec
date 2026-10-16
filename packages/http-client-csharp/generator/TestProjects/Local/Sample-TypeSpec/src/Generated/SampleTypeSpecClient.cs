@@ -41,6 +41,10 @@ namespace SampleTypeSpec
         private PetOperations _cachedPetOperations;
         private DogOperations _cachedDogOperations;
         private PlantOperations _cachedPlantOperations;
+        private Int16Collections _cachedInt16Collections;
+        private UInt16Collections _cachedUInt16Collections;
+        private UInt32Collections _cachedUInt32Collections;
+        private UInt64Collections _cachedUInt64Collections;
 
         /// <summary> Initializes a new instance of SampleTypeSpecClient for mocking. </summary>
         protected SampleTypeSpecClient()
@@ -2306,6 +2310,30 @@ namespace SampleTypeSpec
             Argument.AssertNotNull(notebook, nameof(notebook));
 
             return new Notebooks(Pipeline, _endpoint, notebook);
+        }
+
+        /// <summary> Initializes a new instance of Int16Collections. </summary>
+        public virtual Int16Collections GetInt16CollectionsClient()
+        {
+            return Volatile.Read(ref _cachedInt16Collections) ?? Interlocked.CompareExchange(ref _cachedInt16Collections, new Int16Collections(Pipeline, _endpoint), null) ?? _cachedInt16Collections;
+        }
+
+        /// <summary> Initializes a new instance of UInt16Collections. </summary>
+        public virtual UInt16Collections GetUInt16CollectionsClient()
+        {
+            return Volatile.Read(ref _cachedUInt16Collections) ?? Interlocked.CompareExchange(ref _cachedUInt16Collections, new UInt16Collections(Pipeline, _endpoint), null) ?? _cachedUInt16Collections;
+        }
+
+        /// <summary> Initializes a new instance of UInt32Collections. </summary>
+        public virtual UInt32Collections GetUInt32CollectionsClient()
+        {
+            return Volatile.Read(ref _cachedUInt32Collections) ?? Interlocked.CompareExchange(ref _cachedUInt32Collections, new UInt32Collections(Pipeline, _endpoint), null) ?? _cachedUInt32Collections;
+        }
+
+        /// <summary> Initializes a new instance of UInt64Collections. </summary>
+        public virtual UInt64Collections GetUInt64CollectionsClient()
+        {
+            return Volatile.Read(ref _cachedUInt64Collections) ?? Interlocked.CompareExchange(ref _cachedUInt64Collections, new UInt64Collections(Pipeline, _endpoint), null) ?? _cachedUInt64Collections;
         }
     }
 }

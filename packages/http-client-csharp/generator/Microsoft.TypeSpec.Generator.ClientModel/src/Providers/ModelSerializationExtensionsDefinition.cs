@@ -6,6 +6,7 @@ using System.Buffers;
 using System.Buffers.Text;
 using System.ClientModel;
 using System.ClientModel.Primitives;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
@@ -752,12 +753,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         },
                         writer.WriteEndObject(), Break
                     }),
-                // IEnumerable<object> case
-                BuildWriteObjectValueSwitchCase(typeof(IEnumerable<object>), "objectEnumerable",
+                // IEnumerable case
+                BuildWriteObjectValueSwitchCase(typeof(IEnumerable), "objectEnumerable",
                     objectEnumerable => new MethodBodyStatement[]
                     {
                         writer.WriteStartArray(),
-                        new ForEachStatement("item", objectEnumerable.As<IEnumerable<object>>(), out var item)
+                        new ForEachStatement(typeof(object), "item", objectEnumerable, false, out var item)
                         {
                             writer.WriteObjectValue(item.As<object>(), options)
                         },
