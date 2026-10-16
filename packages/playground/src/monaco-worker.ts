@@ -1,3 +1,8 @@
+/**
+ * Install Monaco's global worker factory using Vite's `?worker` imports.
+ * JSON models use the JSON worker; other labels use the base editor worker.
+ * Call before Monaco requests workers. Replaces any existing `MonacoEnvironment`.
+ */
 export function registerMonacoDefaultWorkersForVite() {
   (self as any).MonacoEnvironment = {
     getWorker: async function (workerId: string, label: string) {

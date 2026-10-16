@@ -133,6 +133,7 @@ declare module "../define-kit.js" {
   interface Typekit extends TypekitExtension {}
 }
 
+/** Registers the union creation, filtering, and inspection helpers on the typekit. */
 export const UnionKit = defineKit<TypekitExtension>({
   union: {
     filter(union, filterFn) {

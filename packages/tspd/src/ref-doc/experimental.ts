@@ -12,9 +12,13 @@ import { writeTypekitDocs } from "./typekit-docs.js";
 import type { TypeSpecRefDocBase } from "./types.js";
 import { readPackageJson } from "./utils/misc.js";
 
+/** Controls optional outputs of the experimental library documentation workflow. */
 export interface GenerateLibraryDocsOptions {
+  /** Write typekit pages when JavaScript API generation is enabled and a typekit export exists. */
   typekits?: boolean;
+  /** Skip both JavaScript API and typekit pages; TypeSpec pages and the README are still written. */
   skipJSApi?: boolean;
+  /** Add `llmstxt: true` front matter to declaration pages, including sub-export pages. */
   llmstxt?: boolean;
   /**
    * Relative directory (from the output dir) where the per-rule reference pages are written.
@@ -23,6 +27,12 @@ export interface GenerateLibraryDocsOptions {
   rulesDir?: string;
 }
 /**
+ * Writes Starlight reference pages and replaces the library's README with a rendered overview.
+ * Creates output directories as needed, formats Markdown using the library's Prettier
+ * configuration, and optionally generates JavaScript API and typekit pages. Existing files
+ * with matching names are overwritten; obsolete generated files are not removed.
+ *
+ * @returns Collected extraction and compilation diagnostics. I/O and generation failures may throw.
  * @experimental this is for experimental and is for internal use only. Breaking change to this API can happen at anytime.
  */
 export async function generateLibraryDocs(
@@ -66,6 +76,12 @@ export async function generateLibraryDocs(
   return diagnostics.diagnostics;
 }
 
+/**
+ * Compiles the legacy `tspMain` entry from a package.json and extracts its TypeSpec reference model.
+ * Returns undefined when `tspMain` is absent; unlike {@link extractLibraryRefDocs}, this does not
+ * resolve package exports, JavaScript metadata, or sub-exports.
+ * @returns The model and collected diagnostics, or undefined when there is no legacy entry point.
+ */
 export async function resolveLibraryRefDocsBase(
   libraryPath: string,
   options: ExtractRefDocOptions = {},

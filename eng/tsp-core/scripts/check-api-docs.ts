@@ -1,12 +1,13 @@
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
-import { Application, ReflectionKind } from "typedoc";
+import { Application, OptionDefaults, ReflectionKind } from "typedoc";
 
 const app = await Application.bootstrapWithPlugins({
   tsconfig: resolve("tsconfig.build.json"),
   excludeInternal: true,
   excludeExternals: true,
   disableSources: true,
+  blockTags: [...OptionDefaults.blockTags, "@typekit"],
   validation: {
     notDocumented: true,
     invalidLink: false,

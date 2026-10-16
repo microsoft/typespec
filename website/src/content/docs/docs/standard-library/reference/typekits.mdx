@@ -377,6 +377,8 @@ $(program).enumMember.is(type: Entity): type is EnumMember;
 
 ## intrinsic
 
+Access the program's intrinsic types and distinguish them from declared types and values.
+
 ### any
 
 ```ts
@@ -1274,6 +1276,8 @@ $(program).scalar.isInteger(type: Entity): type is Scalar;
 
 ```ts
 /**
+ * Check if `type` is exactly the standard numeric scalar, not a scalar derived from it.
+ *
  * @param type - The type to check.
  */
 $(program).scalar.isNumeric(type: Entity): type is Scalar;
@@ -1402,6 +1406,8 @@ $(program).scalar.isUtcDateTime(type: Entity): type is Scalar;
 
 ## tuple
 
+Create and identify tuples, whose ordered elements can each have a different type.
+
 ### create
 
 ```ts
@@ -1423,6 +1429,8 @@ $(program).tuple.is(type: Entity): type is Tuple;
 ```
 
 ## type
+
+Inspect type metadata, check assignability, and clone types into the typekit's realm.
 
 ### clone
 
@@ -1675,6 +1683,10 @@ $(program).type.minValueExclusive(type: Type): number | undefined;
  * and throw an error if it doesn't.
  *
  * Call `type.resolve.withDiagnostics("reference")` to get a tuple containing the resolved type and any diagnostics.
+ *
+ * @param reference - A type reference resolved in the program's global scope.
+ *
+ * @param kind - Optional expected type kind. A resolved type with a different kind causes an error to be thrown.
  */
 $(program).type.resolve<K extends Type["kind"] | undefined>(reference: string, kind?: K): K extends Type["kind"] ? Extract<Type, {
     kind: K;
@@ -1827,6 +1839,8 @@ $(program).unionVariant.is(type: Entity): type is UnionVariant;
 ```
 
 ## value
+
+Create TypeSpec values from JavaScript primitives, inspect value kinds, and resolve value references.
 
 ### create
 
@@ -2030,6 +2044,10 @@ $(program).value.isString(type: Entity): type is StringValue;
  * and throw an error if it doesn't.
  *
  * Call `value.resolve.withDiagnostics("reference")` to get a tuple containing the resolved value and any diagnostics.
+ *
+ * @param reference - A value reference resolved in the program's global scope.
+ *
+ * @param kind - Optional expected value kind. A resolved value with a different kind causes an error to be thrown.
  */
 $(program).value.resolve<K extends Value["valueKind"] | undefined>(reference: string, kind?: K): K extends Value["valueKind"] ? Extract<Value, {
     valueKind: K;

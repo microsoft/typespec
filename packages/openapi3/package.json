@@ -41,7 +41,7 @@
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
-    "build": "pnpm gen-extern-signature && pnpm quickbuild && pnpm lint-typespec-library",
+    "build": "pnpm gen-extern-signature && pnpm quickbuild && pnpm lint-typespec-library && pnpm check-api-docs",
     "quickbuild": "tsc -p tsconfig.build.json",
     "watch": "tsc -p tsconfig.build.json --watch",
     "gen-extern-signature": "tspd --enable-experimental gen-extern-signature .",

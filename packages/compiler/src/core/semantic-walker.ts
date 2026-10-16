@@ -26,20 +26,24 @@ import type {
 } from "./types.js";
 import { ListenerFlow } from "./types.js";
 
+/** Control which template and inheritance relationships a semantic graph traversal follows. */
 export interface NavigationOptions {
   /**
-   * Skip non instantiated templates.
+   * Include uninstantiated template declarations in addition to finished types.
+   * @default false
    */
   includeTemplateDeclaration?: boolean;
   /**
-   * Visit derived types.
+   * Follow a model's derived models as well as its base model and property types.
+   * @default false
    */
   visitDerivedTypes?: boolean;
 }
 
+/** Configure namespace filtering for the callbacks registered during a semantic traversal. */
 export interface NamespaceNavigationOptions {
   /**
-   * Recursively navigate sub namespaces.
+   * Restrict namespace-bearing callbacks to declarations directly in the selected namespace.
    * @default false
    */
   skipSubNamespaces?: boolean;
@@ -82,8 +86,10 @@ export function navigateType(
 }
 
 /**
- * Scope the current navigation to the given namespace.
- * @param namespace Namespace the traversal shouldn't leave.
+ * Filter registered callbacks whose targets have a namespace, including enum members via their enum.
+ * Only those callbacks can prune traversal. Register container callbacks (such as `model` when
+ * collecting `modelProperty`) or check namespace membership in the callbacks you consume.
+ * @param namespace Namespace used to filter callbacks.
  * @param listeners Type listeners.
  * @param options Scope options
  * @returns wrapped listeners that that can be used with `navigateType`
@@ -111,6 +117,11 @@ export function scopeNavigationToNamespace<T extends SemanticNodeListener>(
   return wrappedListeners as any;
 }
 
+/**
+ * Traverse types starting at a namespace, filtering supplied callbacks with {@link scopeNavigationToNamespace}.
+ * Partial listeners do not guarantee namespace isolation: register namespace-bearing container callbacks
+ * to prune references to other namespaces, or check membership in the callbacks you consume.
+ */
 export function navigateTypesInNamespace(
   namespace: Namespace,
   listeners: SemanticNodeListener,
@@ -493,7 +504,7 @@ function navigateTypeInternal(entity: Type | Value, context: NavigationContext) 
   }
 }
 
-// Return property from type, nesting into baseTypes as needed.
+/** Find a model property by name, searching base models only when no own property matches. */
 export function getProperty(type: Model, propertyName: string): ModelProperty | undefined {
   while (type.baseModel) {
     if (type.properties.has(propertyName)) {
@@ -504,9 +515,16 @@ export function getProperty(type: Model, propertyName: string): ModelProperty | 
   return type.properties.get(propertyName);
 }
 
-export class EventEmitter<T extends { [key: string]: (...args: any) => any }> {
+/** Dispatch typed events synchronously to listeners in their registration order. */
+export class EventEmitter<
+  T extends {
+    /** Listener signature associated with each event name. */
+    [key: string]: (...args: any) => any;
+  },
+> {
   private listeners: Map<keyof T, Array<(...args: any[]) => any>> = new Map();
 
+  /** Register another listener; registering the same callback again adds another invocation. */
   public on<K extends keyof T>(name: K, listener: (...args: Parameters<T[K]>) => any) {
     const array = this.listeners.get(name);
     if (array) {
@@ -516,6 +534,7 @@ export class EventEmitter<T extends { [key: string]: (...args: any) => any }> {
     }
   }
 
+  /** Invoke listeners for the event, ignoring their return values and propagating thrown errors. */
   public emit<K extends keyof T>(name: K, ...args: Parameters<T[K]>) {
     const listeners = this.listeners.get(name);
     if (listeners) {

@@ -89,7 +89,7 @@
   "scripts": {
     "clean": "rimraf ./dist ./temp",
     "build:init-templates-index": "node ./.scripts/build-init-templates.ts",
-    "build": "pnpm gen-manifest && pnpm build:init-templates-index && pnpm compile && pnpm generate-tmlanguage",
+    "build": "pnpm gen-manifest && pnpm build:init-templates-index && pnpm compile && pnpm generate-tmlanguage && pnpm check-api-docs",
     "check-api-docs": "node ../../eng/tsp-core/scripts/check-api-docs.ts",
     "compile": "tsc -p tsconfig.build.json",
     "watch": "tsc -p tsconfig.build.json --watch",

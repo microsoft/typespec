@@ -1304,63 +1304,61 @@ export class CodeModelBuilder {
     let continuationTokenParameter: Parameter | undefined;
     let continuationTokenResponseProperty: Property[] | undefined;
     let continuationTokenResponseHeader: HttpHeader | undefined;
-    if (!this.isAzureV1()) {
-      // parameter would either be query or header parameter, so taking the last segment would be enough
-      const continuationTokenParameterSegment =
-        sdkMethod.pagingMetadata.continuationTokenParameterSegments?.at(-1);
-      // response could be response header, where the last segment would do; or it be json path in the response body, where we use "findResponsePropertySegments" to find them
-      const continuationTokenResponseSegment =
-        sdkMethod.pagingMetadata.continuationTokenResponseSegments?.at(-1);
-      if (continuationTokenParameterSegment && op.parameters) {
-        // for now, continuationToken is either request query or header parameter
-        const parameter = getHttpOperationParameter(sdkMethod, continuationTokenParameterSegment);
-        if (parameter) {
-          for (const param of op.parameters) {
-            if (param.protocol.http?.in === parameter.kind) {
-              if (
-                parameter.kind === "header" &&
-                param.language.default.serializedName?.toLowerCase() ===
-                  parameter.serializedName.toLowerCase()
-              ) {
-                continuationTokenParameter = param;
-                break;
-              } else if (
-                parameter.kind === "query" &&
-                param.language.default.serializedName === parameter.serializedName
-              ) {
-                continuationTokenParameter = param;
-                break;
-              }
+    // parameter would either be query or header parameter, so taking the last segment would be enough
+    const continuationTokenParameterSegment =
+      sdkMethod.pagingMetadata.continuationTokenParameterSegments?.at(-1);
+    // response could be response header, where the last segment would do; or it be json path in the response body, where we use "findResponsePropertySegments" to find them
+    const continuationTokenResponseSegment =
+      sdkMethod.pagingMetadata.continuationTokenResponseSegments?.at(-1);
+    if (continuationTokenParameterSegment && op.parameters) {
+      // for now, continuationToken is either request query or header parameter
+      const parameter = getHttpOperationParameter(sdkMethod, continuationTokenParameterSegment);
+      if (parameter) {
+        for (const param of op.parameters) {
+          if (param.protocol.http?.in === parameter.kind) {
+            if (
+              parameter.kind === "header" &&
+              param.language.default.serializedName?.toLowerCase() ===
+                parameter.serializedName.toLowerCase()
+            ) {
+              continuationTokenParameter = param;
+              break;
+            } else if (
+              parameter.kind === "query" &&
+              param.language.default.serializedName === parameter.serializedName
+            ) {
+              continuationTokenParameter = param;
+              break;
             }
           }
         }
       }
-      if (continuationTokenResponseSegment && op.responses) {
-        if (continuationTokenResponseSegment?.kind === "responseheader") {
-          // continuationToken is response header
-          for (const response of op.responses) {
-            if (isSchemaResponse(response) && response.protocol.http) {
-              for (const header of response.protocol.http.headers ?? []) {
-                if (
-                  header.header.toLowerCase() ===
-                  continuationTokenResponseSegment.serializedName.toLowerCase()
-                ) {
-                  continuationTokenResponseHeader = header;
-                  break;
-                }
+    }
+    if (continuationTokenResponseSegment && op.responses) {
+      if (continuationTokenResponseSegment?.kind === "responseheader") {
+        // continuationToken is response header
+        for (const response of op.responses) {
+          if (isSchemaResponse(response) && response.protocol.http) {
+            for (const header of response.protocol.http.headers ?? []) {
+              if (
+                header.header.toLowerCase() ===
+                continuationTokenResponseSegment.serializedName.toLowerCase()
+              ) {
+                continuationTokenResponseHeader = header;
+                break;
               }
             }
-            if (continuationTokenResponseHeader) {
-              break;
-            }
           }
-        } else if (continuationTokenResponseSegment?.kind === "property") {
-          // continuationToken is response body property
-          continuationTokenResponseProperty = findResponsePropertySegments(
-            op,
-            sdkMethod.pagingMetadata.continuationTokenResponseSegments,
-          );
+          if (continuationTokenResponseHeader) {
+            break;
+          }
         }
+      } else if (continuationTokenResponseSegment?.kind === "property") {
+        // continuationToken is response body property
+        continuationTokenResponseProperty = findResponsePropertySegments(
+          op,
+          sdkMethod.pagingMetadata.continuationTokenResponseSegments,
+        );
       }
     }
 

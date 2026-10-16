@@ -174,9 +174,13 @@ type PagingPropertyKind =
   | "firstLink"
   | "lastLink";
 
+/** A paging marker's property and its access path from an operation's parameter or response model. */
 export interface PagingProperty {
+  /** The annotated property itself, also the final element of {@link PagingProperty.path}. */
   readonly property: ModelProperty;
   /**
+   * Ordered properties from the root model to the annotated property, including the property itself.
+   *
    * If the paging property is nested, this will contain the path to the paging property in the model
    * and array length will be greater than one.
    *
@@ -188,20 +192,36 @@ export interface PagingProperty {
    */
   readonly path: ModelProperty[];
 }
+/**
+ * Paging metadata discovered in an operation's parameters and return type, including nested and inherited properties.
+ * Optional entries are absent when the corresponding paging marker was not found.
+ */
 export interface PagingOperation {
+  /** Paging controls found in the operation's parameter model. */
   readonly input: {
+    /** Number of items to skip, identified by `@offset`. */
     readonly offset?: PagingProperty;
+    /** Page index to request, identified by `@pageIndex`. */
     readonly pageIndex?: PagingProperty;
+    /** Maximum number of items requested per page, identified by `@pageSize`. */
     readonly pageSize?: PagingProperty;
+    /** Token supplied to continue a prior page, identified by `@continuationToken`. */
     readonly continuationToken?: PagingProperty;
   };
 
+  /** Page contents and navigation controls found in the operation's return type. */
   readonly output: {
+    /** Required array of items for this page, identified by `@pageItems`. */
     readonly pageItems: PagingProperty;
+    /** Link to retrieve the next page, identified by `@nextLink`. */
     readonly nextLink?: PagingProperty;
+    /** Link to retrieve the previous page, identified by `@prevLink`. */
     readonly prevLink?: PagingProperty;
+    /** Link to retrieve the first page, identified by `@firstLink`. */
     readonly firstLink?: PagingProperty;
+    /** Link to retrieve the last page, identified by `@lastLink`. */
     readonly lastLink?: PagingProperty;
+    /** Token returned for a subsequent request, identified by `@continuationToken`. */
     readonly continuationToken?: PagingProperty;
   };
 }
@@ -260,6 +280,13 @@ function findPagingProperties<K extends "input" | "output">(
   return diags.wrap(data as any);
 }
 
+/**
+ * Discovers paging properties in an operation's parameters and return type, without requiring `@list`.
+ * Traverses nested models, base models, and union variants, and returns diagnostics without reporting them.
+ *
+ * @returns Metadata and diagnostics. Metadata is `undefined` when no `@pageItems` property is found;
+ * other invalid or duplicate markers can produce diagnostics alongside metadata.
+ */
 export function getPagingOperation(
   program: Program,
   op: Operation,

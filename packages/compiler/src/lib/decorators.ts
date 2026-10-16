@@ -118,9 +118,13 @@ export type { ExampleOptions };
 
 export const namespace = "TypeSpec";
 
-const [getSummary, setSummary] = useStateMap<Type, string>(createStateSymbol("summary"));
+const [
+  /** Gets the summary stored on this type, or `undefined` if none is set. */
+  getSummary,
+  setSummary,
+] = useStateMap<Type, string>(createStateSymbol("summary"));
 /**
- * @summary attaches a documentation string. It is typically used to give a short, single-line
+ * `@summary` attaches a documentation string. It is typically used to give a short, single-line
  * description, and can be used in combination with or instead of @doc.
  *
  * The first argument to @summary is a string, which may contain template parameters, enclosed in braces,
@@ -174,6 +178,7 @@ export function getDoc(program: Program, target: Type): string | undefined {
   return getDocDataInternal(program, target, "self")?.value;
 }
 
+/** Attaches documentation describing an operation's successful return types, separately from its errors. */
 export const $returnsDoc: ReturnsDocDecorator = (
   context: DecoratorContext,
   target: Operation,
@@ -203,6 +208,7 @@ export function getReturnsDoc(program: Program, target: Operation): string | und
   return getDocDataInternal(program, target, "returns")?.value;
 }
 
+/** Attaches documentation describing an operation's error return types, separately from its successful results. */
 export const $errorsDoc: ErrorsDocDecorator = (
   context: DecoratorContext,
   target: Operation,
@@ -232,6 +238,7 @@ export function getErrorsDoc(program: Program, target: Operation): string | unde
   return getDocDataInternal(program, target, "errors")?.value;
 }
 
+/** Logs an optional nonempty label followed by the target type object, to a depth of three, for debugging. */
 export const $inspectType: InspectTypeDecorator = (context, target: Type, text: string) => {
   // eslint-disable-next-line no-console
   if (text) console.log(text);
@@ -239,6 +246,7 @@ export const $inspectType: InspectTypeDecorator = (context, target: Type, text: 
   console.dir(target, { depth: 3 });
 };
 
+/** Logs an optional nonempty label followed by the target's formatted TypeSpec name for debugging. */
 export const $inspectTypeName: InspectTypeNameDecorator = (context, target: Type, text: string) => {
   // eslint-disable-next-line no-console
   if (text) console.log(text);
@@ -246,6 +254,7 @@ export const $inspectTypeName: InspectTypeNameDecorator = (context, target: Type
   console.log(getTypeName(target));
 };
 
+/** Tests whether the target is a scalar assignable to the standard `string` type, including derived scalars. */
 export function isStringType(program: Program, target: Type): target is Scalar {
   const stringType = program.checker.getStdType("string");
   return (
@@ -253,6 +262,7 @@ export function isStringType(program: Program, target: Type): target is Scalar {
   );
 }
 
+/** Tests whether the target is a scalar assignable to the standard `numeric` type, including derived scalars. */
 export function isNumericType(program: Program, target: Type): target is Scalar {
   const numericType = program.checker.getStdType("numeric");
   return (
@@ -558,7 +568,11 @@ export function getMediaTypeHint(program: Program, target: Type): string | undef
 
 // -- @format decorator ---------------------
 
-const [getFormat, setFormat] = useStateMap<Type, string>(createStateSymbol("format"));
+const [
+  /** Gets the format hint stored on this type, or `undefined` if none is set; does not search base types. */
+  getFormat,
+  setFormat,
+] = useStateMap<Type, string>(createStateSymbol("format"));
 
 /**
  * `@format` - specify the data format hint for a string type
@@ -589,15 +603,21 @@ export const $format: FormatDecorator = (
 export { getFormat };
 
 // -- @pattern decorator ---------------------
-const [getPatternData, setPatternData] = useStateMap<Type, PatternData>(
-  createStateSymbol("patternValues"),
-);
+const [
+  /** Gets the pattern and optional message recorded by `@pattern`, or `undefined` if none is set. */
+  getPatternData,
+  setPatternData,
+] = useStateMap<Type, PatternData>(createStateSymbol("patternValues"));
 
+/** A string validation pattern and optional human-readable explanation supplied by `@pattern`. */
 export interface PatternData {
+  /** Regular expression source text, without enclosing slashes or flags. */
   readonly pattern: string;
+  /** Optional explanation emitters can show when a value does not match the pattern. */
   readonly validationMessage?: string;
 }
 
+/** Records a string validation pattern and optional failure message, reporting invalid regular expressions. */
 export const $pattern: PatternDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
@@ -653,6 +673,7 @@ export {
 
 // -- @minLength decorator ---------------------
 
+/** Sets an inclusive minimum string length, rejecting a bound greater than the target's maximum length. */
 export const $minLength: MinLengthDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
@@ -671,6 +692,7 @@ export const $minLength: MinLengthDecorator = (
 
 // -- @maxLength decorator ---------------------
 
+/** Sets an inclusive maximum string length, rejecting a bound less than the target's minimum length. */
 export const $maxLength: MaxLengthDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
@@ -690,6 +712,7 @@ export const $maxLength: MaxLengthDecorator = (
 
 // -- @minItems decorator ---------------------
 
+/** Sets an inclusive minimum array item count, rejecting a bound greater than the target's maximum count. */
 export const $minItems: MinItemsDecorator = (
   context: DecoratorContext,
   target: Type,
@@ -710,6 +733,7 @@ export const $minItems: MinItemsDecorator = (
 
 // -- @maxLength decorator ---------------------
 
+/** Sets an inclusive maximum array item count, rejecting a bound less than the target's minimum count. */
 export const $maxItems: MaxItemsDecorator = (
   context: DecoratorContext,
   target: Type,
@@ -729,6 +753,7 @@ export const $maxItems: MaxItemsDecorator = (
 
 // -- @minValue decorator ---------------------
 
+/** Sets an inclusive lower bound for a numeric or date/time scalar or property, validating assignability. */
 export const $minValue: MinValueDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
@@ -761,6 +786,7 @@ export const $minValue: MinValueDecorator = (
 
 // -- @maxValue decorator ---------------------
 
+/** Sets an inclusive upper bound for a numeric or date/time scalar or property, validating assignability. */
 export const $maxValue: MaxValueDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
@@ -792,6 +818,7 @@ export const $maxValue: MaxValueDecorator = (
 
 // -- @minValueExclusive decorator ---------------------
 
+/** Sets an exclusive lower bound for a numeric or date/time scalar or property, validating assignability. */
 export const $minValueExclusive: MinValueExclusiveDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
@@ -824,6 +851,7 @@ export const $minValueExclusive: MinValueExclusiveDecorator = (
 
 // -- @maxValueExclusive decorator ---------------------
 
+/** Sets an exclusive upper bound for a numeric or date/time scalar or property, validating assignability. */
 export const $maxValueExclusive: MaxValueExclusiveDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
@@ -854,7 +882,11 @@ export const $maxValueExclusive: MaxValueExclusiveDecorator = (
 };
 // -- @secret decorator ---------------------
 
-const [isSecret, markSecret] = useStateSet(createStateSymbol("secretTypes"));
+const [
+  /** Tests whether this type is marked with `@secret`; does not search base types. */
+  isSecret,
+  markSecret,
+] = useStateSet(createStateSymbol("secretTypes"));
 
 /**
  * Mark a value as a secret value that should be treated carefully to avoid exposure
@@ -871,10 +903,14 @@ export const $secret: SecretDecorator = (
 
 export { isSecret };
 
+/** Standard date/time encoding names accepted by `@encode`, including string formats and Unix seconds. */
 export type DateTimeKnownEncoding = "rfc3339" | "rfc7231" | "unixTimestamp";
+/** Standard duration encoding names for ISO 8601 text or numeric seconds and milliseconds. */
 export type DurationKnownEncoding = "ISO8601" | "seconds" | "milliseconds";
+/** Standard encodings for representing bytes as Base64 or URL-safe Base64 text. */
 export type BytesKnownEncoding = "base64" | "base64url";
 
+/** Serialization instructions stored by `@encode`, pairing an encoding name with its wire scalar type. */
 export interface EncodeData {
   /**
    * Known encoding key.
@@ -883,12 +919,19 @@ export interface EncodeData {
    * For boolean this means using `true` or `false`.
    */
   encoding?: DateTimeKnownEncoding | DurationKnownEncoding | BytesKnownEncoding | string;
+  /** Scalar used for the encoded representation; defaults to `string` when `@encode` omits it. */
   type: Scalar;
 }
 
-const [getEncode, setEncodeData] = useStateMap<Scalar | ModelProperty, EncodeData>(
-  createStateSymbol("encode"),
-);
+const [
+  /** Gets encoding instructions stored on this scalar or property, or `undefined`; does not search base scalars. */
+  getEncode,
+  setEncodeData,
+] = useStateMap<Scalar | ModelProperty, EncodeData>(createStateSymbol("encode"));
+/**
+ * Records how a scalar or property is serialized, validating known encodings against the target and wire types.
+ * Named encodings default to a `string` representation; passing the `string` scalar encodes numeric or boolean values as text.
+ */
 export const $encode: EncodeDecorator = (
   context: DecoratorContext,
   target: Scalar | ModelProperty,
@@ -1010,6 +1053,7 @@ export { getEncode };
 
 // -- @withOptionalProperties decorator ---------------------
 
+/** Mutates every property in the target model's own property map to be optional; does not walk base models. */
 export const $withOptionalProperties: WithOptionalPropertiesDecorator = (
   context: DecoratorContext,
   target: Model,
@@ -1020,6 +1064,10 @@ export const $withOptionalProperties: WithOptionalPropertiesDecorator = (
 
 // -- @withoutOmittedProperties decorator ----------------------
 
+/**
+ * Removes named properties from the target model in place, without walking base models.
+ * Names come from a string literal or the string-literal variants of a union; other variants are ignored.
+ */
 export const $withoutOmittedProperties: WithoutOmittedPropertiesDecorator = (
   context: DecoratorContext,
   target: Model,
@@ -1043,6 +1091,10 @@ export const $withoutOmittedProperties: WithoutOmittedPropertiesDecorator = (
 
 // -- @withPickedProperties decorator ----------------------
 
+/**
+ * Removes all properties except the named ones from the target model in place, without walking base models.
+ * Names come from a string literal or the string-literal variants of a union; other variants are ignored.
+ */
 export const $withPickedProperties: WithPickedPropertiesDecorator = (
   context: DecoratorContext,
   target: Model,
@@ -1066,6 +1118,7 @@ export const $withPickedProperties: WithPickedPropertiesDecorator = (
 
 // -- @withoutDefaultValues decorator ----------------------
 
+/** Deletes default values from the target model's own properties in place; does not walk base models. */
 export const $withoutDefaultValues: WithoutDefaultValuesDecorator = (
   context: DecoratorContext,
   target: Model,
@@ -1080,8 +1133,7 @@ export const $withoutDefaultValues: WithoutDefaultValuesDecorator = (
 
 const [getTagsState, setTags] = useStateMap<Type, string[]>(createStateSymbol("tagProperties"));
 
-// Set a tag on an operation, interface, or namespace.  There can be multiple tags on an
-// operation, interface, or namespace.
+/** Appends a tag to an operation, interface, or namespace; multiple tags and duplicate strings are retained. */
 export const $tag: TagDecorator = (
   context: DecoratorContext,
   target: Operation | Namespace | Interface,
@@ -1095,13 +1147,19 @@ export const $tag: TagDecorator = (
   }
 };
 
-// Return the tags set on an operation or namespace
+/**
+ * Gets only the tags stored directly on the target, or an empty array if none are set.
+ * The stored array is returned without copying; use {@link getAllTags} to include containing scopes.
+ */
 export function getTags(program: Program, target: Type): string[] {
   return getTagsState(program, target) || [];
 }
 
-// Merge the tags for a operation with the tags that are on the namespace or
-// interface it resides within.
+/**
+ * Collects unique tags from the target and its enclosing interface and namespaces.
+ * Tags are collected from inner to outer scopes and the deduplicated sequence is reversed before returning.
+ * Returns a new array, or `undefined` if no scope has tags.
+ */
 export function getAllTags(
   program: Program,
   target: Namespace | Interface | Operation,
@@ -1128,9 +1186,15 @@ export function getAllTags(
 
 // -- @friendlyName decorator ---------------------
 
-const [getFriendlyName, setFriendlyName] = useStateMap<Type, string>(
-  createStateSymbol("friendlyNames"),
-);
+const [
+  /** Gets the friendly name stored on this type, or `undefined`; does not synthesize a name or search base types. */
+  getFriendlyName,
+  setFriendlyName,
+] = useStateMap<Type, string>(createStateSymbol("friendlyNames"));
+/**
+ * Stores an emitter-facing name without changing the type's TypeSpec name.
+ * When a source object is supplied, its properties replace `{property}` placeholders in the name.
+ */
 export const $friendlyName: FriendlyNameDecorator = (
   context: DecoratorContext,
   target: Type,
@@ -1207,12 +1271,16 @@ export function getDeprecated(program: Program, type: Type): string | undefined 
   return getDeprecationDetails(program, type)?.message;
 }
 
-const [getOverloads, setOverloads] = useStateMap<Operation, Operation[]>(
-  createStateSymbol("overloadedByKey"),
-);
-const [getOverloadedOperation, setOverloadBase] = useStateMap<Operation, Operation>(
-  createStateSymbol("overloadsOperation"),
-);
+const [
+  /** Gets registered overloads of an operation, or `undefined` if none are registered. */
+  getOverloads,
+  setOverloads,
+] = useStateMap<Operation, Operation[]>(createStateSymbol("overloadedByKey"));
+const [
+  /** Gets the base operation specialized by an overload, or `undefined` for a non-overload. */
+  getOverloadedOperation,
+  setOverloadBase,
+] = useStateMap<Operation, Operation>(createStateSymbol("overloadsOperation"));
 
 /**
  * `@overload` - Indicate that the target overloads (specializes) the overloads type.
@@ -1281,7 +1349,7 @@ export {
    * Get all operations that are marked as overloads of the given operation
    * @param program Program
    * @param operation Operation
-   * @returns An array of operations that overload the given operation.
+   * @returns The stored array of overloads, or `undefined` if none have been registered.
    */
   getOverloads,
 };
@@ -1308,6 +1376,10 @@ function validateRange(
   return true;
 }
 
+/**
+ * Configures and validates a discriminated union.
+ * Defaults to an object envelope with discriminator property `kind` and value property `value`.
+ */
 export const discriminatedDecorator: DiscriminatedDecorator = (
   context: DecoratorContext,
   entity: Union,
@@ -1324,6 +1396,7 @@ export const discriminatedDecorator: DiscriminatedDecorator = (
   context.program.reportDiagnostics(diagnostics);
 };
 
+/** Records the property used to distinguish a model's derived variants during serialization. */
 export const $discriminator: DiscriminatorDecorator = (
   context: DecoratorContext,
   entity: Model,
@@ -1332,11 +1405,16 @@ export const $discriminator: DiscriminatorDecorator = (
   setDiscriminator(context.program, entity, { propertyName });
 };
 
+/** An example attached to a data type, retaining the TypeSpec value and optional display metadata. */
 export interface Example extends ExampleOptions {
+  /** Original TypeSpec value, not serialized JSON; use {@link serializeValueAsJson} to convert it. */
   readonly value: Value;
 }
+/** Example inputs and corresponding result attached to an operation, with optional display metadata. */
 export interface OpExample extends ExampleOptions {
+  /** Value assignable to the operation's parameter model, or absent for a result-only example. */
   readonly parameters?: Value;
+  /** Value assignable to the operation's return type, or absent for a parameter-only example. */
   readonly returnType?: Value;
 }
 
@@ -1344,6 +1422,10 @@ const [getExamplesState, setExamples] = useStateMap<
   Model | Scalar | Enum | Union | ModelProperty | UnionVariant,
   Example[]
 >(createStateSymbol("examples"));
+/**
+ * Appends an example and optional display metadata to the target after checking value assignability.
+ * Reads the original TypeSpec value from the decorator application rather than the marshalled JS argument.
+ */
 export const $example: ExampleDecorator = (
   context: DecoratorContext,
   target: Model | Scalar | Enum | Union | ModelProperty | UnionVariant,
@@ -1377,6 +1459,10 @@ export const $example: ExampleDecorator = (
   list.push({ value: rawExample, ...options });
 };
 
+/**
+ * Gets examples stored on the target in registration order, or an empty array.
+ * Returns the stored collection as readonly without copying; values remain TypeSpec values, not JSON.
+ */
 export function getExamples(
   program: Program,
   target: Model | Scalar | Enum | Union | ModelProperty,
@@ -1387,6 +1473,10 @@ export function getExamples(
 const [getOpExamplesState, setOpExamples] = useStateMap<Operation, OpExample[]>(
   createStateSymbol("opExamples"),
 );
+/**
+ * Appends example parameter and result values with optional display metadata, checking each supplied value's assignability.
+ * Reads original TypeSpec values from the decorator application rather than the marshalled JS argument.
+ */
 export const $opExample: OpExampleDecorator = (
   context: DecoratorContext,
   target: Operation,
@@ -1453,6 +1543,10 @@ function checkExampleValid(
   return assignable;
 }
 
+/**
+ * Gets operation examples in registration order, or an empty array if none are set.
+ * Returns the stored array without copying; parameter and result values have not been serialized.
+ */
 export function getOpExamples(program: Program, target: Operation): OpExample[] {
   return getOpExamplesState(program, target) ?? [];
 }

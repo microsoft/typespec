@@ -15,8 +15,10 @@ import type {
 } from "./types.js";
 import { SyntaxKind } from "./types.js";
 
+/** Values accepted by legacy decorator helpers: semantic types or marshalled JavaScript literals. */
 export type TypeSpecValue = Type | string | number | boolean;
 
+/** Map an accepted kind to a JavaScript literal value or a narrowed semantic type. */
 // prettier-ignore
 export type InferredTypeSpecValue<K extends TypeKind> =
   K extends "Any" ? TypeSpecValue
@@ -24,7 +26,10 @@ export type InferredTypeSpecValue<K extends TypeKind> =
   : K extends "String" ? string
   : K extends "Number" ? number
   : K extends "Boolean" ? boolean
-  : Type & { kind: K };
+  : Type & {
+    /** Discriminant matching the requested semantic type kind. */
+    kind: K
+  };
 
 /**
  * Validate the decorator target is matching the expected value.
@@ -101,6 +106,7 @@ function getTypeKind(target: TypeSpecValue): Type["kind"] | undefined {
   }
 }
 
+/** Describe a decorator's accepted target kinds, positional parameters, and optional rest parameter. */
 export interface DecoratorDefinition<
   T extends TypeKind,
   P extends readonly DecoratorParamDefinition<TypeKind>[],
@@ -127,6 +133,7 @@ export interface DecoratorDefinition<
   readonly spreadArgs?: S;
 }
 
+/** Accepted kinds and optionality for one positional or rest decorator parameter. */
 export interface DecoratorParamDefinition<K extends TypeKind> {
   /**
    * Kind of the parameter
@@ -139,6 +146,7 @@ export interface DecoratorParamDefinition<K extends TypeKind> {
   readonly optional?: boolean;
 }
 
+/** Build the decorator's argument tuple, appending rest arguments when a spread definition exists. */
 type InferParameters<
   P extends readonly DecoratorParamDefinition<TypeKind>[],
   S extends DecoratorParamDefinition<TypeKind> | undefined,
@@ -146,27 +154,33 @@ type InferParameters<
   ? InferPosParameters<P>
   : [...InferPosParameters<P>, ...InferSpreadParameter<S>];
 
+/** Infer the array element type for a decorator's rest arguments. */
 type InferSpreadParameter<S extends DecoratorParamDefinition<TypeKind> | undefined> =
   S extends DecoratorParamDefinition<Type["kind"]> ? InferParameter<S>[] : never;
 
+/** Preserve positional parameter order while mapping definitions to their accepted values. */
 type InferPosParameters<P extends readonly DecoratorParamDefinition<TypeKind>[]> = {
   [K in keyof P]: InferParameter<P[K]>;
 };
 
+/** Include `undefined` for an optional decorator parameter. */
 type InferParameter<P extends DecoratorParamDefinition<TypeKind>> = P["optional"] extends true
   ? InferParameterKind<P["kind"]> | undefined
   : InferParameterKind<P["kind"]>;
 
+/** Combine the accepted value types for one kind or a list of alternative kinds. */
 // prettier-ignore
 type InferParameterKind<P extends TypeKind | readonly TypeKind[]> =
   P extends readonly (infer T extends TypeKind)[] ? InferredTypeSpecValue<T>
   : P extends TypeKind ? InferredTypeSpecValue<P> : never
 
+/** Validation callback contract whose target and argument types are inferred from decorator definitions. */
 export interface DecoratorValidator<
   T extends TypeKind,
   P extends readonly DecoratorParamDefinition<TypeKind>[],
   S extends DecoratorParamDefinition<TypeKind> | undefined = undefined,
 > {
+  /** Return whether this decorator application is valid for the supplied target and arguments. */
   validate(
     context: DecoratorContext,
     target: InferredTypeSpecValue<T>,
@@ -174,6 +188,7 @@ export interface DecoratorValidator<
   ): boolean;
 }
 
+/** A semantic type kind, or `"Any"` to accept every kind in decorator validation. */
 export type TypeKind = Type["kind"] | "Any";
 
 export function validateDecoratorParamCount(
@@ -301,6 +316,11 @@ function typespecTypeToJsonInternal(
   }
 }
 
+/**
+ * Report duplicate applications of a decorator written directly on the type's declaration.
+ * Inherited, copied, and augment-decorator applications do not count as duplicates here.
+ * @returns Whether at most one matching application is present.
+ */
 export function validateDecoratorUniqueOnNode(
   context: DecoratorContext,
   type: Type,

@@ -11,4 +11,4 @@ packages:
   - "@typespec/graphql"
 ---
 
-Replace API Extractor documentation checks with TypeDoc, discovering stable public entry points from package exports while preserving existing build gates.
+Replace API Extractor documentation checks with TypeDoc, discovering stable public entry points from package exports and enforcing documentation coverage during builds of all migrated packages.

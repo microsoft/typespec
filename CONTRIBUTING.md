@@ -340,10 +340,9 @@ declarations and members, excluding `@internal` APIs and experimental, testing, 
 entry points. Generated members of `$lib` and `$decorators` metadata maps are not checked.
 Missing public entry points or missing documentation fail the command.
 
-OpenAPI, JSON Schema, and XML run this check during their builds. The compiler, HTTP,
-OpenAPI3, and asset emitter expose the command without adding a build gate while their
-existing documentation gaps are addressed. The language client emitters' separate APIView
-setups are unchanged.
+The compiler, HTTP, OpenAPI, OpenAPI3, JSON Schema, XML, asset emitter, and GraphQL run this
+check during their builds. The language client emitters' separate APIView setups are
+unchanged.
 
 ### Run locally
 

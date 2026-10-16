@@ -169,7 +169,14 @@ export type Mutator = {
  */
 export type MutatorWithNamespace = Mutator & Partial<NamespaceMutator>;
 
+/**
+ * The namespace handler mixed into {@link MutatorWithNamespace}.
+ * Namespace traversal is enabled by {@link mutateSubgraphWithNamespace}, not by {@link mutateSubgraph}.
+ */
 type NamespaceMutator = {
+  /**
+   * Filter, mutate, or replace namespace clones using the same record forms as other type kinds.
+   */
   Namespace?: MutatorRecord<Namespace>;
 };
 
@@ -307,7 +314,10 @@ function getSeenCache(program: Program): SeenCache {
  * @param mutators - An array of mutators to apply to the type graph rooted at `type`.
  * @param type - The type to mutate.
  *
- * @returns an object containing the mutated `type` and a nullable `Realm` in which the mutated type resides.
+ * @returns An object whose `type` is the resulting root (the original input if unchanged) and whose `realm` is the
+ * realm created for this traversal, or `null` if the returned root is the input type.
+ * Cached results can retain ownership in a realm from an earlier call; use {@link Realm.realmForType} to look up
+ * the returned type's last registered realm.
  *
  * @see {@link mutateSubgraph}
  *
@@ -317,7 +327,17 @@ export function mutateSubgraphWithNamespace(
   program: Program,
   mutators: MutatorWithNamespace[],
   type: Namespace,
-): { realm: Realm | null; type: MutableTypeWithNamespace } {
+): {
+  /**
+   * The realm created for this traversal, or null when the root is unchanged.
+   * Cached results may belong to an earlier realm.
+   */
+  realm: Realm | null;
+  /**
+   * The resulting root after namespace-aware traversal, or the unchanged input.
+   */
+  type: MutableTypeWithNamespace;
+} {
   const engine = createMutatorEngine(program, mutators, {
     mutateNamespaces: true,
   });
@@ -333,7 +353,9 @@ export function mutateSubgraphWithNamespace(
  *
  * Mutators clone the input `type`, creating a new type instance that is mutated in place.
  *
- * The mutator returns the mutated type and optionally a `realm` in which the mutated clone resides.
+ * The mutator returns the resulting root type and a nullable traversal realm.
+ * Repeated calls for the same type and mutator instances within a program can reuse previous mutation results.
+ * The cache is not shared between programs.
  *
  * @see {@link Mutator}
  * @see {@link Realm}
@@ -349,7 +371,10 @@ export function mutateSubgraphWithNamespace(
  * @param mutators - An array of mutators to apply to the type graph rooted at `type`.
  * @param type - The type to mutate.
  *
- * @returns an object containing the mutated `type` and a nullable `Realm` in which the mutated type resides.
+ * @returns An object whose `type` is the resulting root, which may be a clone, a replacement, or the unchanged input.
+ * Its `realm` is the realm created for this traversal, or `null` if the returned root is the input type.
+ * Cached results can retain ownership in a realm from an earlier call; use {@link Realm.realmForType} to look up
+ * the returned type's last registered realm.
  *
  * @experimental
  */
@@ -357,7 +382,17 @@ export function mutateSubgraph<T extends MutableType>(
   program: Program,
   mutators: Mutator[],
   type: T,
-): { realm: Realm | null; type: MutableType } {
+): {
+  /**
+   * The realm created for this traversal, or null when the root is unchanged.
+   * Cached results may belong to an earlier realm.
+   */
+  realm: Realm | null;
+  /**
+   * The cloned or replaced root, or the original input when the root is unchanged.
+   */
+  type: MutableType;
+} {
   const engine = createMutatorEngine(program, mutators, {
     mutateNamespaces: false,
   });

@@ -27,7 +27,7 @@
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
-    "build": "tsc -p tsconfig.build.json",
+    "build": "tsc -p tsconfig.build.json && pnpm check-api-docs",
     "watch": "tsc -p tsconfig.build.json --watch",
     "test": "vitest run",
     "test:watch": "vitest -w",

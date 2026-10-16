@@ -15,6 +15,25 @@ namespace TestProjects.Local.Tests
 {
     public class ModelSerializationExtensionsTests
     {
+        [TestCase(short.MinValue, "-32768")]
+        [TestCase(short.MaxValue, "32767")]
+        [TestCase(ushort.MinValue, "0")]
+        [TestCase(ushort.MaxValue, "65535")]
+        [TestCase(uint.MinValue, "0")]
+        [TestCase(uint.MaxValue, "4294967295")]
+        [TestCase(ulong.MinValue, "0")]
+        [TestCase(ulong.MaxValue, "18446744073709551615")]
+        public void WriteObjectValuePreservesIntegerRange(object value, string expected)
+        {
+            var buffer = new ArrayBufferWriter<byte>();
+            using var writer = new Utf8JsonWriter(buffer);
+
+            writer.WriteObjectValue(value);
+            writer.Flush();
+
+            Assert.AreEqual(expected, Encoding.UTF8.GetString(buffer.WrittenSpan));
+        }
+
         [TestCase("{ \"text\": \"こんにちは 🌍\", \"escaped\": \"\\u0061\" }")]
         [TestCase("[1, true, null, {\"nested\": []}]")]
         [TestCase("\"hello\"")]

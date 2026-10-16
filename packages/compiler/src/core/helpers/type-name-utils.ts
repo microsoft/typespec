@@ -20,12 +20,17 @@ import { SyntaxKind } from "../types.js";
 import { getCachedRawText } from "./raw-text-cache.js";
 import { printIdentifier } from "./syntax-utils.js";
 
+/** Control qualification and identifier escaping when displaying semantic entities. */
 export interface TypeNameOptions {
+  /** Stop namespace qualification at the first namespace for which this returns false. */
   namespaceFilter?: (ns: Namespace) => boolean;
+  /** Escape identifiers as TypeSpec source rather than displaying their unescaped names. */
   printable?: boolean;
+  /** Omit enclosing namespace and member-container qualification where supported. */
   nameOnly?: boolean;
 }
 
+/** Format a type's name or inline representation, omitting standard-library namespace prefixes. */
 export function getTypeName(type: Type, options?: TypeNameOptions): string {
   switch (type.kind) {
     case "Namespace":
@@ -104,6 +109,7 @@ function getValuePreview(value: Value, options?: TypeNameOptions): string {
   }
 }
 
+/** Format a type, preview a value, or display the alternatives of a mixed parameter constraint. */
 export function getEntityName(entity: Entity, options?: TypeNameOptions): string {
   if (isValue(entity)) {
     return getValuePreview(entity, options);
@@ -124,6 +130,7 @@ export function getEntityName(entity: Entity, options?: TypeNameOptions): string
   }
 }
 
+/** Check for the global `TypeSpec` or `TypeSpec.Reflection` namespace by its namespace ancestry. */
 export function isStdNamespace(namespace: Namespace): boolean {
   return (
     (namespace.name === "TypeSpec" && namespace.namespace?.name === "") ||
