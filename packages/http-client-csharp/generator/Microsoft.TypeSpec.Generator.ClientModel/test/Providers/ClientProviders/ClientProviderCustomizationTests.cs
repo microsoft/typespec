@@ -311,7 +311,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
 
             // The paging helpers (collection result definitions) are still emitted so that the custom code
             // referencing them continues to compile.
-            var collectionResultDefinitions = mockGenerator.Object.OutputLibrary.TypeProviders
+            var collectionResultDefinitions = mockGenerator.Object.OutputLibrary.TypeProviders.SelectMany(t => t.NestedTypes)
                 .OfType<CollectionResultDefinition>()
                 .Select(t => t.Name)
                 .ToList();

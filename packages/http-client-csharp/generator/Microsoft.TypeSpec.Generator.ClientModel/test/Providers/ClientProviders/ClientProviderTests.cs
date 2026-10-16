@@ -5548,7 +5548,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             StringAssert.DoesNotContain("CreateGetIPAddressesRequest", output);
             if (kind == "Paging")
             {
-                var collections = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.OfType<CollectionResultDefinition>().ToList();
+                var collections = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.SelectMany(t => t.NestedTypes).OfType<CollectionResultDefinition>().ToList();
                 Assert.IsNotEmpty(collections);
                 foreach (var collection in collections)
                 {

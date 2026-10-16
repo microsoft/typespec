@@ -87,7 +87,7 @@ namespace Microsoft.TypeSpec.Generator
                 var nestedTypes = new List<TypeProvider>();
                 foreach (var nestedTypeProvider in typeProvider.NestedTypes)
                 {
-                    var nestedType = VisitType(nestedTypeProvider);
+                    var nestedType = VisitTypeCore(nestedTypeProvider);
                     if (nestedType != null)
                     {
                         nestedTypes.Add(nestedType);
