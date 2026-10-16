@@ -16,7 +16,10 @@ export const MethodProvider = MethodContext.Provider;
 
 /** Operation-derived method signature with optional Alloy overrides and decorator content. */
 export interface MethodPropsWithType extends Omit<py.MethodDeclarationBaseProps, "name"> {
-  /** Operation supplying default documentation, parameters, and the non-error return type. */
+  /**
+   * Operation supplying default documentation, parameters, and return type.
+   * Error variants are excluded from unions; standalone `@error` models are retained.
+   */
   type: Operation;
   /** Explicit method name; otherwise applies the Python function naming policy to the operation name. */
   name?: string;

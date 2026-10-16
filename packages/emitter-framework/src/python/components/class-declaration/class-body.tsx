@@ -7,7 +7,7 @@ import { ClassMember } from "./class-member.js";
 
 /** Type-derived members and appended custom content for an existing Python class scope. */
 export interface ClassBodyProps {
-  /** Model properties, including inherited ones, or interface operations to render as members. */
+  /** Model supplying declared properties (excluding inherited base-model properties), or interface supplying operations. */
   type: Model | Interface;
   /** Abstract flag forwarded to operation members; does not itself add ABC to the enclosing class. */
   abstract?: boolean;
