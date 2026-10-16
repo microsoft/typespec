@@ -16,9 +16,10 @@ Steps:
 3. Update package versions in `overrides` (keep the semver ranges) in the other two `package.json` files to match the corresponding package versions in the root `package.json`.
 4. Save the files and run `npm install` in the root so that `package-lock.json` is updated.
 5. Commit the changes to `package.json` and `package-lock.json`.
-6. If there is an update to the `http-specs` or `azure-http-specs` libraries, run `Generate.ps1` in `generator/http-client-generator-test` and commit the generated changes in that folder.
-7. If there is an update to the `http-specs` library, run `Generate.ps1` in `generator/http-client-generator-clientcore-test` and commit the generated changes in that folder.
-8. Call `pnpm change add @typespec/http-client-java --kind=dependencies --message="<change-summary>"`. Commit the new md file in ".chronus" folder of repository root.
+6. Run `pwsh eng\versioning\Sync-Versions.ps1` from the package root to also update Java/JAR dependency versions. Commit the Java and POM changes.
+7. If there is an update to the `http-specs` or `azure-http-specs` libraries, run `Generate.ps1` in `generator/http-client-generator-test` and commit the generated changes in that folder.
+8. If there is an update to the `http-specs` library, run `Generate.ps1` in `generator/http-client-generator-clientcore-test` and commit the generated changes in that folder.
+9. Call `pnpm change add @typespec/http-client-java --kind=dependencies --message="<change-summary>"`. Commit the new md file in ".chronus" folder of repository root.
 
 # Prepare for minor/patch release
 

@@ -531,7 +531,7 @@ public final class XmlPaginationsImpl {
 
     private List<BinaryData> getXmlValues(BinaryData binaryData,
         java.util.function.Function<com.azure.xml.XmlReader, BinaryData> valueReader, String... path) {
-        try (com.azure.xml.XmlReader reader = com.azure.xml.XmlReader.fromStream(binaryData.toStream())) {
+        try (com.azure.xml.XmlReader reader = com.azure.xml.XmlReader.fromBytes(binaryData.toBytes())) {
             reader.nextElement();
             return getXmlValues(reader, valueReader, path, 0);
         } catch (javax.xml.stream.XMLStreamException e) {
@@ -556,7 +556,7 @@ public final class XmlPaginationsImpl {
     }
 
     private String getXmlNextLink(BinaryData binaryData, boolean attribute, String namespace, String... path) {
-        try (com.azure.xml.XmlReader reader = com.azure.xml.XmlReader.fromStream(binaryData.toStream())) {
+        try (com.azure.xml.XmlReader reader = com.azure.xml.XmlReader.fromBytes(binaryData.toBytes())) {
             reader.nextElement();
             return getXmlNextLink(reader, attribute, namespace, path, 0);
         } catch (javax.xml.stream.XMLStreamException e) {

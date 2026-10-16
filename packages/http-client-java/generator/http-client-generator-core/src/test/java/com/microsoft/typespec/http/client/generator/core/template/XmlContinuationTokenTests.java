@@ -27,6 +27,7 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaCla
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFileContents;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
 import io.clientcore.core.utils.IOExceptionCheckedFunction;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -169,11 +170,13 @@ public class XmlContinuationTokenTests {
             Object client = generated.getConstructor().newInstance();
             for (String methodName : List.of("read", "readNextLink")) {
                 var read = generated.getMethod(methodName, Response.class);
-                PagedResponse<?> page = (PagedResponse<?>) read.invoke(client,
-                    new SimpleResponse<>(null, 200, new HttpHeaders(), BinaryData.fromString(xml)));
+                PagedResponse<?> page
+                    = (PagedResponse<?>) read.invoke(client, new SimpleResponse<>(null, 200, new HttpHeaders(),
+                        BinaryData.fromStream(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)))));
                 Assertions.assertEquals("page2", page.getContinuationToken());
                 PagedResponse<?> lastPage = (PagedResponse<?>) read.invoke(client,
-                    new SimpleResponse<>(null, 200, new HttpHeaders(), BinaryData.fromString(xml.replace(token, ""))));
+                    new SimpleResponse<>(null, 200, new HttpHeaders(), BinaryData.fromStream(
+                        new ByteArrayInputStream(xml.replace(token, "").getBytes(StandardCharsets.UTF_8)))));
                 Assertions.assertNull(lastPage.getContinuationToken());
             }
         }
