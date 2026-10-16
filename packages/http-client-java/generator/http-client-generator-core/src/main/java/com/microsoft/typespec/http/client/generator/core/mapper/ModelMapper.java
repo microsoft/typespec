@@ -357,9 +357,8 @@ public class ModelMapper implements IMapper<ObjectSchema, ClientModel>, NeedsPla
 
             if (isPolymorphic && !CoreUtils.isNullOrEmpty(derivedTypes)) {
                 // Preserve the fixed outer discriminator when a child starts a nested discriminator hierarchy.
-                for (ClientModel derivedType : derivedTypes) {
-                    if (derivedType.getPolymorphicDiscriminatorName() != null
-                        && !Objects.equals(polymorphicDiscriminator, derivedType.getPolymorphicDiscriminatorName())) {
+                for (ClientModel derivedType : result.getDirectPolymorphicDerivedModels()) {
+                    if (!Objects.equals(polymorphicDiscriminator, derivedType.getPolymorphicDiscriminatorName())) {
                         ClientModelProperty parentDiscriminator = result.getPolymorphicDiscriminator()
                             .newBuilder()
                             .defaultValue(result.getPolymorphicDiscriminator()

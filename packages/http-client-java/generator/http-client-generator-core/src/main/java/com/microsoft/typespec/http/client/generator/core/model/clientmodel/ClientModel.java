@@ -355,6 +355,23 @@ public class ClientModel {
     }
 
     /**
+     * Gets the nearest polymorphic descendants, traversing untagged intermediate models.
+     *
+     * @return The nearest polymorphic descendants.
+     */
+    public final List<ClientModel> getDirectPolymorphicDerivedModels() {
+        List<ClientModel> models = new ArrayList<>();
+        for (ClientModel child : derivedModels) {
+            if (child.getPolymorphicDiscriminatorName() != null) {
+                models.add(child);
+            } else {
+                models.addAll(child.getDirectPolymorphicDerivedModels());
+            }
+        }
+        return models;
+    }
+
+    /**
      * Gets the name that will be used for this model's XML element representation.
      *
      * @return The name that will be used for this model's XML element representation.

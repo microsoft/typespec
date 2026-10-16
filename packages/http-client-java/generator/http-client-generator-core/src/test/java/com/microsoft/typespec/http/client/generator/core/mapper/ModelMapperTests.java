@@ -7,6 +7,10 @@ import com.azure.json.JsonProviders;
 import com.azure.json.JsonReader;
 import com.azure.json.JsonSerializable;
 import com.azure.json.JsonWriter;
+import com.azure.xml.XmlReader;
+import com.azure.xml.XmlSerializable;
+import com.azure.xml.XmlToken;
+import com.azure.xml.XmlWriter;
 import com.microsoft.typespec.http.client.generator.core.MockUnitJavagen;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ConstantSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ConstantValue;
@@ -18,7 +22,9 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Relations;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Schema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SchemaContext;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SerializationFormats;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.StringSchema;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.XmlSerializationFormat;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModels;
@@ -32,6 +38,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -39,7 +46,6 @@ import javax.tools.ToolProvider;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.api.parallel.Isolated;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -61,16 +67,7 @@ public class ModelMapperTests {
     @ParameterizedTest
     @CsvSource({ "1,false", "1,true", "2,false", "2,true" })
     public void untaggedIntermediatesDoNotSelectDiscriminatorValues(int depth, boolean shareJsonCode) throws Exception {
-        new MockUnitJavagen() {
-            @Override
-            @SuppressWarnings("unchecked")
-            public <T> T getValue(String key, IOExceptionCheckedFunction<String, T> converter) {
-                return "share-jsonserializable-code".equals(key)
-                    ? (T) Boolean.valueOf(shareJsonCode)
-                    : super.getValue(key, converter);
-            }
-        };
-        JavaSettings.clear();
+        configureJsonSharing(shareJsonCode);
         ObjectSchema root = object("PetBase", null);
         discriminator(root, "kind");
         root.getProperties().add(property("name", new StringSchema()));
@@ -97,45 +94,220 @@ public class ModelMapperTests {
         String rootSource = compileModels(mappedRoot);
         Assertions.assertTrue(rootSource.contains("\"cat\".equals(discriminatorValue)"), rootSource);
         Assertions.assertFalse(rootSource.contains("\"Mammal0\".equals(discriminatorValue)"), rootSource);
-        String json = "{\"kind\":\"cat\",\"name\":\"Milo\",\"coat\":\"tabby\",\"sound\":\"meow\"}";
-        try (
-            URLClassLoader loader
-                = new URLClassLoader(new URL[] { compilationDirectory.toUri().toURL() }, getClass().getClassLoader());
-            JsonReader reader = JsonProviders.createReader(json)) {
-            Class<?> rootClass = loader.loadClass(mappedRoot.getFullName());
-            Object deserialized = rootClass.getMethod("fromJson", JsonReader.class).invoke(null, reader);
-            Assertions.assertEquals(mappedCat.getFullName(), deserialized.getClass().getName());
+        try (URLClassLoader loader
+            = new URLClassLoader(new URL[] { compilationDirectory.toUri().toURL() }, getClass().getClassLoader())) {
+            Object deserialized = assertRoundTrip(loader, mappedRoot, mappedCat,
+                Map.of("kind", "cat", "name", "Milo", "coat", "tabby", "sound", "meow"));
             Assertions.assertEquals("tabby", deserialized.getClass().getMethod("getCoat").invoke(deserialized));
             Assertions.assertEquals("meow", deserialized.getClass().getMethod("getSound").invoke(deserialized));
-            ByteArrayOutputStream output = new ByteArrayOutputStream();
-            try (JsonWriter writer = JsonProviders.createWriter(output)) {
-                writer.writeJson((JsonSerializable<?>) deserialized);
-            }
-            String serialized = output.toString(StandardCharsets.UTF_8);
-            Assertions.assertEquals(serialized.indexOf("\"kind\""), serialized.lastIndexOf("\"kind\""));
-            try (JsonReader roundTrip = JsonProviders.createReader(serialized)) {
-                Assertions.assertEquals(Map.of("kind", "cat", "name", "Milo", "coat", "tabby", "sound", "meow"),
-                    roundTrip.readMap(JsonReader::getString));
-            }
         }
     }
 
-    @Test
-    public void nestedDiscriminatorRetainsFixedOuterSelection() {
+    @ParameterizedTest
+    @CsvSource({
+        "0,0,false,false",
+        "0,0,true,false",
+        "1,0,false,false",
+        "1,0,true,false",
+        "2,0,false,false",
+        "2,0,true,false",
+        "0,1,false,false",
+        "0,1,true,false",
+        "0,2,false,false",
+        "0,2,true,false",
+        "1,1,false,false",
+        "1,1,true,false",
+        "1,2,false,false",
+        "1,2,true,false",
+        "2,1,false,false",
+        "2,1,true,false",
+        "2,2,false,false",
+        "2,2,true,false",
+        "0,0,false,true",
+        "0,0,true,true",
+        "1,0,false,true",
+        "1,0,true,true",
+        "0,1,false,true",
+        "0,1,true,true",
+        "1,1,false,true",
+        "1,1,true,true" })
+    public void nestedDiscriminatorsCrossUntaggedIntermediates(int before, int after, boolean shareJsonCode,
+        boolean xml) throws Exception {
+        configureJsonSharing(shareJsonCode);
+        Map<String, String> expected = new LinkedHashMap<>(
+            Map.of("kind", "message", "role", "assistant", "name", "root", "body", "hello", "answer", "42"));
         ObjectSchema root = object("Base", null);
         discriminator(root, "kind");
-        ObjectSchema message = object("Message", root);
+        root.getProperties().add(property("name", new StringSchema()));
+        ObjectSchema parent = root;
+        for (int i = 0; i < before; i++) {
+            parent = object("Before" + i, parent);
+            parent.getProperties().add(property("before" + i, new StringSchema()));
+            expected.put("before" + i, "before" + i);
+        }
+        ObjectSchema message = object("Message", parent);
         message.setDiscriminatorValue("message");
         discriminator(message, "role");
-        ObjectSchema assistant = object("Assistant", message);
+        Property kind = property("kind", constant("message"));
+        kind.setRequired(true);
+        message.getProperties().add(kind);
+        message.getProperties().add(property("body", new StringSchema()));
+        parent = message;
+        for (int i = 0; i < after; i++) {
+            parent = object("After" + i, parent);
+            parent.getProperties().add(property("after" + i, new StringSchema()));
+            expected.put("after" + i, "after" + i);
+        }
+        ObjectSchema assistant = object("Assistant", parent);
         assistant.setDiscriminatorValue("assistant");
+        Property role = property("role", constant("assistant"));
+        role.setRequired(true);
+        assistant.getProperties().add(role);
+        assistant.getProperties().add(property("answer", new StringSchema()));
+        if (xml) {
+            configureXml(root);
+        }
 
-        ModelMapper.getInstance().map(root);
+        ClientModel mappedRoot = ModelMapper.getInstance().map(root);
         ClientModel mapped = ClientModels.getInstance().getModel("Assistant");
+        compileModels(mappedRoot);
+        try (URLClassLoader loader
+            = new URLClassLoader(new URL[] { compilationDirectory.toUri().toURL() }, getClass().getClassLoader())) {
+            Object deserialized = assertRoundTrip(loader, mappedRoot, mapped, expected);
+            Assertions.assertEquals("message", deserialized.getClass().getMethod("getKind").invoke(deserialized));
+            Assertions.assertEquals("assistant", deserialized.getClass().getMethod("getRole").invoke(deserialized));
+            expected.remove("answer");
+            for (int i = 0; i < after; i++) {
+                expected.remove("after" + i);
+            }
+            expected.put("role", "unknown");
+            assertRoundTrip(loader, mappedRoot, ClientModels.getInstance().getModel("Message"), expected);
+            if (xml) {
+                Map<String, String> beforeProperties = new LinkedHashMap<>(Map.of("kind", "unknown", "name", "root"));
+                for (int i = 0; i < before; i++) {
+                    beforeProperties.put("before" + i, "before" + i);
+                    ClientModel intermediate = ClientModels.getInstance().getModel("Before" + i);
+                    Object value = assertRoundTrip(loader, intermediate, intermediate, beforeProperties);
+                    Assertions.assertEquals("unknown", value.getClass().getMethod("getKind").invoke(value));
+                }
+                Map<String, String> afterProperties = new LinkedHashMap<>(expected);
+                for (int i = 0; i < after; i++) {
+                    afterProperties.put("after" + i, "after" + i);
+                    ClientModel intermediate = ClientModels.getInstance().getModel("After" + i);
+                    Object value = assertRoundTrip(loader, intermediate, intermediate, afterProperties);
+                    Assertions.assertEquals("unknown", value.getClass().getMethod("getRole").invoke(value));
+                }
+            }
+            assertRoundTrip(loader, mappedRoot, mappedRoot, Map.of("kind", "assistant", "name", "root"));
+        }
         Assertions.assertEquals("role", mapped.getPolymorphicDiscriminatorName());
         Assertions.assertEquals(1, mapped.getParentPolymorphicDiscriminators().size());
         Assertions.assertEquals("kind", mapped.getParentPolymorphicDiscriminators().get(0).getSerializedName());
         Assertions.assertEquals("\"message\"", mapped.getParentPolymorphicDiscriminators().get(0).getDefaultValue());
+    }
+
+    private static void configureJsonSharing(boolean shareJsonCode) {
+        new MockUnitJavagen() {
+            @Override
+            @SuppressWarnings("unchecked")
+            public <T> T getValue(String key, IOExceptionCheckedFunction<String, T> converter) {
+                return "share-jsonserializable-code".equals(key)
+                    ? (T) Boolean.valueOf(shareJsonCode)
+                    : super.getValue(key, converter);
+            }
+        };
+        JavaSettings.clear();
+    }
+
+    private static void configureXml(ObjectSchema model) {
+        model.setSerializationFormats(Set.of("xml"));
+        if (model.getDiscriminator() != null) {
+            XmlSerializationFormat xml = new XmlSerializationFormat();
+            xml.setAttribute(true);
+            SerializationFormats serialization = new SerializationFormats();
+            serialization.setXml(xml);
+            model.getDiscriminator().getProperty().setSerialization(serialization);
+        }
+        for (Schema child : model.getChildren().getImmediate()) {
+            configureXml((ObjectSchema) child);
+        }
+    }
+
+    private static Object assertRoundTrip(URLClassLoader loader, ClientModel root, ClientModel expectedModel,
+        Map<String, String> expected) throws Exception {
+        if (root.isUsedInXml()) {
+            return assertXmlRoundTrip(loader, root, expectedModel, expected);
+        }
+        ByteArrayOutputStream input = new ByteArrayOutputStream();
+        try (JsonWriter writer = JsonProviders.createWriter(input)) {
+            writer.writeMap(expected, JsonWriter::writeString);
+        }
+        Object deserialized;
+        try (JsonReader reader = JsonProviders.createReader(input.toString(StandardCharsets.UTF_8))) {
+            deserialized
+                = loader.loadClass(root.getFullName()).getMethod("fromJson", JsonReader.class).invoke(null, reader);
+        }
+        Assertions.assertEquals(expectedModel.getFullName(), deserialized.getClass().getName());
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        try (JsonWriter writer = JsonProviders.createWriter(output)) {
+            writer.writeJson((JsonSerializable<?>) deserialized);
+        }
+        String serialized = output.toString(StandardCharsets.UTF_8);
+        for (String key : expected.keySet()) {
+            String field = "\"" + key + "\":";
+            Assertions.assertEquals(serialized.indexOf(field), serialized.lastIndexOf(field), serialized);
+        }
+        try (JsonReader reader = JsonProviders.createReader(serialized)) {
+            Assertions.assertEquals(expected, reader.readMap(JsonReader::getString));
+        }
+        return deserialized;
+    }
+
+    private static Object assertXmlRoundTrip(URLClassLoader loader, ClientModel root, ClientModel expectedModel,
+        Map<String, String> expected) throws Exception {
+        ByteArrayOutputStream input = new ByteArrayOutputStream();
+        try (XmlWriter writer = XmlWriter.toStream(input)) {
+            writer.writeStartElement(root.getXmlName());
+            for (String discriminator : List.of("kind", "role")) {
+                if (expected.containsKey(discriminator)) {
+                    writer.writeStringAttribute(discriminator, expected.get(discriminator));
+                }
+            }
+            for (Map.Entry<String, String> field : expected.entrySet()) {
+                if (!"kind".equals(field.getKey()) && !"role".equals(field.getKey())) {
+                    writer.writeStringElement(field.getKey(), field.getValue());
+                }
+            }
+            writer.writeEndElement();
+        }
+        Object deserialized;
+        try (XmlReader reader = XmlReader.fromBytes(input.toByteArray())) {
+            deserialized
+                = loader.loadClass(root.getFullName()).getMethod("fromXml", XmlReader.class).invoke(null, reader);
+        }
+        Assertions.assertEquals(expectedModel.getFullName(), deserialized.getClass().getName());
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        try (XmlWriter writer = XmlWriter.toStream(output)) {
+            writer.writeXml((XmlSerializable<?>) deserialized, root.getXmlName());
+        }
+        try (XmlReader reader = XmlReader.fromBytes(output.toByteArray())) {
+            Map<String, String> actual = reader.readObject(root.getXmlName(), objectReader -> {
+                Map<String, String> fields = new LinkedHashMap<>();
+                for (String discriminator : List.of("kind", "role")) {
+                    String value = objectReader.getStringAttribute(null, discriminator);
+                    if (value != null) {
+                        fields.put(discriminator, value);
+                    }
+                }
+                while (objectReader.nextElement() != XmlToken.END_ELEMENT) {
+                    String name = objectReader.getElementName().getLocalPart();
+                    Assertions.assertNull(fields.put(name, objectReader.getStringElement()), name);
+                }
+                return fields;
+            });
+            Assertions.assertEquals(expected, actual);
+        }
+        return deserialized;
     }
 
     private String compileModels(ClientModel root) throws Exception {
