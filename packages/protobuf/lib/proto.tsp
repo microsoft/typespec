@@ -134,11 +134,14 @@ alias integral = int32 | int64 | uint32 | uint64 | boolean;
  * The key type of a Protobuf `map` must be any integral type or `string`. The value type can be any type other than
  * another `Map`.
  *
+ * An object value fills a map, for example in `@opExample` or a `const`: `#{ team: "storage" }`. Its keys are
+ * strings, as in the Protobuf JSON mapping, so the keys of a map with an integral key type are not checked.
+ *
  * @template Key the key type (any integral type or string)
  * @template Value the value type (any type other than another map)
  */
 @Private._map
-model Map<Key extends integral | string, Value> {}
+model Map<Key extends integral | string, Value> is Record<Value>;
 
 /**
  * Declares that a model is a Protobuf message.
