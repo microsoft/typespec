@@ -6,6 +6,11 @@ import type { Numeric } from "./numeric.js";
 import type { Program } from "./program.js";
 import type { TokenFlags } from "./scanner.js";
 
+/**
+ * JavaScript-facing type mapping for compiler values.
+ * Numeric values may use {@link Numeric} to preserve precision, while scalar constructor values
+ * retain their compiler representation.
+ */
 // prettier-ignore
 export type MarshalledValue<Value>  = 
 Value extends StringValue ? string
@@ -18,26 +23,31 @@ Value extends StringValue ? string
   : Value extends ScalarValue ? Value
   : Value
 
-/**
- * Type System types
- */
-
+/** Type or primitive argument accepted by legacy decorator implementations. */
 export type DecoratorArgumentValue = Type | number | string | boolean;
 
+/** A checked decorator argument, retaining both its compiler entity and JavaScript representation. */
 export interface DecoratorArgument {
+  /** Type or value before marshalling for the decorator implementation. */
   value: Type | Value;
   /**
    * Marshalled value for use in Javascript.
    */
   jsValue:
     Type | Value | Record<string, unknown> | unknown[] | string | number | boolean | Numeric | null;
+  /** Argument expression, when the application originates in TypeSpec source. */
   node?: Node;
 }
 
+/** A decorator application attached to a type, including its checked arguments. */
 export interface DecoratorApplication {
+  /** TypeSpec declaration, if the decorator has a corresponding declaration. */
   definition?: Decorator;
+  /** JavaScript implementation invoked when the decorated type is finished. */
   decorator: DecoratorFunction;
+  /** Custom arguments in call order, excluding the decorator context and target. */
   args: DecoratorArgument[];
+  /** Source application, or absent for a programmatically constructed application. */
   node?: DecoratorExpressionNode | AugmentDecoratorStatementNode;
 }
 
@@ -46,16 +56,20 @@ export interface DecoratorApplication {
  * Use `@typespec/tspd` to generate an accurate signature from the `extern dec`
  */
 export interface DecoratorFunction {
+  /** Apply the decorator to its target and optionally register deferred validation. */
   (
     context: DecoratorContext,
     target: any,
     ...customArgs: any[]
   ): DecoratorValidatorCallbacks | void;
+  /** Namespace associated with a JavaScript decorator export. */
   namespace?: string;
 }
 
+/** Deferred decorator validation that returns diagnostics without mutating the type graph. */
 export type ValidatorFn = () => readonly Diagnostic[];
 
+/** Validation hooks returned by a decorator to run after target or graph construction. */
 export interface DecoratorValidatorCallbacks {
   /**
    * Run validation after all decorators are run on the same type. Useful if trying to validate this decorator is compatible with other decorators without relying on the order they are applied.
@@ -70,11 +84,18 @@ export interface DecoratorValidatorCallbacks {
   readonly onGraphFinish?: ValidatorFn;
 }
 
+/** Common identity and construction state shared by semantic types in the compiler graph. */
 export interface BaseType {
+  /** Distinguishes semantic types from values and parameter constraints. */
   readonly entityKind: "Type";
+  /** Discriminant identifying the concrete semantic type. */
   kind: string;
   /** Node used to construct this type. If the node is undefined it means the type was dynamically built. With typekit for example. */
   node?: Node;
+  /**
+   * Legacy instantiation metadata. The compiler's type checker does not populate this field,
+   * so its absence does not indicate whether this type is a template instance.
+   */
   instantiationParameters?: Type[];
 
   /**
@@ -92,7 +113,9 @@ export interface BaseType {
   isFinished: boolean;
 }
 
+/** A semantic type that can carry decorator applications. */
 export interface DecoratedType {
+  /** Applications used when finishing this type, including copied or synthesized applications. */
   decorators: DecoratorApplication[];
 }
 
@@ -101,9 +124,13 @@ export interface DecoratedType {
  */
 export type TemplatedType = Model | Operation | Interface | Union | Scalar;
 
+/** Substitutes template parameters with arguments while constructing a template instance. */
 export interface TypeMapper {
+  /** Whether enclosing arguments have been applied but this template is not fully instantiated. */
   partial: boolean;
+  /** Return the mapped argument, or the original parameter when no substitution is available. */
   getMappedType(type: TemplateParameter): Type | Value | IndeterminateEntity;
+  /** Arguments for this instantiation, with enclosing template arguments first. */
   args: readonly (Type | Value | IndeterminateEntity)[];
   /** @internal Node used to create this type mapper. */
   readonly source: {
@@ -114,8 +141,11 @@ export interface TypeMapper {
   map: Map<TemplateParameter, Type | Value | IndeterminateEntity>;
 }
 
+/** Instantiation metadata carried by types that support template parameters. */
 export interface TemplatedTypeBase {
+  /** Argument substitutions for an instantiation; absent on an uninstantiated declaration. */
   templateMapper?: TypeMapper;
+  /** Originating template node, when retained separately from the type's source node. */
   templateNode?: Node;
 }
 
@@ -127,6 +157,7 @@ export interface TemplatedTypeBase {
  */
 export type Entity = Type | Value | MixedParameterConstraint | IndeterminateEntity;
 
+/** Semantic type graph nodes, including declarations, members, literals, and template placeholders. */
 export type Type =
   | BooleanLiteral
   | Decorator
@@ -152,11 +183,15 @@ export type Type =
   | Union
   | UnionVariant;
 
+/** Standard-library types available by name through {@link Checker.getStdType}. */
 export type StdTypes = {
   // Models
+  /** Generic standard model for integer-indexed collections. */
   Array: Model;
+  /** Generic standard model for string-indexed collections. */
   Record: Model;
 } & Record<IntrinsicScalarName, Scalar>;
+/** Names accepted when looking up a standard-library type. */
 export type StdTypeName = keyof StdTypes;
 
 export interface ObjectType extends BaseType {
@@ -164,8 +199,14 @@ export interface ObjectType extends BaseType {
   properties: Record<string, Type>;
 }
 
+/**
+ * A parameter constraint with independent type and value alternatives.
+ * A `valueof` alternative constrains a value's type rather than accepting the type itself.
+ */
 export interface MixedParameterConstraint {
+  /** Distinguishes this constraint from a type, value, or unresolved literal entity. */
   readonly entityKind: "MixedParameterConstraint";
+  /** Source expression defining the constraint, when available. */
   readonly node?: UnionExpressionNode | Expression;
 
   /** Type constraints */
@@ -177,7 +218,9 @@ export interface MixedParameterConstraint {
 
 /** When an entity that could be used as a type or value has not figured out if it is a value or type yet. */
 export interface IndeterminateEntity {
+  /** Identifies an entity whose type-versus-value interpretation is not yet selected. */
   readonly entityKind: "Indeterminate";
+  /** Literal-like type from which a type or value can be selected by the surrounding context. */
   readonly type:
     | StringLiteral
     | StringTemplate
@@ -188,30 +231,39 @@ export interface IndeterminateEntity {
     | NullType;
 }
 
+/** Compiler-defined special type, rather than a declaration in the standard library. */
 export interface IntrinsicType extends BaseType {
+  /** Discriminant shared by the compiler's special types. */
   kind: "Intrinsic";
+  /** Identifies the special type and its assignability semantics. */
   name: "ErrorType" | "void" | "never" | "unknown" | "null";
 }
 
+/** Error-recovery type used when checking cannot produce a valid type. */
 export interface ErrorType extends IntrinsicType {
   name: "ErrorType";
 }
 
+/** An operation result with no return value. */
 export interface VoidType extends IntrinsicType {
   name: "void";
 }
 
+/** Bottom type with no possible values, assignable to every type. */
 export interface NeverType extends IntrinsicType {
   name: "never";
 }
 
+/** Top type accepting any type without imposing a more specific constraint. */
 export interface UnknownType extends IntrinsicType {
   name: "unknown";
 }
+/** Singleton type of the `null` value, distinct from an operation returning `void`. */
 export interface NullType extends IntrinsicType {
   name: "null";
 }
 
+/** Names of the built-in scalars exposed through the compiler's standard-type lookup. */
 export type IntrinsicScalarName =
   | "bytes"
   | "numeric"
@@ -239,26 +291,51 @@ export type IntrinsicScalarName =
   | "boolean"
   | "url";
 
+/** An indexer shape that admits no keys and consequently has no value type. */
 export type NeverIndexer = {
+  /** Bottom type, allowing no indexed keys. */
   readonly key: NeverType;
+  /** No value type exists for an indexer without keys. */
   readonly value: undefined;
 };
 
+/** Key and element constraints for an indexed model such as an array or record. */
 export type ModelIndexer = {
+  /** Scalar constraining keys; standard arrays use `integer` and records use `string`. */
   readonly key: Scalar;
+  /** Type required for indexed values. */
   readonly value: Type;
 };
 
+/** Model narrowed by {@link isArrayModelType} to have an integer-keyed indexer. */
 export interface ArrayModelType extends Model {
-  indexer: { key: Scalar; value: Type };
+  // prettier-ignore
+  /** Indexer describing the array's element type. */
+  indexer: {
+    /** Integer key scalar used for array positions. */
+    key: Scalar;
+    /** Type of each array element. */
+    value: Type
+  };
 }
 
+/** Model narrowed by {@link isRecordModelType} to have a string-keyed indexer. */
 export interface RecordModelType extends Model {
-  indexer: { key: Scalar; value: Type };
+  // prettier-ignore
+  /** Indexer describing values associated with record keys. */
+  indexer: {
+    /** String key scalar used for record entries. */
+    key: Scalar;
+    /** Type of each record entry. */
+    value: Type
+  };
 }
 
+/** Structured type with ordered own properties, optional indexing, and model inheritance. */
 export interface Model extends BaseType, DecoratedType, TemplatedTypeBase {
+  /** Discriminant for structured model types. */
   kind: "Model";
+  /** Declared name, or an empty string for an anonymous model. */
   name: string;
   node?:
     | ModelStatementNode
@@ -266,7 +343,9 @@ export interface Model extends BaseType, DecoratedType, TemplatedTypeBase {
     | ModelExpressionNode
     | IntersectionExpressionNode
     | ObjectLiteralNode;
+  /** Namespace containing a named declaration, when associated with one. */
   namespace?: Namespace;
+  /** Constraint on indexed entries, if this model supports indexing. */
   indexer?: ModelIndexer;
 
   /**
@@ -316,6 +395,7 @@ export interface Model extends BaseType, DecoratedType, TemplatedTypeBase {
   symbol?: Sym;
 }
 
+/** Records a model-composition input separately from the model's inheritance relationship. */
 export interface SourceModel {
   /**
    * How was this model used.
@@ -331,20 +411,30 @@ export interface SourceModel {
   readonly node?: Node;
 }
 
+/** A named model field, including copied fields introduced by composition. */
 export interface ModelProperty extends BaseType, DecoratedType {
+  /** Discriminant for model fields and operation parameters. */
   kind: "ModelProperty";
   node?: ModelPropertyNode | ModelSpreadPropertyNode | ObjectLiteralPropertyNode;
+  /** Key under which this property appears in its containing model. */
   name: string;
+  /** Type of values accepted by the property, independent of optionality. */
   type: Type;
-  // when spread or intersection operators make new property types,
-  // this tracks the property we copied from.
+  /** Property copied to create this one through composition, when applicable. */
   sourceProperty?: ModelProperty;
+  /** Whether the property may be omitted; this does not add `null` to its type. */
   optional: boolean;
+  /** Checked default value, when a default was supplied. */
   defaultValue?: Value;
+  /** Containing model, when attached; copied properties belong to the receiving model. */
   model?: Model;
 }
 
 //#region Values
+/**
+ * A checked TypeSpec value, distinct from the {@link Type} describing what values are allowed.
+ * Narrow with `valueKind` to inspect primitive payloads, collection contents, or constructor calls.
+ */
 export type Value =
   | ScalarValue
   | NumericValue
@@ -359,8 +449,11 @@ export type Value =
 /** @internal */
 export type ValueWithTemplate = Value | TemplateValue;
 
+/** Common identity and storage-type metadata inherited by checked values. */
 interface BaseValue {
+  /** Distinguishes a concrete value from a type or parameter constraint. */
   readonly entityKind: "Value";
+  /** Discriminant identifying how the value's contents are represented. */
   readonly valueKind: string;
   /**
    * Represent the storage type of a value.
@@ -374,51 +467,91 @@ interface BaseValue {
   type: Type;
 }
 
+/** An object value with checked named entries, rather than a model type's property declarations. */
 export interface ObjectValue extends BaseValue {
+  /** Discriminant for object contents stored in a property map. */
   valueKind: "ObjectValue";
+  /** Object literal that produced the value, when available. */
   node?: ObjectLiteralNode;
+  /** Actual entries keyed by property name; each descriptor contains a value, not a property type. */
   properties: Map<string, ObjectValuePropertyDescriptor>;
 }
 
+/** One named entry in an {@link ObjectValue}, with its checked value and optional source. */
 export interface ObjectValuePropertyDescriptor {
+  /** Property syntax that supplied this entry, when available. */
   node?: ObjectLiteralPropertyNode;
+  /** Entry name matching its key in the containing object's property map. */
   name: string;
+  /** Checked contents of the entry. */
   value: Value;
 }
 
+/** An array value containing checked elements, distinct from an array model or tuple type. */
 export interface ArrayValue extends BaseValue {
+  /** Discriminant for array contents stored as an element list. */
   valueKind: "ArrayValue";
+  /** Array literal that produced the value, when available. */
   node?: ArrayLiteralNode;
+  /** Element values in array order. */
   values: Value[];
 }
 
+/** A scalar constructor call retained as a scalar, constructor name, and checked arguments. */
 export interface ScalarValue extends BaseValue {
+  /** Discriminant for a retained constructor call rather than a primitive payload. */
   valueKind: "ScalarValue";
+  /** Scalar instantiated by the constructor call. */
   scalar: Scalar;
-  value: { name: string; args: Value[] };
+  // prettier-ignore
+  /** Constructor invocation used to create the value. */
+  value: {
+    /** Constructor name on the scalar. */
+    name: string;
+    /** Checked arguments in call order. */
+    args: Value[]
+  };
 }
 
+/** A numeric value whose exact contents are preserved independently of JavaScript number precision. */
 export interface NumericValue extends BaseValue {
+  /** Discriminant for an exact numeric payload. */
   valueKind: "NumericValue";
+  /** Selected numeric scalar, or undefined for a literal without an inferred or explicit scalar. */
   scalar: Scalar | undefined;
+  /** Exact numeric contents; use Numeric conversion methods when a JavaScript number is needed. */
   value: Numeric;
 }
+/** A string value, optionally associated with a scalar selected by its context or construction. */
 export interface StringValue extends BaseValue {
+  /** Discriminant for a JavaScript string payload. */
   valueKind: "StringValue";
+  /** Selected string scalar, or undefined when the value has no scalar association. */
   scalar: Scalar | undefined;
+  /** String contents, independent of the value's storage type. */
   value: string;
 }
+/** A boolean value, optionally associated with a scalar selected by its context or construction. */
 export interface BooleanValue extends BaseValue {
+  /** Discriminant for a JavaScript boolean payload. */
   valueKind: "BooleanValue";
+  /** Selected boolean scalar, or undefined when the value has no scalar association. */
   scalar: Scalar | undefined;
+  /** Boolean contents, independent of the value's storage type. */
   value: boolean;
 }
+/** A value referring to an enum member, retaining member identity rather than only its assigned value. */
 export interface EnumValue extends BaseValue {
+  /** Discriminant for a value backed by an enum member. */
   valueKind: "EnumValue";
+  /** Referenced member, including its owning enum and any explicit string or numeric value. */
   value: EnumMember;
 }
+/** The concrete null value, distinct from the intrinsic type used to describe it. */
 export interface NullValue extends BaseValue {
+  /** Discriminant for the null payload. */
   valueKind: "NullValue";
+  /** Null contents; absence of a value is not represented by this field being undefined. */
   value: null;
 }
 
@@ -433,8 +566,11 @@ export interface TemplateValue extends BaseValue {
 
 //#endregion Values
 
+/** A scalar declaration or expression, with optional scalar inheritance and named constructors. */
 export interface Scalar extends BaseType, DecoratedType, TemplatedTypeBase {
+  /** Discriminant for scalar types rather than scalar values. */
   kind: "Scalar";
+  /** Declared name, or an empty string for an anonymous scalar expression. */
   name: string;
   node?: ScalarStatementNode | ScalarDeclarationExpressionNode;
   /**
@@ -458,6 +594,7 @@ export interface Scalar extends BaseType, DecoratedType, TemplatedTypeBase {
    */
   derivedScalars: Scalar[];
 
+  /** Constructors keyed by name, including inherited constructors rebound to this scalar. */
   constructors: Map<string, ScalarConstructor>;
   /**
    * Late-bound symbol of this scalar type.
@@ -466,18 +603,27 @@ export interface Scalar extends BaseType, DecoratedType, TemplatedTypeBase {
   symbol?: Sym;
 }
 
+/** A named scalar initializer whose checked call produces a value of its associated scalar. */
 export interface ScalarConstructor extends BaseType {
+  /** Discriminant for scalar initializer signatures. */
   kind: "ScalarConstructor";
   node?: ScalarConstructorNode;
+  /** Initializer name used after the scalar name in a constructor call. */
   name: string;
+  /** Scalar constructed by this signature, including when the signature was inherited. */
   scalar: Scalar;
+  /** Parameter constraints in declaration order, including optional and rest parameters. */
   parameters: SignatureFunctionParameter[];
 }
 
+/** A named collection of operations, including operations copied from extended interfaces. */
 export interface Interface extends BaseType, DecoratedType, TemplatedTypeBase {
+  /** Discriminant for operation containers. */
   kind: "Interface";
+  /** Local declaration name, excluding its namespace path. */
   name: string;
   node?: InterfaceStatementNode;
+  /** Containing namespace, when associated with a namespace. */
   namespace?: Namespace;
 
   /**
@@ -506,10 +652,14 @@ export interface Interface extends BaseType, DecoratedType, TemplatedTypeBase {
   symbol?: Sym;
 }
 
+/** An ordered set of named members with optional explicit string or numeric values. */
 export interface Enum extends BaseType, DecoratedType {
+  /** Discriminant for enum types rather than individual members. */
   kind: "Enum";
+  /** Declared name, or an empty string for an anonymous enum expression. */
   name: string;
   node?: EnumStatementNode | EnumDeclarationExpressionNode;
+  /** Containing namespace, when associated with a namespace. */
   namespace?: Namespace;
 
   /**
@@ -533,11 +683,16 @@ export interface Enum extends BaseType, DecoratedType {
   symbol?: Sym;
 }
 
+/** A named enum entry retaining both its owning enum and any spread source. */
 export interface EnumMember extends BaseType, DecoratedType {
+  /** Discriminant for a member declaration rather than an enum value wrapper. */
   kind: "EnumMember";
+  /** Member name, distinct from any explicitly assigned value. */
   name: string;
+  /** Owning enum; spread copies belong to the receiving enum. */
   enum: Enum;
   node?: EnumMemberNode;
+  /** Explicitly assigned value, or undefined for a member declared with only a name. */
   value?: string | number;
   /**
    * when spread operators make new enum members,
@@ -546,13 +701,20 @@ export interface EnumMember extends BaseType, DecoratedType {
   sourceMember?: EnumMember;
 }
 
+/** A callable API signature, declared in a namespace or owned by an interface. */
 export interface Operation extends BaseType, DecoratedType, TemplatedTypeBase {
+  /** Discriminant for API operation signatures rather than TypeSpec function values. */
   kind: "Operation";
   node?: OperationStatementNode;
+  /** Local operation name, excluding namespace and interface qualifiers. */
   name: string;
+  /** Containing namespace, including for operations declared inside an interface. */
   namespace?: Namespace;
+  /** Owning interface, or absent for a namespace-level operation. */
   interface?: Interface;
+  /** Model whose properties describe the operation's ordered parameters. */
   parameters: Model;
+  /** Result type, including the `void` intrinsic for an operation without a return value. */
   returnType: Type;
 
   /**
@@ -561,9 +723,13 @@ export interface Operation extends BaseType, DecoratedType, TemplatedTypeBase {
   sourceOperation?: Operation;
 }
 
+/** A declaration container; nested namespaces link to their parent and the global namespace is unnamed. */
 export interface Namespace extends BaseType, DecoratedType {
+  /** Discriminant for namespace containers rather than their declarations. */
   kind: "Namespace";
+  /** Local namespace segment, or an empty string for the global namespace. */
   name: string;
+  /** Parent namespace; absent on the global namespace. */
   namespace?: Namespace;
   node?: NamespaceStatementNode | JsNamespaceDeclarationNode;
 
@@ -631,62 +797,93 @@ export interface Namespace extends BaseType, DecoratedType {
   functionDeclarations: Map<string, FunctionValue>;
 }
 
+/** Singleton primitive types, distinct from the corresponding checked value objects. */
 export type LiteralType = StringLiteral | NumericLiteral | BooleanLiteral;
 
+/** Singleton type accepting exactly one string. */
 export interface StringLiteral extends BaseType {
+  /** Discriminant for string literal types, not the `string` scalar. */
   kind: "String";
   node?: StringLiteralNode;
+  /** String accepted by this singleton type. */
   value: string;
 }
 
+/** Singleton numeric type retaining exact numeric contents alongside a JavaScript projection. */
 export interface NumericLiteral extends BaseType {
+  /** Discriminant for numeric literal types, not numeric scalar declarations. */
   kind: "Number";
   node?: NumericLiteralNode;
+  /** JavaScript numeric projection; use numericValue when precision or range matters. */
   value: number;
+  /** Exact numeric contents, without JavaScript number rounding. */
   numericValue: Numeric;
+  /** Source spelling, or synthesized numeric text for a programmatically created literal. */
   valueAsString: string;
 }
 
+/** Singleton type accepting exactly one boolean. */
 export interface BooleanLiteral extends BaseType {
+  /** Discriminant for boolean literal types, not the `boolean` scalar. */
   kind: "Boolean";
   node?: BooleanLiteralNode;
+  /** Boolean accepted by this singleton type. */
   value: boolean;
 }
 
+/** A string template type retaining its literal text and interpolated types as separate spans. */
 export interface StringTemplate extends BaseType {
+  /** Discriminant for a template type rather than a concrete string value. */
   kind: "StringTemplate";
   /** If the template can be render as as string this is the string value */
   stringValue?: string;
   node?: StringTemplateExpressionNode;
+  /** Text and interpolated types in source order, including any empty text spans. */
   spans: StringTemplateSpan[];
 }
 
+/** One part of a string template, narrowed by isInterpolated rather than by kind. */
 export type StringTemplateSpan = StringTemplateSpanLiteral | StringTemplateSpanValue;
 
+/** Literal text between interpolations in a string template. */
 export interface StringTemplateSpanLiteral extends BaseType {
+  /** Shared span discriminant; use isInterpolated to distinguish text from interpolation. */
   kind: "StringTemplateSpan";
   node?: StringTemplateHeadNode | StringTemplateMiddleNode | StringTemplateTailNode;
+  /** Marks source text rather than an interpolated expression, even when the text is empty. */
   isInterpolated: false;
+  /** Singleton string type holding this span's text. */
   type: StringLiteral;
 }
 
+/** An interpolated type in a string template, including interpolated string literal types. */
 export interface StringTemplateSpanValue extends BaseType {
+  /** Shared span discriminant; use isInterpolated to distinguish interpolation from text. */
   kind: "StringTemplateSpan";
   node?: Expression;
+  /** Marks an interpolation even when its type is a string literal. */
   isInterpolated: true;
+  /** Interpolated type, which may not be renderable as a concrete string. */
   type: Type;
 }
 
+/** A fixed sequence of element types, distinct from an array value or indexed model. */
 export interface Tuple extends BaseType {
+  /** Discriminant for tuple types rather than array values. */
   kind: "Tuple";
   node?: TupleExpressionNode | ArrayLiteralNode;
+  /** Element types in tuple position order. */
   values: Type[];
 }
 
+/** Alternatives described by ordered variants, from either a union declaration or an expression. */
 export interface Union extends BaseType, DecoratedType, TemplatedTypeBase {
+  /** Discriminant for a union of types rather than a single variant. */
   kind: "Union";
+  /** Declared name, when present; expression unions can also retain a declaration-expression name. */
   name?: string;
   node?: UnionExpressionNode | UnionStatementNode | UnionDeclarationExpressionNode;
+  /** Containing namespace, when associated with a namespace. */
   namespace?: Namespace;
 
   /**
@@ -696,6 +893,7 @@ export interface Union extends BaseType, DecoratedType, TemplatedTypeBase {
    */
   variants: RekeyableMap<string | symbol, UnionVariant>;
 
+  /** Whether the union is used in expression position, including both `A | B` and `union { ... }`. */
   expression: boolean;
 
   /**
@@ -724,11 +922,16 @@ export interface Union extends BaseType, DecoratedType, TemplatedTypeBase {
   symbol?: Sym;
 }
 
+/** One alternative of a union, with either a declared name or an anonymous symbol key. */
 export interface UnionVariant extends BaseType, DecoratedType {
+  /** Discriminant for a union alternative rather than the alternative's value type. */
   kind: "UnionVariant";
+  /** Declared variant name, or a unique symbol for an unnamed alternative. */
   name: string | symbol;
   node?: UnionVariantNode | undefined;
+  /** Type accepted by this alternative. */
   type: Type;
+  /** Owning union; flattened union expressions can reuse variants owned by another union. */
   union: Union;
 }
 
@@ -740,6 +943,7 @@ export interface UnionVariant extends BaseType, DecoratedType {
  * @experimental
  */
 export interface TemplateParameter extends BaseType {
+  /** Discriminant for an unresolved template parameter rather than a substituted argument. */
   kind: "TemplateParameter";
   /** @internal */
   node: TemplateParameterDeclarationNode;
@@ -760,6 +964,7 @@ export interface TemplateParameter extends BaseType {
  * @experimental
  */
 export interface TemplateParameterAccess extends BaseType {
+  /** Discriminant for unresolved member access rooted in a template parameter. */
   kind: "TemplateParameterAccess";
   /** @internal */
   node: MemberExpressionNode;
@@ -785,13 +990,20 @@ export interface TemplateParameterAccess extends BaseType {
   constraint?: MixedParameterConstraint;
 }
 
+/** A checked TypeSpec decorator declaration, distinct from an application of that decorator. */
 export interface Decorator extends BaseType {
+  /** Discriminant for decorator declarations rather than decorator applications. */
   kind: "Decorator";
   node?: DecoratorDeclarationStatementNode;
+  /** Local decorator name including its leading `@`, without namespace qualifiers. */
   name: `@${string}`;
+  /** Declaring namespace, including the global namespace for unqualified declarations. */
   namespace: Namespace;
+  /** Constraint on the decorated target, separate from custom arguments. */
   target: MixedFunctionParameter;
+  /** Custom parameter constraints in declaration order, excluding the target. */
   parameters: MixedFunctionParameter[];
+  /** JavaScript implementation receiving the context, target, and marshalled custom arguments. */
   implementation: (ctx: DecoratorContext, target: Type, ...args: unknown[]) => void;
   /** How this decorator was declared. */
   declarationKind: "extern" | "auto";
@@ -801,6 +1013,7 @@ export interface Decorator extends BaseType {
  * The type of a Function in TypeSpec.
  */
 export interface FunctionType extends BaseType {
+  /** Discriminant for a function signature constraint rather than a callable function value. */
   kind: "FunctionType";
 
   /**
@@ -841,7 +1054,9 @@ export interface FunctionValue<
   Parameters extends unknown[] = never[],
   ReturnType = unknown,
 > extends BaseValue {
+  /** Discriminant for callable function values rather than data values. */
   valueKind: "Function";
+  /** Source `fn` declaration, when the function originates in a declaration. */
   node?: FunctionDeclarationStatementNode;
   /**
    * The function's name as declared in the TypeSpec source, if any.
@@ -873,7 +1088,9 @@ export interface FunctionValue<
   implementation: (ctx: FunctionContext, ...args: Parameters) => ReturnType;
 }
 
+/** Signature entry shared by function, decorator, and scalar-constructor parameters. */
 export interface FunctionParameterBase extends BaseType {
+  /** Shared parameter discriminant; mixed selects the constraint representation. */
   kind: "FunctionParameter";
   node?: FunctionParameterNode;
   /**
@@ -894,7 +1111,9 @@ export interface FunctionParameterBase extends BaseType {
  * A function parameter with a mixed parameter constraint that could accept a value.
  */
 export interface MixedFunctionParameter extends FunctionParameterBase {
+  /** Selects independent type and value alternatives instead of a simple type constraint. */
   mixed: true;
+  /** Constraint describing the types or values that may be supplied. */
   type: MixedParameterConstraint;
 }
 
@@ -902,7 +1121,9 @@ export interface MixedFunctionParameter extends FunctionParameterBase {
  * A function parameter with a simple type constraint.
  */
 export interface SignatureFunctionParameter extends FunctionParameterBase {
+  /** Selects a single type constraint instead of mixed type and value alternatives. */
   mixed: false;
+  /** Type required for values supplied to this signature parameter. */
   type: Type;
 }
 
