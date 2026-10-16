@@ -38,24 +38,17 @@ namespace Microsoft.TypeSpec.Generator.Statements
             ItemVariable = item;
         }
 
-        public ForEachStatement(string itemName, ValueExpression enumerable, CSharpType itemType, out VariableExpression item)
-            : this(null, new CodeWriterDeclaration(itemName), enumerable, false)
-        {
-            item = new VariableExpression(itemType, Item);
-            ItemVariable = item;
-        }
-
         public ForEachStatement(string itemName, ScopedApi enumerable, out VariableExpression item)
             : this(null, new CodeWriterDeclaration(itemName), enumerable, false)
         {
-            item = new VariableExpression(enumerable.Type.Arguments[0], Item);
+            item = new VariableExpression(enumerable.Type.Equals(typeof(System.Collections.IEnumerable)) ? typeof(object) : enumerable.Type.Arguments[0], Item);
             ItemVariable = item;
         }
 
         public ForEachStatement(string itemName, ScopedApi enumerable, bool isAsync, out VariableExpression item)
             : this(null, new CodeWriterDeclaration(itemName), enumerable, isAsync)
         {
-            item = new VariableExpression(enumerable.Type.Arguments[0], Item);
+            item = new VariableExpression(enumerable.Type.Equals(typeof(System.Collections.IEnumerable)) ? typeof(object) : enumerable.Type.Arguments[0], Item);
             ItemVariable = item;
         }
 

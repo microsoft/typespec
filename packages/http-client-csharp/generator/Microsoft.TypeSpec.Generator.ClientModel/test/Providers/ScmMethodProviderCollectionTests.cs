@@ -2535,7 +2535,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         public void NestedIntegerCollectionRequestsUseBinaryContentHelpers(InputPrimitiveTypeKind kind)
         {
             MockHelpers.LoadMockGenerator();
-            var generatedCode = new StringBuilder();
+            using var writer = new CodeWriter();
             foreach (var isDictionary in new[] { false, true })
             {
                 var elementType = new InputPrimitiveType(kind, kind.ToString(), $"TypeSpec.{kind.ToString().ToLowerInvariant()}");
@@ -2550,12 +2550,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 var methods = new ScmMethodProviderCollection(serviceMethod, client);
                 foreach (var method in methods.Where(m => m.Kind == ScmMethodKind.Convenience))
                 {
-                    AppendMethodSignature(generatedCode, method);
-                    generatedCode.Append(method.BodyStatements!.ToDisplayString());
+                    writer.WriteMethod(method);
                 }
             }
 
-            Assert.AreEqual(Helpers.GetExpectedFromFile(kind.ToString()), generatedCode.ToString());
+            Assert.AreEqual(Helpers.GetExpectedFromFile(kind.ToString()), writer.ToString(false));
         }
 
         [TestCase(InputPrimitiveTypeKind.Int16)]
@@ -2565,7 +2564,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         public void IntegerCollectionResponsesUseUtf8JsonReader(InputPrimitiveTypeKind kind)
         {
             MockHelpers.LoadMockGenerator();
-            var generatedCode = new StringBuilder();
+            using var writer = new CodeWriter();
             foreach (var isDictionary in new[] { false, true })
             {
                 foreach (var isNullable in new[] { false, true })
@@ -2584,24 +2583,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                     var methods = new ScmMethodProviderCollection(serviceMethod, client);
                     foreach (var method in methods.Where(m => m.Kind == ScmMethodKind.Convenience))
                     {
-                        AppendMethodSignature(generatedCode, method);
-                        generatedCode.Append(method.BodyStatements!.ToDisplayString());
+                        writer.WriteMethod(method);
                     }
                 }
             }
 
-            Assert.AreEqual(Helpers.GetExpectedFromFile(kind.ToString()), generatedCode.ToString());
-        }
-
-        private static void AppendMethodSignature(StringBuilder generatedCode, MethodProvider method)
-        {
-            generatedCode.Append("// ")
-                .Append(method.Signature.ReturnType)
-                .Append(' ')
-                .Append(method.Signature.Name)
-                .Append('(')
-                .Append(string.Join(", ", method.Signature.Parameters.Select(parameter => $"{parameter.Type} {parameter.Name}")))
-                .AppendLine(")");
+            Assert.AreEqual(Helpers.GetExpectedFromFile(kind.ToString()), writer.ToString(false));
         }
 
         [TestCase(typeof(int))]
