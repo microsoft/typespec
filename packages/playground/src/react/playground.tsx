@@ -39,12 +39,15 @@ import { ViewToggle, type ViewMode } from "./view-toggle.js";
 // Re-export the PlaygroundState type for convenience
 export type { PlaygroundState };
 
+/** Playground UI behavior overrides for one emitter, separate from its compiler options. */
 export interface PlaygroundEmitterOptions {
   /** Compile debounce delay in milliseconds. Default is 200. */
   debounce?: number;
 }
 
+/** Host, state ownership, and extension points for an embedded TypeSpec playground. */
 export interface PlaygroundProps {
+  /** Initialized browser host; register Monaco language services before mounting the playground. */
   host: BrowserHost;
 
   /** Default content if leaving this unmanaged. */
@@ -56,11 +59,11 @@ export interface PlaygroundProps {
   /** Samples available */
   samples?: Record<string, PlaygroundSample>;
 
-  /** Playground state (controlled) */
+  /** Controlled snapshot; keep this mode for the component's lifetime and apply requested updates. */
   playgroundState?: PlaygroundState;
-  /** Default playground state if leaving this unmanaged */
+  /** Initial snapshot when uncontrolled; later changes do not reset existing state. */
   defaultPlaygroundState?: PlaygroundState;
-  /** Callback when playground state changes */
+  /** Full next snapshot, emitted for both controlled and uncontrolled changes. */
   onPlaygroundStateChange?: (state: PlaygroundState) => void;
 
   /**
@@ -69,15 +72,16 @@ export interface PlaygroundProps {
    */
   defaultEmitter?: string;
 
+  /** Enable the file-bug command; invoked after requesting a save through `onSave`, if supplied. */
   onFileBug?: () => void;
 
   /** Additional items to show in the command bar. */
   commandBarItems?: CommandBarItem[];
 
-  /** Custom viewers to view the typespec program */
+  /** Program-level output tabs; matching keys replace built-in or earlier custom viewers. */
   viewers?: ProgramViewer[];
 
-  /** Custom file viewers that enabled for certain emitters. Key of the map is emitter name */
+  /** Additional file renderers keyed by emitter package name, offered alongside the raw-text view. */
   emitterViewers?: Record<string, FileOutputViewer[]>;
 
   /**
@@ -85,17 +89,21 @@ export interface PlaygroundProps {
    */
   emitterOptions?: Record<string, PlaygroundEmitterOptions>;
 
+  /** Receives a snapshot on Save or the save keyboard shortcut; absent handlers make Save a no-op. */
   onSave?: (value: PlaygroundSaveData) => void;
 
+  /** Editor presentation settings; omitted settings use playground defaults. */
   editorOptions?: PlaygroundEditorsOptions;
 
   /**
-   * Change the footer of the playground.
+   * Replace the default footer. Null or undefined keeps the default; use an empty fragment to hide it.
    */
   footer?: ReactNode;
 }
 
+/** Presentation settings shared by playground editor panels. */
 export interface PlaygroundEditorsOptions {
+  /** Monaco theme name, applied globally; defaults to `"typespec"`. */
   theme?: string;
 }
 
