@@ -1,5 +1,8 @@
+import type { Environment } from "monaco-editor";
+
+/** Register Monaco's editor and JSON workers before creating editors in a Vite application. */
 export function registerMonacoDefaultWorkersForVite() {
-  (self as any).MonacoEnvironment = {
+  const environment: Environment = {
     getWorker: async function (workerId: string, label: string) {
       switch (label) {
         case "json": {
@@ -15,4 +18,5 @@ export function registerMonacoDefaultWorkersForVite() {
       }
     },
   };
+  self.MonacoEnvironment = environment;
 }
