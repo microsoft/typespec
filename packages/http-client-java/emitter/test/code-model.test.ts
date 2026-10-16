@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 import { assert, describe, expect, it } from "vitest";
 import { parse, stringify } from "yaml";
 import { CodeModelBuilder } from "../src/code-model-builder.js";
+import type { PageableContinuationToken } from "../src/common/client.js";
 import { addSubClient, createClient } from "../src/common/client.js";
 import { addGlobalParameter, createCodeModel } from "../src/common/code-model.js";
 import {
@@ -40,6 +41,57 @@ import { createResponseErrorSchema } from "../src/external-schemas.js";
 import { cloneOperationParameter } from "../src/operation-utils.js";
 
 describe("code model characterization", () => {
+  it.each(["azure", "standard"] as const)(
+    "preserves continuation-token metadata for %s",
+    async (flavor) => {
+      const program = await compile(
+        NodeHost,
+        fileURLToPath(new URL("./fixtures/continuation-token.tsp", import.meta.url)),
+        { noEmit: true },
+      );
+      expectDiagnosticEmpty(program.diagnostics);
+      const model = await new CodeModelBuilder(program, {
+        program,
+        emitterOutputDir: "/code-model-test-output",
+        options: { flavor, "dev-options": {} },
+        perf: {
+          startTimer: () => ({ end: () => 0 }),
+          time: (_label, callback) => callback(),
+          timeAsync: (_label, callback) => callback(),
+          report: () => {},
+        },
+      }).build();
+      expectDiagnosticEmpty(program.diagnostics);
+      const operations = model.clients.flatMap((client) =>
+        client.operationGroups.flatMap((group) => group.operations ?? []),
+      );
+      expect(operations).toHaveLength(4);
+      for (const operation of operations) {
+        const name = operation.language.default.name;
+        const pageable = operation.extensions?.["x-ms-pageable"] as
+          { continuationToken?: PageableContinuationToken; nextLinkName?: string } | undefined;
+        assert.isDefined(pageable?.continuationToken);
+        const token = pageable.continuationToken;
+        expect(token.parameter).toBe(
+          operation.parameters?.find((p) => p.language.default.serializedName === "token"),
+        );
+        expect(token.parameter.protocol.http?.in).toBe(
+          name.startsWith("query") ? "query" : "header",
+        );
+        expect(pageable.nextLinkName).toBeUndefined();
+        if (name.endsWith("Header")) {
+          expect(token.responseHeader?.header).toBe("next-token");
+          expect(token.responseProperty).toBeUndefined();
+        } else {
+          expect(token.responseProperty?.map((p) => p.serializedName)).toEqual(
+            name === "queryBody" ? ["next", "token"] : ["nextToken"],
+          );
+          expect(token.responseHeader).toBeUndefined();
+        }
+      }
+    },
+  );
+
   it("preserves metadata defaults and supplied schema references", () => {
     const schema = createStringSchema("string", "A string");
     const property = createProperty("value", "A value", schema, {

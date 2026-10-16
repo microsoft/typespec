@@ -430,27 +430,32 @@ abstract class ConvenienceMethodTemplateBase {
         }
 
         // invocation with protocol method parameters and RequestOptions
-        String invocationExpression = protocolMethod.getMethodInputParameters().stream().map(p -> {
-            String parameterName = p.getName();
-            String expression = parameterExpressionsMap.get(parameterName);
-            IType parameterRawType = p.getRawType();
-            if (isJsonMergePatchOperation
-                && ClientModelUtil.isClientModel(parameterRawType)
-                && RequestParameterLocation.BODY.equals(p.getRequestParameterLocation())
-                && ClientModelUtil.isJsonMergePatchModel(
-                    ClientModelUtil.getClientModel(((ClassType) parameterRawType).getName()),
-                    JavaSettings.getInstance())) {
-                ClientModel clientModel = ClientModelUtil.getClientModel(((ClassType) parameterRawType).getName());
-                // If it is polymorphic model, we need to enable json merge patch through root parent model
-                ClientModel rootParentModel = ClientModelUtil.getRootParent(clientModel);
-                IType rootParentModelType = rootParentModel.getType();
+        String invocationExpression = protocolMethod.getMethodInputParameters()
+            .stream()
+            .filter(p -> !protocolMethod.isPageStreamingType()
+                || !protocolMethod.getMethodPageDetails().shouldHideParameter(p))
+            .map(p -> {
+                String parameterName = p.getName();
+                String expression = parameterExpressionsMap.get(parameterName);
+                IType parameterRawType = p.getRawType();
+                if (isJsonMergePatchOperation
+                    && ClientModelUtil.isClientModel(parameterRawType)
+                    && RequestParameterLocation.BODY.equals(p.getRequestParameterLocation())
+                    && ClientModelUtil.isJsonMergePatchModel(
+                        ClientModelUtil.getClientModel(((ClassType) parameterRawType).getName()),
+                        JavaSettings.getInstance())) {
+                    ClientModel clientModel = ClientModelUtil.getClientModel(((ClassType) parameterRawType).getName());
+                    // If it is polymorphic model, we need to enable json merge patch through root parent model
+                    ClientModel rootParentModel = ClientModelUtil.getRootParent(clientModel);
+                    IType rootParentModelType = rootParentModel.getType();
 
-                return writeParameterConversionExpressionWithJsonMergePatchEnabled(methodBlock,
-                    rootParentModelType.toString(), parameterName, expression);
-            } else {
-                return expression == null ? parameterName : expression;
-            }
-        }).collect(Collectors.joining(", "));
+                    return writeParameterConversionExpressionWithJsonMergePatchEnabled(methodBlock,
+                        rootParentModelType.toString(), parameterName, expression);
+                } else {
+                    return expression == null ? parameterName : expression;
+                }
+            })
+            .collect(Collectors.joining(", "));
 
         // write the invocation of protocol method, and related type conversion
         writeInvocationAndConversion(convenienceMethod, protocolMethod, invocationExpression, methodBlock,

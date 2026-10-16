@@ -47,7 +47,6 @@ public final class ServerDrivenPaginationContinuationTokenAsyncClient {
      * <table border="1">
      * <caption>Query Parameters</caption>
      * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>token</td><td>String</td><td>No</td><td>The token parameter</td></tr>
      * <tr><td>bar</td><td>String</td><td>No</td><td>The bar parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
@@ -95,7 +94,6 @@ public final class ServerDrivenPaginationContinuationTokenAsyncClient {
      * <table border="1">
      * <caption>Header Parameters</caption>
      * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>token</td><td>String</td><td>No</td><td>The token parameter</td></tr>
      * <tr><td>foo</td><td>String</td><td>No</td><td>The foo parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addHeader}
@@ -129,7 +127,6 @@ public final class ServerDrivenPaginationContinuationTokenAsyncClient {
      * <table border="1">
      * <caption>Query Parameters</caption>
      * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>token</td><td>String</td><td>No</td><td>The token parameter</td></tr>
      * <tr><td>bar</td><td>String</td><td>No</td><td>The bar parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
@@ -177,7 +174,6 @@ public final class ServerDrivenPaginationContinuationTokenAsyncClient {
      * <table border="1">
      * <caption>Header Parameters</caption>
      * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>token</td><td>String</td><td>No</td><td>The token parameter</td></tr>
      * <tr><td>foo</td><td>String</td><td>No</td><td>The foo parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addHeader}
@@ -211,7 +207,6 @@ public final class ServerDrivenPaginationContinuationTokenAsyncClient {
      * <table border="1">
      * <caption>Query Parameters</caption>
      * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>token</td><td>String</td><td>No</td><td>The token parameter</td></tr>
      * <tr><td>bar</td><td>String</td><td>No</td><td>The bar parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
@@ -259,7 +254,6 @@ public final class ServerDrivenPaginationContinuationTokenAsyncClient {
      * <table border="1">
      * <caption>Header Parameters</caption>
      * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>token</td><td>String</td><td>No</td><td>The token parameter</td></tr>
      * <tr><td>foo</td><td>String</td><td>No</td><td>The foo parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addHeader}
@@ -290,7 +284,6 @@ public final class ServerDrivenPaginationContinuationTokenAsyncClient {
     /**
      * The requestQueryResponseBody operation.
      * 
-     * @param token The token parameter.
      * @param foo The foo parameter.
      * @param bar The bar parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -303,12 +296,9 @@ public final class ServerDrivenPaginationContinuationTokenAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedFlux<Pet> requestQueryResponseBody(String token, String foo, String bar) {
+    public PagedFlux<Pet> requestQueryResponseBody(String foo, String bar) {
         // Generated convenience method for requestQueryResponseBody
         RequestOptions requestOptions = new RequestOptions();
-        if (token != null) {
-            requestOptions.addQueryParam("token", token, false);
-        }
         if (foo != null) {
             requestOptions.setHeader(HttpHeaderName.fromString("foo"), foo);
         }
@@ -377,7 +367,6 @@ public final class ServerDrivenPaginationContinuationTokenAsyncClient {
     /**
      * The requestHeaderResponseBody operation.
      * 
-     * @param token The token parameter.
      * @param foo The foo parameter.
      * @param bar The bar parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -390,12 +379,9 @@ public final class ServerDrivenPaginationContinuationTokenAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedFlux<Pet> requestHeaderResponseBody(String token, String foo, String bar) {
+    public PagedFlux<Pet> requestHeaderResponseBody(String foo, String bar) {
         // Generated convenience method for requestHeaderResponseBody
         RequestOptions requestOptions = new RequestOptions();
-        if (token != null) {
-            requestOptions.setHeader(HttpHeaderName.fromString("token"), token);
-        }
         if (foo != null) {
             requestOptions.setHeader(HttpHeaderName.fromString("foo"), foo);
         }
@@ -464,7 +450,6 @@ public final class ServerDrivenPaginationContinuationTokenAsyncClient {
     /**
      * The requestQueryResponseHeader operation.
      * 
-     * @param token The token parameter.
      * @param foo The foo parameter.
      * @param bar The bar parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -477,12 +462,9 @@ public final class ServerDrivenPaginationContinuationTokenAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedFlux<Pet> requestQueryResponseHeader(String token, String foo, String bar) {
+    public PagedFlux<Pet> requestQueryResponseHeader(String foo, String bar) {
         // Generated convenience method for requestQueryResponseHeader
         RequestOptions requestOptions = new RequestOptions();
-        if (token != null) {
-            requestOptions.addQueryParam("token", token, false);
-        }
         if (foo != null) {
             requestOptions.setHeader(HttpHeaderName.fromString("foo"), foo);
         }
@@ -551,7 +533,6 @@ public final class ServerDrivenPaginationContinuationTokenAsyncClient {
     /**
      * The requestHeaderResponseHeader operation.
      * 
-     * @param token The token parameter.
      * @param foo The foo parameter.
      * @param bar The bar parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -564,12 +545,9 @@ public final class ServerDrivenPaginationContinuationTokenAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedFlux<Pet> requestHeaderResponseHeader(String token, String foo, String bar) {
+    public PagedFlux<Pet> requestHeaderResponseHeader(String foo, String bar) {
         // Generated convenience method for requestHeaderResponseHeader
         RequestOptions requestOptions = new RequestOptions();
-        if (token != null) {
-            requestOptions.setHeader(HttpHeaderName.fromString("token"), token);
-        }
         if (foo != null) {
             requestOptions.setHeader(HttpHeaderName.fromString("foo"), foo);
         }
@@ -638,7 +616,6 @@ public final class ServerDrivenPaginationContinuationTokenAsyncClient {
     /**
      * The requestQueryNestedResponseBody operation.
      * 
-     * @param token The token parameter.
      * @param foo The foo parameter.
      * @param bar The bar parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -651,12 +628,9 @@ public final class ServerDrivenPaginationContinuationTokenAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedFlux<Pet> requestQueryNestedResponseBody(String token, String foo, String bar) {
+    public PagedFlux<Pet> requestQueryNestedResponseBody(String foo, String bar) {
         // Generated convenience method for requestQueryNestedResponseBody
         RequestOptions requestOptions = new RequestOptions();
-        if (token != null) {
-            requestOptions.addQueryParam("token", token, false);
-        }
         if (foo != null) {
             requestOptions.setHeader(HttpHeaderName.fromString("foo"), foo);
         }
@@ -725,7 +699,6 @@ public final class ServerDrivenPaginationContinuationTokenAsyncClient {
     /**
      * The requestHeaderNestedResponseBody operation.
      * 
-     * @param token The token parameter.
      * @param foo The foo parameter.
      * @param bar The bar parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -738,12 +711,9 @@ public final class ServerDrivenPaginationContinuationTokenAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedFlux<Pet> requestHeaderNestedResponseBody(String token, String foo, String bar) {
+    public PagedFlux<Pet> requestHeaderNestedResponseBody(String foo, String bar) {
         // Generated convenience method for requestHeaderNestedResponseBody
         RequestOptions requestOptions = new RequestOptions();
-        if (token != null) {
-            requestOptions.setHeader(HttpHeaderName.fromString("token"), token);
-        }
         if (foo != null) {
             requestOptions.setHeader(HttpHeaderName.fromString("foo"), foo);
         }
