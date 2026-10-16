@@ -190,6 +190,45 @@ it("emits correct schema for MergePatchUpdateOrCreate", async () => {
     updateOnly: { type: "string", nullable: true },
   });
 });
+it("emits the patched base schema for an extended model", async () => {
+  const req = await oapiForPatchRequest(
+    "@body body: Foo",
+    `
+      model Base {
+        id: string;
+        description?: string;
+      }
+
+      model Widget extends Base {
+        label?: string;
+      }
+
+      model Baz {
+        subject?: Widget;
+      }
+
+      model Foo is MergePatchUpdate<Widget>;
+      model Qux is MergePatchUpdate<Baz>`,
+    "application/merge-patch+json",
+  );
+
+  ok(req.isRef);
+  expect(req.schemas.Foo.required).toBeUndefined();
+  deepStrictEqual(req.schemas.Foo.allOf, [{ $ref: "#/components/schemas/BaseMergePatchUpdate" }]);
+  const base = req.schemas.BaseMergePatchUpdate;
+  ok(base, "Expected a merge patch schema for Base");
+  expect(base.required).toBeUndefined();
+  expect(base.allOf).toBeUndefined();
+  deepStrictEqual(base.properties, {
+    id: { type: "string" },
+    description: { type: "string", nullable: true },
+  });
+
+  const nested = req.schemas.WidgetMergePatchUpdateOrCreate;
+  ok(nested, "Expected a merge patch schema for the nested Widget");
+  deepStrictEqual(nested.allOf, [{ $ref: "#/components/schemas/BaseMergePatchUpdateOrCreate" }]);
+  expect(req.schemas.BaseMergePatchUpdateOrCreate.required).toBeUndefined();
+});
 it("emits correct schema for MergePatchCreateOrUpdateReplaceOnly", async () => {
   const req = await oapiForPatchRequest(
     "@body body: Foo",
