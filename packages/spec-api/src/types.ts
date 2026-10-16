@@ -41,9 +41,13 @@ export interface PassOnCodeScenario {
 export interface PassByKeyScenario<K extends string = string> {
   /** Selects coverage evaluation from {@link KeyedMockResponse.pass}. */
   passCondition: "by-key";
-  /** Required keys to accumulate from recorded responses; {@link Fail} marks a failure. */
+  /** Required keys in the evaluated responses; {@link Fail} marks a failure. */
   keys: K[];
-  /** Endpoints whose handlers can produce the scenario's pass keys. */
+  /**
+   * Endpoints registered for the scenario. Current coverage limitation: only the first
+   * endpoint's recorded responses are evaluated; keys from later endpoints are not combined.
+   * For now, avoid distributing required keys across endpoints.
+   */
   apis: KeyedMockApiDefinition<K>[];
 }
 
@@ -169,8 +173,10 @@ export interface MockBody {
   /** Media type sent with a response and used to select request-body comparison. */
   contentType: string;
   /**
-   * Encoded text, raw bytes or content resolved at request time. Use {@link Resolver.resolve}
-   * to preserve matchers during comparison, and {@link Resolver.serialize} to send content.
+   * Encoded text, raw bytes or content resolved at request time. {@link Resolver.serialize}
+   * produces wire text; {@link Resolver.resolve} produces a format-specific comparison value.
+   * JSON resolvers retain structured matcher objects. XML template validation instead
+   * collects matchers separately from the serialized XML.
    */
   rawContent: string | Buffer | Resolver | undefined;
   /** Buffers written in order for a streamed response, taking precedence over rawContent. */
@@ -183,11 +189,15 @@ export interface ResolverConfig {
   baseUrl: string;
 }
 
-/** Deferred content with separate wire serialization and matcher-preserving expansion. */
+/** Deferred content with separate wire serialization and format-specific comparison values. */
 export interface Resolver {
   /** Expands dynamic content for the server context and produces the text sent on the wire. */
   serialize(config: ResolverConfig): string;
-  /** Returns the expanded content with matchers preserved (for comparison). */
+  /**
+   * Expands content for comparison. JSON resolvers preserve matcher objects in structured
+   * values; dyn and XML template resolvers return strings with matchers serialized.
+   * XML validation recovers template matchers separately through getMatchers.
+   */
   resolve(config: ResolverConfig): unknown;
 }
 
