@@ -182,7 +182,10 @@ export type OpenAPI3PathItem = {
 export interface OpenAPI3Components extends Extensions {
   /** Named schemas addressed through `#/components/schemas/{name}`. */
   schemas?: Record<string, OpenAPI3Schema>;
-  /** Reusable response or multipart headers; the map key supplies each header's name. */
+  /**
+   * Reusable header definitions keyed by component name. The referencing response
+   * or encoding's `headers` map supplies the HTTP header name.
+   */
   headers?: Record<string, OpenAPI3Header>;
   /** Reusable response descriptions, payloads and headers. */
   responses?: Record<string, OpenAPI3Response>;
