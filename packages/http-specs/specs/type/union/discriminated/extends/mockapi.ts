@@ -53,12 +53,6 @@ const cases = [
     cat: inlineCat,
     dog: inlineDog,
   },
-  {
-    name: "Envelope",
-    route: "envelope",
-    cat: { kind: "cat", value: cat },
-    dog: { kind: "dog", value: dog },
-  },
 ];
 
 for (const test of cases) {

@@ -149,38 +149,6 @@ namespace EnumDiscriminator {
       > {}
 }
 
-@route("/envelope")
-namespace Envelope {
-  model PetBase {
-    name: string;
-  }
-
-  model Cat extends PetBase {
-    meow: boolean;
-  }
-
-  model Dog extends PetBase {
-    bark: boolean;
-  }
-
-  @discriminated
-  union Pet extends PetBase {
-    cat: Cat,
-    dog: Dog,
-  }
-
-  interface Operations
-    extends PetOperations<
-        Pet,
-        """
-          {"kind": "cat", "value": {"name": "Whiskers", "meow": true}}
-          """,
-        """
-          {"kind": "dog", "value": {"name": "Rex", "bark": false}}
-          """
-      > {}
-}
-
 @route("/recursive")
 namespace Recursive {
   model PetBase {

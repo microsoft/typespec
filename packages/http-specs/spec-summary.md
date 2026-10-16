@@ -9420,54 +9420,6 @@ Expected request body:
 
 The response has status 204 and no body.
 
-### Type_Union_Discriminated_Extends_Envelope_Operations_getCat
-
-- Endpoint: `get /type/union/discriminated/extends/envelope/cat`
-
-Receive the cat alternative of a discriminated union with an explicit model constraint.
-Expected response body:
-
-```json
-{ "kind": "cat", "value": { "name": "Whiskers", "meow": true } }
-```
-
-### Type_Union_Discriminated_Extends_Envelope_Operations_getDog
-
-- Endpoint: `get /type/union/discriminated/extends/envelope/dog`
-
-Receive the dog alternative of a discriminated union with an explicit model constraint.
-Expected response body:
-
-```json
-{ "kind": "dog", "value": { "name": "Rex", "bark": false } }
-```
-
-### Type_Union_Discriminated_Extends_Envelope_Operations_putCat
-
-- Endpoint: `put /type/union/discriminated/extends/envelope/cat`
-
-Send the cat alternative of a discriminated union with an explicit model constraint.
-Expected request body:
-
-```json
-{ "kind": "cat", "value": { "name": "Whiskers", "meow": true } }
-```
-
-The response has status 204 and no body.
-
-### Type_Union_Discriminated_Extends_Envelope_Operations_putDog
-
-- Endpoint: `put /type/union/discriminated/extends/envelope/dog`
-
-Send the dog alternative of a discriminated union with an explicit model constraint.
-Expected request body:
-
-```json
-{ "kind": "dog", "value": { "name": "Rex", "bark": false } }
-```
-
-The response has status 204 and no body.
-
 ### Type_Union_Discriminated_Extends_ExplicitDiscriminator_Operations_getCat
 
 - Endpoint: `get /type/union/discriminated/extends/explicit-discriminator/cat`
