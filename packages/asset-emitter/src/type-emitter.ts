@@ -883,9 +883,13 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
   /**
    * Compute an output name, using the TypeSpec name for ordinary declarations.
    * For template instantiations, appends capitalized names of named type arguments;
-   * returns undefined when an argument has no usable declaration name. Operations
-   * in interfaces keep their own names rather than incorporating template arguments.
-   * Override to apply output-language naming rules or choose which instantiations to inline.
+   * returns undefined when a type argument has no usable declaration name.
+   * Resolved value entities are skipped without causing undefined, so names need
+   * not distinguish instantiations differing only in those values. Indeterminate
+   * arguments are checked as types. Operations in interfaces keep their own names
+   * rather than incorporating template arguments.
+   * Override to apply output-language naming rules, distinguish value arguments,
+   * or choose which instantiations to inline.
    */
   declarationName(declarationType: TypeSpecDeclaration): string | undefined {
     compilerAssert(
