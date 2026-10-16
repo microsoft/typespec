@@ -10,42 +10,71 @@ import { ClassDeclaration } from "./class-declaration.js";
 import { ClassMember } from "./class-member.js";
 import { MethodProvider } from "./class-method.js";
 
+/**
+ * Structured Pydantic ConfigDict keywords, emitted with snake_case names.
+ * Undefined entries are omitted so Pydantic, not this emitter, supplies their defaults.
+ */
 export interface PydanticModelConfigDictProps {
+  /** Emits `arbitrary_types_allowed`, permitting fields of arbitrary Python classes when enabled. */
   arbitraryTypesAllowed?: boolean;
+  /** Emits `extra`, selecting whether unknown input fields are retained, rejected, or ignored. */
   extra?: "allow" | "forbid" | "ignore";
+  /** Emits `from_attributes`, allowing model construction from object attributes when enabled. */
   fromAttributes?: boolean;
+  /** Emits `frozen`, requesting Pydantic's faux-immutable model behavior. */
   frozen?: boolean;
+  /** Emits `populate_by_name`, allowing field-name input alongside aliases when enabled. */
   populateByName?: boolean;
+  /** Emits `str_strip_whitespace`, requesting whitespace trimming for string values. */
   strStripWhitespace?: boolean;
+  /** Emits `strict`, controlling whether validation may coerce input values. */
   strict?: boolean;
+  /** Emits `validate_assignment`, requesting validation when existing fields are reassigned. */
   validateAssignment?: boolean;
+  /** Emits `validate_default`, requesting validation of default field values. */
   validateDefault?: boolean;
 }
 
+/** Structured SettingsConfigDict keywords; undefined entries defer to pydantic-settings defaults. */
 export interface PydanticSettingsConfigDictProps {
+  /** Emits `case_sensitive`, controlling case matching for environment variable names. */
   caseSensitive?: boolean;
+  /** Emits `env_file`, the dotenv path to read when instantiating the generated settings class. */
   envFile?: string;
+  /** Emits `env_file_encoding`, the encoding used to read the dotenv file. */
   envFileEncoding?: string;
+  /** Emits `env_ignore_empty`, controlling whether empty environment values are ignored. */
   envIgnoreEmpty?: boolean;
+  /** Emits `env_nested_delimiter`, separating nested fields within environment variable names. */
   envNestedDelimiter?: string;
+  /** Emits `env_prefix`, prepended to field names for environment lookup. */
   envPrefix?: string;
 }
 
+/** Manually named Pydantic class with optional structured or raw configuration content. */
 export interface PydanticClassDeclarationBaseProps extends Omit<py.ClassDeclarationProps, "name"> {
+  /** Name required when no TypeSpec model supplies one. */
   name: string;
+  /** ConfigDict values; ignored when `modelConfigExpression` is supplied. */
   modelConfig?: PydanticModelConfigDictProps;
+  /** Raw Python expression assigned to `model_config`; takes precedence even when empty or null. */
   modelConfigExpression?: Children;
 }
 
+/** TypeSpec model source for generated Pydantic fields, inheritance, and documentation. */
 export interface PydanticClassDeclarationPropsWithType extends Omit<
   PydanticClassDeclarationBaseProps,
   "name"
 > {
+  /** Model supplying fields; models with additional-properties records are rejected. */
   type: Model;
+  /** Name override, passed through the active Python class naming policy. */
   name?: string;
+  /** Default method kind available to descendant {@link Method} components. */
   methodType?: "method" | "class" | "static";
 }
 
+/** Selects a model-derived Pydantic class or a manually composed class with configuration. */
 export type PydanticClassDeclarationProps =
   PydanticClassDeclarationPropsWithType | PydanticClassDeclarationBaseProps;
 
@@ -56,7 +85,10 @@ function isTypedPydanticClassDeclarationProps(
 }
 
 /**
- * Converts TypeSpec Models to Pydantic classes.
+ * Declares a Pydantic class, placing configuration before generated fields and custom children.
+ * Uses BaseModel only when no explicit or type-derived bases exist. A raw config expression
+ * takes precedence over structured config, whose undefined values are omitted.
+ * Requires a TypeSpec render context even for manually composed classes.
  */
 export function PydanticClassDeclaration(props: PydanticClassDeclarationProps) {
   const { $ } = useTsp();
@@ -149,23 +181,30 @@ export function PydanticClassDeclaration(props: PydanticClassDeclarationProps) {
   );
 }
 
+/** Manually named settings-class props; the wrapper owns its base class and configuration slots. */
 type PydanticSettingsClassDeclarationBaseProps = Omit<
   PydanticClassDeclarationBaseProps,
   "bases" | "modelConfig" | "modelConfigExpression"
 >;
 
+/** Model-derived settings props with the BaseSettings base and settings-specific configuration supplied by the wrapper. */
 type PydanticSettingsClassDeclarationPropsWithType = Omit<
   PydanticClassDeclarationPropsWithType,
   "bases" | "modelConfig" | "modelConfigExpression"
 >;
 
+/** Settings class source plus either structured settings keywords or a raw configuration expression. */
 export type PydanticSettingsClassDeclarationProps =
   | (PydanticSettingsClassDeclarationBaseProps & {
+      /** SettingsConfigDict values; ignored when `settingsConfigExpression` is supplied. */
       settingsConfig?: PydanticSettingsConfigDictProps;
+      /** Raw expression assigned to `model_config`, taking precedence over structured settings. */
       settingsConfigExpression?: Children;
     })
   | (PydanticSettingsClassDeclarationPropsWithType & {
+      /** SettingsConfigDict values; ignored when `settingsConfigExpression` is supplied. */
       settingsConfig?: PydanticSettingsConfigDictProps;
+      /** Raw expression assigned to `model_config`, taking precedence over structured settings. */
       settingsConfigExpression?: Children;
     });
 
@@ -213,7 +252,9 @@ export function PydanticSettingsClassDeclaration(props: PydanticSettingsClassDec
   );
 }
 
+/** Alloy class options for a RootModel specialization; the wrapper supplies its sole base expression. */
 export interface PydanticRootModelDeclarationProps extends Omit<py.ClassDeclarationProps, "bases"> {
+  /** Python type expression used as the RootModel generic argument, not a TypeSpec Type object. */
   rootType: Children;
 }
 

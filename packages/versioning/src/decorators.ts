@@ -46,6 +46,7 @@ function checkIsVersion(
   return version;
 }
 
+/** Records that the target becomes available starting at the given version, including re-additions. */
 export const $added: AddedDecorator = (
   context: DecoratorContext,
   t:
@@ -77,6 +78,7 @@ export const $added: AddedDecorator = (
   program.stateMap(VersioningStateKeys.addedOn).set(t as Type, record);
 };
 
+/** Records that the target stops being available starting at the given version. */
 export function $removed(
   context: DecoratorContext,
   t:
@@ -109,7 +111,9 @@ export function $removed(
 }
 
 /**
- * Returns the mapping of versions to old type values, if applicable
+ * Gets property type changes in ascending version order, or `undefined` when none are recorded.
+ * Each key is the first version using the new type; its value is the type used before that change.
+ * The returned map belongs to the program's metadata and should not be modified.
  * @param p TypeSpec program
  * @param t type to query
  * @returns Map of versions to old types, if any
@@ -118,6 +122,7 @@ export function getTypeChangedFrom(p: Program, t: Type): Map<Version, Type> | un
   return p.stateMap(VersioningStateKeys.typeChangedFrom).get(t) as Map<Version, Type>;
 }
 
+/** Records a property type change that takes effect at the given version, retaining the preceding type. */
 export const $typeChangedFrom: TypeChangedFromDecorator = (
   context: DecoratorContext,
   prop: ModelProperty,
@@ -140,7 +145,9 @@ export const $typeChangedFrom: TypeChangedFromDecorator = (
 };
 
 /**
- * Returns the mapping of versions to old return type values, if applicable
+ * Gets operation return type changes in ascending version order, or `undefined` when none are recorded.
+ * Each key is the first version using the new return type; its value is the preceding return type.
+ * The returned map belongs to the program's metadata and should not be modified.
  * @param p TypeSpec program
  * @param t type to query
  * @returns Map of versions to old types, if any
@@ -149,6 +156,7 @@ export function getReturnTypeChangedFrom(p: Program, t: Type): Map<Version, Type
   return p.stateMap(VersioningStateKeys.returnTypeChangedFrom).get(t) as Map<Version, Type>;
 }
 
+/** Records a return type change that takes effect at the given version, retaining the preceding return type. */
 export const $returnTypeChangedFrom: ReturnTypeChangedFromDecorator = (
   context: DecoratorContext,
   op: Operation,
@@ -170,11 +178,15 @@ export const $returnTypeChangedFrom: ReturnTypeChangedFromDecorator = (
   program.stateMap(VersioningStateKeys.returnTypeChangedFrom).set(op, record);
 };
 
+/** One historical name change, as returned by {@link getRenamedFrom}. */
 interface RenamedFrom {
+  /** First version in which the old name no longer applies. */
   version: Version;
+  /** Name used immediately before this change. */
   oldName: string;
 }
 
+/** Records the target's name before the given version; multiple applications describe successive renames. */
 export const $renamedFrom: RenamedFromDecorator = (
   context: DecoratorContext,
   t:
@@ -212,6 +224,7 @@ export const $renamedFrom: RenamedFromDecorator = (
   program.stateMap(VersioningStateKeys.renamedFrom).set(t as Type, record);
 };
 
+/** Records the version where a required property becomes optional; the current declaration must be optional. */
 export const $madeOptional: MadeOptionalDecorator = (
   context: DecoratorContext,
   t: ModelProperty,
@@ -225,6 +238,7 @@ export const $madeOptional: MadeOptionalDecorator = (
   program.stateMap(VersioningStateKeys.madeOptional).set(t, version);
 };
 
+/** Records the version where an optional property becomes required; the current declaration must be required. */
 export const $madeRequired: MadeRequiredDecorator = (
   context: DecoratorContext,
   t: ModelProperty,
@@ -246,37 +260,55 @@ export function getMadeRequiredOn(p: Program, t: Type): Version | undefined {
 }
 
 /**
- * @returns the array of RenamedFrom metadata if applicable.
+ * Gets historical names in ascending change-version order, or `undefined` when no renames are recorded.
+ * The returned array and its records belong to the program's metadata and should not be modified.
  */
 export function getRenamedFrom(p: Program, t: Type): Array<RenamedFrom> | undefined {
   return p.stateMap(VersioningStateKeys.renamedFrom).get(t) as Array<RenamedFrom>;
 }
 
 /**
- * @returns the list of versions for which this decorator has been applied
+ * Gets rename boundaries in ascending version order, or `undefined` when no renames are recorded.
+ * The array is newly allocated, but its {@link Version} objects are shared with the program.
  */
 export function getRenamedFromVersions(p: Program, t: Type): Version[] | undefined {
   return getRenamedFrom(p, t)?.map((x) => x.version);
 }
 
+/**
+ * Gets explicit addition versions in ascending enum order, including re-additions.
+ * Returns `undefined` when no `@added` metadata is recorded, not an inferred first version.
+ * The returned array belongs to the program's metadata and should not be modified.
+ */
 export function getAddedOnVersions(p: Program, t: Type): Version[] | undefined {
   return p.stateMap(VersioningStateKeys.addedOn).get(t) as Version[];
 }
 
+/**
+ * Gets explicit removal versions in ascending enum order.
+ * Returns `undefined` when no `@removed` metadata is recorded.
+ * The returned array belongs to the program's metadata and should not be modified.
+ */
 export function getRemovedOnVersions(p: Program, t: Type): Version[] | undefined {
   return p.stateMap(VersioningStateKeys.removedOn).get(t) as Version[];
 }
 
 /**
- * @returns version when the given type was made optional if applicable.
+ * Gets the version recorded by `@madeOptional`, or `undefined` when absent.
+ * This queries the change boundary, not the property's current optionality.
  */
 export function getMadeOptionalOn(p: Program, t: Type): Version | undefined {
   return p.stateMap(VersioningStateKeys.madeOptional).get(t);
 }
 
+/**
+ * Associates a namespace's version enum members with shared {@link Version} metadata.
+ * Member identity is used for lookups; versions retain enum declaration order.
+ */
 export class VersionMap {
   private map = new Map<EnumMember, Version>();
 
+  /** Creates metadata for each enum member without registering it on the namespace. */
   constructor(namespace: Namespace, enumType: Enum) {
     let index = 0;
     for (const member of enumType.members.values()) {
@@ -291,19 +323,23 @@ export class VersionMap {
     }
   }
 
+  /** Gets the shared version object, or `undefined` if this exact member is not in the map. */
   public getVersionForEnumMember(member: EnumMember): Version | undefined {
     return this.map.get(member);
   }
 
+  /** Returns a new array in enum declaration order, containing the map's shared version objects. */
   public getVersions(): Version[] {
     return [...this.map.values()];
   }
 
+  /** Number of enum members represented in this map. */
   public get size(): number {
     return this.map.size;
   }
 }
 
+/** Registers the enum as the namespace's ordered set of supported versions. */
 export const $versioned: VersionedDecorator = (
   context: DecoratorContext,
   t: Namespace,
@@ -313,12 +349,14 @@ export const $versioned: VersionedDecorator = (
 };
 
 /**
- * Get the version map of the namespace.
+ * Gets the version map registered directly on the namespace by `@versioned`,
+ * or `undefined` if absent. Does not search parent namespaces.
  */
 export function getVersion(program: Program, namespace: Namespace): VersionMap | undefined {
   return program.stateMap(VersioningStateKeys.versions).get(namespace);
 }
 
+/** Finds the nearest namespace with `@versioned`, including the supplied namespace, or `undefined`. */
 export function findVersionedNamespace(
   program: Program,
   namespace: Namespace,
@@ -335,6 +373,10 @@ export function findVersionedNamespace(
   return undefined;
 }
 
+/**
+ * Records dependency version selections for a namespace or one member of a
+ * service's version enum.
+ */
 export function $useDependency(
   context: DecoratorContext,
   target: EnumMember | Namespace,
@@ -380,6 +422,17 @@ function getNamespaceUseDependencyState(
   return program.stateMap(VersioningStateKeys.useDependencyNamespace).get(target);
 }
 
+/**
+ * Gets explicit `@useDependency` selections keyed by dependency namespace.
+ * Values are either a fixed dependency version or a map from local versions to
+ * dependency versions. Returns `undefined` when no applicable metadata is found.
+ *
+ * Namespace lookup stops at the first namespace or version enum with dependency
+ * metadata, searching outward through parents rather than merging their selections.
+ * Returned maps are newly allocated and contain shared version objects.
+ * @param searchEnum Whether namespace lookup also checks each namespace's version enum.
+ * Defaults to `true`; ignored when the target is already an enum.
+ */
 export function getUseDependencies(
   program: Program,
   target: Namespace | Enum,

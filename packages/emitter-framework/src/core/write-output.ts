@@ -1,6 +1,14 @@
 import { renderAsync, type Children, type OutputDirectory } from "@alloy-js/core";
 import { emitFile, joinPaths, type Program } from "@typespec/compiler";
 
+/**
+ * Asynchronously renders an Alloy tree and emits its generated text files through
+ * the TypeSpec program host. File paths are resolved beneath `emitterOutputDir`;
+ * Alloy copy-file entries are not currently written.
+ *
+ * @param rootComponent - Output root, normally {@link Output}, containing the files to render.
+ * @param emitterOutputDir - Base output directory, typically the emitter context's output directory.
+ */
 export async function writeOutput(
   program: Program,
   rootComponent: Children,
