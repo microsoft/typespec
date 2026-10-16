@@ -119,7 +119,11 @@ export interface MultipartBodyProperty extends HttpPropertyBase {
 }
 /** Property to include inside the body */
 export interface BodyPropertyProperty extends HttpPropertyBase {
-  /** Selects an unannotated property contributing to an implicit body. */
+  /**
+   * Selects a property included in the body for this payload context.
+   * Also used for metadata that does not apply here, such as `@statusCode` in a request
+   * or `@query` and `@path` in a response.
+   */
   readonly kind: "bodyProperty";
 }
 
