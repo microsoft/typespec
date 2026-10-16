@@ -51,6 +51,7 @@
   </ItemGroup>
   <Import Sdk="Microsoft.NET.Sdk" Project="Sdk.targets" />
   <!-- Keep the static TextMate and image assets alongside the generated out-of-process registration. -->
+  <!-- cspell:ignore vsixmanifest -->
   <ItemGroup>
     <SourceVsixManifest Remove="@(SourceVsixManifest)" />
     <SourceVsixManifest Include="source.extension.vsixmanifest" />

@@ -19,6 +19,7 @@ using Nerdbank.Streams;
 
 namespace Microsoft.TypeSpec.VisualStudio;
 
+// cspell:ignore VSEXTPREVIEW
 #pragma warning disable VSEXTPREVIEW_LSP
 [VisualStudioContribution]
 public sealed class TypeSpecLanguageServerProvider : LanguageServerProvider
