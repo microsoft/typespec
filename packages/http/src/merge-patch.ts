@@ -412,6 +412,17 @@ function createMergePatchMutator(
             }
           }
 
+          if (model.baseModel) {
+            // Inherited properties are part of the patch document too, so the base model goes
+            // through the same transform instead of pointing at the original base.
+            const base = cachedMutateSubgraph(program, self, model.baseModel).type;
+            compilerAssert(
+              base.kind === "Model",
+              "Expected the base of a MergePatch model to be a Model",
+            );
+            clone.baseModel = base;
+          }
+
           clone.decorators = clone.decorators.filter((d) => d.decorator !== $applyMergePatch);
           // We have to set the media type in a decorator, not just by calling `setMediaTypeHint`, in order for it to be
           // preserved on further mutation.
