@@ -104,6 +104,7 @@ export function isJsonSchemaDeclaration(program: Program, target: JsonSchemaDecl
   return false;
 }
 
+/** A schema-producing declaration, excluding namespaces that group declarations. */
 type JsonSchemaDeclarationType = Model | Union | Enum | Scalar;
 /**
  * Returns types that are annotated with `@jsonSchema` or contained within a namespace that is annoted with `@jsonSchema`.
