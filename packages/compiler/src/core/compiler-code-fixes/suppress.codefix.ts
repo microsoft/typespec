@@ -34,7 +34,8 @@ const mapGroupBy: typeof Map.groupBy =
 
 /**
  * Create a fix that inserts a `#suppress` directive before the nearest supported suppression target.
- * The fix produces no edits if the diagnostic target has no suitable source location.
+ * Requires a bound, non-synthetic target or an explicit location in a real source file.
+ * Check {@link getSourceLocation} before offering the fix and skip targets whose location is synthetic.
  */
 export function createSuppressCodeFix(
   diagnosticTarget: DiagnosticTarget,
@@ -61,6 +62,8 @@ export function createSuppressCodeFix(
 /**
  * Create code fixes to suppress the given diagnostics.
  * This function groups diagnostics by their suppression target to avoid duplicate suppressions.
+ * Only warnings with a target are considered. Targets must satisfy the source-location preconditions
+ * of {@link createSuppressCodeFix}.
  * @param diagnostics The diagnostics to suppress.
  * @param suppressionMessage The suppression message to use.
  * @returns An array of code fixes to apply the suppressions.
