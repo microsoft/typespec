@@ -80,11 +80,15 @@ export function formatLog(log: ProcessedLog, options: FormatLogOptions): string 
   }
 }
 
+/** Control console-style diagnostic presentation without writing to a log sink. */
 export interface FormatDiagnosticOptions {
+  /** Include colored severity/location text and a source preview; defaults to false. */
   readonly pretty?: boolean;
+  /** Directory against which non-synthetic source paths should be displayed as relative paths. */
   readonly pathRelativeTo?: string;
 }
 
+/** Format a diagnostic, its source location, and template-instantiation context as a single string. */
 export function formatDiagnostic(diagnostic: Diagnostic, options: FormatDiagnosticOptions = {}) {
   return formatLog(
     {

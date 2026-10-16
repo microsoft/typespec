@@ -5,11 +5,13 @@
  * safe to include in code that is bundled for the browser (e.g. the playground).
  */
 export interface FileRef {
+  /** Discriminant used to recognize a lazy file reference without reading the file. */
   readonly kind: "file-ref";
   /** Path to the file, relative to the package root. */
   readonly path: string;
 }
 
+/** Factories for lazy file references whose content is read later by documentation tooling. */
 export const fileRef = {
   /**
    * Create a {@link FileRef} pointing to a file relative to the package root (the directory
