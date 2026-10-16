@@ -81,7 +81,8 @@ export interface TypeSpecConfig {
   emit?: string[];
 
   /**
-   * Name of emitters or path to emitters that should be used.
+   * Emitter-specific settings keyed by the resolved library metadata name.
+   * Use the original emitter specifier only when no metadata name is available.
    */
   options?: Record<string, EmitterOptions>;
 
@@ -129,7 +130,10 @@ export interface TypeSpecRawConfig {
 
   /** Emitter package names or paths to load and run. */
   emit?: string[];
-  /** Emitter-specific settings keyed by the emitter name used in `emit`. */
+  /**
+   * Emitter-specific settings keyed by the resolved library metadata name.
+   * Use the original emitter specifier only when no metadata name is available.
+   */
   options?: Record<string, EmitterOptions>;
 
   /** Rule sets and individual rule overrides applied during linting. */

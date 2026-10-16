@@ -28,8 +28,8 @@ export interface CompilerOptions {
   listFiles?: boolean;
 
   /**
-   * Emitter options.
-   * Key value pair where the key must be the emitter name.
+   * Emitter-specific settings keyed by the resolved library metadata name.
+   * Use the original emitter specifier only when no metadata name is available.
    */
   options?: Record<string, EmitterOptions>;
 
