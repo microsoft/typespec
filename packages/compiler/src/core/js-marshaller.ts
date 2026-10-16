@@ -76,11 +76,15 @@ function numericValueToJs(type: NumericValue, valueConstraint: Type | undefined)
   const canBeANumber = canNumericConstraintBeJsNumber(valueConstraint);
   if (canBeANumber) {
     const asNumber = type.value.asNumber();
-    compilerAssert(
-      asNumber !== null,
-      `Numeric value '${type.value.toString()}' is not able to convert to a number without losing precision.`,
-    );
-    return asNumber;
+    if (asNumber !== null) {
+      return asNumber;
+    }
+    // Open-ended constraints such as `valueof unknown` (used by @example) report
+    // canBeANumber=true, but the literal may still exceed Number.MAX_SAFE_INTEGER.
+    // Fall back to Numeric instead of raising an internal compiler error. Scalars
+    // that require a JS number (int32, float64, ...) reject out-of-range values in
+    // the checker before marshalling.
+    return type.value;
   }
   return type.value;
 }
