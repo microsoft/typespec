@@ -2,6 +2,11 @@ import { $contentTypeDecorator, $dataDecorator, $eventsDecorator } from "./decor
 
 export { $lib } from "./lib.js";
 export { $onValidate } from "./validate.js";
+
+/**
+ * Maps the `TypeSpec.Events` decorator names to their JavaScript implementations
+ * for the TypeSpec library loader.
+ */
 export const $decorators = {
   "TypeSpec.Events": {
     contentType: $contentTypeDecorator,

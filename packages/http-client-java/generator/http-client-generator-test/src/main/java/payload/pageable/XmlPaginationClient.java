@@ -43,13 +43,6 @@ public final class XmlPaginationClient {
 
     /**
      * The listWithContinuation operation.
-     * <p><strong>Query Parameters</strong></p>
-     * <table border="1">
-     * <caption>Query Parameters</caption>
-     * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>marker</td><td>String</td><td>No</td><td>The marker parameter</td></tr>
-     * </table>
-     * You can add these to a request with {@link RequestOptions#addQueryParam}
      * <p><strong>Response Body Schema</strong></p>
      * 
      * <pre>
@@ -98,30 +91,6 @@ public final class XmlPaginationClient {
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<BinaryData> listWithNextLink(RequestOptions requestOptions) {
         return this.serviceClient.listWithNextLink(requestOptions);
-    }
-
-    /**
-     * The listWithContinuation operation.
-     * 
-     * @param marker The marker parameter.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
-     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
-     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
-     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the XML response for listing pets as paginated response with {@link PagedIterable}.
-     */
-    @Generated
-    @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedIterable<XmlPet> listWithContinuation(String marker) {
-        // Generated convenience method for listWithContinuation
-        RequestOptions requestOptions = new RequestOptions();
-        if (marker != null) {
-            requestOptions.addQueryParam("marker", marker, false);
-        }
-        return serviceClient.listWithContinuation(requestOptions)
-            .mapPage(bodyItemValue -> bodyItemValue.toObject(XmlPet.class, XML_SERIALIZER));
     }
 
     /**

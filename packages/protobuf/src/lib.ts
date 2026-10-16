@@ -61,6 +61,10 @@ const EmitterOptionsSchema: JSONSchemaType<ProtobufEmitterOptions> = {
 
 const PACKAGE_NAME = "@typespec/protobuf";
 
+/**
+ * Defines the Protobuf library's diagnostics, emitter option schema, and dry-run capability.
+ * Exposed to the compiler through the package's `$lib` export.
+ */
 export const TypeSpecProtobufLibrary = createTypeSpecLibrary({
   name: PACKAGE_NAME,
   capabilities: {
@@ -262,6 +266,7 @@ export const reportDiagnostic = Object.assign(TypeSpecProtobufLibrary.reportDiag
   },
 });
 
+/** Library type from which the compiler infers the options accepted by the Protobuf emitter. */
 export type TypeSpecProtobufLibrary = typeof TypeSpecProtobufLibrary;
 
 const keys = [

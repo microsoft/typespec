@@ -64,6 +64,7 @@ export class EnumHttpCanonicalization
     return this.engine.subgraphMatchesPredicate(this, predicate);
   }
 
+  /** Supplies the enum's option-based cache key and synthetic trait without selecting a codec. */
   static mutationInfo(
     engine: HttpCanonicalizer,
     sourceType: Enum,
@@ -79,6 +80,10 @@ export class EnumHttpCanonicalization
     };
   }
 
+  /**
+   * Initializes declaration status and projection nodes for the enum.
+   * Use the engine's `canonicalize` method to also traverse and connect its members.
+   */
   constructor(
     engine: HttpCanonicalizer,
     sourceType: Enum,
