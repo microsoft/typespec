@@ -100,9 +100,13 @@ export interface CompileResult {
   readonly tracker: CompileTracker;
 }
 
-/** Compiler diagnostic returned by the custom compilation request with a resolved source location. */
+/** Compiler diagnostic returned by the custom compilation request, with source information when available. */
 export interface ServerDiagnostic extends Diagnostic {
-  /** Resolved diagnostic location, or NoTarget when no source location is available. */
+  /**
+   * Source information when available. Check for a source file before reading offsets,
+   * and honor isSynthetic when interpreting the location. Checking only for NoTarget
+   * does not establish that source fields are available.
+   */
   target:
     | (SourceLocation & {
         /** Human-readable start position when the diagnostic has an associated source file. */
@@ -158,7 +162,11 @@ export interface Server {
   watchedFilesChanged(params: DidChangeWatchedFilesParams): void;
   /** Format an open TypeSpec document using Prettier configuration, falling back to the client's indentation options. */
   formatDocument(params: DocumentFormattingParams): Promise<TextEdit[]>;
-  /** Resolve a symbol's declarations or an import's target file; return an empty list when none is available. */
+  /**
+   * Resolve a symbol's declarations or an import's target file.
+   * Returns an empty list when document analysis is unavailable or the position has no definition.
+   * Import lookup requires a resolvable target and rejects if module resolution fails.
+   */
   gotoDefinition(params: DefinitionParams): Promise<Location[]>;
   /** Compute completion items at the requested position, including configuration-file completions. */
   complete(params: CompletionParams): Promise<CompletionList>;
