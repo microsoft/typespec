@@ -13,28 +13,29 @@ export function TypekitFunction(props: TypekitFunctionProps) {
     return <DiagnosableTypekitFunction typekit={props.typekit} />;
   }
   const path = [`$(program)`, ...props.typekit.path];
+  const parameters = props.typekit.parameters.map(
+    (x) => `${x.rest ? "..." : ""}${x.name}${x.optional ? "?" : ""}: ${x.type}`,
+  );
   const sig =
-    props.typekit.kind === "getter" ? (
-      <></>
-    ) : (
-      <ts.MemberExpression.Part
-        args={props.typekit.parameters!.map((x) => `${x.name}: ${x.typeExcerpt.text}`)}
-      />
-    );
+    props.typekit.kind === "getter" ? <></> : <ts.MemberExpression.Part args={parameters} />;
   return (
     <md.Section heading={props.typekit.name}>
       <List>
         {"```ts"}
-        {props.typekit.docComment?.emitAsTsdoc().trimEnd()}
-        <>
-          <ts.MemberExpression>
-            {path.map((x) => (
-              <ts.MemberExpression.Part id={x} />
-            ))}
-            {sig}
-          </ts.MemberExpression>
-          <>: {props.typekit.returnTypeExcerpt.text};</>
-        </>
+        {props.typekit.docComment}
+        {props.typekit.typeParameters.length ? (
+          `${path.join(".")}<${props.typekit.typeParameters.join(", ")}>(${parameters.join(", ")}): ${props.typekit.returnType};`
+        ) : (
+          <>
+            <ts.MemberExpression>
+              {path.map((x) => (
+                <ts.MemberExpression.Part id={x} />
+              ))}
+              {sig}
+            </ts.MemberExpression>
+            <>: {props.typekit.returnType};</>
+          </>
+        )}
         {"```"}
       </List>
     </md.Section>

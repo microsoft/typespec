@@ -168,7 +168,15 @@ export interface TypeTypekit {
     <K extends Type["kind"] | undefined>(
       reference: string,
       kind?: K,
-    ) => K extends Type["kind"] ? Extract<Type, { kind: K }> : undefined
+    ) => K extends Type["kind"]
+      ? Extract<
+          Type,
+          {
+            /** Discriminant selecting the requested TypeSpec type. */
+            kind: K;
+          }
+        >
+      : undefined
   >;
 }
 

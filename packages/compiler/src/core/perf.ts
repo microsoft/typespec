@@ -26,8 +26,11 @@ export async function timeAsync(fn: () => Promise<void>): Promise<number> {
 
 /** Lightweight elapsed-time utilities that do not retain measurements between calls. */
 export const perf = {
+  /** Start a monotonic timer that reports elapsed milliseconds. */
   startTimer,
+  /** Measure a synchronous callback's elapsed time in milliseconds. */
   time,
+  /** Measure an asynchronous callback's elapsed time in milliseconds. */
   timeAsync,
 };
 

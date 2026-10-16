@@ -17,9 +17,17 @@ export interface Service extends ServiceDetails {
   type: Namespace;
 }
 
-const [getService, setService, getServiceMap] = useStateMap<Namespace, Service>(
-  Symbol.for("@typespec/compiler.services"),
-);
+const [
+  /**
+   * Get the service information for the given namespace.
+   * @param program Program
+   * @param namespace Service namespace
+   * @returns Service information or undefined if namespace is not a service namespace.
+   */
+  getService,
+  setService,
+  getServiceMap,
+] = useStateMap<Namespace, Service>(Symbol.for("@typespec/compiler.services"));
 
 /**
  * Lists services in registration order, excluding namespace clones owned by a realm.
@@ -31,15 +39,7 @@ export function listServices(program: Program): Service[] {
   return [...getServiceMap(program).values()].filter((x) => !Realm.realmForType.has(x.type));
 }
 
-export {
-  /**
-   * Get the service information for the given namespace.
-   * @param program Program
-   * @param namespace Service namespace
-   * @returns Service information or undefined if namespace is not a service namespace.
-   */
-  getService,
-};
+export { getService };
 
 /**
  * Check if the namespace is defined as a service.

@@ -280,10 +280,16 @@ Typekits for working with the top level entity.
  *
  * @param diagnosticTarget - Target for the diagnostic
  */
-$(program).entity
-  .isAssignableTo(source: Entity, target: Entity, diagnosticTarget?: Entity | Node): boolean;
-$(program).entity.isAssignableTo
-  .withDiagnostics(source: Entity, target: Entity, diagnosticTarget?: Entity | Node): [boolean, readonly Diagnostic[]];
+$(program).entity.isAssignableTo(
+  source: Entity,
+  target: Entity,
+  diagnosticTarget?: Entity | Node
+): boolean;
+$(program).entity.isAssignableTo.withDiagnostics(
+  source: Entity,
+  target: Entity,
+  diagnosticTarget?: Entity | Node
+): [boolean, readonly Diagnostic[]];
 ```
 
 ### resolve <Badge variant="note" text="Diagnosable" />
@@ -295,9 +301,9 @@ $(program).entity.isAssignableTo
  *
  * Call `resolve.withDiagnostics("Type")` to get a tuple containing the resolved type and any diagnostics.
  */
-$(program).entity.resolve(): reference: stringEntity | undefined;
+$(program).entity.resolve(reference: string): Entity | undefined;
 $(program).entity.resolve
-  .withDiagnostics(): [reference: stringEntity | undefined, readonly Diagnostic[]];
+  .withDiagnostics(reference: string): [Entity | undefined, readonly Diagnostic[]];
 ```
 
 ## enum
@@ -320,9 +326,7 @@ $(program).enum.create(desc: EnumDescriptor): Enum;
 /**
  * Build an equivalent enum from the given union.
  *
- * @remarks
- *
- * Union variants which are
+ * @remarks Union variants which are
  * not valid enum members are skipped. You can check if a union is a valid
  * enum with {@link UnionKit.union}'s `isEnumValue`.
  *
@@ -352,6 +356,8 @@ A kit for working with enum members.
 ```ts
 /**
  * Create an enum member. The enum member will be finished (i.e. decorators are run).
+ *
+ * @experimental
  */
 $(program).enumMember.create(desc: EnumMemberDescriptor): EnumMember;
 ```
@@ -363,6 +369,8 @@ $(program).enumMember.create(desc: EnumMemberDescriptor): EnumMember;
  * Check if `type` is an enum member type.
  *
  * @param type - the type to check.
+ *
+ * @experimental
  */
 $(program).enumMember.is(type: Entity): type is EnumMember;
 ```
@@ -577,20 +585,28 @@ $(program).model.getDiscriminatedUnion
  * Otherwise, return the input unchanged.
  *
  * This can be used by emitters to find a better name for a set of
- * properties after filtering. For example, given `{  @metadata prop:
+ * properties after filtering. For example, given `{ @metadata prop:
  * string} & SomeName`, and an emitter that wishes to discard properties
  * marked with `@metadata`, the emitter can use this to recover that the
  * best name for the remaining properties is `SomeName`.
  *
  * @param model - The input model
- *
  * @param filter - An optional filter to apply to the input model's
  * properties.
  */
 $(program).model.getEffectiveModel(
   model: Model,
-  filter: (property: ModelProperty) => boolean
+  filter?: (property: ModelProperty) => boolean
 ): Model;
+```
+
+### getIndexType
+
+```ts
+/**
+ * @returns the index type of the model, or undefined if no index type exists.
+ */
+$(program).model.getIndexType(model: Model): Model | undefined;
 ```
 
 ### getProperties
@@ -603,9 +619,9 @@ $(program).model.getEffectiveModel(
  */
 $(program).model.getProperties(
   model: Model,
-  options: {
-          includeExtended?: boolean;
-      }
+  options?: {
+      includeExtended?: boolean;
+  }
 ): RekeyableMap<string, ModelProperty>;
 ```
 
@@ -1400,7 +1416,7 @@ Create and identify tuples, whose ordered elements can each have a different typ
  *
  * @param values - The tuple values, if any.
  */
-$(program).tuple.create(values: Type[]): Tuple;
+$(program).tuple.create(values?: Type[]): Tuple;
 ```
 
 ### is
@@ -1424,7 +1440,7 @@ Inspect type metadata, check assignability, and clone types into the typekit's r
  *
  * @param type - Type to clone
  */
-$(program).type.clone(type: T): T;
+$(program).type.clone<T extends Type>(type: T): T;
 ```
 
 ### finishType
@@ -1456,8 +1472,8 @@ $(program).type.getDoc(type: Type): string | undefined;
  */
 $(program).type.getEncodedName(
   type: Type & {
-          name: string;
-      },
+      name: string;
+  },
   encoding: string
 ): string;
 ```
@@ -1493,7 +1509,6 @@ $(program).type.getSummary(type: Type): string | undefined;
  * Checks if the given type is in the given namespace (directly or indirectly) by walking up the type's namespace chain.
  *
  * @param type - The type to check.
- *
  * @param namespace - The namespace to check membership against.
  *
  * @returns True if the type is in the namespace, false otherwise.
@@ -1524,10 +1539,16 @@ $(program).type.is(entity: Entity): entity is Type;
  *
  * @param diagnosticTarget - Target for the diagnostic
  */
-$(program).type
-  .isAssignableTo(source: Type, target: Entity, diagnosticTarget?: Entity | Node): boolean;
-$(program).type.isAssignableTo
-  .withDiagnostics(source: Type, target: Entity, diagnosticTarget?: Entity | Node): [boolean, readonly Diagnostic[]];
+$(program).type.isAssignableTo(
+  source: Type,
+  target: Entity,
+  diagnosticTarget?: Entity | Node
+): boolean;
+$(program).type.isAssignableTo.withDiagnostics(
+  source: Type,
+  target: Entity,
+  diagnosticTarget?: Entity | Node
+): [boolean, readonly Diagnostic[]];
 ```
 
 ### isError
@@ -1667,14 +1688,12 @@ $(program).type.minValueExclusive(type: Type): number | undefined;
  *
  * @param kind - Optional expected type kind. A resolved type with a different kind causes an error to be thrown.
  */
-$(program).type
-  .resolve(K extends Type): ["kind"] | undefined>(reference: string, kind?: KK extends Type["kind"] ? Extract<Type, {
-        kind: K;
-    }> : undefined;
-$(program).type.resolve
-  .withDiagnostics(K extends Type): [["kind"] | undefined>(reference: string, kind?: KK extends Type["kind"] ? Extract<Type, {
-        kind: K;
-    }> : undefined, readonly Diagnostic[]];
+$(program).type.resolve<K extends Type["kind"] | undefined>(reference: string, kind?: K): K extends Type["kind"] ? Extract<Type, {
+    kind: K;
+}> : undefined;
+$(program).type.resolve.withDiagnostics<K extends Type["kind"] | undefined>(reference: string, kind?: K): [K extends Type["kind"] ? Extract<Type, {
+    kind: K;
+}> : undefined, readonly Diagnostic[]];
 ```
 
 ## union
@@ -1702,8 +1721,6 @@ $(program).union.create(children: Type[]): Union;
 /**
  * Creates a union type from an enum.
  *
- * @remarks
- *
  * @param type - The enum to create a union from.
  *
  * For member without an explicit value, the member name is used as the value.
@@ -1711,6 +1728,8 @@ $(program).union.create(children: Type[]): Union;
  * Any API documentation will be rendered and preserved in the resulting union.
  *
  * No other decorators are copied from the enum to the union.
+ *
+ * @remarks
  */
 $(program).union.createFromEnum(type: Enum): Union;
 ```
@@ -1901,10 +1920,16 @@ $(program).value.isArray(type: Entity): type is ArrayValue;
  *
  * @param diagnosticTarget - Target for the diagnostic
  */
-$(program).value
-  .isAssignableTo(source: Value, target: Entity, diagnosticTarget?: DiagnosticTarget): boolean;
-$(program).value.isAssignableTo
-  .withDiagnostics(source: Value, target: Entity, diagnosticTarget?: DiagnosticTarget): [boolean, readonly Diagnostic[]];
+$(program).value.isAssignableTo(
+  source: Value,
+  target: Entity,
+  diagnosticTarget?: DiagnosticTarget
+): boolean;
+$(program).value.isAssignableTo.withDiagnostics(
+  source: Value,
+  target: Entity,
+  diagnosticTarget?: DiagnosticTarget
+): [boolean, readonly Diagnostic[]];
 ```
 
 ### isBoolean
@@ -1974,10 +1999,16 @@ $(program).value.isObject(type: Entity): type is ObjectValue;
  *
  * @param diagnosticTarget - Target for the diagnostic
  */
-$(program).value
-  .isOfType(source: Value, target: Type, diagnosticTarget?: DiagnosticTarget): boolean;
-$(program).value.isOfType
-  .withDiagnostics(source: Value, target: Type, diagnosticTarget?: DiagnosticTarget): [boolean, readonly Diagnostic[]];
+$(program).value.isOfType(
+  source: Value,
+  target: Type,
+  diagnosticTarget?: DiagnosticTarget
+): boolean;
+$(program).value.isOfType.withDiagnostics(
+  source: Value,
+  target: Type,
+  diagnosticTarget?: DiagnosticTarget
+): [boolean, readonly Diagnostic[]];
 ```
 
 ### isScalar
@@ -2018,12 +2049,10 @@ $(program).value.isString(type: Entity): type is StringValue;
  *
  * @param kind - Optional expected value kind. A resolved value with a different kind causes an error to be thrown.
  */
-$(program).value
-  .resolve(K extends Value): ["valueKind"] | undefined>(reference: string, kind?: KK extends Value["valueKind"] ? Extract<Value, {
-        valueKind: K;
-    }> : undefined;
-$(program).value.resolve
-  .withDiagnostics(K extends Value): [["valueKind"] | undefined>(reference: string, kind?: KK extends Value["valueKind"] ? Extract<Value, {
-        valueKind: K;
-    }> : undefined, readonly Diagnostic[]];
+$(program).value.resolve<K extends Value["valueKind"] | undefined>(reference: string, kind?: K): K extends Value["valueKind"] ? Extract<Value, {
+    valueKind: K;
+}> : undefined;
+$(program).value.resolve.withDiagnostics<K extends Value["valueKind"] | undefined>(reference: string, kind?: K): [K extends Value["valueKind"] ? Extract<Value, {
+    valueKind: K;
+}> : undefined, readonly Diagnostic[]];
 ```

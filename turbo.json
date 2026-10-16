@@ -10,7 +10,14 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "inputs": ["src/**", "lib/**", "tsconfig*.json", "package.json", ".scripts/**"],
+      "inputs": [
+        "src/**",
+        "lib/**",
+        "tsconfig*.json",
+        "package.json",
+        ".scripts/**",
+        "$TURBO_ROOT$/eng/tsp-core/scripts/check-api-docs.ts"
+      ],
       "outputs": ["dist/**"]
     },
     "test": {

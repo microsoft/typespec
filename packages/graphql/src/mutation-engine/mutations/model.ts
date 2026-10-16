@@ -136,6 +136,7 @@ export class GraphQLModelMutation extends SimpleModelMutation<SimpleMutationOpti
     this.flattenBaseModel();
   }
 
+  /** Mutate visible properties and remove hidden properties when a visibility filter is configured. */
   protected override mutateProperties(newOptions: MutationOptions = this.options) {
     const visibilityFilter =
       this.options instanceof GraphQLMutationOptions ? this.options.visibilityFilter : undefined;

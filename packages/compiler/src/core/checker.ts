@@ -379,7 +379,13 @@ export interface Checker {
    */
   createType<T extends (Type extends any ? CreateTypeProps : never)>(
     typeDef: T,
-  ): T & TypePrototype & { isFinished: boolean; readonly entityKind: "Type" };
+  ): T &
+    TypePrototype & {
+      /** Whether decorators and finishing validators have completed for this type. */
+      isFinished: boolean;
+      /** Identifies the entity as a TypeSpec type rather than a value. */
+      readonly entityKind: "Type";
+    };
   /** Create a type and immediately finish it, including running its decorators. */
   createAndFinishType<T extends (Type extends any ? CreateTypeProps : never)>(
     typeDef: T,
@@ -439,8 +445,18 @@ export interface Checker {
   isStdType(
     type: Scalar,
     stdType?: IntrinsicScalarName,
-  ): type is Scalar & { name: IntrinsicScalarName };
-  isStdType(type: Type, stdType?: StdTypeName): type is Type & { name: StdTypeName };
+  ): type is Scalar & {
+    /** Name of the standard scalar. */
+    name: IntrinsicScalarName;
+  };
+  /** Check whether a type is a standard TypeSpec type, optionally matching its name. */
+  isStdType(
+    type: Type,
+    stdType?: StdTypeName,
+  ): type is Type & {
+    /** Name of the standard type. */
+    name: StdTypeName;
+  };
 
   /**
    * Std type

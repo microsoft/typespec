@@ -546,6 +546,7 @@ interface VisibilityFilterCache {
   [VISIBILITY_FILTER]?: VisibilityFilter;
 }
 
+/** Helpers for constructing visibility filters and inspecting their visibility classes. */
 export const VisibilityFilter = {
   /**
    * Convert a TypeSpec `GeneratedVisibilityFilter` value to a `VisibilityFilter`.

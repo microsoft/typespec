@@ -12,7 +12,12 @@ export interface ResolveModuleHost {
    * The result's `isDirectory()` and `isFile()` predicates distinguish package directories
    * from candidate entry-point files. Reject with a host error such as `ENOENT` for a missing path.
    */
-  stat(path: string): Promise<{ isDirectory(): boolean; isFile(): boolean }>;
+  stat(path: string): Promise<{
+    /** Whether the path identifies a directory. */
+    isDirectory(): boolean;
+    /** Whether the path identifies a regular file. */
+    isFile(): boolean;
+  }>;
 
   /**
    * Read a utf-8 encoded file.

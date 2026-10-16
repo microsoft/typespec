@@ -26,7 +26,10 @@ export type InferredTypeSpecValue<K extends TypeKind> =
   : K extends "String" ? string
   : K extends "Number" ? number
   : K extends "Boolean" ? boolean
-  : Type & { kind: K };
+  : Type & {
+    /** Discriminant matching the requested semantic type kind. */
+    kind: K
+  };
 
 /**
  * Validate the decorator target is matching the expected value.
