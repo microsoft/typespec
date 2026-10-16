@@ -1814,7 +1814,10 @@ export interface ConstStatementNode extends BaseNode, DeclarationNode {
   readonly type?: Expression;
   readonly parent?: TypeSpecScriptNode | NamespaceStatementNode;
 }
-/** Invocation of a function or scalar constructor, usable as an expression or call statement. */
+/**
+ * Invocation of a function or scalar constructor in an expression.
+ * Although included in {@link Statement}, the parser does not accept standalone call statements.
+ */
 export interface CallExpressionNode extends BaseNode {
   /** Distinguishes invocation with `(...)` from a name reference with optional `<...>` arguments. */
   readonly kind: SyntaxKind.CallExpression;
