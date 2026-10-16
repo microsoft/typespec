@@ -73,9 +73,17 @@ export interface PlaygroundStateResult {
   content: string;
 
   // State setters
-  /** Rewrite the YAML emitter selection while preserving comments and unrelated configuration. */
+  /**
+   * Rewrite the emitter selection, preserving comments and unrelated settings only for valid mapping YAML.
+   * Empty, invalid, or non-mapping YAML is rebuilt from the requested emitter and current supported
+   * compiler options, discarding comments and unrelated settings.
+   */
   onSelectedEmitterChange: (emitter: string) => void;
-  /** Rewrite supported options in the YAML while preserving comments and unrelated configuration. */
+  /**
+   * Rewrite supported options, preserving comments and unrelated settings only for valid mapping YAML.
+   * Empty, invalid, or non-mapping YAML is rebuilt from the selected emitter and requested supported
+   * compiler options, discarding comments and unrelated settings.
+   */
   onCompilerOptionsChange: (compilerOptions: CompilerOptions) => void;
   /** Store raw YAML unchanged, including incomplete or invalid edits. */
   onTspconfigChange: (tspconfig: string) => void;
@@ -172,8 +180,8 @@ export function usePlaygroundState({
     [updateState],
   );
 
-  // Visual form changes are written back into the YAML, preserving comments and any
-  // fields the form doesn't manage.
+  // Visual form changes preserve comments and unmanaged fields in valid mapping YAML;
+  // otherwise updateTspConfigYaml rebuilds the configuration from structured settings.
   const onSelectedEmitterChange = useCallback(
     (emitter: string) =>
       updateState({ tspconfig: updateTspConfigYaml(tspconfig, emitter, compilerOptions) }),

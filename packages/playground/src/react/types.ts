@@ -11,7 +11,12 @@ export type CompilationCrashed = {
 export type CompileResult = {
   /** Compiled program, which may still contain error diagnostics. */
   readonly program: Program;
-  /** Paths relative to `tsp-output`; the playground may preserve earlier output during transient errors. */
+  /**
+   * Output names under `tsp-output`; the playground may preserve earlier output during transient errors.
+   * Currently, top-level names are `file.json` and nested names include a leading slash, such as
+   * `/folder/file.json`. These are output identifiers, not absolute filesystem paths; read them
+   * through `program.host.readFile("./tsp-output/" + name)` rather than resolving the names as paths.
+   */
   readonly outputFiles: string[];
 };
 /** Distinguish an exception from a returned program by checking for `internalCompilerError`. */
