@@ -14,6 +14,7 @@ import type {
 import type { CookieOptions, PathOptions, QueryOptions } from "../generated-defs/TypeSpec.Http.js";
 import type { HeaderProperty, HttpProperty } from "./http-property.js";
 
+/** HTTP methods supported by operation resolution, normalized to lowercase. */
 export type HttpVerb = "get" | "put" | "post" | "patch" | "delete" | "head";
 
 /**
@@ -320,39 +321,70 @@ export interface HttpServiceAuthentication {
   readonly operationsAuth: Map<Operation, AuthenticationReference>;
 }
 
+/** Namespace or interface that directly contains an operation, including the global namespace. */
 export type OperationContainer = Namespace | Interface;
 
-/** @experimental */
+/**
+ * Overrides method selection during request resolution.
+ * Returning `undefined` falls back to an explicit verb, an overload's verb, or body-based inference.
+ * @experimental
+ */
 export type OperationVerbSelector = (
   program: Program,
   operation: Operation,
 ) => HttpVerb | undefined;
 
-/** @experimental */
+/**
+ * Customizes request parameter resolution without changing the source operation.
+ * @experimental
+ */
 export interface OperationParameterOptions {
+  /** Optional method selector, consulted before the operation's HTTP verb decorator. */
   verbSelector?: OperationVerbSelector;
 }
 
-/** @experimental */
+/**
+ * Options passed to a route producer, including request parameter customization.
+ * Namespace options are shallowly merged from outer to inner scopes, then overridden by call-site options.
+ * @experimental
+ */
 export interface RouteOptions {
-  // Other options can be passed through the interface
+  /** Additional producer-specific options; the default HTTP resolver does not interpret unknown keys. */
   [prop: string]: any;
 
+  /** Options passed to request parameter and method resolution. */
   paramOptions?: OperationParameterOptions;
 }
 
-/** @experimental */
+/**
+ * Route production options with operation-enumeration settings for container queries.
+ * @experimental
+ */
 export interface RouteResolutionOptions extends RouteOptions {
+  /** Options for listing operations; service resolution supplies its own namespace recursion policy. */
   listOptions?: ListOperationOptions;
 }
 
-/** @experimental */
+/**
+ * URI template and request bindings produced together so implicit parameters match the route.
+ * @experimental
+ */
 export interface RouteProducerResult {
+  /** Produced URI template, before the resolver normalizes its leading path separator. */
   uriTemplate: string;
+  /** Resolved request parameters and body, including the selected HTTP method. */
   parameters: HttpOperationParameters;
 }
 
-/** @experimental */
+/**
+ * Callback supplying a URI template and resolved request bindings for an operation.
+ * The caller normalizes the resulting path and validates references to URI parameters.
+ *
+ * @param parentSegments Containing namespace/interface route fragments, ordered outermost first.
+ * @param overloadBase Resolved base operation, if this operation is an overload.
+ * @param options Merged namespace and call-site route options.
+ * @experimental
+ */
 export type RouteProducer = (
   program: Program,
   operation: Operation,
@@ -361,8 +393,11 @@ export type RouteProducer = (
   options: RouteOptions,
 ) => DiagnosticResult<RouteProducerResult>;
 
+/** Wire name and serialization options for a header property. */
 export interface HeaderFieldOptions {
+  /** Identifies header metadata rather than another parameter location. */
   type: "header";
+  /** HTTP header name, which may differ from the TypeSpec property name. */
   name: string;
 
   /**
@@ -377,44 +412,66 @@ export interface HeaderFieldOptions {
   explode?: boolean;
 }
 
+/** Resolved cookie parameter options with an explicit wire name. */
 export interface CookieParameterOptions extends Required<CookieOptions> {
+  /** Identifies a value carried in a cookie. */
   type: "cookie";
+  /** Cookie name; defaults to the property name converted to snake_case. */
   name: string;
 }
 
+/** Query parameter options after resolving the name and defaulting `explode` to false. */
 export interface QueryParameterOptions extends Required<QueryOptions> {
+  /** Identifies a value carried in the URI query. */
   type: "query";
 }
 
+/**
+ * Path parameter options with all defaults resolved: simple style, no expansion,
+ * and reserved characters encoded unless overridden by the decorator or URI template.
+ */
 export interface PathParameterOptions extends Required<PathOptions> {
+  /** Identifies a value interpolated into the URI path. */
   type: "path";
 }
 
+/** A non-body request parameter, discriminated by its HTTP location. */
 export type HttpOperationParameter =
   | HttpOperationHeaderParameter
   | HttpOperationCookieParameter
   | HttpOperationQueryParameter
   | HttpOperationPathParameter;
 
+/** A header's wire representation paired with its source property. */
 export type HttpOperationHeaderParameter = HeaderFieldOptions & {
+  /** TypeSpec property supplying the header value. */
   param: ModelProperty;
 };
+/** A cookie's wire representation paired with its source property. */
 export type HttpOperationCookieParameter = CookieParameterOptions & {
+  /** TypeSpec property supplying the cookie value. */
   param: ModelProperty;
 };
+/** A query parameter's resolved serialization paired with its source property. */
 export type HttpOperationQueryParameter = QueryParameterOptions & {
+  /** TypeSpec property supplying the query value. */
   param: ModelProperty;
 };
+/** A path parameter's resolved URI expansion paired with its source property. */
 export type HttpOperationPathParameter = PathParameterOptions & {
+  /** TypeSpec property supplying the path value and its optionality. */
   param: ModelProperty;
 };
 
+/** Resolved request metadata, non-body parameters, and optional payload for an operation. */
 export interface HttpOperationParameters {
-  /** Http properties */
+  /** Classified request properties, including body properties and nested metadata. */
   readonly properties: HttpProperty[];
 
+  /** Header, cookie, query, and path parameters, including a declared Content-Type header. */
   parameters: HttpOperationParameter[];
 
+  /** Resolved request payload; absent when the request has no body. */
   body?: HttpPayloadBody;
 
   /**
@@ -427,23 +484,32 @@ export interface HttpOperationParameters {
   verb: HttpVerb;
 }
 
+/** HTTP binding of a service namespace and its resolved operations. */
 export interface HttpService {
+  /** Source service namespace, or the global namespace when no service is declared. */
   namespace: Namespace;
+  /** Operations included in the service after HTTP resolution. */
   operations: HttpOperation[];
+  /** Authentication declared directly on the service namespace, when present. */
   authentication?: Authentication;
 }
 
+/** Resolved HTTP endpoint, including its source operation, payloads, and authentication. */
 export interface HttpOperation {
   /**
    * The fully resolved uri template as defined by http://tools.ietf.org/html/rfc6570.
-   * @example "/foo/{bar}/baz{?qux}"
-   * @example "/foo/{+path}"
+   * @example
+   * ```text
+   * /foo/{bar}/baz{?qux}
+   * /foo/{+path}
+   * ```
    */
   readonly uriTemplate: string;
 
   /**
    * Route path.
-   * Not recommended use {@link uriTemplate} instead. This will not work for complex cases like not-escaping reserved chars.
+   * Prefer {@link HttpOperation.uriTemplate}; this legacy form loses URI expansion
+   * details such as reserved-character handling and excludes query expressions.
    */
   path: string;
 
@@ -488,11 +554,15 @@ export interface HttpOperation {
   overloads?: HttpOperation[];
 }
 
+/** Route fragment declared on a namespace, interface, or operation, before parent routes are joined. */
 export interface RoutePath {
+  /** URI template fragment recorded by `@route`. */
   path: string;
+  /** Whether the target operation permits sharing its route with other operations. */
   shared: boolean;
 }
 
+/** Responses grouped under one status code, inclusive range, or default (`"*"`) entry. */
 export interface HttpOperationResponse {
   /**
    * Status code or range of status code for the response.
@@ -500,7 +570,8 @@ export interface HttpOperationResponse {
   statusCodes: HttpStatusCodeRange | number | "*";
 
   /**
-   * Response TypeSpec type.
+   * TypeSpec type that first contributed to this status entry.
+   * Inspect each content entry for the bodies of other variants sharing the status.
    */
   type: Type;
 
@@ -510,16 +581,19 @@ export interface HttpOperationResponse {
   description?: string;
 
   /**
-   * Responses contents.
+   * Content alternatives contributing to this status entry, in resolution order.
    */
   responses: HttpOperationResponseContent[];
 }
 
+/** One response content alternative, with its own headers and optional payload. */
 export interface HttpOperationResponseContent {
-  /** Http properties for this response */
+  /** Classified properties for this alternative, including nested response metadata. */
   readonly properties: HttpProperty[];
 
+  /** Response header properties keyed by their HTTP wire names. */
   headers?: Record<string, ModelProperty>;
+  /** Resolved payload; absent for a response alternative without a body. */
   body?: HttpPayloadBody;
 }
 
@@ -527,6 +601,7 @@ export interface HttpOperationResponseContent {
 export type HttpPayloadBody =
   HttpOperationBody | HttpOperationMultipartBody | HttpOperationFileBody;
 
+/** Source and media-type information shared by single, multipart, and file payloads. */
 export interface HttpOperationBodyBase {
   /** Content types. */
   readonly contentTypes: string[];
@@ -539,7 +614,12 @@ export interface HttpOperationBodyBase {
   readonly property?: ModelProperty;
 }
 
+/** Type and annotation treatment of a single, non-multipart payload. */
 export interface HttpBody {
+  /**
+   * Payload type, which may be a derived model containing only the properties
+   * assigned to an implicit body rather than the original request or response model.
+   */
   readonly type: Type;
 
   /** If the body was explicitly set with `@body`. */
@@ -549,7 +629,9 @@ export interface HttpBody {
   readonly containsMetadataAnnotations: boolean;
 }
 
+/** A single payload value, whether declared with `@body` or inferred from properties. */
 export interface HttpOperationBody extends HttpOperationBodyBase, HttpBody {
+  /** Selects a single structured or scalar payload rather than multipart or file contents. */
   readonly bodyKind: "single";
 }
 
@@ -557,28 +639,43 @@ export interface HttpOperationBody extends HttpOperationBodyBase, HttpBody {
 export type HttpOperationMultipartBody =
   HttpOperationMultipartBodyModel | HttpOperationMultipartBodyTuple;
 
+/** Shared contract for the model and tuple forms of a multipart payload. */
 export interface HttpOperationMultipartBodyCommon extends HttpOperationBodyBase {
+  /** Selects a multipart payload containing independently described parts. */
   readonly bodyKind: "multipart";
   /** Property annotated with `@multipartBody` */
   readonly property: ModelProperty;
+  /** Resolved parts in model-property or tuple-entry order. */
   readonly parts: HttpOperationPart[];
 }
 
+/** Multipart payload whose named model properties each define a part or repeated parts. */
 export interface HttpOperationMultipartBodyModel extends HttpOperationMultipartBodyCommon {
+  /** Selects the named-property form of `@multipartBody`. */
   readonly multipartKind: "model";
+  /** Original model used as the `@multipartBody` property's type. */
   readonly type: Model;
+  /** Resolved model properties in declaration order; parts that cannot be resolved are omitted. */
   readonly parts: HttpOperationModelPart[];
 }
 
+/** Multipart payload whose tuple entries define ordered parts without source properties. */
 export interface HttpOperationMultipartBodyTuple extends HttpOperationMultipartBodyCommon {
+  /** Selects the ordered-tuple form of `@multipartBody`. */
   readonly multipartKind: "tuple";
+  /** Original tuple used as the `@multipartBody` property's type. */
   readonly type: Tuple;
+  /**
+   * Resolved entries in tuple order; parts that cannot be resolved are omitted.
+   * Retained parts may still have diagnostics, such as a missing form-data name.
+   */
   readonly parts: HttpOperationTuplePart[];
 }
 
 /** The possible bodies of a multipart part. */
 export type HttpOperationMultipartPartBody = HttpOperationBody | HttpOperationFileBody;
 
+/** Payload, headers, and cardinality shared by model-property and tuple-entry parts. */
 export interface HttpOperationPartCommon {
   /** Part body */
   readonly body: HttpOperationMultipartPartBody;
@@ -594,10 +691,12 @@ export interface HttpOperationPartCommon {
   readonly optional: boolean;
 }
 
+/** A resolved multipart part, discriminated by whether a model property or tuple entry defined it. */
 export type HttpOperationPart = HttpOperationModelPart | HttpOperationTuplePart;
 
 /** Represents a part in a multipart body that comes from a model property. */
 export interface HttpOperationModelPart extends HttpOperationPartCommon {
+  /** Selects a part defined by a model property. */
   readonly partKind: "model";
   /** Property that defined the part if the model form is used. */
   readonly property: ModelProperty;
@@ -607,6 +706,7 @@ export interface HttpOperationModelPart extends HttpOperationPartCommon {
 
 /** Represents a part in a multipart body that comes from a tuple entry. */
 export interface HttpOperationTuplePart extends HttpOperationPartCommon {
+  /** Selects a part defined by a tuple entry rather than a model property. */
   readonly partKind: "tuple";
   /** Property that defined the part -- always undefined for tuple entry parts. */
   readonly property?: undefined;
@@ -616,6 +716,7 @@ export interface HttpOperationTuplePart extends HttpOperationPartCommon {
  * The type of an HTTP body that is a file upload or download.
  */
 export interface HttpOperationFileBody extends HttpOperationBodyBase {
+  /** Selects raw file contents rather than the file model's structured representation. */
   readonly bodyKind: "file";
   /**
    * The model type of the body that is or extends `Http.File`.
@@ -653,13 +754,21 @@ export interface HttpOperationFileBody extends HttpOperationBodyBase {
   /**
    * The `contents` property.
    */
-  readonly contents: ModelProperty & { type: Scalar };
+  readonly contents: ModelProperty & {
+    /** String or bytes scalar, possibly a derived scalar, determining the file's content representation. */
+    type: Scalar;
+  };
 }
 
+/** Inclusive bounds of an HTTP response status-code range. */
 export interface HttpStatusCodeRange {
+  /** Lowest status code included in the range. */
   start: number;
+  /** Highest status code included in the range. */
   end: number;
 }
 
+/** A response status code, inclusive range, or `"*"` default response. */
 export type HttpStatusCodesEntry = HttpStatusCodeRange | number | "*";
+/** Status entries extracted from a property or collected for a response type. */
 export type HttpStatusCodes = HttpStatusCodesEntry[];
