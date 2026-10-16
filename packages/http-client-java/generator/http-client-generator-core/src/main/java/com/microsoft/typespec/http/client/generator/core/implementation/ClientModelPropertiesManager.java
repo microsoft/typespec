@@ -145,7 +145,8 @@ public final class ClientModelPropertiesManager {
                 discriminatorProperty = new ClientModelPropertyWithMetadata(model, property, true);
             }
 
-            if (!property.isPolymorphicDiscriminator()) {
+            // Untagged intermediates retain inherited discriminator values without selecting subtypes.
+            if (!property.isPolymorphicDiscriminator() || !model.isPolymorphic()) {
                 if (thisModelPropertySerializeNames.contains(property.getSerializedName())) {
                     // skip the property from parent that is overwritten in this model
                     continue;
@@ -250,7 +251,7 @@ public final class ClientModelPropertiesManager {
         // a discriminator. This results in the discriminator property being serialized and deserialized twice as it
         // shows up once as a regular property and once as a discriminator property. This will remove the regular
         // property from the super properties and indicate that the discriminator came from a parent model.
-        if (discriminatorProperty != null) {
+        if (model.isPolymorphic() && discriminatorProperty != null) {
             String serializedDiscriminatorName = discriminatorProperty.getProperty().getSerializedName();
             ClientModelProperty removed;
             if ((removed = superRequiredProperties.remove(serializedDiscriminatorName)) != null) {

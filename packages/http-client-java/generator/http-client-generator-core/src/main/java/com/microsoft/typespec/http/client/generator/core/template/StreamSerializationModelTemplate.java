@@ -261,17 +261,16 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
                 continue;
             }
             propertySerializedNames.add(parentProperty.getSerializedName());
-            boolean inheritedXmlDiscriminator = model.getXmlName() != null
-                && !model.isPolymorphic()
+            boolean inheritedDiscriminator = !model.isPolymorphic()
                 && propertiesManager.getDiscriminatorProperty() != null
                 && Objects.equals(parentProperty.getSerializedName(),
                     propertiesManager.getDiscriminatorProperty().getProperty().getSerializedName());
-            if ((!parentProperty.isPolymorphicDiscriminator() || inheritedXmlDiscriminator)
+            if ((!parentProperty.isPolymorphicDiscriminator() || inheritedDiscriminator)
                 // Polymorphic models receive their discriminator fields separately.
                 && ClientModelUtil.readOnlyNotInCtor(model, parentProperty, propertiesManager.getSettings())
                 // we shadow parent read-only properties in child class
                 || parentProperty.getClientFlatten()) { // we shadow parent flattened property in child class
-                fieldProperties.add(inheritedXmlDiscriminator
+                fieldProperties.add(inheritedDiscriminator
                     ? parentProperty.newBuilder().polymorphicDiscriminator(false).build()
                     : parentProperty);
             }
@@ -1069,7 +1068,7 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
 
                     // Add deserialization for all child types.
                     List<ClientModel> directChildTypes = model.getDirectPolymorphicDerivedModels();
-                    List<ClientModel> childTypes = getAllChildTypes(model, new ArrayList<>());
+                    List<ClientModel> childTypes = model.getPolymorphicDerivedModels();
                     for (ClientModel childType : childTypes) {
                         // Determine which serialization method to use based on whether the child type is also a
                         // polymorphic
@@ -1091,9 +1090,12 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
                             continue;
                         }
 
-                        String deserializationMethod = (isSuperTypeWithDiscriminator(childType) && sameDiscriminator)
-                            ? ".fromJsonKnownDiscriminator(readerToUse.reset())"
-                            : ".fromJson(readerToUse.reset())";
+                        // Known-discriminator helpers are package-private.
+                        String deserializationMethod = (isSuperTypeWithDiscriminator(childType)
+                            && sameDiscriminator
+                            && Objects.equals(childType.getPackage(), model.getPackage()))
+                                ? ".fromJsonKnownDiscriminator(readerToUse.reset())"
+                                : ".fromJson(readerToUse.reset())";
 
                         ifBlock = ifOrElseIf(tryStatement, ifBlock,
                             "\"" + childType.getSerializedName() + "\".equals(discriminatorValue)",
@@ -1110,19 +1112,6 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
             });
 
             readJsonObject(classBlock, true, this::writeFromJsonDeserialization);
-        }
-
-        private static List<ClientModel> getAllChildTypes(ClientModel model, List<ClientModel> childTypes) {
-            for (ClientModel childType : model.getDerivedModels()) {
-                if (childType.getPolymorphicDiscriminatorName() != null) {
-                    childTypes.add(childType);
-                }
-                if (!CoreUtils.isNullOrEmpty(childType.getDerivedModels())) {
-                    getAllChildTypes(childType, childTypes);
-                }
-            }
-
-            return childTypes;
         }
 
         /**
@@ -2221,7 +2210,7 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
 
                 // Add deserialization for all child types.
                 List<ClientModel> directChildTypes = model.getDirectPolymorphicDerivedModels();
-                List<ClientModel> childTypes = getAllChildTypes(model, new ArrayList<>());
+                List<ClientModel> childTypes = model.getPolymorphicDerivedModels();
                 for (ClientModel childType : childTypes) {
                     boolean sameDiscriminator = Objects.equals(childType.getPolymorphicDiscriminatorName(),
                         model.getPolymorphicDiscriminatorName());
@@ -2229,9 +2218,11 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
                         continue;
                     }
 
-                    String deserializationMethod = (isSuperTypeWithDiscriminator(childType) && sameDiscriminator)
-                        ? ".fromXmlInternal(reader, finalRootElementName)"
-                        : ".fromXml(reader, finalRootElementName)";
+                    String deserializationMethod = (isSuperTypeWithDiscriminator(childType)
+                        && sameDiscriminator
+                        && Objects.equals(childType.getPackage(), model.getPackage()))
+                            ? ".fromXmlInternal(reader, finalRootElementName)"
+                            : ".fromXml(reader, finalRootElementName)";
                     ifBlock = ifOrElseIf(methodBlock, ifBlock,
                         "\"" + childType.getSerializedName() + "\".equals(discriminatorValue)",
                         ifStatement -> ifStatement.methodReturn(childType.getName() + deserializationMethod));

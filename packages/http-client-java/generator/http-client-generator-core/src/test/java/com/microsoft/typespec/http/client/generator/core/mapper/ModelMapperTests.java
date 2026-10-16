@@ -65,8 +65,23 @@ public class ModelMapperTests {
     }
 
     @ParameterizedTest
-    @CsvSource({ "1,false", "1,true", "2,false", "2,true" })
-    public void untaggedIntermediatesDoNotSelectDiscriminatorValues(int depth, boolean shareJsonCode) throws Exception {
+    @CsvSource({
+        "1,false,false,false,false",
+        "1,true,false,false,false",
+        "2,false,false,false,false",
+        "2,true,false,false,false",
+        "1,false,true,false,false",
+        "1,true,true,false,false",
+        "2,false,true,false,false",
+        "2,true,true,false,false",
+        "1,false,true,true,false",
+        "1,true,true,true,false",
+        "1,false,true,false,true",
+        "1,true,true,false,true",
+        "1,false,true,true,true",
+        "1,true,true,true,true" })
+    public void untaggedIntermediatesDoNotSelectDiscriminatorValues(int depth, boolean shareJsonCode,
+        boolean crossPackage, boolean taggedParent, boolean xml) throws Exception {
         configureJsonSharing(shareJsonCode);
         ObjectSchema root = object("PetBase", null);
         discriminator(root, "kind");
@@ -78,10 +93,21 @@ public class ModelMapperTests {
                 parent.getProperties().add(property("coat", new StringSchema()));
             }
         }
+        if (taggedParent) {
+            parent = object("Feline", parent);
+            parent.setDiscriminatorValue("feline");
+            parent.getLanguage().getJava().setNamespace("com.azure.feline");
+        }
         ObjectSchema cat = object("Cat", parent);
+        if (crossPackage) {
+            cat.getLanguage().getJava().setNamespace("com.azure.cat");
+        }
         cat.setDiscriminatorValue("cat");
         cat.getProperties().add(property("kind", constant("cat")));
         cat.getProperties().add(property("sound", new StringSchema()));
+        if (xml) {
+            configureXml(root);
+        }
 
         ClientModel mappedRoot = ModelMapper.getInstance().map(root);
         ClientModel mappedCat = ClientModels.getInstance().getModel("Cat");
@@ -100,39 +126,51 @@ public class ModelMapperTests {
                 Map.of("kind", "cat", "name", "Milo", "coat", "tabby", "sound", "meow"));
             Assertions.assertEquals("tabby", deserialized.getClass().getMethod("getCoat").invoke(deserialized));
             Assertions.assertEquals("meow", deserialized.getClass().getMethod("getSound").invoke(deserialized));
+            if (taggedParent) {
+                assertRoundTrip(loader, mappedRoot, ClientModels.getInstance().getModel("Feline"),
+                    Map.of("kind", "feline", "name", "Milo", "coat", "tabby"));
+            }
         }
     }
 
     @ParameterizedTest
     @CsvSource({
-        "0,0,false,false",
-        "0,0,true,false",
-        "1,0,false,false",
-        "1,0,true,false",
-        "2,0,false,false",
-        "2,0,true,false",
-        "0,1,false,false",
-        "0,1,true,false",
-        "0,2,false,false",
-        "0,2,true,false",
-        "1,1,false,false",
-        "1,1,true,false",
-        "1,2,false,false",
-        "1,2,true,false",
-        "2,1,false,false",
-        "2,1,true,false",
-        "2,2,false,false",
-        "2,2,true,false",
-        "0,0,false,true",
-        "0,0,true,true",
-        "1,0,false,true",
-        "1,0,true,true",
-        "0,1,false,true",
-        "0,1,true,true",
-        "1,1,false,true",
-        "1,1,true,true" })
+        "0,0,false,false,false",
+        "0,0,true,false,false",
+        "1,0,false,false,false",
+        "1,0,true,false,false",
+        "2,0,false,false,false",
+        "2,0,true,false,false",
+        "0,1,false,false,false",
+        "0,1,true,false,false",
+        "0,2,false,false,false",
+        "0,2,true,false,false",
+        "1,1,false,false,false",
+        "1,1,true,false,false",
+        "1,2,false,false,false",
+        "1,2,true,false,false",
+        "2,1,false,false,false",
+        "2,1,true,false,false",
+        "2,2,false,false,false",
+        "2,2,true,false,false",
+        "0,0,false,true,false",
+        "0,0,true,true,false",
+        "1,0,false,true,false",
+        "1,0,true,true,false",
+        "0,1,false,true,false",
+        "0,1,true,true,false",
+        "1,1,false,true,false",
+        "1,1,true,true,false",
+        "1,0,false,false,true",
+        "1,0,true,false,true",
+        "1,1,false,false,true",
+        "1,1,true,false,true",
+        "1,0,false,true,true",
+        "1,0,true,true,true",
+        "1,1,false,true,true",
+        "1,1,true,true,true" })
     public void nestedDiscriminatorsCrossUntaggedIntermediates(int before, int after, boolean shareJsonCode,
-        boolean xml) throws Exception {
+        boolean xml, boolean crossPackage) throws Exception {
         configureJsonSharing(shareJsonCode);
         Map<String, String> expected = new LinkedHashMap<>(
             Map.of("kind", "message", "role", "assistant", "name", "root", "body", "hello", "answer", "42"));
@@ -159,6 +197,10 @@ public class ModelMapperTests {
             expected.put("after" + i, "after" + i);
         }
         ObjectSchema assistant = object("Assistant", parent);
+        if (crossPackage) {
+            message.getLanguage().getJava().setNamespace("com.azure.message");
+            assistant.getLanguage().getJava().setNamespace("com.azure.assistant");
+        }
         assistant.setDiscriminatorValue("assistant");
         Property role = property("role", constant("assistant"));
         role.setRequired(true);
@@ -182,21 +224,25 @@ public class ModelMapperTests {
             }
             expected.put("role", "unknown");
             assertRoundTrip(loader, mappedRoot, ClientModels.getInstance().getModel("Message"), expected);
-            if (xml) {
-                Map<String, String> beforeProperties = new LinkedHashMap<>(Map.of("kind", "unknown", "name", "root"));
-                for (int i = 0; i < before; i++) {
-                    beforeProperties.put("before" + i, "before" + i);
-                    ClientModel intermediate = ClientModels.getInstance().getModel("Before" + i);
-                    Object value = assertRoundTrip(loader, intermediate, intermediate, beforeProperties);
-                    Assertions.assertEquals("unknown", value.getClass().getMethod("getKind").invoke(value));
-                }
-                Map<String, String> afterProperties = new LinkedHashMap<>(expected);
-                for (int i = 0; i < after; i++) {
-                    afterProperties.put("after" + i, "after" + i);
-                    ClientModel intermediate = ClientModels.getInstance().getModel("After" + i);
-                    Object value = assertRoundTrip(loader, intermediate, intermediate, afterProperties);
-                    Assertions.assertEquals("unknown", value.getClass().getMethod("getRole").invoke(value));
-                }
+            Map<String, String> beforeProperties = new LinkedHashMap<>(Map.of("kind", "unknown", "name", "root"));
+            for (int i = 0; i < before; i++) {
+                beforeProperties.put("before" + i, "before" + i);
+                ClientModel intermediate = ClientModels.getInstance().getModel("Before" + i);
+                Object value = assertRoundTrip(loader, intermediate, intermediate, beforeProperties);
+                Assertions.assertEquals("unknown", value.getClass().getMethod("getKind").invoke(value));
+                Map<String, String> knownProperties = new LinkedHashMap<>(beforeProperties);
+                knownProperties.put("kind", "message");
+                assertRoundTrip(loader, intermediate, intermediate, knownProperties);
+            }
+            Map<String, String> afterProperties = new LinkedHashMap<>(expected);
+            for (int i = 0; i < after; i++) {
+                afterProperties.put("after" + i, "after" + i);
+                ClientModel intermediate = ClientModels.getInstance().getModel("After" + i);
+                Object value = assertRoundTrip(loader, intermediate, intermediate, afterProperties);
+                Assertions.assertEquals("unknown", value.getClass().getMethod("getRole").invoke(value));
+                Map<String, String> knownProperties = new LinkedHashMap<>(afterProperties);
+                knownProperties.put("role", "assistant");
+                assertRoundTrip(loader, intermediate, intermediate, knownProperties);
             }
             assertRoundTrip(loader, mappedRoot, mappedRoot, Map.of("kind", "assistant", "name", "root"));
         }

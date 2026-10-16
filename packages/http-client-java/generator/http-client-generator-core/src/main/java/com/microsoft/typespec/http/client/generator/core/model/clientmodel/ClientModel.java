@@ -372,6 +372,24 @@ public class ClientModel {
     }
 
     /**
+     * Gets all polymorphic descendants, skipping untagged intermediate models.
+     *
+     * @return All polymorphic descendants.
+     */
+    public final List<ClientModel> getPolymorphicDerivedModels() {
+        List<ClientModel> models = new ArrayList<>();
+        for (ClientModel child : derivedModels) {
+            if (child.getPolymorphicDiscriminatorName() != null) {
+                models.add(child);
+            }
+            if (!CoreUtils.isNullOrEmpty(child.getDerivedModels())) {
+                models.addAll(child.getPolymorphicDerivedModels());
+            }
+        }
+        return models;
+    }
+
+    /**
      * Gets the name that will be used for this model's XML element representation.
      *
      * @return The name that will be used for this model's XML element representation.
@@ -502,6 +520,7 @@ public class ClientModel {
             if (getDerivedModels() != null && getDerivedModels().size() > 0) {
                 imports.add("com.fasterxml.jackson.annotation.JsonSubTypes");
                 getDerivedModels().forEach(m -> imports.add(m.getFullName()));
+                getPolymorphicDerivedModels().forEach(m -> imports.add(m.getFullName()));
             }
         }
 
