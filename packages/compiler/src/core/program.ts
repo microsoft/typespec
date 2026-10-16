@@ -89,7 +89,7 @@ export type CompilationStage = "parsing" | "checking" | "validating" | "linting"
 
 /** A compilation's source files, semantic type graph, diagnostics, and library-owned state. */
 export interface Program {
-  /** Options used by this compilation, including resolved defaults. */
+  /** A shallow copy of the options supplied to this compilation; omitted options remain absent. */
   compilerOptions: CompilerOptions;
   /** @internal */
   mainFile?: TypeSpecScriptNode;

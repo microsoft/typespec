@@ -40,10 +40,10 @@ export interface NavigationOptions {
   visitDerivedTypes?: boolean;
 }
 
-/** Restrict a semantic traversal to a namespace and, by default, its descendants. */
+/** Configure namespace filtering for the callbacks registered during a semantic traversal. */
 export interface NamespaceNavigationOptions {
   /**
-   * Exclude types declared in child namespaces, restricting traversal to the given namespace.
+   * Restrict namespace-bearing callbacks to declarations directly in the selected namespace.
    * @default false
    */
   skipSubNamespaces?: boolean;
@@ -86,8 +86,10 @@ export function navigateType(
 }
 
 /**
- * Scope the current navigation to the given namespace.
- * @param namespace Namespace the traversal shouldn't leave.
+ * Filter registered callbacks whose targets have a namespace, including enum members via their enum.
+ * Only those callbacks can prune traversal. Register container callbacks (such as `model` when
+ * collecting `modelProperty`) or check namespace membership in the callbacks you consume.
+ * @param namespace Namespace used to filter callbacks.
  * @param listeners Type listeners.
  * @param options Scope options
  * @returns wrapped listeners that that can be used with `navigateType`
@@ -115,7 +117,11 @@ export function scopeNavigationToNamespace<T extends SemanticNodeListener>(
   return wrappedListeners as any;
 }
 
-/** Traverse types in a namespace, preventing traversal into unrelated namespaces. */
+/**
+ * Traverse types starting at a namespace, filtering supplied callbacks with {@link scopeNavigationToNamespace}.
+ * Partial listeners do not guarantee namespace isolation: register namespace-bearing container callbacks
+ * to prune references to other namespaces, or check membership in the callbacks you consume.
+ */
 export function navigateTypesInNamespace(
   namespace: Namespace,
   listeners: SemanticNodeListener,

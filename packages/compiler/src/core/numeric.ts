@@ -1,7 +1,8 @@
 /** An immutable numeric value that preserves precision beyond JavaScript's `number` range. */
 export interface Numeric {
   /**
-   * Return the value as JavaScript number or null if it cannot be represented without loosing precision.
+   * Convert to a JavaScript number, returning null when a finite conversion loses precision.
+   * Throws on overflow to infinity. Use {@link Numeric.toString} to retain the precise value without conversion.
    */
   asNumber(): number | null;
   /** Convert an integer to a signed bigint, or return null for a fractional value. */

@@ -48,9 +48,9 @@ export function getMinValueAsNumeric(program: Program, target: Type): Numeric | 
 }
 
 /**
- * Get the minimum value for a numeric type.
- * If the value cannot be represented as a JS number(Overflow) undefined will be returned
- * See {@link getMinValueAsNumeric} to get the precise value
+ * Read the numeric `@minValue` constraint as a JavaScript number.
+ * Returns undefined when no numeric constraint is stored or a finite conversion loses precision;
+ * throws on numeric overflow. Use {@link getMinValueAsNumeric} to avoid number conversion.
  */
 export function getMinValue(program: Program, target: Type): number | undefined {
   return getMinValueAsNumeric(program, target)?.asNumber() ?? undefined;
@@ -80,9 +80,9 @@ export function getMaxValueAsNumeric(program: Program, target: Type): Numeric | 
 }
 
 /**
- * Get the maximum value for a numeric type.
- * If the value cannot be represented as a JS number(Overflow) undefined will be returned
- * See {@link getMaxValueAsNumeric} to get the precise value
+ * Read the numeric `@maxValue` constraint as a JavaScript number.
+ * Returns undefined when no numeric constraint is stored or a finite conversion loses precision;
+ * throws on numeric overflow. Use {@link getMaxValueAsNumeric} to avoid number conversion.
  */
 export function getMaxValue(program: Program, target: Type): number | undefined {
   return getMaxValueAsNumeric(program, target)?.asNumber() ?? undefined;
@@ -115,9 +115,9 @@ export function getMinValueExclusiveAsNumeric(program: Program, target: Type): N
 }
 
 /**
- * Get the minimum value exclusive for a numeric type.
- * If the value cannot be represented as a JS number(Overflow) undefined will be returned
- * See {@link getMinValueExclusiveAsNumeric} to get the precise value
+ * Read the numeric `@minValueExclusive` constraint as a JavaScript number.
+ * Returns undefined when no numeric constraint is stored or a finite conversion loses precision;
+ * throws on numeric overflow. Use {@link getMinValueExclusiveAsNumeric} to avoid number conversion.
  */
 export function getMinValueExclusive(program: Program, target: Type): number | undefined {
   return getMinValueExclusiveAsNumeric(program, target)?.asNumber() ?? undefined;
@@ -150,9 +150,9 @@ export function getMaxValueExclusiveAsNumeric(program: Program, target: Type): N
 }
 
 /**
- * Get the maximum value exclusive for a numeric type.
- * If the value cannot be represented as a JS number(Overflow) undefined will be returned
- * See {@link getMaxValueExclusiveAsNumeric} to get the precise value
+ * Read the numeric `@maxValueExclusive` constraint as a JavaScript number.
+ * Returns undefined when no numeric constraint is stored or a finite conversion loses precision;
+ * throws on numeric overflow. Use {@link getMaxValueExclusiveAsNumeric} to avoid number conversion.
  */
 export function getMaxValueExclusive(program: Program, target: Type): number | undefined {
   return getMaxValueExclusiveAsNumeric(program, target)?.asNumber() ?? undefined;
@@ -174,8 +174,9 @@ export function getMinLengthAsNumeric(program: Program, target: Type): Numeric |
 }
 
 /**
- * Read the target's `@minLength` constraint, or undefined if absent or not exactly representable
- * as a JavaScript number. Use {@link getMinLengthAsNumeric} to preserve precision.
+ * Read `@minLength` as a JavaScript number.
+ * Returns undefined when absent or when a finite conversion loses precision; throws on numeric overflow.
+ * Use {@link getMinLengthAsNumeric} to avoid number conversion.
  */
 export function getMinLength(program: Program, target: Type): number | undefined {
   return getMinLengthAsNumeric(program, target)?.asNumber() ?? undefined;
@@ -197,8 +198,9 @@ export function getMaxLengthAsNumeric(program: Program, target: Type): Numeric |
 }
 
 /**
- * Read the target's `@maxLength` constraint, or undefined if absent or not exactly representable
- * as a JavaScript number. Use {@link getMaxLengthAsNumeric} to preserve precision.
+ * Read `@maxLength` as a JavaScript number.
+ * Returns undefined when absent or when a finite conversion loses precision; throws on numeric overflow.
+ * Use {@link getMaxLengthAsNumeric} to avoid number conversion.
  */
 export function getMaxLength(program: Program, target: Type): number | undefined {
   return getMaxLengthAsNumeric(program, target)?.asNumber() ?? undefined;
@@ -216,8 +218,9 @@ export function getMinItemsAsNumeric(program: Program, target: Type): Numeric | 
 }
 
 /**
- * Read `@minItems` as a JavaScript number, or undefined if absent or not exactly representable.
- * Use {@link getMinItemsAsNumeric} to preserve precision.
+ * Read `@minItems` as a JavaScript number.
+ * Returns undefined when absent or when a finite conversion loses precision; throws on numeric overflow.
+ * Use {@link getMinItemsAsNumeric} to avoid number conversion.
  */
 export function getMinItems(program: Program, target: Type): number | undefined {
   return getMinItemsAsNumeric(program, target)?.asNumber() ?? undefined;
@@ -235,8 +238,9 @@ export function getMaxItemsAsNumeric(program: Program, target: Type): Numeric | 
 }
 
 /**
- * Read `@maxItems` as a JavaScript number, or undefined if absent or not exactly representable.
- * Use {@link getMaxItemsAsNumeric} to preserve precision.
+ * Read `@maxItems` as a JavaScript number.
+ * Returns undefined when absent or when a finite conversion loses precision; throws on numeric overflow.
+ * Use {@link getMaxItemsAsNumeric} to avoid number conversion.
  */
 export function getMaxItems(program: Program, target: Type): number | undefined {
   return getMaxItemsAsNumeric(program, target)?.asNumber() ?? undefined;
