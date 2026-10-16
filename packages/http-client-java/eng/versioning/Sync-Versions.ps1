@@ -68,7 +68,7 @@ function Update-VersionFiles
         $content = [System.IO.File]::ReadAllText($file)
         if ($file -eq $javaFile)
         {
-            $pattern = '(?m)(?<prefix>^\s*[A-Z][A-Z_]*\("(?<group>[^"]+)",\s*"(?<artifact>[^"]+)",\s*")(?<version>[^"]+)(?<suffix>"\)[,;])'
+            $pattern = '(?m)(?<prefix>^\s*[A-Z][A-Z_0-9]*\("(?<group>[^"]+)",\s*"(?<artifact>[^"]+)",\s*")(?<version>[^"]+)(?<suffix>"\)[,;])'
         }
         else
         {

@@ -15,6 +15,7 @@ function Assert-Equal($Expected, $Actual)
 $clientVersions = Read-Versions @'
 # Released version precedes the development version.
 com.azure:azure-core;1.2.3;1.3.0-beta.1
+com.azure.v2:azure-client-sdk-parent;2.0.0-beta.2;2.0.0-beta.3
 io.clientcore:core;1.0.0-beta.11;1.0.0-beta.12
 '@
 $externalVersions = Read-Versions @'
@@ -24,6 +25,7 @@ org.mockito:mockito-core;5.0.0
 '@
 $packages = Read-Versions @'
 com.azure:azure-core
+com.azure.v2:azure-client-sdk-parent
 io.clientcore:core
 net.bytebuddy:byte-buddy
 org.mockito:mockito-core;4.11.0
@@ -99,6 +101,7 @@ try
     }
     $javaFile = Join-Path $javaDirectory 'Project.java'
     $java = "        AZURE_CORE(`"com.azure`", `"azure-core`", `"old`"),`n" +
+        "        AZURE_CLIENT_SDK_PARENT_V2(`"com.azure.v2`", `"azure-client-sdk-parent`", `"old-v2`"),`n" +
         "        CLIENTCORE(`"io.clientcore`", `"core`", `"old`");`n"
     [System.IO.File]::WriteAllText($javaFile, $java)
 
@@ -115,7 +118,7 @@ try
         Assert-Equal $expected ([System.IO.File]::ReadAllText($file))
     }
     Assert-Equal $pom ([System.IO.File]::ReadAllText((Join-Path $target 'pom.xml')))
-    Assert-Equal ($java.Replace('"old"),', '"1.2.3"),').Replace('"old");', '"1.0.0-beta.11");')) `
+    Assert-Equal ($java.Replace('"old"),', '"1.2.3"),').Replace('"old");', '"1.0.0-beta.11");').Replace('"old-v2"', '"2.0.0-beta.2"')) `
         ([System.IO.File]::ReadAllText($javaFile))
 
     $modified = (Get-Item $javaFile).LastWriteTimeUtc
