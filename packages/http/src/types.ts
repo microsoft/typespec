@@ -559,7 +559,7 @@ export interface HttpOperationMultipartBodyModel extends HttpOperationMultipartB
   readonly multipartKind: "model";
   /** Original model used as the `@multipartBody` property's type. */
   readonly type: Model;
-  /** Resolved model properties in declaration order; invalid parts are omitted with diagnostics. */
+  /** Resolved model properties in declaration order; parts that cannot be resolved are omitted. */
   readonly parts: HttpOperationModelPart[];
 }
 
@@ -569,7 +569,10 @@ export interface HttpOperationMultipartBodyTuple extends HttpOperationMultipartB
   readonly multipartKind: "tuple";
   /** Original tuple used as the `@multipartBody` property's type. */
   readonly type: Tuple;
-  /** Resolved entries in tuple order; invalid parts are omitted with diagnostics. */
+  /**
+   * Resolved entries in tuple order; parts that cannot be resolved are omitted.
+   * Retained parts may still have diagnostics, such as a missing form-data name.
+   */
   readonly parts: HttpOperationTuplePart[];
 }
 
