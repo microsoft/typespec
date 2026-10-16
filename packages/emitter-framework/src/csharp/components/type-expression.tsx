@@ -8,10 +8,17 @@ import { reportCsharpDiagnostic } from "../lib.js";
 import { getNullableUnionInnerType } from "./utils/nullable-util.js";
 import { efRefkey } from "./utils/refkey.js";
 
+/** TypeSpec source to render at a C# type-use site rather than as a declaration. */
 export interface TypeExpressionProps {
+  /** Type to reference or map to a C# intrinsic, collection, or nullable expression. */
   type: Type;
 }
 
+/**
+ * Renders a C# type reference or expression, honoring reference overrides.
+ * Named declarations must be present in the Alloy tree for reference resolution.
+ * Unsupported shapes report a diagnostic and fall back to `object`; requires a TypeSpec context.
+ */
 export function TypeExpression(props: TypeExpressionProps): Children {
   return (
     <Experimental_OverridableComponent reference type={props.type}>
@@ -91,6 +98,11 @@ function TypeExpressionBody(props: TypeExpressionProps): Children {
   return "object";
 }
 
+/**
+ * Mutable mapping from standard TypeSpec scalar/intrinsic names to C# expressions.
+ * Used by {@link getScalarIntrinsicExpression}; missing, empty, or null entries cause
+ * its diagnostic and `object` fallback. UTC date-time handling is resolved separately.
+ */
 const intrinsicNameToCSharpType = new Map<string, string | null>([
   // Core types
   ["unknown", "object"], // Matches C#'s `object`
@@ -130,6 +142,11 @@ const intrinsicNameToCSharpType = new Map<string, string | null>([
   ["url", "Uri"], // Matches C#'s `Uri`
 ]);
 
+/**
+ * Maps an intrinsic or a scalar's standard base to a C# type spelling.
+ * UTC date-time scalars map to `DateTimeOffset`; other scalars use
+ * {@link intrinsicNameToCSharpType}. Unmapped types report a diagnostic and return `object`.
+ */
 export function getScalarIntrinsicExpression($: Typekit, type: Scalar | IntrinsicType): string {
   let intrinsicName: string;
 
