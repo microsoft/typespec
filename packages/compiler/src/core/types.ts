@@ -1476,7 +1476,10 @@ export interface TypeSpecScriptNode extends BaseNode {
   readonly parseOptions: ParseOptions; // Options used to parse this file
 }
 
-/** Syntax allowed in a statement list, including declarations, calls, and error-recovery nodes. */
+/**
+ * AST node variants representable in a statement list, including declarations and recovery nodes.
+ * The union also includes call expressions, but the parser does not accept standalone call statements.
+ */
 export type Statement =
   | ImportStatementNode
   | ModelStatementNode
