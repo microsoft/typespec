@@ -2484,9 +2484,11 @@ type UnionToIntersection<T> = (T extends any ? (k: T) => void : never) extends (
   ? I
   : never;
 
+/** Traversal control returned by semantic listeners when the navigation API honors callback results. */
 export enum ListenerFlow {
   /**
-   * Do not navigate any containing or referenced type.
+   * Skip recursive traversal from the current type, and its exit callback when
+   * that navigation path checks this result. This does not stop the whole walk.
    */
   NoRecursion = 1,
 }
@@ -2500,6 +2502,12 @@ type ListenerForType<T extends Type> = T extends Type
   ? { [k in Uncapitalize<T["kind"]> | exitListener<T["kind"]>]?: TypeListener<T> }
   : never;
 
+/**
+ * Optional synchronous callbacks keyed by uncapitalized type kind, such as `model`,
+ * and corresponding exit names, such as `exitModel`.
+ * Entry callbacks run before following the type's relationships; exit callbacks,
+ * where emitted by the walker, run afterward. This walks the semantic graph, not syntax.
+ */
 export type TypeListeners = UnionToIntersection<ListenerForType<Type>>;
 
 type ValueListener<V> = (context: V) => ListenerFlow | undefined | void;
@@ -2508,9 +2516,15 @@ type ListenerForValue<V extends Value> = V extends Value
   ? { [k in Uncapitalize<V["valueKind"]> | exitValueListener<V["valueKind"]>]?: ValueListener<V> }
   : never;
 
+/**
+ * Optional synchronous callbacks keyed by uncapitalized value kind and corresponding
+ * exit names. A callback is invoked only when the selected navigation API visits that value.
+ */
 export type ValueListeners = UnionToIntersection<ListenerForValue<Value>>;
 
+/** Callbacks for semantic navigation, with an optional program-level entry event. */
 export type SemanticNodeListener = {
+  /** Called once by program navigation before visiting the global namespace. */
   root?: (context: Program) => void | undefined;
 } & TypeListeners &
   ValueListeners;
@@ -2638,6 +2652,7 @@ export interface DiagnosticCreator<T extends { [code: string]: DiagnosticMessage
 export type TypeOfDiagnostics<T extends DiagnosticMap<any>> =
   T extends DiagnosticMap<infer D> ? D : never;
 
+/** JSON Schema typed against an emitter's options, used to validate configured option values. */
 export type JSONSchemaType<T> = AjvJSONSchemaType<T>;
 
 /**
@@ -2657,6 +2672,7 @@ export interface JSONSchemaValidator {
   ): Diagnostic[];
 }
 
+/** Metadata for a library state key whose symbol is created with the library. */
 export interface StateDef {
   /**
    * Description for this state.
@@ -2664,11 +2680,17 @@ export interface StateDef {
   readonly description?: string;
 }
 
+/** Opt-in compiler behavior supported by a library or emitter. */
 export interface TypeSpecLibraryCapabilities {
-  /** Only applicable for emitters. Specify that this emitter will respect the dryRun flag and run, report diagnostic but not write any output.  */
+  /**
+   * Allows an emitter to run during dry-run compilation. The emitter must inspect
+   * the program's dry-run option and avoid writing output while still reporting diagnostics.
+   * Emitters without this capability are skipped in dry-run mode.
+   */
   readonly dryRun?: boolean;
 }
 
+/** Definition supplied to {@link createTypeSpecLibrary} and typically exported as `$lib`. */
 export interface TypeSpecLibraryDef<
   T extends { [code: string]: DiagnosticMessages },
   E extends Record<string, any> = Record<string, never>,
@@ -2702,12 +2724,14 @@ export interface TypeSpecLibraryDef<
   readonly requireImports?: readonly string[];
 
   /**
-   * Emitter configuration if library is an emitter.
+   * Emitter configuration if library is an emitter. Its optional `options` JSON Schema
+   * validates custom configuration before the emitter runs; omit it when no schema is supplied.
    */
   readonly emitter?: {
     options?: JSONSchemaType<E>;
   };
 
+  /** Named state definitions used to create the corresponding symbols in the library's `stateKeys` map. */
   readonly state?: Record<State, StateDef>;
 }
 
@@ -2725,7 +2749,9 @@ export interface TypeSpecLibraryDef<
  * ```
  */
 export interface DecoratorImplementations {
+  /** Implementations grouped by fully qualified TypeSpec namespace, not JavaScript module path. */
   readonly [namespace: string]: {
+    /** Decorator implementations keyed by their TypeSpec names, without the JavaScript `$` prefix. */
     readonly [name: string]: DecoratorFunction;
   };
 }
@@ -2736,20 +2762,31 @@ export interface FunctionImplementations {
   };
 }
 
+/** Extension point for package-level flags exported as `$flags`; no flags are currently predefined. */
 export interface PackageFlags {}
 
+/** A library's `$linter` export: available rules and optional named rule-set configurations. */
 export interface LinterDefinition {
+  /** Rule definitions in registration order; listing a rule does not enable it. */
   rules: LinterRuleDefinition<string, DiagnosticMessages, any>[];
+  /** Named presets consumers can extend, with names local to this library. */
   ruleSets?: Record<string, LinterRuleSet>;
 }
 
+/** Loaded linter definition with library-qualified rule IDs and a materialized rule-set map. */
 export interface LinterResolvedDefinition {
+  /** Rules in definition order, each with its library-qualified ID. */
   readonly rules: LinterRule<string, DiagnosticMessages, any>[];
+  /**
+   * Named presets. A nonempty rule list gets an `"all"` preset enabling every rule
+   * unless the library explicitly defines one; otherwise this map may be empty.
+   */
   readonly ruleSets: {
     [name: string]: LinterRuleSet;
   };
 }
 
+/** Shared diagnostic metadata and option configuration for synchronous and asynchronous rules. */
 interface LinterRuleDefinitionBase<
   N extends string,
   DM extends DiagnosticMessages,
@@ -2776,10 +2813,11 @@ interface LinterRuleDefinitionBase<
    * When provided, options will be validated against this schema before the rule runs.
    */
   optionSchema?: Record<string, unknown>;
-  /** Default options for the rule, used when enabled with `true` and no options are specified. */
+  /** Defaults used with `true` and shallowly merged with explicitly configured option properties. */
   defaultOptions?: Options;
 }
 
+/** Rule whose navigation callbacks and post-navigation `exit` callback must all complete synchronously. */
 interface LinterRuleDefinitionSync<
   N extends string,
   DM extends DiagnosticMessages,
@@ -2787,25 +2825,38 @@ interface LinterRuleDefinitionSync<
 > extends LinterRuleDefinitionBase<N, DM, Options> {
   /** Whether this is an async rule. Default is false */
   async?: false;
-  /** Creator */
+  /**
+   * Creates a fresh listener before navigation. Its optional `exit` callback runs
+   * after the walk with the program. Linter dispatch ignores listener return values,
+   * including {@link ListenerFlow.NoRecursion}.
+   */
   create(
     context: LinterRuleContext<DM, Options>,
   ): SemanticNodeListener & { exit?: (context: Program) => void | undefined };
 }
 
+/**
+ * Rule run in the asynchronous-rule pass after synchronous rules finish.
+ * Navigation callbacks remain synchronous; only the post-navigation `exit` callback may return a promise.
+ */
 interface LinterRuleDefinitionAsync<
   N extends string,
   DM extends DiagnosticMessages,
   Options extends Record<string, unknown> = Record<string, never>,
 > extends LinterRuleDefinitionBase<N, DM, Options> {
-  /** Whether this is an async rule. Default is false */
+  /** Enables awaiting the promise returned by the post-navigation `exit` callback. */
   async: true;
-  /** Creator */
+  /**
+   * Creates a fresh listener before navigation. `exit` runs after the walk, and
+   * its promise is awaited before the asynchronous-rule pass completes.
+   * Linter dispatch ignores navigation callback return values.
+   */
   create(
     context: LinterRuleContext<DM, Options>,
   ): SemanticNodeListener & { exit?: (context: Program) => Promise<void | undefined> };
 }
 
+/** Rule definition discriminated by whether its post-navigation callback can perform asynchronous work. */
 export type LinterRuleDefinition<
   N extends string,
   DM extends DiagnosticMessages,
@@ -2818,11 +2869,11 @@ export type LinterRule<
   DM extends DiagnosticMessages,
   Options extends Record<string, unknown> = Record<string, never>,
 > = LinterRuleDefinition<N, DM, Options> & {
-  /** Expanded rule id in format `<library-name>:<rule-name>` */
+  /** Expanded rule ID in the form `<library-name>/<rule-name>`, used as its diagnostic code. */
   id: string;
 };
 
-/** Reference to a rule. In this format `<library name>:<rule/ruleset name>` */
+/** Library-qualified reference in the form `<library-name>/<rule-or-ruleset-name>`. */
 export type RuleRef = `${string}/${string}`;
 
 /**
@@ -2838,31 +2889,41 @@ export type RuleSetRef = RuleRef | RuleSetFileRef;
 /**
  * Value for enabling a linter rule.
  * - `true` enables the rule with default options.
- * - An object enables the rule with the specified options.
+ * - `false` skips enabling the rule; it does not disable a rule enabled by an extended preset.
+ * - An object enables the rule with its properties shallowly merged over default options.
  */
 export type LinterRuleEnableValue = boolean | Record<string, unknown>;
 
+/** Preset applied by extending other rule sets, then applying local enable and disable entries. */
 export interface LinterRuleSet {
-  /** Other ruleset this ruleset extends */
+  /** Rule sets to apply first, in array order, before this preset's own entries. */
   extends?: RuleSetRef[];
 
-  /** Rules to enable/configure */
+  /** Rules to enable/configure, keyed by library-qualified reference. Entries set to `false` are ignored. */
   enable?: Record<RuleRef, LinterRuleEnableValue>;
 
-  /** Rules to disable. A rule CANNOT be in enable and disable map. */
+  /** Rules to disable, with explanatory strings as values. A rule cannot also be enabled in this preset. */
   disable?: Record<RuleRef, string>;
 }
 
+/** Per-run rule context providing resolved options and a rule-scoped diagnostic collector. */
 export interface LinterRuleContext<
   DM extends DiagnosticMessages,
   Options extends Record<string, unknown> = Record<string, never>,
 > {
+  /** Program being linted; report rule findings through this context rather than directly to the program. */
   readonly program: Program;
-  /** Options configured for this rule. */
+  /** Configured properties merged over rule defaults, or an empty object when neither is provided. */
   readonly options: Options;
+  /**
+   * Formats a warning using this rule's ID and messages and adds it to the linter's results.
+   * Only targets belonging to the user project are collected: library, compiler,
+   * synthetic, and {@link NoTarget} findings are ignored. The program later reports collected findings.
+   */
   reportDiagnostic<M extends keyof DM>(diag: LinterRuleDiagnosticReport<DM, M>): void;
 }
 
+/** Requires a `format` substitution map when the selected rule message is callable. */
 export type LinterRuleDiagnosticFormat<
   T extends DiagnosticMessages,
   M extends keyof T = "default",
@@ -2871,19 +2932,27 @@ export type LinterRuleDiagnosticFormat<
     ? { format: Record<A[number], string> }
     : Record<string, unknown>;
 
+/** Rule finding before its source target is attached; the context supplies the rule code and severity. */
 export type LinterRuleDiagnosticReportWithoutTarget<
   T extends DiagnosticMessages,
   M extends keyof T = "default",
 > = {
+  /** Message variant to use; omitted selects `"default"`. */
   messageId?: M;
+  /** Optional actions offered with the finding, without executing them during linting. */
   codefixes?: CodeFix[];
 } & LinterRuleDiagnosticFormat<T, M>;
 
+/**
+ * Rule finding with a source-location target. Although {@link NoTarget} is accepted
+ * by the shape, the linter only collects findings whose targets belong to the user project.
+ */
 export type LinterRuleDiagnosticReport<
   T extends DiagnosticMessages,
   M extends keyof T = "default",
 > = LinterRuleDiagnosticReportWithoutTarget<T, M> & { target: DiagnosticTarget | typeof NoTarget };
 
+/** Library definition enriched with diagnostic, state-key, and tracing helpers by {@link createTypeSpecLibrary}. */
 export interface TypeSpecLibrary<
   T extends { [code: string]: DiagnosticMessages },
   E extends Record<string, any> = Record<string, never>,
@@ -2898,10 +2967,12 @@ export interface TypeSpecLibrary<
    */
   readonly emitterOptionValidator?: JSONSchemaValidator;
 
+  /** Creates a library-qualified diagnostic and reports it through the program's reporting policies. */
   reportDiagnostic<C extends keyof T, M extends keyof T[C]>(
     program: Program,
     diag: DiagnosticReport<T, C, M>,
   ): void;
+  /** Creates a library-qualified diagnostic without reporting it; the caller owns reporting or returning it. */
   createDiagnostic<C extends keyof T, M extends keyof T[C]>(
     diag: DiagnosticReport<T, C, M>,
   ): Diagnostic;
@@ -2918,6 +2989,7 @@ export interface TypeSpecLibrary<
    */
   getTracer(program: Program): Tracer;
 
+  /** Symbols for declared state names, registered as `<library-name>/<state-name>` for program state maps and sets. */
   readonly stateKeys: Record<State, symbol>;
 }
 

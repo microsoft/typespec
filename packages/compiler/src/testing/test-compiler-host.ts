@@ -7,6 +7,10 @@ import { resolveVirtualPath } from "./fs.js";
 import type { TestFileSystem, TypeSpecTestLibrary } from "./types.js";
 import { TestHostError } from "./types.js";
 
+/**
+ * File mappings for the compiler's built JavaScript support and standard TypeSpec library.
+ * `createTestHost` and modern testers mount these files automatically.
+ */
 // eslint-disable-next-line @typescript-eslint/no-deprecated
 export const StandardTestLibrary: TypeSpecTestLibrary = {
   name: "@typespec/compiler",
@@ -26,9 +30,13 @@ export const StandardTestLibrary: TypeSpecTestLibrary = {
   ],
 };
 
+/** Filesystem lookup and host customization for {@link createTestFileSystem}. */
 export interface TestHostOptions {
+  /** Make file and JavaScript-module lookups case-insensitive. Defaults to case-sensitive lookup. */
   caseInsensitiveFileSystem?: boolean;
+  /** Omit the test-decorator library directory from the host's library search paths. Defaults to `false`. */
   excludeTestLib?: boolean;
+  /** Replace individual host operations; overrides are applied after the virtual host's defaults. */
   compilerHostOverrides?: Partial<CompilerHost>;
 }
 

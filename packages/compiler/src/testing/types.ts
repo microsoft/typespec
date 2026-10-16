@@ -7,22 +7,30 @@ import type { GetMarkedEntities, TemplateWithMarkers } from "./marked-template.j
 
 // #region Test file system
 
-/** Represent a mock file. Use `mockFile` function to construct */
+/** File contents, or JavaScript exports created with {@link mockFile.js} instead of evaluated source. */
 export type MockFile = string | JsFile;
 
+/** An in-memory JavaScript module whose exports are supplied directly to the compiler. */
 export interface JsFile {
+  /** Distinguishes module exports from a text file. */
   readonly kind: "js";
+  /** Named exports returned when the compiler imports this module. */
   readonly exports: Record<string, any>;
 }
 
+/**
+ * Virtual files and JavaScript modules used by a test compilation.
+ * Relative paths resolve under {@link resolveVirtualPath}'s platform-specific test root.
+ */
 export interface TestFileSystem {
-  /** Raw files */
+  /** Mutable text-file contents keyed by resolved paths; JavaScript modules have empty text. */
   readonly fs: Map<string, string>;
-  /** Compiler host */
+  /** Host that reads and writes this filesystem and resolves its registered JavaScript exports. */
   readonly compilerHost: CompilerHost;
 
   /**
-   * Add a mock test file
+   * Add or replace a text file or JavaScript module at the given virtual path.
+   * JavaScript source passed as a string is not evaluated; use {@link mockFile.js} for modules.
    * @example
    * ```ts
    * fs.add("foo.tsp", "model Foo {}");
@@ -31,13 +39,17 @@ export interface TestFileSystem {
    */
   add(path: string, content: MockFile): void;
 
-  /** Prefer using {@link add} */
+  /** Add or replace a text file. Prefer {@link add} for both text and JavaScript mocks. */
   addTypeSpecFile(path: string, contents: string): void;
-  /** Prefer using {@link add} */
+  /** Register JavaScript exports without evaluating source. Prefer {@link add} with {@link mockFile.js}. */
   addJsFile(path: string, contents: Record<string, any>): void;
+  /** Copy UTF-8 contents from a real filesystem path to a virtual path. */
   addRealTypeSpecFile(path: string, realPath: string): Promise<void>;
+  /** Import a real JavaScript module and register its exports at a virtual path. */
   addRealJsFile(path: string, realPath: string): Promise<void>;
+  /** Recursively copy a real folder, importing `.js` files as modules and reading other files as text. */
   addRealFolder(path: string, realPath: string): Promise<void>;
+  /** Mount the library's file mappings, loading TypeSpec/JSON as text and JavaScript as module exports. */
   // eslint-disable-next-line @typescript-eslint/no-deprecated
   addTypeSpecLibrary(testLibrary: TypeSpecTestLibrary): Promise<void>;
 
@@ -51,6 +63,11 @@ export interface TestFileSystem {
 //#endregion
 
 // #region Tester
+/**
+ * A compilation's marked entities together with its program, typekit, filesystem, and source positions.
+ * Typed markers infer named result properties; plain fourslash markers and `@test` also collect entities.
+ * Use unique marker names that do not collide with the result's metadata properties.
+ */
 export type TestCompileResult<T extends Record<string, Entity>> = T & {
   /** The program created in this test compilation. */
   readonly program: Program;
@@ -58,24 +75,29 @@ export type TestCompileResult<T extends Record<string, Entity>> = T & {
   /** The typekit for this compilation. */
   readonly $: Typekit;
 
-  /** File system */
+  /** The mutable filesystem used by this compilation, including any emitted files. */
   readonly fs: TestFileSystem;
 
-  /** Position of all markers */
+  /** Markers keyed by name, with offsets into the full compiled files, including added code and marker comments. */
   readonly pos: Record<keyof T | string, PositionedMarkerInFile>;
 } & Record<string, Entity>;
 
+/** Per-compilation settings layered over the tester's defaults. */
 export interface TestCompileOptions {
-  /** Optional compiler options */
+  /**
+   * Overrides tester defaults with a shallow merge; `configFile` is also shallow-merged separately.
+   * Other nested option objects are replaced rather than deep-merged.
+   */
   readonly compilerOptions?: CompilerOptions;
 }
 
+/** Compilation operations shared by reusable testers and their mutable instances. */
 interface Testable {
   /**
-   * Compile the given code and validate no diagnostics(error or warnings) are present.
+   * Compile the given code and assert that there are no warnings or errors.
    * Use {@link compileAndDiagnose} to get the compiler result and manage diagnostics yourself.
    *
-   * @param code Can be the content of the `main.tsp` file or a record of files(MUST contains a main.tsp).
+   * @param code Contents of `main.tsp`, or virtual files including `main.tsp`. Additional files must be imported to be compiled.
    * @param options Optional test options.
    * @returns {@link TestCompileResult} with the program and collected entities.
    *
@@ -93,8 +115,9 @@ interface Testable {
     options?: TestCompileOptions,
   ): Promise<TestCompileResult<GetMarkedEntities<T>>>;
   /**
-   * Compile the given code and return the list of diagnostics emitted.
-   * @param code Can be the content of the `main.tsp` file or a record of files(MUST contains a main.tsp).
+   * Compile the given `main.tsp` contents and return warnings and errors without asserting they are absent.
+   * Marker resolution and kind validation still run and can throw.
+   * @param main Contents of `main.tsp`.
    * @param options Optional test options.
    * @returns List of diagnostics emitted.
    *
@@ -110,9 +133,10 @@ interface Testable {
   diagnose(main: string, options?: TestCompileOptions): Promise<readonly Diagnostic[]>;
 
   /**
-   * Compile the given code and return the collected entities and diagnostics.
+   * Compile the given code and return the collected entities and diagnostics without asserting success.
+   * Marker resolution and kind validation still run and can throw even when diagnostics are returned.
    *
-   * @param code Can be the content of the `main.tsp` file or a record of files(MUST contains a main.tsp).
+   * @param code Contents of `main.tsp`, or virtual files including `main.tsp`. Additional files must be imported to be compiled.
    * @param options Optional test options.
    * @returns {@link TestCompileResult} with the program and collected entities with the list of diagnostics emitted.
    *
@@ -131,44 +155,58 @@ interface Testable {
   ): Promise<[TestCompileResult<GetMarkedEntities<T>>, readonly Diagnostic[]]>;
 }
 
+/** Immutable configuration steps; each returns a new tester without changing the original. */
 export interface TesterBuilder<T> {
-  /** Extend with the given list of files */
+  /** Add or replace virtual files for subsequent compilations; does not automatically import them. */
   files(files: Record<string, MockFile>): T;
-  /** Auto import all libraries defined in this tester. */
+  /** Append imports for the libraries configured at tester creation to `main.tsp`. */
   importLibraries(): T;
-  /** Import the given paths */
+  /** Append imports to the generated `main.tsp` prefix, in the supplied order. */
   import(...imports: string[]): T;
-  /** Add using statement for the given namespaces. */
+  /** Append `using` statements after the generated imports in `main.tsp`. */
   using(...names: string[]): T;
-  /** Wrap the code of the `main.tsp` file */
+  /** Transform only `main.tsp` contents, in chaining order, before imports and usings are prepended. */
   wrap(fn: (x: string) => string): T;
 }
 
-// Immutable structure meant to be reused
+/**
+ * Reusable, immutable test configuration. Each compilation creates a fresh mutable instance.
+ * Use {@link createInstance} to add files directly or retain a filesystem across compilations.
+ */
 export interface Tester extends Testable, TesterBuilder<Tester> {
   /**
-   * Create an emitter tester
+   * Create a tester that runs the named emitter and collects its output files.
+   * The emitter must be available in the virtual filesystem, for example through the configured libraries.
    * @param options - Options to pass to the emitter
    */
   emit(emitter: string, options?: Record<string, unknown>): EmitterTester;
-  /** Create an instance of the tester */
+  /** Create an isolated mutable filesystem with this tester's libraries, files, and configuration. */
   createInstance(): Promise<TesterInstance>;
 }
 
+/** Program and collected text files produced by an emitter test before any `pipe` transformation. */
 export interface TestEmitterCompileResult {
   /** The program created in this test compilation. */
   readonly program: Program;
 
-  /** Files written to the emitter output dir. */
+  /** Text files under the emitter output directory, keyed by paths relative to that directory. */
   readonly outputs: Record<string, string>;
 }
 
+/**
+ * Compilation operations returning emitter output or its piped representation.
+ * Strings provide `main.tsp`; file records must supply it or use one already in the instance filesystem.
+ * The configured emitter is run with `outputDir` set to `tsp-output`; per-call `emit` is rejected.
+ */
 export interface OutputTestable<Result> {
+  /** Compile and return the output, asserting that there are no warnings or errors. */
   compile(code: string | Record<string, string>, options?: TestCompileOptions): Promise<Result>;
+  /** Compile and process the output, returning it with all diagnostics without asserting success. */
   compileAndDiagnose(
     code: string | Record<string, string>,
     options?: TestCompileOptions,
   ): Promise<[Result, readonly Diagnostic[]]>;
+  /** Compile and process the output, returning only diagnostics without asserting success. */
   diagnose(
     code: string | Record<string, string>,
     options?: TestCompileOptions,
@@ -197,24 +235,26 @@ export interface EmitterTester<Result = TestEmitterCompileResult>
   createInstance(): Promise<EmitterTesterInstance<Result>>;
 }
 
+/** Mutable test state shared by ordinary and emitter-specific instances. */
 export interface TesterInstanceBase {
-  /** Program created. Only available after calling `compile`, `diagnose` or `compileAndDiagnose` */
+  /** Most recently compiled program; throws until a compilation has produced a program. */
   get program(): Program;
 
-  /** The typekit for this compilation. Only available after calling `compile`, `diagnose` or `compileAndDiagnose` */
+  /** Typekit for the most recently compiled program; throws before a program is available. */
   get $(): Typekit;
 
-  /** File system used */
+  /** Mutable filesystem retained across calls; files not overwritten by a compilation remain present. */
   readonly fs: TestFileSystem;
 }
-/** Instance of a tester.  */
+/** Mutable compilation state created by {@link Tester.createInstance}, isolated from other instances. */
 export interface TesterInstance extends TesterInstanceBase, Testable {}
 
-/** Instance of an emitter tester */
+/** Mutable state for repeated emitter compilations, including retained input and output files. */
 export interface EmitterTesterInstance<Result> extends TesterInstanceBase, OutputTestable<Result> {}
 
+/** A marker's location in a virtual input file after tester transformations have been applied. */
 export interface PositionedMarkerInFile extends PositionedMarker {
-  /** The file where the marker is located */
+  /** Input filename as supplied to the tester, such as `main.tsp`; resolve it with {@link resolveVirtualPath}. */
   readonly filename: string;
 }
 
@@ -234,12 +274,18 @@ export interface TestHost extends Pick<
   | "compilerHost"
   | "fs"
 > {
+  /** Most recently compiled program; accessing it before any compilation throws. */
   program: Program;
+  /** Libraries registered on this host, excluding the automatically mounted standard library. */
   libraries: TypeSpecTestLibrary[];
+  /** Mutable collection populated by `@test` decorators and retained across host compilations. */
   testTypes: Record<string, Type>;
 
+  /** Compile a previously added virtual entrypoint and return collected test types, asserting no diagnostics. */
   compile(main: string, options?: CompilerOptions): Promise<Record<string, Type>>;
+  /** Compile a previously added virtual entrypoint and return all warnings and errors. */
   diagnose(main: string, options?: CompilerOptions): Promise<readonly Diagnostic[]>;
+  /** Compile a virtual entrypoint and return the host's collected test types together with diagnostics. */
   compileAndDiagnose(
     main: string,
     options?: CompilerOptions,
@@ -248,42 +294,55 @@ export interface TestHost extends Pick<
 
 /** @deprecated Use {@link Tester} */
 export interface TestFiles {
+  /** Directory to search, relative to the library's real package root. */
   realDir: string;
+  /** Glob selecting paths within `realDir`; test and spec source files are excluded. */
   pattern: string;
+  /** Destination directory in the virtual filesystem, preserving the matched relative paths. */
   virtualPath: string;
 }
 
 /** @deprecated Use {@link Tester} */
 export interface TypeSpecTestLibraryInit {
+  /** Package name used as the virtual `node_modules` directory name. */
   name: string;
+  /** Real package directory from which the manifest, TypeSpec sources, and JavaScript are loaded. */
   packageRoot: string;
   /**
-   * Folder @default "lib"
+   * TypeSpec source folder relative to `packageRoot`; recursively includes `.tsp` files.
+   * @default "lib"
    */
   typespecFileFolder?: string;
 
   /**
-   * JS files folder. @default "dist/src"
+   * JavaScript folder relative to `packageRoot`; recursively includes `.js` modules.
+   * @default "dist/src"
    */
   jsFileFolder?: string;
 }
 
 /** @deprecated Use {@link Tester} */
 export interface TypeSpecTestLibrary {
+  /** Package name used by legacy wrappers when generating default imports. */
   name: string;
+  /** Real package root against which each file mapping's `realDir` is resolved. */
   packageRoot: string;
+  /** Ordered mappings that mount selected real files into the virtual filesystem. */
   files: TestFiles[];
 }
 
 /** @deprecated Use {@link Tester} */
 export interface TestHostConfig {
+  /** Additional libraries to mount after the standard library; omitted to load only compiler support. */
   libraries?: TypeSpecTestLibrary[];
 }
 
 /** @deprecated Use {@link Tester} */
 export class TestHostError extends Error {
+  /** Create a virtual-host lookup failure with the corresponding filesystem or module error code. */
   constructor(
     message: string,
+    /** Distinguishes a missing virtual file from an unregistered JavaScript module. */
     public code: "ENOENT" | "ERR_MODULE_NOT_FOUND",
   ) {
     super(message);
@@ -292,26 +351,29 @@ export class TestHostError extends Error {
 
 /** @deprecated Use {@link TesterInstance} */
 export interface BasicTestRunner {
+  /** Most recently compiled program from the underlying host; throws before the first compilation. */
   readonly program: Program;
+  /** Mutable virtual text files, keyed by resolved paths and shared with the underlying host. */
   readonly fs: Map<string, string>;
 
   /**
-   * Position to offset the automatically added code.
+   * UTF-16 length of the generated import/using prefix prepended to each input.
+   * Does not include code introduced by a custom wrapper.
    */
   readonly autoCodeOffset: number;
 
   /**
-   * Compile the given code and assert no diagnostics are present.
+   * Wrap the input as `main.tsp` and return collected test types, asserting no warnings or errors.
    */
   compile(code: string, options?: CompilerOptions): Promise<Record<string, Type>>;
 
   /**
-   * Compile the code and return the list of diagnostics.
+   * Wrap the input as `main.tsp` and return all diagnostics without asserting success.
    */
   diagnose(code: string, options?: CompilerOptions): Promise<readonly Diagnostic[]>;
 
   /**
-   * Compile the code and return the test types as well as the list of diagnostics.
+   * Wrap the input as `main.tsp` and return the host's collected test types and all diagnostics.
    */
   compileAndDiagnose(
     code: string,
