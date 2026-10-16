@@ -119,10 +119,15 @@ export function resolveOptionsFromConfig(config: TypeSpecConfig, options: Config
   );
   validateConfigPathsAbsolute(expandedConfig).forEach((x) => diagnostics.add(x));
 
+  // A programmatic linter override has no YAML source. Keep an explicit empty
+  // source map so diagnostics do not reuse source metadata from the config it replaced.
+  const configFile =
+    options.overrides?.linter === undefined ? config : { ...config, linterSource: {} };
+
   const resolvedOptions: CompilerOptions = omitUndefined({
     outputDir: expandedConfig.outputDir,
     config: config.filename,
-    configFile: config,
+    configFile,
     additionalImports: expandedConfig["imports"],
     warningAsError: expandedConfig.warnAsError,
     trace: expandedConfig.trace,
