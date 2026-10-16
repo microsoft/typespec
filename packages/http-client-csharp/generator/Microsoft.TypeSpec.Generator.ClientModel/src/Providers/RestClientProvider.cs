@@ -1244,7 +1244,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         internal static List<ParameterProvider> GetMethodParameters(
             InputServiceMethod serviceMethod,
             ScmMethodKind methodType,
-            ClientProvider client)
+            ClientProvider client,
+            bool applyBackCompat = true)
         {
             SortedList<int, ParameterProvider> sortedParams = [];
             int path = 0;
@@ -1314,13 +1315,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 if (serviceMethod is InputPagingServiceMethod)
                 {
                     // Rename "top" parameter to "maxCount" (with backward compatibility).
-                    if (string.Equals(inputParam.OriginalName, TopParameterName, StringComparison.OrdinalIgnoreCase))
+                    if (applyBackCompat && string.Equals(inputParam.OriginalName, TopParameterName, StringComparison.OrdinalIgnoreCase))
                     {
                         UpdateParameterNameWithBackCompat(inputParam, MaxCountParameterName, client.BackCompatProvider, serviceMethod);
                     }
 
                     // Ensure page size parameter uses the correct casing (with backward compatibility)
-                    if (pageSizeParameterName != null && string.Equals(inputParam.OriginalName, pageSizeParameterName, StringComparison.OrdinalIgnoreCase))
+                    if (applyBackCompat && pageSizeParameterName != null && string.Equals(inputParam.OriginalName, pageSizeParameterName, StringComparison.OrdinalIgnoreCase))
                     {
                         var updatedPageSizeParameterName = pageSizeParameterName.Equals(MaxPageSizeParameterName, StringComparison.OrdinalIgnoreCase)
                             ? MaxPageSizeParameterName
@@ -1336,7 +1337,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 // generalizes back-compat name preservation beyond the paging-specific renames
                 // above so that any rename emitted by the generator falls back to the prior name
                 // when one was already published.
-                UpdateParameterNameWithBackCompat(inputParam, inputParam.Name, client.BackCompatProvider, serviceMethod);
+                if (applyBackCompat)
+                {
+                    UpdateParameterNameWithBackCompat(inputParam, inputParam.Name, client.BackCompatProvider, serviceMethod);
+                }
 
                 ParameterProvider? parameter = ScmCodeModelGenerator.Instance.TypeFactory.CreateParameter(inputParam)?.ToPublicInputParameter();
                 if (parameter is null)
@@ -1390,7 +1394,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     case ParameterLocation.Query:
                     case ParameterLocation.Header:
                         if (IsContentTypeParameter(inputParam)
-                            && !HasContentTypeBeforeBodyInLastContract(serviceMethod, client.BackCompatProvider))
+                            && (!applyBackCompat || !HasContentTypeBeforeBodyInLastContract(serviceMethod, client.BackCompatProvider)))
                         {
                             sortedParams.Add(contentType++, parameter);
                         }

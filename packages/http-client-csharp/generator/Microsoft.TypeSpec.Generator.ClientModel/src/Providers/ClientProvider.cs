@@ -114,6 +114,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         public ClientProvider(InputClient inputClient)
         {
             _inputClient = inputClient;
+            IsMultiServiceClient = _inputClient.IsMultiServiceClient;
             CleanOperationNames(inputClient);
 
             _inputAuth = ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Auth;
@@ -125,8 +126,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 && DeclarationModifiers.HasFlag(TypeSignatureModifiers.Public)
                 ? new ClientSettingsProvider(_inputClient, this)
                 : null;
-            IsMultiServiceClient = _inputClient.IsMultiServiceClient;
-
             var apiKey = _inputAuth?.ApiKey;
             var keyCredentialType = ScmCodeModelGenerator.Instance.TypeFactory.ClientPipelineApi.KeyCredentialType;
             if (apiKey != null && keyCredentialType != null)
@@ -248,26 +247,28 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return serviceMethod.Operation.Name;
             }
 
-            var operationName = (serviceMethod.Operation.OriginalName ?? serviceMethod.Operation.Name).ToIdentifierName();
-            // Replace List with Get as .NET convention is to use Get for list operations.
-            if (operationName == "List")
-            {
-                operationName = "GetAll";
-            }
-            else if (operationName.StartsWith("List", StringComparison.Ordinal) &&
-                operationName.Length > 4 && char.IsUpper(operationName[4]))
-            {
-                // If the operation name starts with List and has a capital letter after it, we replace List with Get.
-                operationName = $"Get{operationName.Substring(4)}";
-            }
+            var originalName = (serviceMethod.Operation.OriginalName ?? serviceMethod.Operation.Name).ToIdentifierName();
+            var operationName = TryNormalizeListOperationName(serviceMethod, originalName, out var listNormalizedName)
+                ? listNormalizedName
+                : originalName;
 
             if (!normalizePublicName)
             {
                 return operationName;
             }
 
+            return ProjectPublicName(serviceMethod, operationName);
+        }
+
+        private string ProjectPublicName(InputServiceMethod serviceMethod, string operationName, bool normalizeAcronyms = true)
+        {
+            if (serviceMethod.IsExactName)
+            {
+                return operationName;
+            }
+
             var urlNormalizedName = operationName.NormalizeCSharpUrlSuffix();
-            var normalizedName = urlNormalizedName.NormalizeCSharpAcronyms();
+            var normalizedName = normalizeAcronyms ? urlNormalizedName.NormalizeCSharpAcronyms() : urlNormalizedName;
             if (normalizedName == operationName)
             {
                 return operationName;
@@ -285,6 +286,127 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return normalizedName;
+        }
+
+        private bool TryNormalizeListOperationName(
+            InputServiceMethod serviceMethod,
+            string originalName,
+            out string normalizedName,
+            bool checkPublicCollisions = true)
+        {
+            normalizedName = NormalizeName(originalName);
+            if (normalizedName == originalName)
+            {
+                return false;
+            }
+
+            // Keep distinct input operations distinct before public names and request builders are projected.
+            foreach (var other in _inputClient.Methods)
+            {
+                if (ReferenceEquals(serviceMethod, other))
+                {
+                    continue;
+                }
+
+                var otherInputName = other.IsExactName
+                    ? other.Operation.Name
+                    : (other.Operation.OriginalName ?? other.Operation.Name).ToIdentifierName();
+                if (otherInputName == originalName)
+                {
+                    continue;
+                }
+
+                var otherRestName = (other.IsExactName ? otherInputName.ToIdentifierName() : NormalizeName(otherInputName)).ToIdentifierName();
+                if (otherRestName == normalizedName &&
+                    HasEquivalentParameterTypes(
+                        RestClientProvider.GetMethodParameters(serviceMethod, ScmMethodKind.CreateRequest, this, applyBackCompat: false),
+                        RestClientProvider.GetMethodParameters(other, ScmMethodKind.CreateRequest, this, applyBackCompat: false)))
+                {
+                    return false;
+                }
+
+                if (!checkPublicCollisions)
+                {
+                    continue;
+                }
+
+                var candidatePublicName = ProjectPublicName(serviceMethod, normalizedName);
+                var otherPublicName = ProjectPublicName(other, other.IsExactName
+                    ? other.Operation.Name
+                    : NormalizeName(otherInputName));
+                foreach (var kind in new[] { ScmMethodKind.Protocol, ScmMethodKind.Convenience })
+                {
+                    if (kind == ScmMethodKind.Convenience &&
+                        (!serviceMethod.Operation.GenerateConvenienceMethod || !other.Operation.GenerateConvenienceMethod))
+                    {
+                        continue;
+                    }
+
+                    var candidateNames = GetEmittedMethodNames(serviceMethod, candidatePublicName, kind);
+                    var otherNames = GetEmittedMethodNames(other, otherPublicName, kind);
+                    if (candidateNames.Intersect(otherNames, StringComparer.Ordinal).Any() &&
+                        HasEquivalentParameterTypes(
+                            RestClientProvider.GetMethodParameters(serviceMethod, kind, this),
+                            RestClientProvider.GetMethodParameters(other, kind, this)))
+                    {
+                        var candidateNamesBeforeProjection = GetEmittedMethodNames(serviceMethod, normalizedName, kind);
+                        var otherNamesBeforeProjection = GetEmittedMethodNames(
+                            other,
+                            other.IsExactName ? other.Operation.Name : NormalizeName(otherInputName),
+                            kind);
+                        if (candidateNamesBeforeProjection
+                            .Intersect(otherNamesBeforeProjection, StringComparer.Ordinal).Any())
+                        {
+                            return false;
+                        }
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        private static bool HasEquivalentParameterTypes(IReadOnlyList<ParameterProvider> first, IReadOnlyList<ParameterProvider> second)
+            => first.Count == second.Count &&
+                first.Zip(second).All(pair =>
+                    MethodSignatureHelper.AreEquivalentParameterTypes(pair.First.Type, pair.Second.Type));
+
+        private static string[] GetEmittedMethodNames(InputServiceMethod method, string operationName, ScmMethodKind kind)
+        {
+            bool hasStreamingResponse = method.Operation.Responses
+                .FirstOrDefault(response => !response.IsErrorResponse)?.BodyType is InputStreamingType;
+            if (kind == ScmMethodKind.Protocol)
+            {
+                return hasStreamingResponse
+                    ? [$"{operationName}Async"]
+                    : [operationName, $"{operationName}Async"];
+            }
+
+            if (!method.Operation.GenerateConvenienceMethod)
+            {
+                return [];
+            }
+
+            bool hasStreamingRequest = method.Parameters.Any(parameter => parameter.Type is InputStreamingType);
+            return hasStreamingResponse || method is not InputPagingServiceMethod && hasStreamingRequest
+                ? [$"{operationName}Async"]
+                : [operationName, $"{operationName}Async"];
+        }
+
+        private static string NormalizeName(string operationName)
+        {
+            // Replace List with Get as .NET convention is to use Get for list operations.
+            if (operationName == "List")
+            {
+                return "GetAll";
+            }
+            if (operationName.StartsWith("List", StringComparison.Ordinal) &&
+                operationName.Length > 4 && char.IsUpper(operationName[4]))
+            {
+                return $"Get{operationName.Substring(4)}";
+            }
+
+            return operationName;
         }
 
         private bool HasExistingName(string name)
@@ -317,7 +439,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // Request builders use the stable input operation identity rather than the mutable public method name.
             // Preserve the original acronym casing and Url suffix so projections honoring previous GA names
             // and newer projections with normalized public names continue to reference the same request builder.
-            return GetOperationName(serviceMethod, normalizePublicName: false).ToIdentifierName();
+            if (serviceMethod.IsExactName)
+            {
+                return serviceMethod.Operation.Name.ToIdentifierName();
+            }
+
+            var originalName = (serviceMethod.Operation.OriginalName ?? serviceMethod.Operation.Name).ToIdentifierName();
+            return TryNormalizeListOperationName(
+                serviceMethod,
+                originalName,
+                out var normalizedName,
+                checkPublicCollisions: false)
+                ? normalizedName.ToIdentifierName()
+                : originalName.ToIdentifierName();
         }
 
         private string? _namespace;
