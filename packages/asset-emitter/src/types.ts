@@ -49,7 +49,9 @@ export interface AssetEmitter<T, TOptions extends object = Record<string, unknow
   /**
    * Emit a target as a reference: declarations go through the reference callback,
    * while inline results pass through. Circular references return placeholder-backed
-   * code that is filled when the target completes.
+   * code for resolution through `circularReference` when the target completes.
+   * The default handler throws for cycles containing no declaration; emitters that
+   * support inline-only cycles must override it.
    */
   emitTypeReference(type: Type, context?: EmitTypeReferenceOptions): EmitEntity<T>;
   /** Ask `declarationName` for a name; undefined means no suitable name was found. */
