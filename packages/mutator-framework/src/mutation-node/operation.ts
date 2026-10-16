@@ -2,16 +2,27 @@ import type { Interface, Model, Operation, Type } from "@typespec/compiler";
 import { HalfEdge } from "./mutation-edge.js";
 import { MutationNode } from "./mutation-node.js";
 
+/** Connection-key configuration shape; current node connection methods do not consume it. */
 export interface OperationConnectOptions {
-  /** Mutation key for the parameters node. Defaults to this node's key. */
+  /** Key designated for parameters; callers must select that model node explicitly. */
   parameters?: string;
-  /** Mutation key for the return type node. Defaults to this node's key. */
+  /** Key designated for the result; callers must select that type node explicitly. */
   returnType?: string;
 }
 
+/**
+ * Maintains an operation's parameter, return-type, and containing-interface references.
+ * Parameter and result callbacks write the current output directly; call `mutate()`
+ * first when those writes must target a clone rather than the source.
+ */
 export class OperationMutationNode extends MutationNode<Operation> {
+  /** Selects operation-specific connection behavior. */
   readonly kind = "Operation";
 
+  /**
+   * Starts a parameter reference. Deletion substitutes an empty anonymous model;
+   * replacement requires a model. Updates do not themselves clone this operation.
+   */
   startParametersEdge() {
     return new HalfEdge<Operation, Model>(this, {
       onTailMutation: ({ tail }) => {
@@ -35,10 +46,15 @@ export class OperationMutationNode extends MutationNode<Operation> {
     });
   }
 
+  /** Completes {@link startParametersEdge} with the chosen parameter model node. */
   connectParameters(baseNode: MutationNode<Model>) {
     this.startParametersEdge().setTail(baseNode);
   }
 
+  /**
+   * Starts a result reference that accepts replacements of any type kind.
+   * Deletion substitutes `void`. Updates write the current output without cloning it.
+   */
   startReturnTypeEdge() {
     return new HalfEdge<Operation, Type>(this, {
       onTailMutation: ({ tail }) => {
@@ -56,10 +72,16 @@ export class OperationMutationNode extends MutationNode<Operation> {
     });
   }
 
+  /** Completes {@link startReturnTypeEdge} with the chosen result type node. */
   connectReturnType(typeNode: MutationNode<Type>) {
     this.startReturnTypeEdge().setTail(typeNode);
   }
 
+  /**
+   * Starts the containing-interface back-reference.
+   * Interface mutation clones this operation as needed and updates its owner;
+   * interface deletion or replacement deletes this operation.
+   */
   startInterfaceEdge() {
     return new HalfEdge<Operation, Interface>(this, {
       onTailMutation: ({ tail }) => {
@@ -75,6 +97,7 @@ export class OperationMutationNode extends MutationNode<Operation> {
     });
   }
 
+  /** Completes {@link startInterfaceEdge}; normally established by an interface's operation connection. */
   connectInterface(interfaceNode: MutationNode<Interface>) {
     this.startInterfaceEdge().setTail(interfaceNode);
   }

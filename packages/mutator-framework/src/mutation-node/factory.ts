@@ -30,6 +30,11 @@ import { TupleMutationNode } from "./tuple.js";
 import { UnionVariantMutationNode } from "./union-variant.js";
 import { UnionMutationNode } from "./union.js";
 
+/**
+ * Constructs a fresh node selected by the source type's kind, without caching.
+ * Use {@link MutationEngine.getMutationNode} to share nodes within an engine.
+ * Throws for unsupported kinds; creating a node does not traverse its references.
+ */
 export function mutationNodeFor<T extends Type>(
   engine: MutationEngine<any>,
   sourceType: T,
@@ -72,6 +77,7 @@ export function mutationNodeFor<T extends Type>(
   }
 }
 
+/** Maps supported compiler type shapes to their corresponding concrete node classes. */
 export type MutationNodeForType<T extends Type> = T extends Model
   ? ModelMutationNode
   : T extends Interface
