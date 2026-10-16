@@ -220,8 +220,12 @@ export class SpecCoverageOperations {
    * A legacy `<name>/reports/<version>.json` blob takes precedence over mode-specific
    * blobs when present, regardless of the requested mode.
    *
-   * @returns The parsed report, or `undefined` if neither report blob exists.
-   * A missing index, storage failure, or invalid JSON rejects the promise instead.
+   * Report content is parsed from `blobBody` when available. Node.js streaming responses
+   * are not read by this method and currently return only generator metadata.
+   *
+   * @returns The stored report fields and generator metadata, or `undefined` if neither report
+   * blob exists. The stored JSON is not normalized or validated against the report schema.
+   * A missing index or storage failure rejects. Invalid report JSON rejects when its body is read.
    */
   public async getLatestCoverageFor(
     generatorName: string,

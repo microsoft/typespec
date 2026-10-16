@@ -88,8 +88,11 @@ export interface CoverageReport {
 }
 
 /**
- * Downloaded coverage data combining numerically keyed reports for scenario packages
- * with the generator identity shared by those reports.
+ * Numeric-keyed coverage aggregate with shared generator metadata.
+ *
+ * `getLatestCoverageFor` does not normalize stored JSON into this shape:
+ * `SpecCoverageOperations.upload` writes a single {@link CoverageReport}'s fields
+ * at the top level. Do not assume a downloaded payload has numeric entries.
  */
 export interface ResolvedCoverageReport extends Record<number, CoverageReport> {
   /** Generator build and mode that produced the results. */
