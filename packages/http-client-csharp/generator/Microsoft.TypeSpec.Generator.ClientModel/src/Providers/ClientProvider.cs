@@ -257,8 +257,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return operationName;
             }
 
+            return ProjectPublicName(serviceMethod, operationName);
+        }
+
+        private string ProjectPublicName(InputServiceMethod serviceMethod, string operationName, bool normalizeAcronyms = true)
+        {
+            if (serviceMethod.IsExactName)
+            {
+                return operationName;
+            }
+
             var urlNormalizedName = operationName.NormalizeCSharpUrlSuffix();
-            var normalizedName = urlNormalizedName.NormalizeCSharpAcronyms();
+            var normalizedName = normalizeAcronyms ? urlNormalizedName.NormalizeCSharpAcronyms() : urlNormalizedName;
             if (normalizedName == operationName)
             {
                 return operationName;
@@ -311,10 +321,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     return false;
                 }
 
-                var candidatePublicName = normalizedName;
-                var otherPublicName = other.IsExactName
+                var candidatePublicName = ProjectPublicName(serviceMethod, normalizedName);
+                var otherPublicName = ProjectPublicName(other, other.IsExactName
                     ? other.Operation.Name
-                    : NormalizeName(otherInputName);
+                    : NormalizeName(otherInputName));
                 foreach (var kind in new[] { ScmMethodKind.Protocol, ScmMethodKind.Convenience })
                 {
                     if (kind == ScmMethodKind.Convenience &&
@@ -330,7 +340,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             RestClientProvider.GetMethodParameters(serviceMethod, kind, this),
                             RestClientProvider.GetMethodParameters(other, kind, this)))
                     {
-                        return false;
+                        var candidateNamesBeforeAcronymNormalization = GetEmittedMethodNames(
+                            serviceMethod,
+                            ProjectPublicName(serviceMethod, normalizedName, normalizeAcronyms: false),
+                            kind);
+                        var otherNamesBeforeAcronymNormalization = GetEmittedMethodNames(
+                            other,
+                            ProjectPublicName(
+                                other,
+                                other.IsExactName ? other.Operation.Name : NormalizeName(otherInputName),
+                                normalizeAcronyms: false),
+                            kind);
+                        if (candidateNamesBeforeAcronymNormalization
+                            .Intersect(otherNamesBeforeAcronymNormalization, StringComparer.Ordinal).Any())
+                        {
+                            return false;
+                        }
                     }
                 }
             }

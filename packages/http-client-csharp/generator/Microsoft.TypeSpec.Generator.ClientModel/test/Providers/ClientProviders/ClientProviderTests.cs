@@ -2703,6 +2703,32 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 client.GetMethodCollectionByOperation(getOperation).Select(method => method.Signature.Name));
         }
 
+        [Test]
+        public void ListUrlNormalizationUsesProjectedPublicNameForExactAsyncPeer()
+        {
+            var listOperation = InputFactory.Operation("ListUrl");
+            var listMethod = InputFactory.BasicServiceMethod("ListUrl", listOperation);
+            var getOperation = InputFactory.Operation("GetUrlAsync", isExactName: true);
+            var getMethod = InputFactory.BasicServiceMethod("GetUrlAsync", getOperation, isExactName: true);
+            var inputClient = InputFactory.Client("TestClient", methods: [listMethod, getMethod]);
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+
+            Assert.AreEqual("GetUri", listMethod.Name);
+            Assert.AreEqual("GetUrlAsync", getMethod.Name);
+            Assert.AreEqual("CreateGetUrlRequest", client.RestClient.GetCreateRequestMethod(listOperation).Signature.Name);
+            Assert.AreEqual("CreateGetUrlAsyncRequest", client.RestClient.GetCreateRequestMethod(getOperation).Signature.Name);
+            CollectionAssert.Contains(
+                client.GetMethodCollectionByOperation(listOperation).Select(method => method.Signature.Name).ToArray(),
+                "GetUri");
+            CollectionAssert.Contains(
+                client.GetMethodCollectionByOperation(listOperation).Select(method => method.Signature.Name).ToArray(),
+                "GetUriAsync");
+            CollectionAssert.Contains(
+                client.GetMethodCollectionByOperation(getOperation).Select(method => method.Signature.Name).ToArray(),
+                "GetUrlAsync");
+        }
+
         private static IEnumerable<TestCaseData> ListNormalizationOverloadCases()
         {
             yield return new TestCaseData(InputPrimitiveType.String, null);
