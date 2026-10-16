@@ -288,7 +288,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return normalizedName;
         }
 
-        private bool TryNormalizeListOperationName(InputServiceMethod serviceMethod, string originalName, out string normalizedName)
+        private bool TryNormalizeListOperationName(
+            InputServiceMethod serviceMethod,
+            string originalName,
+            out string normalizedName,
+            bool checkPublicCollisions = true)
         {
             normalizedName = NormalizeName(originalName);
             if (normalizedName == originalName)
@@ -319,6 +323,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         RestClientProvider.GetMethodParameters(other, ScmMethodKind.CreateRequest, this)))
                 {
                     return false;
+                }
+
+                if (!checkPublicCollisions)
+                {
+                    continue;
                 }
 
                 var candidatePublicName = ProjectPublicName(serviceMethod, normalizedName);
@@ -436,7 +445,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // Request builders use the stable input operation identity rather than the mutable public method name.
             // Preserve the original acronym casing and Url suffix so projections honoring previous GA names
             // and newer projections with normalized public names continue to reference the same request builder.
-            return GetOperationName(serviceMethod, normalizePublicName: false).ToIdentifierName();
+            if (serviceMethod.IsExactName)
+            {
+                return serviceMethod.Operation.Name.ToIdentifierName();
+            }
+
+            var originalName = (serviceMethod.Operation.OriginalName ?? serviceMethod.Operation.Name).ToIdentifierName();
+            return TryNormalizeListOperationName(
+                serviceMethod,
+                originalName,
+                out var normalizedName,
+                checkPublicCollisions: false)
+                ? normalizedName.ToIdentifierName()
+                : originalName.ToIdentifierName();
         }
 
         private string? _namespace;
