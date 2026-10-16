@@ -6,6 +6,10 @@ packages:
   - "!packages/http-client-java/**"
   - "!packages/http-client-python/**"
 
+engineStrict: true
+pmOnFail: download
+updateNotifier: false
+
 allowBuilds:
   "@playwright/browser-chromium": false
   "@scarf/scarf": false
