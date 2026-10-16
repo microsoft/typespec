@@ -36,12 +36,23 @@ import {
 
 const relationCacheKey = Symbol.for("TypeSpec.Versioning.NamespaceRelationCache");
 
+/**
+ * Gets cross-namespace references collected by the versioning validation hook,
+ * or `undefined` before it has run. An undefined key represents declarations
+ * without a containing namespace.
+ * The map and sets are owned by the program and should not be modified.
+ */
 export function getCachedNamespaceDependencies(
   program: Program,
 ): Map<Namespace | undefined, Set<Namespace>> | undefined {
   return (program as any)[relationCacheKey];
 }
 
+/**
+ * Compiler validation hook that caches namespace dependencies and reports
+ * incompatible versioned references and invalid versioning metadata.
+ * The compiler invokes this when the library is loaded; emitters need not call it.
+ */
 export function $onValidate(program: Program) {
   const namespaceDependencies = new Map<Namespace | undefined, Set<Namespace>>();
 
