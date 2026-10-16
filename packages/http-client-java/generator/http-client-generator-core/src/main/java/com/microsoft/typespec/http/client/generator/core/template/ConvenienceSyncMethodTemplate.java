@@ -193,6 +193,8 @@ public class ConvenienceSyncMethodTemplate extends ConvenienceMethodTemplateBase
     private static String getMethodInvokeViaAsyncClient(ClientMethod convenienceMethod) {
         List<String> parameterNames = convenienceMethod.getMethodInputParameters()
             .stream()
+            .filter(p -> !convenienceMethod.isPageStreamingType()
+                || !convenienceMethod.getMethodPageDetails().shouldHideParameter(p))
             .map(ClientMethodParameter::getName)
             .collect(Collectors.toList());
 

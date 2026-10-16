@@ -89,8 +89,9 @@ final class PagingMetadata {
             nextMethods = List.of();
         }
 
-        final MethodPageDetails.ContinuationToken continuationToken
-            = getContinuationToken(xmsPageable, responseType, parametersDetails);
+        final MethodPageDetails.ContinuationToken continuationToken = CoreUtils.isNullOrEmpty(nextLinkPropertyReference)
+            ? getContinuationToken(xmsPageable, responseType, parametersDetails)
+            : null;
         final ClientMethodParameter maxPageSizeParameter = getPageSizeClientMethodParameter(parametersDetails);
 
         MethodPageDetails.NextLinkReInjection nextLinkReInjection = null;

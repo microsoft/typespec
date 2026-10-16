@@ -17,6 +17,7 @@ import com.azure.core.exception.ClientAuthenticationException;
 import com.azure.core.exception.HttpResponseException;
 import com.azure.core.exception.ResourceModifiedException;
 import com.azure.core.exception.ResourceNotFoundException;
+import com.azure.core.http.HttpHeaderName;
 import com.azure.core.http.rest.PagedFlux;
 import com.azure.core.http.rest.PagedIterable;
 import com.azure.core.http.rest.PagedResponse;
@@ -27,6 +28,7 @@ import com.azure.core.http.rest.RestProxy;
 import com.azure.core.util.BinaryData;
 import com.azure.core.util.Context;
 import com.azure.core.util.FluxUtil;
+import com.azure.core.util.UrlBuilder;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -215,7 +217,7 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
             .withContext(
                 context -> service.requestQueryResponseBody(this.client.getEndpoint(), accept, requestOptions, context))
             .map(res -> new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
-                getValues(res.getValue(), "pets"), null, null));
+                getValues(res.getValue(), "pets"), getNextLink(res.getValue(), "nextToken"), null));
     }
 
     /**
@@ -224,7 +226,6 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      * <table border="1">
      * <caption>Query Parameters</caption>
      * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>token</td><td>String</td><td>No</td><td>The token parameter</td></tr>
      * <tr><td>bar</td><td>String</td><td>No</td><td>The bar parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
@@ -255,7 +256,24 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedFlux<BinaryData> requestQueryResponseBodyAsync(RequestOptions requestOptions) {
-        return new PagedFlux<>(() -> requestQueryResponseBodySinglePageAsync(requestOptions));
+        return new PagedFlux<>(() -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> {
+                UrlBuilder urlBuilder = UrlBuilder.parse(requestLocal.getUrl());
+                urlBuilder.setQueryParameter("token", null);
+                requestLocal.setUrl(urlBuilder.toString());
+            });
+            return requestQueryResponseBodySinglePageAsync(requestOptionsLocal);
+        }, (token) -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> {
+                UrlBuilder urlBuilder = UrlBuilder.parse(requestLocal.getUrl());
+                urlBuilder.setQueryParameter("token", null);
+                requestLocal.setUrl(urlBuilder.toString());
+            });
+            requestOptionsLocal.addQueryParam("token", token, false);
+            return requestQueryResponseBodySinglePageAsync(requestOptionsLocal);
+        });
     }
 
     /**
@@ -299,7 +317,7 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
         Response<BinaryData> res
             = service.requestQueryResponseBodySync(this.client.getEndpoint(), accept, requestOptions, Context.NONE);
         return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
-            getValues(res.getValue(), "pets"), null, null);
+            getValues(res.getValue(), "pets"), getNextLink(res.getValue(), "nextToken"), null);
     }
 
     /**
@@ -308,7 +326,6 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      * <table border="1">
      * <caption>Query Parameters</caption>
      * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>token</td><td>String</td><td>No</td><td>The token parameter</td></tr>
      * <tr><td>bar</td><td>String</td><td>No</td><td>The bar parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
@@ -339,7 +356,24 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<BinaryData> requestQueryResponseBody(RequestOptions requestOptions) {
-        return new PagedIterable<>(() -> requestQueryResponseBodySinglePage(requestOptions));
+        return new PagedIterable<>(() -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> {
+                UrlBuilder urlBuilder = UrlBuilder.parse(requestLocal.getUrl());
+                urlBuilder.setQueryParameter("token", null);
+                requestLocal.setUrl(urlBuilder.toString());
+            });
+            return requestQueryResponseBodySinglePage(requestOptionsLocal);
+        }, (token) -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> {
+                UrlBuilder urlBuilder = UrlBuilder.parse(requestLocal.getUrl());
+                urlBuilder.setQueryParameter("token", null);
+                requestLocal.setUrl(urlBuilder.toString());
+            });
+            requestOptionsLocal.addQueryParam("token", token, false);
+            return requestQueryResponseBodySinglePage(requestOptionsLocal);
+        });
     }
 
     /**
@@ -383,7 +417,7 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
         return FluxUtil.withContext(
             context -> service.requestHeaderResponseBody(this.client.getEndpoint(), accept, requestOptions, context))
             .map(res -> new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
-                getValues(res.getValue(), "pets"), null, null));
+                getValues(res.getValue(), "pets"), getNextLink(res.getValue(), "nextToken"), null));
     }
 
     /**
@@ -399,7 +433,6 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      * <table border="1">
      * <caption>Header Parameters</caption>
      * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>token</td><td>String</td><td>No</td><td>The token parameter</td></tr>
      * <tr><td>foo</td><td>String</td><td>No</td><td>The foo parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addHeader}
@@ -423,7 +456,16 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedFlux<BinaryData> requestHeaderResponseBodyAsync(RequestOptions requestOptions) {
-        return new PagedFlux<>(() -> requestHeaderResponseBodySinglePageAsync(requestOptions));
+        return new PagedFlux<>(() -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> requestLocal.getHeaders().remove("token"));
+            return requestHeaderResponseBodySinglePageAsync(requestOptionsLocal);
+        }, (token) -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> requestLocal.getHeaders().remove("token"));
+            requestOptionsLocal.setHeader("token", token);
+            return requestHeaderResponseBodySinglePageAsync(requestOptionsLocal);
+        });
     }
 
     /**
@@ -467,7 +509,7 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
         Response<BinaryData> res
             = service.requestHeaderResponseBodySync(this.client.getEndpoint(), accept, requestOptions, Context.NONE);
         return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
-            getValues(res.getValue(), "pets"), null, null);
+            getValues(res.getValue(), "pets"), getNextLink(res.getValue(), "nextToken"), null);
     }
 
     /**
@@ -483,7 +525,6 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      * <table border="1">
      * <caption>Header Parameters</caption>
      * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>token</td><td>String</td><td>No</td><td>The token parameter</td></tr>
      * <tr><td>foo</td><td>String</td><td>No</td><td>The foo parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addHeader}
@@ -507,7 +548,16 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<BinaryData> requestHeaderResponseBody(RequestOptions requestOptions) {
-        return new PagedIterable<>(() -> requestHeaderResponseBodySinglePage(requestOptions));
+        return new PagedIterable<>(() -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> requestLocal.getHeaders().remove("token"));
+            return requestHeaderResponseBodySinglePage(requestOptionsLocal);
+        }, (token) -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> requestLocal.getHeaders().remove("token"));
+            requestOptionsLocal.setHeader("token", token);
+            return requestHeaderResponseBodySinglePage(requestOptionsLocal);
+        });
     }
 
     /**
@@ -551,7 +601,8 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
         return FluxUtil.withContext(
             context -> service.requestQueryResponseHeader(this.client.getEndpoint(), accept, requestOptions, context))
             .map(res -> new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
-                getValues(res.getValue(), "pets"), null, null));
+                getValues(res.getValue(), "pets"), res.getHeaders().getValue(HttpHeaderName.fromString("next-token")),
+                null));
     }
 
     /**
@@ -560,7 +611,6 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      * <table border="1">
      * <caption>Query Parameters</caption>
      * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>token</td><td>String</td><td>No</td><td>The token parameter</td></tr>
      * <tr><td>bar</td><td>String</td><td>No</td><td>The bar parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
@@ -591,7 +641,24 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedFlux<BinaryData> requestQueryResponseHeaderAsync(RequestOptions requestOptions) {
-        return new PagedFlux<>(() -> requestQueryResponseHeaderSinglePageAsync(requestOptions));
+        return new PagedFlux<>(() -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> {
+                UrlBuilder urlBuilder = UrlBuilder.parse(requestLocal.getUrl());
+                urlBuilder.setQueryParameter("token", null);
+                requestLocal.setUrl(urlBuilder.toString());
+            });
+            return requestQueryResponseHeaderSinglePageAsync(requestOptionsLocal);
+        }, (token) -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> {
+                UrlBuilder urlBuilder = UrlBuilder.parse(requestLocal.getUrl());
+                urlBuilder.setQueryParameter("token", null);
+                requestLocal.setUrl(urlBuilder.toString());
+            });
+            requestOptionsLocal.addQueryParam("token", token, false);
+            return requestQueryResponseHeaderSinglePageAsync(requestOptionsLocal);
+        });
     }
 
     /**
@@ -635,7 +702,8 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
         Response<BinaryData> res
             = service.requestQueryResponseHeaderSync(this.client.getEndpoint(), accept, requestOptions, Context.NONE);
         return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
-            getValues(res.getValue(), "pets"), null, null);
+            getValues(res.getValue(), "pets"), res.getHeaders().getValue(HttpHeaderName.fromString("next-token")),
+            null);
     }
 
     /**
@@ -644,7 +712,6 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      * <table border="1">
      * <caption>Query Parameters</caption>
      * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>token</td><td>String</td><td>No</td><td>The token parameter</td></tr>
      * <tr><td>bar</td><td>String</td><td>No</td><td>The bar parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
@@ -675,7 +742,24 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<BinaryData> requestQueryResponseHeader(RequestOptions requestOptions) {
-        return new PagedIterable<>(() -> requestQueryResponseHeaderSinglePage(requestOptions));
+        return new PagedIterable<>(() -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> {
+                UrlBuilder urlBuilder = UrlBuilder.parse(requestLocal.getUrl());
+                urlBuilder.setQueryParameter("token", null);
+                requestLocal.setUrl(urlBuilder.toString());
+            });
+            return requestQueryResponseHeaderSinglePage(requestOptionsLocal);
+        }, (token) -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> {
+                UrlBuilder urlBuilder = UrlBuilder.parse(requestLocal.getUrl());
+                urlBuilder.setQueryParameter("token", null);
+                requestLocal.setUrl(urlBuilder.toString());
+            });
+            requestOptionsLocal.addQueryParam("token", token, false);
+            return requestQueryResponseHeaderSinglePage(requestOptionsLocal);
+        });
     }
 
     /**
@@ -719,7 +803,8 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
         return FluxUtil.withContext(
             context -> service.requestHeaderResponseHeader(this.client.getEndpoint(), accept, requestOptions, context))
             .map(res -> new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
-                getValues(res.getValue(), "pets"), null, null));
+                getValues(res.getValue(), "pets"), res.getHeaders().getValue(HttpHeaderName.fromString("next-token")),
+                null));
     }
 
     /**
@@ -735,7 +820,6 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      * <table border="1">
      * <caption>Header Parameters</caption>
      * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>token</td><td>String</td><td>No</td><td>The token parameter</td></tr>
      * <tr><td>foo</td><td>String</td><td>No</td><td>The foo parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addHeader}
@@ -759,7 +843,16 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedFlux<BinaryData> requestHeaderResponseHeaderAsync(RequestOptions requestOptions) {
-        return new PagedFlux<>(() -> requestHeaderResponseHeaderSinglePageAsync(requestOptions));
+        return new PagedFlux<>(() -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> requestLocal.getHeaders().remove("token"));
+            return requestHeaderResponseHeaderSinglePageAsync(requestOptionsLocal);
+        }, (token) -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> requestLocal.getHeaders().remove("token"));
+            requestOptionsLocal.setHeader("token", token);
+            return requestHeaderResponseHeaderSinglePageAsync(requestOptionsLocal);
+        });
     }
 
     /**
@@ -803,7 +896,8 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
         Response<BinaryData> res
             = service.requestHeaderResponseHeaderSync(this.client.getEndpoint(), accept, requestOptions, Context.NONE);
         return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
-            getValues(res.getValue(), "pets"), null, null);
+            getValues(res.getValue(), "pets"), res.getHeaders().getValue(HttpHeaderName.fromString("next-token")),
+            null);
     }
 
     /**
@@ -819,7 +913,6 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      * <table border="1">
      * <caption>Header Parameters</caption>
      * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>token</td><td>String</td><td>No</td><td>The token parameter</td></tr>
      * <tr><td>foo</td><td>String</td><td>No</td><td>The foo parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addHeader}
@@ -843,7 +936,16 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<BinaryData> requestHeaderResponseHeader(RequestOptions requestOptions) {
-        return new PagedIterable<>(() -> requestHeaderResponseHeaderSinglePage(requestOptions));
+        return new PagedIterable<>(() -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> requestLocal.getHeaders().remove("token"));
+            return requestHeaderResponseHeaderSinglePage(requestOptionsLocal);
+        }, (token) -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> requestLocal.getHeaders().remove("token"));
+            requestOptionsLocal.setHeader("token", token);
+            return requestHeaderResponseHeaderSinglePage(requestOptionsLocal);
+        });
     }
 
     /**
@@ -889,7 +991,8 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
             .withContext(context -> service.requestQueryNestedResponseBody(this.client.getEndpoint(), accept,
                 requestOptions, context))
             .map(res -> new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
-                getValues(res.getValue(), "nestedItems", "pets"), null, null));
+                getValues(res.getValue(), "nestedItems", "pets"),
+                getNextLink(res.getValue(), "nestedNext", "nextToken"), null));
     }
 
     /**
@@ -898,7 +1001,6 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      * <table border="1">
      * <caption>Query Parameters</caption>
      * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>token</td><td>String</td><td>No</td><td>The token parameter</td></tr>
      * <tr><td>bar</td><td>String</td><td>No</td><td>The bar parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
@@ -929,7 +1031,24 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedFlux<BinaryData> requestQueryNestedResponseBodyAsync(RequestOptions requestOptions) {
-        return new PagedFlux<>(() -> requestQueryNestedResponseBodySinglePageAsync(requestOptions));
+        return new PagedFlux<>(() -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> {
+                UrlBuilder urlBuilder = UrlBuilder.parse(requestLocal.getUrl());
+                urlBuilder.setQueryParameter("token", null);
+                requestLocal.setUrl(urlBuilder.toString());
+            });
+            return requestQueryNestedResponseBodySinglePageAsync(requestOptionsLocal);
+        }, (token) -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> {
+                UrlBuilder urlBuilder = UrlBuilder.parse(requestLocal.getUrl());
+                urlBuilder.setQueryParameter("token", null);
+                requestLocal.setUrl(urlBuilder.toString());
+            });
+            requestOptionsLocal.addQueryParam("token", token, false);
+            return requestQueryNestedResponseBodySinglePageAsync(requestOptionsLocal);
+        });
     }
 
     /**
@@ -973,7 +1092,8 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
         Response<BinaryData> res = service.requestQueryNestedResponseBodySync(this.client.getEndpoint(), accept,
             requestOptions, Context.NONE);
         return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
-            getValues(res.getValue(), "nestedItems", "pets"), null, null);
+            getValues(res.getValue(), "nestedItems", "pets"), getNextLink(res.getValue(), "nestedNext", "nextToken"),
+            null);
     }
 
     /**
@@ -982,7 +1102,6 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      * <table border="1">
      * <caption>Query Parameters</caption>
      * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>token</td><td>String</td><td>No</td><td>The token parameter</td></tr>
      * <tr><td>bar</td><td>String</td><td>No</td><td>The bar parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
@@ -1013,7 +1132,24 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<BinaryData> requestQueryNestedResponseBody(RequestOptions requestOptions) {
-        return new PagedIterable<>(() -> requestQueryNestedResponseBodySinglePage(requestOptions));
+        return new PagedIterable<>(() -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> {
+                UrlBuilder urlBuilder = UrlBuilder.parse(requestLocal.getUrl());
+                urlBuilder.setQueryParameter("token", null);
+                requestLocal.setUrl(urlBuilder.toString());
+            });
+            return requestQueryNestedResponseBodySinglePage(requestOptionsLocal);
+        }, (token) -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> {
+                UrlBuilder urlBuilder = UrlBuilder.parse(requestLocal.getUrl());
+                urlBuilder.setQueryParameter("token", null);
+                requestLocal.setUrl(urlBuilder.toString());
+            });
+            requestOptionsLocal.addQueryParam("token", token, false);
+            return requestQueryNestedResponseBodySinglePage(requestOptionsLocal);
+        });
     }
 
     /**
@@ -1059,7 +1195,8 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
             .withContext(context -> service.requestHeaderNestedResponseBody(this.client.getEndpoint(), accept,
                 requestOptions, context))
             .map(res -> new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
-                getValues(res.getValue(), "nestedItems", "pets"), null, null));
+                getValues(res.getValue(), "nestedItems", "pets"),
+                getNextLink(res.getValue(), "nestedNext", "nextToken"), null));
     }
 
     /**
@@ -1075,7 +1212,6 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      * <table border="1">
      * <caption>Header Parameters</caption>
      * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>token</td><td>String</td><td>No</td><td>The token parameter</td></tr>
      * <tr><td>foo</td><td>String</td><td>No</td><td>The foo parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addHeader}
@@ -1099,7 +1235,16 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedFlux<BinaryData> requestHeaderNestedResponseBodyAsync(RequestOptions requestOptions) {
-        return new PagedFlux<>(() -> requestHeaderNestedResponseBodySinglePageAsync(requestOptions));
+        return new PagedFlux<>(() -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> requestLocal.getHeaders().remove("token"));
+            return requestHeaderNestedResponseBodySinglePageAsync(requestOptionsLocal);
+        }, (token) -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> requestLocal.getHeaders().remove("token"));
+            requestOptionsLocal.setHeader("token", token);
+            return requestHeaderNestedResponseBodySinglePageAsync(requestOptionsLocal);
+        });
     }
 
     /**
@@ -1143,7 +1288,8 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
         Response<BinaryData> res = service.requestHeaderNestedResponseBodySync(this.client.getEndpoint(), accept,
             requestOptions, Context.NONE);
         return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
-            getValues(res.getValue(), "nestedItems", "pets"), null, null);
+            getValues(res.getValue(), "nestedItems", "pets"), getNextLink(res.getValue(), "nestedNext", "nextToken"),
+            null);
     }
 
     /**
@@ -1159,7 +1305,6 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      * <table border="1">
      * <caption>Header Parameters</caption>
      * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
-     * <tr><td>token</td><td>String</td><td>No</td><td>The token parameter</td></tr>
      * <tr><td>foo</td><td>String</td><td>No</td><td>The foo parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addHeader}
@@ -1183,7 +1328,16 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<BinaryData> requestHeaderNestedResponseBody(RequestOptions requestOptions) {
-        return new PagedIterable<>(() -> requestHeaderNestedResponseBodySinglePage(requestOptions));
+        return new PagedIterable<>(() -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> requestLocal.getHeaders().remove("token"));
+            return requestHeaderNestedResponseBodySinglePage(requestOptionsLocal);
+        }, (token) -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> requestLocal.getHeaders().remove("token"));
+            requestOptionsLocal.setHeader("token", token);
+            return requestHeaderNestedResponseBodySinglePage(requestOptionsLocal);
+        });
     }
 
     private List<BinaryData> getValues(BinaryData binaryData, String... path) {
