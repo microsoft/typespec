@@ -263,6 +263,13 @@ public final class ClientModelPropertiesManager {
                     removed.newBuilder().defaultValue(discriminatorProperty.getProperty().getDefaultValue()).build(),
                     true);
             }
+        } else if (discriminatorProperty != null) {
+            String serializedDiscriminatorName = discriminatorProperty.getProperty().getSerializedName();
+            if (superSetterProperties.containsKey(serializedDiscriminatorName)) {
+                // Keep ancestor constructor arguments, but deserialize the inherited discriminator only once.
+                superRequiredProperties.remove(serializedDiscriminatorName);
+                superReadOnlyProperties.remove(serializedDiscriminatorName);
+            }
         }
 
         this.hasRequiredProperties = hasRequiredProperties;

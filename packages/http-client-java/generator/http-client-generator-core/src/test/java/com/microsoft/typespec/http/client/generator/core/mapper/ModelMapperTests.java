@@ -12,6 +12,7 @@ import com.azure.xml.XmlSerializable;
 import com.azure.xml.XmlToken;
 import com.azure.xml.XmlWriter;
 import com.microsoft.typespec.http.client.generator.core.MockUnitJavagen;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ChoiceValue;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ConstantSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ConstantValue;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Discriminator;
@@ -22,13 +23,16 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Relations;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Schema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SchemaContext;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SealedChoiceSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SerializationFormats;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.StringSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.XmlSerializationFormat;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModels;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.EnumType;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
+import com.microsoft.typespec.http.client.generator.core.template.EnumTemplate;
 import com.microsoft.typespec.http.client.generator.core.template.StreamSerializationModelTemplate;
 import io.clientcore.core.utils.IOExceptionCheckedFunction;
 import java.io.ByteArrayOutputStream;
@@ -50,6 +54,7 @@ import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.api.parallel.Isolated;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 @Isolated
 public class ModelMapperTests {
@@ -252,14 +257,133 @@ public class ModelMapperTests {
         Assertions.assertEquals("\"message\"", mapped.getParentPolymorphicDiscriminators().get(0).getDefaultValue());
     }
 
+    @ParameterizedTest
+    @CsvSource({ "false,false", "false,true", "true,false", "true,true" })
+    public void optionalInheritedDiscriminatorWithReadOnlyConstructorFlag(boolean shareJsonCode,
+        boolean constructorArgs) throws Exception {
+        configureSettings(Map.of("share-jsonserializable-code", shareJsonCode, "required-fields-as-ctor-args",
+            constructorArgs, "include-read-only-in-constructor-args", true));
+        ObjectSchema root = object("PetBase", null);
+        discriminator(root, "kind");
+        Property name = property("name", new StringSchema());
+        name.setRequired(true);
+        root.getProperties().add(name);
+        ObjectSchema intermediate = object("Mammal", root);
+        Property coat = property("coat", new StringSchema());
+        coat.setRequired(true);
+        intermediate.getProperties().add(coat);
+        ObjectSchema cat = object("Cat", intermediate);
+        cat.setDiscriminatorValue("cat");
+
+        ClientModel mappedRoot = ModelMapper.getInstance().map(root);
+        ClientModel mappedIntermediate = ClientModels.getInstance().getModel("Mammal");
+        compileModels(mappedRoot);
+        try (URLClassLoader loader
+            = new URLClassLoader(new URL[] { compilationDirectory.toUri().toURL() }, getClass().getClassLoader())) {
+            assertRoundTrip(loader, mappedRoot, ClientModels.getInstance().getModel("Cat"),
+                Map.of("kind", "cat", "name", "Milo", "coat", "tabby"));
+            assertRoundTrip(loader, mappedIntermediate, mappedIntermediate,
+                Map.of("kind", "unknown", "name", "Milo", "coat", "tabby"));
+        }
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+        "false,false,false",
+        "false,false,true",
+        "false,true,false",
+        "false,true,true",
+        "true,false,false",
+        "true,false,true",
+        "true,true,false",
+        "true,true,true" })
+    public void ordinaryAncestorDiscriminatorIsReconciled(boolean shareJsonCode, boolean constructorArgs,
+        boolean includeReadOnly) throws Exception {
+        configureSettings(Map.of("share-jsonserializable-code", shareJsonCode, "required-fields-as-ctor-args",
+            constructorArgs, "include-read-only-in-constructor-args", includeReadOnly));
+        ObjectSchema plain = object("Plain", null);
+        Property kind = property("kind", new StringSchema());
+        kind.setRequired(true);
+        plain.getProperties().add(kind);
+        ObjectSchema root = object("Base", plain);
+        discriminator(root, "kind");
+        ObjectSchema intermediate = object("Untagged", root);
+        Property extra = property("extra", new StringSchema());
+        extra.setRequired(true);
+        intermediate.getProperties().add(extra);
+        ObjectSchema cat = object("Cat", intermediate);
+        cat.setDiscriminatorValue("cat");
+
+        compileModels(ModelMapper.getInstance().map(plain));
+        ClientModel mappedRoot = ClientModels.getInstance().getModel("Base");
+        ClientModel mappedIntermediate = ClientModels.getInstance().getModel("Untagged");
+        try (URLClassLoader loader
+            = new URLClassLoader(new URL[] { compilationDirectory.toUri().toURL() }, getClass().getClassLoader())) {
+            assertRoundTrip(loader, mappedRoot, ClientModels.getInstance().getModel("Cat"),
+                Map.of("kind", "cat", "extra", "value"));
+            Object value = assertRoundTrip(loader, mappedIntermediate, mappedIntermediate,
+                Map.of("kind", "unknown", "extra", "value"));
+            Assertions.assertEquals("unknown", value.getClass().getMethod("getKind").invoke(value));
+            if (constructorArgs) {
+                Assertions.assertNotNull(value.getClass().getConstructor(String.class, String.class));
+            }
+        }
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = { false, true })
+    public void inheritedEnumDiscriminatorImportsItsType(boolean shareJsonCode) throws Exception {
+        configureJsonSharing(shareJsonCode);
+        SealedChoiceSchema kind = new SealedChoiceSchema();
+        kind.setType(Schema.AllSchemaTypes.SEALED_CHOICE);
+        kind.setLanguage(language("Kind"));
+        kind.getLanguage().getJava().setNamespace("com.azure.shared");
+        StringSchema string = new StringSchema();
+        string.setType(Schema.AllSchemaTypes.STRING);
+        kind.setChoiceType(string);
+        for (String tag : List.of("cat", "dog")) {
+            ChoiceValue choice = new ChoiceValue();
+            choice.setValue(tag);
+            choice.setLanguage(language(tag));
+            kind.getChoices().add(choice);
+        }
+        ObjectSchema root = object("EnumBase", null);
+        Property discriminatorProperty = property("kind", kind);
+        discriminatorProperty.setIsDiscriminator(true);
+        Discriminator discriminator = new Discriminator();
+        discriminator.setProperty(discriminatorProperty);
+        root.setDiscriminator(discriminator);
+        ObjectSchema intermediate = object("EnumIntermediate", root);
+        intermediate.getProperties().add(property("extra", new StringSchema()));
+        ObjectSchema cat = object("EnumCat", intermediate);
+        cat.setDiscriminatorValue("cat");
+        ClientModel mappedRoot = ModelMapper.getInstance().map(root);
+        ClientModel mappedIntermediate = ClientModels.getInstance().getModel("EnumIntermediate");
+        EnumType enumType = Assertions.assertInstanceOf(EnumType.class, Mappers.getSealedChoiceMapper().map(kind));
+        String enumFullName = enumType.getPackage() + "." + enumType.getName();
+        Assertions.assertTrue(root.getProperties().isEmpty());
+        Assertions.assertFalse(mappedRoot.getImports().contains(enumFullName));
+        compileModels(mappedRoot, enumType);
+        String intermediateSource = Files.readString(compilationDirectory.resolve("EnumIntermediate.java"));
+        Assertions.assertTrue(intermediateSource.contains("import " + enumFullName + ";"));
+        try (URLClassLoader loader
+            = new URLClassLoader(new URL[] { compilationDirectory.toUri().toURL() }, getClass().getClassLoader())) {
+            assertRoundTrip(loader, mappedRoot, ClientModels.getInstance().getModel("EnumCat"),
+                Map.of("kind", "cat", "extra", "value"));
+            assertRoundTrip(loader, mappedIntermediate, mappedIntermediate, Map.of("kind", "dog", "extra", "value"));
+        }
+    }
+
     private static void configureJsonSharing(boolean shareJsonCode) {
+        configureSettings(Map.of("share-jsonserializable-code", shareJsonCode));
+    }
+
+    private static void configureSettings(Map<String, Boolean> settings) {
         new MockUnitJavagen() {
             @Override
             @SuppressWarnings("unchecked")
             public <T> T getValue(String key, IOExceptionCheckedFunction<String, T> converter) {
-                return "share-jsonserializable-code".equals(key)
-                    ? (T) Boolean.valueOf(shareJsonCode)
-                    : super.getValue(key, converter);
+                return settings.containsKey(key) ? (T) settings.get(key) : super.getValue(key, converter);
             }
         };
         JavaSettings.clear();
@@ -356,9 +480,17 @@ public class ModelMapperTests {
         return deserialized;
     }
 
-    private String compileModels(ClientModel root) throws Exception {
+    private String compileModels(ClientModel root, EnumType... enums) throws Exception {
         List<String> arguments = new ArrayList<>(
             List.of("-classpath", System.getProperty("java.class.path"), "-d", compilationDirectory.toString()));
+        for (EnumType enumType : enums) {
+            JavaFile file = new JavaFile(enumType.getName() + ".java");
+            file.declarePackage(enumType.getPackage());
+            EnumTemplate.getInstance().write(enumType, file);
+            Path path = compilationDirectory.resolve(enumType.getName() + ".java");
+            Files.writeString(path, file.getContents().toString());
+            arguments.add(path.toString());
+        }
         String rootSource = null;
         for (ClientModel model : ClientModels.getInstance().getModels()) {
             JavaFile file = new JavaFile(model.getName() + ".java");
