@@ -60,6 +60,12 @@ export interface TesterOptions {
    */
   host?: CompilerHost;
 }
+
+/**
+ * Create a tester for a TypeSpec library.
+ * @param base Path to the library root directory containing its package.json.
+ * @param options Libraries and compiler options to use for testing.
+ */
 export function createTester(base: string, options: TesterOptions): Tester {
   return createTesterInternal({
     fs: once(() => createTesterFs(base, options)),
@@ -120,7 +126,24 @@ async function createTesterFs(base: string, options: TesterOptions) {
   };
 
   const sl = await createSourceLoader(host);
-  const selfName = JSON.parse((await host.readFile(resolvePath(base, "package.json"))).text).name;
+  let packageJson: SourceFile;
+  try {
+    packageJson = await host.readFile(resolvePath(base, "package.json"));
+  } catch (error) {
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "code" in error &&
+      (error.code === "ENOENT" || error.code === "ENOTDIR")
+    ) {
+      throw new Error(
+        `Cannot find package.json in "${base}". The first argument to createTester must be the library root directory.`,
+        { cause: error },
+      );
+    }
+    throw error;
+  }
+  const selfName = JSON.parse(packageJson.text).name;
   const moduleHost: ResolveModuleHost = {
     realpath: async (x) => x,
     stat: host.stat,
