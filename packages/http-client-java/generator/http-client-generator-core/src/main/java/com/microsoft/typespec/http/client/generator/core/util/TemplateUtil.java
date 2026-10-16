@@ -283,7 +283,7 @@ public class TemplateUtil {
                 + "java.util.function.Function<com.azure.xml.XmlReader, BinaryData> valueReader, String... path)",
             block -> {
                 block.line(
-                    "try (com.azure.xml.XmlReader reader = com.azure.xml.XmlReader.fromStream(binaryData.toStream())) {");
+                    "try (com.azure.xml.XmlReader reader = com.azure.xml.XmlReader.fromBytes(binaryData.toBytes())) {");
                 block.indent(() -> {
                     block.line("reader.nextElement();");
                     block.line("return getXmlValues(reader, valueReader, path, 0);");
@@ -313,7 +313,7 @@ public class TemplateUtil {
             });
         classBlock.privateMethod("String getXmlNextLink(BinaryData binaryData, String... path)", block -> {
             block.line(
-                "try (com.azure.xml.XmlReader reader = com.azure.xml.XmlReader.fromStream(binaryData.toStream())) {");
+                "try (com.azure.xml.XmlReader reader = com.azure.xml.XmlReader.fromBytes(binaryData.toBytes())) {");
             block.indent(() -> {
                 block.line("reader.nextElement();");
                 block.line("return getXmlNextLink(reader, path, 0);");
