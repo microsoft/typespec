@@ -2093,7 +2093,7 @@ export enum IdentifierKind {
 export interface DocNode extends BaseNode {
   /** Identifies a complete documentation comment. */
   readonly kind: SyntaxKind.Doc;
-  /** Text outside block tags, in source order; empty when the comment contains only tags. */
+  /** Text outside block tags, in source order; inspect node text rather than array length for a description. */
   readonly content: readonly DocContent[];
   /** Recognized and unrecognized block tags, in source order. */
   readonly tags: readonly DocTag[];
