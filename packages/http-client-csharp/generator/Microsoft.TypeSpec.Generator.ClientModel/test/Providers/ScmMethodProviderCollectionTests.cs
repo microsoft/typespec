@@ -2528,6 +2528,40 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             }
         }
 
+        [TestCase(InputPrimitiveTypeKind.Int16)]
+        [TestCase(InputPrimitiveTypeKind.UInt16)]
+        [TestCase(InputPrimitiveTypeKind.UInt32)]
+        [TestCase(InputPrimitiveTypeKind.UInt64)]
+        public void IntegerCollectionResponsesUseUtf8JsonReader(InputPrimitiveTypeKind kind)
+        {
+            MockHelpers.LoadMockGenerator();
+            var generatedCode = new StringBuilder();
+            foreach (var isDictionary in new[] { false, true })
+            {
+                foreach (var isNullable in new[] { false, true })
+                {
+                    InputType elementType = new InputPrimitiveType(kind, kind.ToString(), $"TypeSpec.{kind.ToString().ToLowerInvariant()}");
+                    if (isNullable)
+                    {
+                        elementType = new InputNullableType(elementType);
+                    }
+                    var responseType = isDictionary ? (InputType)InputFactory.Dictionary(elementType) : InputFactory.Array(elementType);
+                    var name = $"Get{(isNullable ? "Nullable" : "")}{(isDictionary ? "Dictionary" : "List")}";
+                    var operation = InputFactory.Operation(name, responses: [InputFactory.OperationResponse([200], responseType)]);
+                    var serviceMethod = InputFactory.BasicServiceMethod(name, operation);
+                    var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+                    var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+                    var methods = new ScmMethodProviderCollection(serviceMethod, client);
+                    foreach (var method in methods.Where(m => m.Kind == ScmMethodKind.Convenience))
+                    {
+                        generatedCode.Append(method.BodyStatements!.ToDisplayString());
+                    }
+                }
+            }
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(kind.ToString()), generatedCode.ToString());
+        }
+
         [TestCase(typeof(int))]
         [TestCase(typeof(int), true)]
         [TestCase(typeof(int?))]
