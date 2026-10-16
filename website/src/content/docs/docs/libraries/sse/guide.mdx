@@ -1,0 +1,595 @@
+---
+title: Guide
+description: Model server-sent events, payload encoding, and stream termination with TypeSpec.
+llmstxt: true
+---
+
+import { Tabs, TabItem } from "@astrojs/starlight/components";
+
+Server-sent events (SSE) use the `text/event-stream` media type to deliver a sequence of messages.
+The [SSE library](./reference/index.mdx) describes those messages with `SSEStream` and an `@events` union.
+
+Three independent parts of the contract matter:
+
+| Part                   | TypeSpec declaration                              | Meaning                                                                               |
+| ---------------------- | ------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| Event identity         | A named union variant, such as `done: StreamDone` | The SSE event type is `done`. An unnamed variant describes a default `message` event. |
+| Payload representation | The variant's type and `@contentType`             | The contents and encoding of the SSE `data` field.                                    |
+| Stream lifecycle       | `@terminalEvent`                                  | The client should disconnect when it receives this event.                             |
+
+Adding `@terminalEvent` does not remove an event's name, discard its payload, or change its encoding.
+An event that completes one content block or reports a generation stop reason is not necessarily the
+event that ends the whole stream.
+
+## Setup
+
+Import the libraries and use their namespaces:
+
+```tsp
+import "@typespec/http";
+import "@typespec/events";
+import "@typespec/sse";
+
+using TypeSpec.Http;
+using TypeSpec.Events;
+using TypeSpec.SSE;
+```
+
+To describe individual SSE messages in OpenAPI, select OpenAPI 3.2:
+
+```yaml
+emit:
+  - "@typespec/openapi3"
+options:
+  "@typespec/openapi3":
+    openapi-versions: ["3.2.0"]
+```
+
+OpenAPI 3.2's `itemSchema` describes each parsed message independently. The SSE `data` field is
+still a string: `contentMediaType` describes its contents, and `contentSchema` describes the decoded
+payload. Earlier OpenAPI versions do not support `itemSchema`; the emitter warns and represents the
+response as a string instead.
+
+:::caution[Reference contracts and current emitter limitations]
+The OpenAPI examples below describe the intended wire contracts, not exact output guaranteed by
+the current emitter. Known gaps include named model-valued terminal events
+([issue 11747](https://github.com/microsoft/typespec/issues/11747), addressed by
+[PR 12021](https://github.com/microsoft/typespec/pull/12021)), and unnamed-event requirements,
+overlapping union branches, and literal encoding
+([issue 12119](https://github.com/microsoft/typespec/issues/12119)).
+:::
+
+The examples are reduced models of real API formats, not complete definitions of those APIs.
+Request bodies, authentication, some fields, and most event catalogs are omitted. Assume the request
+selects streaming, such as `stream: true` for OpenAI and Anthropic or `alt=sse` for Gemini.
+Each TypeSpec example uses the setup imports above. Each OpenAPI example belongs under
+`responses.200.content.text/event-stream`; its component schemas correspond to the TypeSpec models.
+
+## 1. Unnamed JSON events and a text sentinel
+
+[OpenAI Chat Completions](https://github.com/openai/openai-node/blob/main/src/resources/chat/completions/completions.ts)
+streams JSON chunks followed by a plain-text `[DONE]` sentinel. Neither needs an explicit SSE
+`event` field.
+
+<Tabs>
+<TabItem label="TypeSpec">
+
+```tsp
+model ChatChunk {
+  id: string;
+  object: "chat.completion.chunk";
+  choices: {
+    index: int32;
+    delta: {
+      content?: string;
+    };
+    finish_reason: string | null;
+  }[];
+}
+
+@events
+union ChatEvents {
+  @contentType("application/json")
+  ChatChunk,
+
+  @contentType("text/plain")
+  @terminalEvent
+  "[DONE]",
+}
+
+@route("/v1/chat/completions")
+@post
+op chat(): SSEStream<ChatEvents>;
+```
+
+</TabItem>
+<TabItem label="SSE payload">
+
+```text
+data: {"id":"chatcmpl_1","object":"chat.completion.chunk","choices":[{"index":0,"delta":{"content":"Hello"},"finish_reason":null}]}
+
+data: {"id":"chatcmpl_1","object":"chat.completion.chunk","choices":[{"index":0,"delta":{},"finish_reason":"stop"}]}
+
+data: [DONE]
+
+```
+
+</TabItem>
+<TabItem label="OpenAPI 3.2">
+
+```yaml
+itemSchema:
+  type: object
+  required: [data]
+  properties:
+    event:
+      type: string
+      enum: ["", message]
+    data:
+      type: string
+  oneOf:
+    - properties:
+        data:
+          not:
+            const: "[DONE]"
+          contentMediaType: application/json
+          contentSchema:
+            $ref: "#/components/schemas/ChatChunk"
+    - properties:
+        data:
+          const: "[DONE]"
+          contentMediaType: text/plain
+```
+
+</TabItem>
+</Tabs>
+
+The unnamed model variant is intentional. Writing `chunk: ChatChunk` would describe a named
+`event: chunk` message, which is a different contract.
+
+An absent or empty SSE event name defaults to `message`, so `event` is optional here.
+The terminal value is raw text, not a JSON string: `data: [DONE]` and `data: "[DONE]"` have different
+contents. `@contentType("text/plain")` makes that distinction explicit.
+
+The `not` in the JSON branch makes this reference schema's branches exclusive. JSON Schema's
+`contentMediaType` and `contentSchema` are annotations, not default validation assertions.
+Without an assertion excluding `[DONE]`, the JSON branch also matches the sentinel, causing
+`oneOf` to reject it. Different content schemas alone also cannot distinguish multiple unnamed
+outer `oneOf` branches.
+
+A chunk with `finish_reason: "stop"` is not necessarily the final message. For example, OpenAI can
+send a usage chunk after it and before `[DONE]`. Only the sentinel carries the terminal-event
+instruction in this model.
+
+## 2. Named JSON events and a model-valued terminal event
+
+The [OpenAI Responses API](https://developers.openai.com/api/docs/guides/streaming-responses)
+uses named semantic events. A `response.completed` event contains a response object rather than an
+empty message or a text sentinel.
+
+<Tabs>
+<TabItem label="TypeSpec">
+
+```tsp
+model TextDelta {
+  type: "response.output_text.delta";
+  sequence_number: int32;
+  delta: string;
+}
+
+model ResponseCompleted {
+  type: "response.completed";
+  sequence_number: int32;
+  response: {
+    id: string;
+    status: "completed";
+  };
+}
+
+@events
+union ResponseEvents {
+  `response.output_text.delta`: TextDelta,
+
+  @terminalEvent
+  `response.completed`: ResponseCompleted,
+}
+
+@route("/v1/responses")
+@post
+op respond(): SSEStream<ResponseEvents>;
+```
+
+</TabItem>
+<TabItem label="SSE payload">
+
+```text
+event: response.output_text.delta
+data: {"type":"response.output_text.delta","sequence_number":5,"delta":"Hello"}
+
+event: response.completed
+data: {"type":"response.completed","sequence_number":20,"response":{"id":"resp_1","status":"completed"}}
+
+```
+
+</TabItem>
+<TabItem label="OpenAPI 3.2">
+
+```yaml
+itemSchema:
+  type: object
+  required: [event, data]
+  properties:
+    event:
+      type: string
+    data:
+      type: string
+  oneOf:
+    - properties:
+        event:
+          const: response.output_text.delta
+        data:
+          contentMediaType: application/json
+          contentSchema:
+            $ref: "#/components/schemas/TextDelta"
+    - properties:
+        event:
+          const: response.completed
+        data:
+          contentMediaType: application/json
+          contentSchema:
+            $ref: "#/components/schemas/ResponseCompleted"
+```
+
+</TabItem>
+</Tabs>
+
+The SSE event name and the JSON `type` property are separate fields. The union variant's name
+describes the former; the model's property describes the latter. This API intentionally sends both.
+JSON is the OpenAPI emitter's default event payload content type.
+
+The terminal branch retains both `event.const` and `data.contentSchema`. Removing `@terminalEvent`
+would remove the disconnect instruction, not change either field's representation.
+
+This example describes a successful, conventional single-response HTTP stream. A complete
+definition needs the other lifecycle and error events. Do not infer stream terminality from an
+event's spelling alone: a per-item `.done` event can occur before the response finishes, and
+protocol modes that produce successor responses may have different lifecycle rules.
+
+## 3. Content-block completion versus message completion
+
+[Anthropic Messages](https://platform.claude.com/docs/en/build-with-claude/streaming)
+distinguishes content-block events, message-level updates, pings, and a final `message_stop` event.
+
+<Tabs>
+<TabItem label="TypeSpec">
+
+```tsp
+model TextBlockDelta {
+  type: "content_block_delta";
+  index: int32;
+  delta: {
+    type: "text_delta";
+    text: string;
+  };
+}
+
+model ContentBlockStop {
+  type: "content_block_stop";
+  index: int32;
+}
+
+model MessageDelta {
+  type: "message_delta";
+  delta: {
+    stop_reason: string | null;
+  };
+  usage: {
+    output_tokens: int32;
+  };
+}
+
+model MessageStop {
+  type: "message_stop";
+}
+
+model Ping {
+  type: "ping";
+}
+
+@events
+union MessageEvents {
+  content_block_delta: TextBlockDelta,
+  content_block_stop: ContentBlockStop,
+  message_delta: MessageDelta,
+  ping: Ping,
+
+  @terminalEvent
+  message_stop: MessageStop,
+}
+
+@route("/v1/messages")
+@post
+op message(): SSEStream<MessageEvents>;
+```
+
+</TabItem>
+<TabItem label="SSE payload">
+
+```text
+event: content_block_delta
+data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"Hello"}}
+
+event: content_block_stop
+data: {"type":"content_block_stop","index":0}
+
+event: message_delta
+data: {"type":"message_delta","delta":{"stop_reason":"end_turn","stop_sequence":null},"usage":{"output_tokens":15}}
+
+event: message_stop
+data: {"type":"message_stop"}
+
+```
+
+</TabItem>
+<TabItem label="OpenAPI 3.2">
+
+```yaml
+itemSchema:
+  type: object
+  required: [event, data]
+  properties:
+    event:
+      type: string
+    data:
+      type: string
+  oneOf:
+    - properties:
+        event:
+          const: content_block_delta
+        data:
+          contentMediaType: application/json
+          contentSchema:
+            $ref: "#/components/schemas/TextBlockDelta"
+    - properties:
+        event:
+          const: content_block_stop
+        data:
+          contentMediaType: application/json
+          contentSchema:
+            $ref: "#/components/schemas/ContentBlockStop"
+    - properties:
+        event:
+          const: message_delta
+        data:
+          contentMediaType: application/json
+          contentSchema:
+            $ref: "#/components/schemas/MessageDelta"
+    - properties:
+        event:
+          const: ping
+        data:
+          contentMediaType: application/json
+          contentSchema:
+            $ref: "#/components/schemas/Ping"
+    - properties:
+        event:
+          const: message_stop
+        data:
+          contentMediaType: application/json
+          contentSchema:
+            $ref: "#/components/schemas/MessageStop"
+```
+
+</TabItem>
+</Tabs>
+
+`message_stop` is a model-valued terminal event even though its payload contains only one property.
+Its data is the JSON object `{"type":"message_stop"}`, not the raw text `message_stop`.
+Neither `content_block_stop` nor the appearance of `stop_reason` should cause an immediate
+disconnect: the stream has subsequent message-level events.
+
+The whole JSON object is the payload here. Do not put `@data` on `delta`: that decorator selects a
+property as the event payload, rather than simply labeling a field that happens to be named
+`delta`. These examples do not need payload extraction.
+
+The full API also includes message/block start events, other delta types, and errors.
+Anthropic asks clients to tolerate future unknown event types. The reduced union above describes
+known variants; an exhaustive closed schema alone does not express that forward-compatibility
+policy.
+
+An SSE comment such as `: keepalive` is not a dispatched message. An explicit
+`event: ping` with `data: {"type":"ping"}` is a message and can be modeled as a union variant.
+
+## 4. Unnamed JSON events ending at EOF
+
+[Gemini `streamGenerateContent`](https://ai.google.dev/api/generate-content#method:-models.streamgeneratecontent)
+with `alt=sse` streams JSON records without a `[DONE]` sentinel. The
+[official SDK](https://github.com/googleapis/js-genai/blob/main/src/_api_client.ts) reads those records
+until the response body ends.
+
+<Tabs>
+<TabItem label="TypeSpec">
+
+```tsp
+model GenerateContentResponse {
+  candidates?: {
+    index?: int32;
+    content?: {
+      role?: string;
+      parts: {
+        text?: string;
+      }[];
+    };
+    finishReason?: string;
+  }[];
+  usageMetadata?: {
+    promptTokenCount?: int32;
+    candidatesTokenCount?: int32;
+    totalTokenCount?: int32;
+  };
+}
+
+@events
+union GenerateEvents {
+  GenerateContentResponse,
+}
+
+@route("/v1beta/models/{modelName}:streamGenerateContent")
+@post
+op generate(@path modelName: string, @query alt: "sse"): SSEStream<GenerateEvents>;
+```
+
+</TabItem>
+<TabItem label="SSE payload">
+
+```text
+data: {"candidates":[{"index":0,"content":{"role":"model","parts":[{"text":"Hello"}]}}]}
+
+data: {"candidates":[{"index":0,"content":{"role":"model","parts":[{"text":"!"}]},"finishReason":"STOP"}],"usageMetadata":{"totalTokenCount":12}}
+
+```
+
+The HTTP response then ends, with no additional sentinel record.
+
+</TabItem>
+<TabItem label="OpenAPI 3.2">
+
+```yaml
+itemSchema:
+  type: object
+  required: [data]
+  properties:
+    event:
+      type: string
+      enum: ["", message]
+    data:
+      type: string
+      contentMediaType: application/json
+      contentSchema:
+        $ref: "#/components/schemas/GenerateContentResponse"
+```
+
+</TabItem>
+</Tabs>
+
+There is no `@terminalEvent`: this protocol does not define a separate event variant instructing
+the client to disconnect. `finishReason` describes a candidate's generation outcome; it is not
+inherently a stream-wide lifecycle signal.
+
+EOF ends the transport stream. Whether the application completed successfully is a separate
+question; an interrupted connection can also produce EOF.
+
+## 5. A named plain-text terminal event
+
+A literal terminal payload can also have an event name. This synthetic example differs from the
+unnamed OpenAI sentinel: it explicitly sends `event: done`.
+
+<Tabs>
+<TabItem label="TypeSpec">
+
+```tsp
+@events
+union NamedSentinelEvents {
+  @contentType("text/plain")
+  @terminalEvent
+  done: "[DONE]",
+}
+
+@route("/named-sentinel")
+@get
+op namedSentinel(): SSEStream<NamedSentinelEvents>;
+```
+
+</TabItem>
+<TabItem label="SSE payload">
+
+```text
+event: done
+data: [DONE]
+
+```
+
+</TabItem>
+<TabItem label="OpenAPI 3.2">
+
+```yaml
+itemSchema:
+  type: object
+  required: [event, data]
+  properties:
+    event:
+      type: string
+      const: done
+    data:
+      type: string
+      const: "[DONE]"
+      contentMediaType: text/plain
+```
+
+</TabItem>
+</Tabs>
+
+Both the event name and the literal data value belong to the contract. This reference schema uses
+a direct `data.const` assertion. Describing a text payload inside `contentSchema` instead provides
+content metadata, but does not assert that value during default outer-schema validation.
+
+For a JSON-encoded literal, the SSE field includes the JSON quotation marks. For example,
+`@contentType("application/json")` on a variant whose type is `"done"` describes `data: "done"`,
+not `data: done`. A payload-level `contentSchema: { const: "done" }` describes the decoded JSON
+value; an outer `data.const` would need to match the serialized string, including those quotes.
+`@terminalEvent` must not change this encoding distinction.
+
+## Terminality and validation
+
+OpenAPI 3.2 has no standard keyword expressing the instruction to disconnect on an event.
+Its `itemSchema` also does not describe event ordering, require a terminal event to occur, or
+enforce that no events follow it. Those are lifecycle rules beyond an individual message's shape.
+
+If consumers agree on an extension, attach it explicitly. This example includes the setup imports,
+with `@typespec/openapi` added before any other declarations:
+
+```tsp
+import "@typespec/http";
+import "@typespec/events";
+import "@typespec/sse";
+import "@typespec/openapi";
+
+using TypeSpec.Http;
+using TypeSpec.Events;
+using TypeSpec.SSE;
+using TypeSpec.OpenAPI;
+
+model StreamDone {
+  result: string;
+}
+
+@events
+union StreamEvents {
+  @terminalEvent
+  @extension("x-ms-sse-terminal-event", true)
+  done: StreamDone,
+}
+```
+
+The extension appears on the corresponding branch without replacing its event or data schema:
+
+```yaml
+x-ms-sse-terminal-event: true
+properties:
+  event:
+    const: done
+  data:
+    contentMediaType: application/json
+    contentSchema:
+      $ref: "#/components/schemas/StreamDone"
+```
+
+This extension is opt-in, not an OpenAPI standard or an automatically emitted terminal marker.
+
+Finally, distinguish validation of the outer SSE field object from validation of embedded content.
+[OpenAPI's SSE mapping](https://spec.openapis.org/oas/v3.2.0.html#x4-14-4-special-considerations-for-server-sent-events)
+operates on parsed messages, after multi-line data has been combined and comments ignored.
+[JSON Schema's content keywords](https://json-schema.org/draft/2020-12/json-schema-validation#section-8)
+describe the contents of strings, but implementations must not automatically parse or validate
+that content by default. A consumer that checks JSON payloads needs an explicit content-processing
+step in addition to ordinary schema validation.
