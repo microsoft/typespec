@@ -136,7 +136,8 @@ public class ClientModel {
     /**
      * Whether all models in the polymorphic hierarchy containing this model are in the same package.
      * <p>
-     * If this model isn't polymorphic, this will always be false.
+     * If this model or any model in its hierarchy isn't polymorphic, this will always be false. Untagged intermediate
+     * models do not declare the shared JSON helpers used by polymorphic models.
      */
     private Boolean allPolymorphicModelsInSamePackage;
 
@@ -548,7 +549,7 @@ public class ClientModel {
     /**
      * Whether the polymorphic structure containing the model and all subtypes are in the same package.
      * <p>
-     * If this model isn't polymorphic, this will always be false.
+     * If this model or any model in its hierarchy isn't polymorphic, this will always be false.
      *
      * @return Whether the polymorphic structure containing the model and all subtypes are in the same package.
      */
@@ -594,7 +595,7 @@ public class ClientModel {
         ClientModel lastParent = model;
         while (parent != null) {
             lastParent = parent;
-            if (!packageName.equals(parent.getPackage())) {
+            if (!parent.isPolymorphic() || !packageName.equals(parent.getPackage())) {
                 return false;
             }
 
@@ -611,7 +612,9 @@ public class ClientModel {
         }
 
         for (ClientModel child : children) {
-            if (!packageName.equals(child.getPackage()) || !checkChildrenModelsPackage(child, packageName)) {
+            if (!child.isPolymorphic()
+                || !packageName.equals(child.getPackage())
+                || !checkChildrenModelsPackage(child, packageName)) {
                 return false;
             }
         }

@@ -1114,7 +1114,9 @@ public class StreamSerializationModelTemplate extends ModelTemplate {
 
         private static List<ClientModel> getAllChildTypes(ClientModel model, List<ClientModel> childTypes) {
             for (ClientModel childType : model.getDerivedModels()) {
-                childTypes.add(childType);
+                if (childType.getPolymorphicDiscriminatorName() != null) {
+                    childTypes.add(childType);
+                }
                 if (!CoreUtils.isNullOrEmpty(childType.getDerivedModels())) {
                     getAllChildTypes(childType, childTypes);
                 }
