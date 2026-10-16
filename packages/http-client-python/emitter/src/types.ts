@@ -16,11 +16,12 @@ import type {
 } from "@azure-tools/typespec-client-generator-core";
 import { isHttpMetadata, UsageFlags } from "@azure-tools/typespec-client-generator-core";
 import type { Type } from "@typespec/compiler";
-import { getEncode } from "@typespec/compiler";
+import { getDiscriminatedUnion, getEncode } from "@typespec/compiler";
 import type { HttpAuth } from "@typespec/http";
 import { Visibility } from "@typespec/http";
 import { dump } from "js-yaml";
 import type { PythonSdkContext } from "./lib.js";
+import { reportDiagnostic } from "./lib.js";
 import {
   camelToSnakeCase,
   emitParamBase,
@@ -539,16 +540,90 @@ function emitBuiltInType(
 }
 
 function emitUnion(context: PythonSdkContext, type: SdkUnionType): Record<string, any> {
-  return getSimpleTypeResult(context, {
+  if (context.__typesMap.has(type)) {
+    return context.__typesMap.get(type)!;
+  }
+  const result: Record<string, any> = {
     name: type.isGeneratedName ? undefined : type.name,
     snakeCaseName: type.isGeneratedName ? undefined : camelToSnakeCase(type.name),
     description: type.isGeneratedName ? "" : `Type of ${type.name}`,
     internal: true,
     type: "combined",
-    types: type.variantTypes.map((x) => getType(context, x)),
+    types: [],
     xmlMetadata: {},
     clientNamespace: getClientNamespace(context, type.namespace),
-  });
+  };
+  // Cache before visiting variants: a model property can refer back to this union.
+  context.__typesMap.set(type, result);
+  result.types = type.variantTypes.map((x) => getType(context, x));
+  if (type.discriminatedOptions) {
+    const metadata = getInlineUnionDiscriminator(context, type);
+    if (metadata) {
+      result.baseType = getType(context, metadata.baseType);
+      result.discriminator = {
+        propertyName: metadata.propertyName,
+        variants: Object.fromEntries(
+          metadata.variants.map(([tag, model]) => [tag, getType(context, model)]),
+        ),
+      };
+    } else {
+      reportDiagnostic(context.program, {
+        code: "unsupported-discriminated-union",
+        target: type.__raw ?? context.program.getGlobalNamespaceType(),
+      });
+    }
+  }
+  return result;
+}
+
+function getInlineUnionDiscriminator(
+  context: PythonSdkContext,
+  type: SdkUnionType,
+):
+  | {
+      baseType: SdkModelType;
+      propertyName: string;
+      variants: [string, SdkModelType][];
+    }
+  | undefined {
+  const raw = type.__raw;
+  const options = type.discriminatedOptions;
+  // TCGC 0.73 does not yet export SdkUnionType.baseType. Use the explicit
+  // compiler constraint, never an inferred common ancestor.
+  if (options?.envelope !== "none" || raw?.kind !== "Union" || raw.baseType?.kind !== "Model") {
+    return undefined;
+  }
+  const [union] = getDiscriminatedUnion(context.program, raw);
+  if (!union || union.defaultVariant || union.variants.size === 0) {
+    return undefined;
+  }
+  const variants: [string, SdkModelType][] = [];
+  let baseType: SdkModelType | undefined;
+  let propertyName: string | undefined;
+  for (const [tag, variant] of union.variants) {
+    const model = type.variantTypes.find((x) => x.__raw === variant);
+    if (model?.kind !== "model") return undefined;
+    let base = model.baseModel;
+    while (base && base.__raw !== raw.baseType) base = base.baseModel;
+    if (!base) return undefined;
+    baseType = base;
+    const property = model.properties.find(
+      (p) => p.__raw?.name === options.discriminatorPropertyName,
+    );
+    if (
+      !property ||
+      property.optional ||
+      property.type.kind !== "constant" ||
+      property.type.value !== tag
+    ) {
+      return undefined;
+    }
+    const wireName = property.serializationOptions.json?.name ?? property.name;
+    if (propertyName !== undefined && wireName !== propertyName) return undefined;
+    propertyName = wireName;
+    variants.push([tag, model]);
+  }
+  return baseType && propertyName !== undefined ? { baseType, propertyName, variants } : undefined;
 }
 
 export function getConstantType(
