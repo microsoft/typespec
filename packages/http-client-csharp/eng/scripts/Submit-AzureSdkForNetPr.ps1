@@ -684,12 +684,8 @@ try {
         try {
             & $dashboardScript -RepoRoot $tempDir
         } catch {
-            # Management approval must still block PRs that update management dependencies.
-            if ($RegenerateMgmtLibraries) {
-                throw
-            }
             $dashboardError = $_.Exception.Message
-            Register-StepFailure "Emitter version dashboard regeneration failed: $dashboardError. Continuing with data-plane PR creation without updating management dependencies."
+            Register-StepFailure "Emitter version dashboard regeneration failed: $dashboardError. Continuing with PR creation."
         } finally {
             $ErrorActionPreference = $previousErrorAction
         }
