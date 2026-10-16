@@ -14,7 +14,7 @@ namespace Routes
     {
         protected InInterface() => throw null;
 
-        internal InInterface(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal InInterface(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

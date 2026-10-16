@@ -15,7 +15,7 @@ namespace Parameters.BodyOptionality._OptionalExplicit
     {
         protected OptionalExplicit() => throw null;
 
-        internal OptionalExplicit(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal OptionalExplicit(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

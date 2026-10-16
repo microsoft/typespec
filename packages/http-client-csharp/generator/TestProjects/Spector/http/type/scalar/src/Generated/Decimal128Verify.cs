@@ -15,7 +15,7 @@ namespace _Type.Scalar
     {
         protected Decimal128Verify() => throw null;
 
-        internal Decimal128Verify(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal Decimal128Verify(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

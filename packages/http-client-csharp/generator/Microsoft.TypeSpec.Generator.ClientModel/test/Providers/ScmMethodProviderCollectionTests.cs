@@ -1581,12 +1581,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                         invocation.Expression is MemberAccessExpressionSyntax member && member.Name.Identifier.ValueText == request.Signature.Name).ArgumentList.Arguments
                     : syntax.DescendantNodes().OfType<ObjectCreationExpressionSyntax>().Single(construction =>
                         construction.Type.ToString().Contains("CollectionResult", StringComparison.Ordinal)).ArgumentList!.Arguments;
+                if (!isStreaming)
+                {
+                    Assert.AreEqual("_modelReaderWriterOptions", arguments[1].Expression.ToString());
+                }
                 CollectionAssert.AreEqual(
                     new[] { omitPathParameter ? "null" : "targetDBName", "sourceIPAddress", "cancellationToken.ToRequestOptions()" },
-                    arguments.Skip(isStreaming ? 0 : 1).Select(argument => argument.Expression.ToString()));
+                    arguments.Skip(isStreaming ? 0 : 2).Select(argument => argument.Expression.ToString()));
                 CollectionAssert.AreEqual(
                     omitPathParameter ? new[] { "targetDBName", "sourceIPAddress", "options" } : new string?[] { null, null, null },
-                    arguments.Skip(isStreaming ? 0 : 1).Select(argument => argument.NameColon?.Name.Identifier.ValueText));
+                    arguments.Skip(isStreaming ? 0 : 2).Select(argument => argument.NameColon?.Name.Identifier.ValueText));
             }
         }
 
@@ -2374,16 +2378,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             if (inputType is InputArrayType)
             {
                 Assert.IsTrue(convenienceMethod!.BodyStatements!.ToDisplayString()
-                    .Contains("using global::System.ClientModel.BinaryContent content = global::Sample.BinaryContentHelper.FromEnumerable(message);"));
+                    .Contains("using global::System.ClientModel.BinaryContent content = global::Sample.BinaryContentHelper.FromEnumerable(message, _modelReaderWriterOptions);"));
             }
             else if (inputType is InputDictionaryType)
             {
                 Assert.IsTrue(convenienceMethod!.BodyStatements!.ToDisplayString()
-                    .Contains("using global::System.ClientModel.BinaryContent content = global::Sample.BinaryContentHelper.FromDictionary(message);"));
+                    .Contains("using global::System.ClientModel.BinaryContent content = global::Sample.BinaryContentHelper.FromDictionary(message, _modelReaderWriterOptions);"));
             }
             else
             {
-                Assert.IsFalse(convenienceMethod!.BodyStatements!.ToDisplayString().Contains("BinaryContentHelper"));
+                Assert.That(
+                    convenienceMethod!.BodyStatements!.ToDisplayString(),
+                    Does.Contain("message.ToBinaryContent(_modelReaderWriterOptions)"));
             }
         }
 
@@ -2416,7 +2422,30 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.IsNotNull(convenienceMethod);
 
             Assert.IsTrue(convenienceMethod!.BodyStatements!.ToDisplayString()
-                .Contains("using global::System.ClientModel.BinaryContent content = global::Sample.BinaryContentHelper.FromEnumerable(data.Span);"));
+                .Contains("using global::System.ClientModel.BinaryContent content = global::Sample.BinaryContentHelper.FromEnumerable(data.Span, _modelReaderWriterOptions);"));
+        }
+
+        [Test]
+        public void ResponseBodyDeserializationUsesCachedModelReaderWriterOptions()
+        {
+            var responseModel = InputFactory.Model(
+                "cat",
+                usage: InputModelTypeUsage.Output,
+                properties: [InputFactory.Property("color", InputPrimitiveType.String, isRequired: true)]);
+            var inputOperation = InputFactory.Operation(
+                "GetCat",
+                responses: [InputFactory.OperationResponse([200], responseModel)]);
+            var inputServiceMethod = InputFactory.BasicServiceMethod("GetCat", inputOperation);
+            var inputClient = InputFactory.Client("TestClient", methods: [inputServiceMethod]);
+            MockHelpers.LoadMockGenerator(inputModels: () => [responseModel], clients: () => [inputClient]);
+
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient);
+            var convenienceMethod = new ScmMethodProviderCollection(inputServiceMethod, client!)
+                .Single(m => m.Signature.Name == "GetCat" && !m.Signature.Parameters.Any(p => p.Name == "options"));
+            var body = convenienceMethod.BodyStatements!.ToDisplayString();
+
+            Assert.That(body, Does.Contain("_modelReaderWriterOptions"));
+            Assert.That(body, Does.Not.Contain("ModelSerializationExtensions.WireOptions"));
         }
 
         [Test]
@@ -2486,16 +2515,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             if (inputType is InputArrayType)
             {
                 Assert.IsTrue(convenienceMethod!.BodyStatements!.ToDisplayString()
-                    .Contains("using global::Microsoft.TypeSpec.Generator.ClientModel.Tests.TestRequestContent content = global::Sample.BinaryContentHelper.FromEnumerable(message);"));
+                    .Contains("using global::Microsoft.TypeSpec.Generator.ClientModel.Tests.TestRequestContent content = global::Sample.BinaryContentHelper.FromEnumerable(message, _modelReaderWriterOptions);"));
             }
             else if (inputType is InputDictionaryType)
             {
                 Assert.IsTrue(convenienceMethod!.BodyStatements!.ToDisplayString()
-                    .Contains("using global::Microsoft.TypeSpec.Generator.ClientModel.Tests.TestRequestContent content = global::Sample.BinaryContentHelper.FromDictionary(message);"));
+                    .Contains("using global::Microsoft.TypeSpec.Generator.ClientModel.Tests.TestRequestContent content = global::Sample.BinaryContentHelper.FromDictionary(message, _modelReaderWriterOptions);"));
             }
             else
             {
-                Assert.IsFalse(convenienceMethod!.BodyStatements!.ToDisplayString().Contains("BinaryContentHelper"));
+                Assert.That(
+                    convenienceMethod!.BodyStatements!.ToDisplayString(),
+                    Does.Contain("message.ToTestRequestContent(_modelReaderWriterOptions)"));
             }
         }
 
@@ -4372,7 +4403,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
         }
 
         [Test]
-        public void ConvenienceMethod_XmlListResponse_UsesXDocumentDeserialization()
+        public void ConvenienceMethod_XmlListResponse_UsesModelReaderWriter()
         {
             // Create a model with XML serialization options
             var elementModel = InputFactory.Model(
@@ -4460,7 +4491,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var methodBody = convenienceMethod!.BodyStatements!.ToDisplayString();
 
             // Ensure the method body uses the standard JSON FromEnumerable (no rootNameHint/childNameHint)
-            Assert.IsTrue(methodBody.Contains("BinaryContentHelper.FromEnumerable(body)"));
+            Assert.IsTrue(methodBody.Contains("BinaryContentHelper.FromEnumerable(body, _modelReaderWriterOptions)"));
             Assert.IsFalse(methodBody.Contains("rootNameHint"));
             Assert.IsFalse(methodBody.Contains("childNameHint"));
         }

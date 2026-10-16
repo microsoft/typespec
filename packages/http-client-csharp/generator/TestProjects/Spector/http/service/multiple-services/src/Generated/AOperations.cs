@@ -14,7 +14,7 @@ namespace Service.MultipleServices.ServiceA
     {
         protected AOperations() => throw null;
 
-        internal AOperations(ClientPipeline pipeline, Uri endpoint, string apiVersion) => throw null;
+        internal AOperations(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint, string apiVersion) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

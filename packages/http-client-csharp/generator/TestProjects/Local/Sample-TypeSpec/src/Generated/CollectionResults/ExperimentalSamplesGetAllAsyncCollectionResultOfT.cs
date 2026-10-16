@@ -18,15 +18,18 @@ namespace SampleTypeSpec
 #pragma warning disable SAMPLE0009 // This generated code depends on experimental functionality.
         private readonly ExperimentalSamples _client;
 #pragma warning restore SAMPLE0009 // This generated code depends on experimental functionality.
+        private readonly ModelReaderWriterOptions _modelReaderWriterOptions;
         private readonly RequestOptions _options;
 
         /// <summary> Initializes a new instance of ExperimentalSamplesGetAllAsyncCollectionResultOfT, which is used to iterate over the pages of a collection. </summary>
         /// <param name="client"> The ExperimentalSamples client used to send requests. </param>
+        /// <param name="modelReaderWriterOptions"> The options used to serialize and deserialize models. </param>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
 #pragma warning disable SAMPLE0009 // This generated code depends on experimental functionality.
-        public ExperimentalSamplesGetAllAsyncCollectionResultOfT(ExperimentalSamples client, RequestOptions options)
+        public ExperimentalSamplesGetAllAsyncCollectionResultOfT(ExperimentalSamples client, ModelReaderWriterOptions modelReaderWriterOptions, RequestOptions options)
         {
             _client = client;
+            _modelReaderWriterOptions = modelReaderWriterOptions;
             _options = options;
         }
 #pragma warning restore SAMPLE0009 // This generated code depends on experimental functionality.
@@ -57,7 +60,7 @@ namespace SampleTypeSpec
 #pragma warning disable SAMPLE0009 // This generated code depends on experimental functionality.
         protected override async IAsyncEnumerable<PreviewDetails> GetValuesFromPageAsync(ClientResult page)
         {
-            foreach (PreviewDetails item in ((PagePreviewDetails)page).Items)
+            foreach (PreviewDetails item in ModelReaderWriter.Read<PagePreviewDetails>(page.GetRawResponse().Content, _modelReaderWriterOptions, SampleTypeSpecContext.Default).Items)
             {
                 yield return item;
                 await Task.Yield();

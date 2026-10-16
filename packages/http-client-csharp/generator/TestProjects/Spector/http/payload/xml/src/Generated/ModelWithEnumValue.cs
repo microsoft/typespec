@@ -14,7 +14,7 @@ namespace Payload.Xml
     {
         protected ModelWithEnumValue() => throw null;
 
-        internal ModelWithEnumValue(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal ModelWithEnumValue(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

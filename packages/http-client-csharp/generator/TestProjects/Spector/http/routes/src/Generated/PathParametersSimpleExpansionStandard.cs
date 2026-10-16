@@ -15,7 +15,7 @@ namespace Routes._PathParameters.SimpleExpansion.Standard
     {
         protected PathParametersSimpleExpansionStandard() => throw null;
 
-        internal PathParametersSimpleExpansionStandard(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal PathParametersSimpleExpansionStandard(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

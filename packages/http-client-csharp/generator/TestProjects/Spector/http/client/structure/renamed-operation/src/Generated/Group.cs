@@ -15,7 +15,7 @@ namespace Client.Structure.RenamedOperation
     {
         protected Group() => throw null;
 
-        internal Group(ClientPipeline pipeline, Uri endpoint, ClientType client) => throw null;
+        internal Group(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint, ClientType client) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

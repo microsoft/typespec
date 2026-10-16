@@ -13,7 +13,7 @@ namespace Routes._PathParameters.MatrixExpansion
     {
         protected PathParametersMatrixExpansion() => throw null;
 
-        internal PathParametersMatrixExpansion(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal PathParametersMatrixExpansion(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
