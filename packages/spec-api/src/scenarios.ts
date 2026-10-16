@@ -56,7 +56,10 @@ export function withKeys<const K extends string>(keys: K[]): WithKeysScenarioExp
   };
 }
 
-/** Binds required coverage keys to one or more keyed endpoints for a service scenario. */
+/**
+ * Registers keyed service endpoints and scenario metadata. The current coverage tracker
+ * only evaluates the first endpoint's responses.
+ */
 export interface WithServiceKeysScenarioExpect<K extends string> {
   /** Creates scenario metadata, retaining a supplied endpoint array rather than copying it. */
   pass(api: KeyedMockApiDefinition<K> | KeyedMockApiDefinition<K>[]): PassByKeyScenario<K>;
@@ -65,6 +68,8 @@ export interface WithServiceKeysScenarioExpect<K extends string> {
 /**
  * Starts a keyed scenario definition that can register multiple service endpoints.
  * Call `.pass(api)` or `.pass(apis)` to attach handlers that return coverage keys.
+ * Current coverage limitation: only the first endpoint's responses are evaluated.
+ * For now, avoid distributing required keys across endpoints; their keys are not combined.
  * @param keys Required coverage keys, retained by reference in the resulting scenario.
  */
 export function withServiceKeys<const K extends string>(

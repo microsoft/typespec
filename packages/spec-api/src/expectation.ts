@@ -102,10 +102,10 @@ export class RequestExpectation {
   }
 
   /**
-   * Compares parsed XML using string-valued tag content. A dyn template preserves
-   * embedded matchers for text-value comparison. Plain strings have an XML declaration
-   * added; Resolvers supply their own serialized XML.
-   * @param expectedBody Expected XML as a string or Resolver (for example, from the xml tag).
+   * Compares parsed XML using string-valued tag content. Plain strings have an XML declaration
+   * added; Resolvers supply serialized XML, with template matchers recovered through getMatchers.
+   * @param expectedBody XML string or Resolver. The xml helper returns a MockBody; for tagged
+   * XML, narrow its rawContent to a Resolver and pass that, not the body wrapper.
    * @param config Context for resolving dynamic values; defaults to an empty base URL.
    * @throws {ValidationError} if there is an error.
    */

@@ -65,6 +65,8 @@ export const validateBodyEquals = (
  * A plain expected string is prefixed with an XML declaration; a Resolver supplies its
  * own serialized XML. Matchers collected from a dyn template replace matching parsed
  * text values before comparison.
+ * @param expectedBody XML string or Resolver. For tagged xml results, pass the body's
+ * Resolver-valued rawContent, not the MockBody wrapper.
  * @param config Dynamic-value context; defaults to an empty base URL.
  * @throws {ValidationError} when the raw body is empty or parsed values differ.
  */
@@ -74,7 +76,7 @@ export const validateXmlBodyEquals = (
   config?: ResolverConfig,
 ): void => {
   const resolvedConfig = config ?? { baseUrl: "" };
-  // When expectedBody is a Resolver (e.g. from xml`...`), serialize() already includes the XML declaration.
+  // A Resolver (e.g. a tagged XML body's rawContent) supplies its own XML declaration.
   // When it's a plain string, we need to prepend it.
   const expectedXml =
     typeof expectedBody === "string"

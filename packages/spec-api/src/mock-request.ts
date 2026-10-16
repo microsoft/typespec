@@ -23,7 +23,10 @@ export class MockRequest {
     /** Route segment captured for a named parameter such as `:id`. */
     [key: string]: string;
   };
-  /** Payload produced by the server's body parser, not the raw wire bytes. */
+  /**
+   * Payload supplied by the server's parsing middleware: parsed JSON or form values,
+   * text, or a Buffer containing raw bytes for binary payloads. Retained without conversion.
+   */
   public readonly body: any;
   /** Multipart uploads as provided by the upload middleware; absent when no files were parsed. */
   public readonly files?:
