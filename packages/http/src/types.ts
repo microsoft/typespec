@@ -250,7 +250,7 @@ export type HttpAuthRef = AnyHttpAuthRef | OAuth2HttpAuthRef | NoHttpAuthRef;
 export interface AnyHttpAuthRef {
   /** Selects the general scheme reference rather than OAuth2 or no-auth. */
   readonly kind: "any";
-  /** Resolved scheme shared with the service's scheme collection. */
+  /** Scheme for this requirement; associate it with the service catalog by `auth.id`, not object identity. */
   readonly auth: HttpAuth;
   /**
    * Scope names required for this scheme in the containing auth option. Empty
