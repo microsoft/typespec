@@ -458,7 +458,10 @@ export class SimpleLiteralMutation<TOptions extends SimpleMutationOptions>
     return this.#mutationNode;
   }
 
-  /** Current literal output, initially the source rather than an eager clone. */
+  /**
+   * Output held by this strategy's original node; it does not follow replacements.
+   * Retain the node returned by the initial `mutationNode.replace(...)` call to read replacement output.
+   */
   get mutatedType() {
     return this.#mutationNode.mutatedType;
   }
