@@ -92,11 +92,17 @@ export interface ServerHost {
   readonly getDocumentUpdateDebounceDelay?: () => number;
 }
 
+/** Program and document context produced by a language-server compilation. */
 export interface CompileResult {
+  /** Compiled project, which may include more files than the requested document. */
   readonly program: Program;
+  /** Requested open document, if available; this is a host-owned document, not a cloned text snapshot. */
   readonly document: TextDocument | undefined;
+  /** AST for the requested path within the program; absent when that path is not a compiled TypeSpec file. */
   readonly script: TypeSpecScriptNode | undefined;
+  /** Resolved project configuration before server defaults, client settings, and additional options are applied. */
   readonly optionsFromConfig: CompilerOptions;
+  /** Compilation metadata, captured logs, and freshness checks against the server's current change version. */
   readonly tracker: CompileTracker;
 }
 
