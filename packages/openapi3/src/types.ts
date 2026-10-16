@@ -1536,10 +1536,16 @@ export type OpenAPICookieParameter3_2 = Omit<
      */
     style?: "form" | "cookie";
   };
-/** Request header parameter with OpenAPI 3.2 schema, example and media type fields. */
+/**
+ * Request header parameter with OpenAPI 3.2 examples and media types.
+ * Its exported schema type also retains the {@link OpenAPI3Schema} restriction, excluding type arrays.
+ */
 export type OpenAPIHeaderParameter3_2 = Omit<OpenAPI3HeaderParameter, "content" | "examples"> &
   OpenAPIParameterBase3_2;
-/** Required path-template parameter with OpenAPI 3.2 schema, example and media type fields. */
+/**
+ * Required path-template parameter with OpenAPI 3.2 examples and media types.
+ * Schema support is limited to the intersection of {@link OpenAPI3Schema} and {@link OpenAPISchema3_2}.
+ */
 export type OpenAPIPathParameter3_2 = Omit<OpenAPI3PathParameter, "content" | "examples"> &
   OpenAPIParameterBase3_2;
 /** Individual named query parameter, distinct from the 3.2 whole-query-string parameter. */
