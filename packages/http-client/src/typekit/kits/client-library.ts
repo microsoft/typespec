@@ -25,9 +25,11 @@ export interface ClientLibraryKit {
   listClients(type: Namespace | InternalClient): InternalClient[];
 
   /**
-   * Lists models declared in the namespace that are found in its operations' parameters.
-   * Also includes directly nested model-property types and spread source models from that namespace;
-   * this is not a recursive traversal of every reachable model or of response types.
+   * Lists models declared in the namespace that are used as types of its operations' parameters.
+   * Also includes model types from those parameters' source properties and from immediate properties
+   * of model-valued parameters, provided the models are declared in the same namespace.
+   * Spreading a model does not by itself include the containing source model. This is not a recursive
+   * traversal of model properties or a traversal of response types.
    */
   listModels(namespace: Namespace): Model[];
 
