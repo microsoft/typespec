@@ -181,7 +181,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 $"Property with serialized name '{serializedName}' not found in model '{model.Name}' or its base models.");
         }
 
-        protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "CollectionResults", $"{Name}.cs");
+        protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Client.Name}.Collections.cs");
+
+        protected override TypeProvider BuildDeclaringTypeProvider() => Client;
 
         protected override string BuildNamespace() => Client.Type.Namespace;
 
@@ -190,32 +192,43 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override string BuildName()
         {
-            var operationName = Operation.Name.ToIdentifierName();
-            // Check if there is another paging operation in the same client whose name would produce a collision.
-            // If so, use the OriginalName to differentiate.
-            if (HasPagingOperationNameCollision(operationName))
+            var operations = Client.InputClient.Methods.OfType<InputPagingServiceMethod>().Select(m => m.Operation).Distinct().ToArray();
+            var collidingOperationNames = operations.GroupBy(operation => operation.Name.ToIdentifierName())
+                .Where(group => group.Count() > 1)
+                .Select(group => group.Key)
+                .ToHashSet(StringComparer.Ordinal);
+            var name = GetName(Operation, IsAsync, collidingOperationNames);
+            // Original names can still collide, including a sync operation whose name ends in Async.
+            var collisionIndex = 0;
+            foreach (var operation in operations)
             {
-                operationName = (Operation.OriginalName ?? Operation.Name).ToIdentifierName();
-            }
-            return $"{Client.Type.Name}{operationName}{(IsAsync ? "Async" : "")}CollectionResult{(ItemModelType == null ? "" : "OfT")}";
-        }
-
-        private bool HasPagingOperationNameCollision(string operationName)
-        {
-            var pagingMethods = Client.InputClient.Methods.OfType<InputPagingServiceMethod>();
-            int count = 0;
-            foreach (var method in pagingMethods)
-            {
-                if (method.Operation.Name.ToIdentifierName() == operationName)
+                foreach (var isAsync in new[] { false, true })
                 {
-                    count++;
-                    if (count > 1)
+                    if (GetName(operation, isAsync, collidingOperationNames) != name)
                     {
-                        return true;
+                        continue;
                     }
+
+                    if (operation == Operation && isAsync == IsAsync)
+                    {
+                        return collisionIndex == 0 ? name : $"{name}{collisionIndex + 1}";
+                    }
+
+                    collisionIndex++;
                 }
             }
-            return false;
+
+            return name;
+        }
+
+        private string GetName(InputOperation operation, bool isAsync, IReadOnlySet<string> collidingOperationNames)
+        {
+            var operationName = operation.Name.ToIdentifierName();
+            if (collidingOperationNames.Contains(operationName))
+            {
+                operationName = (operation.OriginalName ?? operation.Name).ToIdentifierName();
+            }
+            return $"{Client.Type.Name}{operationName}{(isAsync ? "Async" : "")}CollectionResult{(ItemModelType == null ? "" : "OfT")}";
         }
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers()

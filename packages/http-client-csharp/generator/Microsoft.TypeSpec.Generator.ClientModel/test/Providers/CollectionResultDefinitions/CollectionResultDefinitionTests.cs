@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
@@ -15,6 +16,103 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
     public class CollectionResultDefinitionTests
     {
         [Test]
+        public void PagingHelpersAreNestedInClientCollectionsFile()
+        {
+            CreatePagingOperation(InputResponseLocation.Body);
+            var types = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders;
+            var client = types.OfType<ClientProvider>().Single();
+            var collections = types.SingleOrDefault(t => t.RelativeFilePath == Path.Combine("src", "Generated", "CatClient.Collections.cs"));
+
+            Assert.IsNotNull(collections);
+            Assert.AreEqual(client.Name, collections!.Name);
+            Assert.AreEqual(client.DeclarationModifiers, collections.DeclarationModifiers);
+            Assert.AreEqual(4, collections.NestedTypes.Count);
+            Assert.IsFalse(types.Any(t => t is CollectionResultDefinition));
+            foreach (var helper in collections.NestedTypes)
+            {
+                Assert.IsInstanceOf<CollectionResultDefinition>(helper);
+                Assert.AreSame(client, helper.DeclaringTypeProvider);
+                Assert.AreEqual(client.Type, helper.Type.DeclaringType);
+            }
+        }
+
+        [Test]
+        public void NonPagingClientsDoNotHaveCollectionsFiles()
+        {
+            var operation = InputFactory.Operation("Get");
+            var client = InputFactory.Client("TestClient", methods: [InputFactory.BasicServiceMethod("Get", operation)]);
+            MockHelpers.LoadMockGenerator(clients: () => [client]);
+
+            Assert.IsFalse(ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .Any(t => t.RelativeFilePath.EndsWith(".Collections.cs")));
+        }
+
+        [Test]
+        public void CollectionFilePathDoesNotIncludeLongOperationNames()
+        {
+            var item = InputFactory.Model("Item");
+            var page = InputFactory.Model("Page", properties: [InputFactory.Property("items", InputFactory.Array(item))]);
+            var operation = InputFactory.Operation(new string('a', 300), responses: [InputFactory.OperationResponse(bodytype: page)]);
+            var method = InputFactory.PagingServiceMethod(operation.Name, operation, pagingMetadata: InputFactory.PagingMetadata(["items"], null, null));
+            var client = InputFactory.Client("TestClient", methods: [method]);
+            MockHelpers.LoadMockGenerator(inputModels: () => [item, page], clients: () => [client]);
+
+            var collections = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .SingleOrDefault(t => t.RelativeFilePath.EndsWith(".Collections.cs"));
+
+            Assert.IsNotNull(collections);
+            Assert.AreEqual(Path.Combine("src", "Generated", "TestClient.Collections.cs"), collections!.RelativeFilePath);
+            Assert.AreEqual(4, collections.NestedTypes.Count);
+        }
+
+        [Test]
+        public void HelpersWithIdenticalNamesBelongToDifferentClients()
+        {
+            var item = InputFactory.Model("Item");
+            var page = InputFactory.Model("Page", properties: [InputFactory.Property("items", InputFactory.Array(item))]);
+            var firstOperation = InputFactory.Operation("BarBaz", responses: [InputFactory.OperationResponse(bodytype: page)]);
+            var secondOperation = InputFactory.Operation("Baz", responses: [InputFactory.OperationResponse(bodytype: page)]);
+            var paging = InputFactory.PagingMetadata(["items"], null, null);
+            var first = InputFactory.Client("FooClient", methods: [InputFactory.PagingServiceMethod("BarBaz", firstOperation, pagingMetadata: paging)]);
+            var second = InputFactory.Client("FooClientBar", methods: [InputFactory.PagingServiceMethod("Baz", secondOperation, pagingMetadata: paging)]);
+            MockHelpers.LoadMockGenerator(inputModels: () => [item, page], clients: () => [first, second]);
+
+            var files = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .Where(t => t.RelativeFilePath.EndsWith(".Collections.cs")).ToArray();
+            Assert.AreEqual(2, files.Length);
+            var firstHelper = files[0].NestedTypes.First();
+            var secondHelper = files[1].NestedTypes.First();
+            Assert.AreEqual(firstHelper.Name, secondHelper.Name);
+            Assert.AreNotEqual(firstHelper.Type, secondHelper.Type);
+            Assert.AreNotEqual(files[0].RelativeFilePath, files[1].RelativeFilePath);
+        }
+
+        [TestCase("GetItems", "GetItemsAsync")]
+        [TestCase("GetAll", "GetAll")]
+        [TestCase("getItems", "get_items")]
+        public void SameClientHelperNamesAreUnique(string firstName, string secondName)
+        {
+            var item = InputFactory.Model("Item");
+            var page = InputFactory.Model("Page", properties: [InputFactory.Property("items", InputFactory.Array(item))]);
+            var firstOperation = InputFactory.Operation(firstName, responses: [InputFactory.OperationResponse(bodytype: page)]);
+            var secondOperation = InputFactory.Operation(secondName,
+                parameters: [InputFactory.QueryParameter("filter", InputPrimitiveType.String, isRequired: true)],
+                responses: [InputFactory.OperationResponse(bodytype: page)]);
+            var paging = InputFactory.PagingMetadata(["items"], null, null);
+            var client = InputFactory.Client("TestClient", methods:
+            [
+                InputFactory.PagingServiceMethod(firstName, firstOperation, pagingMetadata: paging),
+                InputFactory.PagingServiceMethod(secondName, secondOperation, pagingMetadata: paging)
+            ]);
+            MockHelpers.LoadMockGenerator(inputModels: () => [item, page], clients: () => [client]);
+
+            var helpers = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders
+                .SelectMany(t => t.NestedTypes).OfType<CollectionResultDefinition>().ToArray();
+            Assert.AreEqual(8, helpers.Length);
+            Assert.AreEqual(helpers.Length, helpers.Select(t => t.Name).Distinct().Count());
+        }
+
+        [Test]
         public void ExperimentalPagingDependenciesAreSuppressedInAllHelpers()
         {
             var item = InputFactory.Experimental(InputFactory.Model("Item"), "ITEM001");
@@ -24,7 +122,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
             var serviceMethod = InputFactory.PagingServiceMethod("List", operation, pagingMetadata: InputFactory.PagingMetadata(["items"], null, null));
             var client = InputFactory.Experimental(InputFactory.Client("TestClient", methods: [serviceMethod]), "CLIENT001");
             MockHelpers.LoadMockGenerator(inputModels: () => [item, envelope], clients: () => [client]);
-            var helpers = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.OfType<CollectionResultDefinition>().ToArray();
+            var helpers = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.SelectMany(t => t.NestedTypes).OfType<CollectionResultDefinition>().ToArray();
 
             Assert.AreEqual(4, helpers.Length);
             foreach (var helper in helpers)
@@ -48,7 +146,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
         public void TestCanMutateDefinition()
         {
             CreatePagingOperation(InputResponseLocation.Body);
-            var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
+            var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.SelectMany(t => t.NestedTypes).FirstOrDefault(
                 t => t is CollectionResultDefinition && t.Name == "CatClientGetCatsCollectionResult");
             Assert.IsNotNull(collectionResultDefinition);
 
@@ -113,7 +211,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
 
             MockHelpers.LoadMockGenerator(inputModels: () => [inputModel], clients: () => [client]);
 
-            var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
+            var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.SelectMany(t => t.NestedTypes).FirstOrDefault(
                 t => t is CollectionResultDefinition && t.Name == "CatClientGetCatsCollectionResult") as CollectionResultDefinition;
             Assert.IsNotNull(collectionResultDefinition);
             Assert.IsNotNull(collectionResultDefinition!.PageSizeField);
@@ -150,7 +248,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
 
             MockHelpers.LoadMockGenerator(inputModels: () => [inputModel], clients: () => [client]);
 
-            var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
+            var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.SelectMany(t => t.NestedTypes).FirstOrDefault(
                 t => t is CollectionResultDefinition && t.Name == "CatClientGetCatsCollectionResult") as CollectionResultDefinition;
             Assert.IsNotNull(collectionResultDefinition);
             Assert.IsNotNull(collectionResultDefinition!.PageSizeField);
@@ -184,7 +282,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
 
             MockHelpers.LoadMockGenerator(inputModels: () => [inputModel], clients: () => [client]);
 
-            var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
+            var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.SelectMany(t => t.NestedTypes).FirstOrDefault(
                 t => t is CollectionResultDefinition && t.Name == "CatClientGetCatsCollectionResult") as CollectionResultDefinition;
             Assert.IsNotNull(collectionResultDefinition);
 
@@ -218,7 +316,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
 
             MockHelpers.LoadMockGenerator(inputModels: () => [inputModel], clients: () => [client]);
 
-            var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
+            var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.SelectMany(t => t.NestedTypes).FirstOrDefault(
                 t => t is CollectionResultDefinition && t.Name == "CatClientGetCatsCollectionResult") as CollectionResultDefinition;
             Assert.IsNotNull(collectionResultDefinition);
 
@@ -257,7 +355,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
 
             MockHelpers.LoadMockGenerator(inputModels: () => [thingModel], clients: () => [client]);
 
-            var collectionResults = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders
+            var collectionResults = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.SelectMany(t => t.NestedTypes)
                 .Where(t => t is CollectionResultDefinition)
                 .ToList();
 
@@ -299,7 +397,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
             MockHelpers.LoadMockGenerator(inputModels: () => [thingModel], clients: () => [client]);
 
             // When there's no collision, the cleaned name "GetAll" should be used
-            var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
+            var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.SelectMany(t => t.NestedTypes).FirstOrDefault(
                 t => t is CollectionResultDefinition && t.Name == "FooClientGetAllCollectionResult") as CollectionResultDefinition;
             Assert.IsNotNull(collectionResultDefinition,
                 "CollectionResult should use cleaned name 'GetAll' when there's no collision");
@@ -337,7 +435,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
 
             MockHelpers.LoadMockGenerator(inputModels: () => [inputModel], clients: () => [client]);
 
-            var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.FirstOrDefault(
+            var collectionResultDefinition = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.SelectMany(t => t.NestedTypes).FirstOrDefault(
                 t => t is CollectionResultDefinition && t.Name == "CatClientGetCatsCollectionResult") as CollectionResultDefinition;
             Assert.IsNotNull(collectionResultDefinition);
 

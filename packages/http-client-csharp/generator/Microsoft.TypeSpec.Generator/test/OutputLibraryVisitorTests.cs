@@ -103,6 +103,28 @@ namespace Microsoft.TypeSpec.Generator.Tests
         }
 
         [Test]
+        public void VisitsNestedTypeMembers()
+        {
+            var nestedType = new Mock<TypeProvider> { CallBase = true };
+            var method = new MethodProvider(
+                new MethodSignature("Test", $"", MethodSignatureModifiers.Public, null, $"", []),
+                Snippet.ThrowExpression(Snippet.Null), nestedType.Object);
+            var constructor = new ConstructorProvider(
+                new ConstructorSignature(typeof(TestTypeProvider), $"", MethodSignatureModifiers.Public, []),
+                Snippet.ThrowExpression(Snippet.Null), nestedType.Object);
+            nestedType.Protected().Setup<MethodProvider[]>("BuildMethods").Returns([method]);
+            nestedType.Protected().Setup<ConstructorProvider[]>("BuildConstructors").Returns([constructor]);
+            _mockTypeProvider.Protected().Setup<TypeProvider[]>("BuildNestedTypes").Returns([nestedType.Object]);
+
+            _mockVisitor.Object.VisitLibrary(_mockGenerator.Object.OutputLibrary);
+
+            _mockVisitor.Protected().Verify<TypeProvider>("VisitType", Times.Once(), nestedType.Object);
+            _mockVisitor.Protected().Verify<MethodProvider>("VisitMethod", Times.Once(), method);
+            _mockVisitor.Protected().Verify<ConstructorProvider>("VisitConstructor", Times.Once(), constructor);
+            _mockVisitor.Protected().Verify<TypeProvider>("PostVisitType", Times.Once(), nestedType.Object);
+        }
+
+        [Test]
         public void VisitsSerializationProviderMembers()
         {
             var mockSerializationProvider = new Mock<TypeProvider>() { CallBase = true };
