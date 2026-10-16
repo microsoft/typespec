@@ -138,6 +138,15 @@ import type {
 import { SemanticTokenKind } from "./types.js";
 import { UpdateManager } from "./update-manager.js";
 
+/**
+ * Create a language server whose document access, client notifications, edits, and logging
+ * are supplied by the host.
+ *
+ * Wire the returned handlers to the language-server connection and document notifications.
+ * Call {@link Server.initialize} followed by {@link Server.initialized} to configure the
+ * server and enable debounced compilation. Client configuration is read from the optional
+ * provider; this function does not initialize that provider.
+ */
 export function createServer(
   host: ServerHost,
   clientConfigsProvider?: ClientConfigProvider,
