@@ -1,12 +1,14 @@
 <Project>
   <Import Sdk="Microsoft.NET.Sdk" Project="Sdk.props" />
   <PropertyGroup>
-    <TargetFramework>net472</TargetFramework>
+    <TargetFramework>net8.0-windows8.0</TargetFramework>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <DebugType>Embedded</DebugType>
     <EmbedAllSources>true</EmbedAllSources>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <LangVersion>Latest</LangVersion>
     <Nullable>Enable</Nullable>
+    <NeutralLanguage>en-US</NeutralLanguage>
     <!-- Set this to 'all' explicitly to get a consistent behavior. It's the default value now in latest VS/.Net/NugetMgr, but maybe not in some previous version -->
     <!-- https://learn.microsoft.com/en-us/dotnet/core/compatibility/sdk/9.0/nugetaudit-transitive-packages -->
     <NuGetAuditMode>all</NuGetAuditMode>
@@ -16,6 +18,7 @@
     <!-- Only deploy extension when building inside Visual Studio-->
     <DeployExtension>false</DeployExtension>
     <DeployExtension Condition="'$(BuildingInsideVisualStudio)' == 'true'">true</DeployExtension>
+    <CreateVsixContainer Condition="'$(MSBuildRuntimeType)' == 'Core'">false</CreateVsixContainer>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <TargetVsixContainer>$(MSBuildThisFileDirectory)..\$(AssemblyName).vsix</TargetVsixContainer>
@@ -30,49 +33,28 @@
     <Content Include="../node_modules/typespec-vscode/dist/typespec.tmLanguage"
       Link="TextMate/typespec.tmLanguage" />
     <Content Update="@(Content)" IncludeInVSIX="true" CopyToOutputDirectory="PreserveNewest" />
-    <Reference Include="System.ComponentModel.Composition" />
-    <!-- The 'MessagePack' is not used directly but referenced by nuget package 'Microsoft.VisualStudio.SDK', 'Microsoft.VisualStudio.Workspace' and 'Microsoft.VisualStudio.VSIntegration' -->
-    <!-- Have to add it explicitly here because the version used by 'Microsoft.VisualStudio...' report vulnerabilities now -->
-    <!-- TODO: [#5368] remove this explicit reference after 'Microsoft.VisualStudio...' releases new version having 'MessagePack' updated to vulnerability free version-->
+    <!-- The new SDK still references MessagePack 2.x; override its vulnerable transitive version. -->
     <PackageReference Include="MessagePack" Version="2.5.303" />
-    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2" />
     <Content Include="Icons\logo.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <Resource Include="Icons\tsp-file.png" />
+    <Content Include="Icons\tsp-file.png" />
     <Content Include="Monikers.imagemanifest">
       <IncludeInVSIX>true</IncludeInVSIX>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <!-- The 'Microsoft.VisualStudio.Composition' is not used directly but referenced by nuget package 'Microsoft.VisualStudio.Workspace' -->
-    <!-- Have to add it explicitly here because otherwise 'Microsoft.VisualStudio.Workspace" will report warning NU1603 because its desired version not found and higher version will be used -->
-    <!-- TODO: [#5368] remove this explicit reference after 'Microsoft.VisualStudio...' releases new version without the warning-->
-    <PackageReference Include="Microsoft.VisualStudio.Composition" Version="17.13.41" />
-    <!-- Use 17.0.x or latest 16.x if no 17.0.x for compatible API-->
-    <PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.14.40265" ExcludeAssets="Runtime" />
-    <!-- The 'Microsoft.VisualStudio.Shell.15.0' is not used directly but referenced by nuget package 'Microsoft.VisualStudio.Workspace.VSIntegration' -->
-    <!-- Have to add it explicitly here because otherwise 'Microsoft.VisualStudio.Workspace.VSIntegration" will report warning NU1603 because its desired version not found and higher version will be used -->
-    <!-- TODO: [#5368] remove this explicit reference after 'Microsoft.VisualStudio...' releases new version without the warning-->
-    <PackageReference Include="Microsoft.VisualStudio.Shell.15.0" Version="17.14.40264" />
-    <PackageReference Include="Microsoft.VisualStudio.Workspace" Version="17.12.19" ExcludeAssets="Runtime" />
-    <PackageReference Include="Microsoft.VisualStudio.Workspace.VSIntegration" Version="17.12.19" ExcludeAssets="Runtime" />
-    <!-- https://github.com/advisories/GHSA-w3q9-fxm7-j8fq -->
-    <PackageReference Include="Microsoft.Build" Version="17.14.28"/>
-    <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="17.14.2120">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <!-- Use latest 17.x for build tools-->
-    <!-- Align with VS 17.0 version here:
-    https://devblogs.microsoft.com/visualstudio/using-newtonsoft-json-in-a-visual-studio-extension/-->
-    <PackageReference Include="NewtonSoft.JSON" Version="13.0.3" ExcludeAssets="Runtime" />
+    <PackageReference Include="Microsoft.VisualStudio.Extensibility.Sdk" Version="17.14.40608" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.VisualStudio.Extensibility.Build" Version="17.14.40608" PrivateAssets="all" />
   </ItemGroup>
   <Import Sdk="Microsoft.NET.Sdk" Project="Sdk.targets" />
-  <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets"
-    Condition="'$(VSToolsPath)' != '' and '$(MSBuildRuntimeType)' != 'Core'" />
+  <!-- Keep the static TextMate and image assets alongside the generated out-of-process registration. -->
+  <ItemGroup>
+    <SourceVsixManifest Remove="@(SourceVsixManifest)" />
+    <SourceVsixManifest Include="source.extension.vsixmanifest" />
+  </ItemGroup>
   <Target Name="GetPackageVersionForVsixManifest" Returns="$(Version)" />
   <!-- VS SDK does not currently support building with dotnet build.  -->
   <Target Name="WarnAboutDotnetBuildAndVsix" Condition="'$(MSBuildRuntimeType)' == 'Core'"

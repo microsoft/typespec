@@ -25,7 +25,8 @@
     "Microsoft.TypeSpec.VS.vsix"
   ],
   "scripts": {
-    "build": "node scripts/build.ts"
+    "build": "node scripts/build.ts",
+    "test": "dotnet test test/Microsoft.TypeSpec.VS.Tests.csproj --configuration Release"
   },
   "devDependencies": {
     "@typespec/internal-build-utils": "workspace:^",
