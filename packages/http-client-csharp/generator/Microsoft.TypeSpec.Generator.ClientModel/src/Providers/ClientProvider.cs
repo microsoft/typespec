@@ -361,49 +361,49 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return true;
+        }
 
-            static bool HasEquivalentParameterTypes(IReadOnlyList<ParameterProvider> first, IReadOnlyList<ParameterProvider> second)
-                => first.Count == second.Count &&
-                    first.Zip(second).All(pair =>
-                        MethodSignatureHelper.AreEquivalentParameterTypes(pair.First.Type, pair.Second.Type));
+        private static bool HasEquivalentParameterTypes(IReadOnlyList<ParameterProvider> first, IReadOnlyList<ParameterProvider> second)
+            => first.Count == second.Count &&
+                first.Zip(second).All(pair =>
+                    MethodSignatureHelper.AreEquivalentParameterTypes(pair.First.Type, pair.Second.Type));
 
-            static string[] GetEmittedMethodNames(InputServiceMethod method, string operationName, ScmMethodKind kind)
+        private static string[] GetEmittedMethodNames(InputServiceMethod method, string operationName, ScmMethodKind kind)
+        {
+            bool hasStreamingResponse = method.Operation.Responses
+                .FirstOrDefault(response => !response.IsErrorResponse)?.BodyType is InputStreamingType;
+            if (kind == ScmMethodKind.Protocol)
             {
-                bool hasStreamingResponse = method.Operation.Responses
-                    .FirstOrDefault(response => !response.IsErrorResponse)?.BodyType is InputStreamingType;
-                if (kind == ScmMethodKind.Protocol)
-                {
-                    return hasStreamingResponse
-                        ? [$"{operationName}Async"]
-                        : [operationName, $"{operationName}Async"];
-                }
-
-                if (!method.Operation.GenerateConvenienceMethod)
-                {
-                    return [];
-                }
-
-                bool hasStreamingRequest = method.Parameters.Any(parameter => parameter.Type is InputStreamingType);
-                return hasStreamingResponse || method is not InputPagingServiceMethod && hasStreamingRequest
+                return hasStreamingResponse
                     ? [$"{operationName}Async"]
                     : [operationName, $"{operationName}Async"];
             }
 
-            static string NormalizeName(string operationName)
+            if (!method.Operation.GenerateConvenienceMethod)
             {
-                // Replace List with Get as .NET convention is to use Get for list operations.
-                if (operationName == "List")
-                {
-                    return "GetAll";
-                }
-                if (operationName.StartsWith("List", StringComparison.Ordinal) &&
-                    operationName.Length > 4 && char.IsUpper(operationName[4]))
-                {
-                    return $"Get{operationName.Substring(4)}";
-                }
-
-                return operationName;
+                return [];
             }
+
+            bool hasStreamingRequest = method.Parameters.Any(parameter => parameter.Type is InputStreamingType);
+            return hasStreamingResponse || method is not InputPagingServiceMethod && hasStreamingRequest
+                ? [$"{operationName}Async"]
+                : [operationName, $"{operationName}Async"];
+        }
+
+        private static string NormalizeName(string operationName)
+        {
+            // Replace List with Get as .NET convention is to use Get for list operations.
+            if (operationName == "List")
+            {
+                return "GetAll";
+            }
+            if (operationName.StartsWith("List", StringComparison.Ordinal) &&
+                operationName.Length > 4 && char.IsUpper(operationName[4]))
+            {
+                return $"Get{operationName.Substring(4)}";
+            }
+
+            return operationName;
         }
 
         private bool HasExistingName(string name)
