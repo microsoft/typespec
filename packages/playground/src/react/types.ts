@@ -17,9 +17,14 @@ export type EmitterOptions = Record<string, Record<string, unknown>>;
 export interface OutputViewerProps {
   /** Compiler program for the displayed compilation, including its host and diagnostics. */
   readonly program: Program;
-  /** Emitted paths relative to `tsp-output`, potentially retained from the previous successful compilation. */
+  /**
+   * Output names under `tsp-output`, potentially retained from the previous successful compilation.
+   * Currently, top-level names are `file.json` and nested names include a leading slash, such as
+   * `/folder/file.json`. These are output identifiers, not absolute filesystem paths; read them
+   * through `program.host.readFile("./tsp-output/" + name)` rather than resolving the names as paths.
+   */
   readonly outputFiles: string[];
-  /** Playground-owned state shared with program viewers; omitted if no state was supplied. */
+  /** Playground-owned state shared with program viewers; the playground supplies `{}` when no state is stored. */
   readonly viewerState?: Record<string, any>;
   /** Request replacement of the viewer-state record; merge any entries that should be retained. */
   readonly onViewerStateChange?: (state: Record<string, any>) => void;
@@ -51,7 +56,11 @@ export interface FileOutputViewer {
 
 /** Text and location of the emitted file selected in the output explorer. */
 export interface FileOutputViewerProps {
-  /** Selected output path relative to `tsp-output`. */
+  /**
+   * Selected output name using the representation in {@link OutputViewerProps.outputFiles}:
+   * `file.json` for a top-level file or `/folder/file.json` for a nested file.
+   * A leading slash here does not identify an absolute filesystem path.
+   */
   readonly filename: string;
   /** File text read from the compilation host. */
   readonly content: string;
