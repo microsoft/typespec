@@ -75,7 +75,6 @@
     "@typespec/versioning": "workspace:^",
     "@vitest/ui": "catalog:",
     "change-case": "catalog:",
-    "concurrently": "catalog:",
     "cross-env": "catalog:",
     "execa": "catalog:",
     "@inquirer/select": "catalog:",
