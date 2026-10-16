@@ -223,8 +223,8 @@ export class SpecCoverageOperations {
    * Report content is parsed from `blobBody` when available. Node.js streaming responses
    * are not read by this method and currently return only generator metadata.
    *
-   * @returns The stored report fields and generator metadata, or `undefined` if neither report
-   * blob exists. The stored JSON is not normalized or validated against the report schema.
+   * @returns Generator metadata with report fields when the body was parsed, or `undefined`
+   * if neither report blob exists. Stored JSON is not normalized or validated against the report schema.
    * A missing index or storage failure rejects. Invalid report JSON rejects when its body is read.
    */
   public async getLatestCoverageFor(
