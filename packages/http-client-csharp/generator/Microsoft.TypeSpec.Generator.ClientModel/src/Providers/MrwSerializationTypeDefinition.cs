@@ -2753,8 +2753,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private static bool ValueTypeIsInt(Type valueType) =>
             valueType == typeof(long) ||
+            valueType == typeof(ulong) ||
             valueType == typeof(int) ||
+            valueType == typeof(uint) ||
             valueType == typeof(short) ||
+            valueType == typeof(ushort) ||
             valueType == typeof(sbyte) ||
             valueType == typeof(byte);
 
@@ -2772,8 +2775,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _ => type switch
             {
                 Type t when t == typeof(long) => element.GetInt64(),
+                Type t when t == typeof(ulong) => element.GetUInt64(),
                 Type t when t == typeof(int) => element.GetInt32(),
+                Type t when t == typeof(uint) => element.GetUInt32(),
                 Type t when t == typeof(short) => element.GetInt16(),
+                Type t when t == typeof(ushort) => element.GetUInt16(),
                 Type t when t == typeof(sbyte) => element.GetSByte(),
                 Type t when t == typeof(byte) => element.GetByte(),
                 _ => throw new NotSupportedException($"Framework type {type} is not int.")

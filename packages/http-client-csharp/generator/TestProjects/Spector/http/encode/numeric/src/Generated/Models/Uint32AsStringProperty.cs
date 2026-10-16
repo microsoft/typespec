@@ -8,7 +8,7 @@ namespace Encode.Numeric._Property
     {
         public Uint32AsStringProperty() => throw null;
 
-        public object Value
+        public uint? Value
         {
             get => throw null;
             set => throw null;
