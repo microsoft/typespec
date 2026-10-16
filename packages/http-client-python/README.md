@@ -33,6 +33,11 @@ options:
     option: value
 ```
 
+After generation, Black formatting and pylint suppression comments are applied only to Python
+files written during that generation, including regenerated files and generated tests and samples
+when enabled. Other existing files, such as hand-written `tests/` and `samples/`, are not
+post-processed. This step does not run pylint.
+
 ## Emitter options
 
 ### `emitter-output-dir`
