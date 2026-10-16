@@ -2340,7 +2340,10 @@ export interface Diagnostic {
   code: string;
   /** @internal Diagnostic documentation url */
   readonly url?: string;
-  /** Severity before any program-level warning-as-error handling. */
+  /**
+   * Factories use the definition's severity. Program reporting may promote warnings
+   * to errors in `program.diagnostics` when `warningAsError` is enabled.
+   */
   severity: DiagnosticSeverity;
   /** Human-readable message with any diagnostic format arguments already substituted. */
   message: string;
