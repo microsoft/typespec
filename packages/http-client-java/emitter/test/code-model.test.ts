@@ -18,6 +18,7 @@ import { createChoiceSchema } from "../src/common/schemas/choice.js";
 import { createConstantSchema, createConstantValue } from "../src/common/schemas/constant.js";
 import {
   ImplementationLocation,
+  KnownMediaType,
   ParameterLocation,
   SchemaType,
   createAnySchema,
@@ -25,6 +26,7 @@ import {
   createBinaryResponse,
   createByteArraySchema,
   createDateTimeSchema,
+  createDiscriminator,
   createGroupProperty,
   createKeySecurityScheme,
   createNumberSchema,
@@ -37,10 +39,65 @@ import {
   createVirtualParameter,
   isSchemaResponse,
 } from "../src/common/schemas/model.js";
+import { SchemaContext } from "../src/common/schemas/usage.js";
 import { createResponseErrorSchema } from "../src/external-schemas.js";
 import { cloneOperationParameter } from "../src/operation-utils.js";
 
 describe("code model characterization", () => {
+  it.each(["azure", "standard"] as const)(
+    "propagates %s usage to tagged descendants through an untagged intermediate",
+    async (flavor) => {
+      const program = await compile(
+        NodeHost,
+        fileURLToPath(new URL("./fixtures/code-model.tsp", import.meta.url)),
+        { noEmit: true },
+      );
+      expectDiagnosticEmpty(program.diagnostics);
+      const builder = new CodeModelBuilder(program, {
+        program,
+        emitterOutputDir: "/code-model-test-output",
+        options: { flavor, "dev-options": {} },
+        perf: {
+          startTimer: () => ({ end: () => 0 }),
+          time: (_label, callback) => callback(),
+          timeAsync: (_label, callback) => callback(),
+          report: () => {},
+        },
+      });
+      const discriminator = createDiscriminator(
+        createProperty("kind", "", createStringSchema("string", "")),
+      );
+      const usage = [SchemaContext.Input, SchemaContext.Output, SchemaContext.Public];
+      const root = createObjectSchema("PetBase", "", {
+        discriminator,
+        usage,
+        serializationFormats: [KnownMediaType.Json],
+      });
+      const intermediate = createObjectSchema("Mammal", "", {
+        parents: { immediate: [root], all: [root] },
+      });
+      const cat = createObjectSchema("Cat", "", {
+        discriminatorValue: "cat",
+        parents: { immediate: [intermediate], all: [intermediate, root] },
+      });
+      const unused = createObjectSchema("Unused", "", {
+        parents: { immediate: [intermediate], all: [intermediate, root] },
+      });
+      root.children = { immediate: [intermediate], all: [intermediate, cat, unused] };
+      intermediate.children = { immediate: [cat, unused], all: [cat, unused] };
+      discriminator.all.cat = cat;
+
+      builder["propagateSchemaUsage"](root);
+
+      for (const schema of [intermediate, cat]) {
+        expect(schema.usage).toEqual(expect.arrayContaining(usage));
+        expect(schema.serializationFormats).toEqual([KnownMediaType.Json]);
+      }
+      expect(unused.usage).toBeUndefined();
+      expect(unused.serializationFormats).toBeUndefined();
+    },
+  );
+
   it.each(["azure", "standard"] as const)(
     "preserves continuation-token metadata for %s",
     async (flavor) => {
@@ -289,6 +346,11 @@ describe("code model characterization", () => {
       },
     }).build();
     expect(program.diagnostics.filter((d) => d.severity === "error")).toEqual([]);
+    const animal = model.schemas.objects!.find(
+      (schema) => schema.language.default.name === "Animal",
+    )!;
+    const cat = model.schemas.objects!.find((schema) => schema.language.default.name === "Cat")!;
+    expect(animal.discriminator!.all.cat).toBe(cat);
     assertPlainGraph(model);
     expect(stringify(sortGraph(model), { version: "1.1" })).toMatchSnapshot();
   });
