@@ -5,7 +5,8 @@ import {
 } from "@typespec/compiler/testing";
 
 /**
- * Registers the library linter's package files with the legacy compiler test host.
+ * File mappings for loading the library linter into a legacy compiler test host.
+ * Supply this descriptor through the host's `libraries` option; importing it does not load the library.
  *
  * @deprecated Use `createTester` from `@typespec/compiler/testing` instead
  */
