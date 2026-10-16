@@ -43,6 +43,7 @@ public class MethodGroupTemplate implements IJavaTemplate<MethodGroupClient, Jav
         }
 
         methodGroupClient.addImportsTo(imports, true, settings);
+        Templates.getProxyTemplate().addImportsTo(methodGroupClient.getProxy(), imports);
 
         String serviceClientPackageName
             = ClientModelUtil.getServiceClientPackageName(methodGroupClient.getServiceClientName());

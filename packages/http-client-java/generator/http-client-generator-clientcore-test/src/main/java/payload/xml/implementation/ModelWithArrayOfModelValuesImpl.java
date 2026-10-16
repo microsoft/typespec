@@ -1,20 +1,22 @@
 package payload.xml.implementation;
 
 import io.clientcore.core.annotations.ReturnType;
-import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.annotations.BodyParam;
-import io.clientcore.core.http.annotations.HeaderParam;
-import io.clientcore.core.http.annotations.HostParam;
-import io.clientcore.core.http.annotations.HttpRequestInformation;
-import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
+import io.clientcore.core.http.models.HttpHeaderName;
 import io.clientcore.core.http.models.HttpMethod;
+import io.clientcore.core.http.models.HttpRequest;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.instrumentation.Instrumentation;
-import java.lang.reflect.InvocationTargetException;
+import io.clientcore.core.instrumentation.logging.ClientLogger;
+import io.clientcore.core.models.binarydata.BinaryData;
+import io.clientcore.core.serialization.SerializationFormat;
+import io.clientcore.core.serialization.json.JsonSerializer;
+import io.clientcore.core.serialization.xml.XmlSerializer;
+import io.clientcore.core.utils.CoreUtils;
+import io.clientcore.core.utils.GeneratedCodeUtils;
 import payload.xml.ModelWithArrayOfModel;
 
 /**
@@ -47,39 +49,99 @@ public final class ModelWithArrayOfModelValuesImpl {
         this.instrumentation = client.getInstrumentation();
     }
 
-    /**
-     * The interface defining all the services for XmlClientModelWithArrayOfModelValues to be used by the proxy service
-     * to perform REST calls.
-     */
-    @ServiceInterface(name = "XmlClientModelWithArrayOfModelValues", host = "{endpoint}")
     public interface ModelWithArrayOfModelValuesService {
         static ModelWithArrayOfModelValuesService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("payload.xml.implementation.ModelWithArrayOfModelValuesServiceImpl");
-                return (ModelWithArrayOfModelValuesService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
+            return new ModelWithArrayOfModelValuesServiceImpl(pipeline);
         }
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/payload/xml/modelWithArrayOfModel",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<ModelWithArrayOfModel> get(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Accept") String accept, RequestContext requestContext);
+        Response<ModelWithArrayOfModel> get(String endpoint, String accept, RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.PUT,
-            path = "/payload/xml/modelWithArrayOfModel",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> put(@HostParam("endpoint") String endpoint, @HeaderParam("content-type") String contentType,
-            @BodyParam("application/xml") ModelWithArrayOfModel input, RequestContext requestContext);
+        Response<Void> put(String endpoint, String contentType, ModelWithArrayOfModel input,
+            RequestContext requestContext);
+    }
+
+    private static final class ModelWithArrayOfModelValuesServiceImpl implements ModelWithArrayOfModelValuesService {
+        private static final ClientLogger LOGGER = new ClientLogger(ModelWithArrayOfModelValuesServiceImpl.class);
+
+        private final HttpPipeline httpPipeline;
+
+        private final JsonSerializer jsonSerializer = JsonSerializer.getInstance();
+
+        private final XmlSerializer xmlSerializer = XmlSerializer.getInstance();
+
+        private ModelWithArrayOfModelValuesServiceImpl(HttpPipeline pipeline) {
+            this.httpPipeline = pipeline;
+        }
+
+        @Override
+        public Response<ModelWithArrayOfModel> get(String endpoint, String accept, RequestContext requestContext) {
+            HttpRequest httpRequest
+                = new HttpRequest().setMethod(HttpMethod.GET).setUri(endpoint + "/payload/xml/modelWithArrayOfModel");
+            if (accept != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("Accept"), accept);
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 200)) {
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
+                    this.xmlSerializer, null, null, ModelWithArrayOfModelValuesServiceImpl.LOGGER);
+            }
+            try {
+                ModelWithArrayOfModel deserializedResult;
+                SerializationFormat responseSerializationFormat
+                    = CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders());
+                if (this.jsonSerializer.supportsFormat(responseSerializationFormat)) {
+                    deserializedResult
+                        = CoreUtils.decodeNetworkResponse(networkResponse.getValue(), this.jsonSerializer,
+                            CoreUtils.createParameterizedType(Response.class, ModelWithArrayOfModel.class));
+                } else if (this.xmlSerializer.supportsFormat(responseSerializationFormat)) {
+                    deserializedResult = CoreUtils.decodeNetworkResponse(networkResponse.getValue(), this.xmlSerializer,
+                        CoreUtils.createParameterizedType(Response.class, ModelWithArrayOfModel.class));
+                } else {
+                    throw new UnsupportedOperationException(
+                        "Unsupported response serialization format: " + responseSerializationFormat);
+                }
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(),
+                    deserializedResult);
+            } finally {
+                networkResponse.close();
+            }
+        }
+
+        @Override
+        public Response<Void> put(String endpoint, String contentType, ModelWithArrayOfModel input,
+            RequestContext requestContext) {
+            HttpRequest httpRequest
+                = new HttpRequest().setMethod(HttpMethod.PUT).setUri(endpoint + "/payload/xml/modelWithArrayOfModel");
+            if (contentType != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("content-type"), contentType);
+            }
+            if (input != null) {
+                if (httpRequest.getHeaders().get(HttpHeaderName.CONTENT_TYPE) == null) {
+                    httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, "application/xml");
+                }
+                httpRequest.setBody(BinaryData.fromObject(input, this.xmlSerializer));
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 204)) {
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
+                    this.xmlSerializer, null, null, ModelWithArrayOfModelValuesServiceImpl.LOGGER);
+            }
+            try {
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
+            } finally {
+                networkResponse.close();
+            }
+        }
     }
 
     /**
@@ -118,4 +180,6 @@ public final class ModelWithArrayOfModelValuesImpl {
                 return service.put(this.client.getEndpoint(), contentType, input, updatedContext);
             });
     }
+
+    private static final ClientLogger LOGGER = new ClientLogger(ModelWithArrayOfModelValuesImpl.class);
 }

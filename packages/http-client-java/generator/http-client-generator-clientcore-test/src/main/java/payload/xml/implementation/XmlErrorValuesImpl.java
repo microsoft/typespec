@@ -1,19 +1,25 @@
 package payload.xml.implementation;
 
 import io.clientcore.core.annotations.ReturnType;
-import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.annotations.HeaderParam;
-import io.clientcore.core.http.annotations.HostParam;
-import io.clientcore.core.http.annotations.HttpRequestInformation;
-import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
+import io.clientcore.core.http.models.HttpHeaderName;
 import io.clientcore.core.http.models.HttpMethod;
+import io.clientcore.core.http.models.HttpRequest;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.instrumentation.Instrumentation;
-import java.lang.reflect.InvocationTargetException;
+import io.clientcore.core.instrumentation.logging.ClientLogger;
+import io.clientcore.core.models.binarydata.BinaryData;
+import io.clientcore.core.serialization.SerializationFormat;
+import io.clientcore.core.serialization.json.JsonSerializer;
+import io.clientcore.core.serialization.xml.XmlSerializer;
+import io.clientcore.core.utils.CoreUtils;
+import io.clientcore.core.utils.GeneratedCodeUtils;
+import java.lang.reflect.ParameterizedType;
+import java.util.HashMap;
+import java.util.Map;
 import payload.xml.SimpleModel;
 import payload.xml.XmlErrorBody;
 
@@ -47,29 +53,66 @@ public final class XmlErrorValuesImpl {
         this.instrumentation = client.getInstrumentation();
     }
 
-    /**
-     * The interface defining all the services for XmlClientXmlErrorValues to be used by the proxy service to perform
-     * REST calls.
-     */
-    @ServiceInterface(name = "XmlClientXmlErrorValues", host = "{endpoint}")
     public interface XmlErrorValuesService {
         static XmlErrorValuesService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("payload.xml.implementation.XmlErrorValuesServiceImpl");
-                return (XmlErrorValuesService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
+            return new XmlErrorValuesServiceImpl(pipeline);
         }
 
-        @HttpRequestInformation(method = HttpMethod.GET, path = "/payload/xml/error", expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail(statusCode = { 400 }, exceptionBodyClass = XmlErrorBody.class)
-        @UnexpectedResponseExceptionDetail
-        Response<SimpleModel> get(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
-            RequestContext requestContext);
+        Response<SimpleModel> get(String endpoint, String accept, RequestContext requestContext);
+    }
+
+    private static final class XmlErrorValuesServiceImpl implements XmlErrorValuesService {
+        private static final ClientLogger LOGGER = new ClientLogger(XmlErrorValuesServiceImpl.class);
+
+        private final HttpPipeline httpPipeline;
+
+        private final JsonSerializer jsonSerializer = JsonSerializer.getInstance();
+
+        private final XmlSerializer xmlSerializer = XmlSerializer.getInstance();
+
+        private XmlErrorValuesServiceImpl(HttpPipeline pipeline) {
+            this.httpPipeline = pipeline;
+        }
+
+        @Override
+        public Response<SimpleModel> get(String endpoint, String accept, RequestContext requestContext) {
+            HttpRequest httpRequest
+                = new HttpRequest().setMethod(HttpMethod.GET).setUri(endpoint + "/payload/xml/error");
+            if (accept != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("Accept"), accept);
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 200)) {
+                Map<Integer, ParameterizedType> statusToExceptionTypeMap = new HashMap<>();
+                statusToExceptionTypeMap.put(400, CoreUtils.createParameterizedType(XmlErrorBody.class));
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
+                    this.xmlSerializer, null, statusToExceptionTypeMap, XmlErrorValuesServiceImpl.LOGGER);
+            }
+            try {
+                SimpleModel deserializedResult;
+                SerializationFormat responseSerializationFormat
+                    = CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders());
+                if (this.jsonSerializer.supportsFormat(responseSerializationFormat)) {
+                    deserializedResult = CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
+                        this.jsonSerializer, CoreUtils.createParameterizedType(Response.class, SimpleModel.class));
+                } else if (this.xmlSerializer.supportsFormat(responseSerializationFormat)) {
+                    deserializedResult = CoreUtils.decodeNetworkResponse(networkResponse.getValue(), this.xmlSerializer,
+                        CoreUtils.createParameterizedType(Response.class, SimpleModel.class));
+                } else {
+                    throw new UnsupportedOperationException(
+                        "Unsupported response serialization format: " + responseSerializationFormat);
+                }
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(),
+                    deserializedResult);
+            } finally {
+                networkResponse.close();
+            }
+        }
     }
 
     /**
@@ -89,4 +132,6 @@ public final class XmlErrorValuesImpl {
                 return service.get(this.client.getEndpoint(), accept, updatedContext);
             });
     }
+
+    private static final ClientLogger LOGGER = new ClientLogger(XmlErrorValuesImpl.class);
 }

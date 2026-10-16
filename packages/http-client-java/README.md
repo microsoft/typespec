@@ -43,6 +43,13 @@ options:
     option: value
 ```
 
+## Generated clients
+
+Clients targeting clientcore or Azure Core vNext include their HTTP service implementations directly in the generated source.
+They do not require the clientcore annotation processor or reflective loading of service implementations.
+Serializer fields and format-selection code are emitted only when needed; serializers used only to decode errors are initialized on the error path.
+Azure Core v1 clients continue to use `RestProxy`.
+
 ## Emitter options
 
 ### `emitter-output-dir`

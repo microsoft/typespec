@@ -1,15 +1,10 @@
 package payload.pageable.implementation;
 
 import io.clientcore.core.annotations.ReturnType;
-import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.annotations.HeaderParam;
-import io.clientcore.core.http.annotations.HostParam;
-import io.clientcore.core.http.annotations.HttpRequestInformation;
-import io.clientcore.core.http.annotations.PathParam;
-import io.clientcore.core.http.annotations.QueryParam;
-import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
+import io.clientcore.core.http.models.HttpHeaderName;
 import io.clientcore.core.http.models.HttpMethod;
+import io.clientcore.core.http.models.HttpRequest;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
@@ -18,7 +13,13 @@ import io.clientcore.core.http.paging.PagedResponse;
 import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.instrumentation.Instrumentation;
 import io.clientcore.core.instrumentation.logging.ClientLogger;
-import java.lang.reflect.InvocationTargetException;
+import io.clientcore.core.models.binarydata.BinaryData;
+import io.clientcore.core.serialization.SerializationFormat;
+import io.clientcore.core.serialization.json.JsonSerializer;
+import io.clientcore.core.serialization.xml.XmlSerializer;
+import io.clientcore.core.utils.CoreUtils;
+import io.clientcore.core.utils.GeneratedCodeUtils;
+import io.clientcore.core.utils.UriBuilder;
 import payload.pageable.XmlPet;
 
 /**
@@ -51,45 +52,152 @@ public final class XmlPaginationsImpl {
         this.instrumentation = client.getInstrumentation();
     }
 
-    /**
-     * The interface defining all the services for PageableClientXmlPaginations to be used by the proxy service to
-     * perform REST calls.
-     */
-    @ServiceInterface(name = "PageableClientXmlPaginations", host = "{endpoint}")
     public interface XmlPaginationsService {
         static XmlPaginationsService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("payload.pageable.implementation.XmlPaginationsServiceImpl");
-                return (XmlPaginationsService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
+            return new XmlPaginationsServiceImpl(pipeline);
         }
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/payload/pageable/xml/list-with-continuation",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<XmlPetListResult> listWithContinuation(@HostParam("endpoint") String endpoint,
-            @QueryParam("marker") String marker, @HeaderParam("Accept") String accept, RequestContext requestContext);
+        Response<XmlPetListResult> listWithContinuation(String endpoint, String marker, String accept,
+            RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/payload/pageable/xml/list-with-next-link",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<XmlPetListResultWithNextLink> listWithNextLink(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Accept") String accept, RequestContext requestContext);
+        Response<XmlPetListResultWithNextLink> listWithNextLink(String endpoint, String accept,
+            RequestContext requestContext);
 
-        @HttpRequestInformation(method = HttpMethod.GET, path = "{nextLink}", expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<XmlPetListResultWithNextLink> listWithNextLinkNext(
-            @PathParam(value = "nextLink", encoded = true) String nextLink, @HostParam("endpoint") String endpoint,
-            @HeaderParam("Accept") String accept, RequestContext requestContext);
+        Response<XmlPetListResultWithNextLink> listWithNextLinkNext(String nextLink, String endpoint, String accept,
+            RequestContext requestContext);
+    }
+
+    private static final class XmlPaginationsServiceImpl implements XmlPaginationsService {
+        private static final ClientLogger LOGGER = new ClientLogger(XmlPaginationsServiceImpl.class);
+
+        private final HttpPipeline httpPipeline;
+
+        private final JsonSerializer jsonSerializer = JsonSerializer.getInstance();
+
+        private final XmlSerializer xmlSerializer = XmlSerializer.getInstance();
+
+        private XmlPaginationsServiceImpl(HttpPipeline pipeline) {
+            this.httpPipeline = pipeline;
+        }
+
+        @Override
+        public Response<XmlPetListResult> listWithContinuation(String endpoint, String marker, String accept,
+            RequestContext requestContext) {
+            UriBuilder uriBuilder = UriBuilder.parse(endpoint + "/payload/pageable/xml/list-with-continuation");
+            GeneratedCodeUtils.addQueryParameter(uriBuilder, "marker", true, marker, true);
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.GET).setUri(uriBuilder.toString());
+            if (accept != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("Accept"), accept);
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 200)) {
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
+                    this.xmlSerializer, null, null, XmlPaginationsServiceImpl.LOGGER);
+            }
+            try {
+                XmlPetListResult deserializedResult;
+                SerializationFormat responseSerializationFormat
+                    = CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders());
+                if (this.jsonSerializer.supportsFormat(responseSerializationFormat)) {
+                    deserializedResult = CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
+                        this.jsonSerializer, CoreUtils.createParameterizedType(Response.class, XmlPetListResult.class));
+                } else if (this.xmlSerializer.supportsFormat(responseSerializationFormat)) {
+                    deserializedResult = CoreUtils.decodeNetworkResponse(networkResponse.getValue(), this.xmlSerializer,
+                        CoreUtils.createParameterizedType(Response.class, XmlPetListResult.class));
+                } else {
+                    throw new UnsupportedOperationException(
+                        "Unsupported response serialization format: " + responseSerializationFormat);
+                }
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(),
+                    deserializedResult);
+            } finally {
+                networkResponse.close();
+            }
+        }
+
+        @Override
+        public Response<XmlPetListResultWithNextLink> listWithNextLink(String endpoint, String accept,
+            RequestContext requestContext) {
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.GET)
+                .setUri(endpoint + "/payload/pageable/xml/list-with-next-link");
+            if (accept != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("Accept"), accept);
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 200)) {
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
+                    this.xmlSerializer, null, null, XmlPaginationsServiceImpl.LOGGER);
+            }
+            try {
+                XmlPetListResultWithNextLink deserializedResult;
+                SerializationFormat responseSerializationFormat
+                    = CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders());
+                if (this.jsonSerializer.supportsFormat(responseSerializationFormat)) {
+                    deserializedResult
+                        = CoreUtils.decodeNetworkResponse(networkResponse.getValue(), this.jsonSerializer,
+                            CoreUtils.createParameterizedType(Response.class, XmlPetListResultWithNextLink.class));
+                } else if (this.xmlSerializer.supportsFormat(responseSerializationFormat)) {
+                    deserializedResult = CoreUtils.decodeNetworkResponse(networkResponse.getValue(), this.xmlSerializer,
+                        CoreUtils.createParameterizedType(Response.class, XmlPetListResultWithNextLink.class));
+                } else {
+                    throw new UnsupportedOperationException(
+                        "Unsupported response serialization format: " + responseSerializationFormat);
+                }
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(),
+                    deserializedResult);
+            } finally {
+                networkResponse.close();
+            }
+        }
+
+        @Override
+        public Response<XmlPetListResultWithNextLink> listWithNextLinkNext(String nextLink, String endpoint,
+            String accept, RequestContext requestContext) {
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.GET).setUri(nextLink);
+            if (accept != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("Accept"), accept);
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 200)) {
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
+                    this.xmlSerializer, null, null, XmlPaginationsServiceImpl.LOGGER);
+            }
+            try {
+                XmlPetListResultWithNextLink deserializedResult;
+                SerializationFormat responseSerializationFormat
+                    = CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders());
+                if (this.jsonSerializer.supportsFormat(responseSerializationFormat)) {
+                    deserializedResult
+                        = CoreUtils.decodeNetworkResponse(networkResponse.getValue(), this.jsonSerializer,
+                            CoreUtils.createParameterizedType(Response.class, XmlPetListResultWithNextLink.class));
+                } else if (this.xmlSerializer.supportsFormat(responseSerializationFormat)) {
+                    deserializedResult = CoreUtils.decodeNetworkResponse(networkResponse.getValue(), this.xmlSerializer,
+                        CoreUtils.createParameterizedType(Response.class, XmlPetListResultWithNextLink.class));
+                } else {
+                    throw new UnsupportedOperationException(
+                        "Unsupported response serialization format: " + responseSerializationFormat);
+                }
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(),
+                    deserializedResult);
+            } finally {
+                networkResponse.close();
+            }
+        }
     }
 
     /**

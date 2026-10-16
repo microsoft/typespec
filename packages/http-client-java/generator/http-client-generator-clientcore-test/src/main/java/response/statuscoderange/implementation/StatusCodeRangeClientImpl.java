@@ -1,18 +1,23 @@
 package response.statuscoderange.implementation;
 
 import io.clientcore.core.annotations.ReturnType;
-import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.annotations.HostParam;
-import io.clientcore.core.http.annotations.HttpRequestInformation;
-import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
 import io.clientcore.core.http.models.HttpMethod;
+import io.clientcore.core.http.models.HttpRequest;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.instrumentation.Instrumentation;
-import java.lang.reflect.InvocationTargetException;
+import io.clientcore.core.instrumentation.logging.ClientLogger;
+import io.clientcore.core.models.binarydata.BinaryData;
+import io.clientcore.core.serialization.SerializationFormat;
+import io.clientcore.core.serialization.json.JsonSerializer;
+import io.clientcore.core.utils.CoreUtils;
+import io.clientcore.core.utils.GeneratedCodeUtils;
+import java.lang.reflect.ParameterizedType;
+import java.util.HashMap;
+import java.util.Map;
 import response.statuscoderange.DefaultError;
 import response.statuscoderange.ErrorInRange;
 import response.statuscoderange.NotFoundError;
@@ -83,146 +88,191 @@ public final class StatusCodeRangeClientImpl {
         this.service = StatusCodeRangeClientService.getNewInstance(this.httpPipeline);
     }
 
-    /**
-     * The interface defining all the services for StatusCodeRangeClient to be used by the proxy service to perform REST
-     * calls.
-     */
-    @ServiceInterface(name = "StatusCodeRangeClient", host = "{endpoint}")
     public interface StatusCodeRangeClientService {
         static StatusCodeRangeClientService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz
-                    = Class.forName("response.statuscoderange.implementation.StatusCodeRangeClientServiceImpl");
-                return (StatusCodeRangeClientService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
+            return new StatusCodeRangeClientServiceImpl(pipeline);
         }
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/response/status-code-range/error-response-status-code-in-range",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail(
-            statusCode = { 494, 495, 496, 497, 498, 499 },
-            exceptionBodyClass = ErrorInRange.class)
-        @UnexpectedResponseExceptionDetail(exceptionBodyClass = DefaultError.class)
-        Response<Void> errorResponseStatusCodeInRange(@HostParam("endpoint") String endpoint,
-            RequestContext requestContext);
+        Response<Void> errorResponseStatusCodeInRange(String endpoint, RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/response/status-code-range/error-response-status-code-404",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail(
-            statusCode = {
-                400,
-                401,
-                402,
-                403,
-                405,
-                406,
-                407,
-                408,
-                409,
-                410,
-                411,
-                412,
-                413,
-                414,
-                415,
-                416,
-                417,
-                418,
-                419,
-                420,
-                421,
-                422,
-                423,
-                424,
-                425,
-                426,
-                427,
-                428,
-                429,
-                430,
-                431,
-                432,
-                433,
-                434,
-                435,
-                436,
-                437,
-                438,
-                439,
-                440,
-                441,
-                442,
-                443,
-                444,
-                445,
-                446,
-                447,
-                448,
-                449,
-                450,
-                451,
-                452,
-                453,
-                454,
-                455,
-                456,
-                457,
-                458,
-                459,
-                460,
-                461,
-                462,
-                463,
-                464,
-                465,
-                466,
-                467,
-                468,
-                469,
-                470,
-                471,
-                472,
-                473,
-                474,
-                475,
-                476,
-                477,
-                478,
-                479,
-                480,
-                481,
-                482,
-                483,
-                484,
-                485,
-                486,
-                487,
-                488,
-                489,
-                490,
-                491,
-                492,
-                493,
-                494,
-                495,
-                496,
-                497,
-                498,
-                499 },
-            exceptionBodyClass = Standard4XXError.class)
-        @UnexpectedResponseExceptionDetail(statusCode = { 404 }, exceptionBodyClass = NotFoundError.class)
-        @UnexpectedResponseExceptionDetail
-        Response<Void> errorResponseStatusCode404(@HostParam("endpoint") String endpoint,
-            RequestContext requestContext);
+        Response<Void> errorResponseStatusCode404(String endpoint, RequestContext requestContext);
+    }
+
+    private static final class StatusCodeRangeClientServiceImpl implements StatusCodeRangeClientService {
+        private static final ClientLogger LOGGER = new ClientLogger(StatusCodeRangeClientServiceImpl.class);
+
+        private final HttpPipeline httpPipeline;
+
+        private StatusCodeRangeClientServiceImpl(HttpPipeline pipeline) {
+            this.httpPipeline = pipeline;
+        }
+
+        @Override
+        public Response<Void> errorResponseStatusCodeInRange(String endpoint, RequestContext requestContext) {
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.GET)
+                .setUri(endpoint + "/response/status-code-range/error-response-status-code-in-range");
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 204)) {
+                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == SerializationFormat.XML) {
+                    try {
+                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
+                Map<Integer, ParameterizedType> statusToExceptionTypeMap = new HashMap<>();
+                statusToExceptionTypeMap.put(494, CoreUtils.createParameterizedType(ErrorInRange.class));
+                statusToExceptionTypeMap.put(495, CoreUtils.createParameterizedType(ErrorInRange.class));
+                statusToExceptionTypeMap.put(496, CoreUtils.createParameterizedType(ErrorInRange.class));
+                statusToExceptionTypeMap.put(497, CoreUtils.createParameterizedType(ErrorInRange.class));
+                statusToExceptionTypeMap.put(498, CoreUtils.createParameterizedType(ErrorInRange.class));
+                statusToExceptionTypeMap.put(499, CoreUtils.createParameterizedType(ErrorInRange.class));
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, JsonSerializer.getInstance(),
+                    null, CoreUtils.createParameterizedType(DefaultError.class), statusToExceptionTypeMap,
+                    StatusCodeRangeClientServiceImpl.LOGGER);
+            }
+            try {
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
+            } finally {
+                networkResponse.close();
+            }
+        }
+
+        @Override
+        public Response<Void> errorResponseStatusCode404(String endpoint, RequestContext requestContext) {
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.GET)
+                .setUri(endpoint + "/response/status-code-range/error-response-status-code-404");
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 204)) {
+                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == SerializationFormat.XML) {
+                    try {
+                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
+                Map<Integer, ParameterizedType> statusToExceptionTypeMap = new HashMap<>();
+                statusToExceptionTypeMap.put(400, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(401, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(402, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(403, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(405, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(406, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(407, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(408, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(409, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(410, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(411, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(412, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(413, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(414, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(415, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(416, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(417, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(418, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(419, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(420, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(421, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(422, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(423, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(424, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(425, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(426, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(427, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(428, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(429, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(430, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(431, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(432, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(433, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(434, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(435, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(436, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(437, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(438, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(439, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(440, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(441, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(442, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(443, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(444, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(445, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(446, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(447, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(448, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(449, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(450, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(451, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(452, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(453, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(454, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(455, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(456, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(457, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(458, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(459, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(460, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(461, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(462, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(463, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(464, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(465, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(466, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(467, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(468, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(469, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(470, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(471, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(472, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(473, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(474, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(475, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(476, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(477, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(478, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(479, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(480, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(481, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(482, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(483, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(484, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(485, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(486, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(487, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(488, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(489, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(490, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(491, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(492, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(493, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(494, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(495, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(496, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(497, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(498, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(499, CoreUtils.createParameterizedType(Standard4XXError.class));
+                statusToExceptionTypeMap.put(404, CoreUtils.createParameterizedType(NotFoundError.class));
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, JsonSerializer.getInstance(),
+                    null, null, statusToExceptionTypeMap, StatusCodeRangeClientServiceImpl.LOGGER);
+            }
+            try {
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
+            } finally {
+                networkResponse.close();
+            }
+        }
     }
 
     /**
@@ -258,4 +308,6 @@ public final class StatusCodeRangeClientImpl {
                 return service.errorResponseStatusCode404(this.getEndpoint(), updatedContext);
             });
     }
+
+    private static final ClientLogger LOGGER = new ClientLogger(StatusCodeRangeClientImpl.class);
 }
