@@ -6248,10 +6248,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         [Test]
         public async Task TestEarlierWrapperRequestExistsAfterLaterBackCompatProvider()
         {
-            var listOperation = InputFactory.Operation("ListUrl");
-            var listServiceMethod = InputFactory.BasicServiceMethod("ListUrl", listOperation);
-            var getOperation = InputFactory.Operation("GetUriAsync");
-            var getServiceMethod = InputFactory.BasicServiceMethod("GetUriAsync", getOperation);
+            var requestBody = InputFactory.Model("RequestBody");
+            InputParameter[] operationParameters =
+            [
+                InputFactory.HeaderParameter("contentType", InputPrimitiveType.String, isRequired: true, isContentType: true, serializedName: "Content-Type"),
+                InputFactory.BodyParameter("body", requestBody, isRequired: true)
+            ];
+            InputMethodParameter[] methodParameters =
+            [
+                InputFactory.MethodParameter("contentType", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Header, serializedName: "Content-Type"),
+                InputFactory.MethodParameter("body", requestBody, isRequired: true, location: InputRequestLocation.Body)
+            ];
+            var listOperation = InputFactory.Operation("ListUrl", parameters: operationParameters, httpMethod: "POST");
+            var listServiceMethod = InputFactory.BasicServiceMethod("ListUrl", listOperation, parameters: methodParameters);
+            var getOperation = InputFactory.Operation("GetUrl", parameters: operationParameters, httpMethod: "POST", isExactName: true);
+            var getServiceMethod = InputFactory.BasicServiceMethod("GetUrl", getOperation, parameters: methodParameters, isExactName: true);
             var client = InputFactory.Client("TestClient", methods: [listServiceMethod, getServiceMethod]);
             var generator = await MockHelpers.LoadMockGeneratorAsync(
                 clients: () => [client],
@@ -6265,15 +6276,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 !m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Async)).Signature.Name;
             var capturedRequestMethodName = clientProvider.RestClient.GetCreateRequestMethod(listOperation).Signature.Name;
 
-            Assert.AreEqual("GetUrl", publicMethodName);
-            Assert.AreEqual("CreateGetUrlRequest", capturedRequestMethodName);
-
-            var newWrapper = new BackCompatTypeProvider("MissingWrapper", "Sample");
+            var newWrapper = new BackCompatTypeProvider("NewMockableTestResource", "Sample");
             var newWrapperMethods = clientProvider.GetMethodCollectionByOperation(listOperation, newWrapper);
             var newPublicMethodName = newWrapperMethods.Single(m =>
                 m.Kind == ScmMethodKind.Convenience &&
                 !m.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Async)).Signature.Name;
-            Assert.AreEqual("GetUrl", newPublicMethodName);
+            Assert.AreEqual("ListUrl", publicMethodName);
+            Assert.AreEqual("CreateListUrlRequest", capturedRequestMethodName);
+            Assert.AreEqual("ListUri", newPublicMethodName);
+            foreach (var protocolMethod in shippedWrapperMethods.Where(method => method.Kind == ScmMethodKind.Protocol))
+            {
+                var syntax = CSharpSyntaxTree.ParseText(protocolMethod.BodyStatements!.ToDisplayString()).GetRoot();
+                var requestCalls = syntax.DescendantNodes().OfType<InvocationExpressionSyntax>()
+                    .Where(invocation => invocation.Expression is MemberAccessExpressionSyntax member &&
+                        member.Name.Identifier.ValueText.StartsWith("Create", StringComparison.Ordinal))
+                    .Select(invocation => ((MemberAccessExpressionSyntax)invocation.Expression).Name.Identifier.ValueText);
+                CollectionAssert.Contains(requestCalls, capturedRequestMethodName);
+            }
+
             Assert.AreEqual(
                 capturedRequestMethodName,
                 clientProvider.RestClient.GetCreateRequestMethod(listOperation).Signature.Name);

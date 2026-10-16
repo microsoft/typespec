@@ -319,8 +319,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 var otherRestName = (other.IsExactName ? otherInputName.ToIdentifierName() : NormalizeName(otherInputName)).ToIdentifierName();
                 if (otherRestName == normalizedName &&
                     HasEquivalentParameterTypes(
-                        RestClientProvider.GetMethodParameters(serviceMethod, ScmMethodKind.CreateRequest, this),
-                        RestClientProvider.GetMethodParameters(other, ScmMethodKind.CreateRequest, this)))
+                        RestClientProvider.GetMethodParameters(serviceMethod, ScmMethodKind.CreateRequest, this, applyBackCompat: false),
+                        RestClientProvider.GetMethodParameters(other, ScmMethodKind.CreateRequest, this, applyBackCompat: false)))
                 {
                     return false;
                 }
