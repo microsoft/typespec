@@ -30,7 +30,6 @@ import type { ScalarHttpCanonicalization } from "./scalar.js";
 
 /** Header serialization metadata copied from HTTP resolution, not language-side names. */
 export interface CanonicalHeaderParameterOptions {
-  /** Identifies these options as header options rather than cookie options. */
   type: "header";
   /** HTTP header field name, including any name override from `@header`. */
   name: string;
@@ -48,7 +47,6 @@ export interface CanonicalHeaderParameterOptions {
 
 /** Cookie metadata for a canonicalized request property. */
 export interface CanonicalCookieParameterOptions {
-  /** Identifies these options as cookie options rather than header options. */
   type: "cookie";
   /** Cookie name sent in the request, independent of the language property name. */
   name: string;
@@ -96,27 +94,23 @@ export interface CanonicalHttpPropertyBase {
 }
 /** A property carried in an HTTP header rather than the payload body. */
 export interface CanonicalHeaderProperty extends CanonicalHttpPropertyBase {
-  /** Selects the header branch of {@link CanonicalHttpProperty}. */
   readonly kind: "header";
   /** Resolved wire name and structured-value expansion behavior. */
   readonly options: CanonicalHeaderParameterOptions;
 }
 /** A request property carried as a cookie. */
 export interface CanonicalCookieProperty extends CanonicalHttpPropertyBase {
-  /** Selects the cookie branch of {@link CanonicalHttpProperty}. */
   readonly kind: "cookie";
   /** Resolved cookie wire name. */
   readonly options: CanonicalCookieParameterOptions;
 }
 /** A property that selects the payload media type through `Content-Type`. */
 export interface CanonicalContentTypeProperty extends CanonicalHttpPropertyBase {
-  /** Separates content negotiation metadata from ordinary headers. */
   readonly kind: "contentType";
 }
 
 /** A request property expanded into the URI query. */
 export interface CanonicalQueryProperty extends CanonicalHttpPropertyBase {
-  /** Selects the query branch of {@link CanonicalHttpProperty}. */
   readonly kind: "query";
   /** Resolved query name and expansion behavior. */
   readonly options: CanonicalQueryParameterOptions;
@@ -124,7 +118,6 @@ export interface CanonicalQueryProperty extends CanonicalHttpPropertyBase {
 
 /** A request property expanded into the URI path. */
 export interface CanonicalPathProperty extends CanonicalHttpPropertyBase {
-  /** Selects the path branch of {@link CanonicalHttpProperty}. */
   readonly kind: "path";
   /** Resolved URI-template expansion behavior and wire name. */
   readonly options: CanonicalPathParameterOptions;
@@ -132,27 +125,22 @@ export interface CanonicalPathProperty extends CanonicalHttpPropertyBase {
 
 /** A response property describing the HTTP status, not a payload field. */
 export interface CanonicalStatusCodeProperty extends CanonicalHttpPropertyBase {
-  /** Selects status metadata in {@link CanonicalHttpProperty}. */
   readonly kind: "statusCode";
 }
 /** An explicit `@body` property supplying the entire payload. */
 export interface CanonicalBodyProperty extends CanonicalHttpPropertyBase {
-  /** Distinguishes an explicit body from a body root or implicit body member. */
   readonly kind: "body";
 }
 /** A `@bodyRoot` property whose type supplies the payload root. */
 export interface CanonicalBodyRootProperty extends CanonicalHttpPropertyBase {
-  /** Distinguishes a body root from an explicit `@body` property. */
   readonly kind: "bodyRoot";
 }
 /** A property annotated with `@multipartBody` that supplies multipart content. */
 export interface CanonicalMultipartBodyProperty extends CanonicalHttpPropertyBase {
-  /** Selects a multipart body declaration in {@link CanonicalHttpProperty}. */
   readonly kind: "multipartBody";
 }
 /** Property to include inside the body */
 export interface CanonicalBodyPropertyProperty extends CanonicalHttpPropertyBase {
-  /** Distinguishes an implicit payload field from a property supplying the whole body. */
   readonly kind: "bodyProperty";
 }
 
@@ -250,17 +238,15 @@ export interface CanonicalHttpBody {
 /** A non-multipart, non-file payload, whether explicit or inferred from properties. */
 export interface CanonicalHttpOperationBody
   extends CanonicalHttpOperationBodyBase, CanonicalHttpBody {
-  /** Selects the ordinary-payload branch of {@link CanonicalHttpPayloadBody}. */
   readonly bodyKind: "single";
 }
 
-/** Multipart payload declared using either named model properties or tuple entries. */
+/** Multipart forms distinguished by `multipartKind`: named model properties or tuple entries. */
 export type CanonicalHttpOperationMultipartBody =
   CanonicalHttpOperationMultipartBodyModel | CanonicalHttpOperationMultipartBodyTuple;
 
 /** Metadata shared by both model-form and tuple-form multipart payloads. */
 export interface CanonicalHttpOperationMultipartBodyCommon extends CanonicalHttpOperationBodyBase {
-  /** Selects the multipart branch of {@link CanonicalHttpPayloadBody}. */
   readonly bodyKind: "multipart";
   /** Property annotated with `@multipartBody` */
   readonly property: ModelPropertyHttpCanonicalization;
@@ -270,7 +256,6 @@ export interface CanonicalHttpOperationMultipartBodyCommon extends CanonicalHttp
 
 /** Multipart content whose parts originate in named model properties. */
 export interface CanonicalHttpOperationMultipartBodyModel extends CanonicalHttpOperationMultipartBodyCommon {
-  /** Selects the named-property multipart form. */
   readonly multipartKind: "model";
   /** Canonicalization of the model defining the parts. */
   readonly type: ModelHttpCanonicalization;
@@ -280,7 +265,6 @@ export interface CanonicalHttpOperationMultipartBodyModel extends CanonicalHttpO
 
 /** Multipart content whose parts originate in ordered tuple entries. */
 export interface CanonicalHttpOperationMultipartBodyTuple extends CanonicalHttpOperationMultipartBodyCommon {
-  /** Selects the tuple-entry multipart form. */
   readonly multipartKind: "tuple";
   /** Canonicalization of the tuple defining the parts. */
   readonly type: HttpCanonicalization;
@@ -308,13 +292,12 @@ export interface CanonicalHttpOperationPartCommon {
   readonly optional: boolean;
 }
 
-/** Multipart part distinguished by whether a model property or tuple entry defines it. */
+/** Multipart parts distinguished by `partKind`: a defining model property or tuple entry. */
 export type CanonicalHttpOperationPart =
   CanonicalHttpOperationModelPart | CanonicalHttpOperationTuplePart;
 
 /** Named multipart part retaining the canonical property that declared it. */
 export interface CanonicalHttpOperationModelPart extends CanonicalHttpOperationPartCommon {
-  /** Selects the model-property part form. */
   readonly partKind: "model";
   /** Property that defined the part if the model form is used. */
   readonly property: ModelPropertyHttpCanonicalization;
@@ -324,7 +307,6 @@ export interface CanonicalHttpOperationModelPart extends CanonicalHttpOperationP
 
 /** Multipart part from a tuple entry, with no defining model property. */
 export interface CanonicalHttpOperationTuplePart extends CanonicalHttpOperationPartCommon {
-  /** Selects the tuple-entry part form. */
   readonly partKind: "tuple";
   /** Property that defined the part -- always undefined for tuple entry parts. */
   readonly property?: undefined;
@@ -332,7 +314,6 @@ export interface CanonicalHttpOperationTuplePart extends CanonicalHttpOperationP
 
 /** Upload or download payload derived from `Http.File`, including its metadata fields. */
 export interface CanonicalHttpOperationFileBody extends CanonicalHttpOperationBodyBase {
-  /** Selects the file branch of {@link CanonicalHttpPayloadBody}. */
   readonly bodyKind: "file";
   /**
    * The model type of the body that is or extends `Http.File`.
