@@ -9,15 +9,37 @@ import {
   type TypeSpecBundleDefinition,
 } from "../bundler.js";
 
+/** Selects installed TypeSpec libraries and the URL/output folder for their browser bundles. */
 export interface TypeSpecBundlePluginOptions {
+  /**
+   * Folder path relative to the Vite output directory. In development, bundles
+   * are served under `/<folderName>/`; HTML import-map URLs use `./<folderName>/`.
+   * For example, `"libs"` places a package's root bundle at `libs/<package>/index.js`.
+   */
   readonly folderName: string;
 
   /**
-   * Name of libraries to bundle.
+   * Package names, including scopes, resolved under the resolved Vite root's
+   * `node_modules` directory. Each package gets its own bundle and import-map entries.
    */
   readonly libraries: readonly string[];
 }
 
+/**
+ * Creates a Vite plugin that serves TypeSpec library bundles and injects an HTML import map.
+ *
+ * The factory returns synchronously; Vite's asynchronous build-start hook bundles
+ * the libraries using the resolved Vite root. The Vite build command minifies the
+ * modules and emits them as assets under {@link TypeSpecBundlePluginOptions.folderName}.
+ * The development server serves modules without minification and watches the libraries,
+ * triggering a full browser reload after a bundle update.
+ *
+ * The import map covers package names and selected subpath exports. Bundle manifests
+ * are not emitted as assets by this plugin.
+ *
+ * @param options - Installed packages to bundle and the folder used to serve or emit them.
+ * @returns A plugin for the Vite configuration's `plugins` array.
+ */
 export function typespecBundlePlugin(options: TypeSpecBundlePluginOptions): Plugin {
   let config: ResolvedConfig;
   const definitions: Record<string, TypeSpecBundleDefinition> = {};
