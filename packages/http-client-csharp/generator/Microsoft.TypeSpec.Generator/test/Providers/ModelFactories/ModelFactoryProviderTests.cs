@@ -1560,6 +1560,136 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             StringAssert.DoesNotContain("ProjectsAgentTool", content);
         }
 
+        [TestCase(true, true, false)]
+        [TestCase(true, false, false)]
+        [TestCase(false, true, false)]
+        [TestCase(false, false, false)]
+        [TestCase(true, true, true)]
+        [TestCase(false, true, true)]
+        public async Task ModelWithInheritedDiscriminator(bool isRequired, bool isExtensible, bool customizeEnum)
+        {
+            var discriminatorEnum = InputFactory.StringEnum(
+                "AlertsManagementType",
+                [("PrometheusEnrichmentItem", "PrometheusEnrichmentItem"),
+                 ("PrometheusInstantQuery", "PrometheusInstantQuery"),
+                 ("PrometheusRangeQuery", "PrometheusRangeQuery")],
+                access: "internal", isExtensible: isExtensible);
+            var instantQuery = InputFactory.Model(
+                "PrometheusInstantQuery", properties: [], discriminatedKind: "PrometheusInstantQuery");
+            var rangeQuery = InputFactory.Model(
+                "PrometheusRangeQuery", properties: [], discriminatedKind: "PrometheusRangeQuery");
+            var prometheusItem = InputFactory.Model(
+                "PrometheusEnrichmentItem", properties: [], discriminatedKind: "PrometheusEnrichmentItem",
+                derivedModels: [instantQuery, rangeQuery]);
+            var enrichmentItem = InputFactory.Model(
+                "AlertEnrichmentItem",
+                properties: [InputFactory.Property("alertEnrichmentType", discriminatorEnum,
+                    isRequired: isRequired, isDiscriminator: true)],
+                derivedModels: [prometheusItem]);
+
+            if (customizeEnum)
+            {
+                await MockHelpers.LoadMockGeneratorAsync(
+                    inputModelTypes: [enrichmentItem, prometheusItem, instantQuery, rangeQuery],
+                    inputEnumTypes: [discriminatorEnum],
+                    compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            }
+            else
+            {
+                MockHelpers.LoadMockGenerator(
+                    inputModelTypes: [enrichmentItem, prometheusItem, instantQuery, rangeQuery],
+                    inputEnumTypes: [discriminatorEnum]);
+            }
+
+            foreach (var inputModel in new[] { instantQuery, rangeQuery })
+            {
+                var model = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
+                Assert.IsNotNull(model.DiscriminatorValueExpression);
+                var enumProvider = CodeModelGenerator.Instance.TypeFactory.CreateEnum(discriminatorEnum)!;
+                var memberName = customizeEnum
+                    ? inputModel == instantQuery ? "InstantQuery" : "RangeQuery"
+                    : inputModel.DiscriminatorValue!;
+                var expectedExpression = Snippet.Static(enumProvider.Type).Property(memberName).ToDisplayString();
+                Assert.AreEqual(expectedExpression, model.DiscriminatorValueExpression!.ToDisplayString());
+                var factory = CodeModelGenerator.Instance.OutputLibrary.ModelFactory.Value;
+                var method = factory.Methods.Single(m => m.Signature.Name == model.Name);
+                var expression = model.DiscriminatorValueExpression.ToDisplayString();
+                StringAssert.Contains(expression, method.BodyStatements!.ToDisplayString());
+                StringAssert.Contains(expression, model.Constructors.First().BodyStatements!.ToDisplayString());
+            }
+        }
+
+        [TestCase("GetOnly")]
+        [TestCase("PrivateSetter")]
+        public async Task ModelWithCustomizedInheritedDiscriminator(string customization)
+        {
+            var child = InputFactory.Model("Child", properties: [], discriminatedKind: "child");
+            var root = InputFactory.Model(
+                "Root",
+                properties: [InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true)],
+                derivedModels: [child]);
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [root, child],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: customization));
+            var model = CodeModelGenerator.Instance.TypeFactory.CreateModel(child)!;
+            var property = CodeModelGenerator.Instance.TypeFactory.CreateModel(root)!.CanonicalView.Properties.Single(p => p.IsDiscriminator);
+            var expression = model.GetDiscriminatorValueExpression(property)!;
+
+            Assert.AreEqual(expression.ToDisplayString(),
+                model.Constructors.First().Signature.Initializer!.Arguments.Single().ToDisplayString());
+            StringAssert.DoesNotContain(property.Assign(expression).Terminate().ToDisplayString(),
+                model.Constructors.First().BodyStatements!.ToDisplayString());
+        }
+
+        [Test]
+        public void ModelWithSeparateInheritedDiscriminators()
+        {
+            var rootEnum = InputFactory.StringEnum(
+                "RootKind", [("Intermediate", "root-value")], access: "internal", isExtensible: true);
+            var nestedEnum = InputFactory.StringEnum(
+                "NestedKind", [("Leaf", "nested-value"), ("DerivedLeaf", "derived-value")],
+                access: "internal", isExtensible: true);
+            var derivedLeaf = InputFactory.Model("DerivedLeaf", properties: [], discriminatedKind: "derived-value");
+            var leaf = InputFactory.Model(
+                "Leaf", properties: [], discriminatedKind: "nested-value", derivedModels: [derivedLeaf]);
+            var intermediate = InputFactory.Model(
+                "Intermediate",
+                properties: [InputFactory.Property("nestedKind", nestedEnum, isRequired: true, isDiscriminator: true)],
+                discriminatedKind: "root-value", derivedModels: [leaf]);
+            var root = InputFactory.Model(
+                "Root",
+                properties: [InputFactory.Property("kind", rootEnum, isRequired: true, isDiscriminator: true)],
+                derivedModels: [intermediate]);
+
+            MockHelpers.LoadMockGenerator(
+                inputModelTypes: [root, intermediate, leaf, derivedLeaf], inputEnumTypes: [rootEnum, nestedEnum]);
+            var rootProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(root)!;
+            var intermediateProvider = CodeModelGenerator.Instance.TypeFactory.CreateModel(intermediate)!;
+            var rootProperty = rootProvider.Properties.Single(p => p.IsDiscriminator);
+            var nestedProperty = intermediateProvider.Properties.Single(p => p.IsDiscriminator);
+            var rootExpression = Snippet.Static(rootProperty.Type).Property("Intermediate").ToDisplayString();
+            var factory = CodeModelGenerator.Instance.OutputLibrary.ModelFactory.Value;
+
+            foreach (var inputModel in new[] { leaf, derivedLeaf })
+            {
+                var model = CodeModelGenerator.Instance.TypeFactory.CreateModel(inputModel)!;
+                var nestedExpression = Snippet.Static(nestedProperty.Type).Property(inputModel.Name).ToDisplayString();
+                Assert.AreEqual(rootExpression, model.GetDiscriminatorValueExpression(rootProperty)!.ToDisplayString());
+                Assert.AreEqual(nestedExpression, model.GetDiscriminatorValueExpression(nestedProperty)!.ToDisplayString());
+                var method = factory.Methods.Single(m => m.Signature.Name == model.Name);
+                StringAssert.Contains(rootExpression, method.BodyStatements!.ToDisplayString());
+                StringAssert.Contains(nestedExpression, method.BodyStatements.ToDisplayString());
+                var constructor = model.Constructors.First();
+                StringAssert.Contains(nestedExpression,
+                    inputModel == leaf
+                        ? constructor.Signature.Initializer!.Arguments.Single().ToDisplayString()
+                        : constructor.BodyStatements!.ToDisplayString());
+            }
+
+            Assert.AreEqual(rootExpression,
+                intermediateProvider.Constructors.First().Signature.Initializer!.Arguments.Single().ToDisplayString());
+        }
+
         [Test]
         public void ModelWithNestedDiscriminators()
         {
