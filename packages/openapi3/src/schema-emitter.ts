@@ -133,6 +133,10 @@ export class OpenAPI3SchemaEmitterBase<
     return this.reduceContext(model);
   }
 
+  arrayDeclarationReferenceContext(array: Model, name: string, elementType: Type): Context {
+    return this.reduceContext(array);
+  }
+
   scalarDeclarationReferenceContext(scalar: Scalar, name: string): Context {
     return this.reduceContext(scalar);
   }
