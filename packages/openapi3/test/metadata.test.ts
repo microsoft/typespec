@@ -1148,6 +1148,27 @@ worksFor(supportedVersions, ({ openApiFor }) => {
     });
   });
 
+  it("named array model referenced by collection and direct operations is emitted once", async () => {
+    const res = await openApiFor(`
+      model Range is int32[][] {}
+
+      model Foo {
+        range: Range,
+      }
+
+      @route("/foos")
+      interface Foos {
+        @get @route("/") list(): Foo[];
+        @get @route("/{id}") read(@path id: string): Foo;
+      }
+    `);
+
+    deepStrictEqual(Object.keys(res.components.schemas), ["Foo", "Range"]);
+    deepStrictEqual(res.components.schemas.Foo.properties.range, {
+      $ref: "#/components/schemas/Range",
+    });
+  });
+
   it("model instantiation shared with an unreachable derived model is emitted once", async () => {
     const res = await openApiFor(`
       model Widget {
