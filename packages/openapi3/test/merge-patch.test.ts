@@ -229,6 +229,86 @@ it("emits the patched base schema for an extended model", async () => {
   deepStrictEqual(nested.allOf, [{ $ref: "#/components/schemas/BaseMergePatchUpdateOrCreate" }]);
   expect(req.schemas.BaseMergePatchUpdateOrCreate.required).toBeUndefined();
 });
+it("names the patched base after the friendly name of the base", async () => {
+  const oapi = await openApiFor(`
+    @service(#{title: "Testing model"})
+    @route("/")
+    namespace root {
+      @friendlyName("BaseDto")
+      model Base {
+        id: string;
+      }
+
+      model Widget extends Base {
+        label?: string;
+      }
+
+      @patch op update(@body body: MergePatchUpdate<Widget>): Widget;
+    }
+  `);
+
+  const operation = oapi.paths["/"].patch;
+  deepStrictEqual(operation.requestBody.content["application/merge-patch+json"].schema, {
+    $ref: "#/components/schemas/WidgetMergePatchUpdate",
+  });
+  deepStrictEqual(operation.responses["200"].content["application/json"].schema, {
+    $ref: "#/components/schemas/Widget",
+  });
+
+  const schemas = oapi.components.schemas;
+  deepStrictEqual(Object.keys(schemas).sort(), [
+    "BaseDto",
+    "BaseDtoMergePatchUpdate",
+    "Widget",
+    "WidgetMergePatchUpdate",
+  ]);
+  deepStrictEqual(schemas.Widget.allOf, [{ $ref: "#/components/schemas/BaseDto" }]);
+  deepStrictEqual(schemas.WidgetMergePatchUpdate.allOf, [
+    { $ref: "#/components/schemas/BaseDtoMergePatchUpdate" },
+  ]);
+  deepStrictEqual(schemas.BaseDto.required, ["id"]);
+  expect(schemas.BaseDtoMergePatchUpdate.required).toBeUndefined();
+});
+it("names patched nested models after their friendly name", async () => {
+  const oapi = await openApiFor(`
+    @service(#{title: "Testing model"})
+    @route("/")
+    namespace root {
+      @friendlyName("ThingDto")
+      model Thing {
+        a: string;
+      }
+
+      model Holder {
+        thing?: Thing;
+        things: Thing[];
+      }
+
+      @patch op update(@body body: MergePatchUpdate<Holder>): Holder;
+    }
+  `);
+
+  const schemas = oapi.components.schemas;
+  deepStrictEqual(Object.keys(schemas).sort(), [
+    "Holder",
+    "HolderMergePatchUpdate",
+    "ThingDto",
+    "ThingDtoMergePatchUpdateOrCreate",
+    "ThingDtoMergePatchUpdateReplaceOnly",
+  ]);
+  deepStrictEqual(schemas.Holder.properties.thing, { $ref: "#/components/schemas/ThingDto" });
+  deepStrictEqual(schemas.HolderMergePatchUpdate.properties, {
+    thing: {
+      type: "object",
+      allOf: [{ $ref: "#/components/schemas/ThingDtoMergePatchUpdateOrCreate" }],
+      nullable: true,
+    },
+    things: {
+      type: "array",
+      items: { $ref: "#/components/schemas/ThingDtoMergePatchUpdateReplaceOnly" },
+    },
+  });
+});
 it("emits correct schema for MergePatchCreateOrUpdateReplaceOnly", async () => {
   const req = await oapiForPatchRequest(
     "@body body: Foo",

@@ -13,12 +13,14 @@ import type {
   VisibilityFilter,
 } from "@typespec/compiler";
 import {
+  $friendlyName,
   $invisible,
   $removeVisibility,
   $visibility,
   compilerAssert,
   getDiscriminatedUnion,
   getDiscriminator,
+  getFriendlyName,
   getLifecycleVisibilityEnum,
   isVisible,
   navigateType,
@@ -351,7 +353,7 @@ function createMergePatchMutator(
             ];
           }
 
-          rename(ctx.program, clone, nameTemplate);
+          rename(ctx.program, union, clone, nameTemplate);
         },
       },
       Model: {
@@ -434,7 +436,7 @@ function createMergePatchMutator(
             args: [],
           });
           ctx.program.stateMap(HttpStateKeys.mergePatchModel).set(clone, model);
-          rename(ctx.program, clone, nameTemplate);
+          rename(ctx.program, model, clone, nameTemplate);
         },
       },
       ModelProperty: {
@@ -510,22 +512,42 @@ function isMergePatchSubject(type: Type): type is MergePatchSubject {
 
 function rename(
   program: Program,
-  type: Extract<MergePatchSubject, { name?: string }>,
+  source: Model | Union,
+  clone: Model | Union,
   nameTemplate: string,
 ) {
-  if ($(program).array.is(type) && type.name === "Array") return;
-  if (type.name && nameTemplate) {
-    type.name = replaceTemplatedStringFromProperties(nameTemplate, type);
+  if ($(program).array.is(clone) && clone.name === "Array") return;
+  if (clone.name && nameTemplate) {
+    clone.name = replaceTemplatedStringFromProperties(nameTemplate, clone);
+
+    // The clone replays the source's decorators, so `@friendlyName` would give it the same
+    // emitter name as the source. Derive the clone's friendly name with the same template.
+    const friendlyName = getFriendlyName(program, source);
+    if (friendlyName !== undefined) {
+      const name = replaceTemplatedStringFromProperties(nameTemplate, clone, friendlyName);
+      clone.decorators = clone.decorators.map((d) =>
+        d.decorator === $friendlyName
+          ? {
+              ...d,
+              args: [{ ...d.args[0], value: $(program).value.createString(name), jsValue: name }],
+            }
+          : d,
+      );
+    }
   }
 }
 
-function replaceTemplatedStringFromProperties(formatString: string, sourceObject: Type) {
+function replaceTemplatedStringFromProperties(
+  formatString: string,
+  sourceObject: Type,
+  name?: string,
+) {
   // Template parameters are not valid source objects, just skip them
   if (sourceObject.kind === "TemplateParameter") {
     return formatString;
   }
 
   return formatString.replace(/{(\w+)}/g, (_, propName) => {
-    return (sourceObject as any)[propName];
+    return propName === "name" && name !== undefined ? name : (sourceObject as any)[propName];
   });
 }

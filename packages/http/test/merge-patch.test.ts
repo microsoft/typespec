@@ -1,5 +1,5 @@
 import type { Diagnostic, Model, ModelProperty, Program, Type, TypeKind } from "@typespec/compiler";
-import { getMediaTypeHint } from "@typespec/compiler";
+import { getFriendlyName, getMediaTypeHint } from "@typespec/compiler";
 import {
   type unsafe_MutatorWithNamespace as MutatorWithNamespace,
   unsafe_mutateSubgraphWithNamespace,
@@ -559,6 +559,114 @@ describe("mutator validation", () => {
     ok(element.baseModel);
     expect(element.baseModel.name).toStrictEqual("BaseMergePatchUpdateReplaceOnly");
     checkProperty(element.baseModel, "id", false, "Scalar", "string");
+  });
+
+  it("derives the friendly name of transformed models from the source friendly name", async () => {
+    const [typeGraph, diag] = await compileAndDiagnoseWithRunner(
+      runner,
+      `
+      @friendlyName("BaseDto")
+      model Base {
+        id: string;
+      }
+
+      @friendlyName("WidgetDto")
+      model Widget extends Base {
+        label?: string;
+      }
+
+      @friendlyName("ThingDto")
+      model Thing {
+        a: string;
+      }
+
+      @friendlyName("ShapeDto")
+      union Shape {
+        thing: Thing,
+        text: string,
+      }
+
+      model Holder {
+        thing?: Thing;
+        things: Thing[];
+        shape?: Shape;
+      }
+
+      model WidgetPatch is MergePatchUpdate<Widget>;
+
+      @route("/widgets") @patch op update(@body body: MergePatchUpdate<Widget>): Widget;
+      @route("/named") @patch op updateNamed(@body body: WidgetPatch): Widget;
+      @route("/holders") @patch op updateHolder(@body body: MergePatchUpdate<Holder>): Holder;`,
+    );
+    expectDiagnosticEmpty(diag);
+    const program = runner.program;
+    const getBody = (name: string) => {
+      const body = typeGraph.find((o) => o.operation.name === name)?.parameters.body?.type;
+      ok(body);
+      deepStrictEqual(body.kind, "Model");
+      return body;
+    };
+
+    const widget = getBody("update");
+    expect(widget.name).toStrictEqual("WidgetMergePatchUpdate");
+    expect(getFriendlyName(program, widget)).toStrictEqual("WidgetDtoMergePatchUpdate");
+    ok(widget.baseModel);
+    expect(widget.baseModel.name).toStrictEqual("BaseMergePatchUpdate");
+    expect(getFriendlyName(program, widget.baseModel)).toStrictEqual("BaseDtoMergePatchUpdate");
+
+    const source = getMergePatchSource(program, widget);
+    ok(source?.baseModel);
+    expect(getFriendlyName(program, source)).toStrictEqual("WidgetDto");
+    expect(getFriendlyName(program, source.baseModel)).toStrictEqual("BaseDto");
+
+    const named = getBody("updateNamed");
+    expect(named.name).toStrictEqual("WidgetPatch");
+    expect(getFriendlyName(program, named)).toBeUndefined();
+    expect(named.baseModel).toBe(widget.baseModel);
+
+    const holder = getBody("updateHolder");
+    const thing = getNonNullableType(checkProperty(holder, "thing", true, "Union").type);
+    ok(thing);
+    expect(getFriendlyName(program, thing)).toStrictEqual("ThingDtoMergePatchUpdateOrCreate");
+    const things = checkProperty(holder, "things", true, "Model").type;
+    deepStrictEqual(things.kind, "Model");
+    const element = $(program).array.getElementType(things);
+    expect(getFriendlyName(program, element)).toStrictEqual("ThingDtoMergePatchUpdateReplaceOnly");
+    const shape = getNonNullableType(checkProperty(holder, "shape", true, "Union").type);
+    ok(shape);
+    expect(getFriendlyName(program, shape)).toStrictEqual("ShapeDtoMergePatchUpdateOrCreate");
+  });
+
+  it("derives the friendly name of a patched base from a templated friendly name", async () => {
+    const [typeGraph, diag] = await compileAndDiagnoseWithRunner(
+      runner,
+      `
+      model Inner {
+        v: string;
+      }
+
+      @friendlyName("{name}Envelope", T)
+      model Envelope<T> {
+        payload: T;
+      }
+
+      model Letter extends Envelope<Inner> {
+        stamp?: string;
+      }
+      @patch op update(@body body: MergePatchUpdate<Letter>): Letter;`,
+    );
+    expectDiagnosticEmpty(diag);
+    const program = runner.program;
+    const bodyType = typeGraph[0].parameters?.body?.type;
+    ok(bodyType);
+    deepStrictEqual(bodyType.kind, "Model");
+    const base = bodyType.baseModel;
+    ok(base);
+    expect(base.name).toStrictEqual("EnvelopeMergePatchUpdate");
+    expect(getFriendlyName(program, base)).toStrictEqual("InnerEnvelopeMergePatchUpdate");
+    const source = getMergePatchSource(program, base);
+    ok(source);
+    expect(getFriendlyName(program, source)).toStrictEqual("InnerEnvelope");
   });
 
   it("handles union discriminators", async () => {
