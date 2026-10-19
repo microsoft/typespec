@@ -679,7 +679,16 @@ try {
     } else {
         Write-Host "Regenerating emitter version dashboard..."
         $dashboardScript = Join-Path $tempDir "doc/GeneratorVersions/Emitter_Version_Dashboard.ps1"
-        & $dashboardScript -RepoRoot $tempDir
+        $previousErrorAction = $ErrorActionPreference
+        $ErrorActionPreference = "Stop"
+        try {
+            & $dashboardScript -RepoRoot $tempDir
+        } catch {
+            $dashboardError = $_.Exception.Message
+            Register-StepFailure "Emitter version dashboard regeneration failed: $dashboardError. Continuing with PR creation."
+        } finally {
+            $ErrorActionPreference = $previousErrorAction
+        }
     }
 
     # For manual runs, fail the pipeline if any step reported a failure instead of
@@ -824,8 +833,12 @@ try {
     Write-Host "Successfully created PR: $prUrl"
 
 } catch {
-    Write-Error "Error creating PR: $_"
-    exit 1
+    if ($FailOnError) {
+        Write-Error "Error creating PR: $_"
+        exit 1
+    }
+    Register-StepFailure "Error creating PR: $_"
+    exit 0
 } finally {
     Pop-Location
     # Clean up temp directory
