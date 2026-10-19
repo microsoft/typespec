@@ -67,10 +67,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
                 types.Add(clientSettings);
             }
 
-            var collections = client.Collections;
-            if (collections.NestedTypes.Count > 0)
+            var collectionResultProviders = client.CollectionResultProviders;
+            if (collectionResultProviders.NestedTypes.Count > 0)
             {
-                types.Add(collections);
+                types.Add(collectionResultProviders);
             }
         }
 
