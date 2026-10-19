@@ -100,7 +100,11 @@ Paging helpers are nested in their owning client and emitted together in
 `<ClientName>.Collections.cs`. `ClientProvider.CollectionResultProviders` lazily creates and caches
 this partial declaration. `ClientCollectionsProvider.NestedTypes` contains the
 operation-specific providers returned by `ClientResponseApi.CreateClientCollectionResultDefinition`,
-including helpers for customized paging methods. Plugins can continue to customize
+including helpers for customized paging methods. Only the main client declaration
+synthesizes compatibility overloads; the collections partial does not duplicate them.
+Client identity updates synchronize the collections partial and nested helper
+namespaces while retaining constructor customizations applied by visitors.
+Plugins can continue to customize
 requests, parsing, and diagnostics through these providers; library visitors traverse
 the nested helpers and their members. Helper names follow
 `<OperationName>[Async]CollectionResult[OfT]`, using the normalized current operation

@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -29,6 +30,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", $"{Name}.Collections.cs");
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers() => Client.DeclarationModifiers;
+
+        protected override IReadOnlyList<MethodProvider> BuildMethodsForBackCompatibility(IEnumerable<MethodProvider> originalMethods)
+            => [.. originalMethods];
 
         protected override TypeProvider[] BuildNestedTypes()
         {

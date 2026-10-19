@@ -7,6 +7,7 @@ using System.Linq;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
+using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
@@ -38,6 +39,63 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
                 Assert.IsInstanceOf<CollectionResultDefinition>(helper);
                 Assert.AreSame(client, helper.DeclaringTypeProvider);
                 Assert.AreEqual(client.Type, helper.Type.DeclaringType);
+            }
+        }
+
+        [Test]
+        public void PagingCollectionsFollowClientIdentity(
+            [Values] bool rename, [Values] bool relocate, [Values("None", "Helpers", "All")] string materialization)
+        {
+            CreatePagingOperation(InputResponseLocation.Body);
+            var inputClient = ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Clients.Single();
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+            var constructors = new Dictionary<TypeProvider, ConstructorProvider[]>();
+            if (materialization != "None")
+            {
+                var collections = client.CollectionResultProviders;
+                foreach (var helper in collections.NestedTypes)
+                {
+                    helper.EnsureBuilt();
+                    constructors.Add(helper, helper.Constructors.ToArray());
+                    foreach (var constructor in helper.Constructors)
+                    {
+                        constructor.Signature.Update(description: $"Customized paging constructor.");
+                    }
+                }
+                if (materialization == "All")
+                {
+                    _ = collections.Type;
+                    collections.EnsureBuilt();
+                }
+            }
+
+            var expectedName = rename ? "RenamedCatClient" : client.Name;
+            var expectedNamespace = relocate ? "Sample.Relocated" : client.Type.Namespace;
+            client.Update(name: expectedName, @namespace: expectedNamespace);
+
+            var updatedCollections = client.CollectionResultProviders;
+            Assert.AreEqual(expectedName, updatedCollections.Name);
+            Assert.AreEqual(expectedNamespace, updatedCollections.Type.Namespace);
+            Assert.AreEqual(Path.Combine("src", "Generated", $"{expectedName}.Collections.cs"), updatedCollections.RelativeFilePath);
+            Assert.AreEqual(4, updatedCollections.NestedTypes.Count);
+            if (materialization != "None")
+            {
+                CollectionAssert.AreEquivalent(constructors.Keys, updatedCollections.NestedTypes);
+            }
+            foreach (var helper in updatedCollections.NestedTypes)
+            {
+                Assert.AreEqual(expectedNamespace, helper.Type.Namespace);
+                Assert.AreSame(client.Type, helper.Type.DeclaringType);
+                Assert.AreEqual(updatedCollections.RelativeFilePath, helper.RelativeFilePath);
+                if (constructors.TryGetValue(helper, out var previousConstructors))
+                {
+                    CollectionAssert.AreEqual(previousConstructors, helper.Constructors);
+                    foreach (var constructor in helper.Constructors)
+                    {
+                        Assert.AreSame(helper.Type, constructor.Signature.Type);
+                        Assert.AreEqual("Customized paging constructor.", constructor.Signature.Description!.ToString());
+                    }
+                }
             }
         }
 

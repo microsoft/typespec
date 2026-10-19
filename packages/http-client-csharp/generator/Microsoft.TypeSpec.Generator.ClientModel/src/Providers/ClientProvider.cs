@@ -527,6 +527,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             UpdateDependentIdentity(_restClient, string.Empty);
             UpdateDependentIdentity(ClientOptions, "Options");
             UpdateDependentIdentity(ClientSettings, "Settings");
+            if (_collectionResultProviders is { } collections)
+            {
+                collections.Update(name: Name, @namespace: Type.Namespace);
+                foreach (var helper in collections.NestedTypes)
+                {
+                    // Identity updates reset constructors; retain customizations from earlier visitors.
+                    var constructors = helper.Constructors;
+                    helper.Update(@namespace: Type.Namespace);
+                    helper.Update(constructors: constructors);
+                }
+            }
             if (previousOptionsType != null && !CSharpType.IgnoreNullableComparer.Equals(previousOptionsType, ClientOptions!.Type))
             {
                 UpdateOptionsReferences(this);
