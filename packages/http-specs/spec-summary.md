@@ -9520,7 +9520,7 @@ The response has status 204 and no body.
 
 - Endpoint: `get /type/union/discriminated/extends/recursive`
 
-Receive an inline-discriminated union with recursive model, array, dictionary, and nullable properties.
+Receive an inline-discriminated union with recursive model, array, and dictionary properties.
 Expected response body:
 
 ```json
@@ -9530,8 +9530,7 @@ Expected response body:
   "meow": true,
   "friend": { "kind": "dog", "name": "Rex", "bark": false },
   "friends": [{ "kind": "cat", "name": "Kitten", "meow": false }],
-  "lookup": { "best": { "kind": "dog", "name": "Rex", "bark": false } },
-  "nullableFriend": null
+  "lookup": { "best": { "kind": "dog", "name": "Rex", "bark": false } }
 }
 ```
 
@@ -9539,7 +9538,7 @@ Expected response body:
 
 - Endpoint: `put /type/union/discriminated/extends/recursive`
 
-Send an inline-discriminated union with recursive model, array, dictionary, and nullable properties.
+Send an inline-discriminated union with recursive model, array, and dictionary properties.
 Expected request body:
 
 ```json
@@ -9549,8 +9548,7 @@ Expected request body:
   "meow": true,
   "friend": { "kind": "dog", "name": "Rex", "bark": false },
   "friends": [{ "kind": "cat", "name": "Kitten", "meow": false }],
-  "lookup": { "best": { "kind": "dog", "name": "Rex", "bark": false } },
-  "nullableFriend": null
+  "lookup": { "best": { "kind": "dog", "name": "Rex", "bark": false } }
 }
 ```
 

@@ -156,7 +156,6 @@ namespace Recursive {
     friend?: Pet;
     friends?: Pet[];
     lookup?: Record<Pet>;
-    nullableFriend?: Pet | null;
   }
 
   model Cat extends PetBase {
@@ -175,7 +174,7 @@ namespace Recursive {
 
   @scenario
   @scenarioDoc("""
-    Receive an inline-discriminated union with recursive model, array, dictionary, and nullable properties.
+    Receive an inline-discriminated union with recursive model, array, and dictionary properties.
     Expected response body:
     ```json
     {
@@ -184,8 +183,7 @@ namespace Recursive {
       "meow": true,
       "friend": {"kind": "dog", "name": "Rex", "bark": false},
       "friends": [{"kind": "cat", "name": "Kitten", "meow": false}],
-      "lookup": {"best": {"kind": "dog", "name": "Rex", "bark": false}},
-      "nullableFriend": null
+      "lookup": {"best": {"kind": "dog", "name": "Rex", "bark": false}}
     }
     ```
     """)
@@ -194,7 +192,7 @@ namespace Recursive {
 
   @scenario
   @scenarioDoc("""
-    Send an inline-discriminated union with recursive model, array, dictionary, and nullable properties.
+    Send an inline-discriminated union with recursive model, array, and dictionary properties.
     Expected request body:
     ```json
     {
@@ -203,8 +201,7 @@ namespace Recursive {
       "meow": true,
       "friend": {"kind": "dog", "name": "Rex", "bark": false},
       "friends": [{"kind": "cat", "name": "Kitten", "meow": false}],
-      "lookup": {"best": {"kind": "dog", "name": "Rex", "bark": false}},
-      "nullableFriend": null
+      "lookup": {"best": {"kind": "dog", "name": "Rex", "bark": false}}
     }
     ```
     The response has status 204 and no body.

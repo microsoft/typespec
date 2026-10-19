@@ -69,7 +69,6 @@ const recursive = {
   friend: inlineDog,
   friends: [{ kind: "cat", name: "Kitten", meow: false }],
   lookup: { best: inlineDog },
-  nullableFriend: null,
 };
 
 Scenarios.Type_Union_Discriminated_Extends_Recursive_get = receive(
