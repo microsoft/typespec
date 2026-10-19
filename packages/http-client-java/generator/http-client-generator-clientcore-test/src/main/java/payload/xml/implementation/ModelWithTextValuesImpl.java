@@ -16,7 +16,6 @@ import io.clientcore.core.serialization.SerializationFormat;
 import io.clientcore.core.serialization.json.JsonSerializer;
 import io.clientcore.core.serialization.xml.XmlSerializer;
 import io.clientcore.core.utils.CoreUtils;
-import io.clientcore.core.utils.GeneratedCodeUtils;
 import payload.xml.ModelWithText;
 
 /**
@@ -64,9 +63,9 @@ public final class ModelWithTextValuesImpl {
 
         private final HttpPipeline httpPipeline;
 
-        private final JsonSerializer jsonSerializer = JsonSerializer.getInstance();
+        private static final JsonSerializer JSON_SERIALIZER = JsonSerializer.getInstance();
 
-        private final XmlSerializer xmlSerializer = XmlSerializer.getInstance();
+        private static final XmlSerializer XML_SERIALIZER = XmlSerializer.getInstance();
 
         private ModelWithTextValuesServiceImpl(HttpPipeline pipeline) {
             this.httpPipeline = pipeline;
@@ -86,28 +85,28 @@ public final class ModelWithTextValuesImpl {
             Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 200)) {
-                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
-                    this.xmlSerializer, null, null, ModelWithTextValuesServiceImpl.LOGGER);
+                ClientCoreProtocolUtils.handleUnexpectedResponse(networkResponse,
+                    ModelWithTextValuesServiceImpl.JSON_SERIALIZER, ModelWithTextValuesServiceImpl.XML_SERIALIZER, null,
+                    null, ModelWithTextValuesServiceImpl.LOGGER);
             }
-            try {
+            return ClientCoreProtocolUtils.mapResponse(networkResponse, () -> {
                 ModelWithText deserializedResult;
                 SerializationFormat responseSerializationFormat
                     = CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders());
-                if (this.jsonSerializer.supportsFormat(responseSerializationFormat)) {
+                if (ModelWithTextValuesServiceImpl.JSON_SERIALIZER.supportsFormat(responseSerializationFormat)) {
                     deserializedResult = CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
-                        this.jsonSerializer, CoreUtils.createParameterizedType(Response.class, ModelWithText.class));
-                } else if (this.xmlSerializer.supportsFormat(responseSerializationFormat)) {
-                    deserializedResult = CoreUtils.decodeNetworkResponse(networkResponse.getValue(), this.xmlSerializer,
+                        ModelWithTextValuesServiceImpl.JSON_SERIALIZER,
+                        CoreUtils.createParameterizedType(Response.class, ModelWithText.class));
+                } else if (ModelWithTextValuesServiceImpl.XML_SERIALIZER.supportsFormat(responseSerializationFormat)) {
+                    deserializedResult = CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
+                        ModelWithTextValuesServiceImpl.XML_SERIALIZER,
                         CoreUtils.createParameterizedType(Response.class, ModelWithText.class));
                 } else {
                     throw new UnsupportedOperationException(
                         "Unsupported response serialization format: " + responseSerializationFormat);
                 }
-                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(),
-                    deserializedResult);
-            } finally {
-                networkResponse.close();
-            }
+                return deserializedResult;
+            });
         }
 
         @Override
@@ -122,7 +121,7 @@ public final class ModelWithTextValuesImpl {
                 if (httpRequest.getHeaders().get(HttpHeaderName.CONTENT_TYPE) == null) {
                     httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, "application/xml");
                 }
-                httpRequest.setBody(BinaryData.fromObject(input, this.xmlSerializer));
+                httpRequest.setBody(BinaryData.fromObject(input, ModelWithTextValuesServiceImpl.XML_SERIALIZER));
             }
             if (requestContext != null) {
                 httpRequest.setContext(requestContext);
@@ -131,14 +130,11 @@ public final class ModelWithTextValuesImpl {
             Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 204)) {
-                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
-                    this.xmlSerializer, null, null, ModelWithTextValuesServiceImpl.LOGGER);
+                ClientCoreProtocolUtils.handleUnexpectedResponse(networkResponse,
+                    ModelWithTextValuesServiceImpl.JSON_SERIALIZER, ModelWithTextValuesServiceImpl.XML_SERIALIZER, null,
+                    null, ModelWithTextValuesServiceImpl.LOGGER);
             }
-            try {
-                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
-            } finally {
-                networkResponse.close();
-            }
+            return ClientCoreProtocolUtils.mapResponse(networkResponse, () -> null);
         }
     }
 

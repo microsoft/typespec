@@ -2,6 +2,7 @@ package com.microsoft.typespec.http.client.generator.model;
 
 import com.google.googlejavaformat.java.RemoveUnusedImports;
 import com.microsoft.typespec.http.client.generator.TypeSpecPlugin;
+import com.microsoft.typespec.http.client.generator.core.Javagen;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ArrayType;
@@ -18,10 +19,12 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Proxy
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
+import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaPackage;
 import com.microsoft.typespec.http.client.generator.core.model.xmlmodel.XmlFile;
 import com.microsoft.typespec.http.client.generator.core.template.ProxyTemplate;
 import com.microsoft.typespec.http.client.generator.core.template.azurevnext.AzureVNextPomTemplate;
 import com.microsoft.typespec.http.client.generator.core.template.clientcore.ClientCorePomTemplate;
+import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import io.clientcore.core.http.models.HttpHeaderName;
 import io.clientcore.core.http.models.HttpHeaders;
 import io.clientcore.core.http.models.HttpMethod;
@@ -43,6 +46,8 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -51,12 +56,14 @@ import java.nio.file.Path;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.IntStream;
 import javax.tools.DiagnosticCollector;
 import javax.tools.JavaFileObject;
 import javax.tools.SimpleJavaFileObject;
@@ -149,7 +156,7 @@ public class ProtocolImplementationTests {
         ProxyMethod unwrapped = primitive.newBuilder().name("unwrapped").returnType(PrimitiveType.VOID).build();
         String output = render(List.of(primitive, boxed, unwrapped));
         Assertions.assertTrue(output.contains("Response<Void> primitive("), output);
-        Assertions.assertFalse(output.contains("jsonSerializer ="), output);
+        Assertions.assertFalse(output.contains("JSON_SERIALIZER ="), output);
         compile(output);
         AtomicInteger closes = new AtomicInteger();
         AtomicReference<BinaryData> body = new AtomicReference<>(BinaryData.fromString("not a JSON body"));
@@ -279,6 +286,98 @@ public class ProtocolImplementationTests {
 
     @ParameterizedTest
     @ValueSource(strings = { "generic", "azurev2" })
+    public void encodedBytesDeserializeToTypedValues(String flavor) throws Exception {
+        initialize(flavor);
+        List<ProxyMethodParameter> parameters
+            = List.of(parameter("endpoint", "endpoint", RequestParameterLocation.URI, true),
+                parameter("jsonReader", "id", RequestParameterLocation.PATH, false));
+        List<IType> wireTypes = List.of(ArrayType.BYTE_ARRAY, ClassType.BASE_64_URL);
+        List<ProxyMethod> methods = new ArrayList<>();
+        for (int i = 0; i < wireTypes.size(); i++) {
+            IType wireType = wireTypes.get(i);
+            ListType bytes = new ListType(wireType);
+            methods.add(method("scalar" + i, wireType, HttpMethod.GET, parameters));
+            methods.add(method("list" + i, bytes, HttpMethod.GET, parameters));
+            methods.add(method("mixed" + i, bytes, HttpMethod.GET, parameters).newBuilder()
+                .responseContentTypes(Set.of("application/json", "application/xml"))
+                .build());
+            methods.add(method("nested" + i, new ListType(new MapType(bytes)), HttpMethod.GET, parameters));
+        }
+        compile(render(methods));
+        byte[] expected = { (byte) 0xFB, (byte) 0xFF };
+        AtomicReference<BinaryData> body = new AtomicReference<>();
+        AtomicInteger closes = new AtomicInteger();
+        HttpPipeline pipeline = responsePipeline(body, 200, closes);
+        try (URLClassLoader loader
+            = new URLClassLoader(new URL[] { classes.toUri().toURL() }, getClass().getClassLoader())) {
+            Class<?> serviceType = loader.loadClass("com.example.GeneratedClient$ExampleService");
+            Object service = serviceType.getMethod("getNewInstance", HttpPipeline.class).invoke(null, pipeline);
+            for (int i = 0; i < wireTypes.size(); i++) {
+                String encoded
+                    = (i == 0 ? Base64.getEncoder() : Base64.getUrlEncoder().withoutPadding()).encodeToString(expected);
+                body.set(BinaryData.fromObject(encoded));
+                try (
+                    Response<?> response = invoke(serviceType, service, "scalar" + i, "https://example.test", "item")) {
+                    Assertions.assertArrayEquals(expected, (byte[]) response.getValue());
+                }
+                Assertions.assertEquals(1, closes.getAndSet(0));
+
+                String array = "[\"" + encoded + "\",null,\"\"]";
+                body.set(BinaryData.fromString(array));
+                for (String name : List.of("list", "mixed")) {
+                    try (
+                        Response<?> response = invoke(serviceType, service, name + i, "https://example.test", "item")) {
+                        assertByteValues(expected, response.getValue());
+                        Assertions.assertEquals("preserved",
+                            response.getHeaders().getValue(HttpHeaderName.fromString("x-test")));
+                    }
+                    Assertions.assertEquals(1, closes.getAndSet(0));
+                }
+
+                body.set(BinaryData.fromString("[{\"values\":" + array + ",\"absent\":null},null,{}]"));
+                try (
+                    Response<?> response = invoke(serviceType, service, "nested" + i, "https://example.test", "item")) {
+                    List<?> values = Assertions.assertInstanceOf(List.class, response.getValue());
+                    Map<?, ?> first = Assertions.assertInstanceOf(Map.class, values.get(0));
+                    assertByteValues(expected, first.get("values"));
+                    Assertions.assertTrue(first.containsKey("absent"));
+                    Assertions.assertNull(first.get("absent"));
+                    Assertions.assertNull(values.get(1));
+                    Assertions.assertEquals(Map.of(), values.get(2));
+                }
+                Assertions.assertEquals(1, closes.getAndSet(0));
+
+                for (BinaryData empty : Arrays.asList(null, BinaryData.empty(), BinaryData.fromString("null"))) {
+                    body.set(empty);
+                    for (String name : List.of("scalar", "list", "nested")) {
+                        try (Response<?> response
+                            = invoke(serviceType, service, name + i, "https://example.test", "item")) {
+                            Assertions.assertNull(response.getValue());
+                        }
+                        Assertions.assertEquals(1, closes.getAndSet(0));
+                    }
+                }
+                String name = "list" + i;
+                for (String invalid : List.of("[\"%%%\"]", "[42]", "[true]", "[{}]", "[[]]")) {
+                    body.set(BinaryData.fromString(invalid));
+                    Assertions.assertThrows(RuntimeException.class,
+                        () -> invoke(serviceType, service, name, "https://example.test", "item"), invalid);
+                    Assertions.assertEquals(1, closes.getAndSet(0), invalid);
+                }
+            }
+        }
+    }
+
+    private static void assertByteValues(byte[] expected, Object value) {
+        List<?> values = Assertions.assertInstanceOf(List.class, value);
+        Assertions.assertEquals(3, values.size());
+        Assertions.assertArrayEquals(expected, (byte[]) values.get(0));
+        Assertions.assertNull(values.get(1));
+        Assertions.assertArrayEquals(new byte[0], (byte[]) values.get(2));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = { "generic", "azurev2" })
     public void reflectionAndFormattingUseImportedClasses(String flavor) throws Exception {
         initialize(flavor);
         List<ProxyMethodParameter> parameters = new ArrayList<>(requestParameters());
@@ -301,19 +400,117 @@ public class ProtocolImplementationTests {
         Assertions.assertTrue(output.contains("import java.time.format.DateTimeFormatter;"), output);
         Assertions.assertTrue(output.contains("import java.util.HashMap;"), output);
         Assertions.assertTrue(output.contains("import io.clientcore.core.utils.Base64Uri;"), output);
-        Assertions.assertTrue(
-            output.contains("Map<Integer, ParameterizedType> statusToExceptionTypeMap = new HashMap<>();"), output);
+        Assertions.assertTrue(output.contains("private static final Map<Integer, ParameterizedType> ERROR_TYPES_0;"),
+            output);
+        Assertions.assertTrue(output.contains("Collections.unmodifiableMap(errorTypes)"), output);
         Assertions.assertTrue(output.contains(
             "CoreUtils.createParameterizedType(Map.class, String.class, CoreUtils.createParameterizedType(List.class, Integer.class))"),
             output);
         Assertions.assertTrue(output.contains("timestamp.format(DateTimeFormatter.ISO_INSTANT)"), output);
-        Assertions.assertTrue(output.contains("new Base64Uri("), output);
+        Assertions.assertTrue(output.contains("ClientCoreProtocolUtils.readBase64Url("), output);
         String implementation = output.substring(output.indexOf("public final class"));
         Assertions.assertFalse(implementation.contains("io.clientcore.core."), output);
         Assertions.assertFalse(implementation.contains("java.util."), output);
         Assertions.assertFalse(implementation.contains("java.lang.reflect."), output);
         Assertions.assertFalse(implementation.contains("java.time.format."), output);
         compile(output);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = { "generic", "azurev2" })
+    public void consecutiveStatusCodesAreCompactedWithoutAcceptingGaps(String flavor) throws Exception {
+        initialize(flavor);
+        List<ProxyMethodParameter> parameters
+            = List.of(parameter("endpoint", "endpoint", RequestParameterLocation.URI, true),
+                parameter("id", "id", RequestParameterLocation.PATH, false));
+        List<Integer> codes = new ArrayList<>(List.of(407, 404, 405, 200, 404));
+        IntStream.rangeClosed(200, 299).forEach(codes::add);
+        ProxyMethod method = method("send", ClassType.VOID, HttpMethod.GET, parameters).newBuilder()
+            .responseExpectedStatusCodes(codes)
+            .build();
+        String output = render(List.of(method));
+        Assertions.assertTrue(output.contains("responseCode >= 200 && responseCode <= 299"), output);
+        Assertions.assertFalse(output.contains("responseCode == 201"), output);
+        Assertions.assertTrue(output.contains("responseCode == 404"), output);
+        Assertions.assertTrue(output.contains("responseCode == 405"), output);
+        Assertions.assertTrue(output.contains("responseCode == 407"), output);
+        compile(output);
+        AtomicInteger status = new AtomicInteger();
+        AtomicInteger closes = new AtomicInteger();
+        HttpPipeline pipeline = new HttpPipelineBuilder()
+            .httpClient(request -> new Response<>(request, status.get(), new HttpHeaders(), BinaryData.empty()) {
+                @Override
+                public void close() {
+                    closes.incrementAndGet();
+                    super.close();
+                }
+            })
+            .build();
+        try (URLClassLoader loader
+            = new URLClassLoader(new URL[] { classes.toUri().toURL() }, getClass().getClassLoader())) {
+            Class<?> serviceType = loader.loadClass("com.example.GeneratedClient$ExampleService");
+            Object service = serviceType.getMethod("getNewInstance", HttpPipeline.class).invoke(null, pipeline);
+            for (int code : new int[] { 200, 250, 299, 404, 405, 407 }) {
+                status.set(code);
+                try (Response<?> response = invoke(serviceType, service, "send", "https://example.test", "item")) {
+                    Assertions.assertEquals(code, response.getStatusCode());
+                    Assertions.assertNull(response.getValue());
+                }
+                Assertions.assertEquals(1, closes.getAndSet(0));
+            }
+            for (int code : new int[] { 199, 300, 400, 403, 406, 408 }) {
+                status.set(code);
+                Assertions.assertThrows(HttpResponseException.class,
+                    () -> invoke(serviceType, service, "send", "https://example.test", "item"));
+                Assertions.assertEquals(1, closes.getAndSet(0));
+            }
+        }
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = { "generic", "azurev2" })
+    public void protocolMetadataIsSharedImmutableAndStatic(String flavor) throws Exception {
+        initialize(flavor);
+        List<ProxyMethodParameter> parameters
+            = List.of(parameter("endpoint", "endpoint", RequestParameterLocation.URI, true),
+                parameter("id", "id", RequestParameterLocation.PATH, false));
+        ProxyMethod first
+            = method("first", new MapType(new ListType(ClassType.INTEGER)), HttpMethod.GET, parameters).newBuilder()
+                .unexpectedResponseExceptionTypes(
+                    Map.of(ClassType.HTTP_RESPONSE_EXCEPTION, List.of(400, 401, 402, 403, 404)))
+                .build();
+        ProxyMethod second = first.newBuilder()
+            .name("second")
+            .unexpectedResponseExceptionTypes(
+                Map.of(ClassType.HTTP_RESPONSE_EXCEPTION, List.of(404, 403, 402, 401, 400)))
+            .build();
+        String output = render(List.of(first, second));
+        Assertions.assertEquals(1, output.split("Collections.unmodifiableMap", -1).length - 1, output);
+        Assertions.assertEquals(1, output.split("CoreUtils.createParameterizedType\\(Response.class", -1).length - 1,
+            output);
+        Assertions.assertTrue(output.contains("private static final JsonSerializer JSON_SERIALIZER"), output);
+        Assertions.assertTrue(output.contains("IntStream.rangeClosed(400, 404)"), output);
+        Assertions.assertFalse(output.contains("new Response<>"), output);
+        Assertions.assertFalse(output.contains("finally"), output);
+        compile(output);
+        try (URLClassLoader loader
+            = new URLClassLoader(new URL[] { classes.toUri().toURL() }, getClass().getClassLoader())) {
+            Class<?> implementation = loader.loadClass("com.example.GeneratedClient$ExampleServiceImpl");
+            Assertions.assertEquals(2,
+                Arrays.stream(implementation.getDeclaredFields())
+                    .filter(
+                        field -> field.getType() == ParameterizedType.class && Modifier.isStatic(field.getModifiers()))
+                    .count());
+            var errors = implementation.getDeclaredField("ERROR_TYPES_0");
+            errors.setAccessible(true);
+            Map<?, ?> errorTypes = (Map<?, ?>) errors.get(null);
+            Assertions.assertEquals(Set.of(400, 401, 402, 403, 404), errorTypes.keySet());
+            Assertions.assertThrows(UnsupportedOperationException.class, errorTypes::clear);
+            Assertions.assertEquals(1,
+                Arrays.stream(implementation.getDeclaredFields())
+                    .filter(field -> Map.class.isAssignableFrom(field.getType()))
+                    .count());
+        }
     }
 
     @ParameterizedTest
@@ -361,7 +558,9 @@ public class ProtocolImplementationTests {
                 .build(),
             method("nested", new MapType(new ListType(ClassType.INTEGER)), HttpMethod.GET, basicParameters),
             method("raw", ClassType.BINARY_DATA, HttpMethod.GET, basicParameters),
-            method("bytes", ArrayType.BYTE_ARRAY, HttpMethod.GET, basicParameters),
+            method("bytes", ArrayType.BYTE_ARRAY, HttpMethod.GET, basicParameters).newBuilder()
+                .responseContentTypes(Set.of("application/octet-stream"))
+                .build(),
             method("stream", ClassType.INPUT_STREAM, HttpMethod.GET, basicParameters),
             method("empty", ClassType.VOID, HttpMethod.POST, basicParameters),
             method("exists", ClassType.BOOLEAN, HttpMethod.HEAD, basicParameters).newBuilder()
@@ -547,7 +746,7 @@ public class ProtocolImplementationTests {
                 ProxyMethodParameter.REQUEST_CONTEXT_PARAMETER);
         String output = render(List.of(method("send", ClassType.VOID, HttpMethod.GET, parameters)));
         Assertions.assertFalse(output.contains("XmlSerializer"), output);
-        Assertions.assertFalse(output.contains("jsonSerializer ="), output);
+        Assertions.assertFalse(output.contains("JSON_SERIALIZER ="), output);
         Assertions.assertFalse(output.contains("UriBuilder"), output);
         Assertions.assertTrue(output.contains("JsonSerializer.getInstance()"), output);
         compile(output);
@@ -564,8 +763,8 @@ public class ProtocolImplementationTests {
             .responseContentTypes(Set.of("application/xml"))
             .build();
         String xmlOutput = render(List.of(xml));
-        Assertions.assertTrue(xmlOutput.contains("XmlSerializer xmlSerializer"), xmlOutput);
-        Assertions.assertFalse(xmlOutput.contains("JsonSerializer jsonSerializer"), xmlOutput);
+        Assertions.assertTrue(xmlOutput.contains("XmlSerializer XML_SERIALIZER"), xmlOutput);
+        Assertions.assertFalse(xmlOutput.contains("JsonSerializer JSON_SERIALIZER"), xmlOutput);
         Assertions.assertFalse(xmlOutput.contains("responseSerializationFormat"), xmlOutput);
         compile(xmlOutput);
         ProxyMethod mixed = xml.newBuilder()
@@ -573,8 +772,8 @@ public class ProtocolImplementationTests {
             .responseContentTypes(Set.of("application/json", "application/xml"))
             .build();
         String mixedOutput = render(List.of(mixed));
-        Assertions.assertTrue(mixedOutput.contains("JsonSerializer jsonSerializer"), mixedOutput);
-        Assertions.assertTrue(mixedOutput.contains("XmlSerializer xmlSerializer"), mixedOutput);
+        Assertions.assertTrue(mixedOutput.contains("JsonSerializer JSON_SERIALIZER"), mixedOutput);
+        Assertions.assertTrue(mixedOutput.contains("XmlSerializer XML_SERIALIZER"), mixedOutput);
         Assertions.assertTrue(mixedOutput.contains("responseSerializationFormat"), mixedOutput);
         compile(mixedOutput);
     }
@@ -612,8 +811,8 @@ public class ProtocolImplementationTests {
                 new ClassType.Builder().name("XmlErrorException").packageName("com.example").build())
             .build();
         String output = render(List.of(method));
-        Assertions.assertFalse(output.contains("XmlSerializer xmlSerializer"), output);
-        Assertions.assertFalse(output.contains("JsonSerializer jsonSerializer"), output);
+        Assertions.assertFalse(output.contains("XmlSerializer XML_SERIALIZER"), output);
+        Assertions.assertFalse(output.contains("JsonSerializer JSON_SERIALIZER"), output);
         Assertions.assertTrue(output.contains("XmlSerializer.getInstance()"), output);
         compile(output);
         AtomicInteger closes = new AtomicInteger();
@@ -742,22 +941,35 @@ public class ProtocolImplementationTests {
         // Match the generator's postprocessing of unused model imports.
         String compiledOutput = RemoveUnusedImports.removeUnusedImports(output);
         DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
-        JavaFileObject source = new SimpleJavaFileObject(URI.create("string:///com/example/GeneratedClient.java"),
-            JavaFileObject.Kind.SOURCE) {
-            @Override
-            public CharSequence getCharContent(boolean ignoreEncodingErrors) {
-                return compiledOutput;
-            }
-        };
+        List<JavaFileObject> sources = new ArrayList<>();
+        sources.add(javaSource("com/example/GeneratedClient.java", compiledOutput));
+        if (output.contains("ClientCoreProtocolUtils")) {
+            JavaPackage helpers = new JavaPackage(Javagen.getPluginInstance());
+            helpers.addJavaFromResources(
+                JavaSettings.getInstance().getPackage(JavaSettings.getInstance().getImplementationSubpackage()),
+                ClientModelUtil.CLIENT_CORE_PROTOCOL_UTILS);
+            helpers.getJavaFiles()
+                .forEach(helper -> sources.add(javaSource(helper.getFilePath(), helper.getContents().toString())));
+        }
         String classpath = System.getProperty("surefire.test.class.path", System.getProperty("java.class.path"));
         try (var manager = ToolProvider.getSystemJavaCompiler().getStandardFileManager(diagnostics, null, null)) {
             boolean compiled = ToolProvider.getSystemJavaCompiler()
                 .getTask(null, manager, diagnostics,
                     List.of("--release", "11", "-proc:none", "-classpath", classpath, "-d", classes.toString()), null,
-                    List.of(source))
+                    sources)
                 .call();
             Assertions.assertTrue(compiled, () -> diagnostics.getDiagnostics() + "\n" + compiledOutput);
         }
+    }
+
+    private static JavaFileObject javaSource(String path, String contents) {
+        return new SimpleJavaFileObject(URI.create("string:///" + path.replace('\\', '/')),
+            JavaFileObject.Kind.SOURCE) {
+            @Override
+            public CharSequence getCharContent(boolean ignoreEncodingErrors) {
+                return contents;
+            }
+        };
     }
 
     private static Response<?> invoke(Class<?> serviceType, Object service, String methodName, Object... arguments)

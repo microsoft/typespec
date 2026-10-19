@@ -16,7 +16,6 @@ import io.clientcore.core.serialization.SerializationFormat;
 import io.clientcore.core.serialization.json.JsonSerializer;
 import io.clientcore.core.serialization.xml.XmlSerializer;
 import io.clientcore.core.utils.CoreUtils;
-import io.clientcore.core.utils.GeneratedCodeUtils;
 import payload.xml.ModelWithNamespaceOnProperties;
 
 /**
@@ -67,9 +66,9 @@ public final class ModelWithNamespaceOnPropertiesValuesImpl {
 
         private final HttpPipeline httpPipeline;
 
-        private final JsonSerializer jsonSerializer = JsonSerializer.getInstance();
+        private static final JsonSerializer JSON_SERIALIZER = JsonSerializer.getInstance();
 
-        private final XmlSerializer xmlSerializer = XmlSerializer.getInstance();
+        private static final XmlSerializer XML_SERIALIZER = XmlSerializer.getInstance();
 
         private ModelWithNamespaceOnPropertiesValuesServiceImpl(HttpPipeline pipeline) {
             this.httpPipeline = pipeline;
@@ -90,29 +89,31 @@ public final class ModelWithNamespaceOnPropertiesValuesImpl {
             Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 200)) {
-                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
-                    this.xmlSerializer, null, null, ModelWithNamespaceOnPropertiesValuesServiceImpl.LOGGER);
+                ClientCoreProtocolUtils.handleUnexpectedResponse(networkResponse,
+                    ModelWithNamespaceOnPropertiesValuesServiceImpl.JSON_SERIALIZER,
+                    ModelWithNamespaceOnPropertiesValuesServiceImpl.XML_SERIALIZER, null, null,
+                    ModelWithNamespaceOnPropertiesValuesServiceImpl.LOGGER);
             }
-            try {
+            return ClientCoreProtocolUtils.mapResponse(networkResponse, () -> {
                 ModelWithNamespaceOnProperties deserializedResult;
                 SerializationFormat responseSerializationFormat
                     = CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders());
-                if (this.jsonSerializer.supportsFormat(responseSerializationFormat)) {
-                    deserializedResult
-                        = CoreUtils.decodeNetworkResponse(networkResponse.getValue(), this.jsonSerializer,
-                            CoreUtils.createParameterizedType(Response.class, ModelWithNamespaceOnProperties.class));
-                } else if (this.xmlSerializer.supportsFormat(responseSerializationFormat)) {
-                    deserializedResult = CoreUtils.decodeNetworkResponse(networkResponse.getValue(), this.xmlSerializer,
+                if (ModelWithNamespaceOnPropertiesValuesServiceImpl.JSON_SERIALIZER
+                    .supportsFormat(responseSerializationFormat)) {
+                    deserializedResult = CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
+                        ModelWithNamespaceOnPropertiesValuesServiceImpl.JSON_SERIALIZER,
+                        CoreUtils.createParameterizedType(Response.class, ModelWithNamespaceOnProperties.class));
+                } else if (ModelWithNamespaceOnPropertiesValuesServiceImpl.XML_SERIALIZER
+                    .supportsFormat(responseSerializationFormat)) {
+                    deserializedResult = CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
+                        ModelWithNamespaceOnPropertiesValuesServiceImpl.XML_SERIALIZER,
                         CoreUtils.createParameterizedType(Response.class, ModelWithNamespaceOnProperties.class));
                 } else {
                     throw new UnsupportedOperationException(
                         "Unsupported response serialization format: " + responseSerializationFormat);
                 }
-                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(),
-                    deserializedResult);
-            } finally {
-                networkResponse.close();
-            }
+                return deserializedResult;
+            });
         }
 
         @Override
@@ -127,7 +128,8 @@ public final class ModelWithNamespaceOnPropertiesValuesImpl {
                 if (httpRequest.getHeaders().get(HttpHeaderName.CONTENT_TYPE) == null) {
                     httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, "application/xml");
                 }
-                httpRequest.setBody(BinaryData.fromObject(input, this.xmlSerializer));
+                httpRequest.setBody(
+                    BinaryData.fromObject(input, ModelWithNamespaceOnPropertiesValuesServiceImpl.XML_SERIALIZER));
             }
             if (requestContext != null) {
                 httpRequest.setContext(requestContext);
@@ -136,14 +138,12 @@ public final class ModelWithNamespaceOnPropertiesValuesImpl {
             Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 204)) {
-                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
-                    this.xmlSerializer, null, null, ModelWithNamespaceOnPropertiesValuesServiceImpl.LOGGER);
+                ClientCoreProtocolUtils.handleUnexpectedResponse(networkResponse,
+                    ModelWithNamespaceOnPropertiesValuesServiceImpl.JSON_SERIALIZER,
+                    ModelWithNamespaceOnPropertiesValuesServiceImpl.XML_SERIALIZER, null, null,
+                    ModelWithNamespaceOnPropertiesValuesServiceImpl.LOGGER);
             }
-            try {
-                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
-            } finally {
-                networkResponse.close();
-            }
+            return ClientCoreProtocolUtils.mapResponse(networkResponse, () -> null);
         }
     }
 

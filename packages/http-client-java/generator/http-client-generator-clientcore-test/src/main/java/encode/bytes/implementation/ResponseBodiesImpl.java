@@ -12,11 +12,7 @@ import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.instrumentation.Instrumentation;
 import io.clientcore.core.instrumentation.logging.ClientLogger;
 import io.clientcore.core.models.binarydata.BinaryData;
-import io.clientcore.core.serialization.SerializationFormat;
 import io.clientcore.core.serialization.json.JsonSerializer;
-import io.clientcore.core.utils.Base64Uri;
-import io.clientcore.core.utils.CoreUtils;
-import io.clientcore.core.utils.GeneratedCodeUtils;
 
 /**
  * An instance of this class provides access to all the operations defined in ResponseBodies.
@@ -69,6 +65,8 @@ public final class ResponseBodiesImpl {
 
         private final HttpPipeline httpPipeline;
 
+        private static final JsonSerializer JSON_SERIALIZER = JsonSerializer.getInstance();
+
         private ResponseBodiesServiceImpl(HttpPipeline pipeline) {
             this.httpPipeline = pipeline;
         }
@@ -87,16 +85,8 @@ public final class ResponseBodiesImpl {
             Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 200)) {
-                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
-                    == SerializationFormat.XML) {
-                    try {
-                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
-                    } finally {
-                        networkResponse.close();
-                    }
-                }
-                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, JsonSerializer.getInstance(),
-                    null, null, null, ResponseBodiesServiceImpl.LOGGER);
+                ClientCoreProtocolUtils.handleUnexpectedResponse(networkResponse,
+                    ResponseBodiesServiceImpl.JSON_SERIALIZER, null, null, null, ResponseBodiesServiceImpl.LOGGER);
             }
             return networkResponse;
         }
@@ -115,16 +105,8 @@ public final class ResponseBodiesImpl {
             Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 200)) {
-                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
-                    == SerializationFormat.XML) {
-                    try {
-                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
-                    } finally {
-                        networkResponse.close();
-                    }
-                }
-                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, JsonSerializer.getInstance(),
-                    null, null, null, ResponseBodiesServiceImpl.LOGGER);
+                ClientCoreProtocolUtils.handleUnexpectedResponse(networkResponse,
+                    ResponseBodiesServiceImpl.JSON_SERIALIZER, null, null, null, ResponseBodiesServiceImpl.LOGGER);
             }
             return networkResponse;
         }
@@ -143,16 +125,8 @@ public final class ResponseBodiesImpl {
             Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 200)) {
-                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
-                    == SerializationFormat.XML) {
-                    try {
-                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
-                    } finally {
-                        networkResponse.close();
-                    }
-                }
-                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, JsonSerializer.getInstance(),
-                    null, null, null, ResponseBodiesServiceImpl.LOGGER);
+                ClientCoreProtocolUtils.handleUnexpectedResponse(networkResponse,
+                    ResponseBodiesServiceImpl.JSON_SERIALIZER, null, null, null, ResponseBodiesServiceImpl.LOGGER);
             }
             return networkResponse;
         }
@@ -171,23 +145,12 @@ public final class ResponseBodiesImpl {
             Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 200)) {
-                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
-                    == SerializationFormat.XML) {
-                    try {
-                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
-                    } finally {
-                        networkResponse.close();
-                    }
-                }
-                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, JsonSerializer.getInstance(),
-                    null, null, null, ResponseBodiesServiceImpl.LOGGER);
+                ClientCoreProtocolUtils.handleUnexpectedResponse(networkResponse,
+                    ResponseBodiesServiceImpl.JSON_SERIALIZER, null, null, null, ResponseBodiesServiceImpl.LOGGER);
             }
-            try {
-                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(),
-                    networkResponse.getValue() == null ? null : networkResponse.getValue().toBytes());
-            } finally {
-                networkResponse.close();
-            }
+            return ClientCoreProtocolUtils.mapResponse(networkResponse,
+                () -> ClientCoreProtocolUtils.readJson(networkResponse.getValue(), jsonReader -> jsonReader.getBinary(),
+                    ResponseBodiesServiceImpl.LOGGER));
         }
 
         @Override
@@ -204,25 +167,13 @@ public final class ResponseBodiesImpl {
             Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 200)) {
-                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
-                    == SerializationFormat.XML) {
-                    try {
-                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
-                    } finally {
-                        networkResponse.close();
-                    }
-                }
-                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, JsonSerializer.getInstance(),
-                    null, null, null, ResponseBodiesServiceImpl.LOGGER);
+                ClientCoreProtocolUtils.handleUnexpectedResponse(networkResponse,
+                    ResponseBodiesServiceImpl.JSON_SERIALIZER, null, null, null, ResponseBodiesServiceImpl.LOGGER);
             }
-            try {
-                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(),
-                    networkResponse.getValue() == null
-                        ? null
-                        : new Base64Uri(networkResponse.getValue().toBytes()).decodedBytes());
-            } finally {
-                networkResponse.close();
-            }
+            return ClientCoreProtocolUtils.mapResponse(networkResponse, () -> {
+                return ClientCoreProtocolUtils.readJson(networkResponse.getValue(),
+                    jsonReader -> ClientCoreProtocolUtils.readBase64Url(jsonReader), ResponseBodiesServiceImpl.LOGGER);
+            });
         }
     }
 

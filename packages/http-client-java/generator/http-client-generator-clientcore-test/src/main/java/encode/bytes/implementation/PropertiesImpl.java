@@ -16,10 +16,8 @@ import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.instrumentation.Instrumentation;
 import io.clientcore.core.instrumentation.logging.ClientLogger;
 import io.clientcore.core.models.binarydata.BinaryData;
-import io.clientcore.core.serialization.SerializationFormat;
 import io.clientcore.core.serialization.json.JsonSerializer;
 import io.clientcore.core.utils.CoreUtils;
-import io.clientcore.core.utils.GeneratedCodeUtils;
 
 /**
  * An instance of this class provides access to all the operations defined in Properties.
@@ -74,7 +72,7 @@ public final class PropertiesImpl {
 
         private final HttpPipeline httpPipeline;
 
-        private final JsonSerializer jsonSerializer = JsonSerializer.getInstance();
+        private static final JsonSerializer JSON_SERIALIZER = JsonSerializer.getInstance();
 
         private PropertiesServiceImpl(HttpPipeline pipeline) {
             this.httpPipeline = pipeline;
@@ -95,7 +93,7 @@ public final class PropertiesImpl {
                 if (httpRequest.getHeaders().get(HttpHeaderName.CONTENT_TYPE) == null) {
                     httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, "application/json");
                 }
-                httpRequest.setBody(BinaryData.fromObject(body, this.jsonSerializer));
+                httpRequest.setBody(BinaryData.fromObject(body, PropertiesServiceImpl.JSON_SERIALIZER));
             }
             if (requestContext != null) {
                 httpRequest.setContext(requestContext);
@@ -104,26 +102,12 @@ public final class PropertiesImpl {
             Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 200)) {
-                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
-                    == SerializationFormat.XML) {
-                    try {
-                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
-                    } finally {
-                        networkResponse.close();
-                    }
-                }
-                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer, null,
-                    null, null, PropertiesServiceImpl.LOGGER);
+                ClientCoreProtocolUtils.handleUnexpectedResponse(networkResponse, PropertiesServiceImpl.JSON_SERIALIZER,
+                    null, null, null, PropertiesServiceImpl.LOGGER);
             }
-            try {
-                DefaultBytesProperty deserializedResult;
-                deserializedResult = CoreUtils.decodeNetworkResponse(networkResponse.getValue(), this.jsonSerializer,
-                    CoreUtils.createParameterizedType(Response.class, DefaultBytesProperty.class));
-                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(),
-                    deserializedResult);
-            } finally {
-                networkResponse.close();
-            }
+            return ClientCoreProtocolUtils.mapResponse(networkResponse,
+                () -> CoreUtils.decodeNetworkResponse(networkResponse.getValue(), PropertiesServiceImpl.JSON_SERIALIZER,
+                    CoreUtils.createParameterizedType(Response.class, DefaultBytesProperty.class)));
         }
 
         @Override
@@ -141,7 +125,7 @@ public final class PropertiesImpl {
                 if (httpRequest.getHeaders().get(HttpHeaderName.CONTENT_TYPE) == null) {
                     httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, "application/json");
                 }
-                httpRequest.setBody(BinaryData.fromObject(body, this.jsonSerializer));
+                httpRequest.setBody(BinaryData.fromObject(body, PropertiesServiceImpl.JSON_SERIALIZER));
             }
             if (requestContext != null) {
                 httpRequest.setContext(requestContext);
@@ -150,26 +134,12 @@ public final class PropertiesImpl {
             Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 200)) {
-                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
-                    == SerializationFormat.XML) {
-                    try {
-                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
-                    } finally {
-                        networkResponse.close();
-                    }
-                }
-                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer, null,
-                    null, null, PropertiesServiceImpl.LOGGER);
+                ClientCoreProtocolUtils.handleUnexpectedResponse(networkResponse, PropertiesServiceImpl.JSON_SERIALIZER,
+                    null, null, null, PropertiesServiceImpl.LOGGER);
             }
-            try {
-                Base64BytesProperty deserializedResult;
-                deserializedResult = CoreUtils.decodeNetworkResponse(networkResponse.getValue(), this.jsonSerializer,
-                    CoreUtils.createParameterizedType(Response.class, Base64BytesProperty.class));
-                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(),
-                    deserializedResult);
-            } finally {
-                networkResponse.close();
-            }
+            return ClientCoreProtocolUtils.mapResponse(networkResponse,
+                () -> CoreUtils.decodeNetworkResponse(networkResponse.getValue(), PropertiesServiceImpl.JSON_SERIALIZER,
+                    CoreUtils.createParameterizedType(Response.class, Base64BytesProperty.class)));
         }
 
         @Override
@@ -187,7 +157,7 @@ public final class PropertiesImpl {
                 if (httpRequest.getHeaders().get(HttpHeaderName.CONTENT_TYPE) == null) {
                     httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, "application/json");
                 }
-                httpRequest.setBody(BinaryData.fromObject(body, this.jsonSerializer));
+                httpRequest.setBody(BinaryData.fromObject(body, PropertiesServiceImpl.JSON_SERIALIZER));
             }
             if (requestContext != null) {
                 httpRequest.setContext(requestContext);
@@ -196,26 +166,12 @@ public final class PropertiesImpl {
             Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 200)) {
-                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
-                    == SerializationFormat.XML) {
-                    try {
-                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
-                    } finally {
-                        networkResponse.close();
-                    }
-                }
-                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer, null,
-                    null, null, PropertiesServiceImpl.LOGGER);
+                ClientCoreProtocolUtils.handleUnexpectedResponse(networkResponse, PropertiesServiceImpl.JSON_SERIALIZER,
+                    null, null, null, PropertiesServiceImpl.LOGGER);
             }
-            try {
-                Base64urlBytesProperty deserializedResult;
-                deserializedResult = CoreUtils.decodeNetworkResponse(networkResponse.getValue(), this.jsonSerializer,
-                    CoreUtils.createParameterizedType(Response.class, Base64urlBytesProperty.class));
-                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(),
-                    deserializedResult);
-            } finally {
-                networkResponse.close();
-            }
+            return ClientCoreProtocolUtils.mapResponse(networkResponse,
+                () -> CoreUtils.decodeNetworkResponse(networkResponse.getValue(), PropertiesServiceImpl.JSON_SERIALIZER,
+                    CoreUtils.createParameterizedType(Response.class, Base64urlBytesProperty.class)));
         }
 
         @Override
@@ -233,7 +189,7 @@ public final class PropertiesImpl {
                 if (httpRequest.getHeaders().get(HttpHeaderName.CONTENT_TYPE) == null) {
                     httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, "application/json");
                 }
-                httpRequest.setBody(BinaryData.fromObject(body, this.jsonSerializer));
+                httpRequest.setBody(BinaryData.fromObject(body, PropertiesServiceImpl.JSON_SERIALIZER));
             }
             if (requestContext != null) {
                 httpRequest.setContext(requestContext);
@@ -242,26 +198,12 @@ public final class PropertiesImpl {
             Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 200)) {
-                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
-                    == SerializationFormat.XML) {
-                    try {
-                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
-                    } finally {
-                        networkResponse.close();
-                    }
-                }
-                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer, null,
-                    null, null, PropertiesServiceImpl.LOGGER);
+                ClientCoreProtocolUtils.handleUnexpectedResponse(networkResponse, PropertiesServiceImpl.JSON_SERIALIZER,
+                    null, null, null, PropertiesServiceImpl.LOGGER);
             }
-            try {
-                Base64urlArrayBytesProperty deserializedResult;
-                deserializedResult = CoreUtils.decodeNetworkResponse(networkResponse.getValue(), this.jsonSerializer,
-                    CoreUtils.createParameterizedType(Response.class, Base64urlArrayBytesProperty.class));
-                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(),
-                    deserializedResult);
-            } finally {
-                networkResponse.close();
-            }
+            return ClientCoreProtocolUtils.mapResponse(networkResponse,
+                () -> CoreUtils.decodeNetworkResponse(networkResponse.getValue(), PropertiesServiceImpl.JSON_SERIALIZER,
+                    CoreUtils.createParameterizedType(Response.class, Base64urlArrayBytesProperty.class)));
         }
     }
 

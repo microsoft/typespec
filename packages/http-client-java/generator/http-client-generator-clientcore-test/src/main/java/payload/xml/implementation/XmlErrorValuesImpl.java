@@ -16,8 +16,8 @@ import io.clientcore.core.serialization.SerializationFormat;
 import io.clientcore.core.serialization.json.JsonSerializer;
 import io.clientcore.core.serialization.xml.XmlSerializer;
 import io.clientcore.core.utils.CoreUtils;
-import io.clientcore.core.utils.GeneratedCodeUtils;
 import java.lang.reflect.ParameterizedType;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import payload.xml.SimpleModel;
@@ -66,9 +66,17 @@ public final class XmlErrorValuesImpl {
 
         private final HttpPipeline httpPipeline;
 
-        private final JsonSerializer jsonSerializer = JsonSerializer.getInstance();
+        private static final JsonSerializer JSON_SERIALIZER = JsonSerializer.getInstance();
 
-        private final XmlSerializer xmlSerializer = XmlSerializer.getInstance();
+        private static final XmlSerializer XML_SERIALIZER = XmlSerializer.getInstance();
+
+        private static final Map<Integer, ParameterizedType> ERROR_TYPES_0;
+
+        static {
+            Map<Integer, ParameterizedType> errorTypes = new HashMap<>();
+            errorTypes.put(400, CoreUtils.createParameterizedType(XmlErrorBody.class));
+            ERROR_TYPES_0 = Collections.unmodifiableMap(errorTypes);
+        }
 
         private XmlErrorValuesServiceImpl(HttpPipeline pipeline) {
             this.httpPipeline = pipeline;
@@ -88,30 +96,28 @@ public final class XmlErrorValuesImpl {
             Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 200)) {
-                Map<Integer, ParameterizedType> statusToExceptionTypeMap = new HashMap<>();
-                statusToExceptionTypeMap.put(400, CoreUtils.createParameterizedType(XmlErrorBody.class));
-                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
-                    this.xmlSerializer, null, statusToExceptionTypeMap, XmlErrorValuesServiceImpl.LOGGER);
+                ClientCoreProtocolUtils.handleUnexpectedResponse(networkResponse,
+                    XmlErrorValuesServiceImpl.JSON_SERIALIZER, XmlErrorValuesServiceImpl.XML_SERIALIZER, null,
+                    XmlErrorValuesServiceImpl.ERROR_TYPES_0, XmlErrorValuesServiceImpl.LOGGER);
             }
-            try {
+            return ClientCoreProtocolUtils.mapResponse(networkResponse, () -> {
                 SimpleModel deserializedResult;
                 SerializationFormat responseSerializationFormat
                     = CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders());
-                if (this.jsonSerializer.supportsFormat(responseSerializationFormat)) {
+                if (XmlErrorValuesServiceImpl.JSON_SERIALIZER.supportsFormat(responseSerializationFormat)) {
                     deserializedResult = CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
-                        this.jsonSerializer, CoreUtils.createParameterizedType(Response.class, SimpleModel.class));
-                } else if (this.xmlSerializer.supportsFormat(responseSerializationFormat)) {
-                    deserializedResult = CoreUtils.decodeNetworkResponse(networkResponse.getValue(), this.xmlSerializer,
+                        XmlErrorValuesServiceImpl.JSON_SERIALIZER,
+                        CoreUtils.createParameterizedType(Response.class, SimpleModel.class));
+                } else if (XmlErrorValuesServiceImpl.XML_SERIALIZER.supportsFormat(responseSerializationFormat)) {
+                    deserializedResult = CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
+                        XmlErrorValuesServiceImpl.XML_SERIALIZER,
                         CoreUtils.createParameterizedType(Response.class, SimpleModel.class));
                 } else {
                     throw new UnsupportedOperationException(
                         "Unsupported response serialization format: " + responseSerializationFormat);
                 }
-                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(),
-                    deserializedResult);
-            } finally {
-                networkResponse.close();
-            }
+                return deserializedResult;
+            });
         }
     }
 

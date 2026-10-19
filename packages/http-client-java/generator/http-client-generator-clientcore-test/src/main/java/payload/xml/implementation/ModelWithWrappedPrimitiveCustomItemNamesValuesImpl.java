@@ -16,7 +16,6 @@ import io.clientcore.core.serialization.SerializationFormat;
 import io.clientcore.core.serialization.json.JsonSerializer;
 import io.clientcore.core.serialization.xml.XmlSerializer;
 import io.clientcore.core.utils.CoreUtils;
-import io.clientcore.core.utils.GeneratedCodeUtils;
 import payload.xml.ModelWithWrappedPrimitiveCustomItemNames;
 
 /**
@@ -69,9 +68,9 @@ public final class ModelWithWrappedPrimitiveCustomItemNamesValuesImpl {
 
         private final HttpPipeline httpPipeline;
 
-        private final JsonSerializer jsonSerializer = JsonSerializer.getInstance();
+        private static final JsonSerializer JSON_SERIALIZER = JsonSerializer.getInstance();
 
-        private final XmlSerializer xmlSerializer = XmlSerializer.getInstance();
+        private static final XmlSerializer XML_SERIALIZER = XmlSerializer.getInstance();
 
         private ModelWithWrappedPrimitiveCustomItemNamesValuesServiceImpl(HttpPipeline pipeline) {
             this.httpPipeline = pipeline;
@@ -92,30 +91,31 @@ public final class ModelWithWrappedPrimitiveCustomItemNamesValuesImpl {
             Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 200)) {
-                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
-                    this.xmlSerializer, null, null, ModelWithWrappedPrimitiveCustomItemNamesValuesServiceImpl.LOGGER);
+                ClientCoreProtocolUtils.handleUnexpectedResponse(networkResponse,
+                    ModelWithWrappedPrimitiveCustomItemNamesValuesServiceImpl.JSON_SERIALIZER,
+                    ModelWithWrappedPrimitiveCustomItemNamesValuesServiceImpl.XML_SERIALIZER, null, null,
+                    ModelWithWrappedPrimitiveCustomItemNamesValuesServiceImpl.LOGGER);
             }
-            try {
+            return ClientCoreProtocolUtils.mapResponse(networkResponse, () -> {
                 ModelWithWrappedPrimitiveCustomItemNames deserializedResult;
                 SerializationFormat responseSerializationFormat
                     = CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders());
-                if (this.jsonSerializer.supportsFormat(responseSerializationFormat)) {
-                    deserializedResult
-                        = CoreUtils.decodeNetworkResponse(networkResponse.getValue(), this.jsonSerializer, CoreUtils
+                if (ModelWithWrappedPrimitiveCustomItemNamesValuesServiceImpl.JSON_SERIALIZER
+                    .supportsFormat(responseSerializationFormat)) {
+                    deserializedResult = CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
+                        ModelWithWrappedPrimitiveCustomItemNamesValuesServiceImpl.JSON_SERIALIZER, CoreUtils
                             .createParameterizedType(Response.class, ModelWithWrappedPrimitiveCustomItemNames.class));
-                } else if (this.xmlSerializer.supportsFormat(responseSerializationFormat)) {
-                    deserializedResult
-                        = CoreUtils.decodeNetworkResponse(networkResponse.getValue(), this.xmlSerializer, CoreUtils
+                } else if (ModelWithWrappedPrimitiveCustomItemNamesValuesServiceImpl.XML_SERIALIZER
+                    .supportsFormat(responseSerializationFormat)) {
+                    deserializedResult = CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
+                        ModelWithWrappedPrimitiveCustomItemNamesValuesServiceImpl.XML_SERIALIZER, CoreUtils
                             .createParameterizedType(Response.class, ModelWithWrappedPrimitiveCustomItemNames.class));
                 } else {
                     throw new UnsupportedOperationException(
                         "Unsupported response serialization format: " + responseSerializationFormat);
                 }
-                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(),
-                    deserializedResult);
-            } finally {
-                networkResponse.close();
-            }
+                return deserializedResult;
+            });
         }
 
         @Override
@@ -130,7 +130,8 @@ public final class ModelWithWrappedPrimitiveCustomItemNamesValuesImpl {
                 if (httpRequest.getHeaders().get(HttpHeaderName.CONTENT_TYPE) == null) {
                     httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, "application/xml");
                 }
-                httpRequest.setBody(BinaryData.fromObject(input, this.xmlSerializer));
+                httpRequest.setBody(BinaryData.fromObject(input,
+                    ModelWithWrappedPrimitiveCustomItemNamesValuesServiceImpl.XML_SERIALIZER));
             }
             if (requestContext != null) {
                 httpRequest.setContext(requestContext);
@@ -139,14 +140,12 @@ public final class ModelWithWrappedPrimitiveCustomItemNamesValuesImpl {
             Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 204)) {
-                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer,
-                    this.xmlSerializer, null, null, ModelWithWrappedPrimitiveCustomItemNamesValuesServiceImpl.LOGGER);
+                ClientCoreProtocolUtils.handleUnexpectedResponse(networkResponse,
+                    ModelWithWrappedPrimitiveCustomItemNamesValuesServiceImpl.JSON_SERIALIZER,
+                    ModelWithWrappedPrimitiveCustomItemNamesValuesServiceImpl.XML_SERIALIZER, null, null,
+                    ModelWithWrappedPrimitiveCustomItemNamesValuesServiceImpl.LOGGER);
             }
-            try {
-                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
-            } finally {
-                networkResponse.close();
-            }
+            return ClientCoreProtocolUtils.mapResponse(networkResponse, () -> null);
         }
     }
 

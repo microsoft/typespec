@@ -12,11 +12,8 @@ import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.instrumentation.Instrumentation;
 import io.clientcore.core.instrumentation.logging.ClientLogger;
 import io.clientcore.core.models.binarydata.BinaryData;
-import io.clientcore.core.serialization.SerializationFormat;
 import io.clientcore.core.serialization.json.JsonSerializer;
 import io.clientcore.core.utils.Base64Uri;
-import io.clientcore.core.utils.CoreUtils;
-import io.clientcore.core.utils.GeneratedCodeUtils;
 import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -88,22 +85,10 @@ public final class HeadersImpl {
             Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 204)) {
-                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
-                    == SerializationFormat.XML) {
-                    try {
-                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
-                    } finally {
-                        networkResponse.close();
-                    }
-                }
-                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, JsonSerializer.getInstance(),
-                    null, null, null, HeadersServiceImpl.LOGGER);
+                ClientCoreProtocolUtils.handleUnexpectedResponse(networkResponse, JsonSerializer.getInstance(), null,
+                    null, null, HeadersServiceImpl.LOGGER);
             }
-            try {
-                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
-            } finally {
-                networkResponse.close();
-            }
+            return ClientCoreProtocolUtils.mapResponse(networkResponse, () -> null);
         }
 
         @Override
@@ -120,22 +105,10 @@ public final class HeadersImpl {
             Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 204)) {
-                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
-                    == SerializationFormat.XML) {
-                    try {
-                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
-                    } finally {
-                        networkResponse.close();
-                    }
-                }
-                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, JsonSerializer.getInstance(),
-                    null, null, null, HeadersServiceImpl.LOGGER);
+                ClientCoreProtocolUtils.handleUnexpectedResponse(networkResponse, JsonSerializer.getInstance(), null,
+                    null, null, HeadersServiceImpl.LOGGER);
             }
-            try {
-                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
-            } finally {
-                networkResponse.close();
-            }
+            return ClientCoreProtocolUtils.mapResponse(networkResponse, () -> null);
         }
 
         @Override
@@ -152,22 +125,10 @@ public final class HeadersImpl {
             Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 204)) {
-                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
-                    == SerializationFormat.XML) {
-                    try {
-                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
-                    } finally {
-                        networkResponse.close();
-                    }
-                }
-                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, JsonSerializer.getInstance(),
-                    null, null, null, HeadersServiceImpl.LOGGER);
+                ClientCoreProtocolUtils.handleUnexpectedResponse(networkResponse, JsonSerializer.getInstance(), null,
+                    null, null, HeadersServiceImpl.LOGGER);
             }
-            try {
-                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
-            } finally {
-                networkResponse.close();
-            }
+            return ClientCoreProtocolUtils.mapResponse(networkResponse, () -> null);
         }
 
         @Override
@@ -184,22 +145,10 @@ public final class HeadersImpl {
             Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 204)) {
-                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
-                    == SerializationFormat.XML) {
-                    try {
-                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
-                    } finally {
-                        networkResponse.close();
-                    }
-                }
-                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, JsonSerializer.getInstance(),
-                    null, null, null, HeadersServiceImpl.LOGGER);
+                ClientCoreProtocolUtils.handleUnexpectedResponse(networkResponse, JsonSerializer.getInstance(), null,
+                    null, null, HeadersServiceImpl.LOGGER);
             }
-            try {
-                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
-            } finally {
-                networkResponse.close();
-            }
+            return ClientCoreProtocolUtils.mapResponse(networkResponse, () -> null);
         }
     }
 
