@@ -270,12 +270,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                     new TypeProviderWriter(provider).Write().Content, path: provider.Name + ".cs"));
             var compilation = CSharpCompilation.Create("GeneratedFlatMrwModel", trees, references,
                 new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, nullableContextOptions: NullableContextOptions.Disable));
-            var packageVersion = typeof(ModelReaderWriterOptions).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()!
-                .InformationalVersion.Split('+')[0];
-            var packages = Environment.GetEnvironmentVariable("NUGET_PACKAGES") ??
-                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".nuget", "packages");
-            var generatorAssembly = Assembly.LoadFrom(Path.Combine(packages, "system.clientmodel", packageVersion,
-                "analyzers", "dotnet", "cs", "System.ClientModel.SourceGeneration.dll"));
+            var generatorAssembly = Assembly.Load("System.ClientModel.SourceGeneration");
             var sourceGenerators = generatorAssembly.GetTypes().Where(type => type.IsDefined(typeof(GeneratorAttribute)))
                 .Select(type => Activator.CreateInstance(type))
                 .Select(generator => generator is ISourceGenerator sourceGenerator
