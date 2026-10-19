@@ -31,7 +31,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private readonly IReadOnlyList<InputModelProperty>? _mappedInputProperties;
 
         // A flat model also owns properties that do not belong to its restored framework base.
-        // Keep this projection separate from InputModel so source properties are never reparented.
+        // Keep this projection separate from InputModel so source properties retain their original owner.
         internal bool HasFlatInputProjection => _mappedInputProperties is not null;
         internal IReadOnlyList<InputModelProperty> MappedInputProperties => _mappedInputProperties ?? InputModel.Properties;
         internal InputType? MappedAdditionalProperties => _mappedInputProperties is null ? InputModel.AdditionalProperties : null;
