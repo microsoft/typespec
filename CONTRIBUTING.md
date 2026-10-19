@@ -323,6 +323,26 @@ Patch restoration state is stored in the target's Git metadata, so `patch` and `
 
 ## TypeSpec website
 
+### Public JavaScript API documentation
+
+The JS API reference uses TypeDoc with `typedoc-plugin-markdown`.
+
+Packages with a `check-api-docs` script can check documentation coverage without generating
+website files:
+
+```bash
+pnpm --filter @typespec/xml check-api-docs
+```
+
+The check discovers entry points from the package's `exports` map. It validates public
+declarations and members, excluding `@internal` APIs and experimental, testing, and internal
+entry points. Generated members of `$lib` and `$decorators` metadata maps are not checked.
+Missing public entry points or missing documentation fail the command.
+
+The compiler, HTTP, OpenAPI, OpenAPI3, JSON Schema, XML, asset emitter, and GraphQL run this
+check during their builds. The language client emitters' separate APIView setups are
+unchanged.
+
 ### Run locally
 
 Go to `packages/website` and run the command:

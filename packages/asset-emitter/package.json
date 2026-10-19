@@ -27,14 +27,14 @@
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
-    "build": "tsc -p tsconfig.build.json",
+    "build": "tsc -p tsconfig.build.json && pnpm check-api-docs",
     "watch": "tsc -p tsconfig.build.json --watch",
     "test": "vitest run",
     "test:watch": "vitest -w",
     "test:ui": "vitest --ui",
     "lint": "oxlint . --deny-warnings",
     "lint:fix": "oxlint . --fix",
-    "api-extractor": "api-extractor run --local --verbose"
+    "check-api-docs": "node ../../eng/tsp-core/scripts/check-api-docs.ts"
   },
   "files": [
     "lib/*.tsp",

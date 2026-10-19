@@ -42,7 +42,8 @@
   },
   "scripts": {
     "clean": "rimraf ./dist ./temp",
-    "build": "pnpm gen-extern-signature && alloy build && pnpm lint-typespec-library",
+    "build": "pnpm gen-extern-signature && alloy build && pnpm lint-typespec-library && pnpm check-api-docs",
+    "check-api-docs": "node ../../eng/tsp-core/scripts/check-api-docs.ts",
     "lint-typespec-library": "tsp compile . --warn-as-error --import @typespec/library-linter --no-emit",
     "watch": "alloy build --watch",
     "gen-extern-signature": "tspd --enable-experimental gen-extern-signature .",

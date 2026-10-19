@@ -507,9 +507,6 @@ importers:
       '@chronus/github-pr-commenter':
         specifier: 'catalog:'
         version: 1.1.2
-      '@microsoft/api-extractor':
-        specifier: 'catalog:'
-        version: 7.59.4(@types/node@26.6.4)
       '@octokit/core':
         specifier: 'catalog:'
         version: 7.0.8
@@ -570,6 +567,9 @@ importers:
       turbo:
         specifier: 'catalog:'
         version: 2.11.7
+      typedoc:
+        specifier: 'catalog:'
+        version: 0.28.20(@typescript/typescript6@6.0.2)
       typescript:
         specifier: 'catalog:'
         version: '@typescript/typescript6@6.0.2'
