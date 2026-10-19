@@ -104,6 +104,11 @@ including helpers for customized paging methods. Only the main client declaratio
 synthesizes compatibility overloads; the collections partial does not duplicate them.
 Client identity updates synchronize the collections partial and nested helper
 namespaces while retaining constructor customizations applied by visitors.
+Nested paging helpers are retained by actual generated or custom-code references,
+not by their containing client alone. With `RemoveOrInternalize`, unused helpers
+and their otherwise-unreferenced dependencies are pruned, and the collections writer
+omits removed nested types. Other nested types keep the default ownership-based
+retention behavior.
 Plugins can continue to customize
 requests, parsing, and diagnostics through these providers; library visitors traverse
 the nested helpers and their members. Helper names follow

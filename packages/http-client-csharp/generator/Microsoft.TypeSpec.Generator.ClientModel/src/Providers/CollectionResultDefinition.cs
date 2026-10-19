@@ -185,6 +185,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         protected override TypeProvider BuildDeclaringTypeProvider() => Client;
 
+        protected override bool IsRootedByDeclaringType => false;
+
         protected override string BuildNamespace() => Client.Type.Namespace;
 
         protected override SuppressionStatement[] BuildDisabledFileWarnings()

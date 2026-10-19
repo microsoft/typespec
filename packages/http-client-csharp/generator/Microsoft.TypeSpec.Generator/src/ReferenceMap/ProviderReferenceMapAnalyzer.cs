@@ -470,7 +470,10 @@ namespace Microsoft.TypeSpec.Generator
                 {
                     foreach (var nestedType in provider.NestedTypes)
                     {
-                        AddTypeReference(references[current], nestedType.Type, nodes, serializationReferenceNamesByType, providerNamespace);
+                        if (nestedType.IsRootedByDeclaringType)
+                        {
+                            AddTypeReference(references[current], nestedType.Type, nodes, serializationReferenceNamesByType, providerNamespace);
+                        }
                     }
                 }
 
