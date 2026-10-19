@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -46,7 +47,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         public bool CanUse(SystemObjectModelProvider mappedBase)
         {
-            if (InputModel.BaseModel is null ||
+            if (InputModel.BaseModel is null && !mappedBase.HasFlatInputProjection ||
                 HasDuplicateAdditionalProperties(mappedBase) ||
                 !mappedBase.HasReconstructibleLastContractConstructor ||
                 !mappedBase.HasCompatibleLastContractProperties() ||
@@ -61,7 +62,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 HasNoCustomMemberCollisions(mappedBase) &&
                 HasCompatibleGeneratedMemberNames(mappedBase) &&
                 HasCompatibleCurrentModelProperties(lookup) &&
-                HasCompatibleDisplacedBase(mappedBase, lookup);
+                (InputModel.BaseModel is null
+                    ? HasCompatibleFlatModel(mappedBase)
+                    : HasCompatibleDisplacedBase(mappedBase, lookup));
         }
 
         public static bool AreContractsEquivalent(
@@ -75,12 +78,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return false;
             }
 
-            if (left.InputModel.Properties.Count != right.InputModel.Properties.Count)
+            if (left.MappedInputProperties.Count != right.MappedInputProperties.Count)
             {
                 return false;
             }
 
-            if (!left.InputModel.Properties.Zip(right.InputModel.Properties).All(pair =>
+            if (!left.MappedInputProperties.Zip(right.MappedInputProperties).All(pair =>
                 (pair.First.SerializedName ?? pair.First.Name) == (pair.Second.SerializedName ?? pair.Second.Name) &&
                 GetInputPropertyClrName(pair.First) == GetInputPropertyClrName(pair.Second) &&
                 AreMappedPropertyShapesCompatible(pair.First, pair.Second)))
@@ -88,20 +91,20 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return false;
             }
 
-            return left.InputModel.AdditionalProperties is null
-                ? right.InputModel.AdditionalProperties is null
-                : right.InputModel.AdditionalProperties is { } rightAdditionalProperties &&
-                    InputTypeStructuralComparer.Equals(left.InputModel.AdditionalProperties, rightAdditionalProperties);
+            return left.MappedAdditionalProperties is null
+                ? right.MappedAdditionalProperties is null
+                : right.MappedAdditionalProperties is { } rightAdditionalProperties &&
+                    InputTypeStructuralComparer.Equals(left.MappedAdditionalProperties, rightAdditionalProperties);
         }
 
         private bool HasDuplicateAdditionalProperties(SystemObjectModelProvider mappedBase)
             => InputModel.AdditionalProperties is not null &&
-                mappedBase.InputModel.AdditionalProperties is not null;
+                mappedBase.MappedAdditionalProperties is not null;
 
         private static bool HasOneToOneMappedPropertyMatches(SystemObjectModelProvider mappedBase)
         {
             var matchedProperties = new HashSet<PropertyProvider>(ReferenceEqualityComparer.Instance);
-            foreach (var inputProperty in mappedBase.InputModel.Properties)
+            foreach (var inputProperty in mappedBase.MappedInputProperties)
             {
                 PropertyProvider? matchedProperty = null;
                 foreach (var effectiveProperty in mappedBase.Properties)
@@ -150,7 +153,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private bool HasCompatibleGeneratedMemberNames(SystemObjectModelProvider mappedBase)
         {
-            var displacedPropertyNames = mappedBase.InputModel.Properties
+            var displacedPropertyNames = mappedBase.MappedInputProperties
                 .Select(property => property.Name)
                 .ToHashSet(StringComparer.Ordinal);
             var generatedPropertyNames = InputModel.Properties
@@ -186,6 +189,28 @@ namespace Microsoft.TypeSpec.Generator.Providers
             });
         }
 
+        internal static bool HasKnownPropertyIdentity(InputModelProperty current, PropertyProvider previous)
+        {
+            var wireName = current.SerializedName ?? current.Name;
+            return GetInputPropertyClrName(current) == previous.Name ||
+                current.Name == previous.OriginalName ||
+                string.Equals(wireName, previous.Name, StringComparison.OrdinalIgnoreCase) ||
+                wireName == previous.WireInfo?.SerializedName ||
+                previous.Attributes.Any(attribute => attribute.Type.Name == "WirePathAttribute" &&
+                    attribute.Arguments.FirstOrDefault() is LiteralExpression { Literal: string path } && path == wireName);
+        }
+
+        private bool HasCompatibleFlatModel(SystemObjectModelProvider mappedBase)
+        {
+            // A previously created mapping may carry a different input contract. Do not introduce
+            // its wire properties or additional-properties behavior into this flat model.
+            return mappedBase.MappedAdditionalProperties is null &&
+                mappedBase.MappedInputProperties.All(mappedProperty => InputModel.Properties.Count(property =>
+                    (property.SerializedName ?? property.Name) == (mappedProperty.SerializedName ?? mappedProperty.Name) &&
+                    GetInputPropertyClrName(property) == GetInputPropertyClrName(mappedProperty) &&
+                    AreMappedPropertyShapesCompatible(property, mappedProperty)) == 1);
+        }
+
         private bool HasCompatibleDisplacedBase(
             SystemObjectModelProvider mappedBase,
             MappedPropertyLookup lookup)
@@ -206,7 +231,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             if (!mappedBase.UsesLastContractType &&
-                currentBase.Properties.Count != mappedBase.InputModel.Properties.Count)
+                currentBase.Properties.Count != mappedBase.MappedInputProperties.Count)
             {
                 return false;
             }
@@ -236,9 +261,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
             InputModelType currentBase,
             SystemObjectModelProvider mappedBase)
             => currentBase.AdditionalProperties is null
-                ? mappedBase.InputModel.AdditionalProperties is null
+                ? mappedBase.MappedAdditionalProperties is null
                 : !mappedBase.UsesLastContractType &&
-                    mappedBase.InputModel.AdditionalProperties is { } mappedAdditionalProperties &&
+                    mappedBase.MappedAdditionalProperties is { } mappedAdditionalProperties &&
                     InputTypeStructuralComparer.Equals(currentBase.AdditionalProperties, mappedAdditionalProperties);
 
         private static bool IsMappedPropertyCompatible(
@@ -324,10 +349,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             public MappedPropertyLookup(SystemObjectModelProvider mappedBase)
             {
-                ByWireName = mappedBase.InputModel.Properties
+                ByWireName = mappedBase.MappedInputProperties
                     .GroupBy(property => property.SerializedName ?? property.Name, StringComparer.Ordinal)
                     .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
-                ByClrName = mappedBase.InputModel.Properties
+                ByClrName = mappedBase.MappedInputProperties
                     .GroupBy(GetInputPropertyClrName, StringComparer.Ordinal)
                     .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
                 EffectiveClrNames = mappedBase.UsesLastContractType
