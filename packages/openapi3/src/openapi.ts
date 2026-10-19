@@ -137,6 +137,7 @@ import {
   isBytesKeptRaw,
   isSharedHttpOperation,
 } from "./util.js";
+import type { VersioningModule } from "./versioning-module.js";
 import { resolveVersioningModule } from "./versioning-module.js";
 import type { VisibilityUsageTracker } from "./visibility-usage.js";
 import { resolveVisibilityUsage } from "./visibility-usage.js";
@@ -347,6 +348,7 @@ function createOAPIEmitter(
   let visibilityUsage: VisibilityUsageTracker;
   let sseModule: SSEModule | undefined;
   let jsonSchemaModule: JsonSchemaModule | undefined;
+  let versioningModule: VersioningModule | undefined;
 
   // Map model properties that represent shared parameters to their parameter
   // definition that will go in #/components/parameters. Inlined parameters do not go in
@@ -500,7 +502,7 @@ function createOAPIEmitter(
 
     const servers = getServers(program, service.type);
     if (servers) {
-      root.servers = resolveServers(servers);
+      root.servers = resolveServers(servers, version);
     }
 
     attachExtensions(program, service.type, root);
@@ -547,7 +549,13 @@ function createOAPIEmitter(
     return isValid;
   }
 
-  function resolveServers(servers: HttpServer[]): OpenAPI3Server[] {
+  /** Whether `type` is the enum passed to `@versioned` on the current service. */
+  function isServiceVersionsEnum(type: Type): boolean {
+    const versionMap = versioningModule?.getVersion(program, currentService.type);
+    return versionMap?.getVersions().some((v) => v.enumMember.enum === type) ?? false;
+  }
+
+  function resolveServers(servers: HttpServer[], version?: string): OpenAPI3Server[] {
     return servers.map((server) => {
       const variables: Record<string, OpenAPI3ServerVariable> = {};
       for (const [name, prop] of server.parameters) {
@@ -569,6 +577,16 @@ function createOAPIEmitter(
         } else if (prop.type.kind === "String") {
           variable.enum = [prop.type.value];
         }
+        // OpenAPI requires `default` to be one of the `enum` values. Use the version being
+        // emitted for the versions enum, and the first value otherwise.
+        if (!prop.defaultValue && variable.enum?.length) {
+          variable.default =
+            version !== undefined &&
+            variable.enum.includes(version) &&
+            isServiceVersionsEnum(prop.type)
+              ? version
+              : variable.enum[0];
+        }
         attachExtensions(program, prop, variable);
         variables[name] = variable;
       }
@@ -581,7 +599,7 @@ function createOAPIEmitter(
   }
 
   async function getOpenAPI(): Promise<OpenAPI3ServiceRecord[]> {
-    const versioningModule = await resolveVersioningModule();
+    versioningModule = await resolveVersioningModule();
     const serviceRecords: OpenAPI3ServiceRecord[] = [];
     const services = listServices(program);
     if (services.length === 0) {

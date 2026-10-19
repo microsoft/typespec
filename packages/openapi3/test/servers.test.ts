@@ -1,9 +1,10 @@
 import { expectDiagnostics } from "@typespec/compiler/testing";
 import { deepStrictEqual } from "assert";
 import { it } from "vitest";
+import { openApiForVersions } from "./test-host.js";
 import { supportedVersions, worksFor } from "./works-for.js";
 
-worksFor(supportedVersions, ({ diagnoseOpenApiFor, openApiFor }) => {
+worksFor(supportedVersions, ({ diagnoseOpenApiFor, openApiFor, version: specVersion }) => {
   it("set a basic server(url)", async () => {
     const res = await openApiFor(
       `
@@ -87,7 +88,31 @@ worksFor(supportedVersions, ({ diagnoseOpenApiFor, openApiFor }) => {
       }
       `,
     );
-    deepStrictEqual(res.servers[0].variables.region.enum, ["westus", "eastus"]);
+    deepStrictEqual(res.servers[0].variables.region, {
+      default: "westus",
+      enum: ["westus", "eastus"],
+    });
+  });
+
+  it("keeps an explicit default for an enum whose members are encoded as strings", async () => {
+    const res = await openApiFor(
+      `
+      @service(#{title: "My service"})
+      @server("https://{region}.example.com", "Regional account endpoint", {region?: Region = Region.eastUs})
+      namespace MyService {}
+
+      enum Region {
+        @encodedName("application/json", "westus")
+        westUs: 1,
+        @encodedName("application/json", "eastus")
+        eastUs: 2,
+      }
+      `,
+    );
+    deepStrictEqual(res.servers[0].variables.region, {
+      default: "eastus",
+      enum: ["westus", "eastus"],
+    });
   });
 
   it("emit diagnostic when a numeric enum member is left unencoded", async () => {
@@ -227,10 +252,26 @@ worksFor(supportedVersions, ({ diagnoseOpenApiFor, openApiFor }) => {
         description: "Regional account endpoint",
         url: "https://{region}.example.com",
         variables: {
-          region: { default: "", enum: ["westus", "eastus"] },
+          region: { default: "westus", enum: ["westus", "eastus"] },
         },
       },
     ]);
+  });
+
+  it("set a server with enum properties with a default", async () => {
+    const res = await openApiFor(
+      `
+      enum Region { westus, eastus }
+      @service(#{title: "My service"})
+      @server("https://{region}.example.com", "Regional account endpoint", {
+        region?: Region = Region.eastus,
+      })
+      namespace MyService {}
+      `,
+    );
+    deepStrictEqual(res.servers[0].variables, {
+      region: { default: "eastus", enum: ["westus", "eastus"] },
+    });
   });
 
   it("set a server with string literal", async () => {
@@ -249,7 +290,7 @@ worksFor(supportedVersions, ({ diagnoseOpenApiFor, openApiFor }) => {
         description: "Regional account endpoint",
         url: "https://{region}.example.com",
         variables: {
-          region: { default: "", enum: ["westus"] },
+          region: { default: "westus", enum: ["westus"] },
         },
       },
     ]);
@@ -271,11 +312,55 @@ worksFor(supportedVersions, ({ diagnoseOpenApiFor, openApiFor }) => {
         description: "Regional account endpoint",
         url: "https://{region}.example.com",
         variables: {
-          region: { default: "", enum: ["westus", "eastus"] },
+          region: { default: "westus", enum: ["westus", "eastus"] },
         },
       },
     ]);
   });
+
+  it("set a server with unions type with a default", async () => {
+    const res = await openApiFor(
+      `
+      @service(#{title: "My service"})
+      @server("https://{region}.example.com", "Regional account endpoint", {
+        region?: "westus" | "eastus" = "eastus",
+      })
+      namespace MyService {}
+      `,
+    );
+    deepStrictEqual(res.servers[0].variables, {
+      region: { default: "eastus", enum: ["westus", "eastus"] },
+    });
+  });
+
+  it("set a server with the versions enum to the version of each document", async () => {
+    const documents = await openApiForVersions(
+      `
+      @versioned(Versions)
+      @service(#{title: "My service"})
+      @server("{endpoint}/{release}/{apiVersion}", "Versioned endpoint", {
+        endpoint: url,
+        release: Release,
+        apiVersion: Versions,
+      })
+      namespace MyService {
+        enum Versions { v1: "2024-01-01", v2: "2025-01-01" }
+        // Same values as Versions, but not the versions enum, so it keeps the first value.
+        enum Release { previous: "2024-01-01", latest: "2025-01-01" }
+      }
+      `,
+      ["2024-01-01", "2025-01-01"],
+      { "openapi-versions": [specVersion] },
+    );
+    for (const [version, document] of Object.entries(documents)) {
+      deepStrictEqual(document.servers?.[0].variables, {
+        endpoint: { default: "" },
+        release: { default: "2024-01-01", enum: ["2024-01-01", "2025-01-01"] },
+        apiVersion: { default: version, enum: ["2024-01-01", "2025-01-01"] },
+      });
+    }
+  });
+
   it("set multiple servers", async () => {
     const res = await openApiFor(
       `
