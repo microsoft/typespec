@@ -6,18 +6,53 @@ Azure authoring restrictions** required by your chosen representation. For examp
 does it require direct/transitive model inheritance, prohibit overlapping unions,
 or restrict direct reuse of a variant? Explain why.
 
-This informs [Azure/typespec-azure#5390](https://github.com/Azure/typespec-azure/issues/5390);
-it does not ask you to implement generator or serialization changes here.
+This scenario reference informs
+[Azure/typespec-azure#5703](https://github.com/Azure/typespec-azure/issues/5703),
+which records the current decision, and the broader
+[language review](https://github.com/Azure/typespec-azure/issues/5390). It does
+not ask you to implement generator or serialization changes here.
 
 `union extends` is a structural constraint. It does not require inheritance, add
 the base as a variant, make the union open, or determine serialization.
 Adding/removing it alone changes neither declared alternatives nor payloads, and
-does not mandate a different generated API.
+does not mandate a different generated API. The cases below are reference
+examples for language review, not a request to represent every union as a
+polymorphic model.
 
-A separate Azure linter enforcing nominal model inheritance is proposed. Structural
-cases such as UE02 are deliberate negative/control examples for that proposal,
-not recommended Azure authoring. The restriction's precise scope is still being
-discussed; compiler-valid examples help evaluate it.
+## Current Azure direction
+
+The Oct 15 agreement in [Azure/typespec-azure#5703](https://github.com/Azure/typespec-azure/issues/5703#issuecomment-6185449871)
+is a design direction, not implemented behavior: TCGC should convert eligible
+P1 unions by default into its existing polymorphic-model representation with
+discriminated subtypes. P1 is an explicitly named model base with nominally
+inheriting model variants and `@discriminated(#{ envelope: "none" })`. An
+opt-out is needed so Rust can retain enum unions. Ordinary unions without
+`@discriminated` keep their existing union behavior.
+
+This direction does not settle object-envelope unions (P2) and their API or
+serialization, and does not implicitly cover `@events`/SSE. No migration of
+existing `@discriminator` specs is currently planned. The merged
+[Azure/typespec-azure#5648](https://github.com/Azure/typespec-azure/pull/5648)
+exposes `SdkUnionType.baseType` and related metadata; that is not itself
+polymorphic conversion or proof that every consumer uses a published version
+with the metadata.
+
+The merged
+[Azure/typespec-azure#5561](https://github.com/Azure/typespec-azure/pull/5561)
+adds the `use-union-hierarchy` client-SDK rule. It exempts nonempty unions of
+string literals; other named non-string unions need a `union extends`
+constraint. In model-constrained unions, each model variant must be the exact
+base or directly/transitively inherit from it, and a model variant cannot
+belong to multiple such unions. A `model is` that retains inheritance can
+qualify; structural compatibility alone, as in UE02, cannot. This is an Azure
+authoring lint rule, not a compiler semantic change; anonymous union
+expressions are unaffected.
+
+Rust separately proposed an explicit `Pet extends Animal` union constraint
+with generated `From<Pet> for Animal` and fallible reverse `TryFrom`. This is a
+proposal, distinct from the P1 model-base direction, not an approved or
+implemented conversion:
+[Rust review comment](https://github.com/microsoft/typespec/pull/11977#discussion_r4277281270).
 
 <!-- prettier-ignore -->
 ```tsp
@@ -113,10 +148,12 @@ the core constraint review does not require new serialization behavior.
 | Inline   | `@discriminated(#{ envelope: "none" })` | `{"kind":"cat","name":"Whiskers","meow":true}`           |
 | Envelope | `@discriminated`                        | `{"kind":"cat","value":{"name":"Whiskers","meow":true}}` |
 
-For UE05/UE07, different tags or discriminator/envelope names on a reused model
-may matter when the unions are independently discriminated. SDK flattening must
-not change that separately defined envelope JSON. Mention nullable use, recursion,
-or property conversions only if they change your answer.
+The Azure rule prohibits a model variant from appearing in multiple
+model-constrained unions, as in UE05/UE07. Different tags or
+discriminator/envelope names on a reused model may also matter when the unions
+are independently discriminated. SDK flattening must not change that
+separately defined envelope JSON. Mention nullable use, recursion, or property
+conversions only if they change your answer.
 
 UE10's default is distinct from UE09's named base alternative. It can preserve
 `{"kind":"dragon","name":"Future","extra":{"color":"gold"}}`.
