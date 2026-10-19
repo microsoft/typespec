@@ -97,7 +97,8 @@ The TypeSpec Generator follows a layered architecture designed for extensibility
   - `PropertyProvider`: Model properties with accessors
 
 Paging helpers are nested in their owning client and emitted together in
-`<ClientName>.Collections.cs`. `ClientCollectionsProvider.NestedTypes` contains the
+`<ClientName>.Collections.cs`. `ClientProvider.Collections` lazily creates and caches
+this partial declaration. `ClientCollectionsProvider.NestedTypes` contains the
 operation-specific providers returned by `ClientResponseApi.CreateClientCollectionResultDefinition`,
 including helpers for customized paging methods. Plugins can continue to customize
 requests, parsing, and diagnostics through these providers; library visitors traverse

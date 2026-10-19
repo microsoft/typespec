@@ -8,6 +8,11 @@ using Microsoft.TypeSpec.Generator.Providers;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 {
+    /// <summary>
+    /// Represents an additional partial declaration of the owning client that groups its nested paging helpers
+    /// in a single <c>&lt;ClientName&gt;.Collections.cs</c> file, avoiding operation-specific filenames and
+    /// helper name collisions between clients.
+    /// </summary>
     public class ClientCollectionsProvider : TypeProvider
     {
         public ClientCollectionsProvider(ClientProvider client)

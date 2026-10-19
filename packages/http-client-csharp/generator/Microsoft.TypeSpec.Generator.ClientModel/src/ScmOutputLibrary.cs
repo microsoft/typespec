@@ -67,7 +67,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel
                 types.Add(clientSettings);
             }
 
-            var collections = new ClientCollectionsProvider(client);
+            var collections = client.Collections;
             if (collections.NestedTypes.Count > 0)
             {
                 types.Add(collections);

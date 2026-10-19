@@ -24,6 +24,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
             var collections = types.SingleOrDefault(t => t.RelativeFilePath == Path.Combine("src", "Generated", "CatClient.Collections.cs"));
 
             Assert.IsNotNull(collections);
+            Assert.AreSame(client.Collections, collections);
+            Assert.AreSame(client.Collections, client.Collections);
             Assert.AreEqual(client.Name, collections!.Name);
             Assert.AreEqual(client.DeclarationModifiers, collections.DeclarationModifiers);
             Assert.AreEqual(4, collections.NestedTypes.Count);
