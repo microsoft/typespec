@@ -20,6 +20,13 @@ import { mutateSchema } from "./mutation-engine/schema-mutator.js";
 import type { TypeGraph } from "./mutation-engine/type-graph.js";
 import { resolveTypeUsage } from "./type-usage.js";
 
+/**
+ * TypeSpec emitter hook that writes GraphQL SDL for each `@schema` namespace,
+ * or for the global namespace when no schema is declared.
+ *
+ * Schemas without GraphQL operations produce no file. Dry runs still build and
+ * render schemas for diagnostics, but do not write output.
+ */
 export async function $onEmit(context: EmitContext<GraphQLEmitterOptions>) {
   const schemas = listSchemas(context.program);
   const outputFiles = new Set<string>();

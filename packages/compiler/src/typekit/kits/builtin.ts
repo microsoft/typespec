@@ -133,6 +133,9 @@ export interface BuiltinKit {
 }
 
 interface TypekitExtension {
+  /**
+   * Access the program's standard scalar types, rather than creating new scalar instances.
+   */
   builtin: BuiltinKit;
 }
 

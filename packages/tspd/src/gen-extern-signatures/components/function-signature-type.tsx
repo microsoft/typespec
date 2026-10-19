@@ -191,7 +191,7 @@ function ValueOfModelTsType({ model }: { model: Model }) {
 
 export function ValueOfModelTsInterfaceBody({ model }: { model: Model }) {
   return (
-    <List joiner=";" enderPunctuation>
+    <List semicolon hardline enderPunctuation>
       {model.indexer?.value && (
         <ts.InterfaceMember
           readonly
@@ -203,6 +203,7 @@ export function ValueOfModelTsInterfaceBody({ model }: { model: Model }) {
         {(x) => (
           <ts.InterfaceMember
             readonly
+            doc={getDocComment(x)}
             name={x.name}
             optional={x.optional}
             type={<ValueTsType type={x.type} />}

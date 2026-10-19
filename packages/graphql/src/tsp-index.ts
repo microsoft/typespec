@@ -9,6 +9,7 @@ import { $onValidate } from "./validate.js";
 
 export { $lib, $onValidate };
 
+/** Decorator implementations registered with the compiler for the `TypeSpec.GraphQL` namespace. */
 export const $decorators = {
   "TypeSpec.GraphQL": {
     compose: $compose,

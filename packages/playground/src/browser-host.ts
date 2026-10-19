@@ -305,11 +305,13 @@ export function splitDeferredLibraries(
 }
 
 /**
- * Create the browser host from the list of libraries.
+ * Create an in-memory compiler host by importing the compiler and the requested libraries.
+ * Eager libraries load in parallel; deferred emitters remain placeholders until loaded.
+ * Rejects if the compiler or an eager library cannot be imported.
  * @param libsToLoad List of libraries to load. Those must be set in the webpage importmap.
  * @param importOptions Import configuration.
  * @param options Additional host options.
- * @returns
+ * @returns Host with eager library files available under `/test/node_modules`.
  */
 export async function createBrowserHost(
   libsToLoad: readonly string[],

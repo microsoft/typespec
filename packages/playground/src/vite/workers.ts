@@ -1,6 +1,10 @@
 import type { Environment } from "monaco-editor";
 
-/** Register Monaco's editor and JSON workers before creating editors in a Vite application. */
+/**
+ * Install Monaco's global worker factory using Vite's `?worker` imports.
+ * JSON models use the JSON worker; other labels use the base editor worker.
+ * Call before Monaco requests workers. Replaces any existing `MonacoEnvironment`.
+ */
 export function registerMonacoDefaultWorkersForVite() {
   const environment: Environment = {
     getWorker: async function (workerId: string, label: string) {
