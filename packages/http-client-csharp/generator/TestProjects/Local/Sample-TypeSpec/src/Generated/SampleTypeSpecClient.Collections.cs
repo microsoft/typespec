@@ -17,15 +17,15 @@ namespace SampleTypeSpec
     public partial class SampleTypeSpecClient
     {
 
-        internal partial class SampleTypeSpecClientGetWithNextLinkCollectionResult : CollectionResult
+        internal partial class GetWithNextLinkCollectionResult : CollectionResult
         {
             private readonly SampleTypeSpecClient _client;
             private readonly RequestOptions _options;
 
-            /// <summary> Initializes a new instance of SampleTypeSpecClientGetWithNextLinkCollectionResult, which is used to iterate over the pages of a collection. </summary>
+            /// <summary> Initializes a new instance of GetWithNextLinkCollectionResult, which is used to iterate over the pages of a collection. </summary>
             /// <param name="client"> The SampleTypeSpecClient client used to send requests. </param>
             /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-            public SampleTypeSpecClientGetWithNextLinkCollectionResult(SampleTypeSpecClient client, RequestOptions options)
+            public GetWithNextLinkCollectionResult(SampleTypeSpecClient client, RequestOptions options)
             {
                 _client = client;
                 _options = options;
@@ -75,15 +75,15 @@ namespace SampleTypeSpec
             }
         }
 
-        internal partial class SampleTypeSpecClientGetWithNextLinkAsyncCollectionResult : AsyncCollectionResult
+        internal partial class GetWithNextLinkAsyncCollectionResult : AsyncCollectionResult
         {
             private readonly SampleTypeSpecClient _client;
             private readonly RequestOptions _options;
 
-            /// <summary> Initializes a new instance of SampleTypeSpecClientGetWithNextLinkAsyncCollectionResult, which is used to iterate over the pages of a collection. </summary>
+            /// <summary> Initializes a new instance of GetWithNextLinkAsyncCollectionResult, which is used to iterate over the pages of a collection. </summary>
             /// <param name="client"> The SampleTypeSpecClient client used to send requests. </param>
             /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-            public SampleTypeSpecClientGetWithNextLinkAsyncCollectionResult(SampleTypeSpecClient client, RequestOptions options)
+            public GetWithNextLinkAsyncCollectionResult(SampleTypeSpecClient client, RequestOptions options)
             {
                 _client = client;
                 _options = options;
@@ -133,15 +133,15 @@ namespace SampleTypeSpec
             }
         }
 
-        internal partial class SampleTypeSpecClientGetWithNextLinkCollectionResultOfT : CollectionResult<Thing>
+        internal partial class GetWithNextLinkCollectionResultOfT : CollectionResult<Thing>
         {
             private readonly SampleTypeSpecClient _client;
             private readonly RequestOptions _options;
 
-            /// <summary> Initializes a new instance of SampleTypeSpecClientGetWithNextLinkCollectionResultOfT, which is used to iterate over the pages of a collection. </summary>
+            /// <summary> Initializes a new instance of GetWithNextLinkCollectionResultOfT, which is used to iterate over the pages of a collection. </summary>
             /// <param name="client"> The SampleTypeSpecClient client used to send requests. </param>
             /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-            public SampleTypeSpecClientGetWithNextLinkCollectionResultOfT(SampleTypeSpecClient client, RequestOptions options)
+            public GetWithNextLinkCollectionResultOfT(SampleTypeSpecClient client, RequestOptions options)
             {
                 _client = client;
                 _options = options;
@@ -199,15 +199,15 @@ namespace SampleTypeSpec
             }
         }
 
-        internal partial class SampleTypeSpecClientGetWithNextLinkAsyncCollectionResultOfT : AsyncCollectionResult<Thing>
+        internal partial class GetWithNextLinkAsyncCollectionResultOfT : AsyncCollectionResult<Thing>
         {
             private readonly SampleTypeSpecClient _client;
             private readonly RequestOptions _options;
 
-            /// <summary> Initializes a new instance of SampleTypeSpecClientGetWithNextLinkAsyncCollectionResultOfT, which is used to iterate over the pages of a collection. </summary>
+            /// <summary> Initializes a new instance of GetWithNextLinkAsyncCollectionResultOfT, which is used to iterate over the pages of a collection. </summary>
             /// <param name="client"> The SampleTypeSpecClient client used to send requests. </param>
             /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-            public SampleTypeSpecClientGetWithNextLinkAsyncCollectionResultOfT(SampleTypeSpecClient client, RequestOptions options)
+            public GetWithNextLinkAsyncCollectionResultOfT(SampleTypeSpecClient client, RequestOptions options)
             {
                 _client = client;
                 _options = options;
@@ -269,15 +269,15 @@ namespace SampleTypeSpec
             }
         }
 
-        internal partial class SampleTypeSpecClientGetWithStringNextLinkCollectionResult : CollectionResult
+        internal partial class GetWithStringNextLinkCollectionResult : CollectionResult
         {
             private readonly SampleTypeSpecClient _client;
             private readonly RequestOptions _options;
 
-            /// <summary> Initializes a new instance of SampleTypeSpecClientGetWithStringNextLinkCollectionResult, which is used to iterate over the pages of a collection. </summary>
+            /// <summary> Initializes a new instance of GetWithStringNextLinkCollectionResult, which is used to iterate over the pages of a collection. </summary>
             /// <param name="client"> The SampleTypeSpecClient client used to send requests. </param>
             /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-            public SampleTypeSpecClientGetWithStringNextLinkCollectionResult(SampleTypeSpecClient client, RequestOptions options)
+            public GetWithStringNextLinkCollectionResult(SampleTypeSpecClient client, RequestOptions options)
             {
                 _client = client;
                 _options = options;
@@ -328,15 +328,15 @@ namespace SampleTypeSpec
             }
         }
 
-        internal partial class SampleTypeSpecClientGetWithStringNextLinkAsyncCollectionResult : AsyncCollectionResult
+        internal partial class GetWithStringNextLinkAsyncCollectionResult : AsyncCollectionResult
         {
             private readonly SampleTypeSpecClient _client;
             private readonly RequestOptions _options;
 
-            /// <summary> Initializes a new instance of SampleTypeSpecClientGetWithStringNextLinkAsyncCollectionResult, which is used to iterate over the pages of a collection. </summary>
+            /// <summary> Initializes a new instance of GetWithStringNextLinkAsyncCollectionResult, which is used to iterate over the pages of a collection. </summary>
             /// <param name="client"> The SampleTypeSpecClient client used to send requests. </param>
             /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-            public SampleTypeSpecClientGetWithStringNextLinkAsyncCollectionResult(SampleTypeSpecClient client, RequestOptions options)
+            public GetWithStringNextLinkAsyncCollectionResult(SampleTypeSpecClient client, RequestOptions options)
             {
                 _client = client;
                 _options = options;
@@ -387,15 +387,15 @@ namespace SampleTypeSpec
             }
         }
 
-        internal partial class SampleTypeSpecClientGetWithStringNextLinkCollectionResultOfT : CollectionResult<Thing>
+        internal partial class GetWithStringNextLinkCollectionResultOfT : CollectionResult<Thing>
         {
             private readonly SampleTypeSpecClient _client;
             private readonly RequestOptions _options;
 
-            /// <summary> Initializes a new instance of SampleTypeSpecClientGetWithStringNextLinkCollectionResultOfT, which is used to iterate over the pages of a collection. </summary>
+            /// <summary> Initializes a new instance of GetWithStringNextLinkCollectionResultOfT, which is used to iterate over the pages of a collection. </summary>
             /// <param name="client"> The SampleTypeSpecClient client used to send requests. </param>
             /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-            public SampleTypeSpecClientGetWithStringNextLinkCollectionResultOfT(SampleTypeSpecClient client, RequestOptions options)
+            public GetWithStringNextLinkCollectionResultOfT(SampleTypeSpecClient client, RequestOptions options)
             {
                 _client = client;
                 _options = options;
@@ -454,15 +454,15 @@ namespace SampleTypeSpec
             }
         }
 
-        internal partial class SampleTypeSpecClientGetWithStringNextLinkAsyncCollectionResultOfT : AsyncCollectionResult<Thing>
+        internal partial class GetWithStringNextLinkAsyncCollectionResultOfT : AsyncCollectionResult<Thing>
         {
             private readonly SampleTypeSpecClient _client;
             private readonly RequestOptions _options;
 
-            /// <summary> Initializes a new instance of SampleTypeSpecClientGetWithStringNextLinkAsyncCollectionResultOfT, which is used to iterate over the pages of a collection. </summary>
+            /// <summary> Initializes a new instance of GetWithStringNextLinkAsyncCollectionResultOfT, which is used to iterate over the pages of a collection. </summary>
             /// <param name="client"> The SampleTypeSpecClient client used to send requests. </param>
             /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-            public SampleTypeSpecClientGetWithStringNextLinkAsyncCollectionResultOfT(SampleTypeSpecClient client, RequestOptions options)
+            public GetWithStringNextLinkAsyncCollectionResultOfT(SampleTypeSpecClient client, RequestOptions options)
             {
                 _client = client;
                 _options = options;
@@ -525,17 +525,17 @@ namespace SampleTypeSpec
             }
         }
 
-        internal partial class SampleTypeSpecClientGetWithContinuationTokenCollectionResult : CollectionResult
+        internal partial class GetWithContinuationTokenCollectionResult : CollectionResult
         {
             private readonly SampleTypeSpecClient _client;
             private readonly string _token;
             private readonly RequestOptions _options;
 
-            /// <summary> Initializes a new instance of SampleTypeSpecClientGetWithContinuationTokenCollectionResult, which is used to iterate over the pages of a collection. </summary>
+            /// <summary> Initializes a new instance of GetWithContinuationTokenCollectionResult, which is used to iterate over the pages of a collection. </summary>
             /// <param name="client"> The SampleTypeSpecClient client used to send requests. </param>
             /// <param name="token"></param>
             /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-            public SampleTypeSpecClientGetWithContinuationTokenCollectionResult(SampleTypeSpecClient client, string token, RequestOptions options)
+            public GetWithContinuationTokenCollectionResult(SampleTypeSpecClient client, string token, RequestOptions options)
             {
                 _client = client;
                 _token = token;
@@ -586,17 +586,17 @@ namespace SampleTypeSpec
             }
         }
 
-        internal partial class SampleTypeSpecClientGetWithContinuationTokenAsyncCollectionResult : AsyncCollectionResult
+        internal partial class GetWithContinuationTokenAsyncCollectionResult : AsyncCollectionResult
         {
             private readonly SampleTypeSpecClient _client;
             private readonly string _token;
             private readonly RequestOptions _options;
 
-            /// <summary> Initializes a new instance of SampleTypeSpecClientGetWithContinuationTokenAsyncCollectionResult, which is used to iterate over the pages of a collection. </summary>
+            /// <summary> Initializes a new instance of GetWithContinuationTokenAsyncCollectionResult, which is used to iterate over the pages of a collection. </summary>
             /// <param name="client"> The SampleTypeSpecClient client used to send requests. </param>
             /// <param name="token"></param>
             /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-            public SampleTypeSpecClientGetWithContinuationTokenAsyncCollectionResult(SampleTypeSpecClient client, string token, RequestOptions options)
+            public GetWithContinuationTokenAsyncCollectionResult(SampleTypeSpecClient client, string token, RequestOptions options)
             {
                 _client = client;
                 _token = token;
@@ -647,17 +647,17 @@ namespace SampleTypeSpec
             }
         }
 
-        internal partial class SampleTypeSpecClientGetWithContinuationTokenCollectionResultOfT : CollectionResult<Thing>
+        internal partial class GetWithContinuationTokenCollectionResultOfT : CollectionResult<Thing>
         {
             private readonly SampleTypeSpecClient _client;
             private readonly string _token;
             private readonly RequestOptions _options;
 
-            /// <summary> Initializes a new instance of SampleTypeSpecClientGetWithContinuationTokenCollectionResultOfT, which is used to iterate over the pages of a collection. </summary>
+            /// <summary> Initializes a new instance of GetWithContinuationTokenCollectionResultOfT, which is used to iterate over the pages of a collection. </summary>
             /// <param name="client"> The SampleTypeSpecClient client used to send requests. </param>
             /// <param name="token"></param>
             /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-            public SampleTypeSpecClientGetWithContinuationTokenCollectionResultOfT(SampleTypeSpecClient client, string token, RequestOptions options)
+            public GetWithContinuationTokenCollectionResultOfT(SampleTypeSpecClient client, string token, RequestOptions options)
             {
                 _client = client;
                 _token = token;
@@ -716,17 +716,17 @@ namespace SampleTypeSpec
             }
         }
 
-        internal partial class SampleTypeSpecClientGetWithContinuationTokenAsyncCollectionResultOfT : AsyncCollectionResult<Thing>
+        internal partial class GetWithContinuationTokenAsyncCollectionResultOfT : AsyncCollectionResult<Thing>
         {
             private readonly SampleTypeSpecClient _client;
             private readonly string _token;
             private readonly RequestOptions _options;
 
-            /// <summary> Initializes a new instance of SampleTypeSpecClientGetWithContinuationTokenAsyncCollectionResultOfT, which is used to iterate over the pages of a collection. </summary>
+            /// <summary> Initializes a new instance of GetWithContinuationTokenAsyncCollectionResultOfT, which is used to iterate over the pages of a collection. </summary>
             /// <param name="client"> The SampleTypeSpecClient client used to send requests. </param>
             /// <param name="token"></param>
             /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-            public SampleTypeSpecClientGetWithContinuationTokenAsyncCollectionResultOfT(SampleTypeSpecClient client, string token, RequestOptions options)
+            public GetWithContinuationTokenAsyncCollectionResultOfT(SampleTypeSpecClient client, string token, RequestOptions options)
             {
                 _client = client;
                 _token = token;
@@ -789,17 +789,17 @@ namespace SampleTypeSpec
             }
         }
 
-        internal partial class SampleTypeSpecClientGetWithContinuationTokenHeaderResponseCollectionResult : CollectionResult
+        internal partial class GetWithContinuationTokenHeaderResponseCollectionResult : CollectionResult
         {
             private readonly SampleTypeSpecClient _client;
             private readonly string _token;
             private readonly RequestOptions _options;
 
-            /// <summary> Initializes a new instance of SampleTypeSpecClientGetWithContinuationTokenHeaderResponseCollectionResult, which is used to iterate over the pages of a collection. </summary>
+            /// <summary> Initializes a new instance of GetWithContinuationTokenHeaderResponseCollectionResult, which is used to iterate over the pages of a collection. </summary>
             /// <param name="client"> The SampleTypeSpecClient client used to send requests. </param>
             /// <param name="token"></param>
             /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-            public SampleTypeSpecClientGetWithContinuationTokenHeaderResponseCollectionResult(SampleTypeSpecClient client, string token, RequestOptions options)
+            public GetWithContinuationTokenHeaderResponseCollectionResult(SampleTypeSpecClient client, string token, RequestOptions options)
             {
                 _client = client;
                 _token = token;
@@ -852,17 +852,17 @@ namespace SampleTypeSpec
             }
         }
 
-        internal partial class SampleTypeSpecClientGetWithContinuationTokenHeaderResponseAsyncCollectionResult : AsyncCollectionResult
+        internal partial class GetWithContinuationTokenHeaderResponseAsyncCollectionResult : AsyncCollectionResult
         {
             private readonly SampleTypeSpecClient _client;
             private readonly string _token;
             private readonly RequestOptions _options;
 
-            /// <summary> Initializes a new instance of SampleTypeSpecClientGetWithContinuationTokenHeaderResponseAsyncCollectionResult, which is used to iterate over the pages of a collection. </summary>
+            /// <summary> Initializes a new instance of GetWithContinuationTokenHeaderResponseAsyncCollectionResult, which is used to iterate over the pages of a collection. </summary>
             /// <param name="client"> The SampleTypeSpecClient client used to send requests. </param>
             /// <param name="token"></param>
             /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-            public SampleTypeSpecClientGetWithContinuationTokenHeaderResponseAsyncCollectionResult(SampleTypeSpecClient client, string token, RequestOptions options)
+            public GetWithContinuationTokenHeaderResponseAsyncCollectionResult(SampleTypeSpecClient client, string token, RequestOptions options)
             {
                 _client = client;
                 _token = token;
@@ -915,17 +915,17 @@ namespace SampleTypeSpec
             }
         }
 
-        internal partial class SampleTypeSpecClientGetWithContinuationTokenHeaderResponseCollectionResultOfT : CollectionResult<Thing>
+        internal partial class GetWithContinuationTokenHeaderResponseCollectionResultOfT : CollectionResult<Thing>
         {
             private readonly SampleTypeSpecClient _client;
             private readonly string _token;
             private readonly RequestOptions _options;
 
-            /// <summary> Initializes a new instance of SampleTypeSpecClientGetWithContinuationTokenHeaderResponseCollectionResultOfT, which is used to iterate over the pages of a collection. </summary>
+            /// <summary> Initializes a new instance of GetWithContinuationTokenHeaderResponseCollectionResultOfT, which is used to iterate over the pages of a collection. </summary>
             /// <param name="client"> The SampleTypeSpecClient client used to send requests. </param>
             /// <param name="token"></param>
             /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-            public SampleTypeSpecClientGetWithContinuationTokenHeaderResponseCollectionResultOfT(SampleTypeSpecClient client, string token, RequestOptions options)
+            public GetWithContinuationTokenHeaderResponseCollectionResultOfT(SampleTypeSpecClient client, string token, RequestOptions options)
             {
                 _client = client;
                 _token = token;
@@ -986,17 +986,17 @@ namespace SampleTypeSpec
             }
         }
 
-        internal partial class SampleTypeSpecClientGetWithContinuationTokenHeaderResponseAsyncCollectionResultOfT : AsyncCollectionResult<Thing>
+        internal partial class GetWithContinuationTokenHeaderResponseAsyncCollectionResultOfT : AsyncCollectionResult<Thing>
         {
             private readonly SampleTypeSpecClient _client;
             private readonly string _token;
             private readonly RequestOptions _options;
 
-            /// <summary> Initializes a new instance of SampleTypeSpecClientGetWithContinuationTokenHeaderResponseAsyncCollectionResultOfT, which is used to iterate over the pages of a collection. </summary>
+            /// <summary> Initializes a new instance of GetWithContinuationTokenHeaderResponseAsyncCollectionResultOfT, which is used to iterate over the pages of a collection. </summary>
             /// <param name="client"> The SampleTypeSpecClient client used to send requests. </param>
             /// <param name="token"></param>
             /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-            public SampleTypeSpecClientGetWithContinuationTokenHeaderResponseAsyncCollectionResultOfT(SampleTypeSpecClient client, string token, RequestOptions options)
+            public GetWithContinuationTokenHeaderResponseAsyncCollectionResultOfT(SampleTypeSpecClient client, string token, RequestOptions options)
             {
                 _client = client;
                 _token = token;
@@ -1061,15 +1061,15 @@ namespace SampleTypeSpec
             }
         }
 
-        internal partial class SampleTypeSpecClientGetWithPagingCollectionResult : CollectionResult
+        internal partial class GetWithPagingCollectionResult : CollectionResult
         {
             private readonly SampleTypeSpecClient _client;
             private readonly RequestOptions _options;
 
-            /// <summary> Initializes a new instance of SampleTypeSpecClientGetWithPagingCollectionResult, which is used to iterate over the pages of a collection. </summary>
+            /// <summary> Initializes a new instance of GetWithPagingCollectionResult, which is used to iterate over the pages of a collection. </summary>
             /// <param name="client"> The SampleTypeSpecClient client used to send requests. </param>
             /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-            public SampleTypeSpecClientGetWithPagingCollectionResult(SampleTypeSpecClient client, RequestOptions options)
+            public GetWithPagingCollectionResult(SampleTypeSpecClient client, RequestOptions options)
             {
                 _client = client;
                 _options = options;
@@ -1099,15 +1099,15 @@ namespace SampleTypeSpec
             }
         }
 
-        internal partial class SampleTypeSpecClientGetWithPagingAsyncCollectionResult : AsyncCollectionResult
+        internal partial class GetWithPagingAsyncCollectionResult : AsyncCollectionResult
         {
             private readonly SampleTypeSpecClient _client;
             private readonly RequestOptions _options;
 
-            /// <summary> Initializes a new instance of SampleTypeSpecClientGetWithPagingAsyncCollectionResult, which is used to iterate over the pages of a collection. </summary>
+            /// <summary> Initializes a new instance of GetWithPagingAsyncCollectionResult, which is used to iterate over the pages of a collection. </summary>
             /// <param name="client"> The SampleTypeSpecClient client used to send requests. </param>
             /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-            public SampleTypeSpecClientGetWithPagingAsyncCollectionResult(SampleTypeSpecClient client, RequestOptions options)
+            public GetWithPagingAsyncCollectionResult(SampleTypeSpecClient client, RequestOptions options)
             {
                 _client = client;
                 _options = options;
@@ -1137,15 +1137,15 @@ namespace SampleTypeSpec
             }
         }
 
-        internal partial class SampleTypeSpecClientGetWithPagingCollectionResultOfT : CollectionResult<Thing>
+        internal partial class GetWithPagingCollectionResultOfT : CollectionResult<Thing>
         {
             private readonly SampleTypeSpecClient _client;
             private readonly RequestOptions _options;
 
-            /// <summary> Initializes a new instance of SampleTypeSpecClientGetWithPagingCollectionResultOfT, which is used to iterate over the pages of a collection. </summary>
+            /// <summary> Initializes a new instance of GetWithPagingCollectionResultOfT, which is used to iterate over the pages of a collection. </summary>
             /// <param name="client"> The SampleTypeSpecClient client used to send requests. </param>
             /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-            public SampleTypeSpecClientGetWithPagingCollectionResultOfT(SampleTypeSpecClient client, RequestOptions options)
+            public GetWithPagingCollectionResultOfT(SampleTypeSpecClient client, RequestOptions options)
             {
                 _client = client;
                 _options = options;
@@ -1183,15 +1183,15 @@ namespace SampleTypeSpec
             }
         }
 
-        internal partial class SampleTypeSpecClientGetWithPagingAsyncCollectionResultOfT : AsyncCollectionResult<Thing>
+        internal partial class GetWithPagingAsyncCollectionResultOfT : AsyncCollectionResult<Thing>
         {
             private readonly SampleTypeSpecClient _client;
             private readonly RequestOptions _options;
 
-            /// <summary> Initializes a new instance of SampleTypeSpecClientGetWithPagingAsyncCollectionResultOfT, which is used to iterate over the pages of a collection. </summary>
+            /// <summary> Initializes a new instance of GetWithPagingAsyncCollectionResultOfT, which is used to iterate over the pages of a collection. </summary>
             /// <param name="client"> The SampleTypeSpecClient client used to send requests. </param>
             /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
-            public SampleTypeSpecClientGetWithPagingAsyncCollectionResultOfT(SampleTypeSpecClient client, RequestOptions options)
+            public GetWithPagingAsyncCollectionResultOfT(SampleTypeSpecClient client, RequestOptions options)
             {
                 _client = client;
                 _options = options;

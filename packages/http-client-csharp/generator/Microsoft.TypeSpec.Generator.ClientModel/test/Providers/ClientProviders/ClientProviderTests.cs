@@ -5531,7 +5531,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 var body = method.BodyStatements!.ToDisplayString();
                 if (kind == "Paging")
                 {
-                    StringAssert.Contains(isAsync ? "TestClientGetIPAddressesAsyncCollectionResult" : "TestClientGetIPAddressesCollectionResult", body);
+                    StringAssert.Contains(isAsync ? "GetIPAddressesAsyncCollectionResult" : "GetIPAddressesCollectionResult", body);
                 }
                 else if (method.Kind == ScmMethodKind.Protocol)
                 {

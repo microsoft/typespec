@@ -193,18 +193,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         protected override string BuildName()
         {
             var operations = Client.InputClient.Methods.OfType<InputPagingServiceMethod>().Select(m => m.Operation).Distinct().ToArray();
-            var collidingOperationNames = operations.GroupBy(operation => operation.Name.ToIdentifierName())
-                .Where(group => group.Count() > 1)
-                .Select(group => group.Key)
-                .ToHashSet(StringComparer.Ordinal);
-            var name = GetName(Operation, IsAsync, collidingOperationNames);
-            // Original names can still collide, including a sync operation whose name ends in Async.
+            var name = GetName(Operation, IsAsync);
+            // Nested helpers only need client-local uniqueness. Resolve normalized and sync/async
+            // collisions in input operation order, leaving the first name unchanged and appending 2, 3, etc.
             var collisionIndex = 0;
             foreach (var operation in operations)
             {
                 foreach (var isAsync in new[] { false, true })
                 {
-                    if (GetName(operation, isAsync, collidingOperationNames) != name)
+                    if (GetName(operation, isAsync) != name)
                     {
                         continue;
                     }
@@ -221,15 +218,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return name;
         }
 
-        private string GetName(InputOperation operation, bool isAsync, IReadOnlySet<string> collidingOperationNames)
-        {
-            var operationName = operation.Name.ToIdentifierName();
-            if (collidingOperationNames.Contains(operationName))
-            {
-                operationName = (operation.OriginalName ?? operation.Name).ToIdentifierName();
-            }
-            return $"{Client.Type.Name}{operationName}{(isAsync ? "Async" : "")}CollectionResult{(ItemModelType == null ? "" : "OfT")}";
-        }
+        private string GetName(InputOperation operation, bool isAsync)
+            => $"{operation.Name.ToIdentifierName()}{(isAsync ? "Async" : "")}CollectionResult{(ItemModelType == null ? "" : "OfT")}";
 
         protected override TypeSignatureModifiers BuildDeclarationModifiers()
             => TypeSignatureModifiers.Internal | TypeSignatureModifiers.Partial | TypeSignatureModifiers.Class;

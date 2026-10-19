@@ -102,9 +102,13 @@ this partial declaration. `ClientCollectionsProvider.NestedTypes` contains the
 operation-specific providers returned by `ClientResponseApi.CreateClientCollectionResultDefinition`,
 including helpers for customized paging methods. Plugins can continue to customize
 requests, parsing, and diagnostics through these providers; library visitors traverse
-the nested helpers and their members. Helper names are retained for compatibility,
-but no longer determine output filenames or share a namespace with other clients'
-helpers. Colliding names within one client receive deterministic numeric suffixes.
+the nested helpers and their members. Helper names follow
+`<OperationName>[Async]CollectionResult[OfT]`, using the normalized current operation
+name without a client-name prefix or original-name fallback. Nesting scopes names to
+one client. When normalized names or sync/async variants collide, input operation
+order determines the suffix: the first name is unchanged, followed by `2`, `3`, etc.
+For example, two operations normalized to `GetAll` produce `GetAllCollectionResult`
+and `GetAllCollectionResult2`. Helper names do not determine output filenames.
 Paging iteration behavior is unchanged.
 
 ### 5. **Transformation Pipeline**

@@ -315,10 +315,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 .OfType<CollectionResultDefinition>()
                 .Select(t => t.Name)
                 .ToList();
-            CollectionAssert.Contains(collectionResultDefinitions, "TestClientGetItemsCollectionResult");
-            CollectionAssert.Contains(collectionResultDefinitions, "TestClientGetItemsAsyncCollectionResult");
-            CollectionAssert.Contains(collectionResultDefinitions, "TestClientGetItemsCollectionResultOfT");
-            CollectionAssert.Contains(collectionResultDefinitions, "TestClientGetItemsAsyncCollectionResultOfT");
+            CollectionAssert.Contains(collectionResultDefinitions, "GetItemsCollectionResult");
+            CollectionAssert.Contains(collectionResultDefinitions, "GetItemsAsyncCollectionResult");
+            CollectionAssert.Contains(collectionResultDefinitions, "GetItemsCollectionResultOfT");
+            CollectionAssert.Contains(collectionResultDefinitions, "GetItemsAsyncCollectionResultOfT");
         }
 
         // Validates that a method with a struct parameter can be replaced

@@ -16,18 +16,18 @@ namespace SampleTypeSpec
     public partial class ExperimentalSamples
     {
 
-        internal partial class ExperimentalSamplesGetAllCollectionResult : CollectionResult
+        internal partial class GetAllCollectionResult : CollectionResult
         {
 #pragma warning disable SAMPLE0009 // This generated code depends on experimental functionality.
             private readonly ExperimentalSamples _client;
 #pragma warning restore SAMPLE0009 // This generated code depends on experimental functionality.
             private readonly RequestOptions _options;
 
-            /// <summary> Initializes a new instance of ExperimentalSamplesGetAllCollectionResult, which is used to iterate over the pages of a collection. </summary>
+            /// <summary> Initializes a new instance of GetAllCollectionResult, which is used to iterate over the pages of a collection. </summary>
             /// <param name="client"> The ExperimentalSamples client used to send requests. </param>
             /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
 #pragma warning disable SAMPLE0009 // This generated code depends on experimental functionality.
-            public ExperimentalSamplesGetAllCollectionResult(ExperimentalSamples client, RequestOptions options)
+            public GetAllCollectionResult(ExperimentalSamples client, RequestOptions options)
             {
                 _client = client;
                 _options = options;
@@ -70,18 +70,18 @@ namespace SampleTypeSpec
 #pragma warning restore SAMPLE0003 // This generated code depends on experimental functionality.
         }
 
-        internal partial class ExperimentalSamplesGetAllAsyncCollectionResult : AsyncCollectionResult
+        internal partial class GetAllAsyncCollectionResult : AsyncCollectionResult
         {
 #pragma warning disable SAMPLE0009 // This generated code depends on experimental functionality.
             private readonly ExperimentalSamples _client;
 #pragma warning restore SAMPLE0009 // This generated code depends on experimental functionality.
             private readonly RequestOptions _options;
 
-            /// <summary> Initializes a new instance of ExperimentalSamplesGetAllAsyncCollectionResult, which is used to iterate over the pages of a collection. </summary>
+            /// <summary> Initializes a new instance of GetAllAsyncCollectionResult, which is used to iterate over the pages of a collection. </summary>
             /// <param name="client"> The ExperimentalSamples client used to send requests. </param>
             /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
 #pragma warning disable SAMPLE0009 // This generated code depends on experimental functionality.
-            public ExperimentalSamplesGetAllAsyncCollectionResult(ExperimentalSamples client, RequestOptions options)
+            public GetAllAsyncCollectionResult(ExperimentalSamples client, RequestOptions options)
             {
                 _client = client;
                 _options = options;
@@ -125,18 +125,18 @@ namespace SampleTypeSpec
         }
 
 #pragma warning disable SAMPLE0003 // This generated code depends on experimental functionality.
-        internal partial class ExperimentalSamplesGetAllCollectionResultOfT : CollectionResult<PreviewDetails>
+        internal partial class GetAllCollectionResultOfT : CollectionResult<PreviewDetails>
         {
 #pragma warning disable SAMPLE0009 // This generated code depends on experimental functionality.
             private readonly ExperimentalSamples _client;
 #pragma warning restore SAMPLE0009 // This generated code depends on experimental functionality.
             private readonly RequestOptions _options;
 
-            /// <summary> Initializes a new instance of ExperimentalSamplesGetAllCollectionResultOfT, which is used to iterate over the pages of a collection. </summary>
+            /// <summary> Initializes a new instance of GetAllCollectionResultOfT, which is used to iterate over the pages of a collection. </summary>
             /// <param name="client"> The ExperimentalSamples client used to send requests. </param>
             /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
 #pragma warning disable SAMPLE0009 // This generated code depends on experimental functionality.
-            public ExperimentalSamplesGetAllCollectionResultOfT(ExperimentalSamples client, RequestOptions options)
+            public GetAllCollectionResultOfT(ExperimentalSamples client, RequestOptions options)
             {
                 _client = client;
                 _options = options;
@@ -185,18 +185,18 @@ namespace SampleTypeSpec
 #pragma warning restore SAMPLE0003 // This generated code depends on experimental functionality.
 
 #pragma warning disable SAMPLE0003 // This generated code depends on experimental functionality.
-        internal partial class ExperimentalSamplesGetAllAsyncCollectionResultOfT : AsyncCollectionResult<PreviewDetails>
+        internal partial class GetAllAsyncCollectionResultOfT : AsyncCollectionResult<PreviewDetails>
         {
 #pragma warning disable SAMPLE0009 // This generated code depends on experimental functionality.
             private readonly ExperimentalSamples _client;
 #pragma warning restore SAMPLE0009 // This generated code depends on experimental functionality.
             private readonly RequestOptions _options;
 
-            /// <summary> Initializes a new instance of ExperimentalSamplesGetAllAsyncCollectionResultOfT, which is used to iterate over the pages of a collection. </summary>
+            /// <summary> Initializes a new instance of GetAllAsyncCollectionResultOfT, which is used to iterate over the pages of a collection. </summary>
             /// <param name="client"> The ExperimentalSamples client used to send requests. </param>
             /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
 #pragma warning disable SAMPLE0009 // This generated code depends on experimental functionality.
-            public ExperimentalSamplesGetAllAsyncCollectionResultOfT(ExperimentalSamples client, RequestOptions options)
+            public GetAllAsyncCollectionResultOfT(ExperimentalSamples client, RequestOptions options)
             {
                 _client = client;
                 _options = options;
