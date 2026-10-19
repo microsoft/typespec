@@ -1152,19 +1152,19 @@ worksFor(supportedVersions, ({ openApiFor }) => {
     const res = await openApiFor(`
       model Range is int32[][] {}
 
-      model Foo {
+      model Item {
         range: Range,
       }
 
-      @route("/foos")
-      interface Foos {
-        @get @route("/") list(): Foo[];
-        @get @route("/{id}") read(@path id: string): Foo;
+      @route("/items")
+      interface Items {
+        @get @route("/") list(): Item[];
+        @get @route("/{id}") read(@path id: string): Item;
       }
     `);
 
-    deepStrictEqual(Object.keys(res.components.schemas), ["Foo", "Range"]);
-    deepStrictEqual(res.components.schemas.Foo.properties.range, {
+    deepStrictEqual(Object.keys(res.components.schemas), ["Item", "Range"]);
+    deepStrictEqual(res.components.schemas.Item.properties.range, {
       $ref: "#/components/schemas/Range",
     });
   });
