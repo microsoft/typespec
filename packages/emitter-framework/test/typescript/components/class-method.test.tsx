@@ -5,6 +5,7 @@ import type { Namespace } from "@typespec/compiler";
 import { describe, expect, it } from "vitest";
 import { Output } from "../../../src/core/components/output.jsx";
 import { ClassMethod } from "../../../src/typescript/components/class-method.jsx";
+import { InterfaceDeclaration } from "../../../src/typescript/components/interface-declaration.jsx";
 import { TypeExpression } from "../../../src/typescript/components/type-expression.jsx";
 
 describe("ClassMethod bound to Typespec Types", () => {
@@ -73,6 +74,7 @@ describe("ClassMethod bound to Typespec Types", () => {
       expect(
         <Output program={program}>
           <SourceFile path="test.ts">
+            <InterfaceDeclaration type={customModel} />
             <ClassDeclaration name="TestClient">
               <ClassMethod
                 async
