@@ -136,7 +136,8 @@ public class ClientModel {
     /**
      * Whether all models in the polymorphic hierarchy containing this model are in the same package.
      * <p>
-     * If this model isn't polymorphic, this will always be false.
+     * If this model or any model in its hierarchy isn't polymorphic, this will always be false. Untagged intermediate
+     * models do not declare the shared JSON helpers used by polymorphic models.
      */
     private Boolean allPolymorphicModelsInSamePackage;
 
@@ -354,6 +355,41 @@ public class ClientModel {
     }
 
     /**
+     * Gets the nearest polymorphic descendants, traversing untagged intermediate models.
+     *
+     * @return The nearest polymorphic descendants.
+     */
+    public final List<ClientModel> getDirectPolymorphicDerivedModels() {
+        List<ClientModel> models = new ArrayList<>();
+        for (ClientModel child : derivedModels) {
+            if (child.getPolymorphicDiscriminatorName() != null) {
+                models.add(child);
+            } else {
+                models.addAll(child.getDirectPolymorphicDerivedModels());
+            }
+        }
+        return models;
+    }
+
+    /**
+     * Gets all polymorphic descendants, skipping untagged intermediate models.
+     *
+     * @return All polymorphic descendants.
+     */
+    public final List<ClientModel> getPolymorphicDerivedModels() {
+        List<ClientModel> models = new ArrayList<>();
+        for (ClientModel child : derivedModels) {
+            if (child.getPolymorphicDiscriminatorName() != null) {
+                models.add(child);
+            }
+            if (!CoreUtils.isNullOrEmpty(child.getDerivedModels())) {
+                models.addAll(child.getPolymorphicDerivedModels());
+            }
+        }
+        return models;
+    }
+
+    /**
      * Gets the name that will be used for this model's XML element representation.
      *
      * @return The name that will be used for this model's XML element representation.
@@ -484,6 +520,7 @@ public class ClientModel {
             if (getDerivedModels() != null && getDerivedModels().size() > 0) {
                 imports.add("com.fasterxml.jackson.annotation.JsonSubTypes");
                 getDerivedModels().forEach(m -> imports.add(m.getFullName()));
+                getPolymorphicDerivedModels().forEach(m -> imports.add(m.getFullName()));
             }
         }
 
@@ -548,7 +585,7 @@ public class ClientModel {
     /**
      * Whether the polymorphic structure containing the model and all subtypes are in the same package.
      * <p>
-     * If this model isn't polymorphic, this will always be false.
+     * If this model or any model in its hierarchy isn't polymorphic, this will always be false.
      *
      * @return Whether the polymorphic structure containing the model and all subtypes are in the same package.
      */
@@ -594,7 +631,7 @@ public class ClientModel {
         ClientModel lastParent = model;
         while (parent != null) {
             lastParent = parent;
-            if (!packageName.equals(parent.getPackage())) {
+            if (!parent.isPolymorphic() || !packageName.equals(parent.getPackage())) {
                 return false;
             }
 
@@ -611,7 +648,9 @@ public class ClientModel {
         }
 
         for (ClientModel child : children) {
-            if (!packageName.equals(child.getPackage()) || !checkChildrenModelsPackage(child, packageName)) {
+            if (!child.isPolymorphic()
+                || !packageName.equals(child.getPackage())
+                || !checkChildrenModelsPackage(child, packageName)) {
                 return false;
             }
         }
