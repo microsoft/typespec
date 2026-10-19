@@ -3258,7 +3258,12 @@ export interface SystemHost {
   mkdirp(path: string): Promise<string | undefined>;
 
   /** Inspects a path; the returned predicates identify directories and regular files respectively. */
-  stat(path: string): Promise<{ isDirectory(): boolean; isFile(): boolean }>;
+  stat(path: string): Promise<{
+    /** Whether the path identifies a directory. */
+    isDirectory(): boolean;
+    /** Whether the path identifies a regular file. */
+    isFile(): boolean;
+  }>;
 
   /** Resolves a possibly symlinked path to its real file-system path. */
   realpath(path: string): Promise<string>;
@@ -3404,7 +3409,10 @@ export type DiagnosticReport<
   T extends { [code: string]: DiagnosticMessages },
   C extends keyof T,
   M extends keyof T[C] = "default",
-> = DiagnosticReportWithoutTarget<T, C, M> & { target: DiagnosticTarget | typeof NoTarget };
+> = DiagnosticReportWithoutTarget<T, C, M> & {
+  /** Source location associated with the diagnostic, or `NoTarget` for a location-free diagnostic. */
+  target: DiagnosticTarget | typeof NoTarget;
+};
 
 /** Requires a `format` map of named string substitutions when the selected message is a callable message template. */
 export type DiagnosticFormat<
@@ -3413,7 +3421,10 @@ export type DiagnosticFormat<
   M extends keyof T[C] = "default",
 > =
   T[C][M] extends CallableMessage<infer A>
-    ? { format: Record<A[number], string> }
+    ? {
+        /** Named string substitutions required by the selected diagnostic message. */
+        format: Record<A[number], string>;
+      }
     : Record<string, unknown>;
 
 /**
@@ -3573,6 +3584,7 @@ export interface TypeSpecLibraryDef<
    * validates custom configuration before the emitter runs; omit it when no schema is supplied.
    */
   readonly emitter?: {
+    /** JSON Schema used to validate custom emitter options. */
     options?: JSONSchemaType<E>;
   };
 
@@ -3774,7 +3786,10 @@ export type LinterRuleDiagnosticFormat<
   M extends keyof T = "default",
 > =
   T[M] extends CallableMessage<infer A>
-    ? { format: Record<A[number], string> }
+    ? {
+        /** Named string substitutions required by the selected linter message. */
+        format: Record<A[number], string>;
+      }
     : Record<string, unknown>;
 
 /** Rule finding before its source target is attached; the context supplies the rule code and severity. */
@@ -3795,7 +3810,10 @@ export type LinterRuleDiagnosticReportWithoutTarget<
 export type LinterRuleDiagnosticReport<
   T extends DiagnosticMessages,
   M extends keyof T = "default",
-> = LinterRuleDiagnosticReportWithoutTarget<T, M> & { target: DiagnosticTarget | typeof NoTarget };
+> = LinterRuleDiagnosticReportWithoutTarget<T, M> & {
+  /** Source location of the finding, or `NoTarget` when no source location is available. */
+  target: DiagnosticTarget | typeof NoTarget;
+};
 
 /** Library definition enriched with diagnostic, state-key, and tracing helpers by {@link createTypeSpecLibrary}. */
 export interface TypeSpecLibrary<

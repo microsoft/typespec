@@ -273,7 +273,10 @@ export function assertType<TKind extends Type["kind"][]>(
   typeDescription: string,
   t: Type,
   ...kinds: TKind
-): asserts t is Type & { kind: TKind[number] } {
+): asserts t is Type & {
+  /** Discriminant matching one of the asserted type kinds. */
+  kind: TKind[number];
+} {
   if (kinds.indexOf(t.kind) === -1) {
     throw new Error(`Expected ${typeDescription} to be type ${kinds.join(", ")}`);
   }

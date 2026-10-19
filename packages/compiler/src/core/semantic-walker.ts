@@ -516,7 +516,12 @@ export function getProperty(type: Model, propertyName: string): ModelProperty | 
 }
 
 /** Dispatch typed events synchronously to listeners in their registration order. */
-export class EventEmitter<T extends { [key: string]: (...args: any) => any }> {
+export class EventEmitter<
+  T extends {
+    /** Listener signature associated with each event name. */
+    [key: string]: (...args: any) => any;
+  },
+> {
   private listeners: Map<keyof T, Array<(...args: any[]) => any>> = new Map();
 
   /** Register another listener; registering the same callback again adds another invocation. */

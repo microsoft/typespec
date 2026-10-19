@@ -3255,9 +3255,12 @@ function createParser(code: string | SourceFile, options: ParseOptions = {}): Pa
 export type NodeCallback<T> = (c: Node) => T;
 
 /** Check for an unqualified identifier reference with no template arguments. */
-export function exprIsBareIdentifier(
-  expr: Expression,
-): expr is TypeReferenceNode & { target: IdentifierNode; arguments: [] } {
+export function exprIsBareIdentifier(expr: Expression): expr is TypeReferenceNode & {
+  /** The unqualified identifier referenced by the expression. */
+  target: IdentifierNode;
+  /** A bare identifier has no template arguments. */
+  arguments: [];
+} {
   return (
     expr.kind === SyntaxKind.TypeReference &&
     expr.target.kind === SyntaxKind.Identifier &&

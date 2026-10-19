@@ -118,8 +118,11 @@ export type { ExampleOptions };
 
 export const namespace = "TypeSpec";
 
-/** Gets the summary stored on this type, or `undefined` if none is set. */
-const [getSummary, setSummary] = useStateMap<Type, string>(createStateSymbol("summary"));
+const [
+  /** Gets the summary stored on this type, or `undefined` if none is set. */
+  getSummary,
+  setSummary,
+] = useStateMap<Type, string>(createStateSymbol("summary"));
 /**
  * `@summary` attaches a documentation string. It is typically used to give a short, single-line
  * description, and can be used in combination with or instead of @doc.
@@ -565,8 +568,11 @@ export function getMediaTypeHint(program: Program, target: Type): string | undef
 
 // -- @format decorator ---------------------
 
-/** Gets the format hint stored on this type, or `undefined` if none is set; does not search base types. */
-const [getFormat, setFormat] = useStateMap<Type, string>(createStateSymbol("format"));
+const [
+  /** Gets the format hint stored on this type, or `undefined` if none is set; does not search base types. */
+  getFormat,
+  setFormat,
+] = useStateMap<Type, string>(createStateSymbol("format"));
 
 /**
  * `@format` - specify the data format hint for a string type
@@ -597,9 +603,11 @@ export const $format: FormatDecorator = (
 export { getFormat };
 
 // -- @pattern decorator ---------------------
-const [getPatternData, setPatternData] = useStateMap<Type, PatternData>(
-  createStateSymbol("patternValues"),
-);
+const [
+  /** Gets the pattern and optional message recorded by `@pattern`, or `undefined` if none is set. */
+  getPatternData,
+  setPatternData,
+] = useStateMap<Type, PatternData>(createStateSymbol("patternValues"));
 
 /** A string validation pattern and optional human-readable explanation supplied by `@pattern`. */
 export interface PatternData {
@@ -874,8 +882,11 @@ export const $maxValueExclusive: MaxValueExclusiveDecorator = (
 };
 // -- @secret decorator ---------------------
 
-/** Tests whether this type is marked with `@secret`; does not search base types. */
-const [isSecret, markSecret] = useStateSet(createStateSymbol("secretTypes"));
+const [
+  /** Tests whether this type is marked with `@secret`; does not search base types. */
+  isSecret,
+  markSecret,
+] = useStateSet(createStateSymbol("secretTypes"));
 
 /**
  * Mark a value as a secret value that should be treated carefully to avoid exposure
@@ -912,10 +923,11 @@ export interface EncodeData {
   type: Scalar;
 }
 
-/** Gets encoding instructions stored on this scalar or property, or `undefined`; does not search base scalars. */
-const [getEncode, setEncodeData] = useStateMap<Scalar | ModelProperty, EncodeData>(
-  createStateSymbol("encode"),
-);
+const [
+  /** Gets encoding instructions stored on this scalar or property, or `undefined`; does not search base scalars. */
+  getEncode,
+  setEncodeData,
+] = useStateMap<Scalar | ModelProperty, EncodeData>(createStateSymbol("encode"));
 /**
  * Records how a scalar or property is serialized, validating known encodings against the target and wire types.
  * Named encodings default to a `string` representation; passing the `string` scalar encodes numeric or boolean values as text.
@@ -1174,10 +1186,11 @@ export function getAllTags(
 
 // -- @friendlyName decorator ---------------------
 
-/** Gets the friendly name stored on this type, or `undefined`; does not synthesize a name or search base types. */
-const [getFriendlyName, setFriendlyName] = useStateMap<Type, string>(
-  createStateSymbol("friendlyNames"),
-);
+const [
+  /** Gets the friendly name stored on this type, or `undefined`; does not synthesize a name or search base types. */
+  getFriendlyName,
+  setFriendlyName,
+] = useStateMap<Type, string>(createStateSymbol("friendlyNames"));
 /**
  * Stores an emitter-facing name without changing the type's TypeSpec name.
  * When a source object is supplied, its properties replace `{property}` placeholders in the name.
@@ -1258,12 +1271,16 @@ export function getDeprecated(program: Program, type: Type): string | undefined 
   return getDeprecationDetails(program, type)?.message;
 }
 
-const [getOverloads, setOverloads] = useStateMap<Operation, Operation[]>(
-  createStateSymbol("overloadedByKey"),
-);
-const [getOverloadedOperation, setOverloadBase] = useStateMap<Operation, Operation>(
-  createStateSymbol("overloadsOperation"),
-);
+const [
+  /** Gets registered overloads of an operation, or `undefined` if none are registered. */
+  getOverloads,
+  setOverloads,
+] = useStateMap<Operation, Operation[]>(createStateSymbol("overloadedByKey"));
+const [
+  /** Gets the base operation specialized by an overload, or `undefined` for a non-overload. */
+  getOverloadedOperation,
+  setOverloadBase,
+] = useStateMap<Operation, Operation>(createStateSymbol("overloadsOperation"));
 
 /**
  * `@overload` - Indicate that the target overloads (specializes) the overloads type.

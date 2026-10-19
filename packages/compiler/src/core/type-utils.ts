@@ -128,9 +128,12 @@ export function getParentTemplateNode(node: Node): (Node & TemplateDeclarationNo
 /**
  * Check the given type is a finished template instance.
  */
-export function isTemplateInstance(
-  type: Type,
-): type is TemplatedType & { templateArguments: Type[]; templateMapper: TypeMapper } {
+export function isTemplateInstance(type: Type): type is TemplatedType & {
+  /** Arguments used to instantiate the template. */
+  templateArguments: Type[];
+  /** Mapping from template parameters to their instantiated arguments. */
+  templateMapper: TypeMapper;
+} {
   const maybeTemplateType = type as TemplatedType;
   return (
     maybeTemplateType.templateMapper !== undefined &&
@@ -157,9 +160,10 @@ export function isDeclaredType(type: Type): boolean {
 /**
  * Resolve if the type is a template type declaration(Non initialized template type).
  */
-export function isTemplateDeclaration(
-  type: TemplatedType,
-): type is TemplatedType & { node: TemplateDeclarationNode } {
+export function isTemplateDeclaration(type: TemplatedType): type is TemplatedType & {
+  /** Syntax declaration that defines the template parameters. */
+  node: TemplateDeclarationNode;
+} {
   if (type.node === undefined) {
     return false;
   }
@@ -191,7 +195,12 @@ export function isTemplateDeclarationOrInstance(type: TemplatedType): boolean {
 export function isGlobalNamespace(
   program: Program,
   namespace: Namespace,
-): namespace is Namespace & { name: ""; namespace: undefined } {
+): namespace is Namespace & {
+  /** The global namespace has an empty name. */
+  name: "";
+  /** The global namespace has no containing namespace. */
+  namespace: undefined;
+} {
   return program.getGlobalNamespaceType() === namespace;
 }
 

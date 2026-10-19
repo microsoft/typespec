@@ -145,7 +145,15 @@ export interface ValueKit {
     <K extends Value["valueKind"] | undefined>(
       reference: string,
       kind?: K,
-    ) => K extends Value["valueKind"] ? Extract<Value, { valueKind: K }> : undefined
+    ) => K extends Value["valueKind"]
+      ? Extract<
+          Value,
+          {
+            /** Discriminant selecting the requested TypeSpec value. */
+            valueKind: K;
+          }
+        >
+      : undefined
   >;
 }
 
