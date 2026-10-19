@@ -73,8 +73,10 @@ describe("ClassMethod bound to Typespec Types", () => {
 
       expect(
         <Output program={program}>
+          <SourceFile path="models.ts">
+            <InterfaceDeclaration export type={customModel} />
+          </SourceFile>
           <SourceFile path="test.ts">
-            <InterfaceDeclaration type={customModel} />
             <ClassDeclaration name="TestClient">
               <ClassMethod
                 async
@@ -84,11 +86,20 @@ describe("ClassMethod bound to Typespec Types", () => {
             </ClassDeclaration>
           </SourceFile>
         </Output>,
-      ).toRenderTo(d`
-        class TestClient {
-          async getName(id: string): Promise<CustomResult> {}
-        }
-      `);
+      ).toRenderTo({
+        "models.ts": d`
+          export interface CustomResult {
+            value: string;
+          }
+        `,
+        "test.ts": d`
+          import type { CustomResult } from "./models.js";
+
+          class TestClient {
+            async getName(id: string): Promise<CustomResult> {}
+          }
+        `,
+      });
     });
 
     it("omits return type when returnType is null", async () => {

@@ -29,10 +29,7 @@ export function link(
   function getElements(response: LinkPageResponse) {
     return response.pets;
   }
-  async function getPagedResponse(
-    nextToken?: string,
-    settings?: LinkPageSettings,
-  ) {
+  async function getPagedResponse(nextToken?: string, settings?: LinkPageSettings) {
     const combinedOptions = { ...options, ...settings };
 
     if (nextToken) {
@@ -53,11 +50,7 @@ export function link(
 ```
 
 ```ts src/api/testClientOperations.ts function linkSend
-async function linkSend(
-  client: TestClientContext,
-  filter: string,
-  options?: Record<string, any>,
-) {
+async function linkSend(client: TestClientContext, filter: string, options?: Record<string, any>) {
   const path = parse("/link{?filter,nextToken}").expand({
     filter: filter,
     ...(options?.nextToken && { nextToken: options.nextToken }),
@@ -70,17 +63,11 @@ async function linkSend(
 ```
 
 ```ts src/api/testClientOperations.ts function linkDeserialize
-function linkDeserialize(
-  response: PathUncheckedResponse,
-  options?: LinkOptions,
-) {
+function linkDeserialize(response: PathUncheckedResponse, options?: LinkOptions) {
   if (typeof options?.operationOptions?.onResponse === "function") {
     options?.operationOptions?.onResponse(response);
   }
-  if (
-    +response.status === 200 &&
-    response.headers["content-type"]?.includes("application/json")
-  ) {
+  if (+response.status === 200 && response.headers["content-type"]?.includes("application/json")) {
     return {
       pets: jsonArrayPetToApplicationTransform(response.body.pets),
     }!;
@@ -163,10 +150,7 @@ export function link(
   function getElements(response: LinkPageResponse) {
     return response.pets;
   }
-  async function getPagedResponse(
-    nextToken?: string,
-    settings?: LinkPageSettings,
-  ) {
+  async function getPagedResponse(nextToken?: string, settings?: LinkPageSettings) {
     let response: PathUncheckedResponse;
     if (nextToken) {
       response = await client.pathUnchecked(nextToken).get();
@@ -187,11 +171,7 @@ export function link(
 ```
 
 ```ts src/api/testClientOperations.ts function linkSend
-async function linkSend(
-  client: TestClientContext,
-  filter: string,
-  options?: Record<string, any>,
-) {
+async function linkSend(client: TestClientContext, filter: string, options?: Record<string, any>) {
   const path = parse("/link{?filter,maxPageSize}").expand({
     filter: filter,
     ...(options?.maxPageSize && { maxPageSize: options.maxPageSize }),
@@ -204,17 +184,11 @@ async function linkSend(
 ```
 
 ```ts src/api/testClientOperations.ts function linkDeserialize
-function linkDeserialize(
-  response: PathUncheckedResponse,
-  options?: LinkOptions,
-) {
+function linkDeserialize(response: PathUncheckedResponse, options?: LinkOptions) {
   if (typeof options?.operationOptions?.onResponse === "function") {
     options?.operationOptions?.onResponse(response);
   }
-  if (
-    +response.status === 200 &&
-    response.headers["content-type"]?.includes("application/json")
-  ) {
+  if (+response.status === 200 && response.headers["content-type"]?.includes("application/json")) {
     return {
       pets: jsonArrayPetToApplicationTransform(response.body.pets),
       link: response.body.link,

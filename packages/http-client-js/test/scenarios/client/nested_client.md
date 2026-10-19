@@ -87,11 +87,7 @@ export class WidgetsClient {
   async read(id: string, options?: ReadOptions): Promise<Widget> {
     return read(this.#context, id, options);
   }
-  async create(
-    weight: number,
-    color: "red" | "blue",
-    options?: CreateOptions,
-  ): Promise<Widget> {
+  async create(weight: number, color: "red" | "blue", options?: CreateOptions): Promise<Widget> {
     return create(this.#context, weight, color, options);
   }
   async update(

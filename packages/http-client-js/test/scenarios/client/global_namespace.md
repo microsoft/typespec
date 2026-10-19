@@ -17,10 +17,7 @@ export interface ClientContext extends Client {}
 ```
 
 ```ts src/api/clientContext.ts function createClientContext
-export function createClientContext(
-  endpoint: string,
-  options?: ClientOptions,
-): ClientContext {
+export function createClientContext(endpoint: string, options?: ClientOptions): ClientContext {
   const params: Record<string, any> = {
     endpoint: endpoint,
   };
@@ -54,10 +51,7 @@ export class Client {
 It should generate an operation for foo
 
 ```ts src/api/clientOperations.ts function foo
-export async function foo(
-  client: ClientContext,
-  options?: FooOptions,
-): Promise<void> {
+export async function foo(client: ClientContext, options?: FooOptions): Promise<void> {
   const path = parse("/").expand({});
   const httpRequestOptions = {
     headers: {},
