@@ -47,6 +47,7 @@ function format(value: string) {
   try {
     const formatted = prettierFormat(value, {
       parser: "markdown",
+      proseWrap: "never",
     });
     return formatted;
   } catch (e) {

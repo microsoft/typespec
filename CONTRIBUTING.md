@@ -325,7 +325,8 @@ Patch restoration state is stored in the target's Git metadata, so `patch` and `
 
 ### Public JavaScript API documentation
 
-The JS API reference uses TypeDoc with `typedoc-plugin-markdown`.
+The JS API reference uses TypeDoc with `typedoc-plugin-markdown`; typekit reference pages
+also use TypeDoc, while retaining their existing renderer and URLs.
 
 Packages with a `check-api-docs` script can check documentation coverage without generating
 website files:
