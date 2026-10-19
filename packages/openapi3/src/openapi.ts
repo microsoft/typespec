@@ -362,6 +362,14 @@ function createOAPIEmitter(
   // De-dupe the per-endpoint tags that will be added into the #/tags
   let tagsUsedInOperations: Set<string>;
 
+  // Values already warned about for a server parameter with no default, keyed by its declaration.
+  // Servers are resolved once per document and each version of a versioned service gets its own
+  // copy of the parameter, so without this the same warning would be reported for every version.
+  const serverVariablesWarnedForDefault = new Map<
+    ModelProperty["node"] | ModelProperty,
+    Set<string>
+  >();
+
   const typeNameOptions: TypeNameOptions = {
     // shorten type names by removing TypeSpec and service namespace
     namespaceFilter(ns) {
@@ -555,6 +563,27 @@ function createOAPIEmitter(
     return versionMap?.getVersions().some((v) => v.enumMember.enum === type) ?? false;
   }
 
+  function reportMissingServerVariableDefault(prop: ModelProperty, value: string) {
+    // Template instances share a declaration but can have different values, so only skip a
+    // warning that was already reported for the same declaration and value.
+    const key = prop.node ?? prop;
+    let warnedValues = serverVariablesWarnedForDefault.get(key);
+    if (warnedValues === undefined) {
+      warnedValues = new Set();
+      serverVariablesWarnedForDefault.set(key, warnedValues);
+    } else if (warnedValues.has(value)) {
+      return;
+    }
+    warnedValues.add(value);
+    diagnostics.add(
+      createDiagnostic({
+        code: "missing-server-variable-default",
+        format: { propName: prop.name, value },
+        target: prop,
+      }),
+    );
+  }
+
   function resolveServers(servers: HttpServer[], version?: string): OpenAPI3Server[] {
     return servers.map((server) => {
       const variables: Record<string, OpenAPI3ServerVariable> = {};
@@ -580,12 +609,19 @@ function createOAPIEmitter(
         // OpenAPI requires `default` to be one of the `enum` values. Use the version being
         // emitted for the versions enum, and the first value otherwise.
         if (!prop.defaultValue && variable.enum?.length) {
-          variable.default =
+          if (
             version !== undefined &&
             variable.enum.includes(version) &&
             isServiceVersionsEnum(prop.type)
-              ? version
-              : variable.enum[0];
+          ) {
+            variable.default = version;
+          } else {
+            variable.default = variable.enum[0];
+            // With more than one value the first one is only a guess, so tell the author.
+            if (variable.enum.length > 1) {
+              reportMissingServerVariableDefault(prop, variable.default);
+            }
+          }
         }
         attachExtensions(program, prop, variable);
         variables[name] = variable;
