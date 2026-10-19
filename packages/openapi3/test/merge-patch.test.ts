@@ -309,6 +309,43 @@ it("names patched nested models after their friendly name", async () => {
     },
   });
 });
+it("leaves base metadata that the derived model overrides out of the patched base", async () => {
+  const req = await oapiForPatchRequest(
+    "@body body: MergePatchUpdate<Widget>",
+    `
+      model Base {
+        @path id: string;
+        @header etag: string;
+        size?: int32;
+        name: string;
+      }
+
+      model Widget extends Base {
+        id: string;
+        etag: string;
+        size?: int8;
+        label?: string;
+      }`,
+    "application/merge-patch+json",
+  );
+
+  ok(req.isRef);
+  const patch = req.schemas.WidgetMergePatchUpdate;
+  expect(patch.required).toBeUndefined();
+  deepStrictEqual(patch.allOf, [{ $ref: "#/components/schemas/BaseMergePatchUpdate" }]);
+  deepStrictEqual(patch.properties, {
+    id: { type: "string" },
+    etag: { type: "string" },
+    size: { type: "integer", format: "int8", nullable: true },
+    label: { type: "string", nullable: true },
+  });
+  const base = req.schemas.BaseMergePatchUpdate;
+  expect(base.required).toBeUndefined();
+  deepStrictEqual(base.properties, {
+    size: { type: "integer", format: "int32", nullable: true },
+    name: { type: "string" },
+  });
+});
 it("emits correct schema for MergePatchCreateOrUpdateReplaceOnly", async () => {
   const req = await oapiForPatchRequest(
     "@body body: Foo",

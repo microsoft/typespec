@@ -158,6 +158,157 @@ describe("metadata tests", () => {
   it("emits a disgnostic when mergePatch target contains @statusCode metadata", async () => {
     await testMetadata("code", "@statusCode", "200");
   });
+
+  async function testOverriddenMetadata(metadataType: string): Promise<void> {
+    const [typeGraph, diag] = await compileAndDiagnoseWithRunner(
+      runner,
+      `
+      model Base {
+        ${metadataType} id: string;
+        size?: int32;
+        name: string;
+      }
+
+      model Widget extends Base {
+        id: string;
+        size?: int8;
+      }
+      @patch op update(@body body: MergePatchUpdate<Widget>): void;`,
+    );
+    expectDiagnosticEmpty(diag);
+    const bodyType = typeGraph[0].parameters?.body?.type;
+    ok(bodyType);
+    deepStrictEqual(bodyType.kind, "Model");
+    checkProperty(bodyType, "id", true, "Scalar", "string");
+    const size = isNullableUnion(checkProperty(bodyType, "size", true, "Union"));
+    expect(getNonNullableType(size.type)).toMatchObject({ kind: "Scalar", name: "int8" });
+    const base = bodyType.baseModel;
+    ok(base);
+    expect(base.name).toStrictEqual("BaseMergePatchUpdate");
+    expect([...base.properties.keys()]).toStrictEqual(["size", "name"]);
+    isNullableUnion(checkProperty(base, "size", true, "Union"));
+    checkProperty(base, "name", true, "Scalar", "string");
+  }
+  it("does not report @path metadata on a base property that the derived model overrides", async () => {
+    await testOverriddenMetadata("@path");
+  });
+  it("does not report @header metadata on a base property that the derived model overrides", async () => {
+    await testOverriddenMetadata("@header");
+  });
+  it("reports base metadata when the base is also patched directly", async () => {
+    const diag = await diagnoseOperations(`
+      model Base {
+        @path id: string;
+        name: string;
+      }
+      model Widget extends Base {
+        id: string;
+      }
+      @route("/widgets") @patch op updateWidget(@body body: MergePatchUpdate<Widget>): void;
+      @route("/bases") @patch op updateBase(@body body: MergePatchUpdate<Base>): void;`);
+    expectDiagnostics(diag, {
+      code: "@typespec/http/merge-patch-contains-metadata",
+      message: /Found '@path' decorating property 'id'/,
+    });
+  });
+  it("reports base metadata that another derived model does not override", async () => {
+    const diag = await diagnoseOperations(`
+      model Base {
+        @path id: string;
+        name: string;
+      }
+      model Widget extends Base {
+        id: string;
+      }
+      model Gadget extends Base {
+        size?: int32;
+      }
+      @route("/widgets") @patch op updateWidget(@body body: MergePatchUpdate<Widget>): void;
+      @route("/gadgets") @patch op updateGadget(@body body: MergePatchUpdate<Gadget>): void;`);
+    expectDiagnostics(diag, {
+      code: "@typespec/http/merge-patch-contains-metadata",
+      message: /Found '@path' decorating property 'id'/,
+    });
+  });
+  it("does not report base metadata that a model further down the chain overrides", async () => {
+    const [typeGraph, diag] = await compileAndDiagnoseWithRunner(
+      runner,
+      `
+      model Base {
+        @path id: string;
+        name: string;
+      }
+      model Mid extends Base {
+        size?: int32;
+      }
+      model Widget extends Mid {
+        id: string;
+      }
+      @patch op update(@body body: MergePatchUpdate<Widget>): void;`,
+    );
+    expectDiagnosticEmpty(diag);
+    const bodyType = typeGraph[0].parameters?.body?.type;
+    ok(bodyType);
+    deepStrictEqual(bodyType.kind, "Model");
+    checkProperty(bodyType, "id", true, "Scalar", "string");
+    const mid = bodyType.baseModel;
+    ok(mid);
+    expect(mid.name).toStrictEqual("MidMergePatchUpdate");
+    const base = mid.baseModel;
+    ok(base);
+    expect(base.name).toStrictEqual("BaseMergePatchUpdate");
+    expect([...base.properties.keys()]).toStrictEqual(["name"]);
+  });
+
+  async function testBasePatchedThroughReference(code: string): Promise<void> {
+    const diag = await diagnoseOperations(code);
+    expectDiagnostics(diag, {
+      code: "@typespec/http/merge-patch-contains-metadata",
+      message: /Found '@path' decorating property 'id'/,
+    });
+  }
+  it("reports base metadata when the base refers to itself in a create or update patch", async () => {
+    await testBasePatchedThroughReference(`
+      model Base {
+        @path id: string;
+        name: string;
+        parent?: Base;
+      }
+      model Widget extends Base {
+        id: string;
+      }
+      @patch op update(@body body: MergePatchCreateOrUpdate<Widget>): void;`);
+  });
+  it("reports base metadata when the base refers to itself under a nested optional property", async () => {
+    await testBasePatchedThroughReference(`
+      model Base {
+        @path id: string;
+        name: string;
+        parent?: Base;
+      }
+      model Widget extends Base {
+        id: string;
+      }
+      model Holder {
+        widget?: Widget;
+      }
+      @patch op update(@body body: MergePatchUpdate<Holder>): void;`);
+  });
+  it("reports base metadata when a required property leads back to the base", async () => {
+    await testBasePatchedThroughReference(`
+      model Base {
+        @path id: string;
+        name: string;
+        owner: Owner;
+      }
+      model Owner {
+        primary: Base;
+      }
+      model Widget extends Base {
+        id: string;
+      }
+      @patch op update(@body body: MergePatchUpdate<Widget>): void;`);
+  });
 });
 describe("http operation support", () => {
   it("uses the merge-patch content type for explicit body", async () => {
