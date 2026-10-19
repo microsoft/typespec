@@ -5,6 +5,7 @@ using System;
 using System.ClientModel;
 using System.ClientModel.Primitives;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Net.ServerSentEvents;
@@ -12,13 +13,18 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.TypeSpec.Generator.ClientModel.Primitives;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
+using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
+using Microsoft.TypeSpec.Generator.Statements;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
 
@@ -26,6 +32,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 {
     internal class ScmMethodProviderCollectionTests
     {
+        [Test]
+        public void ExperimentalApiHelpersAreSharedInternally()
+        {
+            var assembly = typeof(ScmCodeModelGenerator).Assembly;
+            var helper = assembly.GetType("Microsoft.TypeSpec.Generator.Utilities.ExperimentalApiHelpers");
+
+            Assert.IsNotNull(helper);
+            Assert.IsTrue(helper!.IsNotPublic);
+        }
+
         private static readonly InputModelType _spreadModel = InputFactory.Model(
             "spreadModel",
             usage: InputModelTypeUsage.Spread,
@@ -33,6 +49,270 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             [
                 InputFactory.Property("p2", InputPrimitiveType.String, isRequired: true),
             ]);
+
+        [TestCase("C", new[] { "A", "B" })]
+        [TestCase("C", new string[0])]
+        [TestCase(null, new[] { "A", "B" })]
+        [TestCase(null, new string[0])]
+        [TestCase(null, null)]
+        [TestCase("C", new[] { "A", "A", "B" })]
+        public void ExperimentalOperationGeneratesScopedDiagnostics(string? diagnosticId, string[]? dependencies)
+        {
+            var operation = InputFactory.Operation("Bar");
+            operation.Update(experimental: dependencies is null ? null : new InputExperimentalDetails(diagnosticId, dependencies));
+            var serviceMethod = InputFactory.BasicServiceMethod("Bar", operation);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+            var methods = new ScmMethodProviderCollection(serviceMethod, client);
+
+            Assert.AreEqual(4, methods.Count);
+            var expectedDependencies = dependencies?.Distinct().ToArray() ?? [];
+            foreach (var method in methods.Append(client.RestClient.GetCreateRequestMethod(operation)))
+            {
+                var attribute = method.Signature.Attributes.SingleOrDefault(a => a.Type.Equals(typeof(ExperimentalAttribute)));
+                if (method is ScmMethodProvider { Kind: ScmMethodKind.CreateRequest } || diagnosticId is null)
+                {
+                    Assert.IsNull(attribute);
+                }
+                else
+                {
+                    Assert.IsNotNull(attribute);
+                    Assert.AreEqual(diagnosticId, ((LiteralExpression)((ScopedApi<string>)attribute!.Arguments.Single()).Original).Literal);
+                }
+
+                using var writer = new CodeWriter();
+                writer.WriteMethod(method);
+                var code = writer.ToString(false);
+                var directives = CSharpSyntaxTree.ParseText(code).GetRoot()
+                    .DescendantTrivia(descendIntoTrivia: true)
+                    .Select(t => t.GetStructure())
+                    .OfType<PragmaWarningDirectiveTriviaSyntax>()
+                    .ToArray();
+                var disables = directives.Where(d => d.DisableOrRestoreKeyword.IsKind(SyntaxKind.DisableKeyword)).ToArray();
+                var restores = directives.Where(d => d.DisableOrRestoreKeyword.IsKind(SyntaxKind.RestoreKeyword)).ToArray();
+                CollectionAssert.AreEqual(expectedDependencies, disables.Select(d => d.ErrorCodes.Single().ToString()));
+                CollectionAssert.AreEqual(expectedDependencies, restores.Select(d => d.ErrorCodes.Single().ToString()));
+                var declarationStart = code.IndexOf(
+                    method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) ? "public " : "internal ",
+                    StringComparison.Ordinal);
+                Assert.IsTrue(disables.All(d => d.SpanStart < declarationStart));
+                Assert.IsTrue(restores.All(d => d.SpanStart > code.LastIndexOf('}')));
+            }
+        }
+
+        [TestCase("")]
+        [TestCase(" \t")]
+        [TestCase("A B")]
+        [TestCase("A,B")]
+        [TestCase("A-B")]
+        [TestCase("A.B")]
+        [TestCase("1A")]
+        [TestCase("@A")]
+        [TestCase("A\n")]
+        [TestCase("A\r")]
+        [TestCase("A//B")]
+        [TestCase("A/*B*/")]
+        [TestCase("A\n#pragma warning disable")]
+        public void ExperimentalOperationRejectsInvalidDependencyDiagnostic(string diagnosticId)
+        {
+            var operation = InputFactory.Operation("Bar");
+            operation.Update(experimental: new InputExperimentalDetails("C", [diagnosticId]));
+            var serviceMethod = InputFactory.BasicServiceMethod("Bar", operation);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+
+            Assert.Throws<ArgumentException>(() => new ScmMethodProviderCollection(serviceMethod, client));
+        }
+
+        [TestCase("A")]
+        [TestCase("DEP001")]
+        [TestCase("_DEP001")]
+        [TestCase("CS0618")]
+        [TestCase("0618")]
+        [TestCase("class")]
+        public void ExperimentalDiagnosticIdProducesOnePragmaToken(string diagnosticId)
+        {
+            var operation = InputFactory.Operation("Read");
+            operation.Update(experimental: new InputExperimentalDetails("API001", [diagnosticId]));
+            var method = InputFactory.BasicServiceMethod("Read", operation);
+            var inputClient = InputFactory.Client("TestClient", methods: [method]);
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+            var generatedMethod = new ScmMethodProviderCollection(method, client)[0];
+            var tree = CSharpSyntaxTree.ParseText(generatedMethod.Suppressions.Single().DisableStatement.ToDisplayString());
+
+            Assert.AreEqual(0, tree.GetDiagnostics().Count());
+            var pragma = tree.GetRoot().DescendantTrivia(descendIntoTrivia: true).Select(t => t.GetStructure())
+                .OfType<PragmaWarningDirectiveTriviaSyntax>().Single();
+            Assert.AreEqual(diagnosticId, pragma.ErrorCodes.Single().ToString());
+        }
+
+        [Test]
+        public void ExperimentalDependenciesAlreadySuppressedForClientAreNotRestoredByMethods()
+        {
+            var model = InputFactory.Experimental(InputFactory.Model("Payload"), "MODEL001");
+            var operation = InputFactory.Operation("Read", responses: [InputFactory.OperationResponse(bodytype: model)]);
+            operation.Update(experimental: new InputExperimentalDetails("API001", ["MODEL001"]));
+            var method = InputFactory.BasicServiceMethod("Read", operation);
+            var inputClient = InputFactory.Experimental(InputFactory.Client("TestClient", methods: [method]), null, "MODEL001");
+            MockHelpers.LoadMockGenerator(inputModels: () => [model], clients: () => [inputClient]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+
+            foreach (var provider in new ScmMethodProviderCollection(method, client).Append(client.RestClient.GetCreateRequestMethod(operation)))
+            {
+                Assert.IsTrue(provider.EnclosingType.DisabledFileWarnings.Any(s => s.Code.ToDisplayString() == Snippet.Literal("MODEL001").ToDisplayString()));
+                Assert.IsTrue(provider.Suppressions.Any(s => s.Code.ToDisplayString() == Snippet.Literal("MODEL001").ToDisplayString()));
+            }
+            var code = new TypeProviderWriter(client).Write().Content;
+            Assert.AreEqual(1, code.Split("#pragma warning disable MODEL001").Length - 1);
+            Assert.AreEqual(1, code.Split("#pragma warning restore MODEL001").Length - 1);
+        }
+
+        [TestCase(null)]
+        [TestCase("C")]
+        public void ExperimentalMultipartOperationHasOnePublicDiagnostic(string? diagnosticId)
+        {
+            var body = InputFactory.Model("UploadBody", usage: InputModelTypeUsage.Input | InputModelTypeUsage.MultipartFormData);
+            var operation = InputFactory.Operation("Upload",
+                parameters: [InputFactory.BodyParameter("body", body, isRequired: true)],
+                requestMediaTypes: ["multipart/form-data"]);
+            if (diagnosticId is not null)
+            {
+                operation.Update(experimental: new InputExperimentalDetails(diagnosticId, [ClientModel.Providers.ScmModelProvider.FileBinaryContentDiagnosticId]));
+            }
+            var serviceMethod = InputFactory.BasicServiceMethod("Upload", operation,
+                parameters: [InputFactory.MethodParameter("body", body, location: InputRequestLocation.Body, isRequired: true)]);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            MockHelpers.LoadMockGenerator(inputModels: () => [body], clients: () => [inputClient]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+            var methods = new ScmMethodProviderCollection(serviceMethod, client);
+
+            Assert.AreEqual(2, methods.Count(m => m.Kind == ScmMethodKind.Convenience));
+            foreach (var method in methods.Where(m => m.Kind == ScmMethodKind.Convenience))
+            {
+                var attribute = method.Signature.Attributes.Single(a => a.Type.Equals(typeof(ExperimentalAttribute)));
+                Assert.AreEqual(diagnosticId ?? ClientModel.Providers.ScmModelProvider.FileBinaryContentDiagnosticId,
+                    ((LiteralExpression)((ScopedApi<string>)attribute.Arguments.Single()).Original).Literal);
+            }
+        }
+
+        [Test]
+        public async Task ExperimentalOperationSupportsPartialMethods()
+        {
+            var operation = InputFactory.Operation("Bar");
+            operation.Update(experimental: new InputExperimentalDetails("C", ["A", "B"]));
+            var serviceMethod = InputFactory.BasicServiceMethod("Bar", operation);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [inputClient],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+            var methods = new ScmMethodProviderCollection(serviceMethod, client);
+
+            Assert.AreEqual(4, methods.Count);
+            foreach (var method in methods)
+            {
+                Assert.IsTrue(method.IsPartialMethod);
+                var attribute = method.Signature.Attributes.Single(a => a.Type.Equals(typeof(ExperimentalAttribute)));
+                Assert.AreEqual("C", ((LiteralExpression)((ScopedApi<string>)attribute.Arguments.Single()).Original).Literal);
+                Assert.AreEqual(2, method.Suppressions.Count);
+            }
+        }
+
+        [TestCase(null)]
+        [TestCase("GENERATED001")]
+        public async Task ExperimentalCustomizedPartialMethodsKeepExistingAttributes(string? diagnosticId)
+        {
+            var operation = InputFactory.Operation("Bar");
+            operation.Update(experimental: new InputExperimentalDetails(diagnosticId, []));
+            var serviceMethod = InputFactory.BasicServiceMethod("Bar", operation);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            MockHelpers.LoadMockGenerator();
+            var customCompilation = await Helpers.GetCompilationFromDirectoryAsync();
+            await MockHelpers.LoadMockGeneratorAsync(clients: () => [inputClient], compilation: () => Task.FromResult(customCompilation));
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+            var methods = new ScmMethodProviderCollection(serviceMethod, client);
+            var implementations = new List<MemberDeclarationSyntax>();
+
+            Assert.AreEqual(4, methods.Count);
+            foreach (var method in methods)
+            {
+                Assert.IsTrue(method.IsPartialMethod);
+                using var writer = new CodeWriter();
+                writer.WriteMethod(method);
+                var declaration = (MethodDeclarationSyntax)SyntaxFactory.ParseMemberDeclaration(writer.ToString(false))!;
+                implementations.Add(declaration
+                    .WithModifiers(SyntaxFactory.TokenList(declaration.Modifiers.Where(m => !m.IsKind(SyntaxKind.AsyncKeyword))))
+                    .WithBody(SyntaxFactory.Block(SyntaxFactory.ThrowStatement(SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression)))));
+            }
+
+            var customTree = customCompilation.SyntaxTrees.Single(t => t.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>()
+                .Any(c => c.Identifier.ValueText == "TestClient"));
+            var root = customTree.GetRoot();
+            var customClass = root.DescendantNodes().OfType<ClassDeclarationSyntax>().Single(c => c.Identifier.ValueText == "TestClient");
+            var implementationRoot = root.ReplaceNode(customClass, customClass.WithMembers(SyntaxFactory.List(implementations)));
+            var compilation = customCompilation.RemoveAllSyntaxTrees().AddSyntaxTrees(customTree, CSharpSyntaxTree.Create((CSharpSyntaxNode)implementationRoot));
+            var errors = compilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error).ToArray();
+            Assert.IsEmpty(errors.Select(d => d.ToString()), "Customized attributes must occur only on the defining partial declaration.");
+            var symbol = compilation.GetTypeByMetadataName("Sample.TestClient")!;
+            foreach (var method in symbol.GetMembers().OfType<IMethodSymbol>().Where(m => m.Name is "Bar" or "BarAsync"))
+            {
+                Assert.AreEqual("CUSTOM001", method.GetAttributes().Single().ConstructorArguments[0].Value);
+            }
+        }
+
+        [TestCase("plain", true)]
+        [TestCase("array", true)]
+        [TestCase("nested", true)]
+        [TestCase("plain", false)]
+        public async Task ExperimentalProductionMethodsCompile(string shape, bool suppressType)
+        {
+            var choice = InputFactory.StringEnum("Choice", [("One", "one")], isExtensible: true);
+            var payload = InputFactory.Model("Payload", usage: InputModelTypeUsage.Output | InputModelTypeUsage.Json);
+            InputType type = shape switch
+            {
+                "plain" => payload,
+                "array" => InputFactory.Array(payload),
+                "nested" => InputFactory.Array(InputFactory.Array(payload)),
+                _ => throw new ArgumentOutOfRangeException(nameof(shape))
+            };
+            var query = InputFactory.QueryParameter("value", choice, isRequired: true);
+            var operation = InputFactory.Operation("Read", parameters: [query], responses: [InputFactory.OperationResponse(bodytype: type)]);
+            operation.Update(experimental: new InputExperimentalDetails(null, suppressType ? ["A", "B"] : ["B"]));
+            var serviceMethod = InputFactory.BasicServiceMethod("Read", operation, parameters:
+                [InputFactory.MethodParameter("value", choice, isRequired: true, location: InputRequestLocation.Query)]);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            MockHelpers.LoadMockGenerator();
+            var customCompilation = await Helpers.GetCompilationFromDirectoryAsync();
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputEnums: () => [choice], inputModels: () => [payload], clients: () => [inputClient],
+                compilation: () => Task.FromResult(customCompilation));
+            var generator = ScmCodeModelGenerator.Instance;
+            var client = generator.TypeFactory.CreateClient(inputClient)!;
+            Assert.AreEqual(4, client.Methods.OfType<ScmMethodProvider>().Count());
+            foreach (var method in client.Methods.OfType<ScmMethodProvider>().Append((ScmMethodProvider)client.RestClient.GetCreateRequestMethod(operation)))
+            {
+                CollectionAssert.AreEqual(
+                    (suppressType ? new[] { "A", "B" } : ["B"]).Select(id => Snippet.Literal(id).ToDisplayString()),
+                    method.Suppressions.Select(s => s.Code.ToDisplayString()));
+            }
+
+            var customTree = customCompilation.SyntaxTrees.Single(t => t.GetRoot().DescendantNodes().OfType<StructDeclarationSyntax>()
+                .Any(s => s.Identifier.ValueText == "Choice"));
+            // Isolate the client and serialization paths; this GET does not use request-content or model-factory APIs.
+            var providers = generator.OutputLibrary.TypeProviders
+                .Where(p => p is not Utf8JsonBinaryContentDefinition and not BinaryContentHelperDefinition and not ModelFactoryProvider).ToArray();
+            var generatedTrees = providers.Concat(providers.SelectMany(p => p.SerializationProviders))
+                .Select(p => new TypeProviderWriter(p).Write())
+                .Select(file => CSharpSyntaxTree.ParseText(file.Content, path: file.Name));
+            var compilation = customCompilation.RemoveAllSyntaxTrees()
+                .AddSyntaxTrees(customTree)
+                .AddSyntaxTrees(generatedTrees);
+            var errors = compilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error).ToArray();
+            Assert.IsEmpty(errors.Select(d => d.ToString()), "Known custom type attributes are suppressed at their generated reference sites.");
+        }
 
         [Test]
         public void JsonLinesRequestGeneratesAsyncStreamingConvenienceMethod()
@@ -700,6 +980,653 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.AreEqual(
                 Helpers.GetExpectedFromFile(),
                 writer.ToString(false));
+        }
+
+        [Test]
+        public void BuildingProtocolSignaturesDoesNotMutateFactoryParameters()
+        {
+            var createdParameters = new List<ParameterProvider>();
+            bool captureParameters = false;
+            var operation = InputFactory.Operation(
+                "Send",
+                parameters: [InputFactory.QueryParameter("sourceIpAddress", InputPrimitiveType.Int32)],
+                responses: [InputFactory.OperationResponse([204])]);
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "Send", operation,
+                parameters: [InputFactory.MethodParameter("sourceIpAddress", InputPrimitiveType.Int32, location: InputRequestLocation.Query)]);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            MockHelpers.LoadMockGenerator(
+                clients: () => [inputClient],
+                createParameterCore: input =>
+                {
+                    var parameter = new ParameterProvider(input);
+                    if (captureParameters && input.Name == "sourceIpAddress")
+                    {
+                        createdParameters.Add(parameter.ToPublicInputParameter());
+                    }
+                    return parameter;
+                });
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+            _ = client.RestClient.Methods;
+            captureParameters = true;
+            var methods = client.Methods.OfType<ScmMethodProvider>().ToArray();
+
+            Assert.AreEqual(4, methods.Length);
+            Assert.IsNotEmpty(createdParameters);
+            foreach (var parameter in createdParameters)
+            {
+                Assert.AreEqual("sourceIPAddress", parameter.Name);
+                Assert.IsNotNull(parameter.DefaultValue);
+                Assert.IsTrue(parameter.Type.IsNullable);
+            }
+            foreach (var method in methods.Where(method => method.Kind == ScmMethodKind.Protocol))
+            {
+                Assert.IsNull(method.Signature.Parameters[0].DefaultValue);
+                Assert.IsTrue(method.Signature.Parameters[0].Type.IsNullable);
+            }
+        }
+
+        [Test]
+        public void KnownSignatureParametersRemainStable()
+        {
+            MockHelpers.LoadMockGenerator();
+            Assert.AreSame(ScmKnownParameters.RequestOptions, ScmKnownParameters.RequestOptions);
+            Assert.AreSame(ScmKnownParameters.OptionalRequestOptions, ScmKnownParameters.OptionalRequestOptions);
+            Assert.AreSame(ScmKnownParameters.CancellationToken, ScmKnownParameters.CancellationToken);
+            Assert.AreSame(ScmKnownParameters.ContentType, ScmKnownParameters.ContentType);
+            Assert.AreSame(ScmKnownParameters.OptionalContentType, ScmKnownParameters.OptionalContentType);
+        }
+
+        [Test]
+        public async Task PublishedCancellationTokenNamesDoNotAffectOtherMethods()
+        {
+            var serviceMethods = new[] { "Send", "Receive", "New" }.Select(name => InputFactory.BasicServiceMethod(
+                name, InputFactory.Operation(name, responses: [InputFactory.OperationResponse([204])]))).ToArray();
+            var inputClient = InputFactory.Client("TestClient", methods: serviceMethods);
+            await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [inputClient],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+            client.ProcessTypeForBackCompatibility();
+            var methods = client.Methods.OfType<ScmMethodProvider>().Where(method => method.Kind == ScmMethodKind.Convenience).ToArray();
+            Assert.AreEqual(6, methods.Length);
+
+            foreach (var method in methods)
+            {
+                var expectedToken = method.Signature.Name switch
+                {
+                    "Send" => "sendToken",
+                    "SendAsync" => "sendAsyncToken",
+                    "Receive" => "receiveToken",
+                    "ReceiveAsync" => "receiveAsyncToken",
+                    _ => "cancellationToken"
+                };
+                var token = method.Signature.Parameters.Single();
+                Assert.AreEqual(expectedToken, token.Name);
+                Assert.AreEqual(expectedToken, token.AsVariable().Declaration.RequestedName);
+                Assert.IsNotNull(token.DefaultValue);
+                StringAssert.Contains(
+                    $"this.{method.Signature.Name}({expectedToken}.ToRequestOptions())",
+                    method.BodyStatements!.ToDisplayString());
+            }
+            Assert.AreEqual("cancellationToken", ScmKnownParameters.CancellationToken.Name);
+        }
+
+        [Test]
+        public async Task MultipartContentTypeUsesWireNameAfterParameterRename(
+            [Values("Custom", "LastContract")] string signatureSource,
+            [Values(false, true)] bool bodyIsRequired)
+        {
+            var model = InputFactory.Model(
+                "UploadBody",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.MultipartFormData,
+                properties: [InputFactory.Property("message", InputPrimitiveType.String, isRequired: true,
+                    serializationOptions: InputFactory.Serialization.Options(
+                        multipart: InputFactory.Serialization.Multipart("message", isFilePart: false, defaultContentTypes: ["text/plain"])))]);
+            var operation = InputFactory.Operation(
+                "Send",
+                parameters:
+                [
+                    InputFactory.ContentTypeParameter("multipart/form-data"),
+                    InputFactory.BodyParameter("body", model, isRequired: bodyIsRequired,
+                        contentTypes: ["multipart/form-data"], defaultContentType: "multipart/form-data")
+                ],
+                requestMediaTypes: ["multipart/form-data"],
+                responses: [InputFactory.OperationResponse([204])]);
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "Send", operation,
+                parameters: [InputFactory.MethodParameter("body", model, isRequired: bodyIsRequired)]);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [inputClient], inputModels: () => [model],
+                compilation: signatureSource == "Custom" ? async () => await Helpers.GetCompilationFromDirectoryAsync(bodyIsRequired ? "Custom" : "CustomOptional") : null,
+                lastContractCompilation: signatureSource == "LastContract" ? async () => await Helpers.GetCompilationFromDirectoryAsync(bodyIsRequired ? "LastContract" : "LastContractOptional") : null);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+            client.ProcessTypeForBackCompatibility();
+            var methods = client.Methods.OfType<ScmMethodProvider>().Where(method => method.Kind == ScmMethodKind.Convenience).ToArray();
+            Assert.AreEqual(2, methods.Length);
+
+            foreach (var method in methods)
+            {
+                var protocol = client.Methods.OfType<ScmMethodProvider>().Single(candidate =>
+                    candidate.Kind == ScmMethodKind.Protocol && candidate.Signature.Name == method.Signature.Name);
+                var expectedMediaTypeName = method.Signature.Name.EndsWith("Async", StringComparison.Ordinal) ? "asyncMediaType" : "mediaType";
+                bool contentTypeFirst = !bodyIsRequired && method.Signature.Name.EndsWith("Async", StringComparison.Ordinal);
+                var contentTypeParameter = protocol.Signature.Parameters[contentTypeFirst ? 0 : 1];
+                Assert.AreEqual(expectedMediaTypeName, contentTypeParameter.Name);
+                Assert.AreEqual("Content-Type", contentTypeParameter.WireInfo.SerializedName);
+                var syntax = CSharpSyntaxTree.ParseText(method.BodyStatements!.ToDisplayString()).GetRoot();
+                var invocation = syntax.DescendantNodes().OfType<InvocationExpressionSyntax>().Single(candidate =>
+                    candidate.Expression is MemberAccessExpressionSyntax member && member.Name.Identifier.ValueText == protocol.Signature.Name);
+                CollectionAssert.AreEqual(
+                    contentTypeFirst
+                        ? new[] { "content?.MediaType", "content", "cancellationToken.ToRequestOptions()" }
+                        : new[] { "content", bodyIsRequired ? "content.MediaType" : "content?.MediaType", "cancellationToken.ToRequestOptions()" },
+                    invocation.ArgumentList.Arguments.Select(argument => argument.Expression.ToString()));
+            }
+        }
+
+        [Test]
+        public void OperationParameterOrderPreservesPreNormalizationSignatures(
+            [Values("OptionalPath", "OptionalBody", "Multipart")] string shape,
+            [Values(false, true)] bool acronymNames)
+        {
+            var sourceName = acronymNames ? "sourceIpAddress" : "sourceAddress";
+            var targetName = acronymNames ? "targetDbName" : "targetName";
+            var emittedSourceName = acronymNames ? "sourceIPAddress" : sourceName;
+            var emittedTargetName = acronymNames ? "targetDBName" : targetName;
+            bool hasBody = shape != "OptionalPath";
+            bool isMultipart = shape == "Multipart";
+            var model = InputFactory.Model(
+                "UploadBody",
+                usage: InputModelTypeUsage.Input | (isMultipart ? InputModelTypeUsage.MultipartFormData : InputModelTypeUsage.Json),
+                properties: [InputFactory.Property("message", InputPrimitiveType.String, isRequired: true,
+                    serializationOptions: InputFactory.Serialization.Options(
+                        multipart: InputFactory.Serialization.Multipart("message", isFilePart: false, defaultContentTypes: ["text/plain"])))]);
+            var operationParameters = new List<InputParameter>
+            {
+                InputFactory.PathParameter(sourceName, InputPrimitiveType.String, serializedName: "source"),
+                InputFactory.QueryParameter(targetName, InputPrimitiveType.String, isRequired: true, serializedName: "target")
+            };
+            var methodParameters = new List<InputMethodParameter>
+            {
+                InputFactory.MethodParameter(sourceName, InputPrimitiveType.String, location: InputRequestLocation.Path, serializedName: "source"),
+                InputFactory.MethodParameter(targetName, InputPrimitiveType.String, location: InputRequestLocation.Query, serializedName: "target")
+            };
+            if (hasBody)
+            {
+                InputType bodyType = isMultipart ? model : InputPrimitiveType.String;
+                operationParameters.Add(InputFactory.BodyParameter("body", bodyType));
+                methodParameters.Add(InputFactory.MethodParameter("body", bodyType));
+            }
+            if (isMultipart)
+            {
+                operationParameters.Add(InputFactory.ContentTypeParameter("multipart/form-data"));
+            }
+            var operation = InputFactory.Operation(
+                "Send", parameters: operationParameters, uri: "/items/{source}",
+                requestMediaTypes: [isMultipart ? "multipart/form-data" : "text/plain"],
+                responses: [InputFactory.OperationResponse([204])]);
+            var serviceMethod = InputFactory.BasicServiceMethod("Send", operation, parameters: methodParameters);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            var generator = MockHelpers.LoadMockGenerator(clients: () => [inputClient], inputModels: () => isMultipart ? [model] : []);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+            var methods = client.Methods.OfType<ScmMethodProvider>().Where(method => method.Kind == ScmMethodKind.Protocol).ToArray();
+            Assert.AreEqual(2, methods.Length);
+            foreach (var method in methods)
+            {
+                bool isAsync = method.Signature.Name.EndsWith("Async", StringComparison.Ordinal);
+                string[] expectedOrder = (shape, isAsync) switch
+                {
+                    ("OptionalPath", false) => [emittedSourceName, emittedTargetName, "options"],
+                    ("OptionalPath", true) => [emittedTargetName, emittedSourceName, "options"],
+                    ("OptionalBody", false) => [emittedSourceName, emittedTargetName, "content", "options"],
+                    ("OptionalBody", true) => [emittedTargetName, emittedSourceName, "content", "options"],
+                    ("Multipart", false) => [emittedSourceName, emittedTargetName, "content", "contentType", "options"],
+                    _ => [emittedTargetName, "contentType", emittedSourceName, "content", "options"]
+                };
+                CollectionAssert.AreEqual(expectedOrder, method.Signature.Parameters.Select(parameter => parameter.Name));
+                Assert.IsNull(method.Signature.Parameters.Single(parameter => parameter.Name == emittedSourceName).DefaultValue);
+                Assert.AreEqual(hasBody, method.Signature.Parameters[^1].DefaultValue != null);
+                var request = client.RestClient.GetCreateRequestMethod(operation);
+                var protocolSyntax = CSharpSyntaxTree.ParseText(method.BodyStatements!.ToDisplayString()).GetRoot();
+                var requestCall = protocolSyntax.DescendantNodes().OfType<InvocationExpressionSyntax>().Single(invocation =>
+                    invocation.Expression is MemberAccessExpressionSyntax member && member.Name.Identifier.ValueText == request.Signature.Name);
+                CollectionAssert.AreEqual(
+                    request.Signature.Parameters.Select(parameter => parameter.Name),
+                    requestCall.ArgumentList.Arguments.Select(argument => argument.Expression.ToString()));
+                var convenience = client.Methods.OfType<ScmMethodProvider>().Single(candidate =>
+                    candidate.Kind == ScmMethodKind.Convenience && candidate.Signature.Name == method.Signature.Name);
+                var convenienceSyntax = CSharpSyntaxTree.ParseText(convenience.BodyStatements!.ToDisplayString()).GetRoot();
+                var protocolCall = convenienceSyntax.DescendantNodes().OfType<InvocationExpressionSyntax>().Single(invocation =>
+                    invocation.Expression is MemberAccessExpressionSyntax member && member.Name.Identifier.ValueText == method.Signature.Name);
+                CollectionAssert.AreEqual(
+                    expectedOrder.Select(name => name switch
+                    {
+                        "contentType" => "content?.MediaType",
+                        "options" => "cancellationToken.ToRequestOptions()",
+                        _ => name
+                    }),
+                    protocolCall.ArgumentList.Arguments.Select(argument => argument.Expression.ToString()));
+            }
+
+            var references = AppDomain.CurrentDomain.GetAssemblies()
+                .Where(assembly => !assembly.IsDynamic && !string.IsNullOrEmpty(assembly.Location))
+                .Select(assembly => MetadataReference.CreateFromFile(assembly.Location))
+                .Append(MetadataReference.CreateFromFile(typeof(System.Net.Http.HttpContent).Assembly.Location))
+                .Append(MetadataReference.CreateFromFile(typeof(Microsoft.Extensions.Configuration.IConfigurationSection).Assembly.Location));
+            var trees = generator.Object.OutputLibrary.TypeProviders
+                .Concat(isMultipart ? ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(model)!.SerializationProviders : [])
+                .Where(provider => provider is not Utf8JsonBinaryContentDefinition and not BinaryContentHelperDefinition and not MultiPartFormDataBinaryContentDefinition)
+                .Select(provider => new TypeProviderWriter(provider).Write())
+                .Select(file => CSharpSyntaxTree.ParseText(file.Content, path: file.Name));
+            var compilation = CSharpCompilation.Create(
+                "OperationParameterOrdering", trees, references,
+                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, generalDiagnosticOption: ReportDiagnostic.Error));
+            Assert.IsEmpty(compilation.GetDiagnostics().Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error)
+                .Select(diagnostic => diagnostic.ToString()));
+        }
+
+        [Test]
+        public async Task OptionalMultipartLegacyParameterOrderIsPreserved(
+            [Values("Custom", "LastContract")] string signatureSource)
+        {
+            var model = InputFactory.Model(
+                "UploadBody",
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.MultipartFormData,
+                properties: [InputFactory.Property("message", InputPrimitiveType.String, isRequired: true,
+                    serializationOptions: InputFactory.Serialization.Options(
+                        multipart: InputFactory.Serialization.Multipart("message", isFilePart: false, defaultContentTypes: ["text/plain"])))]);
+            var operation = InputFactory.Operation(
+                "Send",
+                parameters:
+                [
+                    InputFactory.ContentTypeParameter("multipart/form-data"),
+                    InputFactory.BodyParameter("body", model,
+                        contentTypes: ["multipart/form-data"], defaultContentType: "multipart/form-data")
+                ],
+                requestMediaTypes: ["multipart/form-data"],
+                responses: [InputFactory.OperationResponse([204])]);
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "Send", operation, parameters: [InputFactory.MethodParameter("body", model)]);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [inputClient], inputModels: () => [model],
+                compilation: signatureSource == "Custom" ? async () => await Helpers.GetCompilationFromDirectoryAsync("Custom") : null,
+                lastContractCompilation: signatureSource == "LastContract" ? async () => await Helpers.GetCompilationFromDirectoryAsync("LastContract") : null);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+            client.ProcessTypeForBackCompatibility();
+            var methods = client.Methods.OfType<ScmMethodProvider>().Where(method => method.Kind == ScmMethodKind.Protocol).ToArray();
+            Assert.AreEqual(2, methods.Length);
+
+            foreach (var method in methods)
+            {
+                var isAsync = method.Signature.Name.EndsWith("Async", StringComparison.Ordinal);
+                Assert.AreEqual(signatureSource == "Custom", method.IsPartialMethod);
+                Assert.IsTrue(method.Signature.Parameters[0].Type.Equals(isAsync ? typeof(string) : typeof(BinaryContent)));
+                Assert.IsTrue(method.Signature.Parameters[1].Type.Equals(isAsync ? typeof(BinaryContent) : typeof(string)));
+                var protocolSyntax = CSharpSyntaxTree.ParseText(method.BodyStatements!.ToDisplayString()).GetRoot();
+                var requestInvocation = protocolSyntax.DescendantNodes().OfType<InvocationExpressionSyntax>().Single(candidate =>
+                    candidate.Expression is MemberAccessExpressionSyntax member && member.Name.Identifier.ValueText == "CreateSendRequest");
+                CollectionAssert.AreEqual(
+                    new[] { method.Signature.Parameters[isAsync ? 1 : 0].Name, method.Signature.Parameters[isAsync ? 0 : 1].Name, method.Signature.Parameters[^1].Name },
+                    requestInvocation.ArgumentList.Arguments.Select(argument => argument.Expression.ToString()));
+                var convenience = client.Methods.OfType<ScmMethodProvider>().Single(candidate =>
+                    candidate.Kind == ScmMethodKind.Convenience && candidate.Signature.Name == method.Signature.Name);
+                var syntax = CSharpSyntaxTree.ParseText(convenience.BodyStatements!.ToDisplayString()).GetRoot();
+                var invocation = syntax.DescendantNodes().OfType<InvocationExpressionSyntax>().Single(candidate =>
+                    candidate.Expression is MemberAccessExpressionSyntax member && member.Name.Identifier.ValueText == method.Signature.Name);
+                CollectionAssert.AreEqual(
+                    isAsync
+                        ? new[] { "content?.MediaType", "content", "cancellationToken.ToRequestOptions()" }
+                        : new[] { "content", "content?.MediaType", "cancellationToken.ToRequestOptions()" },
+                    invocation.ArgumentList.Arguments.Select(argument => argument.Expression.ToString()));
+            }
+        }
+
+        [Test]
+        public void MethodSignatureParametersAreIndependent()
+        {
+            var operations = new[] { "Send", "Receive" }.Select(name => InputFactory.Operation(
+                name,
+                parameters: [InputFactory.QueryParameter("sourceIpAddress", InputPrimitiveType.String, isRequired: true)],
+                responses: [InputFactory.OperationResponse([204])])).ToArray();
+            var serviceMethods = operations.Select(operation => InputFactory.BasicServiceMethod(
+                operation.Name,
+                operation,
+                parameters: [InputFactory.MethodParameter("sourceIpAddress", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Query)])).ToArray();
+            var inputClient = InputFactory.Client("TestClient", methods: serviceMethods);
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+            var methods = client.Methods.OfType<ScmMethodProvider>()
+                .Concat(client.RestClient.Methods.OfType<ScmMethodProvider>()).ToArray();
+            Assert.AreEqual(10, methods.Length);
+
+            for (int i = 0; i < methods.Length; i++)
+            {
+                for (int j = i + 1; j < methods.Length; j++)
+                {
+                    Assert.AreNotSame(methods[i].Signature.Parameters[0], methods[j].Signature.Parameters[0]);
+                    Assert.AreNotSame(methods[i].Signature.Parameters[^1], methods[j].Signature.Parameters[^1]);
+                }
+            }
+
+            var protocol = methods.Single(method => method.Kind == ScmMethodKind.Protocol && method.Signature.Name == "Send");
+            protocol.Signature.Parameters[0].Update(name: "publishedIpAddress");
+            protocol.Signature.Parameters[^1].Update(name: "publishedOptions");
+            foreach (var method in methods.Where(method => !ReferenceEquals(method, protocol)))
+            {
+                Assert.AreEqual("sourceIPAddress", method.Signature.Parameters[0].Name);
+                Assert.AreEqual(
+                    method.Kind == ScmMethodKind.Convenience ? "cancellationToken" : "options",
+                    method.Signature.Parameters[^1].Name);
+            }
+        }
+
+        [Test]
+        public async Task AcronymOperationParameterNames(
+            [Values("sourceIpAddress", "targetDbName", "guestOsType", "IPv4Address", "IPv6Address")] string inputName,
+            [Values(InputRequestLocation.Query, InputRequestLocation.Path, InputRequestLocation.Header, InputRequestLocation.Body)] InputRequestLocation location,
+            [Values(false, true)] bool isExactName)
+        {
+            var expectedName = isExactName ? inputName : inputName switch
+            {
+                "sourceIpAddress" => "sourceIPAddress",
+                "targetDbName" => "targetDBName",
+                "guestOsType" => "guestOSType",
+                "IPv4Address" => "ipv4Address",
+                "IPv6Address" => "ipv6Address",
+                _ => throw new InvalidOperationException()
+            };
+            const string wireName = "wire-name";
+            InputParameter parameter = location switch
+            {
+                InputRequestLocation.Query => InputFactory.QueryParameter(inputName, InputPrimitiveType.String, isRequired: true, serializedName: wireName),
+                InputRequestLocation.Path => InputFactory.PathParameter(inputName, InputPrimitiveType.String, isRequired: true, serializedName: wireName),
+                InputRequestLocation.Header => InputFactory.HeaderParameter(inputName, InputPrimitiveType.String, isRequired: true, serializedName: wireName),
+                InputRequestLocation.Body => InputFactory.BodyParameter(inputName, InputPrimitiveType.String, isRequired: true),
+                _ => throw new InvalidOperationException()
+            };
+            typeof(InputProperty).GetProperty(nameof(InputProperty.IsExactName))!.SetValue(parameter, isExactName);
+            var operation = InputFactory.Operation(
+                "Send",
+                parameters: [parameter],
+                uri: location == InputRequestLocation.Path ? "/things/{wire-name}" : "",
+                responses: [InputFactory.OperationResponse([204])]);
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "Send",
+                operation,
+                parameters: [InputFactory.MethodParameter(inputName, InputPrimitiveType.String, isRequired: true, location: location, isExactName: isExactName)]);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [inputClient],
+                configuration: """{"disable-xml-docs": false, "package-name": "Sample"}""");
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+            var methods = new ScmMethodProviderCollection(serviceMethod, client);
+            Assert.AreEqual(4, methods.Count);
+
+            foreach (var method in methods)
+            {
+                var isProtocol = method.Kind == ScmMethodKind.Protocol;
+                var emittedName = isProtocol && location == InputRequestLocation.Body ? "content" : expectedName;
+                Assert.AreEqual(emittedName, method.Signature.Parameters[0].Name);
+                using var writer = new CodeWriter();
+                writer.WriteMethod(method);
+                var text = writer.ToString(false);
+                StringAssert.Contains($"<param name=\"{emittedName}\">", text);
+                StringAssert.Contains($"<paramref name=\"{emittedName}\"/>", text);
+                StringAssert.Contains($"nameof({emittedName})", text);
+                if (isProtocol)
+                {
+                    StringAssert.Contains($"CreateSendRequest({emittedName}, options)", text);
+                }
+                else if (location == InputRequestLocation.Body)
+                {
+                    StringAssert.Contains($"FromString({expectedName})", text);
+                }
+                else
+                {
+                    StringAssert.Contains($"this.{method.Signature.Name}({expectedName}, cancellationToken.ToRequestOptions())", text);
+                }
+            }
+
+            var request = client.RestClient.Methods.Single();
+            Assert.AreEqual(location == InputRequestLocation.Body ? "content" : expectedName, request.Signature.Parameters[0].Name);
+            using var requestWriter = new CodeWriter();
+            requestWriter.WriteMethod(request);
+            var requestText = requestWriter.ToString(false);
+            var expectedSerialization = location switch
+            {
+                InputRequestLocation.Query => $"uri.AppendQuery(\"{wireName}\", {expectedName},",
+                InputRequestLocation.Path => $"uri.AppendPath({expectedName},",
+                InputRequestLocation.Header => $"request.Headers.Set(\"{wireName}\", {expectedName})",
+                InputRequestLocation.Body => "request.Content = content;",
+                _ => throw new InvalidOperationException()
+            };
+            StringAssert.Contains(expectedSerialization, requestText);
+        }
+
+        [Test]
+        public async Task AcronymSpreadParameterReferences()
+        {
+            var model = InputFactory.Model(
+                "Network",
+                usage: InputModelTypeUsage.Spread,
+                properties:
+                [
+                    InputFactory.Property("sourceIpAddress", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.Property("targetDbName", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.Property("guestOsType", InputPrimitiveType.String, isRequired: true)
+                ]);
+            var operation = InputFactory.Operation(
+                "Send",
+                parameters: [InputFactory.BodyParameter("network", model, isRequired: true, scope: InputParameterScope.Spread)],
+                responses: [InputFactory.OperationResponse([204])]);
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "Send",
+                operation,
+                parameters:
+                [
+                    InputFactory.MethodParameter("sourceIpAddress", InputPrimitiveType.String, isRequired: true, scope: InputParameterScope.Spread),
+                    InputFactory.MethodParameter("targetDbName", InputPrimitiveType.String, isRequired: true, scope: InputParameterScope.Spread),
+                    InputFactory.MethodParameter("guestOsType", InputPrimitiveType.String, isRequired: true, scope: InputParameterScope.Spread)
+                ]);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            await MockHelpers.LoadMockGeneratorAsync(clients: () => [inputClient], inputModels: () => [model]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+            var methods = new ScmMethodProviderCollection(serviceMethod, client);
+            var convenienceMethods = methods.Where(method => method.Kind == ScmMethodKind.Convenience).ToArray();
+            Assert.AreEqual(2, convenienceMethods.Length);
+            foreach (var method in convenienceMethods)
+            {
+                CollectionAssert.AreEqual(
+                    new[] { "sourceIPAddress", "targetDBName", "guestOSType" },
+                    method.Signature.Parameters.Take(3).Select(parameter => parameter.Name));
+                StringAssert.Contains(
+                    "new global::Sample.Models.Network(sourceIPAddress, targetDBName, guestOSType, default)",
+                    method.BodyStatements!.ToDisplayString());
+            }
+        }
+
+        [Test]
+        public async Task AcronymSpreadParametersPreserveSignatures(
+            [Values("Normalized", "Exact", "Custom", "LastContract")] string signatureSource)
+        {
+            string[] inputNames = ["targetDbName", "sourceIpAddress", "guestOsType"];
+            string[] wireNames = ["target-db", "source-ip", "guest-os"];
+            var model = InputFactory.Model(
+                "Network",
+                usage: InputModelTypeUsage.Spread,
+                properties:
+                [
+                    InputFactory.Property("sourceIpAddress", InputPrimitiveType.String, isRequired: true, wireName: wireNames[1]),
+                    InputFactory.Property("targetDbName", InputPrimitiveType.String, isRequired: true, wireName: wireNames[0]),
+                    InputFactory.Property("guestOsType", InputPrimitiveType.String, wireName: wireNames[2])
+                ]);
+            var operation = InputFactory.Operation(
+                "Send",
+                parameters: [InputFactory.BodyParameter("network", model, isRequired: true, scope: InputParameterScope.Spread)],
+                responses: [InputFactory.OperationResponse([204])]);
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "Send",
+                operation,
+                parameters: inputNames.Select((name, index) => InputFactory.MethodParameter(
+                    name, InputPrimitiveType.String, isRequired: index < 2, scope: InputParameterScope.Spread,
+                    serializedName: wireNames[index], isExactName: signatureSource == "Exact")).ToArray());
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            await MockHelpers.LoadMockGeneratorAsync(
+                clients: () => [inputClient],
+                inputModels: () => [model],
+                compilation: signatureSource == "Custom" ? async () => await Helpers.GetCompilationFromDirectoryAsync("Custom") : null,
+                lastContractCompilation: signatureSource == "LastContract" ? async () => await Helpers.GetCompilationFromDirectoryAsync("LastContract") : null);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+            client.ProcessTypeForBackCompatibility();
+            var methods = client.Methods.OfType<ScmMethodProvider>().ToArray();
+            Assert.AreEqual(4, methods.Length);
+
+            foreach (var method in methods)
+            {
+                var body = method.BodyStatements!.ToDisplayString();
+                if (method.Kind == ScmMethodKind.Protocol)
+                {
+                    CollectionAssert.AreEqual(new[] { "content", "options" }, method.Signature.Parameters.Select(parameter => parameter.Name));
+                    StringAssert.Contains("this.CreateSendRequest(content, options)", body);
+                    continue;
+                }
+
+                var suffix = method.Signature.Name.EndsWith("Async", StringComparison.Ordinal) ? "Async" : "Sync";
+                string[] expectedNames = signatureSource switch
+                {
+                    "Exact" => inputNames,
+                    "Custom" => [$"customDbName{suffix}", $"customIpAddress{suffix}", $"customOsType{suffix}"],
+                    "LastContract" => [$"publishedDbName{suffix}", $"publishedIpAddress{suffix}", $"publishedOsType{suffix}"],
+                    _ => ["targetDBName", "sourceIPAddress", "guestOSType"]
+                };
+                var expectedToken = signatureSource switch
+                {
+                    "Custom" => $"customToken{suffix}",
+                    "LastContract" => $"publishedToken{suffix}",
+                    _ => "cancellationToken"
+                };
+                CollectionAssert.AreEqual(expectedNames, method.Signature.Parameters.Take(3).Select(parameter => parameter.Name));
+                CollectionAssert.AreEqual(wireNames, method.Signature.Parameters.Take(3).Select(parameter => parameter.WireInfo.SerializedName));
+                Assert.IsTrue(method.Signature.Parameters.Take(3).All(parameter => parameter.SpreadSource != null));
+                Assert.AreEqual(signatureSource == "Custom", method.IsPartialMethod);
+                Assert.AreEqual(signatureSource != "Custom", method.Signature.Parameters[2].DefaultValue != null);
+
+                var syntax = CSharpSyntaxTree.ParseText(body).GetRoot();
+                var construction = syntax.DescendantNodes().OfType<ObjectCreationExpressionSyntax>().Single(expression =>
+                    expression.Type.ToString().EndsWith(".Network", StringComparison.Ordinal));
+                CollectionAssert.AreEqual(
+                    new[] { expectedNames[1], expectedNames[0], expectedNames[2], "default" },
+                    construction.ArgumentList!.Arguments.Select(argument => argument.Expression.ToString()));
+                StringAssert.Contains($"this.{method.Signature.Name}(spreadModel, {expectedToken}.ToRequestOptions())", body);
+            }
+
+            CollectionAssert.AreEqual(inputNames, serviceMethod.Parameters.Select(parameter => parameter.Name));
+            CollectionAssert.AreEqual(new[] { "content", "options" }, client.RestClient.Methods.Single().Signature.Parameters.Select(parameter => parameter.Name));
+        }
+
+        [Test]
+        public void PagingAndStreamingArgumentsFollowCreateRequestSignature(
+            [Values(false, true)] bool isStreaming,
+            [Values(false, true)] bool omitPathParameter)
+        {
+            var item = InputFactory.Model("Item", properties: [InputFactory.Property("name", InputPrimitiveType.String)]);
+            var page = InputFactory.Model("Page", properties: [InputFactory.Property("items", InputFactory.Array(item))]);
+            InputType responseType = isStreaming
+                ? new InputStreamingType("JsonlStream", "Streaming.Jsonl.JsonlStream", item, ["application/jsonl"])
+                : page;
+            var operation = InputFactory.Operation(
+                "Receive",
+                parameters:
+                [
+                    InputFactory.PathParameter("targetDbName", InputPrimitiveType.String, serializedName: "db-name"),
+                    InputFactory.QueryParameter("sourceIpAddress", InputPrimitiveType.String, isRequired: true, serializedName: "ip-address")
+                ],
+                uri: "/networks/{db-name}",
+                responses: [InputFactory.OperationResponse([200], responseType)],
+                bufferResponse: !isStreaming);
+            var methodParameters = new List<InputMethodParameter>();
+            if (!omitPathParameter)
+            {
+                methodParameters.Add(InputFactory.MethodParameter(
+                    "targetDbName", InputPrimitiveType.String, location: InputRequestLocation.Path, serializedName: "db-name"));
+            }
+            methodParameters.Add(InputFactory.MethodParameter(
+                "sourceIpAddress", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Query, serializedName: "ip-address"));
+            InputServiceMethod serviceMethod = isStreaming
+                ? InputFactory.BasicServiceMethod(
+                    "Receive", operation, parameters: methodParameters, response: InputFactory.ServiceMethodResponse(responseType, null))
+                : InputFactory.PagingServiceMethod(
+                    "Receive", operation, parameters: methodParameters, response: InputFactory.ServiceMethodResponse(responseType, null),
+                    pagingMetadata: InputFactory.PagingMetadata(["items"], null, null));
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient], inputModels: () => [item, page]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+            var methods = client.Methods.OfType<ScmMethodProvider>().Where(method => method.Kind == ScmMethodKind.Convenience).ToArray();
+            Assert.AreEqual(isStreaming ? 1 : 2, methods.Length);
+
+            var request = client.RestClient.GetCreateRequestMethod(operation);
+            CollectionAssert.AreEqual(
+                new[] { "targetDBName", "sourceIPAddress", "options" },
+                request.Signature.Parameters.Select(parameter => parameter.Name));
+            Assert.IsTrue(request.Signature.Parameters.All(parameter => parameter.DefaultValue is null));
+
+            foreach (var method in methods)
+            {
+                var syntax = CSharpSyntaxTree.ParseText(method.BodyStatements!.ToDisplayString()).GetRoot();
+                var arguments = isStreaming
+                    ? syntax.DescendantNodes().OfType<InvocationExpressionSyntax>().Single(invocation =>
+                        invocation.Expression is MemberAccessExpressionSyntax member && member.Name.Identifier.ValueText == request.Signature.Name).ArgumentList.Arguments
+                    : syntax.DescendantNodes().OfType<ObjectCreationExpressionSyntax>().Single(construction =>
+                        construction.Type.ToString().Contains("CollectionResult", StringComparison.Ordinal)).ArgumentList!.Arguments;
+                CollectionAssert.AreEqual(
+                    new[] { omitPathParameter ? "null" : "targetDBName", "sourceIPAddress", "cancellationToken.ToRequestOptions()" },
+                    arguments.Skip(isStreaming ? 0 : 1).Select(argument => argument.Expression.ToString()));
+                CollectionAssert.AreEqual(
+                    omitPathParameter ? new[] { "targetDBName", "sourceIPAddress", "options" } : new string?[] { null, null, null },
+                    arguments.Skip(isStreaming ? 0 : 1).Select(argument => argument.NameColon?.Name.Identifier.ValueText));
+            }
+        }
+
+        [Test]
+        public async Task AcronymGroupedParameterReferences()
+        {
+            var optionsModel = InputFactory.Model(
+                "NetworkOptions",
+                properties: [InputFactory.Property("sourceIpAddress", InputPrimitiveType.String, isRequired: true, isHttpMetadata: true, wireName: "source-ip")]);
+            var query = InputFactory.QueryParameter("sourceIpAddress", InputPrimitiveType.String, isRequired: true, serializedName: "source-ip");
+            query.Update(methodParameterSegments:
+            [
+                InputFactory.MethodParameter("targetDbOptions", optionsModel, isRequired: true, location: InputRequestLocation.Query),
+                InputFactory.MethodParameter("sourceIpAddress", InputPrimitiveType.String, isRequired: true)
+            ]);
+            var operation = InputFactory.Operation("Send", parameters: [query], responses: [InputFactory.OperationResponse([204])]);
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "Send",
+                operation,
+                parameters: [InputFactory.MethodParameter("targetDbOptions", optionsModel, isRequired: true, location: InputRequestLocation.Query)]);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            await MockHelpers.LoadMockGeneratorAsync(clients: () => [inputClient], inputModels: () => [optionsModel]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+            var methods = new ScmMethodProviderCollection(serviceMethod, client);
+            Assert.AreEqual(4, methods.Count);
+            foreach (var method in methods)
+            {
+                Assert.AreEqual("targetDBOptions", method.Signature.Parameters[0].Name);
+                var body = method.BodyStatements!.ToDisplayString();
+                StringAssert.Contains("nameof(targetDBOptions)", body);
+                StringAssert.Contains(
+                    method.Kind == ScmMethodKind.Protocol
+                        ? "this.CreateSendRequest(targetDBOptions.SourceIPAddress,"
+                        : $"this.{method.Signature.Name}(targetDBOptions,",
+                    body);
+            }
+            var request = client.RestClient.Methods.Single();
+            using var writer = new CodeWriter();
+            writer.WriteMethod(request);
+            StringAssert.Contains("uri.AppendQuery(\"source-ip\", sourceIPAddress,", writer.ToString(false));
         }
 
         [Test]

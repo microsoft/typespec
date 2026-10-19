@@ -18,6 +18,7 @@ using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
+using Microsoft.TypeSpec.Generator.Utilities;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
@@ -183,6 +184,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         protected override string BuildRelativeFilePath() => Path.Combine("src", "Generated", "CollectionResults", $"{Name}.cs");
 
         protected override string BuildNamespace() => Client.Type.Namespace;
+
+        protected override SuppressionStatement[] BuildDisabledFileWarnings()
+            => ExperimentalApiHelpers.GetReferenceSuppressions(ItemModelType);
 
         protected override string BuildName()
         {
@@ -354,6 +358,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             methods.Add(BuildGetNextResponseMethod());
 
+            foreach (var method in methods)
+            {
+                method.Update(suppressions: ExperimentalApiHelpers.MergeSuppressions(
+                    method.Suppressions,
+                    ExperimentalApiHelpers.GetOperationSuppressions(Operation),
+                    ExperimentalApiHelpers.GetReferenceSuppressions(Client.Type),
+                    ExperimentalApiHelpers.GetReferenceSuppressions(ResponseModelType),
+                    ResponseModel.CanonicalView.Properties.SelectMany(ExperimentalApiHelpers.GetMemberSuppressions)));
+            }
             return methods.ToArray();
         }
 

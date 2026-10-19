@@ -4,6 +4,7 @@ import "@typespec/http/streams";
 import "@typespec/sse";
 import "@typespec/events";
 import "@typespec/xml";
+import "@typespec/http-client";
 import "@typespec/http-client-csharp";
 import "@azure-tools/typespec-client-generator-core";
 import "@azure-tools/typespec-azure-core";
@@ -41,7 +42,76 @@ alias SampleOAuth2 = OAuth2Auth<[
 
 enum Versions {
   `2024-07-16-preview`,
+
+  @TypeSpec.HttpClient.experimental(#{
+    emitterScope: "@typespec/http-client-csharp",
+    diagnosticId: "SAMPLE0010",
+  })
   `2024-08-16-preview`,
+}
+
+@TypeSpec.HttpClient.experimental(#{
+  emitterScope: "@typespec/http-client-csharp",
+  diagnosticId: "SAMPLE0003",
+  dependsOn: #["SAMPLE0004"],
+})
+model PreviewDetails {
+  choice: PreviewChoice;
+}
+
+@TypeSpec.HttpClient.experimental(#{
+  emitterScope: "@typespec/http-client-csharp",
+  diagnosticId: "SAMPLE0004",
+})
+enum PreviewChoice {
+  One: "one",
+
+  @TypeSpec.HttpClient.experimental(#{
+    emitterScope: "@typespec/http-client-csharp",
+    diagnosticId: "SAMPLE0007",
+  })
+  Two: "two",
+}
+
+@TypeSpec.HttpClient.experimental(#{
+  emitterScope: "@typespec/http-client-csharp",
+  diagnosticId: "SAMPLE0005",
+})
+union PreviewExtensibleChoice {
+  string,
+  One: "one",
+
+  @TypeSpec.HttpClient.experimental(#{
+    emitterScope: "@typespec/http-client-csharp",
+    diagnosticId: "SAMPLE0006",
+  })
+  Two: "two",
+}
+
+model LifecycleModel {
+  @TypeSpec.HttpClient.experimental(#{
+    emitterScope: "@typespec/http-client-csharp",
+    diagnosticId: "SAMPLE0008",
+    dependsOn: #["SAMPLE0003"],
+  })
+  preview?: PreviewDetails;
+
+  choice: PreviewExtensibleChoice;
+}
+
+@TypeSpec.HttpClient.experimental(#{
+  emitterScope: "@typespec/http-client-csharp",
+  diagnosticId: "SAMPLE0009",
+})
+interface ExperimentalSamples {
+  @route("/experimental")
+  @get
+  read(): LifecycleModel;
+
+  @route("/experimental/pages")
+  @get
+  @list
+  list(): Page<PreviewDetails>;
 }
 
 @doc("float fixed enum")
@@ -63,6 +133,11 @@ enum IntFixedEnum {
   One: 1,
   Two: 2,
   Four: 4,
+  Ip: 10,
+  Db: 20,
+  Os: 30,
+  Ipv4: 40,
+  IpV6: 60,
 }
 
 @doc("Simple enum")
@@ -70,6 +145,11 @@ enum StringFixedEnum {
   One: "1",
   Two: "2",
   Four: "4",
+  Ip: "ip",
+  Db: "db",
+  Os: "os",
+  IpV4: "ipv4",
+  Ipv6: "ipv6",
 }
 
 @doc("Int based extensible enum")
@@ -102,6 +182,19 @@ union StringExtensibleEnum {
   One: "1",
   Two: "2",
   Four: "4",
+  Ip: "ip",
+  Db: "db",
+  Os: "os",
+  Ipv4: "ipv4",
+  IpV6: "ipv6",
+}
+
+union StringFixedUnion {
+  Ip: "ip",
+  Db: "db",
+  Os: "os",
+  IpV4: "ipv4",
+  Ipv6: "ipv6",
 }
 
 @doc("A model with a few properties of literal types")
@@ -176,6 +269,9 @@ model ModelWithRequiredNullableProperties {
 
   @doc("required nullable fixed enum type")
   requiredFixedEnum: StringFixedEnum | null;
+
+  fixedUnion?: StringFixedUnion;
+  numericEnum?: IntFixedEnum;
 }
 
 @doc("this is not a friendly model but with a friendly name")
@@ -329,6 +425,61 @@ model NullableDynamicModel {
   dictionaryChildren?: Record<(AnotherDynamicModel | null)[] | null> | null;
   listOfDictionaries?: (Record<AnotherDynamicModel | null> | null)[] | null;
 }
+
+@usage(Usage.input | Usage.output | Usage.json)
+@access(Access.public)
+model OptionalNullableBase {
+  inheritedNullable?: string | null;
+}
+
+@dynamicModel
+@usage(Usage.input | Usage.output | Usage.json)
+@access(Access.public)
+model OptionalNullableDynamicProperties extends OptionalNullableBase {}
+
+@usage(Usage.input | Usage.output | Usage.json)
+@access(Access.public)
+model OptionalNullableChild {
+  value: string;
+}
+
+@usage(Usage.input | Usage.output | Usage.json)
+@access(Access.public)
+model OptionalNullableProperties extends OptionalNullableBase {
+  nullableModel?: OptionalNullableChild | null;
+  nullableString?: string | null;
+  nullableInt?: int32 | null;
+  nullableBoolean?: boolean | null;
+  nullableEnum?: StringFixedEnum | null;
+  nullableDateTime?: utcDateTime | null;
+  nullableBytes?: bytes | null;
+  nullableList?: (string | null)[] | null;
+  nullableDictionary?: Record<int32 | null> | null;
+
+  @visibility(Lifecycle.Read)
+  readOnlyNullable?: string | null;
+
+  requiredNullable: string | null;
+  optionalNonNullable?: string;
+  optionalNonNullableInt?: int32;
+}
+
+@usage(Usage.input | Usage.output | Usage.json)
+@access(Access.public)
+model OptionalNullableContainer {
+  child: OptionalNullableProperties;
+}
+
+@usage(Usage.input | Usage.output | Usage.json)
+@access(Access.public)
+model OptionalNullableFieldNames extends Record<string | null> {
+  additionalStringProperties?: string | null;
+  additionalStringPropertiesIsDefined?: string | null;
+}
+
+@usage(Usage.input | Usage.output | Usage.json)
+@access(Access.public)
+model UnionAdditionalProperties extends Record<string | int32 | boolean | null> {}
 
 @nsDeclarations
 enum XmlNamespaces {
@@ -553,6 +704,10 @@ op noContentTypeOverride(info: Wrapper): RoundTripModel;
 @doc("Return hi in demo2")
 @get
 @convenientAPI(true, "csharp")
+@TypeSpec.HttpClient.experimental(#{
+  emitterScope: "@typespec/http-client-csharp",
+  diagnosticId: "SAMPLE0001",
+})
 op helloDemo2(): Thing;
 
 @route("/literal")
@@ -710,6 +865,11 @@ op EmbeddedParameters(@bodyRoot body: ModelWithEmbeddedNonBodyParameters): void;
 @route("dynamicModel")
 @doc("An operation with a dynamic model")
 @post
+@TypeSpec.HttpClient.experimental(#{
+  emitterScope: "@typespec/http-client-csharp",
+  diagnosticId: "SAMPLE0002",
+  dependsOn: #["SCME0001"],
+})
 op DynamicModelOperation(@body body: DynamicModel): void;
 
 @route("xmlAdvanced")
@@ -815,6 +975,9 @@ model Tree extends Plant {
 
   @doc("The age of the tree in years")
   age: int32;
+
+  nullableText?: string | null;
+  nullableLabels?: Record<string> | null;
 }
 
 @route("/plants")
@@ -947,3 +1110,23 @@ op receiveJsonLines(): JsonlStream<StreamingItem>;
 @get
 @route("/streaming/sse/receive")
 op receiveSse(): SSEStream<SampleEvents>;
+
+@route("/experimental/jsonl")
+@get
+op receiveExperimentalJsonLines(): JsonlStream<PreviewDetails>;
+
+@route("/acronyms/{targetDbName}")
+@doc("Send acronym-named path, query, and header parameters.")
+@get
+@convenientAPI(true, "csharp")
+op getAcronymParameters(
+  @path targetDbName: string,
+  @query sourceIpAddress?: string,
+  @header("X-Guest-OS-Type") guestOsType?: string,
+): void;
+
+@route("/acronyms/addresses")
+@doc("Send parameters with leading IP version acronyms.")
+@post
+@convenientAPI(true, "csharp")
+op setAcronymAddresses(@query ipV4Address: string, @query ipV6Address?: string): void;

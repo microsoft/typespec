@@ -12,13 +12,22 @@ import type {
   Type,
   Value,
 } from "../core/types.js";
-import { getEncode, resolveEncodedName, type EncodeData } from "./decorators.js";
+import {
+  getEncode,
+  resolveEncodedEnumMemberValue,
+  resolveEncodedName,
+  type EncodeData,
+} from "./decorators.js";
 
 /**
  * Error thrown when a value cannot be serialized.
  */
 export class UnserializableValueError extends Error {
-  constructor(public readonly reason: string = "Cannot serialize value as JSON.") {
+  /**
+   * Creates a serialization failure with the supplied reason as its error message.
+   * @param reason Explanation of the failure; defaults to "Cannot serialize value as JSON."
+   */
+  constructor(/** Message. */ public readonly reason: string = "Cannot serialize value as JSON.") {
     super(reason);
     this.name = "UnserializableValueError";
   }
@@ -28,9 +37,18 @@ export class UnserializableValueError extends Error {
  * Error thrown when a scalar value cannot be serialized because it uses an unsupported constructor.
  */
 export class UnsupportedScalarConstructorError extends UnserializableValueError {
+  /**
+   * Describes a scalar constructor the JSON serializer cannot handle.
+   * @param scalarName Scalar whose value could not be serialized.
+   * @param constructorName Constructor used to create the value.
+   * @param supportedConstructors Constructor names accepted by the serializer for that scalar.
+   */
   constructor(
+    /** Name of the scalar whose value could not be serialized. */
     public readonly scalarName: string,
+    /** Constructor used to create the unsupported scalar value. */
     public readonly constructorName: string,
+    /** Constructor names accepted by the serializer for this scalar. */
     public readonly supportedConstructors: readonly string[],
   ) {
     super(
@@ -40,6 +58,7 @@ export class UnsupportedScalarConstructorError extends UnserializableValueError 
   }
 }
 
+/** Optional scalar conversion hook for {@link serializeValueAsJson}; other value kinds use built-in serialization. */
 export interface ValueJsonSerializers {
   /** Custom handler to serialize a scalar value
    * @param value The scalar value to serialize
@@ -59,6 +78,13 @@ export interface ValueJsonSerializers {
 /**
  * Serialize the given TypeSpec value as a JSON object using the given type and its encoding annotations.
  * The Value MUST be assignable to the given type.
+ * Returns a JavaScript value, not JSON text. Object properties and enum values honor JSON encoded names.
+ * Custom scalar values with no recognized standard base serialize to `undefined` unless a handler overrides them.
+ *
+ * @param encodeAs Encoding override; otherwise uses applicable property or scalar encoding metadata.
+ * @param handlers Optional custom scalar serializer.
+ * @throws {UnserializableValueError} If a function value cannot be serialized.
+ * @throws {UnsupportedScalarConstructorError} If a recognized scalar uses an unsupported constructor.
  */
 export function serializeValueAsJson(
   program: Program,
@@ -87,7 +113,7 @@ export function serializeValueAsJson(
     case "NumericValue":
       return value.value.asNumber();
     case "EnumValue":
-      return value.value.value ?? value.value.name;
+      return resolveEncodedEnumMemberValue(program, value.value, "application/json");
     case "ArrayValue":
       return value.values.map((v) =>
         serializeValueAsJson(

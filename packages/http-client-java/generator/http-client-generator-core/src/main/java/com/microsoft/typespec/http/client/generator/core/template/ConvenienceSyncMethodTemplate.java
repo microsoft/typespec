@@ -86,6 +86,13 @@ public class ConvenienceSyncMethodTemplate extends ConvenienceMethodTemplateBase
         IType protocolResponseBodyType = getConvenienceResponseBodyType(protocolMethod);
         IType rawResponseBodyType = convenienceMethod.getProxyMethod().getRawResponseBodyType();
 
+        if (convenienceMethod.getType() == ClientMethodType.SimpleSync
+            && responseBodyType.asNullable() == ClassType.VOID
+            && protocolResponseBodyType == ClassType.BINARY_DATA) {
+            methodBlock.line("%1$s(%2$s);", getMethodName(protocolMethod), invocationExpression);
+            return;
+        }
+
         if (convenienceMethod.getType() == ClientMethodType.SimpleSync && isResponseHeadersAsModel(convenienceMethod)) {
             // The convenience method returns the strongly-typed response-headers model, built from the response
             // headers of the protocol method (which returns Response<Void>).
@@ -118,14 +125,17 @@ public class ConvenienceSyncMethodTemplate extends ConvenienceMethodTemplateBase
                 "new SimpleResponse<>(protocolMethodResponse, new %1$s(" + "protocolMethodResponse.getHeaders()))",
                 responseBodyType));
         } else if (convenienceMethod.getType() == ClientMethodType.SimpleSyncRestResponse
-            && !(responseBodyType.asNullable() == ClassType.VOID || responseBodyType == ClassType.BINARY_DATA)) {
+            && responseBodyType != ClassType.BINARY_DATA
+            && !(responseBodyType.asNullable() == ClassType.VOID
+                && protocolResponseBodyType.asNullable() == ClassType.VOID)) {
 
             // protocolMethodResponse = ...
             methodBlock.line(getProtocolMethodResponseStatement(protocolMethod, invocationExpression));
 
             // e.g. protocolMethodResponse.getValue().toObject(...)
-            String expressConversion = "protocolMethodResponse.getValue()";
-            if (protocolResponseBodyType == ClassType.BINARY_DATA) {
+            String expressConversion
+                = responseBodyType.asNullable() == ClassType.VOID ? "null" : "protocolMethodResponse.getValue()";
+            if (protocolResponseBodyType == ClassType.BINARY_DATA && responseBodyType.asNullable() != ClassType.VOID) {
                 expressConversion
                     = expressionConvertFromBinaryData(responseBodyType, rawResponseBodyType, expressConversion,
                         protocolMethod.getProxyMethod().getResponseContentTypes(), typeReferenceStaticClasses);
@@ -183,6 +193,8 @@ public class ConvenienceSyncMethodTemplate extends ConvenienceMethodTemplateBase
     private static String getMethodInvokeViaAsyncClient(ClientMethod convenienceMethod) {
         List<String> parameterNames = convenienceMethod.getMethodInputParameters()
             .stream()
+            .filter(p -> !convenienceMethod.isPageStreamingType()
+                || !convenienceMethod.getMethodPageDetails().shouldHideParameter(p))
             .map(ClientMethodParameter::getName)
             .collect(Collectors.toList());
 

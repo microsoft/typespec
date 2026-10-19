@@ -17,17 +17,26 @@ import { efRefkey } from "../../utils/refkey.js";
 import { ArrayExpression } from "../array-expression/array-expression.js";
 import { RecordExpression } from "../record-expression/record-expression.js";
 
+/** TypeSpec source and reference-selection options for a Python annotation expression. */
 export interface TypeExpressionProps {
+  /** Type to render, unwrapping property/variant wrappers as appropriate. */
   type: Type;
 
   /**
-   * Whether to disallow references. Setting this will force the type to be
-   * emitted inline, even if it is a declaration that would otherwise be
-   * referenced.
+   * Skips the initial named-declaration reference shortcut, allowing unions and
+   * operation aliases to render inline. Named models can still require references;
+   * this does not synthesize an anonymous Python class.
    */
   noReference?: boolean;
 }
 
+/**
+ * Renders Python annotations: named model/union references, literal and union types,
+ * collections, scalars, and Callable signatures. Reference overrides apply to named
+ * references, not every inline expression. Unsupported kinds report a diagnostic
+ * and render no content; unsupported scalars instead fall back to `any`.
+ * Requires a TypeSpec render context.
+ */
 export function TypeExpression(props: TypeExpressionProps) {
   const { $ } = useTsp();
   const type = props.type;

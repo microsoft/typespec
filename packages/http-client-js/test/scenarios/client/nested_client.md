@@ -42,11 +42,7 @@ interface Widgets {
 It generates a class called TestClient with a single operation
 
 ```ts src/demoServiceClient.ts
-import {
-  createDemoServiceClientContext,
-  type DemoServiceClientContext,
-  type DemoServiceClientOptions,
-} from "./api/demoServiceClientContext.js";
+import type { DemoServiceClientOptions } from "./api/demoServiceClientContext.js";
 import {
   createWidgetsClientContext,
   type WidgetsClientContext,
@@ -69,10 +65,8 @@ import {
 import type { Widget } from "./models/models.js";
 
 export class DemoServiceClient {
-  #context: DemoServiceClientContext;
   widgetsClient: WidgetsClient;
   constructor(endpoint: string, options?: DemoServiceClientOptions) {
-    this.#context = createDemoServiceClientContext(endpoint, options);
     this.widgetsClient = new WidgetsClient(endpoint, options);
   }
 }

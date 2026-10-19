@@ -228,10 +228,16 @@ abstract class ConvenienceMethodTemplateBase {
 
     protected static String expressionConvertFromBinaryData(IType responseBodyType, IType rawType,
         String invocationExpression, Set<String> mediaTypes, Set<GenericType> typeReferenceStaticClasses) {
+        if (responseBodyType == ClassType.BINARY_DATA) {
+            return invocationExpression;
+        }
         SupportedMimeType mimeType = SupportedMimeType.getResponseKnownMimeType(mediaTypes);
         String serializerArgument = xmlSerializerArgument(mimeType, responseBodyType);
         switch (mimeType) {
             case TEXT:
+                if (responseBodyType == ArrayType.BYTE_ARRAY) {
+                    return invocationExpression + ".toBytes()";
+                }
                 String basicText = invocationExpression + ".toString()";
                 if (!rawType.isNullable()) {
                     return wrapPrimitiveMimeTypeText(basicText, (PrimitiveType) rawType);
@@ -251,8 +257,6 @@ abstract class ConvenienceMethodTemplateBase {
                     return String.format("%2$s.toObject(%1$s%3$s)",
                         TemplateUtil.getTypeReferenceCreation(responseBodyType), invocationExpression,
                         serializerArgument);
-                } else if (responseBodyType == ClassType.BINARY_DATA) {
-                    return invocationExpression;
                 } else if (responseBodyType == ArrayType.BYTE_ARRAY) {
                     if (rawType == ClassType.BASE_64_URL) {
                         return invocationExpression + ".toObject(" + ClassType.BASE_64_URL.getName() + ".class"
@@ -426,27 +430,32 @@ abstract class ConvenienceMethodTemplateBase {
         }
 
         // invocation with protocol method parameters and RequestOptions
-        String invocationExpression = protocolMethod.getMethodInputParameters().stream().map(p -> {
-            String parameterName = p.getName();
-            String expression = parameterExpressionsMap.get(parameterName);
-            IType parameterRawType = p.getRawType();
-            if (isJsonMergePatchOperation
-                && ClientModelUtil.isClientModel(parameterRawType)
-                && RequestParameterLocation.BODY.equals(p.getRequestParameterLocation())
-                && ClientModelUtil.isJsonMergePatchModel(
-                    ClientModelUtil.getClientModel(((ClassType) parameterRawType).getName()),
-                    JavaSettings.getInstance())) {
-                ClientModel clientModel = ClientModelUtil.getClientModel(((ClassType) parameterRawType).getName());
-                // If it is polymorphic model, we need to enable json merge patch through root parent model
-                ClientModel rootParentModel = ClientModelUtil.getRootParent(clientModel);
-                IType rootParentModelType = rootParentModel.getType();
+        String invocationExpression = protocolMethod.getMethodInputParameters()
+            .stream()
+            .filter(p -> !protocolMethod.isPageStreamingType()
+                || !protocolMethod.getMethodPageDetails().shouldHideParameter(p))
+            .map(p -> {
+                String parameterName = p.getName();
+                String expression = parameterExpressionsMap.get(parameterName);
+                IType parameterRawType = p.getRawType();
+                if (isJsonMergePatchOperation
+                    && ClientModelUtil.isClientModel(parameterRawType)
+                    && RequestParameterLocation.BODY.equals(p.getRequestParameterLocation())
+                    && ClientModelUtil.isJsonMergePatchModel(
+                        ClientModelUtil.getClientModel(((ClassType) parameterRawType).getName()),
+                        JavaSettings.getInstance())) {
+                    ClientModel clientModel = ClientModelUtil.getClientModel(((ClassType) parameterRawType).getName());
+                    // If it is polymorphic model, we need to enable json merge patch through root parent model
+                    ClientModel rootParentModel = ClientModelUtil.getRootParent(clientModel);
+                    IType rootParentModelType = rootParentModel.getType();
 
-                return writeParameterConversionExpressionWithJsonMergePatchEnabled(methodBlock,
-                    rootParentModelType.toString(), parameterName, expression);
-            } else {
-                return expression == null ? parameterName : expression;
-            }
-        }).collect(Collectors.joining(", "));
+                    return writeParameterConversionExpressionWithJsonMergePatchEnabled(methodBlock,
+                        rootParentModelType.toString(), parameterName, expression);
+                } else {
+                    return expression == null ? parameterName : expression;
+                }
+            })
+            .collect(Collectors.joining(", "));
 
         // write the invocation of protocol method, and related type conversion
         writeInvocationAndConversion(convenienceMethod, protocolMethod, invocationExpression, methodBlock,
@@ -1058,7 +1067,9 @@ abstract class ConvenienceMethodTemplateBase {
                     if (property.getWireType() instanceof PrimitiveType) {
                         stringExpression = String.format("String.valueOf(%s)", stringExpression);
                     } else if (property.getWireType() != ClassType.STRING) {
-                        stringExpression = String.format("Objects.toString(%s)", stringExpression);
+                        stringExpression = String.format(
+                            property.isRequired() ? "Objects.toString(%s)" : "Objects.toString(%s, null)",
+                            stringExpression);
                     }
                     builder.append(String.format(".serializeTextField(%1$s, %2$s)",
                         ClassType.STRING.defaultValueExpression(property.getSerializedName()), stringExpression));

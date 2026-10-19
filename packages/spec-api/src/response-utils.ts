@@ -2,9 +2,11 @@ import { isMatcher, type MockValueMatcher } from "./match-engine.js";
 import type { MockBody, MockMultipartBody, Resolver, ResolverConfig } from "./types.js";
 
 /**
- * Serialize the provided content as json to use in a MockResponse body.
- * @content Object to return as json.
- * @returns {MockBody} response body with application/json content type.
+ * Creates a deferred JSON body for a response or request expectation. Dynamic values
+ * are expanded at serialization time. Its resolver preserves matcher objects in structured
+ * JSON values for comparison; matchers inside dyn strings become text.
+ * @param content Value to JSON-stringify after dynamic expansion.
+ * @param contentType Media type; defaults to `application/json`.
  */
 export function json(content: unknown, contentType: string = "application/json"): MockBody {
   return {
@@ -35,6 +37,9 @@ const XML_DECLARATION = `<?xml version='1.0' encoding='UTF-8'?>`;
  * Can be used as a plain function or as a tagged template literal.
  * When used as a tagged template, interpolated matchers (e.g. `match.localUrl`)
  * are resolved at serialization time via `expandDyns`.
+ * For XML assertions, pass the tagged result's Resolver-valued rawContent, not the
+ * MockBody wrapper. Validation collects matchers through getMatchers separately from
+ * serializing the XML; calling resolve on the template instead returns a string.
  *
  * @example
  * ```ts
@@ -48,6 +53,7 @@ const XML_DECLARATION = `<?xml version='1.0' encoding='UTF-8'?>`;
  * @returns {MockBody} response body with application/xml content type.
  */
 export function xml(content: string): MockBody;
+/** Creates a MockBody with a template Resolver in rawContent for server-context expansion. */
 export function xml(strings: TemplateStringsArray, ...values: unknown[]): MockBody;
 export function xml(content: string | TemplateStringsArray, ...values: unknown[]): MockBody {
   if (typeof content !== "string") {
@@ -63,6 +69,11 @@ export function xml(content: string | TemplateStringsArray, ...values: unknown[]
   };
 }
 
+/**
+ * Describes multipart request inputs for service-call generation, defaulting to
+ * `multipart/form-data`. Non-file parts are JSON-stringified and files retain their bytes.
+ * Incoming multipart requests require a custom validation handler.
+ */
 export function multipart(
   config: Partial<Pick<MockMultipartBody, "contentType" | "parts" | "files">>,
 ): MockMultipartBody {
@@ -73,18 +84,37 @@ export function multipart(
   };
 }
 
+/**
+ * Deferred template whose call, serialize and resolve all produce the same expanded string.
+ * Matcher objects are not preserved in that string; getMatchers provides a separate list
+ * for XML validation.
+ */
 export interface DynValue extends Resolver {
   readonly isDyn: true;
+  /** Expands interpolations and concatenates them as strings without caching the result. */
   (config: ResolverConfig): string;
-  /** Returns all matchers embedded in this template with their serialized values. */
-  getMatchers(config: ResolverConfig): Array<{ serialized: string; matcher: MockValueMatcher }>;
+  /** Collects interpolated matchers, including those in nested dyn templates, with serialized text. */
+  getMatchers(config: ResolverConfig): Array<{
+    /** Text produced for this matcher in the supplied server context. */
+    serialized: string;
+    /** Original matcher retained for validating the corresponding parsed XML value. */
+    matcher: MockValueMatcher;
+  }>;
 }
 
+/** Placeholder returned by dynItem for a value supplied when a template is expanded. */
 export interface DynItem<T extends keyof ResolverConfig> {
   readonly isDyn: true;
   readonly name: T;
 }
 
+/**
+ * Selects a runtime context value without reading it yet.
+ * @example
+ * ```ts
+ * dyn`${dynItem("baseUrl")}/next`
+ * ```
+ */
 export function dynItem<const T extends keyof ResolverConfig>(name: T): DynItem<T> {
   return {
     isDyn: true,
@@ -137,17 +167,20 @@ function collectMatchers(
   }
 }
 
+/** Controls whether expansion produces wire values or retains matchers for comparison. */
 export interface ExpandDynsOptions {
-  /** When true, matchers are resolved to their `toJSON()` value. Default: true. */
+  /** Serializes matchers using the supplied config by default; false preserves matcher objects. */
   resolveMatchers?: boolean;
 }
 
 /**
  * Recursively expands all dynamic values.
  * - Dyn functions are called with the config.
- * - Resolvable matchers (e.g. `match.localUrl`) are resolved via `resolve(config)`.
- * - By default, matchers are resolved to their `toJSON()` plain value.
+ * - By default, matchers (e.g. `match.localUrl`) are expanded via `serialize(config)`.
  *   Pass `{ resolveMatchers: false }` to preserve matchers for use with `matchValues`.
+ * Arrays and enumerable object entries are rebuilt without mutating the input.
+ * Values inside dyn strings are still stringified even when matchers are preserved elsewhere.
+ * @throws {Error} if a function value is encountered that was not created by dyn.
  */
 export function expandDyns<T>(value: T, config: ResolverConfig, options?: ExpandDynsOptions): T {
   const resolve = options?.resolveMatchers ?? true;

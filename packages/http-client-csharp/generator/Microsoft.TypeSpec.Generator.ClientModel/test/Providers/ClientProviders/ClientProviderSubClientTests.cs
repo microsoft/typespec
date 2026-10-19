@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
@@ -38,6 +39,25 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             var writer = new TypeProviderWriter(clientProvider);
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task InheritedClientUsesNormalizedSubClient(bool relocate)
+        {
+            var parent = InputFactory.Client("DbClient");
+            var input = InputFactory.Client("Ipv4Client", parent: parent, initializedBy: InputClientInitializedBy.Parent);
+            await MockHelpers.LoadMockGeneratorAsync(clients: () => [parent],
+                lastContractCompilation: relocate ? async () => await Helpers.GetCompilationFromDirectoryAsync() : null);
+            var client = new MockClientProvider(parent, ["GetIPv4Client"]);
+            client.EnsureBuilt();
+            if (relocate)
+            {
+                ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(input)!.Update(@namespace: "Sample.Published");
+            }
+
+            Assert.AreEqual("DBClient", client.Name);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(relocate ? "Relocated" : null), new TypeProviderWriter(client).Write().Content);
         }
 
         // This test validates that the generated code is correct when a sub-client has a single sub-client.

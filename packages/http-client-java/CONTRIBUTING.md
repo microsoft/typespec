@@ -79,12 +79,29 @@ When writing / updating Java tests, you can manually
 1. Start the test server with `npm run spector-serve` (or `npm run spector-start` to start as a background process, `npm run spector-stop` to stop).
 2. Run the Java tests in the module.
 
+## Sync Java Dependency Versions
+
+From this package directory, run `pwsh eng\versioning\Sync-Versions.ps1` to sync
+`Project.Dependency`, generator/module POMs, the customization POM, and the generated-POM
+template with Azure SDK for Java's version files. Use `-WhatIf` to preview changes.
+
+`eng\versioning\external_dependencies.txt` lists the packages to sync; append `;version`
+to pin a package. The script prefers the first (released) version in `version_client.txt`,
+then falls back to `external_dependencies.txt`. Unlisted dependencies are unchanged.
+
+Run the script's offline tests with `pwsh eng\versioning\Sync-Versions.Tests.ps1`.
+
 ## Format Code
 
 Before creating pull request, the code is required to be well-formatted.
 
 Run `npm run format` in "packages/http-client-java" folder.
 It formats TypeScript code as well as Java code.
+
+## Lint and Type-check
+
+Run `npm run lint` in "packages/http-client-java" to lint and type-check the emitter source and tests.
+Java CI runs `npm run typecheck` before the emitter unit tests; it does not require the root-only linter.
 
 ## Add Change Description
 

@@ -7,6 +7,7 @@
 import pytest
 
 from pygen import OptionsDict
+from pygen.utils import parse_args
 
 
 def test_models_mode_none_normalized_via_constructor():
@@ -35,6 +36,29 @@ def test_generate_typeddict_defaults_to_true():
 
 def test_generate_typeddict_can_be_disabled():
     assert OptionsDict({"generate-typeddict": False})["generate-typeddict"] is False
+
+
+@pytest.mark.parametrize("options", [{}, {"enable-sse-reconnect": False}, {"enable-sse-reconnect": True}])
+def test_enable_sse_reconnect_is_opt_in(options):
+    assert OptionsDict(options)["enable-sse-reconnect"] is options.get("enable-sse-reconnect", False)
+
+
+@pytest.mark.parametrize("value", ["true", "false", 0, 1, None])
+def test_enable_sse_reconnect_requires_boolean(value):
+    with pytest.raises(ValueError, match="enable-sse-reconnect.*boolean"):
+        OptionsDict({"enable-sse-reconnect": value})
+    with pytest.raises(ValueError, match="enable-sse-reconnect.*boolean"):
+        OptionsDict()["enable-sse-reconnect"] = value
+
+
+@pytest.mark.parametrize("value, expected", [("false", False), ("true", True)])
+def test_enable_sse_reconnect_cli_propagation(monkeypatch, value, expected):
+    monkeypatch.setattr(
+        "sys.argv",
+        ["pygen", "--output-folder=out", "--tsp-file=main.yaml", f"--enable-sse-reconnect={value}"],
+    )
+    _, options = parse_args()
+    assert OptionsDict(options)["enable-sse-reconnect"] is expected
 
 
 def test_models_mode_none_with_tsp_generates_typeddict_by_default():

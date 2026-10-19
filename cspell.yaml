@@ -40,6 +40,7 @@ words:
   - blib
   - blockful
   - blockless
+  - bodyornocontent
   - buongiorno
   - cadl
   - cadleditor
@@ -62,6 +63,7 @@ words:
   - CRUDL
   - ctxt
   - dbaeumer
+  - Dbase
   - Dcodegen
   - debouncer
   - debugpy
@@ -127,6 +129,7 @@ words:
   - intrinsics
   - ints
   - IOHTTP
+  - IPIPDBDBOSOS
   - isascii
   - isdigit
   - isinstance
@@ -278,11 +281,13 @@ words:
   - srnagar
   - ssdlrs
   - sses
+  - ssenoreconnect
   - ssvs
   - statment
   - strs
   - stubbed
   - swaggerui
+  - tabular-nums
   - TCGC
   - TEAMPROJECTID
   - terlson

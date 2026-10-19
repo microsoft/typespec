@@ -9,7 +9,7 @@ import io.clientcore.core.serialization.json.JsonWriter;
 import java.io.IOException;
 
 /**
- * A named model used to verify explode expansion of a model-valued query parameter.
+ * A named model used to verify expansion of a model-valued query parameter.
  */
 @Metadata(properties = { MetadataProperties.IMMUTABLE })
 public final class ExpandParameters implements JsonSerializable<ExpandParameters> {

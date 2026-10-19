@@ -22,6 +22,7 @@ using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.SourceInput;
 using Microsoft.TypeSpec.Generator.Statements;
+using Microsoft.TypeSpec.Generator.Utilities;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 #pragma warning disable SCME0004 // FileBinaryContent is evaluation-only.
@@ -47,7 +48,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             SerializationFormat SerializationFormat,
             IEnumerable<AttributeStatement> SerializationAttributes,
             bool IsRequired,
-            bool IsReadOnly);
+            bool IsReadOnly,
+            IReadOnlyList<SuppressionStatement> Suppressions);
 
         private record XmlNamespaceInfo(string Namespace, string VariableName, string Prefix, VariableExpression VariableExpression);
 
@@ -144,7 +146,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 foreach (var prop in categorizedProperties.AttributeProperties)
                 {
-                    statements.Add(CreateXmlWriteAttributeStatement(prop, categorizedProperties.Namespaces));
+                    statements.Add(ExperimentalApiHelpers.Suppress(CreateXmlWriteAttributeStatement(prop, categorizedProperties.Namespaces), prop.Suppressions));
                 }
             }
 
@@ -153,14 +155,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             {
                 foreach (var prop in categorizedProperties.ElementProperties)
                 {
-                    statements.Add(CreateXmlWriteElementStatement(prop, categorizedProperties.Namespaces));
+                    statements.Add(ExperimentalApiHelpers.Suppress(CreateXmlWriteElementStatement(prop, categorizedProperties.Namespaces), prop.Suppressions));
                 }
             }
 
             // Write unwrapped content
             if (categorizedProperties.TextContentProperty != null)
             {
-                statements.Add(CreateXmlWriteTextContentStatement(categorizedProperties.TextContentProperty));
+                statements.Add(ExperimentalApiHelpers.Suppress(CreateXmlWriteTextContentStatement(categorizedProperties.TextContentProperty),
+                    categorizedProperties.TextContentProperty.Suppressions));
             }
 
             return [.. statements];
@@ -483,6 +486,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             return valueType.FrameworkType switch
             {
+                Type t when t == typeof(ulong) => value.CastTo(typeof(decimal)),
                 Type t when t == typeof(DateTimeOffset) => serializationFormat switch
                 {
                     _ => value.Invoke(nameof(ToString), Literal(serializationFormat.ToFormatSpecifier()))
@@ -512,7 +516,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             var isDefinedCondition = prop.PropertyType is { IsCollection: true, IsReadOnlyMemory: false }
-                ? OptionalSnippets.IsCollectionDefined(prop.SerializationExp)
+                ? OptionalSnippets.IsConcreteCollection(prop.PropertyType)
+                    ? prop.SerializationExp.NotEqual(Null)
+                    : prop.SerializationExp.NotEqual(Null).And(OptionalSnippets.IsCollectionDefined(prop.SerializationExp))
                 : OptionalSnippets.IsDefined(prop.SerializationExp);
 
             return new IfStatement(isDefinedCondition)
@@ -622,7 +628,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 new IfStatement(_xmlElementParameterSnippet.Equal(Null)) { valueKindEqualsNullReturn },
                 MethodBodyStatement.EmptyLine,
                 GetXmlNamespaceDeclarations(categorizedProperties.Namespaces),
-                GetPropertyVariableDeclarations(),
+                GetPropertyVariableDeclarations(preserveJsonPresence: false),
                 MethodBodyStatement.EmptyLine
             };
 
@@ -651,7 +657,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 statements.Add(MethodBodyStatement.EmptyLine);
             }
 
-            statements.Add(Return(New.Instance(_model.Type, GetSerializationCtorParameterValues())));
+            statements.Add(Return(New.Instance(_model.Type, GetSerializationCtorParameterValues(preserveJsonPresence: false))));
 
             return [.. statements];
         }
@@ -742,7 +748,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     continue;
                 }
 
-                var propertyInfo = new XmlPropertyInfo(propertyName, propertyType, SerializationExp, propertyExpression, xmlWireInfo, serializationFormat, serializationAttributes, isRequired, isReadOnly);
+                var suppressions = parameter.Property is not null
+                    ? ExperimentalApiHelpers.GetMemberSuppressions(parameter.Property)
+                    : ExperimentalApiHelpers.GetMemberSuppressions(parameter.Field!);
+                var propertyInfo = new XmlPropertyInfo(propertyName, propertyType, SerializationExp, propertyExpression, xmlWireInfo, serializationFormat, serializationAttributes, isRequired, isReadOnly, suppressions);
 
                 // Categorize by XML serialization type
                 if (xmlWireInfo.Attribute == true)

@@ -1,5 +1,12 @@
 # Change Log - @typespec/http
 
+## 1.17.0
+
+### Bug Fixes
+
+- [#12118](https://github.com/microsoft/typespec/pull/12118) Fix `@statusCode` properties that take their range from `@minValue` and `@maxValue` on a scalar or its base scalar, which were reported as `status-code-invalid`.
+
+
 ## 1.16.0
 
 ### Features

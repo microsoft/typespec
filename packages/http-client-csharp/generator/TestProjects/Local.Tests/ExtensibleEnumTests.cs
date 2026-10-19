@@ -7,6 +7,7 @@ using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
@@ -16,6 +17,67 @@ namespace TestProjects.Local.Tests
 {
     public class ExtensibleEnumTests
     {
+        private static IEnumerable<TestCaseData> AcronymMembers()
+        {
+            yield return new TestCaseData(StringFixedEnum.IP, StringExtensibleEnum.IP, StringFixedUnion.IP, IntFixedEnum.IP, "ip", 10);
+            yield return new TestCaseData(StringFixedEnum.DB, StringExtensibleEnum.DB, StringFixedUnion.DB, IntFixedEnum.DB, "db", 20);
+            yield return new TestCaseData(StringFixedEnum.OS, StringExtensibleEnum.OS, StringFixedUnion.OS, IntFixedEnum.OS, "os", 30);
+            yield return new TestCaseData(StringFixedEnum.IPv4, StringExtensibleEnum.IPv4, StringFixedUnion.IPv4, IntFixedEnum.IPv4, "ipv4", 40);
+            yield return new TestCaseData(StringFixedEnum.IPv6, StringExtensibleEnum.IPv6, StringFixedUnion.IPv6, IntFixedEnum.IPv6, "ipv6", 60);
+        }
+
+        [TestCaseSource(nameof(AcronymMembers))]
+        public void AcronymMembersRoundTrip(
+            StringFixedEnum fixedValue,
+            StringExtensibleEnum extensibleValue,
+            StringFixedUnion unionValue,
+            IntFixedEnum numericEnumValue,
+            string wireValue,
+            int numericValue)
+        {
+            var model = new ModelWithRequiredNullableProperties(null, extensibleValue, fixedValue)
+            {
+                FixedUnion = unionValue,
+                NumericEnum = numericEnumValue
+            };
+
+            var data = ModelReaderWriter.Write(model);
+            using var document = JsonDocument.Parse(data);
+            var json = document.RootElement;
+            Assert.AreEqual(wireValue, json.GetProperty("requiredExtensibleEnum").GetString());
+            Assert.AreEqual(wireValue, json.GetProperty("requiredFixedEnum").GetString());
+            Assert.AreEqual(wireValue, json.GetProperty("fixedUnion").GetString());
+            Assert.AreEqual(numericValue, json.GetProperty("numericEnum").GetInt32());
+
+            var roundTrip = ModelReaderWriter.Read<ModelWithRequiredNullableProperties>(data)!;
+            Assert.AreEqual(extensibleValue, roundTrip.RequiredExtensibleEnum);
+            Assert.AreEqual(fixedValue, roundTrip.RequiredFixedEnum);
+            Assert.AreEqual(unionValue, roundTrip.FixedUnion);
+            Assert.AreEqual(numericEnumValue, roundTrip.NumericEnum);
+        }
+
+        [Test]
+        public void UnknownExtensibleAcronymRoundTrips()
+        {
+            var model = new ModelWithRequiredNullableProperties(null, new StringExtensibleEnum("ipvFuture"), null);
+
+            var data = ModelReaderWriter.Write(model);
+            using var document = JsonDocument.Parse(data);
+            Assert.AreEqual("ipvFuture", document.RootElement.GetProperty("requiredExtensibleEnum").GetString());
+            var roundTrip = ModelReaderWriter.Read<ModelWithRequiredNullableProperties>(data)!;
+            Assert.AreEqual("ipvFuture", roundTrip.RequiredExtensibleEnum.ToString());
+        }
+
+        [TestCase("requiredFixedEnum")]
+        [TestCase("fixedUnion")]
+        public void UnknownFixedAcronymIsRejected(string propertyName)
+        {
+            var data = BinaryData.FromString($"{{\"{propertyName}\":\"ipvFuture\"}}");
+
+            Assert.Throws<ArgumentOutOfRangeException>(() =>
+                ModelReaderWriter.Read<ModelWithRequiredNullableProperties>(data));
+        }
+
         [TestCase(false)]
         [TestCase(true)]
         public async Task EnumResponseDeserialization(bool isAsync)

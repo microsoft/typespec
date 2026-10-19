@@ -8,6 +8,7 @@ using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
+using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Tests.Common;
 using NUnit.Framework;
 
@@ -15,6 +16,47 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
 {
     public class SerializationCustomizationTests
     {
+        [Test]
+        public async Task BackCompat_RenamedPropertiesKeepSerializationParameters(
+            [Values(false, true)] bool useLastContract)
+        {
+            var inputEnum = InputFactory.StringEnum("DestinationKind", [("VirtualNetwork", "virtualNetwork")]);
+            var inputModel = InputFactory.Model("MockInputModel", properties: [
+                    InputFactory.Property("isEnabled", InputPrimitiveType.Boolean, isRequired: true, serializedName: "enabled"),
+                    InputFactory.Property("destinationType", inputEnum, isRequired: true, serializedName: "type"),
+                    InputFactory.Property("enforcement", inputEnum)
+                ],
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Json);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputEnums: () => [inputEnum],
+                inputModels: () => [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync("Custom"),
+                lastContractCompilation: useLastContract
+                    ? async () => await Helpers.GetCompilationFromDirectoryAsync("Previous")
+                    : null);
+
+            var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.OfType<ModelProvider>().Single();
+            var serializationProvider = modelProvider.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition);
+            modelProvider.EnsureBuilt();
+            serializationProvider.EnsureBuilt();
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            var publicConstructor = modelProvider.Constructors.Single(c =>
+                c.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+            Assert.That(publicConstructor.Signature.Parameters.Select(p => p.Name),
+                Is.EqualTo(useLastContract ? new[] { "enabled", "type" } : new[] { "isEnabled", "destinationType" }));
+            Assert.That(publicConstructor.Signature.Parameters.Select(p => p.Property?.Name),
+                Is.EqualTo(new[] { "IsEnabled", "DestinationType" }));
+            Assert.That(modelProvider.FullConstructor.Signature.Parameters.Take(2).Select(p => p.Name),
+                Is.EqualTo(new[] { "isEnabled", "destinationType" }));
+            Assert.That(modelProvider.FullConstructor.Signature.Parameters.Take(2).Select(p => p.AsVariable().Declaration.RequestedName),
+                Is.EqualTo(new[] { "isEnabled", "destinationType" }));
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                serializationProvider, name => name is "DeserializeMockInputModel" or "JsonModelWriteCore"));
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), writer.Write().Content);
+        }
+
         [Test]
         public async Task CanChangePropertyName()
         {
@@ -60,6 +102,47 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var writer = new TypeProviderWriter(serializationProvider);
             var file = writer.Write();
             Assert.AreEqual(Helpers.GetExpectedFromFile(), file.Content);
+        }
+
+        [Test]
+        public async Task ConcreteListPropertyType()
+        {
+            var inputModel = InputFactory.Model("Model", properties: [
+                    InputFactory.Property("requiredNames", InputFactory.Array(InputPrimitiveType.String), isRequired: true),
+                    InputFactory.Property("requiredNullableNames", new InputNullableType(InputFactory.Array(InputPrimitiveType.String)), isRequired: true),
+                    InputFactory.Property("optionalNames", InputFactory.Array(InputPrimitiveType.String))
+                ],
+                usage: InputModelTypeUsage.Json);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider);
+            var serializationProvider = modelProvider.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition);
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                serializationProvider, name => name is "DeserializeModel" or "JsonModelWriteCore"));
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), writer.Write().Content);
+        }
+
+        [Test]
+        public async Task ConcreteOptionalNullableCollectionsStartUndefined()
+        {
+            var inputModel = InputFactory.Model("Model", properties: [
+                    InputFactory.Property("concreteNames", new InputNullableType(InputFactory.Array(InputPrimitiveType.String))),
+                    InputFactory.Property("concreteLabels", new InputNullableType(InputFactory.Dictionary(InputPrimitiveType.String))),
+                    InputFactory.Property("trackedNames", new InputNullableType(InputFactory.Array(InputPrimitiveType.String))),
+                    InputFactory.Property("trackedLabels", new InputNullableType(InputFactory.Dictionary(InputPrimitiveType.String)))
+                ],
+                usage: InputModelTypeUsage.Json);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [inputModel],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.Single(t => t is ModelProvider);
+            var serializationProvider = (MrwSerializationTypeDefinition)modelProvider.SerializationProviders.Single();
+            var content = serializationProvider.BuildDeserializationMethod().BodyStatements!.ToDisplayString();
+
+            StringAssert.Contains(Helpers.GetExpectedFromFile().ReplaceLineEndings("\n"), content);
         }
 
         [Test]
@@ -257,6 +340,43 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             new TestCaseData(InputFactory.StringEnum("EnumType", [("value", "value")], isExtensible: true)),
             new TestCaseData(InputFactory.Int32Enum("EnumType", [("one", 1)], isExtensible: true)),
         ];
+
+        [Test]
+        public async Task BackCompat_EnumChangedToExtensibleUsesCurrentSerialization(
+            [Values(false, true)] bool customizeEnum)
+        {
+            var inputEnum = InputFactory.StringEnum(
+                "StatusEnum",
+                [("Active", "active"), ("Inactive", "inactive")],
+                isExtensible: true);
+            var inputModel = InputFactory.Model("MockInputModel", properties: [
+                    InputFactory.Property("status", inputEnum, isRequired: true),
+                    InputFactory.Property("optionalStatus", inputEnum),
+                    InputFactory.Property("statuses", InputFactory.Array(inputEnum)),
+                    InputFactory.Property("statusMap", InputFactory.Dictionary(inputEnum))
+                ],
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Json);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputEnums: () => [inputEnum],
+                inputModels: () => [inputModel],
+                compilation: customizeEnum
+                    ? async () => await Helpers.GetCompilationFromDirectoryAsync("Custom")
+                    : null,
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync("Previous"));
+
+            var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.OfType<ModelProvider>().Single();
+            var serializationProvider = modelProvider.SerializationProviders.Single(t => t is MrwSerializationTypeDefinition);
+            modelProvider.EnsureBuilt();
+            serializationProvider.EnsureBuilt();
+            modelProvider.ProcessTypeForBackCompatibility();
+
+            var writer = new TypeProviderWriter(new FilteredMethodsTypeProvider(
+                serializationProvider, name => name is "DeserializeMockInputModel" or "JsonModelWriteCore"));
+            var content = writer.Write().Content;
+            StringAssert.DoesNotContain("ToSerialString", content);
+            StringAssert.DoesNotContain(".ToStatusEnum()", content);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
 
         [TestCaseSource(nameof(ExtensibleEnumCases))]
         public async Task CanCustomizeExtensibleEnum(InputEnumType enumType)

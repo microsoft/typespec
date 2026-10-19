@@ -1,5 +1,6 @@
 export {
   getDiscriminatedUnion,
+  // eslint-disable-next-line @typescript-eslint/no-deprecated -- exporting deprecated overloads for backward compatibility
   getDiscriminatedUnionFromInheritance,
 } from "./discriminator-utils.js";
 export type { DiscriminatedUnion, DiscriminatedUnionLegacy } from "./discriminator-utils.js";

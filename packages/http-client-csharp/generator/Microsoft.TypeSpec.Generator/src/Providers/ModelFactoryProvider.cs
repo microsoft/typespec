@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
@@ -74,7 +75,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     MethodSignatureModifiers.Static | MethodSignatureModifiers.Public,
                     modelProvider.Type,
                     $"A new {modelProvider.Type:C} instance for mocking.",
-                    GetParameters(modelProvider, fullConstructor));
+                    GetParameters(modelProvider, fullConstructor),
+                    Attributes: ExperimentalApiHelpers.BuildAttributes(model.Experimental));
 
                 var parameters = new List<XmlDocParamStatement>(signature.Parameters.Count);
                 foreach (var param in signature.Parameters)
@@ -89,7 +91,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
                 MethodBodyStatement statements = ConstructMethodBody(signature, typeToInstantiate);
 
-                methods.Add(new MethodProvider(signature, statements, this, docs));
+                methods.Add(new MethodProvider(signature, statements, this, docs,
+                    suppressions: ExperimentalApiHelpers.MergeSuppressions(
+                        ExperimentalApiHelpers.GetReferenceSuppressions(model),
+                        ExperimentalApiHelpers.GetReferenceSuppressions(model.AdditionalProperties),
+                        model.Properties.SelectMany(property => ExperimentalApiHelpers.GetReferenceSuppressions(property.Type)))));
             }
 
             return [.. methods];
@@ -122,7 +128,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             foreach (var previousMethod in LastContractView.Methods)
             {
-                if (!MethodSignatureHelper.IsPublicApi(previousMethod.Signature.Modifiers))
+                if (!MethodSignatureHelper.IsPublicApi(previousMethod.Signature))
                 {
                     continue;
                 }
@@ -136,6 +142,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 if (matchingCurrentMethod is not null)
                 {
                     bool isGeneratedMethod = factoryMethods.Any(method => ReferenceEquals(method, matchingCurrentMethod));
+                    // A visitor may have restored an all-required hidden compatibility shim
+                    // before this pass. Treat it like a shim synthesized below: do not reapply
+                    // published defaults or let it constrain the current overload's optionality.
+                    // Optional hidden methods and custom overloads still follow the normal path.
+                    if (isGeneratedMethod && IsRequiredHiddenCompatibilityMethod(matchingCurrentMethod.Signature))
+                    {
+                        continue;
+                    }
+
                     if (isGeneratedMethod)
                     {
                         for (int i = 0; i < previousMethod.Signature.Parameters.Count; i++)
@@ -357,6 +372,43 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
             }
             return [.. factoryMethods];
+        }
+
+        private static bool IsRequiredHiddenCompatibilityMethod(MethodSignature signature)
+        {
+            if (signature.Parameters.Any(parameter => parameter.DefaultValue is not null || parameter.IsParams))
+            {
+                return false;
+            }
+
+            return signature.Attributes.Any(IsEditorBrowsableNeverAttribute);
+        }
+
+        private static bool IsEditorBrowsableNeverAttribute(AttributeStatement attribute)
+        {
+            if (!attribute.Type.Equals(typeof(EditorBrowsableAttribute)) || attribute.Arguments.Count != 1)
+            {
+                return false;
+            }
+
+            return IsEditorBrowsableNeverState(attribute.Arguments[0]);
+        }
+
+        private static bool IsEditorBrowsableNeverState(ValueExpression expression)
+        {
+            if (expression is ScopedApi scoped)
+            {
+                expression = scoped.Original;
+            }
+
+            return expression switch
+            {
+                MemberExpression { Inner: TypeReferenceExpression { Type: { } type }, MemberName: nameof(EditorBrowsableState.Never) }
+                    => type.Equals(typeof(EditorBrowsableState)),
+                LiteralExpression { Literal: int state } => state == (int)EditorBrowsableState.Never,
+                LiteralExpression { Literal: EditorBrowsableState state } => state == EditorBrowsableState.Never,
+                _ => false,
+            };
         }
 
         private IReadOnlyList<MethodSignature> GetCurrentOverloadSignatures(

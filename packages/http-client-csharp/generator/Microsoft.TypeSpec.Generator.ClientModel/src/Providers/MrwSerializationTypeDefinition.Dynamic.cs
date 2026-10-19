@@ -13,6 +13,7 @@ using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Snippets;
 using Microsoft.TypeSpec.Generator.Statements;
+using Microsoft.TypeSpec.Generator.Utilities;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
@@ -498,13 +499,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                                 valueParameter),
                             Return(True)
                         });
-                statements.Add(ifStatement);
+                statements.Add(ExperimentalApiHelpers.Suppress(ifStatement, ExperimentalApiHelpers.GetMemberSuppressions(property)));
             }
 
             foreach (var property in allDynamicCollectionProperties)
             {
                 var indexableProperty = new IndexableExpression(property);
-                statements.Add(
+                statements.Add(ExperimentalApiHelpers.Suppress(
                     new IfStatement(
                         localVariable.Invoke("StartsWith", LiteralU8(GetJsonSerializedName(property.WireInfo!))))
                     {
@@ -513,7 +514,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                             propagateGet,
                             valueParameter,
                             localVariable)
-                    });
+                    }, ExperimentalApiHelpers.GetMemberSuppressions(property)));
             }
 
             if (statements.Count > 0)
@@ -710,7 +711,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 signature,
                 bodyStatements,
                 _model,
-                suppressions: [ScmModelProvider.JsonPatchSuppression]);
+                suppressions: ExperimentalApiHelpers.MergeSuppressions(
+                    [ScmModelProvider.JsonPatchSuppression], ExperimentalApiHelpers.GetMemberSuppressions(property)));
         }
 
         /// <summary>
@@ -762,7 +764,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             var bodyStatements = new MethodBodyStatement[]
             {
-                new IfStatement(Not(OptionalSnippets.IsCollectionDefined((ValueExpression)property)))
+                new IfStatement(Not(OptionalSnippets.IsCollectionDefined(property, property.Type)))
                 {
                     YieldBreak()
                 },
@@ -774,7 +776,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 signature,
                 bodyStatements,
                 _model,
-                suppressions: [ScmModelProvider.JsonPatchSuppression]);
+                suppressions: ExperimentalApiHelpers.MergeSuppressions(
+                    [ScmModelProvider.JsonPatchSuppression], ExperimentalApiHelpers.GetMemberSuppressions(property)));
         }
 
         /// <summary>

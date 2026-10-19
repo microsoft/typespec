@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.TypeSpec.Generator.EmitterRpc;
 using Microsoft.TypeSpec.Generator.Expressions;
@@ -91,7 +92,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             foreach (var kvp in currentMethodSignatures)
             {
                 var currentSignature = kvp.Key;
-                if (currentSignature.Name.Equals(previousSignature.Name)
+                if (!kvp.Value.IsPartialMethod && currentSignature.Name.Equals(previousSignature.Name)
                     && currentSignature.ReturnType?.AreNamesEqual(previousSignature.ReturnType) == true
                     && MethodSignatureHelper.ContainsSameParameters(previousSignature, currentSignature))
                 {
@@ -143,7 +144,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             }
 
             IEnumerable<MethodProvider> scopedMethods = lastContractMethods
-                .Where(m => MethodSignatureHelper.IsPublicApi(m.Signature.Modifiers));
+                .Where(m => MethodSignatureHelper.IsPublicApi(m.Signature));
             if (methodName != null)
             {
                 scopedMethods = scopedMethods.Where(m =>
@@ -169,8 +170,16 @@ namespace Microsoft.TypeSpec.Generator.Utilities
 
             foreach (var method in currentMethods)
             {
+                // Custom partial declarations choose their names explicitly and take precedence over the last contract.
+                if (method.IsPartialMethod)
+                {
+                    continue;
+                }
+
                 var modifiers = method.Signature.Modifiers;
-                if (!modifiers.HasFlag(MethodSignatureModifiers.Public) && !modifiers.HasFlag(MethodSignatureModifiers.Protected))
+                var isPublicOrProtected = modifiers.HasFlag(MethodSignatureModifiers.Public)
+                    || modifiers.HasFlag(MethodSignatureModifiers.Protected);
+                if (!isPublicOrProtected)
                 {
                     continue;
                 }
@@ -197,7 +206,21 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                     var inputParameter = parameter.InputParameter;
                     if (inputParameter is not null && !parameter.IsContentParameter)
                     {
-                        preservedName = FindPreviousParameterName(lastContractView, inputParameter.OriginalName, method.Signature.Name);
+                        if (matchingPrevious != null)
+                        {
+                            preservedName = matchingPrevious.Signature.Parameters.FirstOrDefault(p =>
+                                string.Equals(p.Name, inputParameter.OriginalName, StringComparison.OrdinalIgnoreCase))?.Name;
+                        }
+                        else
+                        {
+                            // Date/time inputs keep the legacy fallback even when their names also contain acronyms.
+                            var hasAcronymRename = inputParameter.Name != inputParameter.Name.NormalizeCSharpAcronyms(useCamelCase: true);
+                            if (!hasAcronymRename || inputParameter.Type.IsDateTimeInputType())
+                            {
+                                preservedName = FindPreviousParameterName(
+                                    lastContractView, inputParameter.OriginalName, method.Signature.Name);
+                            }
+                        }
                     }
 
                     // Fall back to a positional match for synthesized parameters
@@ -251,7 +274,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
         {
             foreach (var previousMethod in previousMethods)
             {
-                if (!MethodSignatureHelper.IsPublicApi(previousMethod.Signature.Modifiers))
+                if (!MethodSignatureHelper.IsPublicApi(previousMethod.Signature))
                 {
                     continue;
                 }
@@ -274,31 +297,31 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             MethodSignature previousSignature)
         {
             var currentSignature = methodToReorder.Signature;
-            if (MethodSignatureHelper.HaveSameParametersInSameOrder(currentSignature, previousSignature))
+            if (methodToReorder.IsPartialMethod
+                || !MethodSignatureHelper.TryMatchParameterOrder(currentSignature.Parameters, previousSignature.Parameters, out var reorderedParameters))
             {
                 return false;
             }
 
-            var parametersByName = currentSignature.Parameters.ToDictionary(p => p.Name.ToVariableName());
-            var reorderedParameters = new List<ParameterProvider>(currentSignature.Parameters.Count);
-
-            foreach (var previousParam in previousSignature.Parameters)
+            bool orderChanged = false;
+            for (int i = 0; i < reorderedParameters.Length; i++)
             {
-                if (parametersByName.TryGetValue(previousParam.Name.ToVariableName(), out var matchingParam))
+                if (!ReferenceEquals(currentSignature.Parameters[i], reorderedParameters[i]))
                 {
-                    reorderedParameters.Add(matchingParam);
+                    orderChanged = true;
+                    break;
                 }
             }
-
-            if (reorderedParameters.Count != currentSignature.Parameters.Count)
+            if (!orderChanged)
             {
                 return false;
             }
 
-            foreach (var previousParam in previousSignature.Parameters)
+            for (int i = 0; i < reorderedParameters.Length; i++)
             {
-                if (parametersByName.TryGetValue(previousParam.Name.ToVariableName(), out var matchingParam)
-                    && matchingParam.DefaultValue is not null
+                var matchingParam = reorderedParameters[i];
+                var previousParam = previousSignature.Parameters[i];
+                if (matchingParam.DefaultValue is not null
                     && previousParam.DefaultValue is not null)
                 {
                     matchingParam.Update(defaultValue: previousParam.DefaultValue);
@@ -387,7 +410,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             {
                 var previousSignature = previousMethod.Signature;
                 if (previousSignature.Modifiers.HasFlag(MethodSignatureModifiers.Abstract) ||
-                    !MethodSignatureHelper.IsPublicApi(previousSignature.Modifiers) ||
+                    !MethodSignatureHelper.IsPublicApi(previousSignature) ||
                     !currentMethodsByName.TryGetValue(previousSignature.Name, out var candidates))
                 {
                     continue;
@@ -487,12 +510,34 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                     continue;
                 }
 
+                ApplyCurrentExperimentalMetadata(
+                    enclosingType,
+                    overload,
+                    optionalityMatch ?? newOptionalMatch ?? nullabilityMatch!);
                 candidates.Add(overload);
                 methods.Add(overload);
                 CodeModelGenerator.Instance.Emitter.Debug(
                     $"Added back-compat overload for '{enclosingType.Name}.{previousSignature.Name}' {reason}",
                     category);
             }
+        }
+
+        private static void ApplyCurrentExperimentalMetadata(TypeProvider enclosingType, MethodProvider overload, MethodProvider currentMethod)
+        {
+            var customMethod = currentMethod.IsPartialMethod
+                ? enclosingType.CustomCodeView?.Methods.FirstOrDefault(
+                    method => MethodSignatureBase.SignatureComparer.Equals(method.Signature, currentMethod.Signature))
+                : null;
+            var attribute = customMethod?.Signature.Attributes.FirstOrDefault(ExperimentalApiHelpers.IsExperimentalAttribute)
+                ?? currentMethod.Signature.Attributes.FirstOrDefault(ExperimentalApiHelpers.IsExperimentalAttribute);
+
+            // Graduation and custom partial attributes follow the current API, not the last contract.
+            overload.Signature.Update(attributes:
+            [
+                .. overload.Signature.Attributes.Where(a => !ExperimentalApiHelpers.IsExperimentalAttribute(a)),
+                .. attribute is null ? Array.Empty<AttributeStatement>() : [attribute]
+            ]);
+            overload.Update(suppressions: ExperimentalApiHelpers.MergeSuppressions(overload.Suppressions, currentMethod.Suppressions));
         }
 
         // Returns true when both signatures have the same return type (matched by name); a null return type

@@ -46,10 +46,26 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         private protected virtual TypeProvider? BuildCustomCodeView(string? generatedTypeName = null, string? generatedTypeNamespace = null)
-            => CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(
-                generatedTypeNamespace ?? BuildNamespace(),
-                generatedTypeName ?? BuildName(),
+        {
+            var typeNamespace = generatedTypeNamespace ?? BuildNamespace();
+            var typeName = generatedTypeName ?? BuildName();
+            var customCodeView = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(
+                typeNamespace,
+                typeName,
                 _declaringTypeName.Value);
+            var originalName = BuildOriginalName();
+            if (customCodeView is not null || originalName is null ||
+                typeName == originalName || typeName != originalName.NormalizeCSharpAcronyms())
+            {
+                return customCodeView;
+            }
+
+            // Namespace updates can reveal custom code after the generated name was normalized.
+            return CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(
+                typeNamespace,
+                originalName,
+                _declaringTypeName.Value);
+        }
 
         private protected virtual TypeProvider? BuildLastContractView(string? generatedTypeName = null, string? generatedTypeNamespace = null)
         {
@@ -59,12 +75,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 typeNamespace,
                 typeName,
                 _declaringTypeName.Value);
-            if (lastContractView is not null || _inputType is null || _inputType.IsExactName)
+            var originalName = BuildOriginalName();
+            if (lastContractView is not null || originalName is null)
             {
                 return lastContractView;
             }
 
-            var originalName = _inputType.Name.ToIdentifierName();
             var normalizedOriginalName = originalName.NormalizeCSharpAcronyms();
             if (normalizedOriginalName == originalName || typeName != normalizedOriginalName)
             {
@@ -198,6 +214,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         private CSharpType? _type;
+
+        // Returns the already-materialized type without invoking the lazy Type builder. This is used
+        // during provider discovery, where building Type would also build BaseType and could re-enter
+        // the discovery operation or mutate provider caches while they are being inspected.
+        internal CSharpType? CachedType => _type;
+
         private CSharpType[]? _arguments;
         public CSharpType Type => _type ??=
             new(
@@ -287,7 +309,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected virtual CSharpType? BuildBaseType() => null;
 
         private IReadOnlyList<SuppressionStatement>? _disabledFileWarnings;
-        public IReadOnlyList<SuppressionStatement> DisabledFileWarnings => _disabledFileWarnings ??= BuildDisabledFileWarnings();
+        public IReadOnlyList<SuppressionStatement> DisabledFileWarnings => _disabledFileWarnings ??=
+            ExperimentalApiHelpers.MergeSuppressions(
+                BuildDisabledFileWarnings(),
+                ExperimentalApiHelpers.GetTypeSuppressions(_inputType ?? SerializationProviderOwner?._inputType));
 
         private protected virtual bool FilterCustomizedMembers => true;
 
@@ -696,6 +721,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected internal virtual CSharpType[] BuildImplements() => [];
 
+        /// <summary>
+        /// Determines whether a symbol-backed method contains signature metadata that the provider
+        /// model cannot represent, such as a by-reference return. Emitters should not use such a
+        /// signature as evidence that a generated method preserves a last-contract API.
+        /// </summary>
+        /// <param name="signature">The method signature to inspect.</param>
+        protected static bool HasUnsupportedSignature(MethodSignature signature)
+            => signature.HasUnsupportedBaseContract ||
+                signature.Parameters.Any(parameter => parameter.HasUnsupportedParameterModifiers);
+
         protected internal virtual MethodProvider[] BuildMethods() => [];
 
         protected internal virtual ConstructorProvider[] BuildConstructors() => [];
@@ -721,7 +756,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected virtual CSharpType BuildEnumUnderlyingType() => throw new InvalidOperationException("Not an EnumProvider type");
 
-        protected virtual IReadOnlyList<MethodBodyStatement> BuildAttributes() => [];
+        protected virtual IReadOnlyList<MethodBodyStatement> BuildAttributes()
+        {
+            var attribute = ExperimentalApiHelpers.BuildAttribute(_inputType?.Experimental);
+            return attribute is null || CustomCodeView?.Attributes.Any(ExperimentalApiHelpers.IsExperimentalAttribute) == true
+                ? []
+                : [attribute];
+        }
 
         private CSharpType? _enumUnderlyingType;
 
@@ -736,6 +777,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected abstract string BuildRelativeFilePath();
         protected abstract string BuildName();
+
+        /// <summary>
+        /// Gets the original identifier for compatibility lookup before acronym normalization,
+        /// or null when the name must be used exactly as specified.
+        /// </summary>
+        protected virtual string? BuildOriginalName() => _inputType is { IsExactName: false } ? _inputType.Name.ToIdentifierName() : null;
 
         protected string NormalizeTypeNameForNewContract(string name)
         {
@@ -753,6 +800,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (normalizedName == name)
             {
                 return name;
+            }
+
+            if (CodeModelGenerator.Instance.SourceInputModel.FindForTypeInCurrentCompilation(
+                typeNamespace, normalizedName, _declaringTypeName.Value) is not null)
+            {
+                return normalizedName;
             }
 
             var lastContractType = CodeModelGenerator.Instance.SourceInputModel.FindForTypeInLastContract(
@@ -917,6 +970,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private void ResetMembersBasedOnIdentityChange(string? name = null, string? @namespace = null)
         {
+            var previousName = Type.Name;
+            var previousNamespace = Type.Namespace;
             _declaringTypeName = new(() => GetDeclaringTypeName(DeclaringTypeProvider));
             // Reset the custom code view to reflect the new namespace
             _customCodeView = new(BuildCustomCodeView(name ?? Type.Name, @namespace ?? Type.Namespace));
@@ -934,7 +989,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // serialization providers need to reflect the new type name/namespace
             _serializationProviders = null;
             Type.Update(name: name, @namespace: @namespace);
+            if (Type.Name != previousName || Type.Namespace != previousNamespace)
+            {
+                OnIdentityUpdated(previousName, previousNamespace);
+            }
         }
+
+        /// <summary>
+        /// Updates generated dependencies after a name or namespace change has resolved
+        /// the type's final identity from custom code and the last contract.
+        /// </summary>
+        protected virtual void OnIdentityUpdated(string previousName, string previousNamespace) { }
 
         public IReadOnlyList<EnumTypeMember> EnumValues => _enumValues ??= BuildEnumValues();
 
@@ -1153,7 +1218,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             foreach (var previousMethod in previousMethods)
             {
                 if (currentMethodSignatures.ContainsKey(previousMethod.Signature)
-                    || !MethodSignatureHelper.IsPublicApi(previousMethod.Signature.Modifiers)
+                    || !MethodSignatureHelper.IsPublicApi(previousMethod.Signature)
                     || BackCompatHelper.IsMethodRemovalAcceptedInBaseline(this, previousMethod.Signature))
                 {
                     continue;
@@ -1218,7 +1283,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // Check if the last contract had a public constructor with matching parameters
             foreach (var previousConstructor in LastContractView.Constructors)
             {
-                if (!previousConstructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public))
+                if (!previousConstructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) ||
+                    !MethodSignatureHelper.IsPublicApi(previousConstructor.Signature))
                 {
                     continue;
                 }

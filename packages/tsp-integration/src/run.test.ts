@@ -44,16 +44,59 @@ it("installs and restores metadata across separate patch/install stage invocatio
   expect(await readFile(join(dir, "package.json"), "utf8")).toBe(original);
 });
 
-it("preserves patches on install failure and restores them after a successful retry", async () => {
+it.each([
+  { lockfile: undefined, fail: false },
+  { lockfile: undefined, fail: true },
+  { lockfile: "# original lockfile\n", fail: false },
+  { lockfile: "# original lockfile\n", fail: true },
+])("restores pnpm metadata after installation: %j", async ({ lockfile, fail }) => {
+  const lockfilePath = join(dir, "pnpm-lock.yaml");
+  const workspacePath = join(dir, "pnpm-workspace.yaml");
+  const workspace = "# original workspace\nallowBuilds:\n  autorest: true\n";
+  await writeFile(workspacePath, workspace);
+  if (lockfile !== undefined) await writeFile(lockfilePath, lockfile);
+  const error = new Error("ERR_PNPM_IGNORED_BUILDS");
+  vi.mocked(utils.execWithSpinner).mockImplementationOnce(async () => {
+    await writeFile(lockfilePath, "# package-manager metadata written by pnpm\n");
+    await writeFile(workspacePath, "allowBuilds:\n  example: set this to true or false\n");
+    if (fail) throw error;
+  });
+
+  await runIntegrationTestSuite(dir, "test", suite, { stages: ["patch"] });
+  const install = runIntegrationTestSuite(dir, "test", suite, { stages: ["install", "validate"] });
+  if (fail) {
+    await expect(install).rejects.toBe(error);
+    expect(validation.validateSpecs).not.toHaveBeenCalled();
+  } else {
+    await install;
+  }
+  expect(await utils.readOptionalFile(lockfilePath)).toBe(lockfile);
+  expect(await readFile(workspacePath, "utf8")).toBe(workspace);
+  expect(await readFile(join(dir, "package.json"), "utf8")).toBe(original);
+
+  await runIntegrationTestSuite(dir, "test", suite, { stages: ["patch", "install"] });
+  expect(await readFile(workspacePath, "utf8")).toBe(workspace);
+  expect(await utils.readOptionalFile(lockfilePath)).toBe(lockfile);
+});
+
+it("restores npm metadata after an installation failure", async () => {
+  const manifest = '{"dependencies":{"@typespec/compiler":"next"}}';
+  await writeFile(join(dir, "package.json"), manifest);
   vi.mocked(utils.execWithSpinner).mockRejectedValueOnce(new Error("install failed"));
   await expect(
     runIntegrationTestSuite(dir, "test", suite, { stages: ["patch", "install"] }),
   ).rejects.toThrow("install failed");
-  expect(await readFile(join(dir, "pnpm-workspace.yaml"), "utf8")).toContain("overrides");
-  await runIntegrationTestSuite(dir, "test", suite, { stages: ["install"] });
-  await expect(readFile(join(dir, "pnpm-workspace.yaml"))).rejects.toMatchObject({
-    code: "ENOENT",
+  expect(await readFile(join(dir, "package.json"), "utf8")).toBe(manifest);
+});
+
+it("preserves an existing pnpm lockfile during an install-only invocation", async () => {
+  const path = join(dir, "pnpm-lock.yaml");
+  await writeFile(path, "# user changes\n");
+  vi.mocked(utils.execWithSpinner).mockImplementationOnce(async () => {
+    await writeFile(path, "# pnpm changes\n");
   });
+  await runIntegrationTestSuite(dir, "test", suite, { stages: ["install"] });
+  expect(await readFile(path, "utf8")).toBe("# user changes\n");
 });
 
 it("keeps npm install arguments and leaves unpatched user metadata alone", async () => {

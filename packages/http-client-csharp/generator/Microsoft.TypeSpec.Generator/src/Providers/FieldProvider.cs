@@ -39,6 +39,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         public TypeProvider EnclosingType { get; private set; }
         public IReadOnlyList<AttributeStatement> Attributes { get; private set; }
+        public IReadOnlyList<SuppressionStatement> Suppressions { get; private set; } = [];
 
         internal string? OriginalName { get; init; }
 
@@ -83,7 +84,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             ValueExpression? initializationValue = null,
             PropertyWireInformation? wireInfo = null,
             TypeProvider? enclosingType = null,
-            IEnumerable<AttributeStatement>? attributes = null)
+            IEnumerable<AttributeStatement>? attributes = null,
+            IEnumerable<SuppressionStatement>? suppressions = null)
         {
             if (modifiers != null)
             {
@@ -142,6 +144,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (attributes != null)
             {
                 Attributes = (attributes as IReadOnlyList<AttributeStatement>) ?? [];
+            }
+            if (suppressions != null)
+            {
+                Suppressions = suppressions.ToArray();
             }
         }
 

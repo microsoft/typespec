@@ -1,5 +1,9 @@
 import { createTypeSpecLibrary, paramMessage } from "@typespec/compiler";
 
+/**
+ * Defines the events library's identity, diagnostics, and decorator state keys
+ * for the TypeSpec compiler.
+ */
 export const $lib = createTypeSpecLibrary({
   name: "@typespec/events",
   diagnostics: {

@@ -13,6 +13,7 @@ using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Statements;
+using Microsoft.TypeSpec.Generator.Utilities;
 using static Microsoft.TypeSpec.Generator.Snippets.Snippet;
 
 namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
@@ -49,7 +50,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             (HashSet<CSharpType> buildableTypes, HashSet<TypeProvider> buildableProviders) = CollectBuildableTypes();
             foreach (var type in buildableTypes)
             {
-                if (customizedBuildableTypes.Contains(GetTypeIdentity(type)))
+                if (!type.FrameworkType.IsVisible || customizedBuildableTypes.Contains(GetTypeIdentity(type)))
                 {
                     continue;
                 }
@@ -68,7 +69,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
             foreach (var provider in buildableProviders)
             {
-                if (!ShouldWriteProvider(provider) || customizedBuildableTypes.Contains(GetTypeIdentity(provider.Type)))
+                if (!IsPublicApi(provider)
+                    || !ShouldWriteProvider(provider)
+                    || customizedBuildableTypes.Contains(GetTypeIdentity(provider.Type)))
                 {
                     continue;
                 }
@@ -85,6 +88,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             // Sort by the simple type name (last part after the last dot) instead of the fully qualified name
             return attributes.OrderBy(a => GetSimpleTypeName(a.Key)).Select(kvp => kvp.Value).ToList();
+        }
+
+        // Protected-only providers can also have the Public flag added by TypeProvider.
+        private static bool IsPublicApi(TypeProvider provider)
+        {
+            var modifiers = provider.DeclarationModifiers;
+            if (modifiers.HasFlag(TypeSignatureModifiers.Protected))
+            {
+                return modifiers.HasFlag(TypeSignatureModifiers.Internal)
+                    && !modifiers.HasFlag(TypeSignatureModifiers.Private);
+            }
+
+            return modifiers.HasFlag(TypeSignatureModifiers.Public);
         }
 
         protected override IReadOnlyList<MethodBodyStatement> BuildAttributesForBackCompatibility(IReadOnlyList<MethodBodyStatement> originalAttributes)
@@ -603,9 +619,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             string key)
         {
             AttributeStatement? experimentalOrObsoleteAttribute = typeProvider.CanonicalView.Attributes
-                .FirstOrDefault(a => a.Type.Equals(typeof(ExperimentalAttribute)) || a.Type.Equals(typeof(ObsoleteAttribute)));
+                .FirstOrDefault(a => ExperimentalApiHelpers.IsExperimentalAttribute(a) || a.Type.Equals(typeof(ObsoleteAttribute)));
 
-            if (experimentalOrObsoleteAttribute?.Type.Equals(typeof(ExperimentalAttribute)) == true)
+            if (experimentalOrObsoleteAttribute is not null && ExperimentalApiHelpers.IsExperimentalAttribute(experimentalOrObsoleteAttribute))
             {
                 string justification = $"{typeProvider.Type} is experimental and may change in future versions.";
                 attributes.Add(key, new SuppressionStatement(attributeStatement, experimentalOrObsoleteAttribute.Arguments[0], justification));

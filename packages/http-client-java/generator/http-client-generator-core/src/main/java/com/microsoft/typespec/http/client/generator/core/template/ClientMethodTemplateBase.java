@@ -43,6 +43,7 @@ public abstract class ClientMethodTemplateBase implements IJavaTemplate<ClientMe
             List<ProxyMethodParameter> queryParameters = clientMethod.getProxyMethod()
                 .getAllParameters()
                 .stream()
+                .filter(p -> !isHiddenContinuationToken(clientMethod, p))
                 .filter(p -> RequestParameterLocation.QUERY.equals(p.getRequestParameterLocation())
                     // ignore if synthesized by modelerfour, i.e. api-version
                     && p.getOrigin() == ParameterSynthesizedOrigin.NONE)
@@ -55,6 +56,7 @@ public abstract class ClientMethodTemplateBase implements IJavaTemplate<ClientMe
             List<ProxyMethodParameter> headerParameters = clientMethod.getProxyMethod()
                 .getAllParameters()
                 .stream()
+                .filter(p -> !isHiddenContinuationToken(clientMethod, p))
                 .filter(p -> RequestParameterLocation.HEADER.equals(p.getRequestParameterLocation()))
                 // ignore if synthesized by modelerfour and is constant
                 // we would want user to provide a correct "content-type" if it is not a constant
@@ -125,6 +127,9 @@ public abstract class ClientMethodTemplateBase implements IJavaTemplate<ClientMe
         }
 
         clientMethod.getParameters()
+            .stream()
+            .filter(
+                p -> !clientMethod.isPageStreamingType() || !clientMethod.getMethodPageDetails().shouldHideParameter(p))
             .forEach(p -> commentBlock.param(p.getName(), MethodUtil.methodParameterDescriptionOrDefault(p)));
         if (clientMethod.getProxyMethod() != null) {
             generateJavadocExceptions(clientMethod, commentBlock, false);
@@ -136,6 +141,17 @@ public abstract class ClientMethodTemplateBase implements IJavaTemplate<ClientMe
             commentBlock.line("@see <a href=" + clientMethod.getMethodDocumentation().getUrl() + ">"
                 + clientMethod.getMethodDocumentation().getDescription() + "</a>");
         }
+    }
+
+    private static boolean isHiddenContinuationToken(ClientMethod clientMethod, ProxyMethodParameter parameter) {
+        if (!clientMethod.isPageStreamingType() || clientMethod.getMethodPageDetails().getContinuationToken() == null) {
+            return false;
+        }
+        ProxyMethodParameter token = clientMethod.getMethodPageDetails().getContinuationToken().getRequestParameter();
+        return token.getRequestParameterLocation() == parameter.getRequestParameterLocation()
+            && (token.getRequestParameterLocation() == RequestParameterLocation.HEADER
+                ? token.getRequestParameterName().equalsIgnoreCase(parameter.getRequestParameterName())
+                : token.getRequestParameterName().equals(parameter.getRequestParameterName()));
     }
 
     protected static void generateJavadocExceptions(ClientMethod clientMethod, JavaJavadocComment commentBlock,
@@ -282,10 +298,8 @@ public abstract class ClientMethodTemplateBase implements IJavaTemplate<ClientMe
                 isRequired, isRequiredForCreate, false);
             commentBlock.line(indent + "]");
         } else if (type instanceof EnumType) {
-            String values = ((EnumType) type).getValues()
-                .stream()
-                .map(ClientEnumValue::getValue)
-                .collect(Collectors.joining("/"));
+            String values = CodeNamer.escapeComment(
+                ((EnumType) type).getValues().stream().map(ClientEnumValue::getValue).collect(Collectors.joining("/")));
             if (name != null) {
                 commentBlock.line(indent + name + ": String(" + values + ")"
                     + appendOptionalOrRequiredAttribute(isRequired, isRequiredForCreate, isRootSchema));

@@ -1,0 +1,15 @@
+/test/main.tsp:41:3 - error @typespec/protobuf/field-index: field 'card' uses field index 10, which is already used by field 'id' in this message
+/test/main.tsp:47:10 - error @typespec/protobuf/field-index: field 'id' uses field index 11, which is already used by field 'bank_transfer' in this message
+/test/main.tsp:53:3 - error @typespec/protobuf/field-index: field index 10 was reserved by a call to @reserve on this model
+/test/main.tsp:53:3 - error @typespec/protobuf/field-name: field name 'card' was reserved by a call to @reserve on this model
+/test/main.tsp:53:3 - error @typespec/protobuf/field-index: field index 11 falls within a range reserved by a call to @reserve on this model
+/test/main.tsp:59:3 - error @typespec/protobuf/field-name: name 'card' is already used by another field or oneof in this message
+/test/main.tsp:64:3 - error @typespec/protobuf/field-name: name 'card' is already used by another field or oneof in this message
+/test/main.tsp:70:3 - error @typespec/protobuf/field-name: name 'card' is already used by another field or oneof in this message
+/test/main.tsp:70:3 - error @typespec/protobuf/field-index: field 'card' uses field index 10, which is already used by field 'card' in this message
+/test/main.tsp:70:3 - error @typespec/protobuf/field-name: name 'bank_transfer' is already used by another field or oneof in this message
+/test/main.tsp:70:3 - error @typespec/protobuf/field-index: field 'bank_transfer' uses field index 11, which is already used by field 'bank_transfer' in this message
+/test/main.tsp:76:10 - error @typespec/protobuf/field-index: field 'b' uses field index 1, which is already used by field 'a' in this message
+/test/main.tsp:23:10 - error @typespec/protobuf/field-index: field 'b' uses field index 1, which is already used by field 'a' in this message
+/test/main.tsp:29:10 - error @typespec/protobuf/field-index: field index 2 was reserved by a call to @reserve on this model
+/test/main.tsp:29:13 - error @typespec/protobuf/field-name: field name 'b' was reserved by a call to @reserve on this model

@@ -5,7 +5,12 @@ import { dirname, join, relative, resolve } from "pathe";
 import pc from "picocolors";
 import type { Entrypoint, IntegrationTestSuite } from "./config/types.js";
 import { registerConsoleShortcuts } from "./keyboard-api.js";
-import { detectPackageManager, getCompileCommand, type PackageManager } from "./package-manager.js";
+import {
+  detectPackageManager,
+  getCompileCommand,
+  withPreservedLockfile,
+  type PackageManager,
+} from "./package-manager.js";
 import type { TaskRunner } from "./runner.js";
 import { log, runWithConcurrency, ValidationFailedError } from "./utils.js";
 
@@ -91,7 +96,9 @@ export class TspRunner {
   async #execWorker(projectsToRun: string[]): Promise<BatchRunResult> {
     this.isCancelling = false;
     const manager = (this.#packageManager ??= await detectPackageManager(this.dir));
-    const result = await runValidation(this.#runner, this, projectsToRun, manager);
+    const result = await withPreservedLockfile(this.dir, manager, () =>
+      runValidation(this.#runner, this, projectsToRun, manager),
+    );
     if (this.#options.interactive) {
       log(
         `\nPress ${pc.yellow("a")} to rerun all tests, ${pc.yellow("f")} to rerun failed tests, or ${pc.yellow("q")} to quit.`,
