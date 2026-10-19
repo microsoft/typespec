@@ -376,11 +376,17 @@ abstract class ConvenienceMethodTemplateBase {
             && protocolMethod.getProxyMethod() != null
             && "application/merge-patch+json".equalsIgnoreCase(protocolMethod.getProxyMethod().getRequestContentType());
         Map<String, String> parameterExpressionsMap = new LinkedHashMap<>();
+        ClientMethodParameter initialTokenParameter = needsInitialContinuationToken(protocolMethod)
+            ? convenienceMethod.getMethodPageDetails().getContinuationToken().getClientMethodParameter()
+            : null;
+        String initialTokenExpression = "null";
         for (Map.Entry<MethodParameter, MethodParameter> entry : parametersMap.entrySet()) {
             MethodParameter parameter = entry.getKey();
             MethodParameter protocolParameter = entry.getValue();
 
-            if (parameter.getProxyMethodParameter() != null
+            if (parameter.getClientMethodParameter() == initialTokenParameter) {
+                initialTokenExpression = parameter.getName();
+            } else if (parameter.getProxyMethodParameter() != null
                 && parameter.getProxyMethodParameter().getOrigin() == ParameterSynthesizedOrigin.CONTEXT) {
                 // Context
                 methodBlock.line(String.format("requestOptions.setContext(%s);", parameter.getName()));
@@ -456,6 +462,9 @@ abstract class ConvenienceMethodTemplateBase {
                 }
             })
             .collect(Collectors.joining(", "));
+        if (needsInitialContinuationToken(protocolMethod)) {
+            invocationExpression = initialTokenExpression + ", " + invocationExpression;
+        }
 
         // write the invocation of protocol method, and related type conversion
         writeInvocationAndConversion(convenienceMethod, protocolMethod, invocationExpression, methodBlock,
@@ -729,6 +738,9 @@ abstract class ConvenienceMethodTemplateBase {
     }
 
     protected String getMethodName(ClientMethod method) {
+        if (needsInitialContinuationToken(method)) {
+            return "serviceClient." + method.getName();
+        }
         if (isMethodAsync(method)) {
             return method.getName().endsWith("Async")
                 ? method.getName().substring(0, method.getName().length() - "Async".length())
@@ -736,6 +748,14 @@ abstract class ConvenienceMethodTemplateBase {
         } else {
             return method.getName();
         }
+    }
+
+    private static boolean needsInitialContinuationToken(ClientMethod method) {
+        return JavaSettings.getInstance().isAzureV1()
+            && JavaSettings.getInstance().isDataPlaneClient()
+            && method.isPageStreamingType()
+            && method.getMethodPageDetails().getContinuationToken() != null
+            && method.getMethodPageDetails().getContinuationToken().getClientMethodParameter() == null;
     }
 
     /**

@@ -6,6 +6,8 @@ package com.microsoft.typespec.http.client.generator.core.template;
 import com.microsoft.typespec.http.client.generator.core.MockUnitJavagen;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
+import com.microsoft.typespec.http.client.generator.core.mapper.DefaultMapperFactory;
+import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
@@ -45,6 +47,8 @@ public class ContinuationTokenPagingTests {
     public void restoreSettings() {
         new MockUnitJavagen();
         JavaSettings.clear();
+        Mappers.setFactory(new DefaultMapperFactory());
+        Templates.setFactory(new DefaultTemplateFactory());
     }
 
     @ParameterizedTest
@@ -59,7 +63,14 @@ public class ContinuationTokenPagingTests {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = { "requestOptionsFilter", "requestOptionsLocal", "requestLocal", "urlBuilder", "pageSize" })
+    @ValueSource(
+        strings = {
+            "requestOptionsFilter",
+            "requestOptionsLocal",
+            "requestLocal",
+            "urlBuilder",
+            "pageSize",
+            "initialContinuationToken" })
     public void preservesNonTokenParameterNames(String parameterName) throws IOException {
         ClientMethodParameter parameter = new ClientMethodParameter.Builder().name(parameterName)
             .annotations(List.of())
@@ -118,8 +129,9 @@ public class ContinuationTokenPagingTests {
         for (boolean sync : List.of(false, true)) {
             String output = renderPaging(RequestParameterLocation.QUERY, sync, false, "token", false);
             String singlePage = sync ? "listSinglePage" : "listSinglePageAsync";
-            Assertions.assertTrue(output.contains(singlePage + "(null, context)"), output);
             Assertions.assertTrue(output.contains(singlePage + "(token, context)"), output);
+            Assertions.assertTrue(output.contains(singlePage + "(token1, context)"), output);
+            Assertions.assertTrue(output.contains("list(String token, Context context)"), output);
             Assertions.assertFalse(output.contains("requestOptions"), output);
             assertCompiles(output, "String token, Context context");
         }
@@ -131,6 +143,10 @@ public class ContinuationTokenPagingTests {
         Assertions.assertTrue(output.contains("requestOptions == null ? new RequestOptions() : requestOptions"));
         Assertions.assertTrue(output.contains("setQueryParameter(\"token\", null)"));
         Assertions.assertTrue(output.contains("requestOptionsLocal.addQueryParam(\"token\", token, false)"));
+        Assertions.assertTrue(output.contains("return list(null, requestOptions)"));
+        Assertions.assertTrue(output.contains("list(String initialContinuationToken, RequestOptions requestOptions)"));
+        Assertions.assertTrue(output.contains("if (initialContinuationToken != null)"));
+        Assertions.assertTrue(output.contains("addQueryParam(\"token\", initialContinuationToken, false)"));
         Assertions.assertTrue(output.contains("listSinglePageAsync(requestOptionsLocal)"));
         Assertions.assertFalse(output.contains("listSinglePageAsync(token,"));
     }
@@ -141,6 +157,8 @@ public class ContinuationTokenPagingTests {
         Assertions.assertTrue(output.contains("requestOptions == null ? new RequestOptions() : requestOptions"));
         Assertions.assertTrue(output.contains("getHeaders().remove(\"token\")"));
         Assertions.assertTrue(output.contains("requestOptionsLocal.setHeader(\"token\", token)"));
+        Assertions.assertTrue(output.contains("return list(null, requestOptions)"));
+        Assertions.assertTrue(output.contains("setHeader(\"token\", initialContinuationToken)"));
         Assertions.assertTrue(output.contains("listSinglePage(requestOptionsLocal)"));
     }
 
@@ -255,23 +273,36 @@ public class ContinuationTokenPagingTests {
     }
 
     @Test
-    public void hidesTokenInWrapperDelegation() {
+    public void preservesTokenInWrapperDelegation() {
         JavaFileContents contents = new JavaFileContents();
         WrapperClientMethodTemplate.getInstance().write(pagingMethod(), new JavaClass(contents));
         String output = contents.toString();
-        Assertions.assertTrue(output.contains("list(String filter)"));
-        Assertions.assertTrue(output.contains("return this.serviceClient.list(filter);"));
-        Assertions.assertFalse(output.contains("@param token"));
+        Assertions.assertTrue(output.contains("list(String filter, String token)"));
+        Assertions.assertTrue(output.contains("return this.serviceClient.list(filter, token);"));
+        Assertions.assertTrue(output.contains("@param token"));
     }
 
     @Test
-    public void hidesTokenInSyncOverAsyncDelegation() {
+    public void preservesTokenInSyncOverAsyncDelegation() {
         JavaFileContents contents = new JavaFileContents();
         ServiceSyncClientWrapAsyncClientTemplate.getInstance().writeMethod(pagingMethod(), new JavaClass(contents));
         String output = contents.toString();
-        Assertions.assertTrue(output.contains("list(String filter)"));
-        Assertions.assertTrue(output.contains("return new PagedIterable<>(this.client.list(filter));"));
-        Assertions.assertFalse(output.contains("@param token"));
+        Assertions.assertTrue(output.contains("list(String filter, String token)"));
+        Assertions.assertTrue(output.contains("return new PagedIterable<>(this.client.list(filter, token));"));
+        Assertions.assertTrue(output.contains("@param token"));
+    }
+
+    @Test
+    public void keepsClientCoreTokenHidden() {
+        new MockUnitJavagen() {
+            @Override
+            @SuppressWarnings("unchecked")
+            public <T> T getValue(String key, IOExceptionCheckedFunction<String, T> converter) {
+                return "flavor".equals(key) ? (T) "unbranded" : super.getValue(key, converter);
+            }
+        };
+        JavaSettings.clear();
+        Assertions.assertEquals("String filter", pagingMethod().getParametersDeclaration());
     }
 
     private static ClientMethod pagingMethod() {

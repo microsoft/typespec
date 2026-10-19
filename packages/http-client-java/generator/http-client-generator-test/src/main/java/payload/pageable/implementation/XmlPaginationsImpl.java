@@ -190,6 +190,12 @@ public final class XmlPaginationsImpl {
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedFlux<BinaryData> listWithContinuationAsync(RequestOptions requestOptions) {
+        return listWithContinuationAsync(null, requestOptions);
+    }
+
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedFlux<BinaryData> listWithContinuationAsync(String initialContinuationToken,
+        RequestOptions requestOptions) {
         return new PagedFlux<>(() -> {
             RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
             requestOptionsLocal.addRequestCallback(requestLocal -> {
@@ -197,6 +203,9 @@ public final class XmlPaginationsImpl {
                 urlBuilder.setQueryParameter("marker", null);
                 requestLocal.setUrl(urlBuilder.toString());
             });
+            if (initialContinuationToken != null) {
+                requestOptionsLocal.addQueryParam("marker", initialContinuationToken, false);
+            }
             return listWithContinuationSinglePageAsync(requestOptionsLocal);
         }, (marker) -> {
             RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
@@ -205,7 +214,9 @@ public final class XmlPaginationsImpl {
                 urlBuilder.setQueryParameter("marker", null);
                 requestLocal.setUrl(urlBuilder.toString());
             });
-            requestOptionsLocal.addQueryParam("marker", marker, false);
+            if (marker != null) {
+                requestOptionsLocal.addQueryParam("marker", marker, false);
+            }
             return listWithContinuationSinglePageAsync(requestOptionsLocal);
         });
     }
@@ -274,6 +285,12 @@ public final class XmlPaginationsImpl {
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<BinaryData> listWithContinuation(RequestOptions requestOptions) {
+        return listWithContinuation(null, requestOptions);
+    }
+
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<BinaryData> listWithContinuation(String initialContinuationToken,
+        RequestOptions requestOptions) {
         return new PagedIterable<>(() -> {
             RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
             requestOptionsLocal.addRequestCallback(requestLocal -> {
@@ -281,6 +298,9 @@ public final class XmlPaginationsImpl {
                 urlBuilder.setQueryParameter("marker", null);
                 requestLocal.setUrl(urlBuilder.toString());
             });
+            if (initialContinuationToken != null) {
+                requestOptionsLocal.addQueryParam("marker", initialContinuationToken, false);
+            }
             return listWithContinuationSinglePage(requestOptionsLocal);
         }, (marker) -> {
             RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
@@ -289,7 +309,9 @@ public final class XmlPaginationsImpl {
                 urlBuilder.setQueryParameter("marker", null);
                 requestLocal.setUrl(urlBuilder.toString());
             });
-            requestOptionsLocal.addQueryParam("marker", marker, false);
+            if (marker != null) {
+                requestOptionsLocal.addQueryParam("marker", marker, false);
+            }
             return listWithContinuationSinglePage(requestOptionsLocal);
         });
     }

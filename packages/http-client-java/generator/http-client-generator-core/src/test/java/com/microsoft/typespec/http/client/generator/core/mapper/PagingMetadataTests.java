@@ -117,7 +117,7 @@ public class PagingMetadataTests {
                     .returnValue(new ReturnValue("The items.",
                         sync ? GenericType.pagedIterable(ClassType.STRING) : GenericType.pagedFlux(ClassType.STRING)))
                     .build();
-                Assertions.assertEquals(nextLink, method.getParametersDeclaration().contains("String token"));
+                Assertions.assertTrue(method.getParametersDeclaration().contains("String token"));
             }
         }
     }

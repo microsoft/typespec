@@ -280,6 +280,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
     /**
      * The requestQueryResponseBody operation.
      * 
+     * @param token The token parameter.
      * @param foo The foo parameter.
      * @param bar The bar parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -292,8 +293,8 @@ public final class ServerDrivenPaginationContinuationTokenClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedIterable<Pet> requestQueryResponseBody(String foo, String bar) {
-        // Generated convenience method for requestQueryResponseBody
+    public PagedIterable<Pet> requestQueryResponseBody(String token, String foo, String bar) {
+        // Generated convenience method for serviceClient.requestQueryResponseBody
         RequestOptions requestOptions = new RequestOptions();
         if (foo != null) {
             requestOptions.setHeader(HttpHeaderName.fromString("foo"), foo);
@@ -301,7 +302,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
         if (bar != null) {
             requestOptions.addQueryParam("bar", bar, false);
         }
-        return serviceClient.requestQueryResponseBody(requestOptions)
+        return serviceClient.requestQueryResponseBody(token, requestOptions)
             .mapPage(bodyItemValue -> bodyItemValue.toObject(Pet.class));
     }
 
@@ -318,15 +319,16 @@ public final class ServerDrivenPaginationContinuationTokenClient {
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<Pet> requestQueryResponseBody() {
-        // Generated convenience method for requestQueryResponseBody
+        // Generated convenience method for serviceClient.requestQueryResponseBody
         RequestOptions requestOptions = new RequestOptions();
-        return serviceClient.requestQueryResponseBody(requestOptions)
+        return serviceClient.requestQueryResponseBody(null, requestOptions)
             .mapPage(bodyItemValue -> bodyItemValue.toObject(Pet.class));
     }
 
     /**
      * The requestHeaderResponseBody operation.
      * 
+     * @param token The token parameter.
      * @param foo The foo parameter.
      * @param bar The bar parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -339,8 +341,8 @@ public final class ServerDrivenPaginationContinuationTokenClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedIterable<Pet> requestHeaderResponseBody(String foo, String bar) {
-        // Generated convenience method for requestHeaderResponseBody
+    public PagedIterable<Pet> requestHeaderResponseBody(String token, String foo, String bar) {
+        // Generated convenience method for serviceClient.requestHeaderResponseBody
         RequestOptions requestOptions = new RequestOptions();
         if (foo != null) {
             requestOptions.setHeader(HttpHeaderName.fromString("foo"), foo);
@@ -348,7 +350,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
         if (bar != null) {
             requestOptions.addQueryParam("bar", bar, false);
         }
-        return serviceClient.requestHeaderResponseBody(requestOptions)
+        return serviceClient.requestHeaderResponseBody(token, requestOptions)
             .mapPage(bodyItemValue -> bodyItemValue.toObject(Pet.class));
     }
 
@@ -365,15 +367,16 @@ public final class ServerDrivenPaginationContinuationTokenClient {
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<Pet> requestHeaderResponseBody() {
-        // Generated convenience method for requestHeaderResponseBody
+        // Generated convenience method for serviceClient.requestHeaderResponseBody
         RequestOptions requestOptions = new RequestOptions();
-        return serviceClient.requestHeaderResponseBody(requestOptions)
+        return serviceClient.requestHeaderResponseBody(null, requestOptions)
             .mapPage(bodyItemValue -> bodyItemValue.toObject(Pet.class));
     }
 
     /**
      * The requestQueryResponseHeader operation.
      * 
+     * @param token The token parameter.
      * @param foo The foo parameter.
      * @param bar The bar parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -386,8 +389,8 @@ public final class ServerDrivenPaginationContinuationTokenClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedIterable<Pet> requestQueryResponseHeader(String foo, String bar) {
-        // Generated convenience method for requestQueryResponseHeader
+    public PagedIterable<Pet> requestQueryResponseHeader(String token, String foo, String bar) {
+        // Generated convenience method for serviceClient.requestQueryResponseHeader
         RequestOptions requestOptions = new RequestOptions();
         if (foo != null) {
             requestOptions.setHeader(HttpHeaderName.fromString("foo"), foo);
@@ -395,7 +398,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
         if (bar != null) {
             requestOptions.addQueryParam("bar", bar, false);
         }
-        return serviceClient.requestQueryResponseHeader(requestOptions)
+        return serviceClient.requestQueryResponseHeader(token, requestOptions)
             .mapPage(bodyItemValue -> bodyItemValue.toObject(Pet.class));
     }
 
@@ -412,15 +415,16 @@ public final class ServerDrivenPaginationContinuationTokenClient {
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<Pet> requestQueryResponseHeader() {
-        // Generated convenience method for requestQueryResponseHeader
+        // Generated convenience method for serviceClient.requestQueryResponseHeader
         RequestOptions requestOptions = new RequestOptions();
-        return serviceClient.requestQueryResponseHeader(requestOptions)
+        return serviceClient.requestQueryResponseHeader(null, requestOptions)
             .mapPage(bodyItemValue -> bodyItemValue.toObject(Pet.class));
     }
 
     /**
      * The requestHeaderResponseHeader operation.
      * 
+     * @param token The token parameter.
      * @param foo The foo parameter.
      * @param bar The bar parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -433,8 +437,8 @@ public final class ServerDrivenPaginationContinuationTokenClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedIterable<Pet> requestHeaderResponseHeader(String foo, String bar) {
-        // Generated convenience method for requestHeaderResponseHeader
+    public PagedIterable<Pet> requestHeaderResponseHeader(String token, String foo, String bar) {
+        // Generated convenience method for serviceClient.requestHeaderResponseHeader
         RequestOptions requestOptions = new RequestOptions();
         if (foo != null) {
             requestOptions.setHeader(HttpHeaderName.fromString("foo"), foo);
@@ -442,7 +446,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
         if (bar != null) {
             requestOptions.addQueryParam("bar", bar, false);
         }
-        return serviceClient.requestHeaderResponseHeader(requestOptions)
+        return serviceClient.requestHeaderResponseHeader(token, requestOptions)
             .mapPage(bodyItemValue -> bodyItemValue.toObject(Pet.class));
     }
 
@@ -459,15 +463,16 @@ public final class ServerDrivenPaginationContinuationTokenClient {
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<Pet> requestHeaderResponseHeader() {
-        // Generated convenience method for requestHeaderResponseHeader
+        // Generated convenience method for serviceClient.requestHeaderResponseHeader
         RequestOptions requestOptions = new RequestOptions();
-        return serviceClient.requestHeaderResponseHeader(requestOptions)
+        return serviceClient.requestHeaderResponseHeader(null, requestOptions)
             .mapPage(bodyItemValue -> bodyItemValue.toObject(Pet.class));
     }
 
     /**
      * The requestQueryNestedResponseBody operation.
      * 
+     * @param token The token parameter.
      * @param foo The foo parameter.
      * @param bar The bar parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -480,8 +485,8 @@ public final class ServerDrivenPaginationContinuationTokenClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedIterable<Pet> requestQueryNestedResponseBody(String foo, String bar) {
-        // Generated convenience method for requestQueryNestedResponseBody
+    public PagedIterable<Pet> requestQueryNestedResponseBody(String token, String foo, String bar) {
+        // Generated convenience method for serviceClient.requestQueryNestedResponseBody
         RequestOptions requestOptions = new RequestOptions();
         if (foo != null) {
             requestOptions.setHeader(HttpHeaderName.fromString("foo"), foo);
@@ -489,7 +494,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
         if (bar != null) {
             requestOptions.addQueryParam("bar", bar, false);
         }
-        return serviceClient.requestQueryNestedResponseBody(requestOptions)
+        return serviceClient.requestQueryNestedResponseBody(token, requestOptions)
             .mapPage(bodyItemValue -> bodyItemValue.toObject(Pet.class));
     }
 
@@ -506,15 +511,16 @@ public final class ServerDrivenPaginationContinuationTokenClient {
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<Pet> requestQueryNestedResponseBody() {
-        // Generated convenience method for requestQueryNestedResponseBody
+        // Generated convenience method for serviceClient.requestQueryNestedResponseBody
         RequestOptions requestOptions = new RequestOptions();
-        return serviceClient.requestQueryNestedResponseBody(requestOptions)
+        return serviceClient.requestQueryNestedResponseBody(null, requestOptions)
             .mapPage(bodyItemValue -> bodyItemValue.toObject(Pet.class));
     }
 
     /**
      * The requestHeaderNestedResponseBody operation.
      * 
+     * @param token The token parameter.
      * @param foo The foo parameter.
      * @param bar The bar parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -527,8 +533,8 @@ public final class ServerDrivenPaginationContinuationTokenClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedIterable<Pet> requestHeaderNestedResponseBody(String foo, String bar) {
-        // Generated convenience method for requestHeaderNestedResponseBody
+    public PagedIterable<Pet> requestHeaderNestedResponseBody(String token, String foo, String bar) {
+        // Generated convenience method for serviceClient.requestHeaderNestedResponseBody
         RequestOptions requestOptions = new RequestOptions();
         if (foo != null) {
             requestOptions.setHeader(HttpHeaderName.fromString("foo"), foo);
@@ -536,7 +542,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
         if (bar != null) {
             requestOptions.addQueryParam("bar", bar, false);
         }
-        return serviceClient.requestHeaderNestedResponseBody(requestOptions)
+        return serviceClient.requestHeaderNestedResponseBody(token, requestOptions)
             .mapPage(bodyItemValue -> bodyItemValue.toObject(Pet.class));
     }
 
@@ -553,9 +559,9 @@ public final class ServerDrivenPaginationContinuationTokenClient {
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<Pet> requestHeaderNestedResponseBody() {
-        // Generated convenience method for requestHeaderNestedResponseBody
+        // Generated convenience method for serviceClient.requestHeaderNestedResponseBody
         RequestOptions requestOptions = new RequestOptions();
-        return serviceClient.requestHeaderNestedResponseBody(requestOptions)
+        return serviceClient.requestHeaderNestedResponseBody(null, requestOptions)
             .mapPage(bodyItemValue -> bodyItemValue.toObject(Pet.class));
     }
 }
