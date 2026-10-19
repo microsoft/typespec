@@ -39,8 +39,8 @@ with the metadata.
 
 The merged
 [Azure/typespec-azure#5561](https://github.com/Azure/typespec-azure/pull/5561)
-adds the `use-union-hierarchy` client-SDK rule. It exempts nonempty unions of
-string literals; other named non-string unions need a `union extends`
+adds the `use-union-hierarchy` client-SDK rule. It exempts nonempty
+string-only unions; other named non-string unions need a `union extends`
 constraint. In model-constrained unions, each model variant must be the exact
 base or directly/transitively inherit from it, and a model variant cannot
 belong to multiple such unions. A `model is` that retains inheritance can
