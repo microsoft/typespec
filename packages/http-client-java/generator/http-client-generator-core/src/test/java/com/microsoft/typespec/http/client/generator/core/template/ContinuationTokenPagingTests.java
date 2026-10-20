@@ -21,6 +21,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Param
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ReturnValue;
+import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlock;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaClass;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFileContents;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaJavadocComment;
@@ -31,7 +32,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import javax.tools.ToolProvider;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -165,6 +168,57 @@ public class ContinuationTokenPagingTests {
         Assertions.assertTrue(output.contains("listSinglePage(requestOptionsLocal)"));
     }
 
+    @ParameterizedTest
+    @ValueSource(
+        strings = {
+            "continuationTokenParam",
+            "pageSizeParam",
+            "pagedFluxResponse",
+            "flux",
+            "pagedResponse",
+            "protocolMethodData" })
+    public void avoidsAsyncConvenienceTokenNameCollisions(String tokenName) throws IOException {
+        new MockUnitJavagen();
+        JavaSettings.clear();
+        ClientMethodParameter token = new ClientMethodParameter.Builder().name(tokenName)
+            .annotations(List.of())
+            .wireType(ClassType.STRING)
+            .build();
+        List<ClientMethodParameter> parameters = new ArrayList<>(List.of(token));
+        for (String name : List.of("continuationTokenParam", "pageSizeParam", "pagedFluxResponse", "flux",
+            "pagedResponse", "protocolMethodData")) {
+            parameters.add(token.newBuilder().name(name + "1").build());
+        }
+        ProxyMethod proxyMethod = new ProxyMethod.Builder().name("list")
+            .responseBodyType(ClassType.BINARY_DATA)
+            .rawResponseBodyType(ClassType.STRING)
+            .responseContentTypes(Set.of("application/json"))
+            .build();
+        ClientMethod convenienceMethod = pagingMethod().newBuilder()
+            .type(ClientMethodType.PagingAsync)
+            .parameters(parameters)
+            .proxyMethod(proxyMethod)
+            .methodPageDetails(new MethodPageDetails(List.of(), null, null, null,
+                new MethodPageDetails.ContinuationToken(null, token, "next-token", null), null, null))
+            .returnValue(new ReturnValue("The items.", GenericType.pagedFlux(ClassType.STRING)))
+            .build();
+        ClientMethod protocolMethod = convenienceMethod.newBuilder()
+            .parameters(List.of(ClientMethodParameter.REQUEST_OPTIONS_PARAMETER))
+            .methodPageDetails(new MethodPageDetails(List.of(), null, null, null,
+                new MethodPageDetails.ContinuationToken(null, null, "next-token", null), null, null))
+            .returnValue(new ReturnValue("The items.", GenericType.pagedFlux(ClassType.BINARY_DATA)))
+            .build();
+        JavaFileContents contents = new JavaFileContents();
+        ConvenienceAsyncMethodTemplate.getInstance()
+            .writeInvocationAndConversion(convenienceMethod, protocolMethod, tokenName + ", new RequestOptions()",
+                new JavaBlock(contents), new HashSet<>());
+        Assertions.assertTrue(convenienceMethod.getParametersDeclaration().contains("String " + tokenName));
+        String output = "public " + convenienceMethod.getDeclaration() + " {\n" + contents + "\n}\n"
+            + "private final PagingCompilation serviceClient = this;\n"
+            + "private PagedFlux<BinaryData> list(String initialToken, RequestOptions options) { return null; }\n";
+        assertCompiles(output, "RequestOptions requestOptions");
+    }
+
     private static String renderProtocolPaging(RequestParameterLocation location, boolean sync) {
         return renderPaging(location, sync, true, "token", false);
     }
@@ -256,6 +310,7 @@ public class ContinuationTokenPagingTests {
     private void assertCompiles(String method, String singlePageParameters) throws IOException {
         String source = "import com.azure.core.annotation.*;\n" + "import com.azure.core.http.rest.*;\n"
             + "import com.azure.core.util.*;\n" + "import reactor.core.publisher.Mono;\n" + "import java.util.Map;\n"
+            + "import reactor.core.publisher.Flux;\n" + "import java.util.stream.Collectors;\n"
             + "public class PagingCompilation {\n" + method
             + "\nprivate Mono<PagedResponse<String>> listSinglePageAsync(" + singlePageParameters
             + ") { return Mono.empty(); }\n" + "private PagedResponse<String> listSinglePage(" + singlePageParameters

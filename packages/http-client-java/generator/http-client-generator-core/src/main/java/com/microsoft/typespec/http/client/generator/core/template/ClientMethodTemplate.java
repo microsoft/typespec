@@ -1219,15 +1219,6 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
             .collect(Collectors.toCollection(HashSet::new));
     }
 
-    private static String availablePagingVariableName(String baseName, Set<String> usedNames) {
-        String name = baseName;
-        int suffix = 1;
-        while (!usedNames.add(name)) {
-            name = baseName + suffix++;
-        }
-        return name;
-    }
-
     private static String replacePagingArgument(String arguments, String name, String replacement) {
         return List.of(arguments.split(", "))
             .stream()

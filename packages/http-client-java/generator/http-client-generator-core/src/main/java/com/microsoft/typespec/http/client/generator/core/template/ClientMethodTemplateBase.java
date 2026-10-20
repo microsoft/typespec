@@ -36,6 +36,15 @@ import java.util.stream.Collectors;
 
 public abstract class ClientMethodTemplateBase implements IJavaTemplate<ClientMethod, JavaType> {
 
+    protected static String availablePagingVariableName(String baseName, Set<String> usedNames) {
+        String name = baseName;
+        int suffix = 1;
+        while (!usedNames.add(name)) {
+            name = baseName + suffix++;
+        }
+        return name;
+    }
+
     protected static void generateProtocolMethodJavadoc(ClientMethod clientMethod, JavaJavadocComment commentBlock) {
         commentBlock.description(clientMethod.getDescription());
 
