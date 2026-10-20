@@ -1470,7 +1470,14 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         return checkDeprecatedNode(node);
       case SyntaxKind.IntersectionExpression:
       case SyntaxKind.UnionExpression:
+      case SyntaxKind.ArrayExpression:
+      case SyntaxKind.TupleExpression:
+      case SyntaxKind.ModelExpression:
       case SyntaxKind.ModelProperty:
+      case SyntaxKind.ModelSpreadProperty:
+      case SyntaxKind.TypeReference:
+      case SyntaxKind.TemplateArgument:
+      case SyntaxKind.TemplateParameterDeclaration:
       case SyntaxKind.OperationSignatureDeclaration:
       case SyntaxKind.OperationSignatureReference:
         return isTypeReferenceContextDeprecated(node.parent!);
