@@ -42,8 +42,10 @@ op headerHeader(@header @continuationToken token?: string): {
 };
 
 #suppress "@azure-tools/typespec-client-generator-core/client-option" "Testing Java client options."
-@@clientOption(queryBody, "includeContinuationTokenParameter", true, "java");
+@@clientOption(queryBody::parameters.token, "includeContinuationTokenParameter", true, "java");
 #suppress "@azure-tools/typespec-client-generator-core/client-option" "Testing Java client options."
-@@clientOption(headerBody, "includeContinuationTokenParameter", false, "java");
+@@clientOption(headerBody::parameters.token, "includeContinuationTokenParameter", false, "java");
 #suppress "@azure-tools/typespec-client-generator-core/client-option" "Testing Java client options."
-@@clientOption(headerHeader, "includeContinuationTokenParameter", true, "java");
+@@clientOption(headerHeader::parameters.token, "includeContinuationTokenParameter", true, "java");
+#suppress "@azure-tools/typespec-client-generator-core/client-option" "Operation options do not control parameter visibility."
+@@clientOption(queryHeader, "includeContinuationTokenParameter", true, "java");

@@ -45,8 +45,8 @@ op defaultQuery(@query @continuationToken token?: string, ...HeaderAndQuery): He
 op hiddenHeader(@header @continuationToken token?: string, ...HeaderAndQuery): BodyPage;
 
 #suppress "@azure-tools/typespec-client-generator-core/client-option" "Preserve the public cursor parameter."
-@@clientOption(visibleQuery, "includeContinuationTokenParameter", true, "java");
+@@clientOption(visibleQuery::parameters.token, "includeContinuationTokenParameter", true, "java");
 #suppress "@azure-tools/typespec-client-generator-core/client-option" "Preserve the public cursor parameter."
-@@clientOption(visibleHeader, "includeContinuationTokenParameter", true, "java");
+@@clientOption(visibleHeader::parameters.token, "includeContinuationTokenParameter", true, "java");
 #suppress "@azure-tools/typespec-client-generator-core/client-option" "Exercise explicit default behavior."
-@@clientOption(hiddenHeader, "includeContinuationTokenParameter", false, "java");
+@@clientOption(hiddenHeader::parameters.token, "includeContinuationTokenParameter", false, "java");

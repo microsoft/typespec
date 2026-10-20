@@ -99,7 +99,7 @@ describe("code model characterization", () => {
   );
 
   it.each(["azure", "standard"] as const)(
-    "preserves continuation-token metadata for %s",
+    "reads continuation-token visibility from the request parameter for %s",
     async (flavor) => {
       const program = await compile(
         NodeHost,

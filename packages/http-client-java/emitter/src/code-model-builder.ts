@@ -1412,7 +1412,11 @@ export class CodeModelBuilder {
             continuationTokenParameter,
             continuationTokenResponseProperty,
             continuationTokenResponseHeader,
-            getClientOptions(sdkMethod, "includeContinuationTokenParameter") === true,
+            continuationTokenParameterSegment !== undefined &&
+              getClientOptions(
+                continuationTokenParameterSegment,
+                "includeContinuationTokenParameter",
+              ) === true,
           )
         : undefined,
       nextLinkReInjectedParameters: nextLinkReInjectedParameters,
