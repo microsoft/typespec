@@ -1068,9 +1068,6 @@ export class CodeModelBuilder {
     const convenienceApiName = this.getConvenienceApiName(sdkMethod);
     let generateConvenienceApi: boolean = sdkMethod.generateConvenient;
     let generateProtocolApi: boolean = sdkMethod.generateProtocol;
-    if (codeModelOperation.sseMetadata) {
-      generateProtocolApi = false;
-    }
 
     let diagnostic = undefined;
     if (generateConvenienceApi && this.isAzureV1()) {
@@ -1110,6 +1107,9 @@ export class CodeModelBuilder {
         });
         this.program.reportDiagnostic(diagnostic);
       }
+    }
+    if (codeModelOperation.sseMetadata && generateConvenienceApi && convenienceApiName) {
+      generateProtocolApi = false;
     }
     if (generateConvenienceApi && convenienceApiName) {
       if (this.isAzureV1() && this.options["max-overload"] === "model") {

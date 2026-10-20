@@ -108,11 +108,17 @@ describe("code model characterization", () => {
         },
       }).build();
 
-    const disabledOperation = (await build(false)).clients[0].operationGroups[0].operations![0];
+    const disabledOperations = (await build(false)).clients[0].operationGroups[0].operations!;
+    const disabledOperation = disabledOperations.find(
+      (operation) => operation.language.default.name === "retrieve",
+    )!;
     expect(disabledOperation.sseMetadata).toBeUndefined();
     expect(disabledOperation.responses?.[0]).toMatchObject({ binary: true });
 
-    const enabledOperation = (await build(true)).clients[0].operationGroups[0].operations![0];
+    const enabledOperations = (await build(true)).clients[0].operationGroups[0].operations!;
+    const enabledOperation = enabledOperations.find(
+      (operation) => operation.language.default.name === "retrieve",
+    )!;
     expect(enabledOperation.generateProtocolApi).toBe(false);
     expect(enabledOperation.sseMetadata).toMatchObject({
       streamName: "RetrievalStreamEvents",
@@ -135,6 +141,14 @@ describe("code model characterization", () => {
         },
       ],
     });
+
+    const protocolOnlyOperation = enabledOperations.find(
+      (operation) => operation.language.default.name === "retrieveProtocol",
+    )!;
+    expect(protocolOnlyOperation.sseMetadata).toBeDefined();
+    expect(protocolOnlyOperation.convenienceApi).toBeUndefined();
+    expect(protocolOnlyOperation.generateProtocolApi).toBe(true);
+    expect(protocolOnlyOperation.responses?.[0]).toMatchObject({ binary: true });
   });
 
   it.each(["azure", "standard"] as const)(

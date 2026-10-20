@@ -52,4 +52,14 @@ interface Retrieve {
     },
     @header authorization?: string,
   ): SSEStream<RetrievalStreamEvents>;
+
+  @route("/retrieve-protocol")
+  @post
+  @convenientAPI(false, "java")
+  @protocolAPI(true, "java")
+  retrieveProtocol(
+    @body request: {
+      query: string;
+    },
+  ): SSEStream<RetrievalStreamEvents>;
 }
