@@ -121,10 +121,7 @@ public final class XmlPaginationAsyncClient {
     public PagedFlux<XmlPet> listWithContinuation(String marker) {
         // Generated convenience method for listWithContinuation
         RequestOptions requestOptions = new RequestOptions();
-        if (marker != null) {
-            requestOptions.addQueryParam("marker", marker, false);
-        }
-        PagedFlux<BinaryData> pagedFluxResponse = listWithContinuation(requestOptions);
+        PagedFlux<BinaryData> pagedFluxResponse = serviceClient.listWithContinuationAsync(marker, requestOptions);
         return PagedFlux.create(() -> (continuationTokenParam, pageSizeParam) -> {
             Flux<PagedResponse<BinaryData>> flux;
             if (pageSizeParam == null) {
@@ -161,7 +158,7 @@ public final class XmlPaginationAsyncClient {
     public PagedFlux<XmlPet> listWithContinuation() {
         // Generated convenience method for listWithContinuation
         RequestOptions requestOptions = new RequestOptions();
-        PagedFlux<BinaryData> pagedFluxResponse = listWithContinuation(requestOptions);
+        PagedFlux<BinaryData> pagedFluxResponse = serviceClient.listWithContinuationAsync(null, requestOptions);
         return PagedFlux.create(() -> (continuationTokenParam, pageSizeParam) -> {
             Flux<PagedResponse<BinaryData>> flux;
             if (pageSizeParam == null) {

@@ -5,7 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
+using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -2028,6 +2031,189 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             // overload) so the mutation must be observable on the final method collection.
             var renamed = modelFactory.Methods.FirstOrDefault(m => m.Signature.Name == "PublicModel1Renamed");
             Assert.IsNotNull(renamed, "The visitor's rename of the back-compat method was not applied.");
+        }
+
+        // Issue #12178: a generated hidden shim restored before MTG's back-compat pass
+        // must behave like one synthesized by that pass. A downstream generator can restore
+        // the shim using the last-contract parameter objects, so making it required also changes that view.
+        [TestCase(false, false)]
+        [TestCase(true, true)]
+        [TestCase(true, false)]
+        public async Task BackCompatibility_PreExistingHiddenShimPreservesCurrentOptionality(
+            bool restoreShim, bool sharePreviousParameters)
+        {
+            var softDeleteSettings = InputFactory.Model("BackupVaultSoftDeleteSettings");
+            var encryptionSettings = InputFactory.Model("BackupVaultEncryptionSettings");
+            var immutabilityState = InputFactory.StringEnum(
+                "BackupVaultImmutabilityState", [("Unlocked", "Unlocked")], isExtensible: false);
+            var immutabilitySettings = InputFactory.Model("ImmutabilitySettings", properties:
+            [
+                InputFactory.Property("State", new InputNullableType(immutabilityState)),
+            ]);
+            var model = InputFactory.Model("BackupVaultSecuritySettings", properties:
+            [
+                InputFactory.Property("SoftDeleteSettings", softDeleteSettings),
+                InputFactory.Property("ImmutabilitySettings", immutabilitySettings),
+                InputFactory.Property("EncryptionSettings", encryptionSettings),
+            ]);
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [softDeleteSettings, encryptionSettings, immutabilitySettings, model],
+                inputEnumTypes: [immutabilityState],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"))).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            var current = modelFactory.Methods.Single(m => m.Signature.Name == "BackupVaultSecuritySettings");
+            var previous = modelFactory.LastContractView!.Methods.Single();
+            Assert.IsTrue(current.Signature.Parameters.All(p => p.DefaultValue is not null));
+            Assert.IsTrue(previous.Signature.Parameters.All(p => p.DefaultValue is not null),
+                "The published overload originally had optional parameters.");
+
+            if (restoreShim)
+            {
+                var parameters = sharePreviousParameters
+                    ? previous.Signature.Parameters
+                    : previous.Signature.Parameters.Select(p => new ParameterProvider(
+                        p.Name, p.Description, p.Type, defaultValue: p.DefaultValue)).ToArray();
+                foreach (var parameter in parameters)
+                {
+                    parameter.DefaultValue = null;
+                }
+
+                var restored = new MethodProvider(
+                    new MethodSignature(
+                        previous.Signature.Name,
+                        previous.Signature.Description,
+                        previous.Signature.Modifiers,
+                        previous.Signature.ReturnType,
+                        previous.Signature.ReturnDescription,
+                        parameters,
+                        Attributes: [new AttributeStatement(typeof(EditorBrowsableAttribute), Snippet.FrameworkEnumValue(EditorBrowsableState.Never))]),
+                    Snippet.Throw(Snippet.Null),
+                    modelFactory);
+                modelFactory.Update(methods: [.. modelFactory.Methods, restored]);
+
+                Assert.IsTrue(restored.Signature.Parameters.All(p => p.DefaultValue is null));
+                Assert.AreEqual(sharePreviousParameters,
+                    previous.Signature.Parameters.All(p => p.DefaultValue is null),
+                    "Reproduce the effective last-contract state seen after shim restoration.");
+                Assert.IsTrue(current.Signature.Parameters.All(p => p.DefaultValue is not null));
+            }
+
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var methods = modelFactory.Methods
+                .Where(m => m.Signature.Name == "BackupVaultSecuritySettings").ToList();
+            Assert.AreEqual(2, methods.Count);
+            var currentOverload = methods.Single(m =>
+                m.Signature.Parameters[1].Name == "immutabilitySettings");
+            var legacyOverload = methods.Single(m =>
+                m.Signature.Parameters[1].Name == "immutabilityState");
+            Assert.Multiple(() =>
+            {
+                Assert.IsTrue(legacyOverload.Signature.Attributes.Any(attribute =>
+                    attribute.ToDisplayString().Contains("EditorBrowsableState.Never")),
+                    "The legacy overload must remain a hidden compatibility shim.");
+                Assert.IsTrue(legacyOverload.Signature.Parameters.All(p => p.DefaultValue is null),
+                    "Every legacy shim parameter must remain required.");
+                Assert.IsTrue(currentOverload.Signature.Parameters.All(p => p.DefaultValue is not null),
+                    "The current overload must retain all optional parameters, allowing omitted arguments.");
+            });
+        }
+
+        [TestCase(EditorBrowsableState.Never, "member", false, true)]
+        [TestCase(EditorBrowsableState.Never, "literal", false, true)]
+        [TestCase(EditorBrowsableState.Never, "enumLiteral", false, true)]
+        [TestCase(EditorBrowsableState.Never, "roslyn", false, true)]
+        [TestCase(EditorBrowsableState.Always, "member", false, false)]
+        [TestCase(EditorBrowsableState.Advanced, "member", false, false)]
+        [TestCase(EditorBrowsableState.Never, "other", false, false)]
+        [TestCase(EditorBrowsableState.Never, "none", false, false)]
+        [TestCase(EditorBrowsableState.Never, "member", true, false)]
+        public async Task BackCompatibility_RequiredHiddenShimClassification(
+            EditorBrowsableState state, string attributeRepresentation, bool isCustom, bool keepsCurrentDefaults)
+        {
+            const string previousSource = """
+                using System.ComponentModel;
+                using Sample.Models;
+                namespace Sample.Namespace
+                {
+                    public static partial class SampleNamespaceModelFactory
+                    {
+                        [EditorBrowsable(EditorBrowsableState.Never)]
+                        public static CompatibilityModel CompatibilityModel(string id, int? count, string kind) => default;
+                    }
+                }
+                namespace Sample.Models
+                {
+                    public partial class CompatibilityModel { }
+                }
+                """;
+            var model = InputFactory.Model("CompatibilityModel", properties:
+            [
+                InputFactory.Property("Id", InputPrimitiveType.String),
+                InputFactory.Property("Name", InputPrimitiveType.String),
+                InputFactory.Property("Kind", InputPrimitiveType.String),
+            ]);
+            Compilation? lastCompilation = null;
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [model],
+                additionalMetadataReferences:
+                [
+                    MetadataReference.CreateFromFile(typeof(EditorBrowsableAttribute).Assembly.Location),
+                    MetadataReference.CreateFromFile(Assembly.Load("System.Runtime").Location),
+                ],
+                compilation: isCustom ? async () => await Helpers.GetCompilationFromSourceFilesAsync(
+                    [("Custom.cs", previousSource)]) : null,
+                lastContractCompilation: async () => lastCompilation = await Helpers.GetCompilationFromSourceFilesAsync(
+                    [("Last.cs", previousSource)]))).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            var previous = modelFactory.LastContractView!.Methods.Single();
+            // Method providers only retain selected source attributes. Obtain the Roslyn-backed
+            // attribute directly to exercise both representations of the same hidden state.
+            var methodSymbol = lastCompilation!.GetTypeByMetadataName("Sample.Namespace.SampleNamespaceModelFactory")!
+                .GetMembers("CompatibilityModel").OfType<IMethodSymbol>().Single();
+            var sourceAttribute = new AttributeStatement(methodSymbol.GetAttributes().Single());
+            Assert.IsTrue(sourceAttribute.Type.Equals(typeof(EditorBrowsableAttribute)),
+                "The source attribute must resolve to the framework attribute, not an error symbol.");
+            if (isCustom)
+            {
+                modelFactory.CustomCodeView!.Methods.Single().Signature.Update(attributes: [sourceAttribute]);
+            }
+            else
+            {
+                IReadOnlyList<AttributeStatement> attributes = attributeRepresentation switch
+                {
+                    "member" => [new AttributeStatement(typeof(EditorBrowsableAttribute), Snippet.FrameworkEnumValue(state))],
+                    "literal" => [new AttributeStatement(typeof(EditorBrowsableAttribute), Snippet.Literal((int)state))],
+                    "enumLiteral" => [new AttributeStatement(typeof(EditorBrowsableAttribute), Snippet.Literal(state))],
+                    "roslyn" => [sourceAttribute],
+                    "other" => [new AttributeStatement(typeof(ObsoleteAttribute), Snippet.FrameworkEnumValue(state))],
+                    _ => [],
+                };
+                var restored = new MethodProvider(
+                    new MethodSignature(
+                        previous.Signature.Name,
+                        previous.Signature.Description,
+                        previous.Signature.Modifiers,
+                        previous.Signature.ReturnType,
+                        previous.Signature.ReturnDescription,
+                        previous.Signature.Parameters,
+                        Attributes: attributes),
+                    Snippet.Throw(Snippet.Null),
+                    modelFactory);
+                modelFactory.Update(methods: [.. modelFactory.Methods, restored]);
+            }
+
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var current = modelFactory.Methods.Single(m => m.Signature.Parameters[1].Name == "name");
+            Assert.AreEqual(keepsCurrentDefaults, current.Signature.Parameters.All(p => p.DefaultValue is not null));
+            var legacy = (isCustom ? modelFactory.CustomCodeView!.Methods : modelFactory.Methods)
+                .Single(m => m.Signature.Parameters[1].Name == "count");
+            Assert.IsTrue(legacy.Signature.Parameters.All(p => p.DefaultValue is null));
         }
 
         private static InputModelType GetCompatibilityModel(bool includeCount)

@@ -61,6 +61,10 @@ const EmitterOptionsSchema: JSONSchemaType<ProtobufEmitterOptions> = {
 
 const PACKAGE_NAME = "@typespec/protobuf";
 
+/**
+ * Defines the Protobuf library's diagnostics, emitter option schema, and dry-run capability.
+ * Exposed to the compiler through the package's `$lib` export.
+ */
 export const TypeSpecProtobufLibrary = createTypeSpecLibrary({
   name: PACKAGE_NAME,
   capabilities: {
@@ -217,6 +221,12 @@ export const TypeSpecProtobufLibrary = createTypeSpecLibrary({
         "disallowed-option-type": paramMessage`option '${"name"}' with type '${"type"}' is not allowed in a package declaration (only string, boolean, and numeric types are allowed)`,
       },
     },
+    "long-running-type": {
+      severity: "error",
+      messages: {
+        default: paramMessage`the ${"role"} type of 'LongRunningOperation' must be a named model that is emitted as a message, not an array, map, or anonymous model`,
+      },
+    },
   },
   emitter: { options: EmitterOptionsSchema },
 });
@@ -262,6 +272,7 @@ export const reportDiagnostic = Object.assign(TypeSpecProtobufLibrary.reportDiag
   },
 });
 
+/** Library type from which the compiler infers the options accepted by the Protobuf emitter. */
 export type TypeSpecProtobufLibrary = typeof TypeSpecProtobufLibrary;
 
 const keys = [
@@ -270,6 +281,7 @@ const keys = [
   "service",
   "externRef",
   "stream",
+  "longRunning",
   "reserve",
   "message",
   "_map",

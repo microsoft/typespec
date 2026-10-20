@@ -86,7 +86,7 @@ public final class MethodPageDetails {
     }
 
     public boolean shouldHideParameter(ClientMethodParameter parameter) {
-        if (continuationToken != null) {
+        if (!JavaSettings.getInstance().isAzureV1() && continuationToken != null) {
             if (parameter == continuationToken.getClientMethodParameter()) {
                 return true;
             }

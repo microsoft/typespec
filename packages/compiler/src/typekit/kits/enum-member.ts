@@ -51,6 +51,9 @@ export interface EnumMemberKit {
 }
 
 interface TypekitExtension {
+  /**
+   * Create decorated enum members and distinguish them from other entities.
+   */
   enumMember: EnumMemberKit;
 }
 

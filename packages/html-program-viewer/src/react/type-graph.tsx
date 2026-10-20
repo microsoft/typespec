@@ -22,12 +22,26 @@ export function renderProgram(program: Program) {
   return html;
 }
 
+/** Program and host integration options for the interactive {@link TypeGraph} viewer. */
 export interface TypeGraphProps {
+  /** Compiled program whose namespaces, types, and relationships the viewer displays. */
   readonly program: Program;
+  /**
+   * Called with the viewer's navigation path when a user selects a node.
+   * Save this path to restore the selection later, or update {@link currentPath}
+   * when controlling the selection from the host.
+   */
   readonly onNavigationChange?: (path: string) => void;
+  /**
+   * Viewer navigation path to select, such as one received by {@link onNavigationChange}.
+   * Omit to let the viewer manage selection; an empty string shows the root overview.
+   * When supplied, update it in response to {@link onNavigationChange} to retain user navigation.
+   */
   readonly currentPath?: string;
   /**
-   * If the graph should only show the types declared in the user project and hide the ones coming from the compiler or libraries.
+   * Initially restrict the navigation tree to types declared in the user project,
+   * retaining any ancestors needed to reach them. Users can toggle this filter;
+   * a selected library type remains visible in the details pane even when filtered out of the tree.
    * @default true
    */
   readonly defaultOnlyProjectCode?: boolean;
@@ -38,6 +52,13 @@ export interface TypeGraphProps {
   readonly onRevealSource?: RevealSourceCallback;
 }
 
+/**
+ * Browse a compiled program through a navigation tree and type details pane.
+ *
+ * Provides its own program and navigation contexts. The host must load
+ * `@typespec/html-program-viewer/style.css` and provide a Fluent UI theme,
+ * for example with `FluentProvider`.
+ */
 export const TypeGraph: FunctionComponent<TypeGraphProps> = ({
   program,
   onNavigationChange,

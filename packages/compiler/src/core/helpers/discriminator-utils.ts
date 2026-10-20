@@ -9,19 +9,33 @@ import type { Program } from "../program.js";
 import { isTemplateDeclarationOrInstance } from "../type-utils.js";
 import type { Diagnostic, EnumMember, Model, Type, Union } from "../types.js";
 
+/** Resolved variants and envelope settings for a union decorated with `@discriminated`. */
 export interface DiscriminatedUnion {
+  /** Discriminated-union settings with defaults filled in. */
   readonly options: Required<DiscriminatedOptions>;
+  /** Named variant types keyed by their discriminator values. */
   readonly variants: Map<string, Type>;
+  /** Unnamed variant used when no named discriminator value matches, if one was declared. */
   readonly defaultVariant?: Type;
+  /** Original union from which the variant metadata was derived. */
   readonly type: Union;
 }
 
+/** Discriminator values resolved from models derived from a base model using `@discriminator`. */
 export interface DiscriminatedUnionLegacy {
+  /** Distinguishes inheritance-based discrimination from union-based discrimination. */
   kind: "legacy";
+  /** Property carrying the discriminator value on the derived models. */
   propertyName: string;
+  /** Derived models keyed by their resolved string or encoded enum-member discriminator values. */
   variants: Map<string, Model>;
 }
 
+/**
+ * Resolve `@discriminated` metadata and validate a union's variants.
+ * Returns `undefined` without diagnostics when the union has no `@discriminated` settings.
+ * Validation diagnostics are returned, not reported to the program.
+ */
 export function getDiscriminatedUnion(
   typeOrProgram: Program,
   typeOrDiscriminator: Union,

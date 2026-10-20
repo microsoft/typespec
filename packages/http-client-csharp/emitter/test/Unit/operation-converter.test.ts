@@ -1,6 +1,7 @@
 import type { TestHost } from "@typespec/compiler/testing";
 import { ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
+import { serializeCodeModel } from "../../src/code-model-writer.js";
 import { createModel } from "../../src/lib/client-model-builder.js";
 import type { InputEnumType } from "../../src/type/input-type.js";
 import { RequestLocation } from "../../src/type/request-location.js";
@@ -17,6 +18,57 @@ describe("Operation Converter", () => {
   beforeEach(async () => {
     runner = await createEmitterTestHost();
   });
+
+  it.each([
+    {
+      scope: "namespace",
+      code: `@get @route("/widgets") op getWidget(): string;`,
+      path: "/widgets",
+    },
+    {
+      scope: "interface",
+      code: `interface Widgets {
+        @get @route("/widgets") getWidget(): string;
+      }`,
+      path: "/widgets",
+    },
+    {
+      scope: "REST resource",
+      code: `
+        @resource("widgets")
+        model Widget {
+          @key id: string;
+        }
+        @readsResource(Widget)
+        @get @route("/widgets/{id}")
+        op getWidget(@path id: string): Widget;
+      `,
+      path: "/widgets/{id}",
+    },
+  ])(
+    "omits resourceName for $scope operations and serialized code models",
+    async ({ code, path }) => {
+      const program = await typeSpecCompile(code, runner);
+      const context = createEmitterContext(program);
+      const sdkContext = await createCSharpSdkContext(context);
+      const [root] = createModel(sdkContext);
+      strictEqual(root.clients.length, 1);
+      const client = root.clients[0];
+      const methods = [
+        ...client.methods,
+        ...(client.children ?? []).flatMap((child) => child.methods),
+      ];
+
+      strictEqual(methods.length, 1);
+      const operation = methods[0].operation;
+      ok(operation);
+      strictEqual(operation.name, "getWidget");
+      strictEqual(operation.httpMethod, "GET");
+      strictEqual(operation.path, path);
+      strictEqual("resourceName" in operation, false);
+      strictEqual(serializeCodeModel(sdkContext, root).includes('"resourceName"'), false);
+    },
+  );
 
   describe("Operation with embedded non-body parameters in request body", () => {
     describe("With header in request model", () => {
@@ -62,6 +114,7 @@ describe("Operation Converter", () => {
         // validate operation
         const operation = root.clients[0].methods[0].operation;
         ok(operation);
+        strictEqual("resourceName" in operation, false);
         strictEqual(operation.parameters.length, 4);
 
         // content type parameter

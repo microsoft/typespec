@@ -7,8 +7,11 @@ import { declarationRefkeys, efRefkey } from "../../utils/refkey.js";
 import { EnumMember } from "./enum-member.js";
 import { getEnumMemberValue } from "./member-value.js";
 
+/** Enum source and declaration overrides for a generated Python enum class. */
 export interface EnumDeclarationProps extends Omit<py.BaseDeclarationProps, "name"> {
+  /** Explicit class name; otherwise applies the Python enum naming policy to the source name. */
   name?: string;
+  /** Enum or enum-compatible union; incompatible unions throw during rendering. */
   type: Union | Enum;
 }
 
@@ -36,6 +39,12 @@ function determineEnumType(
   }
 }
 
+/**
+ * Declares an IntEnum for all-integer values, StrEnum for all-string values, or Enum otherwise.
+ * If any member has a JSON encoded value, every member uses its resolved JSON value;
+ * otherwise unset values use `auto()`. Preserves source documentation and reference identities.
+ * Requires a TypeSpec render context.
+ */
 export function EnumDeclaration(props: EnumDeclarationProps) {
   const { $ } = useTsp();
   let type: Enum;

@@ -16,9 +16,22 @@ namespace Microsoft.TypeSpec.Generator
 {
     internal class MethodSignatureHelper
     {
-        internal static bool IsPublicApi(MethodSignatureModifiers modifiers)
+        internal static bool IsPublicApi(MethodSignatureBase signature)
+            => IsPublicApi(signature.Modifiers, signature.Attributes);
+
+        internal static bool IsPublicApi(
+            MethodSignatureModifiers modifiers,
+            IReadOnlyList<AttributeStatement>? attributes = null)
             => (modifiers.HasFlag(MethodSignatureModifiers.Public) || modifiers.HasFlag(MethodSignatureModifiers.Protected))
-                && !modifiers.HasFlag(MethodSignatureModifiers.Private);
+                && !modifiers.HasFlag(MethodSignatureModifiers.Private)
+                && attributes?.Any(ExperimentalApiHelpers.IsExperimentalAttribute) != true;
+
+        internal static bool IsPublicApi(
+            FieldModifiers modifiers,
+            IReadOnlyList<AttributeStatement>? attributes = null)
+            => (modifiers.HasFlag(FieldModifiers.Public) || modifiers.HasFlag(FieldModifiers.Protected))
+                && !modifiers.HasFlag(FieldModifiers.Private)
+                && attributes?.Any(ExperimentalApiHelpers.IsExperimentalAttribute) != true;
 
         internal static bool ContainsSameParameters(MethodSignature method1, MethodSignature method2)
             => TryMatchParameterOrder(method2.Parameters, method1.Parameters, out _);

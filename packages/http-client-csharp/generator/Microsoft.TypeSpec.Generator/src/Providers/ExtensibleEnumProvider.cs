@@ -288,7 +288,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         protected internal override IReadOnlyList<EnumTypeMember>? BuildEnumValuesForBackCompatibility(IReadOnlyList<EnumTypeMember> currentValues)
         {
             var lastContractProperties = LastContractView?.Properties
-                .Where(p => MethodSignatureHelper.IsPublicApi(p.Modifiers));
+                .Where(p => MethodSignatureHelper.IsPublicApi(p.Modifiers, p.Attributes));
 
             if (lastContractProperties == null || !lastContractProperties.Any())
             {

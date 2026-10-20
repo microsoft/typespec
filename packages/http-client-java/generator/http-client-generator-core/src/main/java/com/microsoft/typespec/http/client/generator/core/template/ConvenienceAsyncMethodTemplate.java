@@ -93,11 +93,11 @@ public class ConvenienceAsyncMethodTemplate extends ConvenienceMethodTemplateBas
                 protocolMethod.getProxyMethod().getResponseContentTypes(), typeReferenceStaticClasses);
             if (expressionMapFromBinaryData == null) {
                 // no need to do the map
-                methodBlock
-                    .methodReturn(String.format("%1$s(%2$s)", getMethodName(protocolMethod), invocationExpression));
+                methodBlock.methodReturn(
+                    String.format("%1$s(%2$s)", getProtocolMethodInvocationName(protocolMethod), invocationExpression));
             } else {
-                methodBlock.line("PagedFlux<BinaryData> pagedFluxResponse = %1$s(%2$s);", getMethodName(protocolMethod),
-                    invocationExpression);
+                methodBlock.line("PagedFlux<BinaryData> pagedFluxResponse = %1$s(%2$s);",
+                    getProtocolMethodInvocationName(protocolMethod), invocationExpression);
 
                 methodBlock.methodReturn(String.format(
                     "PagedFlux.create(() -> (continuationTokenParam, pageSizeParam) -> {\n"
