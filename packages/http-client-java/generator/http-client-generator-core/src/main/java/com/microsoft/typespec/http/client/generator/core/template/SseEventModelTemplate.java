@@ -6,6 +6,7 @@ package com.microsoft.typespec.http.client.generator.core.template;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseEventMetadata;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseMetadata;
 import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Annotation;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
@@ -42,13 +43,44 @@ public final class SseEventModelTemplate {
         for (SseEventMetadata event : metadata.getEvents()) {
             Mappers.getSchemaMapper().map(event.getPayload()).getClientType().addImportsTo(imports, false);
         }
+        Annotation.GENERATED.addImportsTo(imports);
         javaFile.declareImport(imports);
-        javaFile.javadocComment(comment -> comment.description(
-            "Base for typed events emitted by a server-sent event stream. Unknown events expose only their name."));
+        javaFile.javadocComment(comment -> {
+            comment.description(
+                "Base for polymorphic events emitted by a streaming " + names.getStreamDescription() + ".");
+            comment
+                .description("Known events expose typed payloads through their subtype's {@code getValue()} method.");
+            comment.line("Unrecognized events expose only their names through");
+            comment.description("{@link #getEventName()}; their payloads are not available and they are not terminal.");
+            comment.description(
+                "Stream events are envelopes, not JSON payload models; serialize the typed payload instead.");
+            for (SseEventMetadata event : metadata.getEvents()) {
+                comment.see(names.getEventWrapperName(event.getName()));
+            }
+        });
         javaFile.publicClass(List.of(JavaModifier.Abstract), baseEventName, javaClass -> {
+            javaClass.annotation(Annotation.GENERATED.getName());
             javaClass.privateFinalMemberVariable("String eventName");
+            javaClass.javadocComment(comment -> {
+                comment.description("Creates a stream event.");
+                comment.param("eventName", "The server-sent event name.");
+            });
+            javaClass.annotation(Annotation.GENERATED.getName());
             javaClass.packagePrivateConstructor(baseEventName + "(String eventName)",
                 constructor -> constructor.line("this.eventName = eventName;"));
+            javaClass.javadocComment(comment -> {
+                comment.description("Gets the server-sent event name.");
+                comment.methodReturns("The event name.");
+            });
+            javaClass.annotation(Annotation.GENERATED.getName());
+            javaClass.publicMethod("final String getEventName()", method -> method.methodReturn("eventName"));
+            javaClass.javadocComment(comment -> {
+                comment.description(
+                    "Gets whether this event terminates the " + names.getStreamKindDescription() + " stream.");
+                comment.methodReturns("{@code true} if this is a terminal event; otherwise {@code false}.");
+            });
+            javaClass.annotation(Annotation.GENERATED.getName());
+            javaClass.publicMethod("boolean isTerminal()", method -> method.methodReturn("false"));
             javaClass.staticBlock(staticBlock -> {
                 staticBlock
                     .line(converterName + ".setConstructorAccessor(new " + converterName + ".ConstructorAccessor() {");
@@ -68,16 +100,6 @@ public final class SseEventModelTemplate {
                 });
                 staticBlock.line("});");
             });
-            javaClass.javadocComment(comment -> {
-                comment.description("Gets the server-sent event name.");
-                comment.methodReturns("the server-sent event name");
-            });
-            javaClass.publicMethod("final String getEventName()", method -> method.methodReturn("eventName"));
-            javaClass.javadocComment(comment -> {
-                comment.description("Whether this event terminates the stream.");
-                comment.methodReturns("whether this event terminates the stream");
-            });
-            javaClass.publicMethod("boolean isTerminal()", method -> method.methodReturn("false"));
         });
     }
 
@@ -87,24 +109,39 @@ public final class SseEventModelTemplate {
         Set<String> imports = new LinkedHashSet<>();
         payloadType.addImportsTo(imports, false);
         SseUtil.getEventType(metadata, names.getBaseEventName()).addImportsTo(imports, false);
+        Annotation.GENERATED.addImportsTo(imports);
+        Annotation.IMMUTABLE.addImportsTo(imports);
         javaFile.declareImport(imports);
 
         String wrapperName = names.getEventWrapperName(event.getName());
         String baseEventName = names.getBaseEventName();
-        javaFile.javadocComment(comment -> comment.description(
-            "Represents the {@code " + TemplateUtil.escapeString(event.getName()) + "} server-sent event."));
+        javaFile.javadocComment(comment -> {
+            comment.description("Represents the {@code " + TemplateUtil.escapeString(event.getName()) + "} "
+                + names.getStreamDescription() + " stream event.");
+            comment.description("Access the typed payload with {@link #getValue()}.");
+            comment.see(baseEventName);
+        });
+        javaFile.annotation(Annotation.IMMUTABLE.getName());
         javaFile.publicFinalClass(wrapperName + " extends " + baseEventName, javaClass -> {
+            javaClass.annotation(Annotation.GENERATED.getName());
             javaClass.privateFinalMemberVariable(payloadType + " value");
+            javaClass.javadocComment(comment -> {
+                comment.description("Creates an event wrapper.");
+                comment.param("value", "The event payload.");
+            });
+            javaClass.annotation(Annotation.GENERATED.getName());
             javaClass.packagePrivateConstructor(wrapperName + "(" + payloadType + " value)", constructor -> {
                 constructor.line("super(\"" + TemplateUtil.escapeString(event.getName()) + "\");");
                 constructor.line("this.value = value;");
             });
             javaClass.javadocComment(comment -> {
-                comment.description("Gets the decoded event payload.");
-                comment.methodReturns("the decoded event payload");
+                comment.description("Gets the event payload.");
+                comment.methodReturns("The event payload.");
             });
+            javaClass.annotation(Annotation.GENERATED.getName());
             javaClass.publicMethod(payloadType + " getValue()", method -> method.methodReturn("value"));
             if (event.isTerminal()) {
+                javaClass.annotation(Annotation.GENERATED.getName());
                 javaClass.annotation("Override");
                 javaClass.publicMethod("boolean isTerminal()", method -> method.methodReturn("true"));
             }

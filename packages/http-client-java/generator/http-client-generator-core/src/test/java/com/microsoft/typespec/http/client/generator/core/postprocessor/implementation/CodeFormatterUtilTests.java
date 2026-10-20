@@ -7,10 +7,30 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 public class CodeFormatterUtilTests {
+    @Test
+    public void preservesSseHelperImportOrder() {
+        String fileName = "src/main/java/com/azure/mock/implementation/TestStreamEventConverter.java";
+        String initial = String.join("\n", "package com.azure.mock.implementation;", "",
+            "import com.azure.mock.models.TestReferencesCompletedStreamEvent;",
+            "import com.azure.mock.models.TestReference;", "", "public final class TestStreamEventConverter {",
+            "private TestReferencesCompletedStreamEvent referencesCompleted;", "private TestReference reference;", "}",
+            "");
+
+        List<String> formattingResult = CodeFormatterUtil.formatCode(new HashMap<>(Map.of(fileName, initial)));
+
+        assertEquals(1, formattingResult.size());
+        String formatted = formattingResult.get(0);
+        int wrapperImport = formatted.indexOf("import com.azure.mock.models.TestReferencesCompletedStreamEvent;");
+        int payloadImport = formatted.indexOf("import com.azure.mock.models.TestReference;");
+        org.junit.jupiter.api.Assertions.assertTrue(wrapperImport >= 0);
+        org.junit.jupiter.api.Assertions.assertTrue(payloadImport > wrapperImport);
+    }
+
     @ParameterizedTest
     @ValueSource(strings = { "module-info.java", "src/main/module-info.java" })
     public void moduleInfoFormatting(String fileName) {

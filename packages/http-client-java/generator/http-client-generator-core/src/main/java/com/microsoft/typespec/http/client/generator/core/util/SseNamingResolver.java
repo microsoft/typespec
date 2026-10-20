@@ -3,11 +3,15 @@
 
 package com.microsoft.typespec.http.client.generator.core.util;
 
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ArraySchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseEventMetadata;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseMetadata;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Resolves generated Java names for a named server-sent event stream.
@@ -54,7 +58,7 @@ public final class SseNamingResolver {
             eventWrapperNames.put(event.getName(), wrapperName);
         }
 
-        return new Names(baseEventName, baseEventName + "Converter", eventWrapperNames);
+        return new Names(baseEventName, baseEventName + "Converter", toLowerCaseWords(baseStem), eventWrapperNames);
     }
 
     private static String firstEventNameSegment(String eventName) {
@@ -80,17 +84,70 @@ public final class SseNamingResolver {
         return "create" + normalizeEventName(eventName);
     }
 
+    public static String getServiceImplementationMethodName(String wrapperMethodName) {
+        if (wrapperMethodName.endsWith("InternalAsync")) {
+            return wrapperMethodName.substring(0, wrapperMethodName.length() - "InternalAsync".length()) + "Async";
+        }
+        if (wrapperMethodName.endsWith("Internal")) {
+            return wrapperMethodName.substring(0, wrapperMethodName.length() - "Internal".length());
+        }
+        return wrapperMethodName;
+    }
+
+    public static String getHiddenGeneratedMethodName(String methodName) {
+        String serviceMethodName = getServiceImplementationMethodName(methodName);
+        if (serviceMethodName.endsWith("Async")) {
+            serviceMethodName = serviceMethodName.substring(0, serviceMethodName.length() - "Async".length());
+        }
+        return "hiddenGenerated" + CodeNamer.toPascalCase(serviceMethodName);
+    }
+
+    public static String getRepresentativeEventName(SseMetadata metadata) {
+        String representativeEventName = null;
+        String scalarEventName = null;
+        for (SseEventMetadata event : metadata.getEvents()) {
+            if (!event.isTerminal()) {
+                representativeEventName = event.getName();
+                if (!(event.getPayload() instanceof ArraySchema)) {
+                    scalarEventName = event.getName();
+                }
+            }
+        }
+        return scalarEventName == null ? representativeEventName : scalarEventName;
+    }
+
+    public static List<String> getTerminalEventNames(SseMetadata metadata) {
+        return metadata.getEvents()
+            .stream()
+            .filter(SseEventMetadata::isTerminal)
+            .map(SseEventMetadata::getName)
+            .sorted((left, right) -> {
+                if (left.equals(right)) {
+                    return 0;
+                }
+                return "error".equals(left) ? -1 : "error".equals(right) ? 1 : 0;
+            })
+            .collect(Collectors.toList());
+    }
+
+    private static String toLowerCaseWords(String value) {
+        return value.replaceAll("(?<=[a-z0-9])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])", " ").toLowerCase(Locale.ROOT);
+    }
+
     /**
      * Generated Java names for one SSE stream.
      */
     public static final class Names {
         private final String baseEventName;
         private final String converterName;
+        private final String streamDescription;
         private final Map<String, String> eventWrapperNames;
 
-        private Names(String baseEventName, String converterName, Map<String, String> eventWrapperNames) {
+        private Names(String baseEventName, String converterName, String streamDescription,
+            Map<String, String> eventWrapperNames) {
             this.baseEventName = baseEventName;
             this.converterName = converterName;
+            this.streamDescription = streamDescription;
             this.eventWrapperNames = Collections.unmodifiableMap(eventWrapperNames);
         }
 
@@ -100,6 +157,15 @@ public final class SseNamingResolver {
 
         public String getConverterName() {
             return converterName;
+        }
+
+        public String getStreamDescription() {
+            return streamDescription;
+        }
+
+        public String getStreamKindDescription() {
+            int lastSpace = streamDescription.lastIndexOf(' ');
+            return lastSpace < 0 ? streamDescription : streamDescription.substring(lastSpace + 1);
         }
 
         public String getEventWrapperName(String eventName) {

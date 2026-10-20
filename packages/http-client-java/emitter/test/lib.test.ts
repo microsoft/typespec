@@ -4,6 +4,7 @@ import {
   DIAGNOSTIC_DOCS_BASE_PATH,
   DIAGNOSTIC_DOCS_BASE_URL,
   DIAGNOSTIC_DOCS_EXCLUDED,
+  EmitterOptionsSchema,
 } from "../src/options.js";
 
 describe("diagnostic documentation", () => {
@@ -32,5 +33,11 @@ describe("diagnostic documentation", () => {
         expect(definition.url).toBe(`${DIAGNOSTIC_DOCS_BASE_URL}/${code}`);
       }
     }
+  });
+});
+
+describe("emitter options", () => {
+  it("exposes float32-as-double", () => {
+    expect(EmitterOptionsSchema.properties).toHaveProperty("float32-as-double");
   });
 });

@@ -70,7 +70,7 @@ final class ServerSentEventStreamResponse {
         return new ServerSentEventStreamResponse(statusCode, body);
     }
 
-    private static void cancelBody(BinaryData body) {
+    static void cancelBody(BinaryData body) {
         if (body == null) {
             return;
         }

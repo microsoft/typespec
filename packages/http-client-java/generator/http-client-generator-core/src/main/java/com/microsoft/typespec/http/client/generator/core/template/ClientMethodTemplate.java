@@ -34,6 +34,8 @@ import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.CollectionFormat;
 import com.microsoft.typespec.http.client.generator.core.util.MethodNamer;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
+import com.microsoft.typespec.http.client.generator.core.util.SseNamingResolver;
+import com.microsoft.typespec.http.client.generator.core.util.SseUtil;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.http.models.HttpHeaderName;
@@ -1489,7 +1491,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         String effectiveProxyMethodName = restAPIMethod.getName();
 
         addServiceMethodAnnotation(typeBlock, ReturnType.SINGLE);
-        writeMethod(typeBlock, clientMethod.getMethodVisibility(), clientMethod.getDeclaration(), function -> {
+        writeServiceMethod(typeBlock, clientMethod, function -> {
 
             addValidations(function, clientMethod, settings);
             addOptionalAndConstantVariables(function, clientMethod, settings);
@@ -1791,7 +1793,7 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         final ProxyMethod restAPIMethod = clientMethod.getProxyMethod();
 
         addServiceMethodAnnotation(typeBlock, ReturnType.SINGLE);
-        writeMethod(typeBlock, clientMethod.getMethodVisibility(), clientMethod.getDeclaration(), function -> {
+        writeServiceMethod(typeBlock, clientMethod, function -> {
             if (clientMethod.hasWithContextOverload()) {
                 String arguments = clientMethod.getArgumentList();
                 arguments = CoreUtils.isNullOrEmpty(arguments) ? "context" : arguments + ", context";
@@ -1823,6 +1825,18 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                 function.methodReturn("FluxUtil.withContext(context -> " + serviceMethodCall + ")");
             }
         });
+    }
+
+    private static void writeServiceMethod(JavaType typeBlock, ClientMethod clientMethod, Consumer<JavaBlock> method) {
+        writeMethod(typeBlock, clientMethod.getMethodVisibility(), getServiceMethodDeclaration(clientMethod), method);
+    }
+
+    private static String getServiceMethodDeclaration(ClientMethod clientMethod) {
+        if (!SseUtil.isSseMethod(clientMethod)) {
+            return clientMethod.getDeclaration();
+        }
+        String serviceMethodName = SseNamingResolver.getServiceImplementationMethodName(clientMethod.getName());
+        return clientMethod.getDeclaration().replace(clientMethod.getName() + "(", serviceMethodName + "(");
     }
 
     protected boolean contextInParameters(ClientMethod clientMethod) {

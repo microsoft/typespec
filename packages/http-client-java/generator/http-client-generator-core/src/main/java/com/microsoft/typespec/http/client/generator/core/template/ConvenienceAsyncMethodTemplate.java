@@ -77,10 +77,11 @@ public class ConvenienceAsyncMethodTemplate extends ConvenienceMethodTemplateBas
         IType rawResponseBodyType = convenienceMethod.getProxyMethod().getRawResponseBodyType();
 
         if (convenienceMethod.getType() == ClientMethodType.SseAsync) {
-            String converterName = SseNamingResolver.resolve(convenienceMethod.getSseMetadata()).getConverterName();
+            SseNamingResolver.Names names = SseNamingResolver.resolve(convenienceMethod.getSseMetadata());
             methodBlock.methodReturn(String.format(
-                "%1$s(%2$s).flatMapMany(response -> ServerSentEventStreams.toFlux(response, %3$s::convert, %3$s::isTerminal))",
-                getMethodName(protocolMethod), invocationExpression, converterName));
+                "%1$s(%2$s).flatMapMany(response -> ServerSentEventStreams.toFlux(response, %3$s::convert, %4$s::isTerminal))",
+                getMethodName(protocolMethod), invocationExpression, names.getConverterName(),
+                names.getBaseEventName()));
             return;
         }
 

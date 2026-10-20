@@ -65,7 +65,9 @@ public final class CodeFormatterUtil {
 
         return removeUnusedImports(files.entrySet(), logger).stream().map(entry -> {
             try {
-                String file = reorderImports(entry.getValue(), orderingStrategy);
+                String file = preservesSseImportOrder(entry.getKey())
+                    ? entry.getValue()
+                    : reorderImports(entry.getValue(), orderingStrategy);
                 file = formatCode(file, entry.getKey(), ToolFactory.createCodeFormatter(eclipseSettings));
                 return Map.entry(entry.getKey(), file);
             } catch (Exception e) {
@@ -79,6 +81,10 @@ public final class CodeFormatterUtil {
                 throw new RuntimeException(errorMessage, e);
             }
         });
+    }
+
+    private static boolean preservesSseImportOrder(String fileName) {
+        return fileName.endsWith("StreamEventConverter.java") || fileName.endsWith("ServerSentEventStream.java");
     }
 
     /**

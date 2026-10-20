@@ -3,6 +3,7 @@
 
 package com.microsoft.typespec.http.client.generator.core.util;
 
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ArraySchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseEventMetadata;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseMetadata;
 import java.util.List;
@@ -31,6 +32,7 @@ public class SseNamingResolverTests {
 
         Assertions.assertEquals("KnowledgeBaseRetrievalStreamEvent", names.getBaseEventName());
         Assertions.assertEquals("KnowledgeBaseRetrievalStreamEventConverter", names.getConverterName());
+        Assertions.assertEquals("knowledge base retrieval", names.getStreamDescription());
         Assertions.assertEquals("KnowledgeBaseRetrievalStartedStreamEvent",
             names.getEventWrapperName("retrieval.started"));
         Assertions.assertEquals("KnowledgeBaseActivityCompletedStreamEvent",
@@ -47,6 +49,29 @@ public class SseNamingResolverTests {
         Assertions.assertTrue(exception.getMessage().contains("retrieval.started"));
         Assertions.assertTrue(exception.getMessage().contains("retrieval-started"));
         Assertions.assertTrue(exception.getMessage().contains("RetrievalStartedStreamEvent"));
+    }
+
+    @Test
+    public void resolvesServiceImplementationMethodNames() {
+        Assertions.assertEquals("retrieveStreamWithResponse",
+            SseNamingResolver.getServiceImplementationMethodName("retrieveStreamWithResponseInternal"));
+        Assertions.assertEquals("retrieveStreamWithResponseAsync",
+            SseNamingResolver.getServiceImplementationMethodName("retrieveStreamWithResponseInternalAsync"));
+        Assertions.assertEquals("hiddenGeneratedRetrieveStreamWithResponse",
+            SseNamingResolver.getHiddenGeneratedMethodName("retrieveStreamWithResponseInternalAsync"));
+    }
+
+    @Test
+    public void resolvesDocumentationEvents() {
+        SseMetadata metadata = metadata("RetrievalStreamEvents", "retrieval.started", "answer.completed",
+            "references.completed", "response.completed", "error");
+        metadata.getEvents().get(2).setPayload(new ArraySchema());
+        metadata.getEvents().get(3).setTerminal(true);
+        metadata.getEvents().get(4).setTerminal(true);
+
+        Assertions.assertEquals("answer.completed", SseNamingResolver.getRepresentativeEventName(metadata));
+        Assertions.assertEquals(List.of("error", "response.completed"),
+            SseNamingResolver.getTerminalEventNames(metadata));
     }
 
     private static SseMetadata metadata(String streamName, String... eventNames) {

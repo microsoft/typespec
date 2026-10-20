@@ -12,6 +12,7 @@ import static com.microsoft.typespec.http.client.generator.core.model.clientmode
 import static com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType.LONG;
 
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseMetadata;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Annotation;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ArrayType;
@@ -35,8 +36,10 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Param
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethodParameter;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ReturnValue;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlock;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaClass;
+import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaJavadocComment;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaType;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.template.util.ModelTemplateHeaderHelper;
@@ -296,30 +299,118 @@ abstract class ConvenienceMethodTemplateBase {
         }
 
         ClientMethod protocolMethod = convenienceMethodObj.getProtocolMethod();
-        convenienceMethodObj.getConvenienceMethods()
+        List<ClientMethod> convenienceMethods = convenienceMethodObj.getConvenienceMethods()
             .stream()
             .filter(this::isMethodIncluded)
-            .forEach(convenienceMethod -> {
-                // javadoc
+            .collect(Collectors.toList());
+        convenienceMethods.stream()
+            .filter(method -> method.getSseMetadata() != null && method.getOnlyRequiredParameters())
+            .forEach(
+                method -> writeRawSseConvenienceMethod(protocolMethod, method, classBlock, typeReferenceStaticClasses));
+        convenienceMethods.forEach(convenienceMethod -> {
+            // javadoc
+            if (convenienceMethod.getSseMetadata() == null) {
                 classBlock.javadocComment(comment -> ClientMethodTemplate.generateJavadoc(convenienceMethod, comment,
                     convenienceMethod.getProxyMethod(), false));
+            } else {
+                classBlock.javadocComment(comment -> writeSseJavadoc(convenienceMethod, comment));
+            }
 
-                addGeneratedAnnotation(classBlock);
+            addGeneratedAnnotation(classBlock);
+            if (convenienceMethod.getSseMetadata() == null) {
                 TemplateUtil.writeClientMethodServiceMethodAnnotation(convenienceMethod, classBlock);
+            }
 
-                JavaVisibility methodVisibility = convenienceMethod.getMethodVisibilityInWrapperClient();
+            JavaVisibility methodVisibility = convenienceMethod.getMethodVisibilityInWrapperClient();
 
-                // convenience method
-                String methodDeclaration
-                    = String.format("%1$s %2$s(%3$s)", convenienceMethod.getReturnValue().getType(),
-                        getMethodName(convenienceMethod), convenienceMethod.getParametersDeclaration());
-                classBlock.method(methodVisibility, null, methodDeclaration, methodBlock -> {
+            // convenience method
+            String methodDeclaration = String.format("%1$s %2$s(%3$s)", convenienceMethod.getReturnValue().getType(),
+                getMethodName(convenienceMethod), convenienceMethod.getParametersDeclaration());
+            classBlock.method(methodVisibility, null, methodDeclaration, methodBlock -> {
+                if (convenienceMethod.getSseMetadata() == null) {
                     methodBlock.line("// Generated convenience method for " + getMethodName(protocolMethod));
+                }
 
-                    writeMethodImplementation(protocolMethod, convenienceMethod, methodBlock,
-                        typeReferenceStaticClasses);
-                });
+                writeMethodImplementation(protocolMethod, convenienceMethod, methodBlock, typeReferenceStaticClasses);
             });
+        });
+        convenienceMethods.stream()
+            .filter(method -> method.getSseMetadata() != null && !method.getOnlyRequiredParameters())
+            .forEach(
+                method -> writeRawSseConvenienceMethod(protocolMethod, method, classBlock, typeReferenceStaticClasses));
+    }
+
+    private void writeRawSseConvenienceMethod(ClientMethod protocolMethod, ClientMethod sseMethod, JavaClass classBlock,
+        Set<GenericType> typeReferenceStaticClasses) {
+        boolean async = isMethodAsync(sseMethod);
+        ClientMethod rawMethod
+            = sseMethod.newBuilder()
+                .name("hiddenGenerated" + CodeNamer.toPascalCase(getMethodName(sseMethod)))
+                .type(async ? ClientMethodType.SimpleAsync : ClientMethodType.SimpleSync)
+                .returnValue(new ReturnValue(
+                    async ? "the response body on successful completion of {@link Mono}" : "the response",
+                    async ? GenericType.mono(ClassType.BINARY_DATA) : ClassType.BINARY_DATA))
+                .methodVisibilityInWrapperClient(JavaVisibility.PackagePrivate)
+                .sseMetadata(null)
+                .build();
+
+        classBlock.javadocComment(
+            comment -> ClientMethodTemplate.generateJavadoc(rawMethod, comment, rawMethod.getProxyMethod(), false));
+        addGeneratedAnnotation(classBlock);
+        TemplateUtil.writeClientMethodServiceMethodAnnotation(rawMethod, classBlock);
+        String methodDeclaration = String.format("%1$s %2$s(%3$s)", rawMethod.getReturnValue().getType(),
+            getMethodName(rawMethod), rawMethod.getParametersDeclaration());
+        classBlock.method(JavaVisibility.PackagePrivate, null, methodDeclaration, methodBlock -> {
+            methodBlock.line("// Generated convenience method for " + getMethodName(protocolMethod));
+            writeMethodImplementation(protocolMethod, rawMethod, methodBlock, typeReferenceStaticClasses);
+        });
+    }
+
+    private void writeSseJavadoc(ClientMethod method, JavaJavadocComment comment) {
+        SseMetadata metadata = method.getSseMetadata();
+        SseNamingResolver.Names names = SseNamingResolver.resolve(metadata);
+        String baseEventName = names.getBaseEventName();
+        String description = method.getDescription();
+        int firstSentenceEnd = description.indexOf('.');
+        String firstSentence = firstSentenceEnd < 0 ? description : description.substring(0, firstSentenceEnd + 1);
+        comment.description(firstSentence.replaceAll("\\s+", " "));
+
+        String representativeEventName = SseNamingResolver.getRepresentativeEventName(metadata);
+        String representativeEvent = representativeEventName == null
+            ? null
+            : SseUtil.getEventPackage(metadata) + "." + names.getEventWrapperName(representativeEventName);
+        String payloadExample
+            = representativeEvent == null ? "" : ", for example {@link " + representativeEvent + "#getValue()}";
+        comment.paragraph("Events are polymorphic: see {@link " + baseEventName
+            + "} for the known subtypes. Use a known subtype's {@code getValue()} to access its typed payload"
+            + payloadExample + ". Unrecognized events expose only their names through {@link " + baseEventName
+            + "#getEventName()}; their payloads are not available.");
+
+        List<String> terminalEventNames = SseNamingResolver.getTerminalEventNames(metadata);
+        String terminalEvents = terminalEventNames.stream()
+            .map(eventName -> "{@code " + eventName + "}")
+            .collect(Collectors.joining(" or "));
+        if (isMethodAsync(method)) {
+            comment.paragraph("If received, the terminal " + terminalEvents
+                + " event is emitted before the stream completes. End-of-stream without a terminal event completes "
+                + "normally. Transport and decoding failures are propagated through the reactive error path. The "
+                + "client does not reconnect automatically.");
+        } else {
+            comment.paragraph("Events are decoded lazily by a single iterator. Use try-with-resources to close the "
+                + "stream when iteration ends early. The response is also closed on end-of-stream, a terminal event, "
+                + "or an iteration failure. Closing the stream is idempotent and may throw {@link java.io.IOException}.");
+            comment.paragraph("If received, the terminal " + terminalEvents
+                + " event is emitted before iteration ends. A failure while closing after a terminal event is "
+                + "reported by the next iterator access or explicit close, after the terminal event is delivered. "
+                + "End-of-stream without a terminal event completes normally. Transport and decoding failures are "
+                + "thrown during iteration. The client does not reconnect automatically.");
+        }
+
+        for (ClientMethodParameter parameter : method.getMethodInputParameters()) {
+            comment.param(parameter.getName(), parameter.getDescription());
+        }
+        comment.methodReturns((isMethodAsync(method) ? "A stream of typed " : "A closeable stream of typed ")
+            + names.getStreamDescription() + " events");
     }
 
     /**
@@ -737,6 +828,11 @@ abstract class ConvenienceMethodTemplateBase {
     }
 
     protected String getMethodName(ClientMethod method) {
+        if (SseUtil.isSseMethod(method)
+            && (method.getType() == ClientMethodType.SimpleAsyncRestResponse
+                || method.getType() == ClientMethodType.SimpleSyncRestResponse)) {
+            return SseNamingResolver.getHiddenGeneratedMethodName(method.getName());
+        }
         if (isMethodAsync(method)) {
             return method.getName().endsWith("Async")
                 ? method.getName().substring(0, method.getName().length() - "Async".length())

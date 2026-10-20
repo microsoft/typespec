@@ -6,6 +6,8 @@ package com.microsoft.typespec.http.client.generator.core.util;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseMetadata;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
+import java.util.Locale;
 
 /**
  * Utilities for experimental server-sent event generation.
@@ -33,5 +35,18 @@ public final class SseUtil {
 
     public static ClassType getEventType(SseMetadata metadata, String name) {
         return new ClassType.Builder().packageName(getEventPackage(metadata)).name(name).build();
+    }
+
+    public static boolean isSseMethod(ClientMethod method) {
+        if (method.getSseMetadata() != null) {
+            return true;
+        }
+        return method.getProxyMethod() != null
+            && method.getProxyMethod().getResponseContentTypes() != null
+            && method.getProxyMethod()
+                .getResponseContentTypes()
+                .stream()
+                .map(contentType -> contentType.toLowerCase(Locale.ROOT))
+                .anyMatch(contentType -> contentType.startsWith("text/event-stream"));
     }
 }

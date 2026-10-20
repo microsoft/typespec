@@ -2,6 +2,7 @@ import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
 import com.azure.core.util.CloseableIterableStream;
 import com.azure.core.util.FluxUtil;
+import com.azure.core.util.logging.ClientLogger;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,8 +15,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.NoSuchElementException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
@@ -25,17 +26,35 @@ import reactor.core.publisher.Flux;
  * Parses one server-sent event response.
  */
 final class ServerSentEventStream {
+    private static final ClientLogger LOGGER = new ClientLogger(ServerSentEventStream.class);
     private static final String DEFAULT_EVENT = "message";
 
     private ServerSentEventStream() {
     }
 
+    /**
+     * Decodes an SSE response until the response body ends.
+     *
+     * @param response The streaming response.
+     * @param converter Converts an event name and data payload into the event data type.
+     * @param <T> The event data type.
+     * @return A flux of decoded events.
+     */
     static <T> Flux<T> toFlux(Response<BinaryData> response, BiFunction<String, String, T> converter) {
         Objects.requireNonNull(response, "'response' cannot be null.");
         Objects.requireNonNull(converter, "'converter' cannot be null.");
         return toFluxInternal(response, converter, null);
     }
 
+    /**
+     * Decodes an SSE response until an inclusive terminal event is emitted.
+     *
+     * @param response The streaming response.
+     * @param converter Converts an event name and data payload into the event data type.
+     * @param terminalEvent Identifies an inclusive terminal event that ends processing early.
+     * @param <T> The event data type.
+     * @return A flux of decoded events.
+     */
     static <T> Flux<T> toFlux(Response<BinaryData> response, BiFunction<String, String, T> converter,
         Predicate<T> terminalEvent) {
         Objects.requireNonNull(response, "'response' cannot be null.");
@@ -56,6 +75,7 @@ final class ServerSentEventStream {
             ServerSentEventStreamResponse streamResponse = ServerSentEventStreamResponse.fromResponse(response);
             Flux<T> events
                 = streamResponse.getStatusCode() == 204 ? Flux.empty() : decode(streamResponse.getBody(), converter);
+
             if (terminalEvent != null) {
                 events = events.takeUntil(terminalEvent);
             }
@@ -63,6 +83,14 @@ final class ServerSentEventStream {
         });
     }
 
+    /**
+     * Lazily decodes an SSE response until the response body ends.
+     *
+     * @param response The streaming response.
+     * @param converter Converts an event name and data payload into the event data type.
+     * @param <T> The event data type.
+     * @return A closeable stream of decoded events.
+     */
     static <T> CloseableIterableStream<T> toIterableStream(Response<BinaryData> response,
         BiFunction<String, String, T> converter) {
         Objects.requireNonNull(response, "'response' cannot be null.");
@@ -70,6 +98,15 @@ final class ServerSentEventStream {
         return toIterableStreamInternal(response, converter, null);
     }
 
+    /**
+     * Lazily decodes an SSE response until an inclusive terminal event is emitted.
+     *
+     * @param response The streaming response.
+     * @param converter Converts an event name and data payload into the event data type.
+     * @param terminalEvent Identifies an inclusive terminal event that ends processing early.
+     * @param <T> The event data type.
+     * @return A closeable stream of decoded events.
+     */
     static <T> CloseableIterableStream<T> toIterableStream(Response<BinaryData> response,
         BiFunction<String, String, T> converter, Predicate<T> terminalEvent) {
         Objects.requireNonNull(response, "'response' cannot be null.");
@@ -94,8 +131,10 @@ final class ServerSentEventStream {
 
     private static <T> Flux<T> decode(BinaryData body, BiFunction<String, String, T> converter) {
         ServerSentEventDecoder decoder = new ServerSentEventDecoder();
+        // Own transport bytes before queuing them: the backing memory may be reclaimed when onNext returns.
         Flux<ByteBuffer> buffers
             = body.toFluxByteBuffer().map(buffer -> ByteBuffer.wrap(FluxUtil.byteBufferToArray(buffer.duplicate())));
+        // Serialize transport errors after preceding buffers so they cannot displace an inclusive terminal event.
         Flux<ServerSentEventFrame> frames = buffers.materialize().hide().concatMap(signal -> {
             if (signal.isOnError()) {
                 return Flux.error(signal.getThrowable());
@@ -104,6 +143,7 @@ final class ServerSentEventStream {
                 return Flux.empty();
             }
             ByteBuffer input = signal.get().duplicate();
+            // Iterable exhaustion completes without another request after the last frame.
             return Flux.fromIterable(() -> new Iterator<ServerSentEventFrame>() {
                 private ServerSentEventFrame next;
 
@@ -118,7 +158,7 @@ final class ServerSentEventStream {
                 @Override
                 public ServerSentEventFrame next() {
                     if (!hasNext()) {
-                        throw new NoSuchElementException();
+                        throw LOGGER.logExceptionAsError(new NoSuchElementException());
                     }
                     ServerSentEventFrame frame = next;
                     next = null;
@@ -225,6 +265,7 @@ final class ServerSentEventStream {
             try {
                 close();
             } catch (IOException | RuntimeException exception) {
+                // Deliver terminal data before reporting its cleanup failure on the next access or explicit close.
                 pendingCloseFailure = exception;
             }
         }
@@ -321,6 +362,7 @@ final class ServerSentEventStream {
 
         private void finish() {
             if (lineLength > 0) {
+                // Validate trailing bytes even though an unterminated SSE event is discarded.
                 decodeLine();
             }
         }
@@ -355,6 +397,12 @@ final class ServerSentEventStream {
             return line;
         }
 
+        /**
+         * Processes a decoded line, updating the pending SSE event.
+         *
+         * @param line The decoded SSE line.
+         * @return The completed event frame, or {@code null} if this line produces no frame.
+         */
         private ServerSentEventFrame processLine(String line) {
             if (line.isEmpty()) {
                 return buildEvent();
