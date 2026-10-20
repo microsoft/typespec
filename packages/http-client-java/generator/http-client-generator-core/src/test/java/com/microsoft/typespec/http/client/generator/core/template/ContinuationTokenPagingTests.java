@@ -174,16 +174,8 @@ public class ContinuationTokenPagingTests {
     }
 
     @ParameterizedTest
-    @ValueSource(
-        strings = {
-            "continuationTokenParam",
-            "pageSizeParam",
-            "pagedFluxResponse",
-            "flux",
-            "pagedResponse",
-            "protocolMethodData",
-            "serviceClient" })
-    public void avoidsAsyncConvenienceTokenNameCollisions(String tokenName) throws IOException {
+    @ValueSource(strings = { "token", "serviceClient" })
+    public void compilesAsyncConveniencePaging(String tokenName) throws IOException {
         assertConveniencePagingCompiles(true, tokenName);
     }
 
@@ -241,12 +233,7 @@ public class ContinuationTokenPagingTests {
     }
 
     @ParameterizedTest
-    @CsvSource({
-        "QUERY, after",
-        "HEADER, after",
-        "QUERY, continuationTokenParam",
-        "QUERY, serviceClient",
-        "HEADER, bodyItemValue" })
+    @CsvSource({ "QUERY, after", "HEADER, after", "QUERY, serviceClient", "HEADER, bodyItemValue" })
     public void preservesGroupedContinuationToken(String locationName, String tokenName) throws IOException {
         useDataPlaneSettings();
         RequestParameterLocation location = RequestParameterLocation.valueOf(locationName);

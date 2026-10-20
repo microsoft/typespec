@@ -89,39 +89,31 @@ public class ConvenienceAsyncMethodTemplate extends ConvenienceMethodTemplateBas
         }
 
         if (methodType == ClientMethodType.PagingAsync) {
-            Set<String> usedNames = ClientMethodTemplateBase.pagingVariableNames(convenienceMethod);
-            String continuationToken
-                = ClientMethodTemplateBase.availablePagingVariableName("continuationTokenParam", usedNames);
-            String pageSize = ClientMethodTemplateBase.availablePagingVariableName("pageSizeParam", usedNames);
-            String pagedFlux = ClientMethodTemplateBase.availablePagingVariableName("pagedFluxResponse", usedNames);
-            String flux = ClientMethodTemplateBase.availablePagingVariableName("flux", usedNames);
-            String pagedResponse = ClientMethodTemplateBase.availablePagingVariableName("pagedResponse", usedNames);
-            String protocolMethodData
-                = ClientMethodTemplateBase.availablePagingVariableName("protocolMethodData", usedNames);
             String expressionMapFromBinaryData = expressionMapFromBinaryData(responseBodyType, rawResponseBodyType,
-                protocolMethod.getProxyMethod().getResponseContentTypes(), typeReferenceStaticClasses,
-                protocolMethodData);
+                protocolMethod.getProxyMethod().getResponseContentTypes(), typeReferenceStaticClasses);
             if (expressionMapFromBinaryData == null) {
                 // no need to do the map
                 methodBlock.methodReturn(
                     String.format("%1$s(%2$s)", getProtocolMethodInvocationName(protocolMethod), invocationExpression));
             } else {
-                methodBlock.line("PagedFlux<BinaryData> %1$s = %2$s(%3$s);", pagedFlux,
+                methodBlock.line("PagedFlux<BinaryData> pagedFluxResponse = %1$s(%2$s);",
                     getProtocolMethodInvocationName(protocolMethod), invocationExpression);
 
                 methodBlock.methodReturn(String.format(
-                    "PagedFlux.create(() -> (%3$s, %4$s) -> {\n" + "    Flux<PagedResponse<BinaryData>> %6$s;\n"
-                        + "    if (%4$s == null) {\n" + "        %6$s = (%3$s == null)\n"
-                        + "            ? %5$s.byPage().take(1)\n" + "            : %5$s.byPage(%3$s).take(1);\n"
-                        + "    } else {\n" + "        %6$s = (%3$s == null)\n"
-                        + "            ? %5$s.byPage(%4$s).take(1)\n"
-                        + "            : %5$s.byPage(%3$s, %4$s).take(1);\n" + "    }\n"
-                        + "    return %6$s.map(%7$s -> new PagedResponseBase<Void, %1$s>(%7$s.getRequest(),\n"
-                        + "        %7$s.getStatusCode(),\n" + "        %7$s.getHeaders(),\n"
-                        + "        %7$s.getValue().stream().map(%2$s).collect(Collectors.toList()),\n"
-                        + "        %7$s.getContinuationToken(),\n" + "        null));\n" + "})",
-                    responseBodyType.asNullable(), expressionMapFromBinaryData, continuationToken, pageSize, pagedFlux,
-                    flux, pagedResponse));
+                    "PagedFlux.create(() -> (continuationTokenParam, pageSizeParam) -> {\n"
+                        + "    Flux<PagedResponse<BinaryData>> flux;\n" + "    if (pageSizeParam == null) {\n"
+                        + "        flux = (continuationTokenParam == null)\n"
+                        + "            ? pagedFluxResponse.byPage().take(1)\n"
+                        + "            : pagedFluxResponse.byPage(continuationTokenParam).take(1);\n" + "    } else {\n"
+                        + "        flux = (continuationTokenParam == null)\n"
+                        + "            ? pagedFluxResponse.byPage(pageSizeParam).take(1)\n"
+                        + "            : pagedFluxResponse.byPage(continuationTokenParam, pageSizeParam).take(1);\n"
+                        + "    }\n"
+                        + "    return flux.map(pagedResponse -> new PagedResponseBase<Void, %1$s>(pagedResponse.getRequest(),\n"
+                        + "        pagedResponse.getStatusCode(),\n" + "        pagedResponse.getHeaders(),\n"
+                        + "        pagedResponse.getValue().stream().map(%2$s).collect(Collectors.toList()),\n"
+                        + "        pagedResponse.getContinuationToken(),\n" + "        null));\n" + "})",
+                    responseBodyType.asNullable(), expressionMapFromBinaryData));
             }
         } else if (methodType == ClientMethodType.LongRunningBeginAsync) {
             String methodName = protocolMethod.getName();
@@ -188,8 +180,8 @@ public class ConvenienceAsyncMethodTemplate extends ConvenienceMethodTemplateBas
 
     private String expressionConvertFromBinaryData(IType responseBodyType, IType rawType, Set<String> mediaTypes,
         Set<GenericType> typeReferenceStaticClasses) {
-        String expressionMapFromBinaryData = expressionMapFromBinaryData(responseBodyType, rawType, mediaTypes,
-            typeReferenceStaticClasses, "protocolMethodData");
+        String expressionMapFromBinaryData
+            = expressionMapFromBinaryData(responseBodyType, rawType, mediaTypes, typeReferenceStaticClasses);
         if (expressionMapFromBinaryData != null) {
             return String.format(".map(%s)", expressionMapFromBinaryData);
         } else {
@@ -199,7 +191,7 @@ public class ConvenienceAsyncMethodTemplate extends ConvenienceMethodTemplateBas
     }
 
     private String expressionMapFromBinaryData(IType responseBodyType, IType rawType, Set<String> mediaTypes,
-        Set<GenericType> typeReferenceStaticClasses, String parameterName) {
+        Set<GenericType> typeReferenceStaticClasses) {
         if (responseBodyType == ClassType.BINARY_DATA) {
             return null;
         }
@@ -208,14 +200,14 @@ public class ConvenienceAsyncMethodTemplate extends ConvenienceMethodTemplateBas
         switch (mimeType) {
             case TEXT:
                 if (responseBodyType == ArrayType.BYTE_ARRAY) {
-                    return parameterName + " -> " + parameterName + ".toBytes()";
+                    return "protocolMethodData -> protocolMethodData.toBytes()";
                 }
-                String baseHandling = parameterName + ".toString()";
+                String baseHandling = "protocolMethodData.toString()";
                 if (!rawType.isNullable()) {
                     // Dealing with a primitive type that needs to be converted.
-                    return parameterName + " -> " + wrapPrimitiveMimeTypeText(baseHandling, (PrimitiveType) rawType);
+                    return "protocolMethodData -> " + wrapPrimitiveMimeTypeText(baseHandling, (PrimitiveType) rawType);
                 } else {
-                    return parameterName + " -> " + baseHandling;
+                    return "protocolMethodData -> " + baseHandling;
                 }
 
             case BINARY:
@@ -225,25 +217,26 @@ public class ConvenienceAsyncMethodTemplate extends ConvenienceMethodTemplateBas
                 // JSON, XML etc.
                 if (responseBodyType instanceof EnumType) {
                     // enum
-                    return String.format("%4$s -> %1$s.from%2$s(%4$s.toObject(%2$s.class%3$s))", responseBodyType,
-                        ((EnumType) responseBodyType).getElementType(), serializerArgument, parameterName);
+                    return String.format(
+                        "protocolMethodData -> %1$s.from%2$s(protocolMethodData.toObject(%2$s.class%3$s))",
+                        responseBodyType, ((EnumType) responseBodyType).getElementType(), serializerArgument);
                 } else if (responseBodyType instanceof GenericType) {
                     // generic, e.g. list, map
                     typeReferenceStaticClasses.add((GenericType) responseBodyType);
-                    return String.format("%3$s -> %3$s.toObject(%1$s%2$s)",
-                        TemplateUtil.getTypeReferenceCreation(responseBodyType), serializerArgument, parameterName);
+                    return String.format("protocolMethodData -> protocolMethodData.toObject(%1$s%2$s)",
+                        TemplateUtil.getTypeReferenceCreation(responseBodyType), serializerArgument);
                 } else if (responseBodyType == ArrayType.BYTE_ARRAY) {
                     // byte[]
                     if (rawType == ClassType.BASE_64_URL) {
-                        return parameterName + " -> " + parameterName + ".toObject(" + ClassType.BASE_64_URL.getName()
+                        return "protocolMethodData -> protocolMethodData.toObject(" + ClassType.BASE_64_URL.getName()
                             + ".class" + serializerArgument + ").decodedBytes()";
                     } else {
-                        return parameterName + " -> " + parameterName + ".toObject(byte[].class" + serializerArgument
+                        return "protocolMethodData -> protocolMethodData.toObject(byte[].class" + serializerArgument
                             + ")";
                     }
                 } else {
                     // default, treat as class
-                    return parameterName + " -> " + parameterName + ".toObject(" + responseBodyType.asNullable()
+                    return "protocolMethodData -> protocolMethodData.toObject(" + responseBodyType.asNullable()
                         + ".class" + serializerArgument + ")";
                 }
         }
