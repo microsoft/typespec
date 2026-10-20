@@ -14,13 +14,16 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Clien
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelProperty;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ListType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodPageDetails;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ModelPropertySegment;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterSynthesizedOrigin;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ReturnValue;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaClass;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFileContents;
+import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaJavadocComment;
 import io.clientcore.core.utils.IOExceptionCheckedFunction;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -303,6 +306,55 @@ public class ContinuationTokenPagingTests {
         };
         JavaSettings.clear();
         Assertions.assertEquals("String filter", pagingMethod().getParametersDeclaration());
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = { false, true })
+    public void preservesAzureProtocolTokenDocumentation(boolean azure) {
+        new MockUnitJavagen() {
+            @Override
+            @SuppressWarnings("unchecked")
+            public <T> T getValue(String key, IOExceptionCheckedFunction<String, T> converter) {
+                return "flavor".equals(key) ? (T) (azure ? "azure" : "unbranded") : super.getValue(key, converter);
+            }
+        };
+        JavaSettings.clear();
+        for (RequestParameterLocation location : List.of(RequestParameterLocation.QUERY,
+            RequestParameterLocation.HEADER)) {
+            ProxyMethodParameter token = new ProxyMethodParameter.Builder().name("after")
+                .requestParameterName("after")
+                .requestParameterLocation(location)
+                .description("The continuation token.")
+                .origin(ParameterSynthesizedOrigin.NONE)
+                .wireType(ClassType.STRING)
+                .clientType(ClassType.STRING)
+                .build();
+            ProxyMethodParameter filter = token.newBuilder().name("filter").requestParameterName("filter").build();
+            ListType itemsType = new ListType(ClassType.STRING);
+            ClientMethod method = pagingMethod().newBuilder()
+                .parameters(List.of(ClientMethodParameter.REQUEST_OPTIONS_PARAMETER))
+                .proxyMethod(new ProxyMethod.Builder().name("list")
+                    .allParameters(List.of(token, filter))
+                    .responseBodyType(ClassType.STRING)
+                    .build())
+                .methodPageDetails(new MethodPageDetails(
+                    List.of(new ModelPropertySegment(null,
+                        new ClientModelProperty.Builder().name("items")
+                            .serializedName("items")
+                            .wireType(itemsType)
+                            .clientType(itemsType)
+                            .build())),
+                    null, null, null, new MethodPageDetails.ContinuationToken(token, null, "next-token", null), null,
+                    null))
+                .build();
+            JavaFileContents contents = new JavaFileContents();
+            ClientMethodTemplateBase.generateProtocolMethodJavadoc(method, new JavaJavadocComment(contents));
+            String output = contents.toString();
+            Assertions.assertEquals(azure,
+                output.contains("<tr><td>after</td><td>String</td><td>No</td><td>The continuation token.</td></tr>"),
+                output);
+            Assertions.assertTrue(output.contains("<tr><td>filter</td>"), output);
+        }
     }
 
     private static ClientMethod pagingMethod() {

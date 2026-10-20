@@ -144,7 +144,9 @@ public abstract class ClientMethodTemplateBase implements IJavaTemplate<ClientMe
     }
 
     private static boolean isHiddenContinuationToken(ClientMethod clientMethod, ProxyMethodParameter parameter) {
-        if (!clientMethod.isPageStreamingType() || clientMethod.getMethodPageDetails().getContinuationToken() == null) {
+        if (JavaSettings.getInstance().isAzureV1()
+            || !clientMethod.isPageStreamingType()
+            || clientMethod.getMethodPageDetails().getContinuationToken() == null) {
             return false;
         }
         ProxyMethodParameter token = clientMethod.getMethodPageDetails().getContinuationToken().getRequestParameter();

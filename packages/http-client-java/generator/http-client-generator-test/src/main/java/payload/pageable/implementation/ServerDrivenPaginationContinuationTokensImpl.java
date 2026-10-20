@@ -226,6 +226,7 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      * <table border="1">
      * <caption>Query Parameters</caption>
      * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     * <tr><td>token</td><td>String</td><td>No</td><td>The token parameter</td></tr>
      * <tr><td>bar</td><td>String</td><td>No</td><td>The bar parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
@@ -337,6 +338,7 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      * <table border="1">
      * <caption>Query Parameters</caption>
      * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     * <tr><td>token</td><td>String</td><td>No</td><td>The token parameter</td></tr>
      * <tr><td>bar</td><td>String</td><td>No</td><td>The bar parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
@@ -455,6 +457,7 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      * <table border="1">
      * <caption>Header Parameters</caption>
      * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     * <tr><td>token</td><td>String</td><td>No</td><td>The token parameter</td></tr>
      * <tr><td>foo</td><td>String</td><td>No</td><td>The foo parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addHeader}
@@ -558,6 +561,7 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      * <table border="1">
      * <caption>Header Parameters</caption>
      * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     * <tr><td>token</td><td>String</td><td>No</td><td>The token parameter</td></tr>
      * <tr><td>foo</td><td>String</td><td>No</td><td>The foo parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addHeader}
@@ -655,6 +659,7 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      * <table border="1">
      * <caption>Query Parameters</caption>
      * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     * <tr><td>token</td><td>String</td><td>No</td><td>The token parameter</td></tr>
      * <tr><td>bar</td><td>String</td><td>No</td><td>The bar parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
@@ -767,6 +772,7 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      * <table border="1">
      * <caption>Query Parameters</caption>
      * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     * <tr><td>token</td><td>String</td><td>No</td><td>The token parameter</td></tr>
      * <tr><td>bar</td><td>String</td><td>No</td><td>The bar parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
@@ -886,6 +892,7 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      * <table border="1">
      * <caption>Header Parameters</caption>
      * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     * <tr><td>token</td><td>String</td><td>No</td><td>The token parameter</td></tr>
      * <tr><td>foo</td><td>String</td><td>No</td><td>The foo parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addHeader}
@@ -990,6 +997,7 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      * <table border="1">
      * <caption>Header Parameters</caption>
      * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     * <tr><td>token</td><td>String</td><td>No</td><td>The token parameter</td></tr>
      * <tr><td>foo</td><td>String</td><td>No</td><td>The foo parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addHeader}
@@ -1089,6 +1097,7 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      * <table border="1">
      * <caption>Query Parameters</caption>
      * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     * <tr><td>token</td><td>String</td><td>No</td><td>The token parameter</td></tr>
      * <tr><td>bar</td><td>String</td><td>No</td><td>The bar parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
@@ -1201,6 +1210,7 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      * <table border="1">
      * <caption>Query Parameters</caption>
      * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     * <tr><td>token</td><td>String</td><td>No</td><td>The token parameter</td></tr>
      * <tr><td>bar</td><td>String</td><td>No</td><td>The bar parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addQueryParam}
@@ -1322,6 +1332,7 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      * <table border="1">
      * <caption>Header Parameters</caption>
      * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     * <tr><td>token</td><td>String</td><td>No</td><td>The token parameter</td></tr>
      * <tr><td>foo</td><td>String</td><td>No</td><td>The foo parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addHeader}
@@ -1426,6 +1437,7 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      * <table border="1">
      * <caption>Header Parameters</caption>
      * <tr><th>Name</th><th>Type</th><th>Required</th><th>Description</th></tr>
+     * <tr><td>token</td><td>String</td><td>No</td><td>The token parameter</td></tr>
      * <tr><td>foo</td><td>String</td><td>No</td><td>The foo parameter</td></tr>
      * </table>
      * You can add these to a request with {@link RequestOptions#addHeader}
