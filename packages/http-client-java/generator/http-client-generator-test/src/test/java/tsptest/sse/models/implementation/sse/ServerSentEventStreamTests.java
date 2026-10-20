@@ -12,15 +12,20 @@ import com.azure.core.util.CloseableIterableStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;
+import tsptest.sse.SseAsyncClient;
+import tsptest.sse.SseClient;
 import tsptest.sse.stream.implementation.TestStreamEventConverter;
 import tsptest.sse.stream.models.TestCompletedStreamEvent;
 import tsptest.sse.stream.models.TestStartedStreamEvent;
@@ -45,12 +50,10 @@ public class ServerSentEventStreamTests {
             = BinaryData.fromFlux(Flux.fromIterable(fragments).doOnCancel(() -> cancelled.set(true)), null, false)
                 .block();
 
-        List<TestStreamEvent> events
-            = ServerSentEventStreams
-                .toFlux(response(200, "text/event-stream; charset=utf-8", body), CONVERTER,
-                    TestStreamEventConverter::isTerminal)
-                .collectList()
-                .block();
+        List<TestStreamEvent> events = ServerSentEventStreams
+            .toFlux(response(200, "text/event-stream; charset=utf-8", body), CONVERTER, TestStreamEvent::isTerminal)
+            .collectList()
+            .block();
 
         Assertions.assertNotNull(events);
         Assertions.assertEquals(3, events.size());
@@ -87,9 +90,8 @@ public class ServerSentEventStreamTests {
                 .getBytes(StandardCharsets.UTF_8),
             2);
 
-        try (CloseableIterableStream<TestStreamEvent> events
-            = ServerSentEventStreams.toIterableStream(response(200, "text/event-stream", BinaryData.fromStream(input)),
-                CONVERTER, TestStreamEventConverter::isTerminal)) {
+        try (CloseableIterableStream<TestStreamEvent> events = ServerSentEventStreams.toIterableStream(
+            response(200, "text/event-stream", BinaryData.fromStream(input)), CONVERTER, TestStreamEvent::isTerminal)) {
             java.util.Iterator<TestStreamEvent> iterator = events.iterator();
             Assertions.assertInstanceOf(TestCompletedStreamEvent.class, iterator.next());
             Assertions.assertTrue(input.isClosed());
@@ -122,6 +124,23 @@ public class ServerSentEventStreamTests {
         IllegalStateException exception
             = Assertions.assertThrows(IllegalStateException.class, () -> events.collectList().block());
         Assertions.assertTrue(exception.getMessage().contains("only one subscription"));
+    }
+
+    @Test
+    public void generatedClientsRetainRawHiddenStreamOverloads() {
+        assertHiddenRawOverloads(SseClient.class);
+        assertHiddenRawOverloads(SseAsyncClient.class);
+    }
+
+    private static void assertHiddenRawOverloads(Class<?> clientType) {
+        List<Method> hiddenReadMethods = Arrays.stream(clientType.getDeclaredMethods())
+            .filter(method -> method.getName().equals("hiddenGeneratedRead"))
+            .collect(Collectors.toList());
+
+        Assertions.assertEquals(2, hiddenReadMethods.size());
+        Assertions.assertTrue(hiddenReadMethods.stream().anyMatch(method -> method.getParameterCount() == 0));
+        Assertions.assertTrue(hiddenReadMethods.stream()
+            .anyMatch(method -> method.getParameterCount() == 1 && method.getParameterTypes()[0] == String.class));
     }
 
     private static void assertInvalidResponseClosed(int statusCode, String contentType) {

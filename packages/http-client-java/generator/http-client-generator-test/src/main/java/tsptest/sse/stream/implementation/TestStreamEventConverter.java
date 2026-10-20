@@ -4,6 +4,7 @@
 
 package tsptest.sse.stream.implementation;
 
+import com.azure.core.util.logging.ClientLogger;
 import com.azure.json.JsonProviders;
 import com.azure.json.JsonReader;
 import com.azure.json.ReadValueCallback;
@@ -17,61 +18,98 @@ import tsptest.sse.stream.models.TestStartedStreamEvent;
 import tsptest.sse.stream.models.TestStreamEvent;
 
 /**
- * Converts named server-sent events into generated models.
+ * Converts test stream event payloads to typed event models.
  */
 public final class TestStreamEventConverter {
+    private static final ClientLogger LOGGER = new ClientLogger(TestStreamEventConverter.class);
     private static volatile ConstructorAccessor constructorAccessor;
 
     private TestStreamEventConverter() {
     }
 
+    /**
+     * Provides access to the SDK-only event constructors.
+     */
     public interface ConstructorAccessor {
+        /**
+         * Creates a name-only event.
+         *
+         * @param eventName The event name.
+         * @return The event.
+         */
         TestStreamEvent createEvent(String eventName);
 
+        /**
+         * Creates a started event.
+         *
+         * @param value The decoded payload.
+         * @return The event.
+         */
         TestStartedStreamEvent createStarted(StartedPayload value);
 
+        /**
+         * Creates a completed event.
+         *
+         * @param value The decoded payload.
+         * @return The event.
+         */
         TestCompletedStreamEvent createCompleted(CompletedPayload value);
     }
 
+    /**
+     * Registers the event constructors from the models package.
+     *
+     * @param accessor The constructor accessor.
+     */
     public static void setConstructorAccessor(ConstructorAccessor accessor) {
         constructorAccessor = Objects.requireNonNull(accessor, "'accessor' cannot be null.");
     }
 
     private static ConstructorAccessor getConstructorAccessor() {
-        if (constructorAccessor == null) {
+        ConstructorAccessor accessor = constructorAccessor;
+        if (accessor == null) {
             try {
                 Class.forName(TestStreamEvent.class.getName(), true, TestStreamEvent.class.getClassLoader());
-            } catch (ClassNotFoundException e) {
-                throw new IllegalStateException("Unable to initialize SSE event constructors.", e);
+            } catch (ClassNotFoundException | LinkageError exception) {
+                throw LOGGER.logExceptionAsError(
+                    new IllegalStateException("Failed to initialize test stream event constructors.", exception));
             }
-
+            accessor = constructorAccessor;
+            if (accessor == null) {
+                throw LOGGER.logExceptionAsError(
+                    new IllegalStateException("Test stream event constructors were not registered."));
+            }
         }
-        if (constructorAccessor == null) {
-            throw new IllegalStateException("SSE event constructors were not registered.");
-        }
-        return constructorAccessor;
+        return accessor;
     }
 
+    /**
+     * Converts a stream event payload.
+     *
+     * @param eventName The stream event name.
+     * @param data The stream event data.
+     * @return The typed stream event.
+     */
     public static TestStreamEvent convert(String eventName, String data) {
-        if ("started".equals(eventName)) {
-            return getConstructorAccessor().createStarted(read(eventName, data, StartedPayload::fromJson));
+        ConstructorAccessor accessor = getConstructorAccessor();
+        switch (eventName) {
+            case "started":
+                return accessor.createStarted(read(eventName, data, StartedPayload::fromJson));
+
+            case "completed":
+                return accessor.createCompleted(read(eventName, data, CompletedPayload::fromJson));
+
+            default:
+                return accessor.createEvent(eventName);
         }
-        if ("completed".equals(eventName)) {
-            return getConstructorAccessor().createCompleted(read(eventName, data, CompletedPayload::fromJson));
-        }
-        return getConstructorAccessor().createEvent(eventName);
     }
 
     private static <T> T read(String eventName, String data, ReadValueCallback<JsonReader, T> eventReader) {
         try (JsonReader reader = JsonProviders.createReader(data)) {
             return eventReader.read(reader);
         } catch (IOException exception) {
-            throw new UncheckedIOException("Failed to decode server-sent event: " + eventName, exception);
+            throw new UncheckedIOException("Failed to decode test stream event: " + eventName, exception);
         }
-
     }
 
-    public static boolean isTerminal(TestStreamEvent event) {
-        return event instanceof TestCompletedStreamEvent;
-    }
 }

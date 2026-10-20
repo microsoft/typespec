@@ -101,7 +101,7 @@ public final class StreamOperationsImpl {
      * @return the response body along with {@link Response} on successful completion of {@link Mono}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<Response<BinaryData>> readWithResponseInternalAsync(RequestOptions requestOptions) {
+    public Mono<Response<BinaryData>> readWithResponseAsync(RequestOptions requestOptions) {
         final String accept = "text/event-stream";
         return FluxUtil
             .withContext(context -> service.read(this.client.getEndpoint(), accept, requestOptions, context));
@@ -132,7 +132,7 @@ public final class StreamOperationsImpl {
      * @return the response body along with {@link Response}.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public Response<BinaryData> readWithResponseInternal(RequestOptions requestOptions) {
+    public Response<BinaryData> readWithResponse(RequestOptions requestOptions) {
         final String accept = "text/event-stream";
         return service.readSync(this.client.getEndpoint(), accept, requestOptions, Context.NONE);
     }

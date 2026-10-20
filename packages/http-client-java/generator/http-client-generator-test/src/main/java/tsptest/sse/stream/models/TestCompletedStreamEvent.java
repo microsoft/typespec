@@ -4,28 +4,43 @@
 
 package tsptest.sse.stream.models;
 
+import com.azure.core.annotation.Generated;
+import com.azure.core.annotation.Immutable;
 import tsptest.sse.models.CompletedPayload;
 
 /**
- * Represents the {@code completed} server-sent event.
+ * Represents the {@code completed} test stream event.
+ * Access the typed payload with {@link #getValue()}.
+ *
+ * @see TestStreamEvent
  */
+@Immutable
 public final class TestCompletedStreamEvent extends TestStreamEvent {
+    @Generated
     private final CompletedPayload value;
 
+    /**
+     * Creates an event wrapper.
+     *
+     * @param value The event payload.
+     */
+    @Generated
     TestCompletedStreamEvent(CompletedPayload value) {
         super("completed");
         this.value = value;
     }
 
     /**
-     * Gets the decoded event payload.
+     * Gets the event payload.
      *
-     * @return the decoded event payload.
+     * @return The event payload.
      */
+    @Generated
     public CompletedPayload getValue() {
         return value;
     }
 
+    @Generated
     @Override
     public boolean isTerminal() {
         return true;

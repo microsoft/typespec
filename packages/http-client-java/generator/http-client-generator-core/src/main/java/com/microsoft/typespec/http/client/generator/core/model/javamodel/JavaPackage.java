@@ -107,14 +107,12 @@ public class JavaPackage {
         SseNamingResolver.Names names = SseNamingResolver.resolve(metadata);
         List<SseEventMetadata> events = metadata.getEvents();
         String eventPackage = SseUtil.getEventPackage(metadata);
-        JavaFile baseFile
-            = javaFileFactory.createSourceFileWithoutCodeGenerationHeader(eventPackage, names.getBaseEventName());
+        JavaFile baseFile = javaFileFactory.createSourceFile(eventPackage, names.getBaseEventName());
         List<JavaFile> eventFiles = events.stream()
-            .map(event -> javaFileFactory.createSourceFileWithoutCodeGenerationHeader(eventPackage,
-                names.getEventWrapperName(event.getName())))
+            .map(event -> javaFileFactory.createSourceFile(eventPackage, names.getEventWrapperName(event.getName())))
             .collect(Collectors.toList());
-        JavaFile converterFile = javaFileFactory.createSourceFileWithoutCodeGenerationHeader(
-            SseUtil.getConverterPackage(metadata), names.getConverterName());
+        JavaFile converterFile
+            = javaFileFactory.createSourceFile(SseUtil.getConverterPackage(metadata), names.getConverterName());
         List<JavaFile> sseFiles = new ArrayList<>();
         sseFiles.add(baseFile);
         sseFiles.addAll(eventFiles);
@@ -272,18 +270,7 @@ public class JavaPackage {
     }
 
     public final void addJavaFromResources(String packageName, String resourceName, String fileName) {
-        addJavaFromResources(packageName, resourceName, fileName, true);
-    }
-
-    public final void addJavaFromResourcesWithoutCodeGenerationHeader(String packageName, String name) {
-        addJavaFromResources(packageName, name, name, false);
-    }
-
-    private void addJavaFromResources(String packageName, String resourceName, String fileName,
-        boolean includeCodeGenerationHeader) {
-        JavaFile javaFile = includeCodeGenerationHeader
-            ? javaFileFactory.createSourceFile(packageName, fileName)
-            : javaFileFactory.createSourceFileWithoutCodeGenerationHeader(packageName, fileName);
+        JavaFile javaFile = javaFileFactory.createSourceFile(packageName, fileName);
         try (InputStream inputStream = JavaPackage.class.getClassLoader().getResourceAsStream(resourceName + ".java");
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream))) {
             Iterator<String> linesIterator = bufferedReader.lines().iterator();

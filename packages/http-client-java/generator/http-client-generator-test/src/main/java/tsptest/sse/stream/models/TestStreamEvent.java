@@ -4,18 +4,53 @@
 
 package tsptest.sse.stream.models;
 
+import com.azure.core.annotation.Generated;
 import tsptest.sse.models.CompletedPayload;
 import tsptest.sse.models.StartedPayload;
 import tsptest.sse.stream.implementation.TestStreamEventConverter;
 
 /**
- * Base for typed events emitted by a server-sent event stream. Unknown events expose only their name.
+ * Base for polymorphic events emitted by a streaming test.
+ * Known events expose typed payloads through their subtype's {@code getValue()} method.
+ * Unrecognized events expose only their names through
+ * {@link #getEventName()}; their payloads are not available and they are not terminal.
+ * Stream events are envelopes, not JSON payload models; serialize the typed payload instead.
+ *
+ * @see TestStartedStreamEvent
+ * @see TestCompletedStreamEvent
  */
 public abstract class TestStreamEvent {
+    @Generated
     private final String eventName;
 
+    /**
+     * Creates a stream event.
+     *
+     * @param eventName The server-sent event name.
+     */
+    @Generated
     TestStreamEvent(String eventName) {
         this.eventName = eventName;
+    }
+
+    /**
+     * Gets the server-sent event name.
+     *
+     * @return The event name.
+     */
+    @Generated
+    public final String getEventName() {
+        return eventName;
+    }
+
+    /**
+     * Gets whether this event terminates the test stream.
+     *
+     * @return {@code true} if this is a terminal event; otherwise {@code false}.
+     */
+    @Generated
+    public boolean isTerminal() {
+        return false;
     }
 
     static {
@@ -36,23 +71,5 @@ public abstract class TestStreamEvent {
                 return new TestCompletedStreamEvent(value);
             }
         });
-    }
-
-    /**
-     * Gets the server-sent event name.
-     *
-     * @return the server-sent event name.
-     */
-    public final String getEventName() {
-        return eventName;
-    }
-
-    /**
-     * Whether this event terminates the stream.
-     *
-     * @return whether this event terminates the stream.
-     */
-    public boolean isTerminal() {
-        return false;
     }
 }

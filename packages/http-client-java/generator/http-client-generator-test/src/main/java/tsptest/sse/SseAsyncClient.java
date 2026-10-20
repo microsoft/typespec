@@ -16,6 +16,7 @@ import com.azure.core.http.HttpHeaderName;
 import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
+import com.azure.core.util.FluxUtil;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import tsptest.sse.implementation.StreamOperationsImpl;
@@ -67,8 +68,72 @@ public final class SseAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    Mono<Response<BinaryData>> readWithResponseInternal(RequestOptions requestOptions) {
-        return this.serviceClient.readWithResponseInternalAsync(requestOptions);
+    Mono<Response<BinaryData>> hiddenGeneratedReadWithResponse(RequestOptions requestOptions) {
+        return this.serviceClient.readWithResponseAsync(requestOptions);
+    }
+
+    /**
+     * The read operation.
+     *
+     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
+     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
+     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response body on successful completion of {@link Mono}.
+     */
+    @Generated
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    Mono<BinaryData> hiddenGeneratedRead() {
+        // Generated convenience method for hiddenGeneratedReadWithResponse
+        RequestOptions requestOptions = new RequestOptions();
+        return hiddenGeneratedReadWithResponse(requestOptions).flatMap(FluxUtil::toMono);
+    }
+
+    /**
+     * The read operation.
+     *
+     * Events are polymorphic: see {@link TestStreamEvent} for the known subtypes. Use a known subtype's
+     * {@code getValue()} to access its typed payload, for example
+     * {@link tsptest.sse.stream.models.TestStartedStreamEvent#getValue()}. Unrecognized events expose only their names
+     * through {@link TestStreamEvent#getEventName()}; their payloads are not available.
+     *
+     * If received, the terminal {@code completed} event is emitted before the stream completes. End-of-stream without a
+     * terminal event completes normally. Transport and decoding failures are propagated through the reactive error
+     * path. The client does not reconnect automatically.
+     *
+     * @param authorization The authorization parameter.
+     * @return A stream of typed test events.
+     */
+    @Generated
+    public Flux<TestStreamEvent> read(String authorization) {
+        RequestOptions requestOptions = new RequestOptions();
+        if (authorization != null) {
+            requestOptions.setHeader(HttpHeaderName.AUTHORIZATION, authorization);
+        }
+        return hiddenGeneratedReadWithResponse(requestOptions).flatMapMany(response -> ServerSentEventStreams
+            .toFlux(response, TestStreamEventConverter::convert, TestStreamEvent::isTerminal));
+    }
+
+    /**
+     * The read operation.
+     *
+     * Events are polymorphic: see {@link TestStreamEvent} for the known subtypes. Use a known subtype's
+     * {@code getValue()} to access its typed payload, for example
+     * {@link tsptest.sse.stream.models.TestStartedStreamEvent#getValue()}. Unrecognized events expose only their names
+     * through {@link TestStreamEvent#getEventName()}; their payloads are not available.
+     *
+     * If received, the terminal {@code completed} event is emitted before the stream completes. End-of-stream without a
+     * terminal event completes normally. Transport and decoding failures are propagated through the reactive error
+     * path. The client does not reconnect automatically.
+     *
+     * @return A stream of typed test events.
+     */
+    @Generated
+    public Flux<TestStreamEvent> read() {
+        RequestOptions requestOptions = new RequestOptions();
+        return hiddenGeneratedReadWithResponse(requestOptions).flatMapMany(response -> ServerSentEventStreams
+            .toFlux(response, TestStreamEventConverter::convert, TestStreamEvent::isTerminal));
     }
 
     /**
@@ -81,36 +146,16 @@ public final class SseAsyncClient {
      * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
      * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the stream of server-sent events.
+     * @return the response body on successful completion of {@link Mono}.
      */
     @Generated
-    @ServiceMethod(returns = ReturnType.COLLECTION)
-    public Flux<TestStreamEvent> read(String authorization) {
-        // Generated convenience method for readWithResponseInternal
+    @ServiceMethod(returns = ReturnType.SINGLE)
+    Mono<BinaryData> hiddenGeneratedRead(String authorization) {
+        // Generated convenience method for hiddenGeneratedReadWithResponse
         RequestOptions requestOptions = new RequestOptions();
         if (authorization != null) {
             requestOptions.setHeader(HttpHeaderName.AUTHORIZATION, authorization);
         }
-        return readWithResponseInternal(requestOptions).flatMapMany(response -> ServerSentEventStreams.toFlux(response,
-            TestStreamEventConverter::convert, TestStreamEventConverter::isTerminal));
-    }
-
-    /**
-     * The read operation.
-     *
-     * @throws HttpResponseException thrown if the request is rejected by server.
-     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
-     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
-     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the stream of server-sent events.
-     */
-    @Generated
-    @ServiceMethod(returns = ReturnType.COLLECTION)
-    public Flux<TestStreamEvent> read() {
-        // Generated convenience method for readWithResponseInternal
-        RequestOptions requestOptions = new RequestOptions();
-        return readWithResponseInternal(requestOptions).flatMapMany(response -> ServerSentEventStreams.toFlux(response,
-            TestStreamEventConverter::convert, TestStreamEventConverter::isTerminal));
+        return hiddenGeneratedReadWithResponse(requestOptions).flatMap(FluxUtil::toMono);
     }
 }

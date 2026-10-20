@@ -130,11 +130,9 @@ public class TypeSpecPlugin extends Javagen {
                 .forEach(sseMetadata::add);
             if (!sseMetadata.values().isEmpty()) {
                 String runtimePackage = SseUtil.getRuntimePackage();
-                javaPackage.addJavaFromResourcesWithoutCodeGenerationHeader(runtimePackage,
-                    SseUtil.SERVER_SENT_EVENT_STREAMS);
-                javaPackage.addJavaFromResourcesWithoutCodeGenerationHeader(runtimePackage, "ServerSentEventStream");
-                javaPackage.addJavaFromResourcesWithoutCodeGenerationHeader(runtimePackage,
-                    "ServerSentEventStreamResponse");
+                javaPackage.addJavaFromResources(runtimePackage, SseUtil.SERVER_SENT_EVENT_STREAMS);
+                javaPackage.addJavaFromResources(runtimePackage, "ServerSentEventStream");
+                javaPackage.addJavaFromResources(runtimePackage, "ServerSentEventStreamResponse");
                 sseMetadata.values().forEach(javaPackage::addSseEventFiles);
             }
         }
