@@ -18,6 +18,7 @@ Write-Host "Parallelization: $Parallelization"
 
 $generateScript = {
   $tspFile = $_
+  $tspConfig = ""
 
   $tspClientFile = $tspFile -replace 'main.tsp', 'client.tsp'
   if (($tspClientFile -match 'client.tsp$') -and (Test-Path $tspClientFile)) {
@@ -112,6 +113,8 @@ $generateScript = {
     $tspOptions += " --option ""@typespec/http-client-java.enable-subclient=true"""
     # test for include-api-view-properties
     $tspOptions += " --option ""@typespec/http-client-java.include-api-view-properties=false"""
+  } elseif ($tspFile -match "tsp[\\/]sse.tsp") {
+    $tspConfig = "--config ""$PSScriptRoot/tsp/sse.tspconfig.yaml"""
   }
 
   # Test customization for one of the TypeSpec definitions - naming.tsp
@@ -129,7 +132,7 @@ $generateScript = {
   }
 
   $tspTrace = "--trace import-resolution --trace projection --trace http-client-java"
-  $tspCommand = "npx --no tsp compile $tspFile $tspOptions $tspTrace"
+  $tspCommand = "npx --no tsp compile $tspFile $tspConfig $tspOptions $tspTrace"
 
   # output of "tsp compile" seems trigger powershell error or exit, hence the "2>&1"
   $timer = [Diagnostics.Stopwatch]::StartNew()

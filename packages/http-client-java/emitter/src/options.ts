@@ -32,6 +32,7 @@ export interface License {
 }
 
 export interface EmitterOptions {
+  flavor?: string;
   license?: License;
   "dev-options"?: DevOptions;
 }
@@ -39,6 +40,11 @@ export interface EmitterOptions {
 export const EmitterOptionsSchema: JSONSchemaType<EmitterOptions> = {
   type: "object",
   properties: {
+    flavor: {
+      type: "string",
+      description: "Select the Azure runtime flavor used by the Java generator.",
+      nullable: true,
+    },
     ...UnbrandedSdkEmitterOptions.license,
     "dev-options": {
       type: "object",
