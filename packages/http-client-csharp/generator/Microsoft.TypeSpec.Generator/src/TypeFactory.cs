@@ -65,6 +65,27 @@ namespace Microsoft.TypeSpec.Generator
         protected virtual CSharpType? CreateLastContractModelBaseCore(CSharpType previousBase, InputModelType currentModel)
             => null;
 
+        internal bool CanDefaultLastContractModelBaseConstructorParameter(
+            CSharpType mappedBase,
+            InputModelProperty currentProperty,
+            ParameterProvider parameter,
+            ConstructorSignature previousConstructor)
+            => CanDefaultLastContractModelBaseConstructorParameterCore(mappedBase, currentProperty, parameter, previousConstructor);
+
+        /// <summary>
+        /// Approves the CLR default for an inherited framework value parameter added to a concrete model's
+        /// initialization constructor. The caller restricts this to optional, writable input properties on
+        /// a retained historical framework base. Returning true must establish that the historical overload
+        /// used this default; an omitted parameter or optional wire property alone is not sufficient evidence.
+        /// The restored overload chains to the current constructor so its initialization and validation run.
+        /// </summary>
+        protected virtual bool CanDefaultLastContractModelBaseConstructorParameterCore(
+            CSharpType mappedBase,
+            InputModelProperty currentProperty,
+            ParameterProvider parameter,
+            ConstructorSignature previousConstructor)
+            => false;
+
         internal bool IsLastContractModelBasePropertyCompatible(
             CSharpType mappedBase,
             InputModelProperty currentProperty,
@@ -462,6 +483,9 @@ namespace Microsoft.TypeSpec.Generator
 
         internal PropertyProvider? CreateUncachedProperty(InputProperty property, TypeProvider enclosingType)
             => CreatePropertyCore(property, enclosingType);
+
+        internal PropertyProvider? GetCachedOrUncachedProperty(InputProperty property, TypeProvider enclosingType)
+            => PropertyCache.TryGetValue(property, out var cached) ? cached : CreateUncachedProperty(property, enclosingType);
 
         /// <summary>
         /// Factory method for creating a <see cref="PropertyProvider"/> based on an input property <paramref name="property"/>.

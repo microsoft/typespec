@@ -101,7 +101,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private static bool HasOneToOneMappedPropertyMatches(SystemObjectModelProvider mappedBase)
         {
             var matchedProperties = new HashSet<PropertyProvider>(ReferenceEqualityComparer.Instance);
-            foreach (var inputProperty in mappedBase.InputModel.Properties)
+            foreach (var inputProperty in mappedBase.ProjectedInputProperties)
             {
                 PropertyProvider? matchedProperty = null;
                 foreach (var effectiveProperty in mappedBase.Properties)
@@ -150,7 +150,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private bool HasCompatibleGeneratedMemberNames(SystemObjectModelProvider mappedBase)
         {
-            var displacedPropertyNames = mappedBase.InputModel.Properties
+            var displacedPropertyNames = mappedBase.ProjectedInputProperties
                 .Select(property => property.Name)
                 .ToHashSet(StringComparer.Ordinal);
             var generatedPropertyNames = InputModel.Properties
@@ -194,6 +194,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
             if (currentBase is null)
             {
                 return false;
+            }
+
+            if (mappedBase.HasInputPropertyProjection)
+            {
+                return MappedModelBaseUpgrade.CanReplaceCurrentBase(_model, mappedBase);
             }
 
             if (mappedBase.UsesLastContractType &&
@@ -260,7 +265,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 AreMappedPropertyShapesCompatible(property, wireMatch!);
         }
 
-        private static string GetInputPropertyClrName(InputModelProperty property)
+        internal static string GetInputPropertyClrName(InputModelProperty property)
             => property.IsExactName
                 ? property.Name
                 : property.Name.ToIdentifierName().NormalizeCSharpAcronyms(property.Type.IsDateTimeInputType());
@@ -324,10 +329,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             public MappedPropertyLookup(SystemObjectModelProvider mappedBase)
             {
-                ByWireName = mappedBase.InputModel.Properties
+                ByWireName = mappedBase.ProjectedInputProperties
                     .GroupBy(property => property.SerializedName ?? property.Name, StringComparer.Ordinal)
                     .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
-                ByClrName = mappedBase.InputModel.Properties
+                ByClrName = mappedBase.ProjectedInputProperties
                     .GroupBy(GetInputPropertyClrName, StringComparer.Ordinal)
                     .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
                 EffectiveClrNames = mappedBase.UsesLastContractType
