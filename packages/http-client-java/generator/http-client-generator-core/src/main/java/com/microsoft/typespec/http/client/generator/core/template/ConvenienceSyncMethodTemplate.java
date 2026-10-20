@@ -115,7 +115,7 @@ public class ConvenienceSyncMethodTemplate extends ConvenienceMethodTemplateBase
                             protocolMethod.getProxyMethod().getResponseContentTypes(), typeReferenceStaticClasses)
                         + ")";
             }
-            methodBlock.methodReturn(String.format("this.serviceClient.%1$s(%2$s)%3$s", protocolMethod.getName(),
+            methodBlock.methodReturn(String.format("serviceClient.%1$s(%2$s)%3$s", protocolMethod.getName(),
                 invocationExpression, mapPageExpression));
         } else if (convenienceMethod.getType() == ClientMethodType.LongRunningBeginSync) {
             String methodName = protocolMethod.getName();

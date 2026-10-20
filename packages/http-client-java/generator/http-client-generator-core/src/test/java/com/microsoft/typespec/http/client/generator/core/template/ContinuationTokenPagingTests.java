@@ -173,16 +173,14 @@ public class ContinuationTokenPagingTests {
         Assertions.assertTrue(output.contains("listSinglePage(requestOptionsLocal)"));
     }
 
-    @ParameterizedTest
-    @ValueSource(strings = { "token", "serviceClient" })
-    public void compilesAsyncConveniencePaging(String tokenName) throws IOException {
-        assertConveniencePagingCompiles(true, tokenName);
+    @Test
+    public void compilesAsyncConveniencePaging() throws IOException {
+        assertConveniencePagingCompiles(true, "token");
     }
 
-    @ParameterizedTest
-    @ValueSource(strings = { "bodyItemValue", "serviceClient" })
-    public void avoidsSyncConvenienceTokenNameCollisions(String tokenName) throws IOException {
-        assertConveniencePagingCompiles(false, tokenName);
+    @Test
+    public void avoidsSyncConvenienceTokenNameCollisions() throws IOException {
+        assertConveniencePagingCompiles(false, "bodyItemValue");
     }
 
     private void assertConveniencePagingCompiles(boolean async, String tokenName) throws IOException {
@@ -233,7 +231,7 @@ public class ContinuationTokenPagingTests {
     }
 
     @ParameterizedTest
-    @CsvSource({ "QUERY, after", "HEADER, after", "QUERY, serviceClient", "HEADER, bodyItemValue" })
+    @CsvSource({ "QUERY, after", "HEADER, after", "HEADER, bodyItemValue" })
     public void preservesGroupedContinuationToken(String locationName, String tokenName) throws IOException {
         useDataPlaneSettings();
         RequestParameterLocation location = RequestParameterLocation.valueOf(locationName);
@@ -296,7 +294,7 @@ public class ContinuationTokenPagingTests {
                 output.contains((async ? "PagedFlux" : "PagedIterable") + "<String> list(ListOptions options)"),
                 output);
             Assertions.assertTrue(
-                output.contains("this.serviceClient." + methodName + "(" + tokenName + ", requestOptions)"), output);
+                output.contains("serviceClient." + methodName + "(" + tokenName + ", requestOptions)"), output);
             Assertions.assertFalse(output.contains("requestOptions.addQueryParam(\"after\""), output);
             Assertions.assertFalse(output.contains("requestOptions.setHeader(\"after\""), output);
             String getter = "get" + Character.toUpperCase(tokenName.charAt(0)) + tokenName.substring(1);

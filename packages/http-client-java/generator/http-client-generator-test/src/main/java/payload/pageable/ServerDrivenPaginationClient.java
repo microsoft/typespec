@@ -129,7 +129,7 @@ public final class ServerDrivenPaginationClient {
     public PagedIterable<Pet> link() {
         // Generated convenience method for link
         RequestOptions requestOptions = new RequestOptions();
-        return this.serviceClient.link(requestOptions).mapPage(bodyItemValue -> bodyItemValue.toObject(Pet.class));
+        return serviceClient.link(requestOptions).mapPage(bodyItemValue -> bodyItemValue.toObject(Pet.class));
     }
 
     /**
@@ -147,8 +147,7 @@ public final class ServerDrivenPaginationClient {
     public PagedIterable<Pet> linkString() {
         // Generated convenience method for linkString
         RequestOptions requestOptions = new RequestOptions();
-        return this.serviceClient.linkString(requestOptions)
-            .mapPage(bodyItemValue -> bodyItemValue.toObject(Pet.class));
+        return serviceClient.linkString(requestOptions).mapPage(bodyItemValue -> bodyItemValue.toObject(Pet.class));
     }
 
     /**
@@ -166,7 +165,6 @@ public final class ServerDrivenPaginationClient {
     public PagedIterable<Pet> nestedLink() {
         // Generated convenience method for nestedLink
         RequestOptions requestOptions = new RequestOptions();
-        return this.serviceClient.nestedLink(requestOptions)
-            .mapPage(bodyItemValue -> bodyItemValue.toObject(Pet.class));
+        return serviceClient.nestedLink(requestOptions).mapPage(bodyItemValue -> bodyItemValue.toObject(Pet.class));
     }
 }

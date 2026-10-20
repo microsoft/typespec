@@ -117,7 +117,7 @@ public final class XmlPaginationClient {
     public PagedIterable<XmlPet> listWithContinuation(String marker) {
         // Generated convenience method for listWithContinuation
         RequestOptions requestOptions = new RequestOptions();
-        return this.serviceClient.listWithContinuation(marker, requestOptions)
+        return serviceClient.listWithContinuation(marker, requestOptions)
             .mapPage(bodyItemValue -> bodyItemValue.toObject(XmlPet.class, XML_SERIALIZER));
     }
 
@@ -136,7 +136,7 @@ public final class XmlPaginationClient {
     public PagedIterable<XmlPet> listWithContinuation() {
         // Generated convenience method for listWithContinuation
         RequestOptions requestOptions = new RequestOptions();
-        return this.serviceClient.listWithContinuation(null, requestOptions)
+        return serviceClient.listWithContinuation(null, requestOptions)
             .mapPage(bodyItemValue -> bodyItemValue.toObject(XmlPet.class, XML_SERIALIZER));
     }
 
@@ -155,7 +155,7 @@ public final class XmlPaginationClient {
     public PagedIterable<XmlPet> listWithNextLink() {
         // Generated convenience method for listWithNextLink
         RequestOptions requestOptions = new RequestOptions();
-        return this.serviceClient.listWithNextLink(requestOptions)
+        return serviceClient.listWithNextLink(requestOptions)
             .mapPage(bodyItemValue -> bodyItemValue.toObject(XmlPet.class, XML_SERIALIZER));
     }
 }

@@ -110,7 +110,7 @@ public final class PageSizeClient {
     public PagedIterable<Pet> listWithoutContinuation() {
         // Generated convenience method for listWithoutContinuation
         RequestOptions requestOptions = new RequestOptions();
-        return this.serviceClient.listWithoutContinuation(requestOptions)
+        return serviceClient.listWithoutContinuation(requestOptions)
             .mapPage(bodyItemValue -> bodyItemValue.toObject(Pet.class));
     }
 
@@ -134,7 +134,7 @@ public final class PageSizeClient {
         if (pageSize != null) {
             requestOptions.addQueryParam("pageSize", String.valueOf(pageSize), false);
         }
-        return this.serviceClient.listWithPageSize(requestOptions)
+        return serviceClient.listWithPageSize(requestOptions)
             .mapPage(bodyItemValue -> bodyItemValue.toObject(Pet.class));
     }
 
@@ -153,7 +153,7 @@ public final class PageSizeClient {
     public PagedIterable<Pet> listWithPageSize() {
         // Generated convenience method for listWithPageSize
         RequestOptions requestOptions = new RequestOptions();
-        return this.serviceClient.listWithPageSize(requestOptions)
+        return serviceClient.listWithPageSize(requestOptions)
             .mapPage(bodyItemValue -> bodyItemValue.toObject(Pet.class));
     }
 }

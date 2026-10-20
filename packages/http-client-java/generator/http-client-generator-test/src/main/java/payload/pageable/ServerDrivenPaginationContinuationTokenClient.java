@@ -308,7 +308,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
         if (bar != null) {
             requestOptions.addQueryParam("bar", bar, false);
         }
-        return this.serviceClient.requestQueryResponseBody(token, requestOptions)
+        return serviceClient.requestQueryResponseBody(token, requestOptions)
             .mapPage(bodyItemValue -> bodyItemValue.toObject(Pet.class));
     }
 
@@ -327,7 +327,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
     public PagedIterable<Pet> requestQueryResponseBody() {
         // Generated convenience method for requestQueryResponseBody
         RequestOptions requestOptions = new RequestOptions();
-        return this.serviceClient.requestQueryResponseBody(null, requestOptions)
+        return serviceClient.requestQueryResponseBody(null, requestOptions)
             .mapPage(bodyItemValue -> bodyItemValue.toObject(Pet.class));
     }
 
@@ -356,7 +356,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
         if (bar != null) {
             requestOptions.addQueryParam("bar", bar, false);
         }
-        return this.serviceClient.requestHeaderResponseBody(token, requestOptions)
+        return serviceClient.requestHeaderResponseBody(token, requestOptions)
             .mapPage(bodyItemValue -> bodyItemValue.toObject(Pet.class));
     }
 
@@ -375,7 +375,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
     public PagedIterable<Pet> requestHeaderResponseBody() {
         // Generated convenience method for requestHeaderResponseBody
         RequestOptions requestOptions = new RequestOptions();
-        return this.serviceClient.requestHeaderResponseBody(null, requestOptions)
+        return serviceClient.requestHeaderResponseBody(null, requestOptions)
             .mapPage(bodyItemValue -> bodyItemValue.toObject(Pet.class));
     }
 
@@ -404,7 +404,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
         if (bar != null) {
             requestOptions.addQueryParam("bar", bar, false);
         }
-        return this.serviceClient.requestQueryResponseHeader(token, requestOptions)
+        return serviceClient.requestQueryResponseHeader(token, requestOptions)
             .mapPage(bodyItemValue -> bodyItemValue.toObject(Pet.class));
     }
 
@@ -423,7 +423,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
     public PagedIterable<Pet> requestQueryResponseHeader() {
         // Generated convenience method for requestQueryResponseHeader
         RequestOptions requestOptions = new RequestOptions();
-        return this.serviceClient.requestQueryResponseHeader(null, requestOptions)
+        return serviceClient.requestQueryResponseHeader(null, requestOptions)
             .mapPage(bodyItemValue -> bodyItemValue.toObject(Pet.class));
     }
 
@@ -452,7 +452,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
         if (bar != null) {
             requestOptions.addQueryParam("bar", bar, false);
         }
-        return this.serviceClient.requestHeaderResponseHeader(token, requestOptions)
+        return serviceClient.requestHeaderResponseHeader(token, requestOptions)
             .mapPage(bodyItemValue -> bodyItemValue.toObject(Pet.class));
     }
 
@@ -471,7 +471,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
     public PagedIterable<Pet> requestHeaderResponseHeader() {
         // Generated convenience method for requestHeaderResponseHeader
         RequestOptions requestOptions = new RequestOptions();
-        return this.serviceClient.requestHeaderResponseHeader(null, requestOptions)
+        return serviceClient.requestHeaderResponseHeader(null, requestOptions)
             .mapPage(bodyItemValue -> bodyItemValue.toObject(Pet.class));
     }
 
@@ -500,7 +500,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
         if (bar != null) {
             requestOptions.addQueryParam("bar", bar, false);
         }
-        return this.serviceClient.requestQueryNestedResponseBody(token, requestOptions)
+        return serviceClient.requestQueryNestedResponseBody(token, requestOptions)
             .mapPage(bodyItemValue -> bodyItemValue.toObject(Pet.class));
     }
 
@@ -519,7 +519,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
     public PagedIterable<Pet> requestQueryNestedResponseBody() {
         // Generated convenience method for requestQueryNestedResponseBody
         RequestOptions requestOptions = new RequestOptions();
-        return this.serviceClient.requestQueryNestedResponseBody(null, requestOptions)
+        return serviceClient.requestQueryNestedResponseBody(null, requestOptions)
             .mapPage(bodyItemValue -> bodyItemValue.toObject(Pet.class));
     }
 
@@ -548,7 +548,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
         if (bar != null) {
             requestOptions.addQueryParam("bar", bar, false);
         }
-        return this.serviceClient.requestHeaderNestedResponseBody(token, requestOptions)
+        return serviceClient.requestHeaderNestedResponseBody(token, requestOptions)
             .mapPage(bodyItemValue -> bodyItemValue.toObject(Pet.class));
     }
 
@@ -567,7 +567,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
     public PagedIterable<Pet> requestHeaderNestedResponseBody() {
         // Generated convenience method for requestHeaderNestedResponseBody
         RequestOptions requestOptions = new RequestOptions();
-        return this.serviceClient.requestHeaderNestedResponseBody(null, requestOptions)
+        return serviceClient.requestHeaderNestedResponseBody(null, requestOptions)
             .mapPage(bodyItemValue -> bodyItemValue.toObject(Pet.class));
     }
 }

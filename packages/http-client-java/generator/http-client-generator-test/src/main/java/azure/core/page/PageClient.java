@@ -250,8 +250,7 @@ public final class PageClient {
     public PagedIterable<User> listWithPage() {
         // Generated convenience method for listWithPage
         RequestOptions requestOptions = new RequestOptions();
-        return this.serviceClient.listWithPage(requestOptions)
-            .mapPage(bodyItemValue -> bodyItemValue.toObject(User.class));
+        return serviceClient.listWithPage(requestOptions).mapPage(bodyItemValue -> bodyItemValue.toObject(User.class));
     }
 
     /**
@@ -275,7 +274,7 @@ public final class PageClient {
         if (another != null) {
             requestOptions.addQueryParam("another", another.toString(), false);
         }
-        return this.serviceClient.listWithParameters(BinaryData.fromObject(bodyInput), requestOptions)
+        return serviceClient.listWithParameters(BinaryData.fromObject(bodyInput), requestOptions)
             .mapPage(bodyItemValue -> bodyItemValue.toObject(User.class));
     }
 
@@ -296,7 +295,7 @@ public final class PageClient {
     public PagedIterable<User> listWithParameters(ListItemInputBody bodyInput) {
         // Generated convenience method for listWithParameters
         RequestOptions requestOptions = new RequestOptions();
-        return this.serviceClient.listWithParameters(BinaryData.fromObject(bodyInput), requestOptions)
+        return serviceClient.listWithParameters(BinaryData.fromObject(bodyInput), requestOptions)
             .mapPage(bodyItemValue -> bodyItemValue.toObject(User.class));
     }
 
@@ -315,7 +314,7 @@ public final class PageClient {
     public PagedIterable<User> listWithCustomPageModel() {
         // Generated convenience method for listWithCustomPageModel
         RequestOptions requestOptions = new RequestOptions();
-        return this.serviceClient.listWithCustomPageModel(requestOptions)
+        return serviceClient.listWithCustomPageModel(requestOptions)
             .mapPage(bodyItemValue -> bodyItemValue.toObject(User.class));
     }
 
@@ -340,7 +339,7 @@ public final class PageClient {
         if (includePending != null) {
             requestOptions.addQueryParam("includePending", String.valueOf(includePending), false);
         }
-        return this.serviceClient.withParameterizedNextLink(select, requestOptions)
+        return serviceClient.withParameterizedNextLink(select, requestOptions)
             .mapPage(bodyItemValue -> bodyItemValue.toObject(User.class));
     }
 
@@ -361,7 +360,7 @@ public final class PageClient {
     public PagedIterable<User> withParameterizedNextLink(String select) {
         // Generated convenience method for withParameterizedNextLink
         RequestOptions requestOptions = new RequestOptions();
-        return this.serviceClient.withParameterizedNextLink(select, requestOptions)
+        return serviceClient.withParameterizedNextLink(select, requestOptions)
             .mapPage(bodyItemValue -> bodyItemValue.toObject(User.class));
     }
 
@@ -380,7 +379,7 @@ public final class PageClient {
     public PagedIterable<User> withRelativeNextLink() {
         // Generated convenience method for withRelativeNextLink
         RequestOptions requestOptions = new RequestOptions();
-        return this.serviceClient.withRelativeNextLink(requestOptions)
+        return serviceClient.withRelativeNextLink(requestOptions)
             .mapPage(bodyItemValue -> bodyItemValue.toObject(User.class));
     }
 }

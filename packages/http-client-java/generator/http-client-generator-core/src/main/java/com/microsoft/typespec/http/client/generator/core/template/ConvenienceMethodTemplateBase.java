@@ -748,7 +748,7 @@ abstract class ConvenienceMethodTemplateBase {
     }
 
     protected String getProtocolMethodInvocationName(ClientMethod method) {
-        return needsInitialContinuationToken(method) ? "this.serviceClient." + method.getName() : getMethodName(method);
+        return needsInitialContinuationToken(method) ? "serviceClient." + method.getName() : getMethodName(method);
     }
 
     private static boolean needsInitialContinuationToken(ClientMethod method) {
