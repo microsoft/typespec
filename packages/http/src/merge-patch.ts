@@ -15,6 +15,7 @@ import type {
 import {
   $friendlyName,
   $invisible,
+  $key,
   $removeVisibility,
   $visibility,
   compilerAssert,
@@ -22,6 +23,7 @@ import {
   getDiscriminator,
   getFriendlyName,
   getLifecycleVisibilityEnum,
+  getNamespaceFullName,
   isVisible,
   navigateType,
   resetVisibilityModifiersForClass,
@@ -209,6 +211,21 @@ function isDiscriminatedProperty(program: Program, property: ModelProperty): boo
   return true;
 }
 
+/**
+ * Whether a property made optional by the transform drops this decorator. `@key` rejects optional
+ * properties, and the versioning `@madeOptional` and `@madeRequired` would report
+ * `made-required-optional` or make the patch property required again in some versions.
+ */
+function conflictsWithOptional(application: DecoratorApplication): boolean {
+  if (application.decorator === $key) return true;
+  const definition = application.definition;
+  return (
+    definition !== undefined &&
+    (definition.name === "@madeOptional" || definition.name === "@madeRequired") &&
+    getNamespaceFullName(definition.namespace) === "TypeSpec.Versioning"
+  );
+}
+
 function overrideDiscriminatedUnionProperty(program: Program, variant: UnionVariant) {
   const [discriminated, _] = getDiscriminatedUnion(program, variant.union);
   if (!discriminated || variant.type.kind !== "Model") return;
@@ -327,6 +344,11 @@ function createMergePatchMutator(
             clone.optional =
               overrides?.optional ?? (isDiscriminatedProperty(program, prop) ? false : true);
             clone.defaultValue = undefined;
+            if (clone.optional) {
+              // A patch property is optional in every version, so it does not replay decorators
+              // that conflict with that.
+              clone.decorators = clone.decorators.filter((d) => !conflictsWithOptional(d));
+            }
           }
 
           clone.decorators.push({

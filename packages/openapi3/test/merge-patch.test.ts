@@ -1,7 +1,7 @@
 import { deepStrictEqual, ok } from "assert";
 import { expect, it } from "vitest";
 import type { OpenAPI3EmitterOptions } from "../src/lib.js";
-import { openApiFor } from "./test-host.js";
+import { openApiFor, openApiForVersions } from "./test-host.js";
 
 export async function oapiForPatchRequest(
   body: string,
@@ -345,6 +345,48 @@ it("leaves base metadata that the derived model overrides out of the patched bas
     size: { type: "integer", format: "int32", nullable: true },
     name: { type: "string" },
   });
+});
+it("keeps patch properties optional in every version when they change optionality", async () => {
+  const { v1, v2 } = await openApiForVersions(
+    `
+    @versioned(Versions)
+    @service(#{title: "Testing model"})
+    namespace root;
+    enum Versions { v1, v2 }
+
+    model Base {
+      @madeRequired(Versions.v2) name: string;
+      @madeOptional(Versions.v2) title?: string;
+    }
+
+    model Widget extends Base {
+      @madeRequired(Versions.v2) size: int32;
+      label?: string;
+    }
+
+    @route("/") @patch op update(@body body: MergePatchUpdate<Widget>): Widget;
+    `,
+    ["v1", "v2"],
+  );
+
+  deepStrictEqual(v1.components!.schemas!.Base.required, ["title"]);
+  deepStrictEqual(v2.components!.schemas!.Base.required, ["name"]);
+  for (const doc of [v1, v2]) {
+    const schemas = doc.components!.schemas!;
+    const patch = schemas.WidgetMergePatchUpdate;
+    expect(patch.required).toBeUndefined();
+    deepStrictEqual(patch.allOf, [{ $ref: "#/components/schemas/BaseMergePatchUpdate" }]);
+    deepStrictEqual(patch.properties, {
+      size: { type: "integer", format: "int32" },
+      label: { type: "string", nullable: true },
+    });
+    const base = schemas.BaseMergePatchUpdate;
+    expect(base.required).toBeUndefined();
+    deepStrictEqual(base.properties, {
+      name: { type: "string" },
+      title: { type: "string", nullable: true },
+    });
+  }
 });
 it("emits correct schema for MergePatchCreateOrUpdateReplaceOnly", async () => {
   const req = await oapiForPatchRequest(

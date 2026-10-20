@@ -1,5 +1,5 @@
 import type { Diagnostic, Model, ModelProperty, Program, Type, TypeKind } from "@typespec/compiler";
-import { getFriendlyName, getMediaTypeHint } from "@typespec/compiler";
+import { getFriendlyName, getMediaTypeHint, isKey } from "@typespec/compiler";
 import {
   type unsafe_MutatorWithNamespace as MutatorWithNamespace,
   unsafe_mutateSubgraphWithNamespace,
@@ -710,6 +710,139 @@ describe("mutator validation", () => {
     ok(element.baseModel);
     expect(element.baseModel.name).toStrictEqual("BaseMergePatchUpdateReplaceOnly");
     checkProperty(element.baseModel, "id", false, "Scalar", "string");
+  });
+
+  it("drops @key from an inherited property that the patch makes optional", async () => {
+    const [typeGraph, diag] = await compileAndDiagnoseWithRunner(
+      runner,
+      `
+      model Base {
+        @key id: string;
+      }
+
+      model Widget extends Base {}
+      @patch op update(@body body: MergePatchUpdate<Widget>): Widget;`,
+    );
+    expectDiagnosticEmpty(diag);
+    const bodyType = typeGraph[0].parameters?.body?.type;
+    ok(bodyType);
+    deepStrictEqual(bodyType.kind, "Model");
+    const base = bodyType.baseModel;
+    ok(base);
+    expect(base.name).toStrictEqual("BaseMergePatchUpdate");
+    const id = checkProperty(base, "id", true, "Scalar", "string");
+    expect(isKey(runner.program, id)).toBe(false);
+
+    const sourceId = getMergePatchPropertySource(runner.program, id);
+    ok(sourceId);
+    expect(sourceId.optional).toBe(false);
+    expect(isKey(runner.program, sourceId)).toBe(true);
+  });
+
+  it("drops @key from an own property that the patch makes optional", async () => {
+    const [typeGraph, diag] = await compileAndDiagnoseWithRunner(
+      runner,
+      `
+      model Widget {
+        @key id: string;
+        label?: string;
+      }
+      @patch op update(@body body: MergePatchUpdate<Widget>): Widget;`,
+    );
+    expectDiagnosticEmpty(diag);
+    const bodyType = typeGraph[0].parameters?.body?.type;
+    ok(bodyType);
+    deepStrictEqual(bodyType.kind, "Model");
+    const id = checkProperty(bodyType, "id", true, "Scalar", "string");
+    expect(isKey(runner.program, id)).toBe(false);
+    const sourceId = getMergePatchPropertySource(runner.program, id);
+    ok(sourceId);
+    expect(isKey(runner.program, sourceId)).toBe(true);
+  });
+
+  it("keeps @key on an inherited property that stays required in a replace only patch", async () => {
+    const [typeGraph, diag] = await compileAndDiagnoseWithRunner(
+      runner,
+      `
+      model Base {
+        @key id: string;
+      }
+
+      model Widget extends Base {
+        label?: string;
+      }
+
+      model Holder {
+        widgets: Widget[];
+      }
+      @patch op update(@body body: MergePatchUpdate<Holder>): Holder;`,
+    );
+    expectDiagnosticEmpty(diag);
+    const bodyType = typeGraph[0].parameters?.body?.type;
+    ok(bodyType);
+    deepStrictEqual(bodyType.kind, "Model");
+    const widgets = checkProperty(bodyType, "widgets", true, "Model").type;
+    deepStrictEqual(widgets.kind, "Model");
+    const element = $(runner.program).array.getElementType(widgets);
+    deepStrictEqual(element.kind, "Model");
+    ok(element.baseModel);
+    expect(element.baseModel.name).toStrictEqual("BaseMergePatchUpdateReplaceOnly");
+    const id = checkProperty(element.baseModel, "id", false, "Scalar", "string");
+    expect(isKey(runner.program, id)).toBe(true);
+  });
+
+  it("transforms the indexer of a Record base with the record transform", async () => {
+    const [typeGraph, diag] = await compileAndDiagnoseWithRunner(
+      runner,
+      `
+      model Thing {
+        id: string;
+        description?: string;
+      }
+
+      model Bag extends Record<Thing> {}
+      @patch op update(@body body: MergePatchUpdate<Bag>): Bag;
+      @put op createOrUpdate(@body body: MergePatchCreateOrUpdate<Bag>): Bag;`,
+    );
+    expectDiagnosticEmpty(diag);
+
+    function getPatchedRecordBase(operationName: string): [Model, Model] {
+      const operation = typeGraph.find((o) => o.operation.name === operationName);
+      ok(operation);
+      const bodyType = operation.parameters?.body?.type;
+      ok(bodyType);
+      deepStrictEqual(bodyType.kind, "Model");
+      const base = bodyType.baseModel;
+      ok(base);
+      ok($(runner.program).record.is(base));
+      const value = base.indexer?.value;
+      ok(value);
+      deepStrictEqual(value.kind, "Model");
+      checkProperty(value, "id", true, "Scalar", "string");
+      isNullableUnion(checkProperty(value, "description", true, "Union"));
+      return [base, value];
+    }
+
+    const [updateBase, updateValue] = getPatchedRecordBase("update");
+    expect(updateValue.name).toStrictEqual("ThingMergePatchUpdateOrCreate");
+    const [createOrUpdateBase, createOrUpdateValue] = getPatchedRecordBase("createOrUpdate");
+    expect(createOrUpdateValue.name).toStrictEqual("ThingMergePatchCreateOrUpdate");
+
+    const bag = runner.program.resolveTypeReference("TestService.Bag")[0];
+    ok(bag);
+    deepStrictEqual(bag.kind, "Model");
+    const record = bag.baseModel;
+    ok(record);
+    expect(record).not.toBe(updateBase);
+    expect(record).not.toBe(createOrUpdateBase);
+    const thing = record.indexer?.value;
+    ok(thing);
+    deepStrictEqual(thing.kind, "Model");
+    expect(thing.name).toStrictEqual("Thing");
+    checkProperty(thing, "id", false, "Scalar", "string");
+    checkProperty(thing, "description", true, "Scalar", "string");
+    expect(getMergePatchSource(runner.program, updateValue)).toBe(thing);
+    expect(getMergePatchSource(runner.program, createOrUpdateValue)).toBe(thing);
   });
 
   it("derives the friendly name of transformed models from the source friendly name", async () => {
