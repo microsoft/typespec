@@ -20,6 +20,8 @@ public class SseNamingResolverTests {
         Assertions.assertEquals("RetrievalStreamEventConverter", names.getConverterName());
         Assertions.assertEquals("RetrievalStartedStreamEvent", names.getEventWrapperName("retrieval.started"));
         Assertions.assertEquals("ResponseCompletedStreamEvent", names.getEventWrapperName("response.completed"));
+        Assertions.assertEquals("createRetrievalStarted",
+            SseNamingResolver.getEventFactoryMethodName("retrieval.started"));
     }
 
     @Test

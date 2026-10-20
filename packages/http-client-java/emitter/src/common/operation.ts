@@ -85,6 +85,12 @@ export interface SseMetadata {
   /** Semantic name of the named event stream. */
   streamName: string;
 
+  /** Java namespace of the client that owns the stream operation. */
+  clientNamespace: string;
+
+  /** Java namespace used as the base for generated event models. */
+  modelNamespace: string;
+
   /** Supported named event variants. */
   events: SseEventMetadata[];
 }

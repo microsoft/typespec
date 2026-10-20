@@ -38,12 +38,14 @@ public final class SseMetadataRegistry {
 
         SseNamingResolver.Names names = SseNamingResolver.resolve(metadata);
         List<String> generatedNames = new ArrayList<>();
-        generatedNames.add(names.getBaseEventName());
-        generatedNames.add(names.getConverterName());
+        String eventPackage = SseUtil.getEventPackage(metadata);
+        generatedNames.add(eventPackage + "." + names.getBaseEventName());
+        generatedNames.add(SseUtil.getConverterPackage(metadata) + "." + names.getConverterName());
         metadata.getEvents()
             .stream()
             .map(SseEventMetadata::getName)
             .map(names::getEventWrapperName)
+            .map(name -> eventPackage + "." + name)
             .forEach(generatedNames::add);
 
         Map<String, Boolean> namesInStream = new LinkedHashMap<>();
@@ -89,6 +91,8 @@ public final class SseMetadataRegistry {
     private static List<Object> semanticKey(SseMetadata metadata) {
         List<Object> key = new ArrayList<>();
         key.add(metadata.getStreamName());
+        key.add(metadata.getClientNamespace());
+        key.add(metadata.getModelNamespace());
         metadata.getEvents().stream().sorted(Comparator.comparing(SseEventMetadata::getName)).forEach(event -> {
             List<Object> eventKey = new ArrayList<>();
             eventKey.add(event.getName());

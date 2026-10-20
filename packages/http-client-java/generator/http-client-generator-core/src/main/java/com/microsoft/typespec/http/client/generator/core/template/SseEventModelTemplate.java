@@ -6,6 +6,7 @@ package com.microsoft.typespec.http.client.generator.core.template;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseEventMetadata;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseMetadata;
 import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaModifier;
@@ -30,13 +31,43 @@ public final class SseEventModelTemplate {
     }
 
     public void writeBase(SseMetadata metadata, JavaFile javaFile) {
-        String baseEventName = SseNamingResolver.resolve(metadata).getBaseEventName();
+        SseNamingResolver.Names names = SseNamingResolver.resolve(metadata);
+        String baseEventName = names.getBaseEventName();
+        String converterName = names.getConverterName();
+        Set<String> imports = new LinkedHashSet<>();
+        new ClassType.Builder().packageName(SseUtil.getConverterPackage(metadata))
+            .name(converterName)
+            .build()
+            .addImportsTo(imports, false);
+        for (SseEventMetadata event : metadata.getEvents()) {
+            Mappers.getSchemaMapper().map(event.getPayload()).getClientType().addImportsTo(imports, false);
+        }
+        javaFile.declareImport(imports);
         javaFile.javadocComment(comment -> comment.description(
             "Base for typed events emitted by a server-sent event stream. Unknown events expose only their name."));
         javaFile.publicClass(List.of(JavaModifier.Abstract), baseEventName, javaClass -> {
             javaClass.privateFinalMemberVariable("String eventName");
             javaClass.packagePrivateConstructor(baseEventName + "(String eventName)",
                 constructor -> constructor.line("this.eventName = eventName;"));
+            javaClass.staticBlock(staticBlock -> {
+                staticBlock
+                    .line(converterName + ".setConstructorAccessor(new " + converterName + ".ConstructorAccessor() {");
+                staticBlock.indent(() -> {
+                    staticBlock.line("@Override");
+                    staticBlock.block("public " + baseEventName + " createEvent(String eventName)",
+                        method -> method.methodReturn("new " + baseEventName + "(eventName) {}"));
+                    for (SseEventMetadata event : metadata.getEvents()) {
+                        IType payloadType = Mappers.getSchemaMapper().map(event.getPayload()).getClientType();
+                        String wrapperName = names.getEventWrapperName(event.getName());
+                        staticBlock.line("@Override");
+                        staticBlock.block(
+                            "public " + wrapperName + " " + SseNamingResolver.getEventFactoryMethodName(event.getName())
+                                + "(" + payloadType + " value)",
+                            method -> method.methodReturn("new " + wrapperName + "(value)"));
+                    }
+                });
+                staticBlock.line("});");
+            });
             javaClass.javadocComment(comment -> {
                 comment.description("Gets the server-sent event name.");
                 comment.methodReturns("the server-sent event name");
@@ -55,7 +86,7 @@ public final class SseEventModelTemplate {
         IType payloadType = Mappers.getSchemaMapper().map(event.getPayload()).getClientType();
         Set<String> imports = new LinkedHashSet<>();
         payloadType.addImportsTo(imports, false);
-        SseUtil.getEventType(names.getBaseEventName()).addImportsTo(imports, false);
+        SseUtil.getEventType(metadata, names.getBaseEventName()).addImportsTo(imports, false);
         javaFile.declareImport(imports);
 
         String wrapperName = names.getEventWrapperName(event.getName());

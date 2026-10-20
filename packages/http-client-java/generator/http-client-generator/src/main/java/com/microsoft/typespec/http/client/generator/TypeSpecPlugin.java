@@ -108,7 +108,6 @@ public class TypeSpecPlugin extends Javagen {
     protected void writeHelperClasses(Client client, CodeModel codeModel, JavaPackage javaPackage,
         JavaSettings settings) {
         if (settings.isSseEnabled()) {
-            String implementationPackage = settings.getPackage(settings.getImplementationSubpackage());
             SseMetadataRegistry sseMetadata = new SseMetadataRegistry();
             client.getServiceClients().forEach(serviceClient -> {
                 collectSseMetadata(serviceClient.getClientMethods(), sseMetadata);
@@ -130,11 +129,11 @@ public class TypeSpecPlugin extends Javagen {
                 .filter(Objects::nonNull)
                 .forEach(sseMetadata::add);
             if (!sseMetadata.values().isEmpty()) {
-                javaPackage.addJavaFromResources(implementationPackage, SseUtil.SERVER_SENT_EVENT_STREAMS);
-                javaPackage.addJavaFromResources(implementationPackage, "ServerSentEventStream");
-                javaPackage.addJavaFromResources(implementationPackage, "ServerSentEventStreamResponse");
-                String modelsPackage = settings.getPackage(settings.getModelsSubpackage());
-                sseMetadata.values().forEach(metadata -> javaPackage.addSseEventFiles(modelsPackage, metadata));
+                String runtimePackage = SseUtil.getRuntimePackage();
+                javaPackage.addJavaFromResources(runtimePackage, SseUtil.SERVER_SENT_EVENT_STREAMS);
+                javaPackage.addJavaFromResources(runtimePackage, "ServerSentEventStream");
+                javaPackage.addJavaFromResources(runtimePackage, "ServerSentEventStreamResponse");
+                sseMetadata.values().forEach(javaPackage::addSseEventFiles);
             }
         }
 

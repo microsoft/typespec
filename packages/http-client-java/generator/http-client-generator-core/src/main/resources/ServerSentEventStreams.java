@@ -13,6 +13,18 @@ public final class ServerSentEventStreams {
     }
 
     /**
+     * Decodes one response until the response body ends.
+     *
+     * @param response The streaming response.
+     * @param converter Converts an event name and data payload into the event data type.
+     * @param <T> The event data type.
+     * @return A flux of decoded server-sent events.
+     */
+    public static <T> Flux<T> toFlux(Response<BinaryData> response, BiFunction<String, String, T> converter) {
+        return ServerSentEventStream.toFlux(response, converter);
+    }
+
+    /**
      * Decodes one response until an inclusive terminal event is emitted.
      *
      * <p>HTTP 204 and response-body EOF complete normally without requiring a terminal event.</p>
@@ -26,6 +38,19 @@ public final class ServerSentEventStreams {
     public static <T> Flux<T> toFlux(Response<BinaryData> response, BiFunction<String, String, T> converter,
         Predicate<T> terminalEvent) {
         return ServerSentEventStream.toFlux(response, converter, terminalEvent);
+    }
+
+    /**
+     * Lazily decodes one response until the response body ends.
+     *
+     * @param response The streaming response.
+     * @param converter Converts an event name and data payload into the event data type.
+     * @param <T> The event data type.
+     * @return A single-use closeable stream of decoded events.
+     */
+    public static <T> CloseableIterableStream<T> toIterableStream(Response<BinaryData> response,
+        BiFunction<String, String, T> converter) {
+        return ServerSentEventStream.toIterableStream(response, converter);
     }
 
     /**

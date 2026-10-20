@@ -47,6 +47,7 @@ import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.ConstantStringTooLongException;
 import com.microsoft.typespec.http.client.generator.core.util.PossibleCredentialException;
 import com.microsoft.typespec.http.client.generator.core.util.SseNamingResolver;
+import com.microsoft.typespec.http.client.generator.core.util.SseUtil;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -102,14 +103,16 @@ public class JavaPackage {
         addJavaFile(javaFile);
     }
 
-    public final void addSseEventFiles(String packageKeyword, SseMetadata metadata) {
+    public final void addSseEventFiles(SseMetadata metadata) {
         SseNamingResolver.Names names = SseNamingResolver.resolve(metadata);
         List<SseEventMetadata> events = metadata.getEvents();
-        JavaFile baseFile = javaFileFactory.createSourceFile(packageKeyword, names.getBaseEventName());
+        String eventPackage = SseUtil.getEventPackage(metadata);
+        JavaFile baseFile = javaFileFactory.createSourceFile(eventPackage, names.getBaseEventName());
         List<JavaFile> eventFiles = events.stream()
-            .map(event -> javaFileFactory.createSourceFile(packageKeyword, names.getEventWrapperName(event.getName())))
+            .map(event -> javaFileFactory.createSourceFile(eventPackage, names.getEventWrapperName(event.getName())))
             .collect(Collectors.toList());
-        JavaFile converterFile = javaFileFactory.createSourceFile(packageKeyword, names.getConverterName());
+        JavaFile converterFile
+            = javaFileFactory.createSourceFile(SseUtil.getConverterPackage(metadata), names.getConverterName());
         List<JavaFile> sseFiles = new ArrayList<>();
         sseFiles.add(baseFile);
         sseFiles.addAll(eventFiles);

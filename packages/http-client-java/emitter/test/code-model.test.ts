@@ -116,6 +116,8 @@ describe("code model characterization", () => {
     expect(enabledOperation.generateProtocolApi).toBe(false);
     expect(enabledOperation.sseMetadata).toMatchObject({
       streamName: "RetrievalStreamEvents",
+      clientNamespace: "ssetest.retrieve",
+      modelNamespace: "ssetest.retrieve",
       events: [
         {
           name: "retrieval.started",

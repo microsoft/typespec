@@ -253,10 +253,10 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                     if (operation.getSseMetadata() != null && settings.isSseEnabled() && !isProtocolMethod) {
                         if (proxyMethod.isSync()) {
                             createSimpleWithResponseClientMethods(true, baseMethod, methods, createMethodArgs);
-                            createSseClientMethod(true, operation, baseMethod, methods, methodNamer);
+                            createSseClientMethods(true, operation, baseMethod, methods, createMethodArgs);
                         } else {
                             createSimpleWithResponseClientMethods(false, baseMethod, methods, createMethodArgs);
-                            createSseClientMethod(false, operation, baseMethod, methods, methodNamer);
+                            createSseClientMethods(false, operation, baseMethod, methods, createMethodArgs);
                         }
                     } else if (proxyMethod.isSync()) {
                         createSimpleClientMethods(true, baseMethod, methods, createMethodArgs);
@@ -279,22 +279,27 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             .collect(Collectors.toList());
     }
 
-    private void createSseClientMethod(boolean isSync, Operation operation, ClientMethod baseMethod,
-        List<ClientMethod> methods, MethodNamer methodNamer) {
-        IType eventType
-            = SseUtil.getEventType(SseNamingResolver.resolve(operation.getSseMetadata()).getBaseEventName());
+    private void createSseClientMethods(boolean isSync, Operation operation, ClientMethod baseMethod,
+        List<ClientMethod> methods, CreateMethodArgs createMethodArgs) {
+        IType eventType = SseUtil.getEventType(operation.getSseMetadata(),
+            SseNamingResolver.resolve(operation.getSseMetadata()).getBaseEventName());
         IType returnType = isSync ? GenericType.closeableIterableStream(eventType) : GenericType.flux(eventType);
+        MethodNamer methodNamer = createMethodArgs.methodNamer;
         String methodName = isSync ? methodNamer.getMethodName() : methodNamer.getSimpleAsyncMethodName();
         ClientMethodType methodType = isSync ? ClientMethodType.SseSync : ClientMethodType.SseAsync;
 
-        methods.add(baseMethod.newBuilder()
+        ClientMethod sseMethod = baseMethod.newBuilder()
             .name(methodName)
             .type(methodType)
             .returnValue(new ReturnValue("the stream of server-sent events", returnType))
             .methodVisibility(JavaVisibility.Public)
             .methodVisibilityInWrapperClient(JavaVisibility.Public)
             .sseMetadata(operation.getSseMetadata())
-            .build());
+            .build();
+        methods.add(sseMethod);
+        if (createMethodArgs.generateRequiredOnlyParamsMethodOverload) {
+            methods.add(sseMethod.newBuilder().onlyRequiredParameters(true).build());
+        }
     }
 
     /**

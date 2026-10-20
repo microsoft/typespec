@@ -76,6 +76,10 @@ public final class SseNamingResolver {
         return normalizedName.toString();
     }
 
+    public static String getEventFactoryMethodName(String eventName) {
+        return "create" + normalizeEventName(eventName);
+    }
+
     /**
      * Generated Java names for one SSE stream.
      */

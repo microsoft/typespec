@@ -30,11 +30,22 @@ final class ServerSentEventStream {
     private ServerSentEventStream() {
     }
 
+    static <T> Flux<T> toFlux(Response<BinaryData> response, BiFunction<String, String, T> converter) {
+        Objects.requireNonNull(response, "'response' cannot be null.");
+        Objects.requireNonNull(converter, "'converter' cannot be null.");
+        return toFluxInternal(response, converter, null);
+    }
+
     static <T> Flux<T> toFlux(Response<BinaryData> response, BiFunction<String, String, T> converter,
         Predicate<T> terminalEvent) {
         Objects.requireNonNull(response, "'response' cannot be null.");
         Objects.requireNonNull(converter, "'converter' cannot be null.");
         Objects.requireNonNull(terminalEvent, "'terminalEvent' cannot be null.");
+        return toFluxInternal(response, converter, terminalEvent);
+    }
+
+    private static <T> Flux<T> toFluxInternal(Response<BinaryData> response, BiFunction<String, String, T> converter,
+        Predicate<T> terminalEvent) {
         AtomicBoolean subscribed = new AtomicBoolean();
         return Flux.defer(() -> {
             if (!subscribed.compareAndSet(false, true)) {
@@ -45,8 +56,18 @@ final class ServerSentEventStream {
             ServerSentEventStreamResponse streamResponse = ServerSentEventStreamResponse.fromResponse(response);
             Flux<T> events
                 = streamResponse.getStatusCode() == 204 ? Flux.empty() : decode(streamResponse.getBody(), converter);
-            return events.takeUntil(terminalEvent);
+            if (terminalEvent != null) {
+                events = events.takeUntil(terminalEvent);
+            }
+            return events;
         });
+    }
+
+    static <T> CloseableIterableStream<T> toIterableStream(Response<BinaryData> response,
+        BiFunction<String, String, T> converter) {
+        Objects.requireNonNull(response, "'response' cannot be null.");
+        Objects.requireNonNull(converter, "'converter' cannot be null.");
+        return toIterableStreamInternal(response, converter, null);
     }
 
     static <T> CloseableIterableStream<T> toIterableStream(Response<BinaryData> response,
@@ -54,6 +75,11 @@ final class ServerSentEventStream {
         Objects.requireNonNull(response, "'response' cannot be null.");
         Objects.requireNonNull(converter, "'converter' cannot be null.");
         Objects.requireNonNull(terminalEvent, "'terminalEvent' cannot be null.");
+        return toIterableStreamInternal(response, converter, terminalEvent);
+    }
+
+    private static <T> CloseableIterableStream<T> toIterableStreamInternal(Response<BinaryData> response,
+        BiFunction<String, String, T> converter, Predicate<T> terminalEvent) {
         ServerSentEventStreamResponse streamResponse = ServerSentEventStreamResponse.fromSyncResponse(response);
         ServerSentEventIterator<T> iterator = new ServerSentEventIterator<>(
             streamResponse.getStatusCode() == 204 ? null : streamResponse.getBody(), converter, terminalEvent);
@@ -157,7 +183,7 @@ final class ServerSentEventStream {
                     if (frame != null) {
                         T value = converter.apply(frame.event, frame.data);
                         if (value != null) {
-                            terminal = terminalEvent.test(value);
+                            terminal = terminalEvent != null && terminalEvent.test(value);
                             next = value;
                             return true;
                         }
