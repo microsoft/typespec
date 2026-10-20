@@ -83,6 +83,6 @@ public final class PageableClient {
     public PagedIterable<User> list() {
         // Generated convenience method for list
         RequestOptions requestOptions = new RequestOptions();
-        return serviceClient.list(requestOptions).mapPage(bodyItemValue -> bodyItemValue.toObject(User.class));
+        return this.serviceClient.list(requestOptions).mapPage(bodyItemValue -> bodyItemValue.toObject(User.class));
     }
 }

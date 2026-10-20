@@ -300,7 +300,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<Pet> requestQueryResponseBody(String token, String foo, String bar) {
-        // Generated convenience method for serviceClient.requestQueryResponseBody
+        // Generated convenience method for requestQueryResponseBody
         RequestOptions requestOptions = new RequestOptions();
         if (foo != null) {
             requestOptions.setHeader(HttpHeaderName.fromString("foo"), foo);
@@ -308,7 +308,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
         if (bar != null) {
             requestOptions.addQueryParam("bar", bar, false);
         }
-        return serviceClient.requestQueryResponseBody(token, requestOptions)
+        return this.serviceClient.requestQueryResponseBody(token, requestOptions)
             .mapPage(bodyItemValue -> bodyItemValue.toObject(Pet.class));
     }
 
@@ -325,9 +325,9 @@ public final class ServerDrivenPaginationContinuationTokenClient {
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<Pet> requestQueryResponseBody() {
-        // Generated convenience method for serviceClient.requestQueryResponseBody
+        // Generated convenience method for requestQueryResponseBody
         RequestOptions requestOptions = new RequestOptions();
-        return serviceClient.requestQueryResponseBody(null, requestOptions)
+        return this.serviceClient.requestQueryResponseBody(null, requestOptions)
             .mapPage(bodyItemValue -> bodyItemValue.toObject(Pet.class));
     }
 
@@ -348,7 +348,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<Pet> requestHeaderResponseBody(String token, String foo, String bar) {
-        // Generated convenience method for serviceClient.requestHeaderResponseBody
+        // Generated convenience method for requestHeaderResponseBody
         RequestOptions requestOptions = new RequestOptions();
         if (foo != null) {
             requestOptions.setHeader(HttpHeaderName.fromString("foo"), foo);
@@ -356,7 +356,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
         if (bar != null) {
             requestOptions.addQueryParam("bar", bar, false);
         }
-        return serviceClient.requestHeaderResponseBody(token, requestOptions)
+        return this.serviceClient.requestHeaderResponseBody(token, requestOptions)
             .mapPage(bodyItemValue -> bodyItemValue.toObject(Pet.class));
     }
 
@@ -373,9 +373,9 @@ public final class ServerDrivenPaginationContinuationTokenClient {
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<Pet> requestHeaderResponseBody() {
-        // Generated convenience method for serviceClient.requestHeaderResponseBody
+        // Generated convenience method for requestHeaderResponseBody
         RequestOptions requestOptions = new RequestOptions();
-        return serviceClient.requestHeaderResponseBody(null, requestOptions)
+        return this.serviceClient.requestHeaderResponseBody(null, requestOptions)
             .mapPage(bodyItemValue -> bodyItemValue.toObject(Pet.class));
     }
 
@@ -396,7 +396,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<Pet> requestQueryResponseHeader(String token, String foo, String bar) {
-        // Generated convenience method for serviceClient.requestQueryResponseHeader
+        // Generated convenience method for requestQueryResponseHeader
         RequestOptions requestOptions = new RequestOptions();
         if (foo != null) {
             requestOptions.setHeader(HttpHeaderName.fromString("foo"), foo);
@@ -404,7 +404,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
         if (bar != null) {
             requestOptions.addQueryParam("bar", bar, false);
         }
-        return serviceClient.requestQueryResponseHeader(token, requestOptions)
+        return this.serviceClient.requestQueryResponseHeader(token, requestOptions)
             .mapPage(bodyItemValue -> bodyItemValue.toObject(Pet.class));
     }
 
@@ -421,9 +421,9 @@ public final class ServerDrivenPaginationContinuationTokenClient {
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<Pet> requestQueryResponseHeader() {
-        // Generated convenience method for serviceClient.requestQueryResponseHeader
+        // Generated convenience method for requestQueryResponseHeader
         RequestOptions requestOptions = new RequestOptions();
-        return serviceClient.requestQueryResponseHeader(null, requestOptions)
+        return this.serviceClient.requestQueryResponseHeader(null, requestOptions)
             .mapPage(bodyItemValue -> bodyItemValue.toObject(Pet.class));
     }
 
@@ -444,7 +444,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<Pet> requestHeaderResponseHeader(String token, String foo, String bar) {
-        // Generated convenience method for serviceClient.requestHeaderResponseHeader
+        // Generated convenience method for requestHeaderResponseHeader
         RequestOptions requestOptions = new RequestOptions();
         if (foo != null) {
             requestOptions.setHeader(HttpHeaderName.fromString("foo"), foo);
@@ -452,7 +452,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
         if (bar != null) {
             requestOptions.addQueryParam("bar", bar, false);
         }
-        return serviceClient.requestHeaderResponseHeader(token, requestOptions)
+        return this.serviceClient.requestHeaderResponseHeader(token, requestOptions)
             .mapPage(bodyItemValue -> bodyItemValue.toObject(Pet.class));
     }
 
@@ -469,9 +469,9 @@ public final class ServerDrivenPaginationContinuationTokenClient {
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<Pet> requestHeaderResponseHeader() {
-        // Generated convenience method for serviceClient.requestHeaderResponseHeader
+        // Generated convenience method for requestHeaderResponseHeader
         RequestOptions requestOptions = new RequestOptions();
-        return serviceClient.requestHeaderResponseHeader(null, requestOptions)
+        return this.serviceClient.requestHeaderResponseHeader(null, requestOptions)
             .mapPage(bodyItemValue -> bodyItemValue.toObject(Pet.class));
     }
 
@@ -492,7 +492,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<Pet> requestQueryNestedResponseBody(String token, String foo, String bar) {
-        // Generated convenience method for serviceClient.requestQueryNestedResponseBody
+        // Generated convenience method for requestQueryNestedResponseBody
         RequestOptions requestOptions = new RequestOptions();
         if (foo != null) {
             requestOptions.setHeader(HttpHeaderName.fromString("foo"), foo);
@@ -500,7 +500,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
         if (bar != null) {
             requestOptions.addQueryParam("bar", bar, false);
         }
-        return serviceClient.requestQueryNestedResponseBody(token, requestOptions)
+        return this.serviceClient.requestQueryNestedResponseBody(token, requestOptions)
             .mapPage(bodyItemValue -> bodyItemValue.toObject(Pet.class));
     }
 
@@ -517,9 +517,9 @@ public final class ServerDrivenPaginationContinuationTokenClient {
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<Pet> requestQueryNestedResponseBody() {
-        // Generated convenience method for serviceClient.requestQueryNestedResponseBody
+        // Generated convenience method for requestQueryNestedResponseBody
         RequestOptions requestOptions = new RequestOptions();
-        return serviceClient.requestQueryNestedResponseBody(null, requestOptions)
+        return this.serviceClient.requestQueryNestedResponseBody(null, requestOptions)
             .mapPage(bodyItemValue -> bodyItemValue.toObject(Pet.class));
     }
 
@@ -540,7 +540,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<Pet> requestHeaderNestedResponseBody(String token, String foo, String bar) {
-        // Generated convenience method for serviceClient.requestHeaderNestedResponseBody
+        // Generated convenience method for requestHeaderNestedResponseBody
         RequestOptions requestOptions = new RequestOptions();
         if (foo != null) {
             requestOptions.setHeader(HttpHeaderName.fromString("foo"), foo);
@@ -548,7 +548,7 @@ public final class ServerDrivenPaginationContinuationTokenClient {
         if (bar != null) {
             requestOptions.addQueryParam("bar", bar, false);
         }
-        return serviceClient.requestHeaderNestedResponseBody(token, requestOptions)
+        return this.serviceClient.requestHeaderNestedResponseBody(token, requestOptions)
             .mapPage(bodyItemValue -> bodyItemValue.toObject(Pet.class));
     }
 
@@ -565,9 +565,9 @@ public final class ServerDrivenPaginationContinuationTokenClient {
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<Pet> requestHeaderNestedResponseBody() {
-        // Generated convenience method for serviceClient.requestHeaderNestedResponseBody
+        // Generated convenience method for requestHeaderNestedResponseBody
         RequestOptions requestOptions = new RequestOptions();
-        return serviceClient.requestHeaderNestedResponseBody(null, requestOptions)
+        return this.serviceClient.requestHeaderNestedResponseBody(null, requestOptions)
             .mapPage(bodyItemValue -> bodyItemValue.toObject(Pet.class));
     }
 }

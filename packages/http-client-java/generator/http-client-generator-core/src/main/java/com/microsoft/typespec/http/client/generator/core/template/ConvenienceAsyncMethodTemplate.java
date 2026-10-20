@@ -15,7 +15,6 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Primi
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlock;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
 import io.clientcore.core.utils.CoreUtils;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -90,8 +89,7 @@ public class ConvenienceAsyncMethodTemplate extends ConvenienceMethodTemplateBas
         }
 
         if (methodType == ClientMethodType.PagingAsync) {
-            Set<String> usedNames = new HashSet<>();
-            convenienceMethod.getParameters().forEach(parameter -> usedNames.add(parameter.getName()));
+            Set<String> usedNames = ClientMethodTemplateBase.pagingVariableNames(convenienceMethod);
             String continuationToken
                 = ClientMethodTemplateBase.availablePagingVariableName("continuationTokenParam", usedNames);
             String pageSize = ClientMethodTemplateBase.availablePagingVariableName("pageSizeParam", usedNames);
@@ -105,11 +103,11 @@ public class ConvenienceAsyncMethodTemplate extends ConvenienceMethodTemplateBas
                 protocolMethodData);
             if (expressionMapFromBinaryData == null) {
                 // no need to do the map
-                methodBlock
-                    .methodReturn(String.format("%1$s(%2$s)", getMethodName(protocolMethod), invocationExpression));
+                methodBlock.methodReturn(
+                    String.format("%1$s(%2$s)", getProtocolMethodInvocationName(protocolMethod), invocationExpression));
             } else {
-                methodBlock.line("PagedFlux<BinaryData> %1$s = %2$s(%3$s);", pagedFlux, getMethodName(protocolMethod),
-                    invocationExpression);
+                methodBlock.line("PagedFlux<BinaryData> %1$s = %2$s(%3$s);", pagedFlux,
+                    getProtocolMethodInvocationName(protocolMethod), invocationExpression);
 
                 methodBlock.methodReturn(String.format(
                     "PagedFlux.create(() -> (%3$s, %4$s) -> {\n" + "    Flux<PagedResponse<BinaryData>> %6$s;\n"

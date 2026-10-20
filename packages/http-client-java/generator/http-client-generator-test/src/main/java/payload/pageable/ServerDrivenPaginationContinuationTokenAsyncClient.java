@@ -304,7 +304,7 @@ public final class ServerDrivenPaginationContinuationTokenAsyncClient {
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedFlux<Pet> requestQueryResponseBody(String token, String foo, String bar) {
-        // Generated convenience method for serviceClient.requestQueryResponseBodyAsync
+        // Generated convenience method for requestQueryResponseBody
         RequestOptions requestOptions = new RequestOptions();
         if (foo != null) {
             requestOptions.setHeader(HttpHeaderName.fromString("foo"), foo);
@@ -312,7 +312,8 @@ public final class ServerDrivenPaginationContinuationTokenAsyncClient {
         if (bar != null) {
             requestOptions.addQueryParam("bar", bar, false);
         }
-        PagedFlux<BinaryData> pagedFluxResponse = serviceClient.requestQueryResponseBodyAsync(token, requestOptions);
+        PagedFlux<BinaryData> pagedFluxResponse
+            = this.serviceClient.requestQueryResponseBodyAsync(token, requestOptions);
         return PagedFlux.create(() -> (continuationTokenParam, pageSizeParam) -> {
             Flux<PagedResponse<BinaryData>> flux;
             if (pageSizeParam == null) {
@@ -347,9 +348,10 @@ public final class ServerDrivenPaginationContinuationTokenAsyncClient {
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedFlux<Pet> requestQueryResponseBody() {
-        // Generated convenience method for serviceClient.requestQueryResponseBodyAsync
+        // Generated convenience method for requestQueryResponseBody
         RequestOptions requestOptions = new RequestOptions();
-        PagedFlux<BinaryData> pagedFluxResponse = serviceClient.requestQueryResponseBodyAsync(null, requestOptions);
+        PagedFlux<BinaryData> pagedFluxResponse
+            = this.serviceClient.requestQueryResponseBodyAsync(null, requestOptions);
         return PagedFlux.create(() -> (continuationTokenParam, pageSizeParam) -> {
             Flux<PagedResponse<BinaryData>> flux;
             if (pageSizeParam == null) {
@@ -388,7 +390,7 @@ public final class ServerDrivenPaginationContinuationTokenAsyncClient {
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedFlux<Pet> requestHeaderResponseBody(String token, String foo, String bar) {
-        // Generated convenience method for serviceClient.requestHeaderResponseBodyAsync
+        // Generated convenience method for requestHeaderResponseBody
         RequestOptions requestOptions = new RequestOptions();
         if (foo != null) {
             requestOptions.setHeader(HttpHeaderName.fromString("foo"), foo);
@@ -396,7 +398,8 @@ public final class ServerDrivenPaginationContinuationTokenAsyncClient {
         if (bar != null) {
             requestOptions.addQueryParam("bar", bar, false);
         }
-        PagedFlux<BinaryData> pagedFluxResponse = serviceClient.requestHeaderResponseBodyAsync(token, requestOptions);
+        PagedFlux<BinaryData> pagedFluxResponse
+            = this.serviceClient.requestHeaderResponseBodyAsync(token, requestOptions);
         return PagedFlux.create(() -> (continuationTokenParam, pageSizeParam) -> {
             Flux<PagedResponse<BinaryData>> flux;
             if (pageSizeParam == null) {
@@ -431,9 +434,10 @@ public final class ServerDrivenPaginationContinuationTokenAsyncClient {
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedFlux<Pet> requestHeaderResponseBody() {
-        // Generated convenience method for serviceClient.requestHeaderResponseBodyAsync
+        // Generated convenience method for requestHeaderResponseBody
         RequestOptions requestOptions = new RequestOptions();
-        PagedFlux<BinaryData> pagedFluxResponse = serviceClient.requestHeaderResponseBodyAsync(null, requestOptions);
+        PagedFlux<BinaryData> pagedFluxResponse
+            = this.serviceClient.requestHeaderResponseBodyAsync(null, requestOptions);
         return PagedFlux.create(() -> (continuationTokenParam, pageSizeParam) -> {
             Flux<PagedResponse<BinaryData>> flux;
             if (pageSizeParam == null) {
@@ -472,7 +476,7 @@ public final class ServerDrivenPaginationContinuationTokenAsyncClient {
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedFlux<Pet> requestQueryResponseHeader(String token, String foo, String bar) {
-        // Generated convenience method for serviceClient.requestQueryResponseHeaderAsync
+        // Generated convenience method for requestQueryResponseHeader
         RequestOptions requestOptions = new RequestOptions();
         if (foo != null) {
             requestOptions.setHeader(HttpHeaderName.fromString("foo"), foo);
@@ -480,7 +484,8 @@ public final class ServerDrivenPaginationContinuationTokenAsyncClient {
         if (bar != null) {
             requestOptions.addQueryParam("bar", bar, false);
         }
-        PagedFlux<BinaryData> pagedFluxResponse = serviceClient.requestQueryResponseHeaderAsync(token, requestOptions);
+        PagedFlux<BinaryData> pagedFluxResponse
+            = this.serviceClient.requestQueryResponseHeaderAsync(token, requestOptions);
         return PagedFlux.create(() -> (continuationTokenParam, pageSizeParam) -> {
             Flux<PagedResponse<BinaryData>> flux;
             if (pageSizeParam == null) {
@@ -515,9 +520,10 @@ public final class ServerDrivenPaginationContinuationTokenAsyncClient {
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedFlux<Pet> requestQueryResponseHeader() {
-        // Generated convenience method for serviceClient.requestQueryResponseHeaderAsync
+        // Generated convenience method for requestQueryResponseHeader
         RequestOptions requestOptions = new RequestOptions();
-        PagedFlux<BinaryData> pagedFluxResponse = serviceClient.requestQueryResponseHeaderAsync(null, requestOptions);
+        PagedFlux<BinaryData> pagedFluxResponse
+            = this.serviceClient.requestQueryResponseHeaderAsync(null, requestOptions);
         return PagedFlux.create(() -> (continuationTokenParam, pageSizeParam) -> {
             Flux<PagedResponse<BinaryData>> flux;
             if (pageSizeParam == null) {
@@ -556,7 +562,7 @@ public final class ServerDrivenPaginationContinuationTokenAsyncClient {
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedFlux<Pet> requestHeaderResponseHeader(String token, String foo, String bar) {
-        // Generated convenience method for serviceClient.requestHeaderResponseHeaderAsync
+        // Generated convenience method for requestHeaderResponseHeader
         RequestOptions requestOptions = new RequestOptions();
         if (foo != null) {
             requestOptions.setHeader(HttpHeaderName.fromString("foo"), foo);
@@ -564,7 +570,8 @@ public final class ServerDrivenPaginationContinuationTokenAsyncClient {
         if (bar != null) {
             requestOptions.addQueryParam("bar", bar, false);
         }
-        PagedFlux<BinaryData> pagedFluxResponse = serviceClient.requestHeaderResponseHeaderAsync(token, requestOptions);
+        PagedFlux<BinaryData> pagedFluxResponse
+            = this.serviceClient.requestHeaderResponseHeaderAsync(token, requestOptions);
         return PagedFlux.create(() -> (continuationTokenParam, pageSizeParam) -> {
             Flux<PagedResponse<BinaryData>> flux;
             if (pageSizeParam == null) {
@@ -599,9 +606,10 @@ public final class ServerDrivenPaginationContinuationTokenAsyncClient {
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedFlux<Pet> requestHeaderResponseHeader() {
-        // Generated convenience method for serviceClient.requestHeaderResponseHeaderAsync
+        // Generated convenience method for requestHeaderResponseHeader
         RequestOptions requestOptions = new RequestOptions();
-        PagedFlux<BinaryData> pagedFluxResponse = serviceClient.requestHeaderResponseHeaderAsync(null, requestOptions);
+        PagedFlux<BinaryData> pagedFluxResponse
+            = this.serviceClient.requestHeaderResponseHeaderAsync(null, requestOptions);
         return PagedFlux.create(() -> (continuationTokenParam, pageSizeParam) -> {
             Flux<PagedResponse<BinaryData>> flux;
             if (pageSizeParam == null) {
@@ -640,7 +648,7 @@ public final class ServerDrivenPaginationContinuationTokenAsyncClient {
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedFlux<Pet> requestQueryNestedResponseBody(String token, String foo, String bar) {
-        // Generated convenience method for serviceClient.requestQueryNestedResponseBodyAsync
+        // Generated convenience method for requestQueryNestedResponseBody
         RequestOptions requestOptions = new RequestOptions();
         if (foo != null) {
             requestOptions.setHeader(HttpHeaderName.fromString("foo"), foo);
@@ -649,7 +657,7 @@ public final class ServerDrivenPaginationContinuationTokenAsyncClient {
             requestOptions.addQueryParam("bar", bar, false);
         }
         PagedFlux<BinaryData> pagedFluxResponse
-            = serviceClient.requestQueryNestedResponseBodyAsync(token, requestOptions);
+            = this.serviceClient.requestQueryNestedResponseBodyAsync(token, requestOptions);
         return PagedFlux.create(() -> (continuationTokenParam, pageSizeParam) -> {
             Flux<PagedResponse<BinaryData>> flux;
             if (pageSizeParam == null) {
@@ -684,10 +692,10 @@ public final class ServerDrivenPaginationContinuationTokenAsyncClient {
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedFlux<Pet> requestQueryNestedResponseBody() {
-        // Generated convenience method for serviceClient.requestQueryNestedResponseBodyAsync
+        // Generated convenience method for requestQueryNestedResponseBody
         RequestOptions requestOptions = new RequestOptions();
         PagedFlux<BinaryData> pagedFluxResponse
-            = serviceClient.requestQueryNestedResponseBodyAsync(null, requestOptions);
+            = this.serviceClient.requestQueryNestedResponseBodyAsync(null, requestOptions);
         return PagedFlux.create(() -> (continuationTokenParam, pageSizeParam) -> {
             Flux<PagedResponse<BinaryData>> flux;
             if (pageSizeParam == null) {
@@ -726,7 +734,7 @@ public final class ServerDrivenPaginationContinuationTokenAsyncClient {
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedFlux<Pet> requestHeaderNestedResponseBody(String token, String foo, String bar) {
-        // Generated convenience method for serviceClient.requestHeaderNestedResponseBodyAsync
+        // Generated convenience method for requestHeaderNestedResponseBody
         RequestOptions requestOptions = new RequestOptions();
         if (foo != null) {
             requestOptions.setHeader(HttpHeaderName.fromString("foo"), foo);
@@ -735,7 +743,7 @@ public final class ServerDrivenPaginationContinuationTokenAsyncClient {
             requestOptions.addQueryParam("bar", bar, false);
         }
         PagedFlux<BinaryData> pagedFluxResponse
-            = serviceClient.requestHeaderNestedResponseBodyAsync(token, requestOptions);
+            = this.serviceClient.requestHeaderNestedResponseBodyAsync(token, requestOptions);
         return PagedFlux.create(() -> (continuationTokenParam, pageSizeParam) -> {
             Flux<PagedResponse<BinaryData>> flux;
             if (pageSizeParam == null) {
@@ -770,10 +778,10 @@ public final class ServerDrivenPaginationContinuationTokenAsyncClient {
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedFlux<Pet> requestHeaderNestedResponseBody() {
-        // Generated convenience method for serviceClient.requestHeaderNestedResponseBodyAsync
+        // Generated convenience method for requestHeaderNestedResponseBody
         RequestOptions requestOptions = new RequestOptions();
         PagedFlux<BinaryData> pagedFluxResponse
-            = serviceClient.requestHeaderNestedResponseBodyAsync(null, requestOptions);
+            = this.serviceClient.requestHeaderNestedResponseBodyAsync(null, requestOptions);
         return PagedFlux.create(() -> (continuationTokenParam, pageSizeParam) -> {
             Flux<PagedResponse<BinaryData>> flux;
             if (pageSizeParam == null) {

@@ -561,7 +561,8 @@ public final class BasicClient {
                 }
             }
         }
-        return serviceClient.listInternal(requestOptions).mapPage(bodyItemValue -> bodyItemValue.toObject(User.class));
+        return this.serviceClient.listInternal(requestOptions)
+            .mapPage(bodyItemValue -> bodyItemValue.toObject(User.class));
     }
 
     /**
@@ -581,7 +582,8 @@ public final class BasicClient {
     public PagedIterable<User> list() {
         // Generated convenience method for listInternal
         RequestOptions requestOptions = new RequestOptions();
-        return serviceClient.listInternal(requestOptions).mapPage(bodyItemValue -> bodyItemValue.toObject(User.class));
+        return this.serviceClient.listInternal(requestOptions)
+            .mapPage(bodyItemValue -> bodyItemValue.toObject(User.class));
     }
 
     /**
@@ -640,7 +642,8 @@ public final class BasicClient {
                 }
             }
         }
-        return serviceClient.listInternal(requestOptions).mapPage(bodyItemValue -> bodyItemValue.toObject(User.class));
+        return this.serviceClient.listInternal(requestOptions)
+            .mapPage(bodyItemValue -> bodyItemValue.toObject(User.class));
     }
 
     /**

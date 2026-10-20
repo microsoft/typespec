@@ -76,6 +76,7 @@ public final class NextLinkVerbClient {
     public PagedIterable<Test> listItems() {
         // Generated convenience method for listItems
         RequestOptions requestOptions = new RequestOptions();
-        return serviceClient.listItems(requestOptions).mapPage(bodyItemValue -> bodyItemValue.toObject(Test.class));
+        return this.serviceClient.listItems(requestOptions)
+            .mapPage(bodyItemValue -> bodyItemValue.toObject(Test.class));
     }
 }

@@ -105,7 +105,7 @@ public final class TwoModelsAsPageItemClient {
     public PagedIterable<FirstItem> listFirstItem() {
         // Generated convenience method for listFirstItem
         RequestOptions requestOptions = new RequestOptions();
-        return serviceClient.listFirstItem(requestOptions)
+        return this.serviceClient.listFirstItem(requestOptions)
             .mapPage(bodyItemValue -> bodyItemValue.toObject(FirstItem.class));
     }
 
@@ -125,7 +125,7 @@ public final class TwoModelsAsPageItemClient {
     public PagedIterable<SecondItem> listSecondItem() {
         // Generated convenience method for listSecondItem
         RequestOptions requestOptions = new RequestOptions();
-        return serviceClient.listSecondItem(requestOptions)
+        return this.serviceClient.listSecondItem(requestOptions)
             .mapPage(bodyItemValue -> bodyItemValue.toObject(SecondItem.class));
     }
 }

@@ -1212,13 +1212,6 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         return availablePagingVariableName(baseName, usedNames);
     }
 
-    private static Set<String> pagingVariableNames(ClientMethod clientMethod) {
-        return clientMethod.getParameters()
-            .stream()
-            .map(ClientMethodParameter::getName)
-            .collect(Collectors.toCollection(HashSet::new));
-    }
-
     private static String replacePagingArgument(String arguments, String name, String replacement) {
         return List.of(arguments.split(", "))
             .stream()

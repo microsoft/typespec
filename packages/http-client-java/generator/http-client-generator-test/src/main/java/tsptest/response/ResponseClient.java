@@ -710,7 +710,8 @@ public final class ResponseClient {
     public PagedIterable<String> listStrings() {
         // Generated convenience method for listStrings
         RequestOptions requestOptions = new RequestOptions();
-        return serviceClient.listStrings(requestOptions).mapPage(bodyItemValue -> bodyItemValue.toObject(String.class));
+        return this.serviceClient.listStrings(requestOptions)
+            .mapPage(bodyItemValue -> bodyItemValue.toObject(String.class));
     }
 
     /**
@@ -728,7 +729,7 @@ public final class ResponseClient {
     public PagedIterable<Integer> listIntegers() {
         // Generated convenience method for listIntegers
         RequestOptions requestOptions = new RequestOptions();
-        return serviceClient.listIntegers(requestOptions)
+        return this.serviceClient.listIntegers(requestOptions)
             .mapPage(bodyItemValue -> bodyItemValue.toObject(Integer.class));
     }
 

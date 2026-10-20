@@ -13,11 +13,15 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Clien
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelProperty;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ConvenienceMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ListType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodPageDetails;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ModelPropertySegment;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterMapping;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterSynthesizedOrigin;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterTransformation;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ParameterTransformations;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ReturnValue;
@@ -42,6 +46,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.api.parallel.Isolated;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 @Isolated
@@ -176,17 +181,27 @@ public class ContinuationTokenPagingTests {
             "pagedFluxResponse",
             "flux",
             "pagedResponse",
-            "protocolMethodData" })
+            "protocolMethodData",
+            "serviceClient" })
     public void avoidsAsyncConvenienceTokenNameCollisions(String tokenName) throws IOException {
-        new MockUnitJavagen();
-        JavaSettings.clear();
+        assertConveniencePagingCompiles(true, tokenName);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = { "bodyItemValue", "serviceClient" })
+    public void avoidsSyncConvenienceTokenNameCollisions(String tokenName) throws IOException {
+        assertConveniencePagingCompiles(false, tokenName);
+    }
+
+    private void assertConveniencePagingCompiles(boolean async, String tokenName) throws IOException {
+        useDataPlaneSettings();
         ClientMethodParameter token = new ClientMethodParameter.Builder().name(tokenName)
             .annotations(List.of())
             .wireType(ClassType.STRING)
             .build();
         List<ClientMethodParameter> parameters = new ArrayList<>(List.of(token));
         for (String name : List.of("continuationTokenParam", "pageSizeParam", "pagedFluxResponse", "flux",
-            "pagedResponse", "protocolMethodData")) {
+            "pagedResponse", "protocolMethodData", "bodyItemValue", "serviceClient")) {
             parameters.add(token.newBuilder().name(name + "1").build());
         }
         ProxyMethod proxyMethod = new ProxyMethod.Builder().name("list")
@@ -195,28 +210,129 @@ public class ContinuationTokenPagingTests {
             .responseContentTypes(Set.of("application/json"))
             .build();
         ClientMethod convenienceMethod = pagingMethod().newBuilder()
-            .type(ClientMethodType.PagingAsync)
+            .type(async ? ClientMethodType.PagingAsync : ClientMethodType.PagingSync)
             .parameters(parameters)
             .proxyMethod(proxyMethod)
             .methodPageDetails(new MethodPageDetails(List.of(), null, null, null,
                 new MethodPageDetails.ContinuationToken(null, token, "next-token", null), null, null))
-            .returnValue(new ReturnValue("The items.", GenericType.pagedFlux(ClassType.STRING)))
+            .returnValue(new ReturnValue("The items.",
+                async ? GenericType.pagedFlux(ClassType.STRING) : GenericType.pagedIterable(ClassType.STRING)))
             .build();
         ClientMethod protocolMethod = convenienceMethod.newBuilder()
             .parameters(List.of(ClientMethodParameter.REQUEST_OPTIONS_PARAMETER))
             .methodPageDetails(new MethodPageDetails(List.of(), null, null, null,
                 new MethodPageDetails.ContinuationToken(null, null, "next-token", null), null, null))
-            .returnValue(new ReturnValue("The items.", GenericType.pagedFlux(ClassType.BINARY_DATA)))
+            .returnValue(new ReturnValue("The items.",
+                async
+                    ? GenericType.pagedFlux(ClassType.BINARY_DATA)
+                    : GenericType.pagedIterable(ClassType.BINARY_DATA)))
             .build();
         JavaFileContents contents = new JavaFileContents();
-        ConvenienceAsyncMethodTemplate.getInstance()
-            .writeInvocationAndConversion(convenienceMethod, protocolMethod, tokenName + ", new RequestOptions()",
-                new JavaBlock(contents), new HashSet<>());
+        ConvenienceMethodTemplateBase template
+            = async ? ConvenienceAsyncMethodTemplate.getInstance() : ConvenienceSyncMethodTemplate.getInstance();
+        template.writeInvocationAndConversion(convenienceMethod, protocolMethod, tokenName + ", new RequestOptions()",
+            new JavaBlock(contents), new HashSet<>());
         Assertions.assertTrue(convenienceMethod.getParametersDeclaration().contains("String " + tokenName));
         String output = "public " + convenienceMethod.getDeclaration() + " {\n" + contents + "\n}\n"
-            + "private final PagingCompilation serviceClient = this;\n"
-            + "private PagedFlux<BinaryData> list(String initialToken, RequestOptions options) { return null; }\n";
+            + "private final PagingCompilation serviceClient = this;\n" + "private "
+            + protocolMethod.getReturnValue().getType()
+            + " list(String initialToken, RequestOptions options) { return null; }\n";
         assertCompiles(output, "RequestOptions requestOptions");
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+        "QUERY, after",
+        "HEADER, after",
+        "QUERY, continuationTokenParam",
+        "QUERY, serviceClient",
+        "HEADER, bodyItemValue" })
+    public void preservesGroupedContinuationToken(String locationName, String tokenName) throws IOException {
+        useDataPlaneSettings();
+        RequestParameterLocation location = RequestParameterLocation.valueOf(locationName);
+        ProxyMethodParameter proxyToken = new ProxyMethodParameter.Builder().name(tokenName)
+            .requestParameterName("after")
+            .requestParameterLocation(location)
+            .wireType(ClassType.STRING)
+            .clientType(ClassType.STRING)
+            .origin(ParameterSynthesizedOrigin.NONE)
+            .build();
+        ClientMethodParameter token = new ClientMethodParameter.Builder().name(tokenName)
+            .annotations(List.of())
+            .wireType(ClassType.STRING)
+            .requestParameterLocation(location)
+            .build();
+        ClientMethodParameter options = new ClientMethodParameter.Builder().name("options")
+            .annotations(List.of())
+            .wireType(new ClassType.Builder().name("ListOptions").build())
+            .build();
+        ClientModelProperty after = new ClientModelProperty.Builder().name(tokenName)
+            .serializedName("after")
+            .wireType(ClassType.STRING)
+            .clientType(ClassType.STRING)
+            .build();
+        ProxyMethod proxyMethod = new ProxyMethod.Builder().name("list")
+            .parameters(List.of())
+            .allParameters(List.of(proxyToken))
+            .responseBodyType(ClassType.BINARY_DATA)
+            .rawResponseBodyType(ClassType.STRING)
+            .responseContentTypes(Set.of("application/json"))
+            .build();
+        for (boolean async : List.of(false, true)) {
+            String methodName = async ? "listAsync" : "list";
+            ClientMethod convenienceMethod = pagingMethod().newBuilder()
+                .name(methodName)
+                .type(async ? ClientMethodType.PagingAsync : ClientMethodType.PagingSync)
+                .parameters(List.of(options))
+                .proxyMethod(proxyMethod)
+                .parameterTransformations(new ParameterTransformations(List.of(new ParameterTransformation(token,
+                    List.of(new ParameterMapping(options, after, token, null, null))))))
+                .methodPageDetails(new MethodPageDetails(List.of(), null, null, null,
+                    new MethodPageDetails.ContinuationToken(proxyToken, null, "next-token", null), null, null))
+                .returnValue(new ReturnValue("The items.",
+                    async ? GenericType.pagedFlux(ClassType.STRING) : GenericType.pagedIterable(ClassType.STRING)))
+                .build();
+            ClientMethod protocolMethod = convenienceMethod.newBuilder()
+                .parameters(List.of(ClientMethodParameter.REQUEST_OPTIONS_PARAMETER))
+                .returnValue(new ReturnValue("The items.",
+                    async
+                        ? GenericType.pagedFlux(ClassType.BINARY_DATA)
+                        : GenericType.pagedIterable(ClassType.BINARY_DATA)))
+                .build();
+            JavaFileContents contents = new JavaFileContents();
+            ConvenienceMethodTemplateBase template
+                = async ? ConvenienceAsyncMethodTemplate.getInstance() : ConvenienceSyncMethodTemplate.getInstance();
+            template.write(new ConvenienceMethod(protocolMethod, List.of(convenienceMethod)), new JavaClass(contents),
+                new HashSet<>());
+            String output = contents.toString();
+            Assertions.assertTrue(
+                output.contains((async ? "PagedFlux" : "PagedIterable") + "<String> list(ListOptions options)"),
+                output);
+            Assertions.assertTrue(
+                output.contains("this.serviceClient." + methodName + "(" + tokenName + ", requestOptions)"), output);
+            Assertions.assertFalse(output.contains("requestOptions.addQueryParam(\"after\""), output);
+            Assertions.assertFalse(output.contains("requestOptions.setHeader(\"after\""), output);
+            String getter = "get" + Character.toUpperCase(tokenName.charAt(0)) + tokenName.substring(1);
+            assertCompiles(
+                output + "\nprivate final PagingCompilation serviceClient = this;\n" + "private "
+                    + protocolMethod.getReturnValue().getType() + " " + methodName
+                    + "(String initialToken, RequestOptions options) { return null; }\n"
+                    + "public static class ListOptions { public String " + getter + "() { return \"cursor\"; } }\n",
+                "RequestOptions requestOptions");
+        }
+    }
+
+    private static void useDataPlaneSettings() {
+        new MockUnitJavagen() {
+            @Override
+            @SuppressWarnings("unchecked")
+            public <T> T getValue(String key, IOExceptionCheckedFunction<String, T> converter) {
+                return "data-plane".equals(key) || "enable-sync-stack".equals(key)
+                    ? (T) Boolean.TRUE
+                    : super.getValue(key, converter);
+            }
+        };
+        JavaSettings.clear();
     }
 
     private static String renderProtocolPaging(RequestParameterLocation location, boolean sync) {

@@ -107,13 +107,15 @@ public class ConvenienceSyncMethodTemplate extends ConvenienceMethodTemplateBase
         if (convenienceMethod.getType() == ClientMethodType.PagingSync) {
             String mapPageExpression = "";
             if (JavaSettings.getInstance().isAzureV1()) {
+                String bodyItemValue = ClientMethodTemplateBase.availablePagingVariableName("bodyItemValue",
+                    ClientMethodTemplateBase.pagingVariableNames(convenienceMethod));
                 mapPageExpression
-                    = ".mapPage(bodyItemValue -> "
-                        + expressionConvertFromBinaryData(responseBodyType, rawResponseBodyType, "bodyItemValue",
+                    = ".mapPage(" + bodyItemValue + " -> "
+                        + expressionConvertFromBinaryData(responseBodyType, rawResponseBodyType, bodyItemValue,
                             protocolMethod.getProxyMethod().getResponseContentTypes(), typeReferenceStaticClasses)
                         + ")";
             }
-            methodBlock.methodReturn(String.format("serviceClient.%1$s(%2$s)%3$s", protocolMethod.getName(),
+            methodBlock.methodReturn(String.format("this.serviceClient.%1$s(%2$s)%3$s", protocolMethod.getName(),
                 invocationExpression, mapPageExpression));
         } else if (convenienceMethod.getType() == ClientMethodType.LongRunningBeginSync) {
             String methodName = protocolMethod.getName();

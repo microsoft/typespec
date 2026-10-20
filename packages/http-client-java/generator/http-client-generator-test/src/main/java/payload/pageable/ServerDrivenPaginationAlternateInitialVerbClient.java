@@ -91,7 +91,7 @@ public final class ServerDrivenPaginationAlternateInitialVerbClient {
     public PagedIterable<Pet> post(Filter body) {
         // Generated convenience method for post
         RequestOptions requestOptions = new RequestOptions();
-        return serviceClient.post(BinaryData.fromObject(body), requestOptions)
+        return this.serviceClient.post(BinaryData.fromObject(body), requestOptions)
             .mapPage(bodyItemValue -> bodyItemValue.toObject(Pet.class));
     }
 }
