@@ -250,7 +250,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                 } else {
                     // Create Simple Client Methods.
                     //
-                    if (operation.getSse() != null && settings.isSseEnabled() && !isProtocolMethod) {
+                    if (operation.getSseMetadata() != null && settings.isSseEnabled() && !isProtocolMethod) {
                         if (proxyMethod.isSync()) {
                             createSimpleWithResponseClientMethods(true, baseMethod, methods, createMethodArgs);
                             createSseClientMethod(true, operation, baseMethod, methods, methodNamer);
@@ -281,7 +281,8 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
 
     private void createSseClientMethod(boolean isSync, Operation operation, ClientMethod baseMethod,
         List<ClientMethod> methods, MethodNamer methodNamer) {
-        IType eventType = SseUtil.getEventType(SseNamingResolver.resolve(operation.getSse()).getBaseEventName());
+        IType eventType
+            = SseUtil.getEventType(SseNamingResolver.resolve(operation.getSseMetadata()).getBaseEventName());
         IType returnType = isSync ? GenericType.closeableIterableStream(eventType) : GenericType.flux(eventType);
         String methodName = isSync ? methodNamer.getMethodName() : methodNamer.getSimpleAsyncMethodName();
         ClientMethodType methodType = isSync ? ClientMethodType.SseSync : ClientMethodType.SseAsync;
@@ -292,7 +293,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             .returnValue(new ReturnValue("the stream of server-sent events", returnType))
             .methodVisibility(JavaVisibility.Public)
             .methodVisibilityInWrapperClient(JavaVisibility.Public)
-            .sseMetadata(operation.getSse())
+            .sseMetadata(operation.getSseMetadata())
             .build());
     }
 

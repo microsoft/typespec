@@ -67,7 +67,7 @@ export interface Operation extends Aspect {
   lroMetadata?: LongRunningMetadata;
 
   /** Experimental server-sent event metadata. */
-  sse?: SseMetadata;
+  sseMetadata?: SseMetadata;
 }
 
 export interface SseEventMetadata {

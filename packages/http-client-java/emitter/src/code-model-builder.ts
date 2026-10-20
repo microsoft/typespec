@@ -1051,12 +1051,12 @@ export class CodeModelBuilder {
     codeModelOperation.language.default.crossLanguageDefinitionId =
       sdkMethod.crossLanguageDefinitionId;
     codeModelOperation.internalApi = sdkMethod.access === "internal";
-    codeModelOperation.sse = this.processSseMetadata(sdkMethod.response);
+    codeModelOperation.sseMetadata = this.processSseMetadata(sdkMethod.response);
 
     const convenienceApiName = this.getConvenienceApiName(sdkMethod);
     let generateConvenienceApi: boolean = sdkMethod.generateConvenient;
     let generateProtocolApi: boolean = sdkMethod.generateProtocol;
-    if (codeModelOperation.sse) {
+    if (codeModelOperation.sseMetadata) {
       generateProtocolApi = false;
     }
 
@@ -1258,7 +1258,9 @@ export class CodeModelBuilder {
     return codeModelOperation;
   }
 
-  private processSseMetadata(response: SdkMethodResponse): CodeModelOperation["sse"] | undefined {
+  private processSseMetadata(
+    response: SdkMethodResponse,
+  ): CodeModelOperation["sseMetadata"] | undefined {
     if (!this.options["dev-options"]?.["enable-sse"] || !this.isAzureV1()) {
       return undefined;
     }
@@ -1291,12 +1293,13 @@ export class CodeModelBuilder {
       if (event.payloadType.kind !== "model" && event.payloadType.kind !== "array") {
         return undefined;
       }
-      const eventName = event.eventType
+      // This only names anonymous code-model schemas; the generator owns Java SSE type names.
+      const payloadSchemaNameHint = event.eventType
         .split(/[^A-Za-z0-9]+/)
         .filter((segment) => segment.length > 0)
         .map(pascalCase)
         .join("");
-      const payload = this.processSchema(event.payloadType, `${eventName}EventPayload`);
+      const payload = this.processSchema(event.payloadType, `${payloadSchemaNameHint}EventPayload`);
       return {
         event,
         payload,

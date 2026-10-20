@@ -80,7 +80,7 @@ describe("code model characterization", () => {
       ],
     );
     const operation = codeModel.clients[0].operationGroups[0].operations![0];
-    expect(operation.sse).toBeUndefined();
+    expect(operation.sseMetadata).toBeUndefined();
     expect(operation.responses?.[0]).toMatchObject({ binary: true });
   });
 
@@ -109,12 +109,12 @@ describe("code model characterization", () => {
       }).build();
 
     const disabledOperation = (await build(false)).clients[0].operationGroups[0].operations![0];
-    expect(disabledOperation.sse).toBeUndefined();
+    expect(disabledOperation.sseMetadata).toBeUndefined();
     expect(disabledOperation.responses?.[0]).toMatchObject({ binary: true });
 
     const enabledOperation = (await build(true)).clients[0].operationGroups[0].operations![0];
     expect(enabledOperation.generateProtocolApi).toBe(false);
-    expect(enabledOperation.sse).toMatchObject({
+    expect(enabledOperation.sseMetadata).toMatchObject({
       streamName: "RetrievalStreamEvents",
       events: [
         {
