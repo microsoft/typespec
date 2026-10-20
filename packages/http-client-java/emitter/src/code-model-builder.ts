@@ -1283,23 +1283,6 @@ export class CodeModelBuilder {
     if (streamType.kind !== "union" || !streamType.name) {
       return unsupported();
     }
-    const baseEventName = streamType.name.endsWith("Events")
-      ? streamType.name.slice(0, -1)
-      : `${streamType.name}Event`;
-    const baseStem = baseEventName.endsWith("StreamEvent")
-      ? baseEventName.slice(0, -"StreamEvent".length)
-      : baseEventName;
-    const streamEventPrefixSegment = sseMetadata.events
-      .map((event) =>
-        typeof event.eventType === "string"
-          ? pascalCase(event.eventType.split(".", 1)[0])
-          : undefined,
-      )
-      .filter((segment): segment is string => segment !== undefined)
-      .find((segment) => baseStem.endsWith(segment));
-    const streamEventPrefix = streamEventPrefixSegment
-      ? baseStem.slice(0, -streamEventPrefixSegment.length)
-      : baseStem;
 
     const events = sseMetadata.events.map((event) => {
       if (typeof event.eventType !== "string") {
@@ -1316,7 +1299,6 @@ export class CodeModelBuilder {
       const payload = this.processSchema(event.payloadType, `${eventName}EventPayload`);
       return {
         event,
-        wrapperName: `${streamEventPrefix}${eventName}StreamEvent`,
         payload,
       };
     });
@@ -1325,25 +1307,16 @@ export class CodeModelBuilder {
     }
 
     const supportedEvents = events as Array<NonNullable<(typeof events)[number]>>;
-    const wrapperNames = supportedEvents.map((event) => event.wrapperName);
-    if (
-      wrapperNames.some((name) => name === baseEventName) ||
-      new Set(wrapperNames).size !== wrapperNames.length
-    ) {
-      return unsupported();
-    }
     for (const { payload } of supportedEvents) {
       this.trackSchemaUsage(payload, {
         usage: [SchemaContext.Output, SchemaContext.Public],
         serializationFormats: [KnownMediaType.Json],
       });
     }
-
     return {
-      baseEventName,
-      events: supportedEvents.map(({ event, wrapperName, payload }) => ({
+      streamName: streamType.name,
+      events: supportedEvents.map(({ event, payload }) => ({
         name: event.eventType!,
-        wrapperName,
         payload,
         terminal: event.isTerminalEvent,
       })),

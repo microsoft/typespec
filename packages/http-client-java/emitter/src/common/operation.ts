@@ -74,9 +74,6 @@ export interface SseEventMetadata {
   /** SSE event field value. */
   name: string;
 
-  /** Generated Java event wrapper name. */
-  wrapperName: string;
-
   /** Typed event payload. */
   payload: Schema;
 
@@ -85,8 +82,8 @@ export interface SseEventMetadata {
 }
 
 export interface SseMetadata {
-  /** Generated Java base wrapper name for known and unknown stream events. */
-  baseEventName: string;
+  /** Semantic name of the named event stream. */
+  streamName: string;
 
   /** Supported named event variants. */
   events: SseEventMetadata[];

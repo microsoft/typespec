@@ -8,7 +8,6 @@ package com.microsoft.typespec.http.client.generator.core.extension.model.codemo
  */
 public class SseEventMetadata {
     private String name;
-    private String wrapperName;
     private Schema payload;
     private boolean terminal;
 
@@ -18,14 +17,6 @@ public class SseEventMetadata {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getWrapperName() {
-        return wrapperName;
-    }
-
-    public void setWrapperName(String wrapperName) {
-        this.wrapperName = wrapperName;
     }
 
     public Schema getPayload() {

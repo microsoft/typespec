@@ -10,15 +10,15 @@ import java.util.List;
  * Describes an experimental server-sent event operation.
  */
 public class SseMetadata {
-    private String baseEventName;
+    private String streamName;
     private List<SseEventMetadata> events = new ArrayList<>();
 
-    public String getBaseEventName() {
-        return baseEventName;
+    public String getStreamName() {
+        return streamName;
     }
 
-    public void setBaseEventName(String baseEventName) {
-        this.baseEventName = baseEventName;
+    public void setStreamName(String streamName) {
+        this.streamName = streamName;
     }
 
     public List<SseEventMetadata> getEvents() {

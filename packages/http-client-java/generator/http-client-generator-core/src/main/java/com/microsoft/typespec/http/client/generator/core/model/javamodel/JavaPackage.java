@@ -3,6 +3,7 @@
 
 package com.microsoft.typespec.http.client.generator.core.model.javamodel;
 
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseEventMetadata;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseMetadata;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.NewPlugin;
@@ -45,7 +46,7 @@ import com.microsoft.typespec.http.client.generator.core.util.ClassNameUtil;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.ConstantStringTooLongException;
 import com.microsoft.typespec.http.client.generator.core.util.PossibleCredentialException;
-import com.microsoft.typespec.http.client.generator.core.util.SseUtil;
+import com.microsoft.typespec.http.client.generator.core.util.SseNamingResolver;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -56,6 +57,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 
 public class JavaPackage {
@@ -100,21 +102,41 @@ public class JavaPackage {
         addJavaFile(javaFile);
     }
 
-    public final void addSseEventConverter(String packageKeyword, SseMetadata metadata) {
-        JavaFile javaFile = javaFileFactory.createSourceFile(packageKeyword, SseUtil.getConverterClassName(metadata));
-        SseEventConverterTemplate.getInstance().write(metadata, javaFile);
-        addJavaFile(javaFile);
-    }
+    public final void addSseEventFiles(String packageKeyword, SseMetadata metadata) {
+        SseNamingResolver.Names names = SseNamingResolver.resolve(metadata);
+        List<SseEventMetadata> events = metadata.getEvents();
+        JavaFile baseFile = javaFileFactory.createSourceFile(packageKeyword, names.getBaseEventName());
+        List<JavaFile> eventFiles = events.stream()
+            .map(event -> javaFileFactory.createSourceFile(packageKeyword, names.getEventWrapperName(event.getName())))
+            .collect(Collectors.toList());
+        JavaFile converterFile = javaFileFactory.createSourceFile(packageKeyword, names.getConverterName());
+        List<JavaFile> sseFiles = new ArrayList<>();
+        sseFiles.add(baseFile);
+        sseFiles.addAll(eventFiles);
+        sseFiles.add(converterFile);
+        validateSseSourcePaths(sseFiles);
 
-    public final void addSseEventModels(String packageKeyword, SseMetadata metadata) {
-        JavaFile baseFile = javaFileFactory.createSourceFile(packageKeyword, metadata.getBaseEventName());
         SseEventModelTemplate.getInstance().writeBase(metadata, baseFile);
         addJavaFile(baseFile);
-        metadata.getEvents().forEach(event -> {
-            JavaFile eventFile = javaFileFactory.createSourceFile(packageKeyword, event.getWrapperName());
+        for (int i = 0; i < events.size(); i++) {
+            JavaFile eventFile = eventFiles.get(i);
+            SseEventMetadata event = events.get(i);
             SseEventModelTemplate.getInstance().writeEvent(metadata, event, eventFile);
             addJavaFile(eventFile);
-        });
+        }
+        SseEventConverterTemplate.getInstance().write(metadata, converterFile);
+        addJavaFile(converterFile);
+    }
+
+    private void validateSseSourcePaths(List<JavaFile> sseFiles) {
+        Set<String> sseFilePaths = new LinkedHashSet<>();
+        for (JavaFile javaFile : sseFiles) {
+            String filePath = javaFile.getFilePath();
+            if (filePaths.contains(filePath) || !sseFilePaths.add(filePath)) {
+                throw new IllegalStateException(
+                    "SSE generated source file '" + filePath + "' conflicts with another generated source file.");
+            }
+        }
     }
 
     public final void addAsyncServiceClient(String packageKeyWord, AsyncSyncClient asyncClient) {

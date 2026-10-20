@@ -9,6 +9,7 @@ import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaModifier;
+import com.microsoft.typespec.http.client.generator.core.util.SseNamingResolver;
 import com.microsoft.typespec.http.client.generator.core.util.SseUtil;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
 import java.util.LinkedHashSet;
@@ -29,7 +30,7 @@ public final class SseEventModelTemplate {
     }
 
     public void writeBase(SseMetadata metadata, JavaFile javaFile) {
-        String baseEventName = metadata.getBaseEventName();
+        String baseEventName = SseNamingResolver.resolve(metadata).getBaseEventName();
         javaFile.javadocComment(comment -> comment.description(
             "Base for typed events emitted by a server-sent event stream. Unknown events expose only their name."));
         javaFile.publicClass(List.of(JavaModifier.Abstract), baseEventName, javaClass -> {
@@ -50,14 +51,15 @@ public final class SseEventModelTemplate {
     }
 
     public void writeEvent(SseMetadata metadata, SseEventMetadata event, JavaFile javaFile) {
+        SseNamingResolver.Names names = SseNamingResolver.resolve(metadata);
         IType payloadType = Mappers.getSchemaMapper().map(event.getPayload()).getClientType();
         Set<String> imports = new LinkedHashSet<>();
         payloadType.addImportsTo(imports, false);
-        SseUtil.getEventType(metadata.getBaseEventName()).addImportsTo(imports, false);
+        SseUtil.getEventType(names.getBaseEventName()).addImportsTo(imports, false);
         javaFile.declareImport(imports);
 
-        String wrapperName = event.getWrapperName();
-        String baseEventName = metadata.getBaseEventName();
+        String wrapperName = names.getEventWrapperName(event.getName());
+        String baseEventName = names.getBaseEventName();
         javaFile.javadocComment(comment -> comment.description(
             "Represents the {@code " + TemplateUtil.escapeString(event.getName()) + "} server-sent event."));
         javaFile.publicFinalClass(wrapperName + " extends " + baseEventName, javaClass -> {

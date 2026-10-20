@@ -44,6 +44,7 @@ import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.CodeNamer;
 import com.microsoft.typespec.http.client.generator.core.util.CollectionFormat;
 import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
+import com.microsoft.typespec.http.client.generator.core.util.SseNamingResolver;
 import com.microsoft.typespec.http.client.generator.core.util.SseUtil;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
 import java.lang.reflect.ParameterizedType;
@@ -663,7 +664,7 @@ abstract class ConvenienceMethodTemplateBase {
                 String implementationPackage = settings.getPackage(settings.getImplementationSubpackage());
                 imports.add(implementationPackage + "." + SseUtil.SERVER_SENT_EVENT_STREAMS);
                 imports.add(settings.getPackage(settings.getModelsSubpackage()) + "."
-                    + SseUtil.getConverterClassName(m.getSseMetadata()));
+                    + SseNamingResolver.resolve(m.getSseMetadata()).getConverterName());
             }
         });
 

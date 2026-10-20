@@ -115,11 +115,10 @@ describe("code model characterization", () => {
     const enabledOperation = (await build(true)).clients[0].operationGroups[0].operations![0];
     expect(enabledOperation.generateProtocolApi).toBe(false);
     expect(enabledOperation.sse).toMatchObject({
-      baseEventName: "RetrievalStreamEvent",
+      streamName: "RetrievalStreamEvents",
       events: [
         {
           name: "retrieval.started",
-          wrapperName: "RetrievalStartedStreamEvent",
           terminal: false,
           payload: {
             language: { default: { name: "RetrievalStarted" } },
@@ -127,7 +126,6 @@ describe("code model characterization", () => {
         },
         {
           name: "response.completed",
-          wrapperName: "ResponseCompletedStreamEvent",
           terminal: true,
           payload: {
             language: { default: { name: "ResponseCompleted" } },

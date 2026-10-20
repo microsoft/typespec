@@ -7,7 +7,6 @@ import com.microsoft.typespec.http.client.generator.core.Javagen;
 import com.microsoft.typespec.http.client.generator.core.extension.jsonrpc.Connection;
 import com.microsoft.typespec.http.client.generator.core.extension.model.Message;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModel;
-import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseMetadata;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.AsyncSyncClient;
@@ -22,6 +21,7 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaPac
 import com.microsoft.typespec.http.client.generator.core.preprocessor.Preprocessor;
 import com.microsoft.typespec.http.client.generator.core.preprocessor.tranformer.Transformer;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
+import com.microsoft.typespec.http.client.generator.core.util.SseMetadataRegistry;
 import com.microsoft.typespec.http.client.generator.core.util.SseUtil;
 import com.microsoft.typespec.http.client.generator.mapper.TypeSpecAzureVNextMapperFactory;
 import com.microsoft.typespec.http.client.generator.mapper.TypeSpecClientCoreMapperFactory;
@@ -109,7 +109,7 @@ public class TypeSpecPlugin extends Javagen {
         JavaSettings settings) {
         if (settings.isSseEnabled()) {
             String implementationPackage = settings.getPackage(settings.getImplementationSubpackage());
-            Map<String, SseMetadata> sseMetadata = new LinkedHashMap<>();
+            SseMetadataRegistry sseMetadata = new SseMetadataRegistry();
             client.getServiceClients().forEach(serviceClient -> {
                 collectSseMetadata(serviceClient.getClientMethods(), sseMetadata);
                 serviceClient.getMethodGroupClients()
@@ -121,23 +121,20 @@ public class TypeSpecPlugin extends Javagen {
                 .flatMap(convenienceMethod -> convenienceMethod.getConvenienceMethods().stream())
                 .map(ClientMethod::getSseMetadata)
                 .filter(Objects::nonNull)
-                .forEach(sse -> sseMetadata.putIfAbsent(SseUtil.getConverterClassName(sse), sse));
+                .forEach(sseMetadata::add);
             client.getSyncClients()
                 .stream()
                 .flatMap(syncClient -> syncClient.getConvenienceMethods().stream())
                 .flatMap(convenienceMethod -> convenienceMethod.getConvenienceMethods().stream())
                 .map(ClientMethod::getSseMetadata)
                 .filter(Objects::nonNull)
-                .forEach(sse -> sseMetadata.putIfAbsent(SseUtil.getConverterClassName(sse), sse));
-            if (!sseMetadata.isEmpty()) {
+                .forEach(sseMetadata::add);
+            if (!sseMetadata.values().isEmpty()) {
                 javaPackage.addJavaFromResources(implementationPackage, SseUtil.SERVER_SENT_EVENT_STREAMS);
                 javaPackage.addJavaFromResources(implementationPackage, "ServerSentEventStream");
                 javaPackage.addJavaFromResources(implementationPackage, "ServerSentEventStreamResponse");
                 String modelsPackage = settings.getPackage(settings.getModelsSubpackage());
-                sseMetadata.values().forEach(metadata -> {
-                    javaPackage.addSseEventModels(modelsPackage, metadata);
-                    javaPackage.addSseEventConverter(modelsPackage, metadata);
-                });
+                sseMetadata.values().forEach(metadata -> javaPackage.addSseEventFiles(modelsPackage, metadata));
             }
         }
 
@@ -198,11 +195,8 @@ public class TypeSpecPlugin extends Javagen {
         }
     }
 
-    private static void collectSseMetadata(List<ClientMethod> methods, Map<String, SseMetadata> metadata) {
-        methods.stream()
-            .map(ClientMethod::getSseMetadata)
-            .filter(Objects::nonNull)
-            .forEach(sse -> metadata.putIfAbsent(SseUtil.getConverterClassName(sse), sse));
+    private static void collectSseMetadata(List<ClientMethod> methods, SseMetadataRegistry metadata) {
+        methods.stream().map(ClientMethod::getSseMetadata).filter(Objects::nonNull).forEach(metadata::add);
     }
 
     @Override

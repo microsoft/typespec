@@ -13,7 +13,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Gener
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlock;
-import com.microsoft.typespec.http.client.generator.core.util.SseUtil;
+import com.microsoft.typespec.http.client.generator.core.util.SseNamingResolver;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
 import io.clientcore.core.utils.CoreUtils;
 import java.util.List;
@@ -77,7 +77,7 @@ public class ConvenienceAsyncMethodTemplate extends ConvenienceMethodTemplateBas
         IType rawResponseBodyType = convenienceMethod.getProxyMethod().getRawResponseBodyType();
 
         if (convenienceMethod.getType() == ClientMethodType.SseAsync) {
-            String converterName = SseUtil.getConverterClassName(convenienceMethod.getSseMetadata());
+            String converterName = SseNamingResolver.resolve(convenienceMethod.getSseMetadata()).getConverterName();
             methodBlock.methodReturn(String.format(
                 "%1$s(%2$s).flatMapMany(response -> ServerSentEventStreams.toFlux(response, %3$s::convert, %3$s::isTerminal))",
                 getMethodName(protocolMethod), invocationExpression, converterName));
