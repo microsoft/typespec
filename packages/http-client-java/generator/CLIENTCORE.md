@@ -30,7 +30,8 @@ also covers the corresponding Spector scenarios.
   determine the emitted members. Only required private methods, constants, and
   imports follow those roots; empty selections emit no utility class. The same
   mechanism also handles ClientCore-based Azure Core v2 `PollingUtils`, including
-  its retry-delay parsing dependencies. Instance-based helpers and Azure Core v1
+  its retry-delay parsing dependencies, and the ClientCore-based instance
+  `MultipartFormDataHelper`. Polymorphic instance helpers and Azure Core v1
   utilities retain their existing generation paths.
 - Request sending shares context/callback application, exactly once after headers
   and bodies have been assembled. Optional-body helpers lazily serialize non-null
@@ -39,11 +40,32 @@ also covers the corresponding Spector scenarios.
   wire-to-client conversions.
 - Serializer singleton references are static rather than stored per service
   implementation instance. Error-only serializers remain lazily obtained.
-- Identical response/error type tokens and status-to-error maps are shared within
-  each service implementation. Error maps are immutable and initialized once,
-  rather than rebuilt on every failed request. One-off type tokens remain inline
-  to avoid unnecessary declarations, and contiguous error-map entries with the
-  same body type use compact JDK range initialization.
+- Custom literal `HttpHeaderName.fromString` values and statically known
+  `CoreUtils.createParameterizedType` expressions are collected into one separately
+  generated constants class per library, shared by clients, method groups, and
+  helpers. Its name uses the full root Java package in PascalCase followed by
+  `Constants`: for example, `encode.bytes` generates `EncodeBytesConstants` in the
+  implementation package. Parameterized types use descriptive fields such as
+  `LIST_OF_INTEGER_TYPE`, `MAP_OF_STRING_AND_LIST_OF_INTEGER_TYPE`, and
+  `ERROR_IN_RANGE_TYPE` instead of positional `TYPE_0` names. Arrays include an
+  `_ARRAY` segment per dimension; colliding normalized names receive a numeric
+  suffix without merging distinct types. Unrelated new types do not renumber
+  existing fields. Nested type tokens are initialized before their dependents.
+  Model imports are resolved before deduplication so different classes with the
+  same simple name are not conflated. Dynamic header names, runtime types, and
+  inaccessible local/private classes remain at the call site.
+- Known ClientCore headers reuse its public `HttpHeaderName` constants instead of
+  emitting duplicate package fields. The generator shares the reflection-backed
+  model-header lookup and matches case-insensitively, so `content-type` uses
+  `HttpHeaderName.CONTENT_TYPE` with ClientCore's canonical spelling. Custom header
+  spelling is preserved. Rewritten references handle imports and shadowed names;
+  libraries with only known headers and no shared type tokens emit no constants
+  class. Generated libraries need neither reflection nor annotation processing for
+  this reuse.
+- Status-to-error maps remain immutable and shared within each service
+  implementation, referencing the library-wide type constants rather than
+  creating their own tokens. Contiguous entries with the same body type use
+  compact JDK range initialization.
 - Consecutive expected status codes are emitted as range comparisons, preserving
   holes and explicitly accepted non-2xx codes.
 - Unreachable annotation-processor/reflection branches have been removed from
@@ -72,6 +94,40 @@ example, `setMixedBody` also retains `setBody`. `OptionalUtilityTemplateTests`
 independently compiles every protocol and polling method selection using
 `-proc:none`, and checks that its parameterized cases cover the entire catalogs.
 
+### Optional multipart methods and instance dependencies
+
+ClientCore and Azure Core v2 libraries select `MultipartFormDataHelper` methods
+from their generated convenience methods. Text-only requests do not include JSON
+or file serialization; single-file requests do not include the file-array serializer.
+Selections are combined across all clients and method groups in a library.
+Multipart models alone no longer trigger helper emission. Typed clients with no
+helper calls omit the class entirely; the text/file-array smoke clients in both
+flavors and the standard ClientCore multipart scenario exercise this case.
+
+- Construction, constructor references, fluent chains, typed/inferred local
+  variables, parameters, and `this`-qualified helper fields are recognized.
+  Bound and unbound method references also select methods. Receiver lookup
+  respects local scopes so similarly named methods on unrelated objects do not
+  pull in helper capabilities.
+- Constructors and initializer blocks are preserved, along with methods and fields
+  they need. Dependencies include `this.method()`, `this.field`, and
+  `this::method`, as well as field initializers and unqualified calls. This avoids
+  removing initialization-only dependencies when trimming instance methods.
+- A constructor-only or type-only reference retains the class without unused
+  methods. Unused imports and helper names in strings/comments do not select it.
+- Instance catalogs must be final and have no superclass or implemented interface;
+  the selector rejects inherited contracts rather than removing required overrides.
+  All overloads of a selected method name and all constructors are conservatively
+  retained. This is a selector for emitted template expressions, not a general
+  Java symbol resolver or a reflection-based API trimmer.
+
+`OptionalInstanceUtilityTemplateTests` independently compiles every multipart
+method using `-proc:none`. It verifies constructor/initializer dependencies and
+receiver scopes, and compares trimmed text, JSON, single-file, and file-array
+serialization against the full catalog, including null values and escaped names.
+`OptionalMultipartHelperTests` verifies that the plugin uses this selector, omits
+unused helpers, and preserves Azure Core v1's existing multipart catalog.
+
 ### Measured generated source footprint
 
 This iteration's targeted regeneration, counting all Java source in each scenario
@@ -94,7 +150,7 @@ but not for unrelated capabilities.
 
 - `writeHeader`: share nullable header updates and prefixed header-map loops, while
   preserving the template's wire-value conversions and existing override order.
-  Repeated `HttpHeaderName.fromString` values can also be cached per implementation.
+  Literal header names already use the library-wide constants collector.
 - `jsonResponseValue`: deduplicate identical nested reader expressions by complete
   wire type, rather than client type alone, so base64/base64url and date encodings
   remain distinct. Emit named readers only when reused enough to offset their size.
@@ -165,6 +221,15 @@ error behavior should remain in Azure Core v2 rather than leaking into ClientCor
    scalars, and recursively typed maps/lists; changing only the signature is
    insufficient. Type tokens and stateless serializers can otherwise be shared
    per generated implementation instead of recreated.
+8. **Streaming multipart writer** accepting text, JSON, and `BinaryData` parts,
+   including repeated file fields. Libraries that actually use the generated
+   multipart helper still ship boundary management,
+   disposition-name/filename escaping, stream concatenation, and content-length
+   accounting after unused part serializers are trimmed. A runtime writer could
+   eliminate that remaining helper. Return the
+   body and its content headers together so callers can apply them to an immutable
+   `RequestContext` without losing boundary metadata. Preserve lazy file streams,
+   null optional parts, filename escaping, per-part content types, and ownership.
 
 ### Existing helpers to retain
 

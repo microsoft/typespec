@@ -150,6 +150,25 @@ public class ProtocolImplementationTests {
 
     @ParameterizedTest
     @ValueSource(strings = { "generic", "azurev2" })
+    public void knownHeaderOnlyProtocolsDoNotEmitRedundantConstants(String flavor) throws Exception {
+        initialize(flavor);
+        List<ProxyMethodParameter> parameters
+            = List.of(parameter("endpoint", "endpoint", RequestParameterLocation.URI, true),
+                parameter("id", "id", RequestParameterLocation.PATH, false),
+                parameter("accept", "Accept", RequestParameterLocation.HEADER, false),
+                parameter("contentType", "content-type", RequestParameterLocation.HEADER, false));
+        JavaPackage library
+            = compile(render(List.of(method("raw", ClassType.BINARY_DATA, HttpMethod.GET, parameters))));
+        String source = library.getJavaFiles().get(0).getContents().toString();
+        Assertions.assertTrue(source.contains("HttpHeaderName.ACCEPT"), source);
+        Assertions.assertTrue(source.contains("HttpHeaderName.CONTENT_TYPE"), source);
+        Assertions.assertFalse(source.contains("HttpHeaderName.fromString("), source);
+        Assertions.assertTrue(
+            library.getJavaFiles().stream().noneMatch(file -> file.getFilePath().endsWith("ComExampleConstants.java")));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = { "generic", "azurev2" })
     public void helperSelectionUnionsClientsAndKeepsTransitiveDependencies(String flavor) throws Exception {
         initialize(flavor);
         String first
@@ -607,18 +626,31 @@ public class ProtocolImplementationTests {
             .build();
         String output = render(List.of(first, second));
         Assertions.assertEquals(1, output.split("Collections.unmodifiableMap", -1).length - 1, output);
-        Assertions.assertEquals(1, output.split("CoreUtils.createParameterizedType\\(Response.class", -1).length - 1,
-            output);
         Assertions.assertTrue(output.contains("private static final JsonSerializer JSON_SERIALIZER"), output);
         Assertions.assertTrue(output.contains("IntStream.rangeClosed(400, 404)"), output);
         Assertions.assertFalse(output.contains("new Response<>"), output);
         Assertions.assertFalse(output.contains("finally"), output);
-        compile(output);
+        JavaPackage library = compile(output);
+        String rewritten = library.getJavaFiles().get(0).getContents().toString();
+        Assertions.assertFalse(rewritten.contains("CoreUtils.createParameterizedType("), rewritten);
+        Assertions.assertTrue(
+            rewritten.contains("ComExampleConstants.RESPONSE_OF_MAP_OF_STRING_AND_LIST_OF_INTEGER_TYPE"), rewritten);
+        Assertions.assertTrue(library.getJavaFiles()
+            .stream()
+            .anyMatch(file -> file.getFilePath()
+                .replace('\\', '/')
+                .endsWith("com/example/implementation/ComExampleConstants.java")));
         try (URLClassLoader loader
             = new URLClassLoader(new URL[] { classes.toUri().toURL() }, getClass().getClassLoader())) {
             Class<?> implementation = loader.loadClass("com.example.GeneratedClient$ExampleServiceImpl");
-            Assertions.assertEquals(2,
+            Assertions.assertEquals(0,
                 Arrays.stream(implementation.getDeclaredFields())
+                    .filter(
+                        field -> field.getType() == ParameterizedType.class && Modifier.isStatic(field.getModifiers()))
+                    .count());
+            Class<?> constants = loader.loadClass("com.example.implementation.ComExampleConstants");
+            Assertions.assertEquals(4,
+                Arrays.stream(constants.getDeclaredFields())
                     .filter(
                         field -> field.getType() == ParameterizedType.class && Modifier.isStatic(field.getModifiers()))
                     .count());
@@ -1124,15 +1156,20 @@ public class ProtocolImplementationTests {
             .build();
     }
 
-    private void compile(String output) throws Exception {
-        // Match the generator's postprocessing of unused model imports.
-        String compiledOutput = RemoveUnusedImports.removeUnusedImports(output);
+    private JavaPackage compile(String output) throws Exception {
+        JavaPackage library = new JavaPackage(Javagen.getPluginInstance());
+        JavaFile client = new JavaFile("com/example/GeneratedClient.java");
+        client.line(output);
+        library.getJavaFiles().add(client);
+        library.addClientCoreProtocolUtils();
+        library.addClientCoreConstants();
         DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
         List<JavaFileObject> sources = new ArrayList<>();
-        sources.add(javaSource("com/example/GeneratedClient.java", compiledOutput));
-        if (output.contains("ClientCoreProtocolUtils")) {
-            helperSources(output)
-                .forEach(helper -> sources.add(javaSource(helper.getFilePath(), helper.getContents().toString())));
+        StringBuilder compiledOutput = new StringBuilder();
+        for (JavaFile file : library.getJavaFiles()) {
+            String contents = RemoveUnusedImports.removeUnusedImports(file.getContents().toString());
+            compiledOutput.append(contents);
+            sources.add(javaSource(file.getFilePath(), contents));
         }
         String classpath = System.getProperty("surefire.test.class.path", System.getProperty("java.class.path"));
         try (var manager = ToolProvider.getSystemJavaCompiler().getStandardFileManager(diagnostics, null, null)) {
@@ -1143,6 +1180,7 @@ public class ProtocolImplementationTests {
                 .call();
             Assertions.assertTrue(compiled, () -> diagnostics.getDiagnostics() + "\n" + compiledOutput);
         }
+        return library;
     }
 
     private static List<JavaFile> helperSources(String... clients) {

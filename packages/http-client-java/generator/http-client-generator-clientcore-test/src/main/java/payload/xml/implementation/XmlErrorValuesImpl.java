@@ -20,12 +20,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import payload.xml.SimpleModel;
-import payload.xml.XmlErrorBody;
 
 /**
  * An instance of this class provides access to all the operations defined in XmlErrorValues.
  */
 public final class XmlErrorValuesImpl {
+
     /**
      * The proxy service used to perform REST calls.
      */
@@ -43,7 +43,7 @@ public final class XmlErrorValuesImpl {
 
     /**
      * Initializes an instance of XmlErrorValuesImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     XmlErrorValuesImpl(XmlClientImpl client) {
@@ -53,6 +53,7 @@ public final class XmlErrorValuesImpl {
     }
 
     public interface XmlErrorValuesService {
+
         static XmlErrorValuesService getNewInstance(HttpPipeline pipeline) {
             return new XmlErrorValuesServiceImpl(pipeline);
         }
@@ -61,6 +62,7 @@ public final class XmlErrorValuesImpl {
     }
 
     private static final class XmlErrorValuesServiceImpl implements XmlErrorValuesService {
+
         private static final ClientLogger LOGGER = new ClientLogger(XmlErrorValuesServiceImpl.class);
 
         private final HttpPipeline httpPipeline;
@@ -73,7 +75,7 @@ public final class XmlErrorValuesImpl {
 
         static {
             Map<Integer, ParameterizedType> errorTypes = new HashMap<>();
-            errorTypes.put(400, CoreUtils.createParameterizedType(XmlErrorBody.class));
+            errorTypes.put(400, PayloadXmlConstants.XML_ERROR_BODY_TYPE);
             ERROR_TYPES_0 = Collections.unmodifiableMap(errorTypes);
         }
 
@@ -86,7 +88,7 @@ public final class XmlErrorValuesImpl {
             HttpRequest httpRequest
                 = new HttpRequest().setMethod(HttpMethod.GET).setUri(endpoint + "/payload/xml/error");
             if (accept != null) {
-                httpRequest.getHeaders().set(HttpHeaderName.fromString("Accept"), accept);
+                httpRequest.getHeaders().set(HttpHeaderName.ACCEPT, accept);
             }
             Response<BinaryData> networkResponse
                 = ClientCoreProtocolUtils.send(this.httpPipeline, httpRequest, requestContext);
@@ -99,17 +101,15 @@ public final class XmlErrorValuesImpl {
             return ClientCoreProtocolUtils.mapResponse(networkResponse,
                 () -> ClientCoreProtocolUtils.readMixed(networkResponse,
                     () -> CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
-                        XmlErrorValuesServiceImpl.JSON_SERIALIZER,
-                        CoreUtils.createParameterizedType(Response.class, SimpleModel.class)),
+                        XmlErrorValuesServiceImpl.JSON_SERIALIZER, PayloadXmlConstants.RESPONSE_OF_SIMPLE_MODEL_TYPE),
                     () -> CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
-                        XmlErrorValuesServiceImpl.XML_SERIALIZER,
-                        CoreUtils.createParameterizedType(Response.class, SimpleModel.class))));
+                        XmlErrorValuesServiceImpl.XML_SERIALIZER, PayloadXmlConstants.RESPONSE_OF_SIMPLE_MODEL_TYPE)));
         }
     }
 
     /**
      * The get operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.

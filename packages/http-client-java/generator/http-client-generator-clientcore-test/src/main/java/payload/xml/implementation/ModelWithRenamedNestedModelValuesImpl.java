@@ -21,6 +21,7 @@ import payload.xml.ModelWithRenamedNestedModel;
  * An instance of this class provides access to all the operations defined in ModelWithRenamedNestedModelValues.
  */
 public final class ModelWithRenamedNestedModelValuesImpl {
+
     /**
      * The proxy service used to perform REST calls.
      */
@@ -38,7 +39,7 @@ public final class ModelWithRenamedNestedModelValuesImpl {
 
     /**
      * Initializes an instance of ModelWithRenamedNestedModelValuesImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     ModelWithRenamedNestedModelValuesImpl(XmlClientImpl client) {
@@ -48,6 +49,7 @@ public final class ModelWithRenamedNestedModelValuesImpl {
     }
 
     public interface ModelWithRenamedNestedModelValuesService {
+
         static ModelWithRenamedNestedModelValuesService getNewInstance(HttpPipeline pipeline) {
             return new ModelWithRenamedNestedModelValuesServiceImpl(pipeline);
         }
@@ -60,6 +62,7 @@ public final class ModelWithRenamedNestedModelValuesImpl {
 
     private static final class ModelWithRenamedNestedModelValuesServiceImpl
         implements ModelWithRenamedNestedModelValuesService {
+
         private static final ClientLogger LOGGER = new ClientLogger(ModelWithRenamedNestedModelValuesServiceImpl.class);
 
         private final HttpPipeline httpPipeline;
@@ -78,7 +81,7 @@ public final class ModelWithRenamedNestedModelValuesImpl {
             HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.GET)
                 .setUri(endpoint + "/payload/xml/modelWithRenamedNestedModel");
             if (accept != null) {
-                httpRequest.getHeaders().set(HttpHeaderName.fromString("Accept"), accept);
+                httpRequest.getHeaders().set(HttpHeaderName.ACCEPT, accept);
             }
             Response<BinaryData> networkResponse
                 = ClientCoreProtocolUtils.send(this.httpPipeline, httpRequest, requestContext);
@@ -93,10 +96,10 @@ public final class ModelWithRenamedNestedModelValuesImpl {
                 () -> ClientCoreProtocolUtils.readMixed(networkResponse,
                     () -> CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
                         ModelWithRenamedNestedModelValuesServiceImpl.JSON_SERIALIZER,
-                        CoreUtils.createParameterizedType(Response.class, ModelWithRenamedNestedModel.class)),
+                        PayloadXmlConstants.RESPONSE_OF_MODEL_WITH_RENAMED_NESTED_MODEL_TYPE),
                     () -> CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
                         ModelWithRenamedNestedModelValuesServiceImpl.XML_SERIALIZER,
-                        CoreUtils.createParameterizedType(Response.class, ModelWithRenamedNestedModel.class))));
+                        PayloadXmlConstants.RESPONSE_OF_MODEL_WITH_RENAMED_NESTED_MODEL_TYPE)));
         }
 
         @Override
@@ -105,7 +108,7 @@ public final class ModelWithRenamedNestedModelValuesImpl {
             HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.PUT)
                 .setUri(endpoint + "/payload/xml/modelWithRenamedNestedModel");
             if (contentType != null) {
-                httpRequest.getHeaders().set(HttpHeaderName.fromString("content-type"), contentType);
+                httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, contentType);
             }
             ClientCoreProtocolUtils.setBody(httpRequest, input, "application/xml",
                 () -> BinaryData.fromObject(input, ModelWithRenamedNestedModelValuesServiceImpl.XML_SERIALIZER));
@@ -124,7 +127,7 @@ public final class ModelWithRenamedNestedModelValuesImpl {
 
     /**
      * The get operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -142,7 +145,7 @@ public final class ModelWithRenamedNestedModelValuesImpl {
 
     /**
      * The put operation.
-     * 
+     *
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

@@ -21,6 +21,7 @@ import payload.xml.ModelWithText;
  * An instance of this class provides access to all the operations defined in ModelWithTextValues.
  */
 public final class ModelWithTextValuesImpl {
+
     /**
      * The proxy service used to perform REST calls.
      */
@@ -38,7 +39,7 @@ public final class ModelWithTextValuesImpl {
 
     /**
      * Initializes an instance of ModelWithTextValuesImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     ModelWithTextValuesImpl(XmlClientImpl client) {
@@ -48,6 +49,7 @@ public final class ModelWithTextValuesImpl {
     }
 
     public interface ModelWithTextValuesService {
+
         static ModelWithTextValuesService getNewInstance(HttpPipeline pipeline) {
             return new ModelWithTextValuesServiceImpl(pipeline);
         }
@@ -58,6 +60,7 @@ public final class ModelWithTextValuesImpl {
     }
 
     private static final class ModelWithTextValuesServiceImpl implements ModelWithTextValuesService {
+
         private static final ClientLogger LOGGER = new ClientLogger(ModelWithTextValuesServiceImpl.class);
 
         private final HttpPipeline httpPipeline;
@@ -75,7 +78,7 @@ public final class ModelWithTextValuesImpl {
             HttpRequest httpRequest
                 = new HttpRequest().setMethod(HttpMethod.GET).setUri(endpoint + "/payload/xml/modelWithText");
             if (accept != null) {
-                httpRequest.getHeaders().set(HttpHeaderName.fromString("Accept"), accept);
+                httpRequest.getHeaders().set(HttpHeaderName.ACCEPT, accept);
             }
             Response<BinaryData> networkResponse
                 = ClientCoreProtocolUtils.send(this.httpPipeline, httpRequest, requestContext);
@@ -89,10 +92,10 @@ public final class ModelWithTextValuesImpl {
                 () -> ClientCoreProtocolUtils.readMixed(networkResponse,
                     () -> CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
                         ModelWithTextValuesServiceImpl.JSON_SERIALIZER,
-                        CoreUtils.createParameterizedType(Response.class, ModelWithText.class)),
+                        PayloadXmlConstants.RESPONSE_OF_MODEL_WITH_TEXT_TYPE),
                     () -> CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
                         ModelWithTextValuesServiceImpl.XML_SERIALIZER,
-                        CoreUtils.createParameterizedType(Response.class, ModelWithText.class))));
+                        PayloadXmlConstants.RESPONSE_OF_MODEL_WITH_TEXT_TYPE)));
         }
 
         @Override
@@ -101,7 +104,7 @@ public final class ModelWithTextValuesImpl {
             HttpRequest httpRequest
                 = new HttpRequest().setMethod(HttpMethod.PUT).setUri(endpoint + "/payload/xml/modelWithText");
             if (contentType != null) {
-                httpRequest.getHeaders().set(HttpHeaderName.fromString("content-type"), contentType);
+                httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, contentType);
             }
             ClientCoreProtocolUtils.setBody(httpRequest, input, "application/xml",
                 () -> BinaryData.fromObject(input, ModelWithTextValuesServiceImpl.XML_SERIALIZER));
@@ -119,7 +122,7 @@ public final class ModelWithTextValuesImpl {
 
     /**
      * The get operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -137,7 +140,7 @@ public final class ModelWithTextValuesImpl {
 
     /**
      * The put operation.
-     * 
+     *
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

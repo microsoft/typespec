@@ -21,6 +21,7 @@ import payload.xml.ModelWithNestedModel;
  * An instance of this class provides access to all the operations defined in ModelWithNestedModelValues.
  */
 public final class ModelWithNestedModelValuesImpl {
+
     /**
      * The proxy service used to perform REST calls.
      */
@@ -38,7 +39,7 @@ public final class ModelWithNestedModelValuesImpl {
 
     /**
      * Initializes an instance of ModelWithNestedModelValuesImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     ModelWithNestedModelValuesImpl(XmlClientImpl client) {
@@ -48,6 +49,7 @@ public final class ModelWithNestedModelValuesImpl {
     }
 
     public interface ModelWithNestedModelValuesService {
+
         static ModelWithNestedModelValuesService getNewInstance(HttpPipeline pipeline) {
             return new ModelWithNestedModelValuesServiceImpl(pipeline);
         }
@@ -59,6 +61,7 @@ public final class ModelWithNestedModelValuesImpl {
     }
 
     private static final class ModelWithNestedModelValuesServiceImpl implements ModelWithNestedModelValuesService {
+
         private static final ClientLogger LOGGER = new ClientLogger(ModelWithNestedModelValuesServiceImpl.class);
 
         private final HttpPipeline httpPipeline;
@@ -76,7 +79,7 @@ public final class ModelWithNestedModelValuesImpl {
             HttpRequest httpRequest
                 = new HttpRequest().setMethod(HttpMethod.GET).setUri(endpoint + "/payload/xml/modelWithNestedModel");
             if (accept != null) {
-                httpRequest.getHeaders().set(HttpHeaderName.fromString("Accept"), accept);
+                httpRequest.getHeaders().set(HttpHeaderName.ACCEPT, accept);
             }
             Response<BinaryData> networkResponse
                 = ClientCoreProtocolUtils.send(this.httpPipeline, httpRequest, requestContext);
@@ -91,10 +94,10 @@ public final class ModelWithNestedModelValuesImpl {
                 () -> ClientCoreProtocolUtils.readMixed(networkResponse,
                     () -> CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
                         ModelWithNestedModelValuesServiceImpl.JSON_SERIALIZER,
-                        CoreUtils.createParameterizedType(Response.class, ModelWithNestedModel.class)),
+                        PayloadXmlConstants.RESPONSE_OF_MODEL_WITH_NESTED_MODEL_TYPE),
                     () -> CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
                         ModelWithNestedModelValuesServiceImpl.XML_SERIALIZER,
-                        CoreUtils.createParameterizedType(Response.class, ModelWithNestedModel.class))));
+                        PayloadXmlConstants.RESPONSE_OF_MODEL_WITH_NESTED_MODEL_TYPE)));
         }
 
         @Override
@@ -103,7 +106,7 @@ public final class ModelWithNestedModelValuesImpl {
             HttpRequest httpRequest
                 = new HttpRequest().setMethod(HttpMethod.PUT).setUri(endpoint + "/payload/xml/modelWithNestedModel");
             if (contentType != null) {
-                httpRequest.getHeaders().set(HttpHeaderName.fromString("content-type"), contentType);
+                httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, contentType);
             }
             ClientCoreProtocolUtils.setBody(httpRequest, input, "application/xml",
                 () -> BinaryData.fromObject(input, ModelWithNestedModelValuesServiceImpl.XML_SERIALIZER));
@@ -122,7 +125,7 @@ public final class ModelWithNestedModelValuesImpl {
 
     /**
      * The get operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -140,7 +143,7 @@ public final class ModelWithNestedModelValuesImpl {
 
     /**
      * The put operation.
-     * 
+     *
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

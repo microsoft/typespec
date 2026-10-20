@@ -21,6 +21,7 @@ import payload.xml.ModelWithRenamedAttribute;
  * An instance of this class provides access to all the operations defined in ModelWithRenamedAttributeValues.
  */
 public final class ModelWithRenamedAttributeValuesImpl {
+
     /**
      * The proxy service used to perform REST calls.
      */
@@ -38,7 +39,7 @@ public final class ModelWithRenamedAttributeValuesImpl {
 
     /**
      * Initializes an instance of ModelWithRenamedAttributeValuesImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     ModelWithRenamedAttributeValuesImpl(XmlClientImpl client) {
@@ -48,6 +49,7 @@ public final class ModelWithRenamedAttributeValuesImpl {
     }
 
     public interface ModelWithRenamedAttributeValuesService {
+
         static ModelWithRenamedAttributeValuesService getNewInstance(HttpPipeline pipeline) {
             return new ModelWithRenamedAttributeValuesServiceImpl(pipeline);
         }
@@ -60,6 +62,7 @@ public final class ModelWithRenamedAttributeValuesImpl {
 
     private static final class ModelWithRenamedAttributeValuesServiceImpl
         implements ModelWithRenamedAttributeValuesService {
+
         private static final ClientLogger LOGGER = new ClientLogger(ModelWithRenamedAttributeValuesServiceImpl.class);
 
         private final HttpPipeline httpPipeline;
@@ -77,7 +80,7 @@ public final class ModelWithRenamedAttributeValuesImpl {
             HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.GET)
                 .setUri(endpoint + "/payload/xml/modelWithRenamedAttribute");
             if (accept != null) {
-                httpRequest.getHeaders().set(HttpHeaderName.fromString("Accept"), accept);
+                httpRequest.getHeaders().set(HttpHeaderName.ACCEPT, accept);
             }
             Response<BinaryData> networkResponse
                 = ClientCoreProtocolUtils.send(this.httpPipeline, httpRequest, requestContext);
@@ -92,10 +95,10 @@ public final class ModelWithRenamedAttributeValuesImpl {
                 () -> ClientCoreProtocolUtils.readMixed(networkResponse,
                     () -> CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
                         ModelWithRenamedAttributeValuesServiceImpl.JSON_SERIALIZER,
-                        CoreUtils.createParameterizedType(Response.class, ModelWithRenamedAttribute.class)),
+                        PayloadXmlConstants.RESPONSE_OF_MODEL_WITH_RENAMED_ATTRIBUTE_TYPE),
                     () -> CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
                         ModelWithRenamedAttributeValuesServiceImpl.XML_SERIALIZER,
-                        CoreUtils.createParameterizedType(Response.class, ModelWithRenamedAttribute.class))));
+                        PayloadXmlConstants.RESPONSE_OF_MODEL_WITH_RENAMED_ATTRIBUTE_TYPE)));
         }
 
         @Override
@@ -104,7 +107,7 @@ public final class ModelWithRenamedAttributeValuesImpl {
             HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.PUT)
                 .setUri(endpoint + "/payload/xml/modelWithRenamedAttribute");
             if (contentType != null) {
-                httpRequest.getHeaders().set(HttpHeaderName.fromString("content-type"), contentType);
+                httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, contentType);
             }
             ClientCoreProtocolUtils.setBody(httpRequest, input, "application/xml",
                 () -> BinaryData.fromObject(input, ModelWithRenamedAttributeValuesServiceImpl.XML_SERIALIZER));
@@ -123,7 +126,7 @@ public final class ModelWithRenamedAttributeValuesImpl {
 
     /**
      * The get operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -141,7 +144,7 @@ public final class ModelWithRenamedAttributeValuesImpl {
 
     /**
      * The put operation.
-     * 
+     *
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

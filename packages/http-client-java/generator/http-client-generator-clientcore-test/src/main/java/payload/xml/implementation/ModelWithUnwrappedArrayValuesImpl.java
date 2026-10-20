@@ -21,6 +21,7 @@ import payload.xml.ModelWithUnwrappedArray;
  * An instance of this class provides access to all the operations defined in ModelWithUnwrappedArrayValues.
  */
 public final class ModelWithUnwrappedArrayValuesImpl {
+
     /**
      * The proxy service used to perform REST calls.
      */
@@ -38,7 +39,7 @@ public final class ModelWithUnwrappedArrayValuesImpl {
 
     /**
      * Initializes an instance of ModelWithUnwrappedArrayValuesImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     ModelWithUnwrappedArrayValuesImpl(XmlClientImpl client) {
@@ -48,6 +49,7 @@ public final class ModelWithUnwrappedArrayValuesImpl {
     }
 
     public interface ModelWithUnwrappedArrayValuesService {
+
         static ModelWithUnwrappedArrayValuesService getNewInstance(HttpPipeline pipeline) {
             return new ModelWithUnwrappedArrayValuesServiceImpl(pipeline);
         }
@@ -60,6 +62,7 @@ public final class ModelWithUnwrappedArrayValuesImpl {
 
     private static final class ModelWithUnwrappedArrayValuesServiceImpl
         implements ModelWithUnwrappedArrayValuesService {
+
         private static final ClientLogger LOGGER = new ClientLogger(ModelWithUnwrappedArrayValuesServiceImpl.class);
 
         private final HttpPipeline httpPipeline;
@@ -77,7 +80,7 @@ public final class ModelWithUnwrappedArrayValuesImpl {
             HttpRequest httpRequest
                 = new HttpRequest().setMethod(HttpMethod.GET).setUri(endpoint + "/payload/xml/modelWithUnwrappedArray");
             if (accept != null) {
-                httpRequest.getHeaders().set(HttpHeaderName.fromString("Accept"), accept);
+                httpRequest.getHeaders().set(HttpHeaderName.ACCEPT, accept);
             }
             Response<BinaryData> networkResponse
                 = ClientCoreProtocolUtils.send(this.httpPipeline, httpRequest, requestContext);
@@ -92,10 +95,10 @@ public final class ModelWithUnwrappedArrayValuesImpl {
                 () -> ClientCoreProtocolUtils.readMixed(networkResponse,
                     () -> CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
                         ModelWithUnwrappedArrayValuesServiceImpl.JSON_SERIALIZER,
-                        CoreUtils.createParameterizedType(Response.class, ModelWithUnwrappedArray.class)),
+                        PayloadXmlConstants.RESPONSE_OF_MODEL_WITH_UNWRAPPED_ARRAY_TYPE),
                     () -> CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
                         ModelWithUnwrappedArrayValuesServiceImpl.XML_SERIALIZER,
-                        CoreUtils.createParameterizedType(Response.class, ModelWithUnwrappedArray.class))));
+                        PayloadXmlConstants.RESPONSE_OF_MODEL_WITH_UNWRAPPED_ARRAY_TYPE)));
         }
 
         @Override
@@ -104,7 +107,7 @@ public final class ModelWithUnwrappedArrayValuesImpl {
             HttpRequest httpRequest
                 = new HttpRequest().setMethod(HttpMethod.PUT).setUri(endpoint + "/payload/xml/modelWithUnwrappedArray");
             if (contentType != null) {
-                httpRequest.getHeaders().set(HttpHeaderName.fromString("content-type"), contentType);
+                httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, contentType);
             }
             ClientCoreProtocolUtils.setBody(httpRequest, input, "application/xml",
                 () -> BinaryData.fromObject(input, ModelWithUnwrappedArrayValuesServiceImpl.XML_SERIALIZER));
@@ -123,7 +126,7 @@ public final class ModelWithUnwrappedArrayValuesImpl {
 
     /**
      * The get operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -141,7 +144,7 @@ public final class ModelWithUnwrappedArrayValuesImpl {
 
     /**
      * The put operation.
-     * 
+     *
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

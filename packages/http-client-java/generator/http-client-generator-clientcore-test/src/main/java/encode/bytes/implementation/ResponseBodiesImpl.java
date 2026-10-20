@@ -18,6 +18,7 @@ import io.clientcore.core.serialization.json.JsonSerializer;
  * An instance of this class provides access to all the operations defined in ResponseBodies.
  */
 public final class ResponseBodiesImpl {
+
     /**
      * The proxy service used to perform REST calls.
      */
@@ -35,7 +36,7 @@ public final class ResponseBodiesImpl {
 
     /**
      * Initializes an instance of ResponseBodiesImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     ResponseBodiesImpl(BytesClientImpl client) {
@@ -45,6 +46,7 @@ public final class ResponseBodiesImpl {
     }
 
     public interface ResponseBodiesService {
+
         static ResponseBodiesService getNewInstance(HttpPipeline pipeline) {
             return new ResponseBodiesServiceImpl(pipeline);
         }
@@ -61,6 +63,7 @@ public final class ResponseBodiesImpl {
     }
 
     private static final class ResponseBodiesServiceImpl implements ResponseBodiesService {
+
         private static final ClientLogger LOGGER = new ClientLogger(ResponseBodiesServiceImpl.class);
 
         private final HttpPipeline httpPipeline;
@@ -76,7 +79,7 @@ public final class ResponseBodiesImpl {
             HttpRequest httpRequest
                 = new HttpRequest().setMethod(HttpMethod.GET).setUri(endpoint + "/encode/bytes/body/response/default");
             if (accept != null) {
-                httpRequest.getHeaders().set(HttpHeaderName.fromString("Accept"), accept);
+                httpRequest.getHeaders().set(HttpHeaderName.ACCEPT, accept);
             }
             Response<BinaryData> networkResponse
                 = ClientCoreProtocolUtils.send(this.httpPipeline, httpRequest, requestContext);
@@ -93,7 +96,7 @@ public final class ResponseBodiesImpl {
             HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.GET)
                 .setUri(endpoint + "/encode/bytes/body/response/octet-stream");
             if (accept != null) {
-                httpRequest.getHeaders().set(HttpHeaderName.fromString("Accept"), accept);
+                httpRequest.getHeaders().set(HttpHeaderName.ACCEPT, accept);
             }
             Response<BinaryData> networkResponse
                 = ClientCoreProtocolUtils.send(this.httpPipeline, httpRequest, requestContext);
@@ -110,7 +113,7 @@ public final class ResponseBodiesImpl {
             HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.GET)
                 .setUri(endpoint + "/encode/bytes/body/response/custom-content-type");
             if (accept != null) {
-                httpRequest.getHeaders().set(HttpHeaderName.fromString("Accept"), accept);
+                httpRequest.getHeaders().set(HttpHeaderName.ACCEPT, accept);
             }
             Response<BinaryData> networkResponse
                 = ClientCoreProtocolUtils.send(this.httpPipeline, httpRequest, requestContext);
@@ -127,7 +130,7 @@ public final class ResponseBodiesImpl {
             HttpRequest httpRequest
                 = new HttpRequest().setMethod(HttpMethod.GET).setUri(endpoint + "/encode/bytes/body/response/base64");
             if (accept != null) {
-                httpRequest.getHeaders().set(HttpHeaderName.fromString("Accept"), accept);
+                httpRequest.getHeaders().set(HttpHeaderName.ACCEPT, accept);
             }
             Response<BinaryData> networkResponse
                 = ClientCoreProtocolUtils.send(this.httpPipeline, httpRequest, requestContext);
@@ -146,7 +149,7 @@ public final class ResponseBodiesImpl {
             HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.GET)
                 .setUri(endpoint + "/encode/bytes/body/response/base64url");
             if (accept != null) {
-                httpRequest.getHeaders().set(HttpHeaderName.fromString("Accept"), accept);
+                httpRequest.getHeaders().set(HttpHeaderName.ACCEPT, accept);
             }
             Response<BinaryData> networkResponse
                 = ClientCoreProtocolUtils.send(this.httpPipeline, httpRequest, requestContext);
@@ -164,7 +167,7 @@ public final class ResponseBodiesImpl {
 
     /**
      * The defaultMethod operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -182,7 +185,7 @@ public final class ResponseBodiesImpl {
 
     /**
      * The octetStream operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -200,7 +203,7 @@ public final class ResponseBodiesImpl {
 
     /**
      * The customContentType operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -218,7 +221,7 @@ public final class ResponseBodiesImpl {
 
     /**
      * The base64 operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -236,7 +239,7 @@ public final class ResponseBodiesImpl {
 
     /**
      * The base64url operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.

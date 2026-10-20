@@ -2,7 +2,6 @@ package encode.bytes.implementation;
 
 import io.clientcore.core.annotations.ReturnType;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.models.HttpHeaderName;
 import io.clientcore.core.http.models.HttpMethod;
 import io.clientcore.core.http.models.HttpRequest;
 import io.clientcore.core.http.models.HttpResponseException;
@@ -22,6 +21,7 @@ import java.util.stream.Collectors;
  * An instance of this class provides access to all the operations defined in Headers.
  */
 public final class HeadersImpl {
+
     /**
      * The proxy service used to perform REST calls.
      */
@@ -39,7 +39,7 @@ public final class HeadersImpl {
 
     /**
      * Initializes an instance of HeadersImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     HeadersImpl(BytesClientImpl client) {
@@ -49,6 +49,7 @@ public final class HeadersImpl {
     }
 
     public interface HeadersService {
+
         static HeadersService getNewInstance(HttpPipeline pipeline) {
             return new HeadersServiceImpl(pipeline);
         }
@@ -63,6 +64,7 @@ public final class HeadersImpl {
     }
 
     private static final class HeadersServiceImpl implements HeadersService {
+
         private static final ClientLogger LOGGER = new ClientLogger(HeadersServiceImpl.class);
 
         private final HttpPipeline httpPipeline;
@@ -76,7 +78,7 @@ public final class HeadersImpl {
             HttpRequest httpRequest
                 = new HttpRequest().setMethod(HttpMethod.GET).setUri(endpoint + "/encode/bytes/header/default");
             if (value != null) {
-                httpRequest.getHeaders().set(HttpHeaderName.fromString("value"), value);
+                httpRequest.getHeaders().set(EncodeBytesConstants.HEADER_VALUE, value);
             }
             Response<BinaryData> networkResponse
                 = ClientCoreProtocolUtils.send(this.httpPipeline, httpRequest, requestContext);
@@ -93,7 +95,7 @@ public final class HeadersImpl {
             HttpRequest httpRequest
                 = new HttpRequest().setMethod(HttpMethod.GET).setUri(endpoint + "/encode/bytes/header/base64");
             if (value != null) {
-                httpRequest.getHeaders().set(HttpHeaderName.fromString("value"), value);
+                httpRequest.getHeaders().set(EncodeBytesConstants.HEADER_VALUE, value);
             }
             Response<BinaryData> networkResponse
                 = ClientCoreProtocolUtils.send(this.httpPipeline, httpRequest, requestContext);
@@ -110,7 +112,7 @@ public final class HeadersImpl {
             HttpRequest httpRequest
                 = new HttpRequest().setMethod(HttpMethod.GET).setUri(endpoint + "/encode/bytes/header/base64url");
             if (value != null) {
-                httpRequest.getHeaders().set(HttpHeaderName.fromString("value"), String.valueOf(value));
+                httpRequest.getHeaders().set(EncodeBytesConstants.HEADER_VALUE, String.valueOf(value));
             }
             Response<BinaryData> networkResponse
                 = ClientCoreProtocolUtils.send(this.httpPipeline, httpRequest, requestContext);
@@ -127,7 +129,7 @@ public final class HeadersImpl {
             HttpRequest httpRequest
                 = new HttpRequest().setMethod(HttpMethod.GET).setUri(endpoint + "/encode/bytes/header/base64url-array");
             if (value != null) {
-                httpRequest.getHeaders().set(HttpHeaderName.fromString("value"), value);
+                httpRequest.getHeaders().set(EncodeBytesConstants.HEADER_VALUE, value);
             }
             Response<BinaryData> networkResponse
                 = ClientCoreProtocolUtils.send(this.httpPipeline, httpRequest, requestContext);
@@ -142,7 +144,7 @@ public final class HeadersImpl {
 
     /**
      * The defaultMethod operation.
-     * 
+     *
      * @param value The value parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -161,7 +163,7 @@ public final class HeadersImpl {
 
     /**
      * The base64 operation.
-     * 
+     *
      * @param value The value parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -180,7 +182,7 @@ public final class HeadersImpl {
 
     /**
      * The base64url operation.
-     * 
+     *
      * @param value The value parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -199,7 +201,7 @@ public final class HeadersImpl {
 
     /**
      * The base64urlArray operation.
-     * 
+     *
      * @param value The value parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -236,7 +238,6 @@ public final class HeadersImpl {
                                 if (itemValueString.charAt(endOffset) != '"') {
                                     break;
                                 }
-
                                 endOffset--;
                             }
                             return itemValueString.substring(startOffset, endOffset + 1);

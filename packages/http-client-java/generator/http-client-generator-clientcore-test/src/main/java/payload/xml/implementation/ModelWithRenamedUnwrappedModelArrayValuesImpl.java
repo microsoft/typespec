@@ -21,6 +21,7 @@ import payload.xml.ModelWithRenamedUnwrappedModelArray;
  * An instance of this class provides access to all the operations defined in ModelWithRenamedUnwrappedModelArrayValues.
  */
 public final class ModelWithRenamedUnwrappedModelArrayValuesImpl {
+
     /**
      * The proxy service used to perform REST calls.
      */
@@ -38,7 +39,7 @@ public final class ModelWithRenamedUnwrappedModelArrayValuesImpl {
 
     /**
      * Initializes an instance of ModelWithRenamedUnwrappedModelArrayValuesImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     ModelWithRenamedUnwrappedModelArrayValuesImpl(XmlClientImpl client) {
@@ -48,6 +49,7 @@ public final class ModelWithRenamedUnwrappedModelArrayValuesImpl {
     }
 
     public interface ModelWithRenamedUnwrappedModelArrayValuesService {
+
         static ModelWithRenamedUnwrappedModelArrayValuesService getNewInstance(HttpPipeline pipeline) {
             return new ModelWithRenamedUnwrappedModelArrayValuesServiceImpl(pipeline);
         }
@@ -61,6 +63,7 @@ public final class ModelWithRenamedUnwrappedModelArrayValuesImpl {
 
     private static final class ModelWithRenamedUnwrappedModelArrayValuesServiceImpl
         implements ModelWithRenamedUnwrappedModelArrayValuesService {
+
         private static final ClientLogger LOGGER
             = new ClientLogger(ModelWithRenamedUnwrappedModelArrayValuesServiceImpl.class);
 
@@ -80,7 +83,7 @@ public final class ModelWithRenamedUnwrappedModelArrayValuesImpl {
             HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.GET)
                 .setUri(endpoint + "/payload/xml/modelWithRenamedUnwrappedModelArray");
             if (accept != null) {
-                httpRequest.getHeaders().set(HttpHeaderName.fromString("Accept"), accept);
+                httpRequest.getHeaders().set(HttpHeaderName.ACCEPT, accept);
             }
             Response<BinaryData> networkResponse
                 = ClientCoreProtocolUtils.send(this.httpPipeline, httpRequest, requestContext);
@@ -95,10 +98,10 @@ public final class ModelWithRenamedUnwrappedModelArrayValuesImpl {
                 () -> ClientCoreProtocolUtils.readMixed(networkResponse,
                     () -> CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
                         ModelWithRenamedUnwrappedModelArrayValuesServiceImpl.JSON_SERIALIZER,
-                        CoreUtils.createParameterizedType(Response.class, ModelWithRenamedUnwrappedModelArray.class)),
+                        PayloadXmlConstants.RESPONSE_OF_MODEL_WITH_RENAMED_UNWRAPPED_MODEL_ARRAY_TYPE),
                     () -> CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
                         ModelWithRenamedUnwrappedModelArrayValuesServiceImpl.XML_SERIALIZER,
-                        CoreUtils.createParameterizedType(Response.class, ModelWithRenamedUnwrappedModelArray.class))));
+                        PayloadXmlConstants.RESPONSE_OF_MODEL_WITH_RENAMED_UNWRAPPED_MODEL_ARRAY_TYPE)));
         }
 
         @Override
@@ -107,7 +110,7 @@ public final class ModelWithRenamedUnwrappedModelArrayValuesImpl {
             HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.PUT)
                 .setUri(endpoint + "/payload/xml/modelWithRenamedUnwrappedModelArray");
             if (contentType != null) {
-                httpRequest.getHeaders().set(HttpHeaderName.fromString("content-type"), contentType);
+                httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, contentType);
             }
             ClientCoreProtocolUtils.setBody(httpRequest, input, "application/xml", () -> BinaryData.fromObject(input,
                 ModelWithRenamedUnwrappedModelArrayValuesServiceImpl.XML_SERIALIZER));
@@ -126,7 +129,7 @@ public final class ModelWithRenamedUnwrappedModelArrayValuesImpl {
 
     /**
      * The get operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -144,7 +147,7 @@ public final class ModelWithRenamedUnwrappedModelArrayValuesImpl {
 
     /**
      * The put operation.
-     * 
+     *
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

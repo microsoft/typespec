@@ -56,6 +56,7 @@ public class TypeSpecPlugin extends Javagen {
 
     public JavaPackage processTemplates(CodeModel codeModel, Client client, JavaSettings settings) {
         JavaPackage javaPackage = super.writeToTemplates(codeModel, client, settings);
+        javaPackage.addClientCoreConstants();
 
         if (emitterOptions.getIncludeApiViewProperties() == Boolean.TRUE) {
             TypeSpecMetadata metadata = new TypeSpecMetadata.Builder().artifactId(ClientModelUtil.getArtifactId())
@@ -123,7 +124,7 @@ public class TypeSpecPlugin extends Javagen {
                 javaPackage.addJavaFromResources(settings.getPackage(settings.getImplementationSubpackage()),
                     ClientModelUtil.MULTI_PART_FORM_DATA_HELPER_CLASS_NAME);
             } else {
-                javaPackage.addJavaFromResources(settings.getPackage(settings.getImplementationSubpackage()),
+                javaPackage.addOptionalUtilityFromResources(settings.getPackage(settings.getImplementationSubpackage()),
                     ClientModelUtil.GENERIC_MULTI_PART_FORM_DATA_HELPER_CLASS_NAME,
                     ClientModelUtil.MULTI_PART_FORM_DATA_HELPER_CLASS_NAME);
             }

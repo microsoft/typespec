@@ -19,6 +19,7 @@ import io.clientcore.core.utils.Base64Uri;
  * An instance of this class provides access to all the operations defined in RequestBodies.
  */
 public final class RequestBodiesImpl {
+
     /**
      * The proxy service used to perform REST calls.
      */
@@ -36,7 +37,7 @@ public final class RequestBodiesImpl {
 
     /**
      * Initializes an instance of RequestBodiesImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     RequestBodiesImpl(BytesClientImpl client) {
@@ -46,6 +47,7 @@ public final class RequestBodiesImpl {
     }
 
     public interface RequestBodiesService {
+
         static RequestBodiesService getNewInstance(HttpPipeline pipeline) {
             return new RequestBodiesServiceImpl(pipeline);
         }
@@ -65,6 +67,7 @@ public final class RequestBodiesImpl {
     }
 
     private static final class RequestBodiesServiceImpl implements RequestBodiesService {
+
         private static final ClientLogger LOGGER = new ClientLogger(RequestBodiesServiceImpl.class);
 
         private final HttpPipeline httpPipeline;
@@ -81,9 +84,9 @@ public final class RequestBodiesImpl {
             HttpRequest httpRequest
                 = new HttpRequest().setMethod(HttpMethod.POST).setUri(endpoint + "/encode/bytes/body/request/default");
             if (contentType != null) {
-                httpRequest.getHeaders().set(HttpHeaderName.fromString("Content-Type"), contentType);
+                httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, contentType);
             }
-            httpRequest.getHeaders().set(HttpHeaderName.fromString("Content-Length"), String.valueOf(contentLength));
+            httpRequest.getHeaders().set(HttpHeaderName.CONTENT_LENGTH, String.valueOf(contentLength));
             ClientCoreProtocolUtils.setBody(httpRequest, value, "application/octet-stream", () -> value);
             Response<BinaryData> networkResponse
                 = ClientCoreProtocolUtils.send(this.httpPipeline, httpRequest, requestContext);
@@ -101,9 +104,9 @@ public final class RequestBodiesImpl {
             HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.POST)
                 .setUri(endpoint + "/encode/bytes/body/request/octet-stream");
             if (contentType != null) {
-                httpRequest.getHeaders().set(HttpHeaderName.fromString("content-type"), contentType);
+                httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, contentType);
             }
-            httpRequest.getHeaders().set(HttpHeaderName.fromString("Content-Length"), String.valueOf(contentLength));
+            httpRequest.getHeaders().set(HttpHeaderName.CONTENT_LENGTH, String.valueOf(contentLength));
             ClientCoreProtocolUtils.setBody(httpRequest, value, "application/octet-stream", () -> value);
             Response<BinaryData> networkResponse
                 = ClientCoreProtocolUtils.send(this.httpPipeline, httpRequest, requestContext);
@@ -121,9 +124,9 @@ public final class RequestBodiesImpl {
             HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.POST)
                 .setUri(endpoint + "/encode/bytes/body/request/custom-content-type");
             if (contentType != null) {
-                httpRequest.getHeaders().set(HttpHeaderName.fromString("content-type"), contentType);
+                httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, contentType);
             }
-            httpRequest.getHeaders().set(HttpHeaderName.fromString("Content-Length"), String.valueOf(contentLength));
+            httpRequest.getHeaders().set(HttpHeaderName.CONTENT_LENGTH, String.valueOf(contentLength));
             ClientCoreProtocolUtils.setBody(httpRequest, value, "image/png", () -> value);
             Response<BinaryData> networkResponse
                 = ClientCoreProtocolUtils.send(this.httpPipeline, httpRequest, requestContext);
@@ -140,7 +143,7 @@ public final class RequestBodiesImpl {
             HttpRequest httpRequest
                 = new HttpRequest().setMethod(HttpMethod.POST).setUri(endpoint + "/encode/bytes/body/request/base64");
             if (contentType != null) {
-                httpRequest.getHeaders().set(HttpHeaderName.fromString("content-type"), contentType);
+                httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, contentType);
             }
             ClientCoreProtocolUtils.setBody(httpRequest, value, "application/json",
                 () -> BinaryData.fromObject(value, RequestBodiesServiceImpl.JSON_SERIALIZER));
@@ -160,7 +163,7 @@ public final class RequestBodiesImpl {
             HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.POST)
                 .setUri(endpoint + "/encode/bytes/body/request/base64url");
             if (contentType != null) {
-                httpRequest.getHeaders().set(HttpHeaderName.fromString("content-type"), contentType);
+                httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, contentType);
             }
             ClientCoreProtocolUtils.setBody(httpRequest, value, "application/json",
                 () -> BinaryData.fromObject(value, RequestBodiesServiceImpl.JSON_SERIALIZER));
@@ -177,7 +180,7 @@ public final class RequestBodiesImpl {
 
     /**
      * The defaultMethod operation.
-     * 
+     *
      * @param value The value parameter.
      * @param contentLength The Content-Length header for the request.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -199,7 +202,7 @@ public final class RequestBodiesImpl {
 
     /**
      * The octetStream operation.
-     * 
+     *
      * @param value The value parameter.
      * @param contentLength The Content-Length header for the request.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -220,7 +223,7 @@ public final class RequestBodiesImpl {
 
     /**
      * The customContentType operation.
-     * 
+     *
      * @param value The value parameter.
      * @param contentLength The Content-Length header for the request.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
@@ -242,7 +245,7 @@ public final class RequestBodiesImpl {
 
     /**
      * The base64 operation.
-     * 
+     *
      * @param value The value parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -261,7 +264,7 @@ public final class RequestBodiesImpl {
 
     /**
      * The base64url operation.
-     * 
+     *
      * @param value The value parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

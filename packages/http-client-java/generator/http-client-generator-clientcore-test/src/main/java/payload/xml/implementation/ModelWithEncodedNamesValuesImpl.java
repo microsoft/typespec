@@ -21,6 +21,7 @@ import payload.xml.ModelWithEncodedNames;
  * An instance of this class provides access to all the operations defined in ModelWithEncodedNamesValues.
  */
 public final class ModelWithEncodedNamesValuesImpl {
+
     /**
      * The proxy service used to perform REST calls.
      */
@@ -38,7 +39,7 @@ public final class ModelWithEncodedNamesValuesImpl {
 
     /**
      * Initializes an instance of ModelWithEncodedNamesValuesImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     ModelWithEncodedNamesValuesImpl(XmlClientImpl client) {
@@ -48,6 +49,7 @@ public final class ModelWithEncodedNamesValuesImpl {
     }
 
     public interface ModelWithEncodedNamesValuesService {
+
         static ModelWithEncodedNamesValuesService getNewInstance(HttpPipeline pipeline) {
             return new ModelWithEncodedNamesValuesServiceImpl(pipeline);
         }
@@ -59,6 +61,7 @@ public final class ModelWithEncodedNamesValuesImpl {
     }
 
     private static final class ModelWithEncodedNamesValuesServiceImpl implements ModelWithEncodedNamesValuesService {
+
         private static final ClientLogger LOGGER = new ClientLogger(ModelWithEncodedNamesValuesServiceImpl.class);
 
         private final HttpPipeline httpPipeline;
@@ -76,7 +79,7 @@ public final class ModelWithEncodedNamesValuesImpl {
             HttpRequest httpRequest
                 = new HttpRequest().setMethod(HttpMethod.GET).setUri(endpoint + "/payload/xml/modelWithEncodedNames");
             if (accept != null) {
-                httpRequest.getHeaders().set(HttpHeaderName.fromString("Accept"), accept);
+                httpRequest.getHeaders().set(HttpHeaderName.ACCEPT, accept);
             }
             Response<BinaryData> networkResponse
                 = ClientCoreProtocolUtils.send(this.httpPipeline, httpRequest, requestContext);
@@ -91,10 +94,10 @@ public final class ModelWithEncodedNamesValuesImpl {
                 () -> ClientCoreProtocolUtils.readMixed(networkResponse,
                     () -> CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
                         ModelWithEncodedNamesValuesServiceImpl.JSON_SERIALIZER,
-                        CoreUtils.createParameterizedType(Response.class, ModelWithEncodedNames.class)),
+                        PayloadXmlConstants.RESPONSE_OF_MODEL_WITH_ENCODED_NAMES_TYPE),
                     () -> CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
                         ModelWithEncodedNamesValuesServiceImpl.XML_SERIALIZER,
-                        CoreUtils.createParameterizedType(Response.class, ModelWithEncodedNames.class))));
+                        PayloadXmlConstants.RESPONSE_OF_MODEL_WITH_ENCODED_NAMES_TYPE)));
         }
 
         @Override
@@ -103,7 +106,7 @@ public final class ModelWithEncodedNamesValuesImpl {
             HttpRequest httpRequest
                 = new HttpRequest().setMethod(HttpMethod.PUT).setUri(endpoint + "/payload/xml/modelWithEncodedNames");
             if (contentType != null) {
-                httpRequest.getHeaders().set(HttpHeaderName.fromString("content-type"), contentType);
+                httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, contentType);
             }
             ClientCoreProtocolUtils.setBody(httpRequest, input, "application/xml",
                 () -> BinaryData.fromObject(input, ModelWithEncodedNamesValuesServiceImpl.XML_SERIALIZER));
@@ -122,7 +125,7 @@ public final class ModelWithEncodedNamesValuesImpl {
 
     /**
      * The get operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -140,7 +143,7 @@ public final class ModelWithEncodedNamesValuesImpl {
 
     /**
      * The put operation.
-     * 
+     *
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

@@ -21,6 +21,7 @@ import payload.xml.SimpleModel;
  * An instance of this class provides access to all the operations defined in SimpleModelValues.
  */
 public final class SimpleModelValuesImpl {
+
     /**
      * The proxy service used to perform REST calls.
      */
@@ -38,7 +39,7 @@ public final class SimpleModelValuesImpl {
 
     /**
      * Initializes an instance of SimpleModelValuesImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     SimpleModelValuesImpl(XmlClientImpl client) {
@@ -48,6 +49,7 @@ public final class SimpleModelValuesImpl {
     }
 
     public interface SimpleModelValuesService {
+
         static SimpleModelValuesService getNewInstance(HttpPipeline pipeline) {
             return new SimpleModelValuesServiceImpl(pipeline);
         }
@@ -58,6 +60,7 @@ public final class SimpleModelValuesImpl {
     }
 
     private static final class SimpleModelValuesServiceImpl implements SimpleModelValuesService {
+
         private static final ClientLogger LOGGER = new ClientLogger(SimpleModelValuesServiceImpl.class);
 
         private final HttpPipeline httpPipeline;
@@ -75,7 +78,7 @@ public final class SimpleModelValuesImpl {
             HttpRequest httpRequest
                 = new HttpRequest().setMethod(HttpMethod.GET).setUri(endpoint + "/payload/xml/simpleModel");
             if (accept != null) {
-                httpRequest.getHeaders().set(HttpHeaderName.fromString("Accept"), accept);
+                httpRequest.getHeaders().set(HttpHeaderName.ACCEPT, accept);
             }
             Response<BinaryData> networkResponse
                 = ClientCoreProtocolUtils.send(this.httpPipeline, httpRequest, requestContext);
@@ -85,14 +88,12 @@ public final class SimpleModelValuesImpl {
                     SimpleModelValuesServiceImpl.JSON_SERIALIZER, SimpleModelValuesServiceImpl.XML_SERIALIZER, null,
                     null, SimpleModelValuesServiceImpl.LOGGER);
             }
-            return ClientCoreProtocolUtils.mapResponse(networkResponse,
-                () -> ClientCoreProtocolUtils.readMixed(networkResponse,
-                    () -> CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
-                        SimpleModelValuesServiceImpl.JSON_SERIALIZER,
-                        CoreUtils.createParameterizedType(Response.class, SimpleModel.class)),
-                    () -> CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
-                        SimpleModelValuesServiceImpl.XML_SERIALIZER,
-                        CoreUtils.createParameterizedType(Response.class, SimpleModel.class))));
+            return ClientCoreProtocolUtils.mapResponse(networkResponse, () -> ClientCoreProtocolUtils.readMixed(
+                networkResponse,
+                () -> CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
+                    SimpleModelValuesServiceImpl.JSON_SERIALIZER, PayloadXmlConstants.RESPONSE_OF_SIMPLE_MODEL_TYPE),
+                () -> CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
+                    SimpleModelValuesServiceImpl.XML_SERIALIZER, PayloadXmlConstants.RESPONSE_OF_SIMPLE_MODEL_TYPE)));
         }
 
         @Override
@@ -101,7 +102,7 @@ public final class SimpleModelValuesImpl {
             HttpRequest httpRequest
                 = new HttpRequest().setMethod(HttpMethod.PUT).setUri(endpoint + "/payload/xml/simpleModel");
             if (contentType != null) {
-                httpRequest.getHeaders().set(HttpHeaderName.fromString("content-type"), contentType);
+                httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, contentType);
             }
             ClientCoreProtocolUtils.setBody(httpRequest, input, "application/xml",
                 () -> BinaryData.fromObject(input, SimpleModelValuesServiceImpl.XML_SERIALIZER));
@@ -119,7 +120,7 @@ public final class SimpleModelValuesImpl {
 
     /**
      * The get operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -137,7 +138,7 @@ public final class SimpleModelValuesImpl {
 
     /**
      * The put operation.
-     * 
+     *
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.

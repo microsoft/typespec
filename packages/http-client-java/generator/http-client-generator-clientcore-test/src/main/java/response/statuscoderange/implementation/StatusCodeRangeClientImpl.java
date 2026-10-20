@@ -12,21 +12,17 @@ import io.clientcore.core.instrumentation.Instrumentation;
 import io.clientcore.core.instrumentation.logging.ClientLogger;
 import io.clientcore.core.models.binarydata.BinaryData;
 import io.clientcore.core.serialization.json.JsonSerializer;
-import io.clientcore.core.utils.CoreUtils;
 import java.lang.reflect.ParameterizedType;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.IntStream;
-import response.statuscoderange.DefaultError;
-import response.statuscoderange.ErrorInRange;
-import response.statuscoderange.NotFoundError;
-import response.statuscoderange.Standard4XXError;
 
 /**
  * Initializes a new instance of the StatusCodeRangeClient type.
  */
 public final class StatusCodeRangeClientImpl {
+
     /**
      * The proxy service used to perform REST calls.
      */
@@ -39,7 +35,7 @@ public final class StatusCodeRangeClientImpl {
 
     /**
      * Gets Service host.
-     * 
+     *
      * @return the endpoint value.
      */
     public String getEndpoint() {
@@ -53,7 +49,7 @@ public final class StatusCodeRangeClientImpl {
 
     /**
      * Gets The HTTP pipeline to send requests through.
-     * 
+     *
      * @return the httpPipeline value.
      */
     public HttpPipeline getHttpPipeline() {
@@ -67,7 +63,7 @@ public final class StatusCodeRangeClientImpl {
 
     /**
      * Gets The instance of instrumentation to report telemetry.
-     * 
+     *
      * @return the instrumentation value.
      */
     public Instrumentation getInstrumentation() {
@@ -76,7 +72,7 @@ public final class StatusCodeRangeClientImpl {
 
     /**
      * Initializes an instance of StatusCodeRangeClient client.
-     * 
+     *
      * @param httpPipeline The HTTP pipeline to send requests through.
      * @param instrumentation The instance of instrumentation to report telemetry.
      * @param endpoint Service host.
@@ -89,6 +85,7 @@ public final class StatusCodeRangeClientImpl {
     }
 
     public interface StatusCodeRangeClientService {
+
         static StatusCodeRangeClientService getNewInstance(HttpPipeline pipeline) {
             return new StatusCodeRangeClientServiceImpl(pipeline);
         }
@@ -99,28 +96,29 @@ public final class StatusCodeRangeClientImpl {
     }
 
     private static final class StatusCodeRangeClientServiceImpl implements StatusCodeRangeClientService {
+
         private static final ClientLogger LOGGER = new ClientLogger(StatusCodeRangeClientServiceImpl.class);
 
         private final HttpPipeline httpPipeline;
-
-        private static final ParameterizedType TYPE_1 = CoreUtils.createParameterizedType(ErrorInRange.class);
-
-        private static final ParameterizedType TYPE_2 = CoreUtils.createParameterizedType(Standard4XXError.class);
 
         private static final Map<Integer, ParameterizedType> ERROR_TYPES_0;
 
         static {
             Map<Integer, ParameterizedType> errorTypes = new HashMap<>();
-            IntStream.rangeClosed(494, 499).forEach(status -> errorTypes.put(status, TYPE_1));
+            IntStream.rangeClosed(494, 499)
+                .forEach(status -> errorTypes.put(status, ResponseStatuscoderangeConstants.ERROR_IN_RANGE_TYPE));
             ERROR_TYPES_0 = Collections.unmodifiableMap(errorTypes);
         }
+
         private static final Map<Integer, ParameterizedType> ERROR_TYPES_1;
 
         static {
             Map<Integer, ParameterizedType> errorTypes = new HashMap<>();
-            IntStream.rangeClosed(400, 403).forEach(status -> errorTypes.put(status, TYPE_2));
-            errorTypes.put(404, CoreUtils.createParameterizedType(NotFoundError.class));
-            IntStream.rangeClosed(405, 499).forEach(status -> errorTypes.put(status, TYPE_2));
+            IntStream.rangeClosed(400, 403)
+                .forEach(status -> errorTypes.put(status, ResponseStatuscoderangeConstants.STANDARD4_XX_ERROR_TYPE));
+            errorTypes.put(404, ResponseStatuscoderangeConstants.NOT_FOUND_ERROR_TYPE);
+            IntStream.rangeClosed(405, 499)
+                .forEach(status -> errorTypes.put(status, ResponseStatuscoderangeConstants.STANDARD4_XX_ERROR_TYPE));
             ERROR_TYPES_1 = Collections.unmodifiableMap(errorTypes);
         }
 
@@ -137,8 +135,8 @@ public final class StatusCodeRangeClientImpl {
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 204)) {
                 ClientCoreProtocolUtils.handleUnexpectedResponse(networkResponse, JsonSerializer.getInstance(), null,
-                    CoreUtils.createParameterizedType(DefaultError.class),
-                    StatusCodeRangeClientServiceImpl.ERROR_TYPES_0, StatusCodeRangeClientServiceImpl.LOGGER);
+                    ResponseStatuscoderangeConstants.DEFAULT_ERROR_TYPE, StatusCodeRangeClientServiceImpl.ERROR_TYPES_0,
+                    StatusCodeRangeClientServiceImpl.LOGGER);
             }
             return ClientCoreProtocolUtils.mapResponse(networkResponse, () -> null);
         }
@@ -160,7 +158,7 @@ public final class StatusCodeRangeClientImpl {
 
     /**
      * The errorResponseStatusCodeInRange operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -177,7 +175,7 @@ public final class StatusCodeRangeClientImpl {
 
     /**
      * The errorResponseStatusCode404 operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
