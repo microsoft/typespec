@@ -1078,6 +1078,105 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return [.. constructors];
         }
 
+        private bool TryBuildDefaultedFrameworkConstructor(
+            ConstructorProvider previousConstructor,
+            IReadOnlyList<ConstructorProvider> currentConstructors,
+            [NotNullWhen(true)] out ConstructorProvider? restoredConstructor)
+        {
+            restoredConstructor = null;
+            var previousParameters = previousConstructor.Signature.Parameters;
+            if (!SystemObjectModelProvider.HasSupportedConstructorParameters(previousParameters))
+            {
+                return false;
+            }
+
+            foreach (var candidate in currentConstructors)
+            {
+                if (!MethodSignatureHelper.IsPublicApi(candidate.Signature.Modifiers) ||
+                    candidate.Signature.Parameters.Count <= previousParameters.Count ||
+                    !SystemObjectModelProvider.HasSupportedConstructorParameters(candidate.Signature.Parameters))
+                {
+                    continue;
+                }
+
+                var parameters = new List<ParameterProvider>(previousParameters.Count);
+                var arguments = new List<ValueExpression>(candidate.Signature.Parameters.Count);
+                var previousIndex = 0;
+                var valid = true;
+                foreach (var parameter in candidate.Signature.Parameters)
+                {
+                    if (previousIndex < previousParameters.Count && parameter.Equals(previousParameters[previousIndex]) &&
+                        ModelBaseMemberCompatibility.AreTypesCompatible(previousParameters[previousIndex].Type, parameter.Type))
+                    {
+                        var previous = previousParameters[previousIndex++];
+                        var forwarded = new ParameterProvider(previous.Name, previous.Description, previous.Type, previous.DefaultValue,
+                            previous.IsRef, previous.IsOut, previous.IsIn, previous.IsParams, previous.Attributes,
+                            parameter.Property, parameter.Field, parameter.InitializationValue, parameter.Location, parameter.WireInfo,
+                            ParameterValidationType.None, parameter.InputParameter);
+                        parameters.Add(forwarded);
+                        arguments.Add(forwarded);
+                    }
+                    else if (CanDefaultFrameworkConstructorParameter(parameter, previousConstructor.Signature))
+                    {
+                        arguments.Add(Snippet.Default.CastTo(parameter.Type));
+                    }
+                    else
+                    {
+                        valid = false;
+                        break;
+                    }
+                }
+
+                if (!valid || previousIndex != previousParameters.Count)
+                {
+                    continue;
+                }
+                if (restoredConstructor is not null)
+                {
+                    // Do not guess overload resolution when more than one current constructor could initialize the old contract.
+                    restoredConstructor = null;
+                    return false;
+                }
+
+                restoredConstructor = new ConstructorProvider(new ConstructorSignature(
+                    Type,
+                    $"Initializes a new instance of {Type:C}",
+                    previousConstructor.Signature.Modifiers,
+                    parameters,
+                    initializer: new ConstructorInitializer(false, arguments)), MethodBodyStatement.Empty, this);
+            }
+            return restoredConstructor is not null;
+        }
+
+        private bool CanDefaultFrameworkConstructorParameter(ParameterProvider parameter, ConstructorSignature previousConstructor)
+        {
+            if (!parameter.Type.IsValueType || parameter.Type.IsNullable ||
+                BaseModelProvider is not SystemObjectModelProvider { UsesLastContractType: true } mappedBase ||
+                LastContractView?.BaseType?.AreNamesEqual(mappedBase.SystemType) != true ||
+                !mappedBase.HasCallableParameterlessConstructor || parameter.Property is not { WireInfo: { } wireInfo } property ||
+                !mappedBase.CanonicalView.Properties.Contains(property))
+            {
+                return false;
+            }
+
+            var sourceProperties = new List<InputModelProperty>();
+            var visited = new HashSet<InputModelType>();
+            for (var input = _inputModel; input is not null; input = input.BaseModel)
+            {
+                if (!visited.Add(input))
+                {
+                    return false;
+                }
+                sourceProperties.AddRange(input.Properties.Where(current =>
+                    (current.SerializedName ?? current.Name) == wireInfo.SerializedName));
+            }
+            return sourceProperties.Count == 1 && sourceProperties[0] is
+                { IsRequired: false, IsReadOnly: false, IsHttpMetadata: false, IsDiscriminator: false } source &&
+                CodeModelGenerator.Instance.TypeFactory.IsLastContractModelBasePropertyCompatible(mappedBase.SystemType, source, property) &&
+                CodeModelGenerator.Instance.TypeFactory.CanDefaultLastContractModelBaseConstructorParameter(
+                    mappedBase.SystemType, source, parameter, previousConstructor);
+        }
+
         /// <summary>
         /// Restores previously-published public constructors that the current generation would otherwise
         /// drop. The primary scenario is a previously required property becoming optional: the corresponding
@@ -1157,7 +1256,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     continue;
                 }
 
-                if (TryBuildRestoredConstructor(previousConstructor, candidateConstructors, restorablePropertyLookup, out var restoredConstructor))
+                if (TryBuildRestoredConstructor(previousConstructor, candidateConstructors, restorablePropertyLookup, out var restoredConstructor) ||
+                    TryBuildDefaultedFrameworkConstructor(previousConstructor, candidateConstructors, out restoredConstructor))
                 {
                     constructors.Add(restoredConstructor);
                     CodeModelGenerator.Instance.Emitter.Info(
