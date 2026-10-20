@@ -89,17 +89,10 @@ public final class PropertiesImpl {
             if (accept != null) {
                 httpRequest.getHeaders().set(HttpHeaderName.fromString("Accept"), accept);
             }
-            if (body != null) {
-                if (httpRequest.getHeaders().get(HttpHeaderName.CONTENT_TYPE) == null) {
-                    httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, "application/json");
-                }
-                httpRequest.setBody(BinaryData.fromObject(body, PropertiesServiceImpl.JSON_SERIALIZER));
-            }
-            if (requestContext != null) {
-                httpRequest.setContext(requestContext);
-                requestContext.getRequestCallback().accept(httpRequest);
-            }
-            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            ClientCoreProtocolUtils.setBody(httpRequest, body, "application/json",
+                () -> BinaryData.fromObject(body, PropertiesServiceImpl.JSON_SERIALIZER));
+            Response<BinaryData> networkResponse
+                = ClientCoreProtocolUtils.send(this.httpPipeline, httpRequest, requestContext);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 200)) {
                 ClientCoreProtocolUtils.handleUnexpectedResponse(networkResponse, PropertiesServiceImpl.JSON_SERIALIZER,
@@ -121,17 +114,10 @@ public final class PropertiesImpl {
             if (accept != null) {
                 httpRequest.getHeaders().set(HttpHeaderName.fromString("Accept"), accept);
             }
-            if (body != null) {
-                if (httpRequest.getHeaders().get(HttpHeaderName.CONTENT_TYPE) == null) {
-                    httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, "application/json");
-                }
-                httpRequest.setBody(BinaryData.fromObject(body, PropertiesServiceImpl.JSON_SERIALIZER));
-            }
-            if (requestContext != null) {
-                httpRequest.setContext(requestContext);
-                requestContext.getRequestCallback().accept(httpRequest);
-            }
-            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            ClientCoreProtocolUtils.setBody(httpRequest, body, "application/json",
+                () -> BinaryData.fromObject(body, PropertiesServiceImpl.JSON_SERIALIZER));
+            Response<BinaryData> networkResponse
+                = ClientCoreProtocolUtils.send(this.httpPipeline, httpRequest, requestContext);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 200)) {
                 ClientCoreProtocolUtils.handleUnexpectedResponse(networkResponse, PropertiesServiceImpl.JSON_SERIALIZER,
@@ -153,17 +139,10 @@ public final class PropertiesImpl {
             if (accept != null) {
                 httpRequest.getHeaders().set(HttpHeaderName.fromString("Accept"), accept);
             }
-            if (body != null) {
-                if (httpRequest.getHeaders().get(HttpHeaderName.CONTENT_TYPE) == null) {
-                    httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, "application/json");
-                }
-                httpRequest.setBody(BinaryData.fromObject(body, PropertiesServiceImpl.JSON_SERIALIZER));
-            }
-            if (requestContext != null) {
-                httpRequest.setContext(requestContext);
-                requestContext.getRequestCallback().accept(httpRequest);
-            }
-            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            ClientCoreProtocolUtils.setBody(httpRequest, body, "application/json",
+                () -> BinaryData.fromObject(body, PropertiesServiceImpl.JSON_SERIALIZER));
+            Response<BinaryData> networkResponse
+                = ClientCoreProtocolUtils.send(this.httpPipeline, httpRequest, requestContext);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 200)) {
                 ClientCoreProtocolUtils.handleUnexpectedResponse(networkResponse, PropertiesServiceImpl.JSON_SERIALIZER,
@@ -185,17 +164,10 @@ public final class PropertiesImpl {
             if (accept != null) {
                 httpRequest.getHeaders().set(HttpHeaderName.fromString("Accept"), accept);
             }
-            if (body != null) {
-                if (httpRequest.getHeaders().get(HttpHeaderName.CONTENT_TYPE) == null) {
-                    httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, "application/json");
-                }
-                httpRequest.setBody(BinaryData.fromObject(body, PropertiesServiceImpl.JSON_SERIALIZER));
-            }
-            if (requestContext != null) {
-                httpRequest.setContext(requestContext);
-                requestContext.getRequestCallback().accept(httpRequest);
-            }
-            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            ClientCoreProtocolUtils.setBody(httpRequest, body, "application/json",
+                () -> BinaryData.fromObject(body, PropertiesServiceImpl.JSON_SERIALIZER));
+            Response<BinaryData> networkResponse
+                = ClientCoreProtocolUtils.send(this.httpPipeline, httpRequest, requestContext);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 200)) {
                 ClientCoreProtocolUtils.handleUnexpectedResponse(networkResponse, PropertiesServiceImpl.JSON_SERIALIZER,

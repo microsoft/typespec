@@ -14,11 +14,29 @@ also covers the corresponding Spector scenarios.
 
 ## Generator-side cleanup without runtime changes
 
-- One `ClientCoreProtocolUtils` helper is emitted into the implementation package
-  for libraries with concrete protocol methods. It centralizes typed JSON reader
+- One capability-specific `ClientCoreProtocolUtils` helper is emitted into the implementation package
+  for libraries that call it. It centralizes typed JSON reader
   lifetime, empty-body handling, base64url token validation, response metadata
   wrapping and cleanup, and the XML error guard. Raw binary/streaming responses
   still transfer ownership to the caller.
+- `ClientCoreProtocolUtilsTemplate` selects methods from actual helper calls and
+  method references across the emitted library, then retains transitive helper
+  dependencies and removes unused methods/imports from the resource catalog.
+  Default-only clients emit no helper; XML-only operations do not bring in unused
+  JSON readers or base64 decoders. This avoids a second set of model predicates
+  that could drift from operation generation.
+- Every method is independently optional through `OptionalUtilityTemplate`.
+  Qualified calls, static imports, method references, and referenced constants
+  determine the emitted members. Only required private methods, constants, and
+  imports follow those roots; empty selections emit no utility class. The same
+  mechanism also handles ClientCore-based Azure Core v2 `PollingUtils`, including
+  its retry-delay parsing dependencies. Instance-based helpers and Azure Core v1
+  utilities retain their existing generation paths.
+- Request sending shares context/callback application, exactly once after headers
+  and bodies have been assembled. Optional-body helpers lazily serialize non-null
+  bodies, preserve explicit content types, and select JSON/XML serializers when
+  necessary. Mixed-format response dispatch is also shared without losing typed
+  wire-to-client conversions.
 - Serializer singleton references are static rather than stored per service
   implementation instance. Error-only serializers remain lazily obtained.
 - Identical response/error type tokens and status-to-error maps are shared within
@@ -35,22 +53,54 @@ Public service interfaces are preserved. These changes use existing ClientCore
 APIs and require no runtime dependency upgrade. A future runtime implementation
 could replace the generated helper and eliminate its duplication across libraries.
 
+### Optional protocol methods
+
+| Method                     | Generated when needed for                                    |
+| -------------------------- | ------------------------------------------------------------ |
+| `send`                     | Applying a request context and callback before pipeline send |
+| `setBody`                  | Lazy optional-body serialization and default content type    |
+| `setMixedBody`             | Choosing a request body serializer from JSON/XML formats     |
+| `readMixed`                | Choosing a response decoder from JSON/XML formats            |
+| `readJson`                 | Typed JSON decoding, including encoded scalar collections    |
+| `readBase64Url`            | Base64url byte decoding                                      |
+| `readResponse`             | Unwrapped typed response decoding with cleanup               |
+| `mapResponse`              | Typed response wrapping with cleanup                         |
+| `handleUnexpectedResponse` | HTTP error handling                                          |
+
+Dependencies remain mandatory only when a selected method calls them; for
+example, `setMixedBody` also retains `setBody`. `OptionalUtilityTemplateTests`
+independently compiles every protocol and polling method selection using
+`-proc:none`, and checks that its parameterized cases cover the entire catalogs.
+
 ### Measured generated source footprint
 
-Targeted regeneration, counting all Java source in each scenario and including the
-new helper, changed the line counts as follows:
+This iteration's targeted regeneration, counting all Java source in each scenario
+including the helpers, changed the line counts as follows:
 
-| Scenario           | Before cleanup | After cleanup | Difference |
-| ------------------ | -------------: | ------------: | ---------: |
-| Byte encoding      |          3,378 |         3,155 |       -223 |
-| Status-code ranges |          1,024 |           997 |        -27 |
-| XML payloads       |         12,011 |        12,075 |        +64 |
-| **Total**          |     **16,413** |    **16,227** |   **-186** |
+| Scenario           | Before dynamic helpers | After dynamic helpers | Difference |
+| ------------------ | ---------------------: | --------------------: | ---------: |
+| Byte encoding      |                  3,155 |                 3,064 |        -91 |
+| Status-code ranges |                    997 |                   967 |        -30 |
+| XML payloads       |                 12,075 |                11,478 |       -597 |
+| **Total**          |             **16,227** |            **15,509** |   **-718** |
 
-The per-library helper has a fixed source-size cost. It is amortized by repeated
-operation boilerplate, but it can slightly increase an XML-heavy library whose
-operations need little of the JSON helper functionality. Static metadata also
-reduces repeated allocation independently of source-line savings.
+The previous fixed helper added 64 lines to the XML scenario. Capability trimming
+and extraction of mixed-format/context/body logic now reduce that scenario by 597
+lines instead. Static metadata also reduces repeated allocation independently of
+source-line savings. A small library still pays for the helper methods it uses,
+but not for unrelated capabilities.
+
+### Additional generator-only extraction candidates
+
+- `writeHeader`: share nullable header updates and prefixed header-map loops, while
+  preserving the template's wire-value conversions and existing override order.
+  Repeated `HttpHeaderName.fromString` values can also be cached per implementation.
+- `jsonResponseValue`: deduplicate identical nested reader expressions by complete
+  wire type, rather than client type alone, so base64/base64url and date encodings
+  remain distinct. Emit named readers only when reused enough to offset their size.
+- Instrumented convenience methods: investigate redundant nested instrumentation
+  across public clients and implementation clients. This needs tracing/span
+  ownership tests before changing behavior, rather than a mechanical extraction.
 
 ## Runtime helper opportunities
 
@@ -101,10 +151,13 @@ error behavior should remain in Azure Core v2 rather than leaking into ClientCor
    boilerplate. Preserve caller-provided content types, omit the default content
    type for an absent optional body, and distinguish raw strings/bytes/streams
    from JSON-encoded values. Support vendor media types and media-type parameters.
+   Generated body helpers now centralize these guards and format selection; a
+   runtime API would remove the remaining per-library helper implementation.
 6. **Single request-context application operation** (`writeMethod`). Replace the
    repeated null check, `HttpRequest.setContext`, and request-callback invocation.
    Apply callbacks exactly once and before sending through the pipeline, without
-   dropping instrumentation context.
+   dropping instrumentation context. The generated `send` helper now provides
+   this behavior using the existing runtime APIs.
 7. **Target-`Type` overload of `CoreUtils.decodeNetworkResponse`** with complete
    typed serializer support (`typeToken`, `writeResponseDeserialization`). Avoid
    wrapping each body type in a synthetic `Response<T>` token just to unwrap it

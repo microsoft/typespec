@@ -1,7 +1,11 @@
 package encode.bytes.implementation;
 
+import io.clientcore.core.http.models.HttpHeaderName;
+import io.clientcore.core.http.models.HttpRequest;
 import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.instrumentation.logging.ClientLogger;
 import io.clientcore.core.models.CoreException;
 import io.clientcore.core.models.binarydata.BinaryData;
@@ -23,7 +27,25 @@ import java.util.function.Supplier;
  * Internal utilities shared by generated protocol implementations.
  */
 public final class ClientCoreProtocolUtils {
+
     private ClientCoreProtocolUtils() {
+    }
+
+    public static Response<BinaryData> send(HttpPipeline pipeline, HttpRequest request, RequestContext context) {
+        if (context != null) {
+            request.setContext(context);
+            context.getRequestCallback().accept(request);
+        }
+        return pipeline.send(request);
+    }
+
+    public static void setBody(HttpRequest request, Object body, String contentType, Supplier<BinaryData> serializer) {
+        if (body != null) {
+            if (request.getHeaders().get(HttpHeaderName.CONTENT_TYPE) == null) {
+                request.getHeaders().set(HttpHeaderName.CONTENT_TYPE, contentType);
+            }
+            request.setBody(serializer.get());
+        }
     }
 
     public static <T> T readJson(BinaryData body, IOExceptionCheckedFunction<JsonReader, T> decoder,
@@ -46,14 +68,6 @@ public final class ClientCoreProtocolUtils {
             }
             return new Base64Uri(nonNullReader.getString()).decodedBytes();
         });
-    }
-
-    public static <T> T readResponse(Response<BinaryData> response, Supplier<T> decoder) {
-        try {
-            return decoder.get();
-        } finally {
-            response.close();
-        }
     }
 
     public static <T> Response<T> mapResponse(Response<BinaryData> response, Supplier<T> decoder) {

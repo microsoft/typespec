@@ -12,7 +12,6 @@ import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.instrumentation.Instrumentation;
 import io.clientcore.core.instrumentation.logging.ClientLogger;
 import io.clientcore.core.models.binarydata.BinaryData;
-import io.clientcore.core.serialization.SerializationFormat;
 import io.clientcore.core.serialization.json.JsonSerializer;
 import io.clientcore.core.serialization.xml.XmlSerializer;
 import io.clientcore.core.utils.CoreUtils;
@@ -84,11 +83,8 @@ public final class ModelWithWrappedPrimitiveCustomItemNamesValuesImpl {
             if (accept != null) {
                 httpRequest.getHeaders().set(HttpHeaderName.fromString("Accept"), accept);
             }
-            if (requestContext != null) {
-                httpRequest.setContext(requestContext);
-                requestContext.getRequestCallback().accept(httpRequest);
-            }
-            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            Response<BinaryData> networkResponse
+                = ClientCoreProtocolUtils.send(this.httpPipeline, httpRequest, requestContext);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 200)) {
                 ClientCoreProtocolUtils.handleUnexpectedResponse(networkResponse,
@@ -96,26 +92,14 @@ public final class ModelWithWrappedPrimitiveCustomItemNamesValuesImpl {
                     ModelWithWrappedPrimitiveCustomItemNamesValuesServiceImpl.XML_SERIALIZER, null, null,
                     ModelWithWrappedPrimitiveCustomItemNamesValuesServiceImpl.LOGGER);
             }
-            return ClientCoreProtocolUtils.mapResponse(networkResponse, () -> {
-                ModelWithWrappedPrimitiveCustomItemNames deserializedResult;
-                SerializationFormat responseSerializationFormat
-                    = CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders());
-                if (ModelWithWrappedPrimitiveCustomItemNamesValuesServiceImpl.JSON_SERIALIZER
-                    .supportsFormat(responseSerializationFormat)) {
-                    deserializedResult = CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
-                        ModelWithWrappedPrimitiveCustomItemNamesValuesServiceImpl.JSON_SERIALIZER, CoreUtils
-                            .createParameterizedType(Response.class, ModelWithWrappedPrimitiveCustomItemNames.class));
-                } else if (ModelWithWrappedPrimitiveCustomItemNamesValuesServiceImpl.XML_SERIALIZER
-                    .supportsFormat(responseSerializationFormat)) {
-                    deserializedResult = CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
-                        ModelWithWrappedPrimitiveCustomItemNamesValuesServiceImpl.XML_SERIALIZER, CoreUtils
-                            .createParameterizedType(Response.class, ModelWithWrappedPrimitiveCustomItemNames.class));
-                } else {
-                    throw new UnsupportedOperationException(
-                        "Unsupported response serialization format: " + responseSerializationFormat);
-                }
-                return deserializedResult;
-            });
+            return ClientCoreProtocolUtils.mapResponse(networkResponse, () -> ClientCoreProtocolUtils.readMixed(
+                networkResponse,
+                () -> CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
+                    ModelWithWrappedPrimitiveCustomItemNamesValuesServiceImpl.JSON_SERIALIZER,
+                    CoreUtils.createParameterizedType(Response.class, ModelWithWrappedPrimitiveCustomItemNames.class)),
+                () -> CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
+                    ModelWithWrappedPrimitiveCustomItemNamesValuesServiceImpl.XML_SERIALIZER, CoreUtils
+                        .createParameterizedType(Response.class, ModelWithWrappedPrimitiveCustomItemNames.class))));
         }
 
         @Override
@@ -126,18 +110,10 @@ public final class ModelWithWrappedPrimitiveCustomItemNamesValuesImpl {
             if (contentType != null) {
                 httpRequest.getHeaders().set(HttpHeaderName.fromString("content-type"), contentType);
             }
-            if (input != null) {
-                if (httpRequest.getHeaders().get(HttpHeaderName.CONTENT_TYPE) == null) {
-                    httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, "application/xml");
-                }
-                httpRequest.setBody(BinaryData.fromObject(input,
-                    ModelWithWrappedPrimitiveCustomItemNamesValuesServiceImpl.XML_SERIALIZER));
-            }
-            if (requestContext != null) {
-                httpRequest.setContext(requestContext);
-                requestContext.getRequestCallback().accept(httpRequest);
-            }
-            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            ClientCoreProtocolUtils.setBody(httpRequest, input, "application/xml", () -> BinaryData.fromObject(input,
+                ModelWithWrappedPrimitiveCustomItemNamesValuesServiceImpl.XML_SERIALIZER));
+            Response<BinaryData> networkResponse
+                = ClientCoreProtocolUtils.send(this.httpPipeline, httpRequest, requestContext);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 204)) {
                 ClientCoreProtocolUtils.handleUnexpectedResponse(networkResponse,

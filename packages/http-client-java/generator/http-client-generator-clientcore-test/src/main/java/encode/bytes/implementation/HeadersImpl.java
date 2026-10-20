@@ -78,11 +78,8 @@ public final class HeadersImpl {
             if (value != null) {
                 httpRequest.getHeaders().set(HttpHeaderName.fromString("value"), value);
             }
-            if (requestContext != null) {
-                httpRequest.setContext(requestContext);
-                requestContext.getRequestCallback().accept(httpRequest);
-            }
-            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            Response<BinaryData> networkResponse
+                = ClientCoreProtocolUtils.send(this.httpPipeline, httpRequest, requestContext);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 204)) {
                 ClientCoreProtocolUtils.handleUnexpectedResponse(networkResponse, JsonSerializer.getInstance(), null,
@@ -98,11 +95,8 @@ public final class HeadersImpl {
             if (value != null) {
                 httpRequest.getHeaders().set(HttpHeaderName.fromString("value"), value);
             }
-            if (requestContext != null) {
-                httpRequest.setContext(requestContext);
-                requestContext.getRequestCallback().accept(httpRequest);
-            }
-            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            Response<BinaryData> networkResponse
+                = ClientCoreProtocolUtils.send(this.httpPipeline, httpRequest, requestContext);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 204)) {
                 ClientCoreProtocolUtils.handleUnexpectedResponse(networkResponse, JsonSerializer.getInstance(), null,
@@ -118,11 +112,8 @@ public final class HeadersImpl {
             if (value != null) {
                 httpRequest.getHeaders().set(HttpHeaderName.fromString("value"), String.valueOf(value));
             }
-            if (requestContext != null) {
-                httpRequest.setContext(requestContext);
-                requestContext.getRequestCallback().accept(httpRequest);
-            }
-            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            Response<BinaryData> networkResponse
+                = ClientCoreProtocolUtils.send(this.httpPipeline, httpRequest, requestContext);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 204)) {
                 ClientCoreProtocolUtils.handleUnexpectedResponse(networkResponse, JsonSerializer.getInstance(), null,
@@ -138,11 +129,8 @@ public final class HeadersImpl {
             if (value != null) {
                 httpRequest.getHeaders().set(HttpHeaderName.fromString("value"), value);
             }
-            if (requestContext != null) {
-                httpRequest.setContext(requestContext);
-                requestContext.getRequestCallback().accept(httpRequest);
-            }
-            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            Response<BinaryData> networkResponse
+                = ClientCoreProtocolUtils.send(this.httpPipeline, httpRequest, requestContext);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 204)) {
                 ClientCoreProtocolUtils.handleUnexpectedResponse(networkResponse, JsonSerializer.getInstance(), null,

@@ -14,8 +14,6 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Clien
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientException;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ConvenienceMethod;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Proxy;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ServiceClient;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.TypeSpecMetadata;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaPackage;
@@ -105,14 +103,6 @@ public class TypeSpecPlugin extends Javagen {
     @Override
     protected void writeHelperClasses(Client client, CodeModel codeModel, JavaPackage javaPackage,
         JavaSettings settings) {
-        if (!settings.isAzureV1()
-            && (needsProtocolHelper(client.getServiceClient())
-                || (!CoreUtils.isNullOrEmpty(client.getServiceClients())
-                    && client.getServiceClients().stream().anyMatch(TypeSpecPlugin::needsProtocolHelper)))) {
-            javaPackage.addJavaFromResources(settings.getPackage(settings.getImplementationSubpackage()),
-                ClientModelUtil.CLIENT_CORE_PROTOCOL_UTILS);
-        }
-
         // JsonMergePatchHelper
         List<ClientModel> jsonMergePatchModels = client.getModels()
             .stream()
@@ -156,7 +146,7 @@ public class TypeSpecPlugin extends Javagen {
                 javaPackage.addJavaFromResources(settings.getPackage(settings.getImplementationSubpackage()),
                     ClientModelUtil.CLIENT_CORE_OPERATION_LOCATION_POLLING_STRATEGY,
                     ClientModelUtil.OPERATION_LOCATION_POLLING_STRATEGY);
-                javaPackage.addJavaFromResources(settings.getPackage(settings.getImplementationSubpackage()),
+                javaPackage.addOptionalUtilityFromResources(settings.getPackage(settings.getImplementationSubpackage()),
                     ClientModelUtil.CLIENT_CORE_POLLING_UTILS, ClientModelUtil.POLLING_UTILS);
             } else {
                 javaPackage.addJavaFromResources(settings.getPackage(settings.getImplementationSubpackage()),
@@ -168,19 +158,7 @@ public class TypeSpecPlugin extends Javagen {
             }
 
         }
-    }
-
-    private static boolean needsProtocolHelper(ServiceClient client) {
-        return client != null
-            && (hasProtocolMethods(client.getProxy())
-                || (!CoreUtils.isNullOrEmpty(client.getMethodGroupClients())
-                    && client.getMethodGroupClients()
-                        .stream()
-                        .anyMatch(group -> hasProtocolMethods(group.getProxy()))));
-    }
-
-    private static boolean hasProtocolMethods(Proxy proxy) {
-        return proxy != null && proxy.getMethods().stream().anyMatch(method -> method.getImplementation() == null);
+        javaPackage.addClientCoreProtocolUtils();
     }
 
     @Override

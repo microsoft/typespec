@@ -77,11 +77,8 @@ public final class QueriesImpl {
             UriBuilder uriBuilder = UriBuilder.parse(endpoint + "/encode/bytes/query/default");
             GeneratedCodeUtils.addQueryParameter(uriBuilder, "value", true, value, true);
             HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.GET).setUri(uriBuilder.toString());
-            if (requestContext != null) {
-                httpRequest.setContext(requestContext);
-                requestContext.getRequestCallback().accept(httpRequest);
-            }
-            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            Response<BinaryData> networkResponse
+                = ClientCoreProtocolUtils.send(this.httpPipeline, httpRequest, requestContext);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 204)) {
                 ClientCoreProtocolUtils.handleUnexpectedResponse(networkResponse, JsonSerializer.getInstance(), null,
@@ -95,11 +92,8 @@ public final class QueriesImpl {
             UriBuilder uriBuilder = UriBuilder.parse(endpoint + "/encode/bytes/query/base64");
             GeneratedCodeUtils.addQueryParameter(uriBuilder, "value", true, value, true);
             HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.GET).setUri(uriBuilder.toString());
-            if (requestContext != null) {
-                httpRequest.setContext(requestContext);
-                requestContext.getRequestCallback().accept(httpRequest);
-            }
-            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            Response<BinaryData> networkResponse
+                = ClientCoreProtocolUtils.send(this.httpPipeline, httpRequest, requestContext);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 204)) {
                 ClientCoreProtocolUtils.handleUnexpectedResponse(networkResponse, JsonSerializer.getInstance(), null,
@@ -113,11 +107,8 @@ public final class QueriesImpl {
             UriBuilder uriBuilder = UriBuilder.parse(endpoint + "/encode/bytes/query/base64url");
             GeneratedCodeUtils.addQueryParameter(uriBuilder, "value", true, value, true);
             HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.GET).setUri(uriBuilder.toString());
-            if (requestContext != null) {
-                httpRequest.setContext(requestContext);
-                requestContext.getRequestCallback().accept(httpRequest);
-            }
-            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            Response<BinaryData> networkResponse
+                = ClientCoreProtocolUtils.send(this.httpPipeline, httpRequest, requestContext);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 204)) {
                 ClientCoreProtocolUtils.handleUnexpectedResponse(networkResponse, JsonSerializer.getInstance(), null,
@@ -131,11 +122,8 @@ public final class QueriesImpl {
             UriBuilder uriBuilder = UriBuilder.parse(endpoint + "/encode/bytes/query/base64url-array");
             GeneratedCodeUtils.addQueryParameter(uriBuilder, "value", true, value, true);
             HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.GET).setUri(uriBuilder.toString());
-            if (requestContext != null) {
-                httpRequest.setContext(requestContext);
-                requestContext.getRequestCallback().accept(httpRequest);
-            }
-            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            Response<BinaryData> networkResponse
+                = ClientCoreProtocolUtils.send(this.httpPipeline, httpRequest, requestContext);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 204)) {
                 ClientCoreProtocolUtils.handleUnexpectedResponse(networkResponse, JsonSerializer.getInstance(), null,

@@ -1,5 +1,7 @@
 package com.microsoft.typespec.http.client.generator.model;
 
+import com.github.javaparser.StaticJavaParser;
+import com.github.javaparser.ast.body.MethodDeclaration;
 import com.google.googlejavaformat.java.RemoveUnusedImports;
 import com.microsoft.typespec.http.client.generator.TypeSpecPlugin;
 import com.microsoft.typespec.http.client.generator.core.Javagen;
@@ -24,7 +26,6 @@ import com.microsoft.typespec.http.client.generator.core.model.xmlmodel.XmlFile;
 import com.microsoft.typespec.http.client.generator.core.template.ProxyTemplate;
 import com.microsoft.typespec.http.client.generator.core.template.azurevnext.AzureVNextPomTemplate;
 import com.microsoft.typespec.http.client.generator.core.template.clientcore.ClientCorePomTemplate;
-import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import io.clientcore.core.http.models.HttpHeaderName;
 import io.clientcore.core.http.models.HttpHeaders;
 import io.clientcore.core.http.models.HttpMethod;
@@ -36,6 +37,8 @@ import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.http.pipeline.HttpPipelineBuilder;
 import io.clientcore.core.models.binarydata.BinaryData;
 import io.clientcore.core.serialization.json.JsonReader;
+import io.clientcore.core.serialization.json.JsonSerializable;
+import io.clientcore.core.serialization.json.JsonWriter;
 import io.clientcore.core.serialization.json.models.JsonArray;
 import io.clientcore.core.serialization.json.models.JsonObject;
 import io.clientcore.core.serialization.xml.XmlReader;
@@ -43,6 +46,7 @@ import io.clientcore.core.serialization.xml.XmlSerializable;
 import io.clientcore.core.serialization.xml.XmlToken;
 import io.clientcore.core.serialization.xml.XmlWriter;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.lang.reflect.InvocationTargetException;
@@ -63,6 +67,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import javax.tools.DiagnosticCollector;
 import javax.tools.JavaFileObject;
@@ -112,6 +117,114 @@ public class ProtocolImplementationTests {
         Assertions.assertEquals("plugins",
             document.getElementsByTagName("plugin").item(0).getParentNode().getNodeName());
         Assertions.assertEquals("11", document.getElementsByTagName("release").item(0).getTextContent());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = { "generic", "azurev2" })
+    public void protocolHelpersContainOnlyReferencedCapabilities(String flavor) throws Exception {
+        initialize(flavor);
+        List<ProxyMethodParameter> parameters
+            = List.of(parameter("endpoint", "endpoint", RequestParameterLocation.URI, true),
+                parameter("id", "id", RequestParameterLocation.PATH, false));
+        String output = render(List.of(method("send", ClassType.VOID, HttpMethod.GET, parameters)));
+        String helper = helperSources(output).get(0).getContents().toString();
+        Assertions.assertEquals(Set.of("mapResponse", "handleUnexpectedResponse"), helperMethods(helper));
+        Assertions.assertFalse(helper.contains("import io.clientcore.core.serialization.json.JsonReader;"), helper);
+        Assertions.assertFalse(helper.contains("import io.clientcore.core.utils.Base64Uri;"), helper);
+        Assertions.assertFalse(helper.contains("import io.clientcore.core.http.pipeline.HttpPipeline;"), helper);
+        compile(output);
+
+        List<ProxyMethodParameter> contextual = new ArrayList<>(parameters);
+        contextual.add(ProxyMethodParameter.REQUEST_CONTEXT_PARAMETER);
+        output = render(List.of(method("raw", ClassType.BINARY_DATA, HttpMethod.GET, contextual)));
+        helper = helperSources(output).get(0).getContents().toString();
+        Assertions.assertEquals(Set.of("send", "handleUnexpectedResponse"), helperMethods(helper));
+        Assertions.assertFalse(helper.contains("import java.util.function.Supplier;"), helper);
+        compile(output);
+
+        output = render(List.of(method("send", ClassType.VOID, HttpMethod.GET, List.of()).newBuilder()
+            .implementation("return null;")
+            .build()));
+        Assertions.assertTrue(helperSources(output).isEmpty());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = { "generic", "azurev2" })
+    public void helperSelectionUnionsClientsAndKeepsTransitiveDependencies(String flavor) throws Exception {
+        initialize(flavor);
+        String first
+            = "class First { void call() { ClientCoreProtocolUtils.setMixedBody(null, null, null, null, null); } }";
+        String second
+            = "class Second { Object callback = (java.util.function.Supplier<Object>) ClientCoreProtocolUtils::readBase64Url; }";
+        String helper = helperSources(first, second).get(0).getContents().toString();
+        Assertions.assertEquals(Set.of("setMixedBody", "setBody", "readBase64Url"), helperMethods(helper));
+        Assertions.assertFalse(helper.contains("JsonSerializer"), helper);
+        Assertions.assertFalse(helper.contains("HttpPipeline"), helper);
+        Assertions.assertTrue(helper.contains("HttpHeaderName"), helper);
+        Assertions.assertTrue(helper.contains("JsonToken"), helper);
+
+        Assertions.assertTrue(
+            helperSources("class Empty { String text = \"ClientCoreProtocolUtils.readJson()\"; }").isEmpty());
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = { "generic", "azurev2" })
+    public void optionalBodiesAndContextCallbacksPreserveOverrides(String flavor) throws Exception {
+        initialize(flavor);
+        List<ProxyMethodParameter> parameters
+            = List.of(parameter("endpoint", "endpoint", RequestParameterLocation.URI, true),
+                parameter("id", "id", RequestParameterLocation.PATH, false),
+                parameter("contentType", "Content-Type", RequestParameterLocation.HEADER, false),
+                parameter("body", "body", RequestParameterLocation.BODY, false),
+                ProxyMethodParameter.REQUEST_CONTEXT_PARAMETER);
+        compile(render(List.of(method("send", ClassType.VOID, HttpMethod.POST, parameters))));
+        AtomicInteger callbacks = new AtomicInteger();
+        AtomicInteger sends = new AtomicInteger();
+        AtomicReference<HttpRequest> captured = new AtomicReference<>();
+        HttpPipeline pipeline = new HttpPipelineBuilder().httpClient(request -> {
+            sends.incrementAndGet();
+            captured.set(request);
+            return new Response<>(request, 200, new HttpHeaders(), BinaryData.empty());
+        }).build();
+        try (URLClassLoader loader
+            = new URLClassLoader(new URL[] { classes.toUri().toURL() }, getClass().getClassLoader())) {
+            Class<?> serviceType = loader.loadClass("com.example.GeneratedClient$ExampleService");
+            Object service = serviceType.getMethod("getNewInstance", HttpPipeline.class).invoke(null, pipeline);
+            RequestContext context
+                = RequestContext.builder().putMetadata("test", "metadata").addRequestCallback(request -> {
+                    callbacks.incrementAndGet();
+                    Assertions.assertEquals("\"payload\"", request.getBody().toString());
+                    Assertions.assertEquals("application/vnd.example+json",
+                        request.getHeaders().getValue(HttpHeaderName.CONTENT_TYPE));
+                    request.getHeaders().set(HttpHeaderName.CONTENT_TYPE, "application/custom");
+                }).build();
+            try (Response<?> ignored = invoke(serviceType, service, "send", "https://example.test", "item",
+                "application/vnd.example+json", "payload", context)) {
+                Assertions.assertEquals(1, callbacks.get());
+                Assertions.assertEquals(1, sends.get());
+                Assertions.assertEquals("application/custom",
+                    captured.get().getHeaders().getValue(HttpHeaderName.CONTENT_TYPE));
+                Assertions.assertEquals("metadata", captured.get().getContext().getMetadata("test"));
+            }
+            try (Response<?> ignored
+                = invoke(serviceType, service, "send", "https://example.test", "item", null, null, null)) {
+                Assertions.assertNull(captured.get().getHeaders().get(HttpHeaderName.CONTENT_TYPE));
+                Assertions
+                    .assertTrue(captured.get().getBody() == null || captured.get().getBody().toBytes().length == 0);
+            }
+            try (Response<?> ignored = invoke(serviceType, service, "send", "https://example.test", "item",
+                "application/custom", null, null)) {
+                Assertions.assertEquals("application/custom",
+                    captured.get().getHeaders().getValue(HttpHeaderName.CONTENT_TYPE));
+            }
+            RequestContext failing = RequestContext.builder().addRequestCallback(request -> {
+                throw new IllegalStateException("callback");
+            }).build();
+            int sent = sends.get();
+            Assertions.assertThrows(IllegalStateException.class,
+                () -> invoke(serviceType, service, "send", "https://example.test", "item", null, null, failing));
+            Assertions.assertEquals(sent, sends.get());
+        }
     }
 
     @ParameterizedTest
@@ -260,8 +373,13 @@ public class ProtocolImplementationTests {
         List<ProxyMethod> methods = new ArrayList<>();
         for (int i = 0; i < wireTypes.size(); i++) {
             IType wireType = wireTypes.get(i);
-            methods.add(method("dates" + i, new ListType(wireType), HttpMethod.GET, parameters).newBuilder()
+            ProxyMethod dates = method("dates" + i, new ListType(wireType), HttpMethod.GET, parameters).newBuilder()
                 .returnValueWireType(wireType)
+                .build();
+            methods.add(dates);
+            methods.add(dates.newBuilder()
+                .name("mixedDates" + i)
+                .responseContentTypes(Set.of("application/json", "application/xml"))
                 .build());
         }
         compile(render(methods));
@@ -275,11 +393,14 @@ public class ProtocolImplementationTests {
             for (int i = 0; i < wireTypes.size(); i++) {
                 body.set(
                     BinaryData.fromString(i == 0 ? "[\"Mon, 01 Jan 2024 00:00:00 GMT\",null]" : "[1704067200,null]"));
-                try (Response<?> response = invoke(serviceType, service, "dates" + i, "https://example.test", "item")) {
-                    Assertions.assertEquals(Arrays.asList(OffsetDateTime.parse("2024-01-01T00:00:00Z"), null),
-                        response.getValue());
+                for (String name : List.of("dates", "mixedDates")) {
+                    try (
+                        Response<?> response = invoke(serviceType, service, name + i, "https://example.test", "item")) {
+                        Assertions.assertEquals(Arrays.asList(OffsetDateTime.parse("2024-01-01T00:00:00Z"), null),
+                            response.getValue());
+                    }
+                    Assertions.assertEquals(1, closes.getAndSet(0));
                 }
-                Assertions.assertEquals(1, closes.getAndSet(0));
             }
         }
     }
@@ -774,7 +895,8 @@ public class ProtocolImplementationTests {
         String mixedOutput = render(List.of(mixed));
         Assertions.assertTrue(mixedOutput.contains("JsonSerializer JSON_SERIALIZER"), mixedOutput);
         Assertions.assertTrue(mixedOutput.contains("XmlSerializer XML_SERIALIZER"), mixedOutput);
-        Assertions.assertTrue(mixedOutput.contains("responseSerializationFormat"), mixedOutput);
+        Assertions.assertTrue(mixedOutput.contains("ClientCoreProtocolUtils.readMixed("), mixedOutput);
+        Assertions.assertFalse(mixedOutput.contains("responseSerializationFormat"), mixedOutput);
         compile(mixedOutput);
     }
 
@@ -837,11 +959,76 @@ public class ProtocolImplementationTests {
         }
     }
 
-    public static final class XmlError implements XmlSerializable<XmlError> {
+    @ParameterizedTest
+    @ValueSource(strings = { "generic", "azurev2" })
+    public void mixedRequestHelpersPreserveExplicitFormatAndLazyNullBodies(String flavor) throws Exception {
+        initialize(flavor);
+        ClientModels.getInstance()
+            .addModel(new ClientModel.Builder().name("XmlError")
+                .packageName(ProtocolImplementationTests.class.getName())
+                .serializationFormats(Set.of("json", "xml"))
+                .properties(List.of())
+                .build());
+        ClassType bodyType
+            = new ClassType.Builder().name("XmlError").packageName(ProtocolImplementationTests.class.getName()).build();
+        List<ProxyMethodParameter> parameters
+            = List.of(parameter("endpoint", "endpoint", RequestParameterLocation.URI, true),
+                parameter("id", "id", RequestParameterLocation.PATH, false),
+                parameter("contentType", "Content-Type", RequestParameterLocation.HEADER, false),
+                new ProxyMethodParameter.Builder().name("body")
+                    .wireType(bodyType)
+                    .clientType(bodyType)
+                    .requestParameterName("body")
+                    .requestParameterLocation(RequestParameterLocation.BODY)
+                    .build());
+        String output = render(List.of(method("send", ClassType.VOID, HttpMethod.POST, parameters).newBuilder()
+            .requestContentType("application/xml")
+            .build()));
+        Assertions.assertTrue(output.contains("ClientCoreProtocolUtils.setMixedBody("), output);
+        String helper = helperSources(output).get(0).getContents().toString();
+        Assertions.assertTrue(helperMethods(helper).containsAll(Set.of("setMixedBody", "setBody")), helper);
+        compile(output);
+        AtomicReference<HttpRequest> captured = new AtomicReference<>();
+        HttpPipeline pipeline = new HttpPipelineBuilder().httpClient(request -> {
+            captured.set(request);
+            return new Response<>(request, 200, new HttpHeaders(), BinaryData.empty());
+        }).build();
+        try (URLClassLoader loader
+            = new URLClassLoader(new URL[] { classes.toUri().toURL() }, getClass().getClassLoader())) {
+            Class<?> serviceType = loader.loadClass("com.example.GeneratedClient$ExampleService");
+            Object service = serviceType.getMethod("getNewInstance", HttpPipeline.class).invoke(null, pipeline);
+            for (String contentType : List.of("application/json", "application/vnd.example+json; charset=utf-8",
+                "application/custom")) {
+                try (Response<?> ignored = invoke(serviceType, service, "send", "https://example.test", "item",
+                    contentType, new XmlError("serialized"))) {
+                    Assertions.assertEquals(contentType,
+                        captured.get().getHeaders().getValue(HttpHeaderName.CONTENT_TYPE));
+                    Assertions.assertEquals("{\"message\":\"serialized\"}", captured.get().getBody().toString());
+                }
+            }
+            try (Response<?> ignored = invoke(serviceType, service, "send", "https://example.test", "item", null,
+                new XmlError("serialized"))) {
+                Assertions.assertEquals("application/xml",
+                    captured.get().getHeaders().getValue(HttpHeaderName.CONTENT_TYPE));
+                Assertions.assertTrue(captured.get().getBody().toString().contains("<message>serialized</message>"));
+            }
+            try (Response<?> ignored
+                = invoke(serviceType, service, "send", "https://example.test", "item", null, null)) {
+                Assertions.assertNull(captured.get().getHeaders().get(HttpHeaderName.CONTENT_TYPE));
+            }
+        }
+    }
+
+    public static final class XmlError implements XmlSerializable<XmlError>, JsonSerializable<XmlError> {
         private final String message;
 
         private XmlError(String message) {
             this.message = message;
+        }
+
+        @Override
+        public JsonWriter toJson(JsonWriter writer) throws IOException {
+            return writer.writeStartObject().writeStringField("message", message).writeEndObject();
         }
 
         @Override
@@ -944,11 +1131,7 @@ public class ProtocolImplementationTests {
         List<JavaFileObject> sources = new ArrayList<>();
         sources.add(javaSource("com/example/GeneratedClient.java", compiledOutput));
         if (output.contains("ClientCoreProtocolUtils")) {
-            JavaPackage helpers = new JavaPackage(Javagen.getPluginInstance());
-            helpers.addJavaFromResources(
-                JavaSettings.getInstance().getPackage(JavaSettings.getInstance().getImplementationSubpackage()),
-                ClientModelUtil.CLIENT_CORE_PROTOCOL_UTILS);
-            helpers.getJavaFiles()
+            helperSources(output)
                 .forEach(helper -> sources.add(javaSource(helper.getFilePath(), helper.getContents().toString())));
         }
         String classpath = System.getProperty("surefire.test.class.path", System.getProperty("java.class.path"));
@@ -960,6 +1143,25 @@ public class ProtocolImplementationTests {
                 .call();
             Assertions.assertTrue(compiled, () -> diagnostics.getDiagnostics() + "\n" + compiledOutput);
         }
+    }
+
+    private static List<JavaFile> helperSources(String... clients) {
+        JavaPackage helpers = new JavaPackage(Javagen.getPluginInstance());
+        for (int i = 0; i < clients.length; i++) {
+            JavaFile source = new JavaFile("Client" + i + ".java");
+            source.line(clients[i]);
+            helpers.getJavaFiles().add(source);
+        }
+        helpers.addClientCoreProtocolUtils();
+        return helpers.getJavaFiles().subList(clients.length, helpers.getJavaFiles().size());
+    }
+
+    private static Set<String> helperMethods(String helper) {
+        return StaticJavaParser.parse(helper)
+            .findAll(MethodDeclaration.class)
+            .stream()
+            .map(MethodDeclaration::getNameAsString)
+            .collect(Collectors.toSet());
     }
 
     private static JavaFileObject javaSource(String path, String contents) {

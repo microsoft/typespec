@@ -1,20 +1,18 @@
 package payload.xml.implementation;
 
+import io.clientcore.core.http.models.HttpHeaderName;
+import io.clientcore.core.http.models.HttpRequest;
 import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.instrumentation.logging.ClientLogger;
-import io.clientcore.core.models.CoreException;
 import io.clientcore.core.models.binarydata.BinaryData;
 import io.clientcore.core.serialization.SerializationFormat;
-import io.clientcore.core.serialization.json.JsonReader;
 import io.clientcore.core.serialization.json.JsonSerializer;
-import io.clientcore.core.serialization.json.JsonToken;
 import io.clientcore.core.serialization.xml.XmlSerializer;
-import io.clientcore.core.utils.Base64Uri;
 import io.clientcore.core.utils.CoreUtils;
 import io.clientcore.core.utils.GeneratedCodeUtils;
-import io.clientcore.core.utils.IOExceptionCheckedFunction;
-import java.io.IOException;
 import java.lang.reflect.ParameterizedType;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -23,37 +21,35 @@ import java.util.function.Supplier;
  * Internal utilities shared by generated protocol implementations.
  */
 public final class ClientCoreProtocolUtils {
+
     private ClientCoreProtocolUtils() {
     }
 
-    public static <T> T readJson(BinaryData body, IOExceptionCheckedFunction<JsonReader, T> decoder,
-        ClientLogger logger) {
-        byte[] bytes = body == null ? null : body.toBytes();
-        if (bytes == null || bytes.length == 0) {
-            return null;
+    public static Response<BinaryData> send(HttpPipeline pipeline, HttpRequest request, RequestContext context) {
+        if (context != null) {
+            request.setContext(context);
+            context.getRequestCallback().accept(request);
         }
-        try (JsonReader reader = JsonReader.fromBytes(bytes)) {
-            return reader.nextToken() == null ? null : decoder.apply(reader);
-        } catch (IOException exception) {
-            throw logger.throwableAtError().log(exception, CoreException::from);
-        }
+        return pipeline.send(request);
     }
 
-    public static byte[] readBase64Url(JsonReader reader) throws IOException {
-        return reader.getNullable(nonNullReader -> {
-            if (nonNullReader.currentToken() != JsonToken.STRING) {
-                throw new IOException("Expected a JSON string for base64url bytes.");
+    public static void setBody(HttpRequest request, Object body, String contentType, Supplier<BinaryData> serializer) {
+        if (body != null) {
+            if (request.getHeaders().get(HttpHeaderName.CONTENT_TYPE) == null) {
+                request.getHeaders().set(HttpHeaderName.CONTENT_TYPE, contentType);
             }
-            return new Base64Uri(nonNullReader.getString()).decodedBytes();
-        });
+            request.setBody(serializer.get());
+        }
     }
 
-    public static <T> T readResponse(Response<BinaryData> response, Supplier<T> decoder) {
-        try {
-            return decoder.get();
-        } finally {
-            response.close();
+    public static <T> T readMixed(Response<BinaryData> response, Supplier<T> jsonDecoder, Supplier<T> xmlDecoder) {
+        SerializationFormat format = CoreUtils.serializationFormatFromContentType(response.getHeaders());
+        if (format == SerializationFormat.JSON) {
+            return jsonDecoder.get();
+        } else if (format == SerializationFormat.XML) {
+            return xmlDecoder.get();
         }
+        throw new UnsupportedOperationException("Unsupported response serialization format: " + format);
     }
 
     public static <T> Response<T> mapResponse(Response<BinaryData> response, Supplier<T> decoder) {

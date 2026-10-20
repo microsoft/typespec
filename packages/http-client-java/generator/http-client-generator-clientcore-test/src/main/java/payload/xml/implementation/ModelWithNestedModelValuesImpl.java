@@ -12,7 +12,6 @@ import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.instrumentation.Instrumentation;
 import io.clientcore.core.instrumentation.logging.ClientLogger;
 import io.clientcore.core.models.binarydata.BinaryData;
-import io.clientcore.core.serialization.SerializationFormat;
 import io.clientcore.core.serialization.json.JsonSerializer;
 import io.clientcore.core.serialization.xml.XmlSerializer;
 import io.clientcore.core.utils.CoreUtils;
@@ -79,11 +78,8 @@ public final class ModelWithNestedModelValuesImpl {
             if (accept != null) {
                 httpRequest.getHeaders().set(HttpHeaderName.fromString("Accept"), accept);
             }
-            if (requestContext != null) {
-                httpRequest.setContext(requestContext);
-                requestContext.getRequestCallback().accept(httpRequest);
-            }
-            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            Response<BinaryData> networkResponse
+                = ClientCoreProtocolUtils.send(this.httpPipeline, httpRequest, requestContext);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 200)) {
                 ClientCoreProtocolUtils.handleUnexpectedResponse(networkResponse,
@@ -91,25 +87,14 @@ public final class ModelWithNestedModelValuesImpl {
                     ModelWithNestedModelValuesServiceImpl.XML_SERIALIZER, null, null,
                     ModelWithNestedModelValuesServiceImpl.LOGGER);
             }
-            return ClientCoreProtocolUtils.mapResponse(networkResponse, () -> {
-                ModelWithNestedModel deserializedResult;
-                SerializationFormat responseSerializationFormat
-                    = CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders());
-                if (ModelWithNestedModelValuesServiceImpl.JSON_SERIALIZER.supportsFormat(responseSerializationFormat)) {
-                    deserializedResult = CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
+            return ClientCoreProtocolUtils.mapResponse(networkResponse,
+                () -> ClientCoreProtocolUtils.readMixed(networkResponse,
+                    () -> CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
                         ModelWithNestedModelValuesServiceImpl.JSON_SERIALIZER,
-                        CoreUtils.createParameterizedType(Response.class, ModelWithNestedModel.class));
-                } else if (ModelWithNestedModelValuesServiceImpl.XML_SERIALIZER
-                    .supportsFormat(responseSerializationFormat)) {
-                    deserializedResult = CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
+                        CoreUtils.createParameterizedType(Response.class, ModelWithNestedModel.class)),
+                    () -> CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
                         ModelWithNestedModelValuesServiceImpl.XML_SERIALIZER,
-                        CoreUtils.createParameterizedType(Response.class, ModelWithNestedModel.class));
-                } else {
-                    throw new UnsupportedOperationException(
-                        "Unsupported response serialization format: " + responseSerializationFormat);
-                }
-                return deserializedResult;
-            });
+                        CoreUtils.createParameterizedType(Response.class, ModelWithNestedModel.class))));
         }
 
         @Override
@@ -120,17 +105,10 @@ public final class ModelWithNestedModelValuesImpl {
             if (contentType != null) {
                 httpRequest.getHeaders().set(HttpHeaderName.fromString("content-type"), contentType);
             }
-            if (input != null) {
-                if (httpRequest.getHeaders().get(HttpHeaderName.CONTENT_TYPE) == null) {
-                    httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, "application/xml");
-                }
-                httpRequest.setBody(BinaryData.fromObject(input, ModelWithNestedModelValuesServiceImpl.XML_SERIALIZER));
-            }
-            if (requestContext != null) {
-                httpRequest.setContext(requestContext);
-                requestContext.getRequestCallback().accept(httpRequest);
-            }
-            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            ClientCoreProtocolUtils.setBody(httpRequest, input, "application/xml",
+                () -> BinaryData.fromObject(input, ModelWithNestedModelValuesServiceImpl.XML_SERIALIZER));
+            Response<BinaryData> networkResponse
+                = ClientCoreProtocolUtils.send(this.httpPipeline, httpRequest, requestContext);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 204)) {
                 ClientCoreProtocolUtils.handleUnexpectedResponse(networkResponse,

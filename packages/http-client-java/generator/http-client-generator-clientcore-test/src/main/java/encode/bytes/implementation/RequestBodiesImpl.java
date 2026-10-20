@@ -84,17 +84,9 @@ public final class RequestBodiesImpl {
                 httpRequest.getHeaders().set(HttpHeaderName.fromString("Content-Type"), contentType);
             }
             httpRequest.getHeaders().set(HttpHeaderName.fromString("Content-Length"), String.valueOf(contentLength));
-            if (value != null) {
-                if (httpRequest.getHeaders().get(HttpHeaderName.CONTENT_TYPE) == null) {
-                    httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, "application/octet-stream");
-                }
-                httpRequest.setBody(value);
-            }
-            if (requestContext != null) {
-                httpRequest.setContext(requestContext);
-                requestContext.getRequestCallback().accept(httpRequest);
-            }
-            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            ClientCoreProtocolUtils.setBody(httpRequest, value, "application/octet-stream", () -> value);
+            Response<BinaryData> networkResponse
+                = ClientCoreProtocolUtils.send(this.httpPipeline, httpRequest, requestContext);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 204)) {
                 ClientCoreProtocolUtils.handleUnexpectedResponse(networkResponse,
@@ -112,17 +104,9 @@ public final class RequestBodiesImpl {
                 httpRequest.getHeaders().set(HttpHeaderName.fromString("content-type"), contentType);
             }
             httpRequest.getHeaders().set(HttpHeaderName.fromString("Content-Length"), String.valueOf(contentLength));
-            if (value != null) {
-                if (httpRequest.getHeaders().get(HttpHeaderName.CONTENT_TYPE) == null) {
-                    httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, "application/octet-stream");
-                }
-                httpRequest.setBody(value);
-            }
-            if (requestContext != null) {
-                httpRequest.setContext(requestContext);
-                requestContext.getRequestCallback().accept(httpRequest);
-            }
-            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            ClientCoreProtocolUtils.setBody(httpRequest, value, "application/octet-stream", () -> value);
+            Response<BinaryData> networkResponse
+                = ClientCoreProtocolUtils.send(this.httpPipeline, httpRequest, requestContext);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 204)) {
                 ClientCoreProtocolUtils.handleUnexpectedResponse(networkResponse,
@@ -140,17 +124,9 @@ public final class RequestBodiesImpl {
                 httpRequest.getHeaders().set(HttpHeaderName.fromString("content-type"), contentType);
             }
             httpRequest.getHeaders().set(HttpHeaderName.fromString("Content-Length"), String.valueOf(contentLength));
-            if (value != null) {
-                if (httpRequest.getHeaders().get(HttpHeaderName.CONTENT_TYPE) == null) {
-                    httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, "image/png");
-                }
-                httpRequest.setBody(value);
-            }
-            if (requestContext != null) {
-                httpRequest.setContext(requestContext);
-                requestContext.getRequestCallback().accept(httpRequest);
-            }
-            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            ClientCoreProtocolUtils.setBody(httpRequest, value, "image/png", () -> value);
+            Response<BinaryData> networkResponse
+                = ClientCoreProtocolUtils.send(this.httpPipeline, httpRequest, requestContext);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 204)) {
                 ClientCoreProtocolUtils.handleUnexpectedResponse(networkResponse,
@@ -166,17 +142,10 @@ public final class RequestBodiesImpl {
             if (contentType != null) {
                 httpRequest.getHeaders().set(HttpHeaderName.fromString("content-type"), contentType);
             }
-            if (value != null) {
-                if (httpRequest.getHeaders().get(HttpHeaderName.CONTENT_TYPE) == null) {
-                    httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, "application/json");
-                }
-                httpRequest.setBody(BinaryData.fromObject(value, RequestBodiesServiceImpl.JSON_SERIALIZER));
-            }
-            if (requestContext != null) {
-                httpRequest.setContext(requestContext);
-                requestContext.getRequestCallback().accept(httpRequest);
-            }
-            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            ClientCoreProtocolUtils.setBody(httpRequest, value, "application/json",
+                () -> BinaryData.fromObject(value, RequestBodiesServiceImpl.JSON_SERIALIZER));
+            Response<BinaryData> networkResponse
+                = ClientCoreProtocolUtils.send(this.httpPipeline, httpRequest, requestContext);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 204)) {
                 ClientCoreProtocolUtils.handleUnexpectedResponse(networkResponse,
@@ -193,17 +162,10 @@ public final class RequestBodiesImpl {
             if (contentType != null) {
                 httpRequest.getHeaders().set(HttpHeaderName.fromString("content-type"), contentType);
             }
-            if (value != null) {
-                if (httpRequest.getHeaders().get(HttpHeaderName.CONTENT_TYPE) == null) {
-                    httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, "application/json");
-                }
-                httpRequest.setBody(BinaryData.fromObject(value, RequestBodiesServiceImpl.JSON_SERIALIZER));
-            }
-            if (requestContext != null) {
-                httpRequest.setContext(requestContext);
-                requestContext.getRequestCallback().accept(httpRequest);
-            }
-            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            ClientCoreProtocolUtils.setBody(httpRequest, value, "application/json",
+                () -> BinaryData.fromObject(value, RequestBodiesServiceImpl.JSON_SERIALIZER));
+            Response<BinaryData> networkResponse
+                = ClientCoreProtocolUtils.send(this.httpPipeline, httpRequest, requestContext);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 204)) {
                 ClientCoreProtocolUtils.handleUnexpectedResponse(networkResponse,

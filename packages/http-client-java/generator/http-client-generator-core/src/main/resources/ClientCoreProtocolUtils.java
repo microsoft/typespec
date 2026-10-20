@@ -1,5 +1,9 @@
+import io.clientcore.core.http.models.HttpHeaderName;
+import io.clientcore.core.http.models.HttpRequest;
 import io.clientcore.core.http.models.HttpResponseException;
+import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
+import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.instrumentation.logging.ClientLogger;
 import io.clientcore.core.models.CoreException;
 import io.clientcore.core.models.binarydata.BinaryData;
@@ -22,6 +26,41 @@ import java.util.function.Supplier;
  */
 public final class ClientCoreProtocolUtils {
     private ClientCoreProtocolUtils() {
+    }
+
+    public static Response<BinaryData> send(HttpPipeline pipeline, HttpRequest request, RequestContext context) {
+        if (context != null) {
+            request.setContext(context);
+            context.getRequestCallback().accept(request);
+        }
+        return pipeline.send(request);
+    }
+
+    public static void setBody(HttpRequest request, Object body, String contentType, Supplier<BinaryData> serializer) {
+        if (body != null) {
+            if (request.getHeaders().get(HttpHeaderName.CONTENT_TYPE) == null) {
+                request.getHeaders().set(HttpHeaderName.CONTENT_TYPE, contentType);
+            }
+            request.setBody(serializer.get());
+        }
+    }
+
+    public static void setMixedBody(HttpRequest request, Object body, String contentType,
+        Supplier<BinaryData> jsonSerializer, Supplier<BinaryData> xmlSerializer) {
+        setBody(request, body, contentType,
+            () -> CoreUtils.serializationFormatFromContentType(request.getHeaders()) == SerializationFormat.XML
+                ? xmlSerializer.get()
+                : jsonSerializer.get());
+    }
+
+    public static <T> T readMixed(Response<BinaryData> response, Supplier<T> jsonDecoder, Supplier<T> xmlDecoder) {
+        SerializationFormat format = CoreUtils.serializationFormatFromContentType(response.getHeaders());
+        if (format == SerializationFormat.JSON) {
+            return jsonDecoder.get();
+        } else if (format == SerializationFormat.XML) {
+            return xmlDecoder.get();
+        }
+        throw new UnsupportedOperationException("Unsupported response serialization format: " + format);
     }
 
     public static <T> T readJson(BinaryData body, IOExceptionCheckedFunction<JsonReader, T> decoder,

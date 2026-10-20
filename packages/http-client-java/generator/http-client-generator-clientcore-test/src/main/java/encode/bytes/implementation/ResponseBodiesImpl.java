@@ -78,11 +78,8 @@ public final class ResponseBodiesImpl {
             if (accept != null) {
                 httpRequest.getHeaders().set(HttpHeaderName.fromString("Accept"), accept);
             }
-            if (requestContext != null) {
-                httpRequest.setContext(requestContext);
-                requestContext.getRequestCallback().accept(httpRequest);
-            }
-            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            Response<BinaryData> networkResponse
+                = ClientCoreProtocolUtils.send(this.httpPipeline, httpRequest, requestContext);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 200)) {
                 ClientCoreProtocolUtils.handleUnexpectedResponse(networkResponse,
@@ -98,11 +95,8 @@ public final class ResponseBodiesImpl {
             if (accept != null) {
                 httpRequest.getHeaders().set(HttpHeaderName.fromString("Accept"), accept);
             }
-            if (requestContext != null) {
-                httpRequest.setContext(requestContext);
-                requestContext.getRequestCallback().accept(httpRequest);
-            }
-            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            Response<BinaryData> networkResponse
+                = ClientCoreProtocolUtils.send(this.httpPipeline, httpRequest, requestContext);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 200)) {
                 ClientCoreProtocolUtils.handleUnexpectedResponse(networkResponse,
@@ -118,11 +112,8 @@ public final class ResponseBodiesImpl {
             if (accept != null) {
                 httpRequest.getHeaders().set(HttpHeaderName.fromString("Accept"), accept);
             }
-            if (requestContext != null) {
-                httpRequest.setContext(requestContext);
-                requestContext.getRequestCallback().accept(httpRequest);
-            }
-            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            Response<BinaryData> networkResponse
+                = ClientCoreProtocolUtils.send(this.httpPipeline, httpRequest, requestContext);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 200)) {
                 ClientCoreProtocolUtils.handleUnexpectedResponse(networkResponse,
@@ -138,11 +129,8 @@ public final class ResponseBodiesImpl {
             if (accept != null) {
                 httpRequest.getHeaders().set(HttpHeaderName.fromString("Accept"), accept);
             }
-            if (requestContext != null) {
-                httpRequest.setContext(requestContext);
-                requestContext.getRequestCallback().accept(httpRequest);
-            }
-            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            Response<BinaryData> networkResponse
+                = ClientCoreProtocolUtils.send(this.httpPipeline, httpRequest, requestContext);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 200)) {
                 ClientCoreProtocolUtils.handleUnexpectedResponse(networkResponse,
@@ -160,11 +148,8 @@ public final class ResponseBodiesImpl {
             if (accept != null) {
                 httpRequest.getHeaders().set(HttpHeaderName.fromString("Accept"), accept);
             }
-            if (requestContext != null) {
-                httpRequest.setContext(requestContext);
-                requestContext.getRequestCallback().accept(httpRequest);
-            }
-            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            Response<BinaryData> networkResponse
+                = ClientCoreProtocolUtils.send(this.httpPipeline, httpRequest, requestContext);
             int responseCode = networkResponse.getStatusCode();
             if (!(responseCode == 200)) {
                 ClientCoreProtocolUtils.handleUnexpectedResponse(networkResponse,
