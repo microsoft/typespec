@@ -1,6 +1,8 @@
 import "@typespec/http";
+import "@azure-tools/typespec-client-generator-core";
 
 using TypeSpec.Http;
+using Azure.ClientGenerator.Core;
 
 @service
 namespace ContinuationToken;
@@ -38,3 +40,10 @@ op headerHeader(@header @continuationToken token?: string): {
   @pageItems items: Item[];
   @header("next-token") @continuationToken nextToken?: string;
 };
+
+#suppress "@azure-tools/typespec-client-generator-core/client-option" "Testing Java client options."
+@@clientOption(queryBody, "includeContinuationTokenParameter", true, "java");
+#suppress "@azure-tools/typespec-client-generator-core/client-option" "Testing Java client options."
+@@clientOption(headerBody, "includeContinuationTokenParameter", false, "java");
+#suppress "@azure-tools/typespec-client-generator-core/client-option" "Testing Java client options."
+@@clientOption(headerHeader, "includeContinuationTokenParameter", true, "java");

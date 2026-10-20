@@ -290,7 +290,6 @@ public final class ServerDrivenPaginationContinuationTokenAsyncClient {
     /**
      * The requestQueryResponseBody operation.
      * 
-     * @param token The token parameter.
      * @param foo The foo parameter.
      * @param bar The bar parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -303,7 +302,7 @@ public final class ServerDrivenPaginationContinuationTokenAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedFlux<Pet> requestQueryResponseBody(String token, String foo, String bar) {
+    public PagedFlux<Pet> requestQueryResponseBody(String foo, String bar) {
         // Generated convenience method for requestQueryResponseBody
         RequestOptions requestOptions = new RequestOptions();
         if (foo != null) {
@@ -312,7 +311,7 @@ public final class ServerDrivenPaginationContinuationTokenAsyncClient {
         if (bar != null) {
             requestOptions.addQueryParam("bar", bar, false);
         }
-        PagedFlux<BinaryData> pagedFluxResponse = serviceClient.requestQueryResponseBodyAsync(token, requestOptions);
+        PagedFlux<BinaryData> pagedFluxResponse = serviceClient.requestQueryResponseBodyAsync(null, requestOptions);
         return PagedFlux.create(() -> (continuationTokenParam, pageSizeParam) -> {
             Flux<PagedResponse<BinaryData>> flux;
             if (pageSizeParam == null) {
@@ -374,7 +373,6 @@ public final class ServerDrivenPaginationContinuationTokenAsyncClient {
     /**
      * The requestHeaderResponseBody operation.
      * 
-     * @param token The token parameter.
      * @param foo The foo parameter.
      * @param bar The bar parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -387,7 +385,7 @@ public final class ServerDrivenPaginationContinuationTokenAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedFlux<Pet> requestHeaderResponseBody(String token, String foo, String bar) {
+    public PagedFlux<Pet> requestHeaderResponseBody(String foo, String bar) {
         // Generated convenience method for requestHeaderResponseBody
         RequestOptions requestOptions = new RequestOptions();
         if (foo != null) {
@@ -396,7 +394,7 @@ public final class ServerDrivenPaginationContinuationTokenAsyncClient {
         if (bar != null) {
             requestOptions.addQueryParam("bar", bar, false);
         }
-        PagedFlux<BinaryData> pagedFluxResponse = serviceClient.requestHeaderResponseBodyAsync(token, requestOptions);
+        PagedFlux<BinaryData> pagedFluxResponse = serviceClient.requestHeaderResponseBodyAsync(null, requestOptions);
         return PagedFlux.create(() -> (continuationTokenParam, pageSizeParam) -> {
             Flux<PagedResponse<BinaryData>> flux;
             if (pageSizeParam == null) {
@@ -458,7 +456,6 @@ public final class ServerDrivenPaginationContinuationTokenAsyncClient {
     /**
      * The requestQueryResponseHeader operation.
      * 
-     * @param token The token parameter.
      * @param foo The foo parameter.
      * @param bar The bar parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -471,7 +468,7 @@ public final class ServerDrivenPaginationContinuationTokenAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedFlux<Pet> requestQueryResponseHeader(String token, String foo, String bar) {
+    public PagedFlux<Pet> requestQueryResponseHeader(String foo, String bar) {
         // Generated convenience method for requestQueryResponseHeader
         RequestOptions requestOptions = new RequestOptions();
         if (foo != null) {
@@ -480,7 +477,7 @@ public final class ServerDrivenPaginationContinuationTokenAsyncClient {
         if (bar != null) {
             requestOptions.addQueryParam("bar", bar, false);
         }
-        PagedFlux<BinaryData> pagedFluxResponse = serviceClient.requestQueryResponseHeaderAsync(token, requestOptions);
+        PagedFlux<BinaryData> pagedFluxResponse = serviceClient.requestQueryResponseHeaderAsync(null, requestOptions);
         return PagedFlux.create(() -> (continuationTokenParam, pageSizeParam) -> {
             Flux<PagedResponse<BinaryData>> flux;
             if (pageSizeParam == null) {
@@ -542,7 +539,6 @@ public final class ServerDrivenPaginationContinuationTokenAsyncClient {
     /**
      * The requestHeaderResponseHeader operation.
      * 
-     * @param token The token parameter.
      * @param foo The foo parameter.
      * @param bar The bar parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -555,7 +551,7 @@ public final class ServerDrivenPaginationContinuationTokenAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedFlux<Pet> requestHeaderResponseHeader(String token, String foo, String bar) {
+    public PagedFlux<Pet> requestHeaderResponseHeader(String foo, String bar) {
         // Generated convenience method for requestHeaderResponseHeader
         RequestOptions requestOptions = new RequestOptions();
         if (foo != null) {
@@ -564,7 +560,7 @@ public final class ServerDrivenPaginationContinuationTokenAsyncClient {
         if (bar != null) {
             requestOptions.addQueryParam("bar", bar, false);
         }
-        PagedFlux<BinaryData> pagedFluxResponse = serviceClient.requestHeaderResponseHeaderAsync(token, requestOptions);
+        PagedFlux<BinaryData> pagedFluxResponse = serviceClient.requestHeaderResponseHeaderAsync(null, requestOptions);
         return PagedFlux.create(() -> (continuationTokenParam, pageSizeParam) -> {
             Flux<PagedResponse<BinaryData>> flux;
             if (pageSizeParam == null) {
@@ -626,7 +622,6 @@ public final class ServerDrivenPaginationContinuationTokenAsyncClient {
     /**
      * The requestQueryNestedResponseBody operation.
      * 
-     * @param token The token parameter.
      * @param foo The foo parameter.
      * @param bar The bar parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -639,7 +634,7 @@ public final class ServerDrivenPaginationContinuationTokenAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedFlux<Pet> requestQueryNestedResponseBody(String token, String foo, String bar) {
+    public PagedFlux<Pet> requestQueryNestedResponseBody(String foo, String bar) {
         // Generated convenience method for requestQueryNestedResponseBody
         RequestOptions requestOptions = new RequestOptions();
         if (foo != null) {
@@ -649,7 +644,7 @@ public final class ServerDrivenPaginationContinuationTokenAsyncClient {
             requestOptions.addQueryParam("bar", bar, false);
         }
         PagedFlux<BinaryData> pagedFluxResponse
-            = serviceClient.requestQueryNestedResponseBodyAsync(token, requestOptions);
+            = serviceClient.requestQueryNestedResponseBodyAsync(null, requestOptions);
         return PagedFlux.create(() -> (continuationTokenParam, pageSizeParam) -> {
             Flux<PagedResponse<BinaryData>> flux;
             if (pageSizeParam == null) {
@@ -712,7 +707,6 @@ public final class ServerDrivenPaginationContinuationTokenAsyncClient {
     /**
      * The requestHeaderNestedResponseBody operation.
      * 
-     * @param token The token parameter.
      * @param foo The foo parameter.
      * @param bar The bar parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -725,7 +719,7 @@ public final class ServerDrivenPaginationContinuationTokenAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.COLLECTION)
-    public PagedFlux<Pet> requestHeaderNestedResponseBody(String token, String foo, String bar) {
+    public PagedFlux<Pet> requestHeaderNestedResponseBody(String foo, String bar) {
         // Generated convenience method for requestHeaderNestedResponseBody
         RequestOptions requestOptions = new RequestOptions();
         if (foo != null) {
@@ -735,7 +729,7 @@ public final class ServerDrivenPaginationContinuationTokenAsyncClient {
             requestOptions.addQueryParam("bar", bar, false);
         }
         PagedFlux<BinaryData> pagedFluxResponse
-            = serviceClient.requestHeaderNestedResponseBodyAsync(token, requestOptions);
+            = serviceClient.requestHeaderNestedResponseBodyAsync(null, requestOptions);
         return PagedFlux.create(() -> (continuationTokenParam, pageSizeParam) -> {
             Flux<PagedResponse<BinaryData>> flux;
             if (pageSizeParam == null) {

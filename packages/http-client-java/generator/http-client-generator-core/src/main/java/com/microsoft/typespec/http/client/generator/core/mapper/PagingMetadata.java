@@ -290,7 +290,8 @@ final class PagingMetadata {
         }
 
         return new MethodPageDetails.ContinuationToken(requestParameter, clientMethodParameter,
-            responseHeaderSerializedName, responsePropertyReference);
+            responseHeaderSerializedName, responsePropertyReference,
+            rawContinuationToken.isIncludeContinuationTokenParameter());
     }
 
     private Stream<ClientMethod> enumerateNextMethodsOfType(ClientMethodType nextMethodType) {

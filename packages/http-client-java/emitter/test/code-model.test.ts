@@ -129,6 +129,9 @@ describe("code model characterization", () => {
           { continuationToken?: PageableContinuationToken; nextLinkName?: string } | undefined;
         assert.isDefined(pageable?.continuationToken);
         const token = pageable.continuationToken;
+        expect(token.includeContinuationTokenParameter).toBe(
+          name === "queryBody" || name === "headerHeader",
+        );
         expect(token.parameter).toBe(
           operation.parameters?.find((p) => p.language.default.serializedName === "token"),
         );
