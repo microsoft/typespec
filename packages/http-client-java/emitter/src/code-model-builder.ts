@@ -18,12 +18,14 @@ import type {
   SdkHttpResponse,
   SdkLroPagingServiceMethod,
   SdkLroServiceMethod,
+  SdkMethodResponse,
   SdkModelPropertyType,
   SdkModelType,
   SdkPathParameter,
   SdkQueryParameter,
   SdkServiceMethod,
   SdkServiceResponseHeader,
+  SdkSseMetadata,
   SdkType,
   SdkUnionType,
 } from "@azure-tools/typespec-client-generator-core";
@@ -1049,10 +1051,14 @@ export class CodeModelBuilder {
     codeModelOperation.language.default.crossLanguageDefinitionId =
       sdkMethod.crossLanguageDefinitionId;
     codeModelOperation.internalApi = sdkMethod.access === "internal";
+    codeModelOperation.sse = this.processSseMetadata(sdkMethod.response);
 
     const convenienceApiName = this.getConvenienceApiName(sdkMethod);
     let generateConvenienceApi: boolean = sdkMethod.generateConvenient;
     let generateProtocolApi: boolean = sdkMethod.generateProtocol;
+    if (codeModelOperation.sse) {
+      generateProtocolApi = false;
+    }
 
     let diagnostic = undefined;
     if (generateConvenienceApi && this.isAzureV1()) {
@@ -1250,6 +1256,98 @@ export class CodeModelBuilder {
     this.processRouteForLongRunning(codeModelOperation, lroMetadata);
 
     return codeModelOperation;
+  }
+
+  private processSseMetadata(response: SdkMethodResponse): CodeModelOperation["sse"] | undefined {
+    if (!this.options["dev-options"]?.["enable-sse"] || !this.isAzureV1()) {
+      return undefined;
+    }
+
+    if (!response.streamMetadata?.contentTypes.includes("text/event-stream")) {
+      return undefined;
+    }
+
+    const unsupported = () => {
+      reportDiagnostic(this.program, {
+        code: "experimental-sse-unsupported",
+        target: response.type?.__raw ?? NoTarget,
+      });
+      return undefined;
+    };
+    const sseMetadata: SdkSseMetadata | undefined = response.sseMetadata;
+    if (!sseMetadata || sseMetadata.events.length === 0) {
+      return unsupported();
+    }
+
+    const streamType = response.streamMetadata.streamType;
+    if (streamType.kind !== "union" || !streamType.name) {
+      return unsupported();
+    }
+    const baseEventName = streamType.name.endsWith("Events")
+      ? streamType.name.slice(0, -1)
+      : `${streamType.name}Event`;
+    const baseStem = baseEventName.endsWith("StreamEvent")
+      ? baseEventName.slice(0, -"StreamEvent".length)
+      : baseEventName;
+    const streamEventPrefixSegment = sseMetadata.events
+      .map((event) =>
+        typeof event.eventType === "string"
+          ? pascalCase(event.eventType.split(".", 1)[0])
+          : undefined,
+      )
+      .filter((segment): segment is string => segment !== undefined)
+      .find((segment) => baseStem.endsWith(segment));
+    const streamEventPrefix = streamEventPrefixSegment
+      ? baseStem.slice(0, -streamEventPrefixSegment.length)
+      : baseStem;
+
+    const events = sseMetadata.events.map((event) => {
+      if (typeof event.eventType !== "string") {
+        return undefined;
+      }
+      if (event.payloadType.kind !== "model" && event.payloadType.kind !== "array") {
+        return undefined;
+      }
+      const eventName = event.eventType
+        .split(/[^A-Za-z0-9]+/)
+        .filter((segment) => segment.length > 0)
+        .map(pascalCase)
+        .join("");
+      const payload = this.processSchema(event.payloadType, `${eventName}EventPayload`);
+      return {
+        event,
+        wrapperName: `${streamEventPrefix}${eventName}StreamEvent`,
+        payload,
+      };
+    });
+    if (events.some((event) => event === undefined)) {
+      return unsupported();
+    }
+
+    const supportedEvents = events as Array<NonNullable<(typeof events)[number]>>;
+    const wrapperNames = supportedEvents.map((event) => event.wrapperName);
+    if (
+      wrapperNames.some((name) => name === baseEventName) ||
+      new Set(wrapperNames).size !== wrapperNames.length
+    ) {
+      return unsupported();
+    }
+    for (const { payload } of supportedEvents) {
+      this.trackSchemaUsage(payload, {
+        usage: [SchemaContext.Output, SchemaContext.Public],
+        serializationFormats: [KnownMediaType.Json],
+      });
+    }
+
+    return {
+      baseEventName,
+      events: supportedEvents.map(({ event, wrapperName, payload }) => ({
+        name: event.eventType!,
+        wrapperName,
+        payload,
+        terminal: event.isTerminalEvent,
+      })),
+    };
   }
 
   private processRouteForPaged(

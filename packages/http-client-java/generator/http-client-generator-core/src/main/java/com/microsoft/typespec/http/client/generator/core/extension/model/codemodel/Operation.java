@@ -34,6 +34,7 @@ public class Operation extends Metadata {
     private ConvenienceApi convenienceApi;
     private Boolean generateProtocolApi;
     private Boolean internalApi;
+    private SseMetadata sse;
     // internal
     private OperationGroup operationGroup;
 
@@ -392,6 +393,24 @@ public class Operation extends Metadata {
      */
     public Boolean getInternalApi() {
         return internalApi;
+    }
+
+    /**
+     * Gets experimental server-sent event metadata.
+     *
+     * @return Experimental server-sent event metadata.
+     */
+    public SseMetadata getSse() {
+        return sse;
+    }
+
+    /**
+     * Sets experimental server-sent event metadata.
+     *
+     * @param sse Experimental server-sent event metadata.
+     */
+    public void setSse(SseMetadata sse) {
+        this.sse = sse;
     }
 
     /**

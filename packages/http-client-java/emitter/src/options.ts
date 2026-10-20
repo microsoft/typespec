@@ -11,10 +11,12 @@ export const DIAGNOSTIC_DOCS_BASE_URL =
 export const DIAGNOSTIC_DOCS_EXCLUDED = new Set([
   "dpg-protocol-api-not-generated",
   "dpg-convenience-api-not-generated",
+  "experimental-sse-unsupported",
 ]);
 
 export interface DevOptions {
   "generate-code-model"?: boolean;
+  "enable-sse"?: boolean;
   debug?: boolean;
   loglevel?: "off" | "debug" | "info" | "warn" | "error";
   "java-temp-dir"?: string; // working directory for java codegen, e.g. transformed code-model file
@@ -45,6 +47,12 @@ export const EmitterOptionsSchema: JSONSchemaType<EmitterOptions> = {
         "generate-code-model": {
           type: "boolean",
           description: "Generate intermittent 'code-model.yaml' file in output directory.",
+          nullable: true,
+        },
+        "enable-sse": {
+          type: "boolean",
+          description:
+            "Enable experimental Azure-flavor generation for supported server-sent event operations.",
           nullable: true,
         },
         debug: {

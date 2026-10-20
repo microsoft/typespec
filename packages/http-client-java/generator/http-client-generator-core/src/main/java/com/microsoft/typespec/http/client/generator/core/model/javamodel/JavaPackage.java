@@ -3,6 +3,7 @@
 
 package com.microsoft.typespec.http.client.generator.core.model.javamodel;
 
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseMetadata;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.NewPlugin;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
@@ -36,12 +37,15 @@ import com.microsoft.typespec.http.client.generator.core.template.ProtocolTestBa
 import com.microsoft.typespec.http.client.generator.core.template.ProtocolTestTemplate;
 import com.microsoft.typespec.http.client.generator.core.template.ReadmeTemplate;
 import com.microsoft.typespec.http.client.generator.core.template.ServiceSyncClientTemplate;
+import com.microsoft.typespec.http.client.generator.core.template.SseEventConverterTemplate;
+import com.microsoft.typespec.http.client.generator.core.template.SseEventModelTemplate;
 import com.microsoft.typespec.http.client.generator.core.template.Templates;
 import com.microsoft.typespec.http.client.generator.core.template.TestProxyAssetsTemplate;
 import com.microsoft.typespec.http.client.generator.core.util.ClassNameUtil;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.ConstantStringTooLongException;
 import com.microsoft.typespec.http.client.generator.core.util.PossibleCredentialException;
+import com.microsoft.typespec.http.client.generator.core.util.SseUtil;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -94,6 +98,23 @@ public class JavaPackage {
         JavaFile javaFile = javaFileFactory.createSourceFile(packageKeyword, name);
         Templates.getServiceClientTemplate().write(model, javaFile);
         addJavaFile(javaFile);
+    }
+
+    public final void addSseEventConverter(String packageKeyword, SseMetadata metadata) {
+        JavaFile javaFile = javaFileFactory.createSourceFile(packageKeyword, SseUtil.getConverterClassName(metadata));
+        SseEventConverterTemplate.getInstance().write(metadata, javaFile);
+        addJavaFile(javaFile);
+    }
+
+    public final void addSseEventModels(String packageKeyword, SseMetadata metadata) {
+        JavaFile baseFile = javaFileFactory.createSourceFile(packageKeyword, metadata.getBaseEventName());
+        SseEventModelTemplate.getInstance().writeBase(metadata, baseFile);
+        addJavaFile(baseFile);
+        metadata.getEvents().forEach(event -> {
+            JavaFile eventFile = javaFileFactory.createSourceFile(packageKeyword, event.getWrapperName());
+            SseEventModelTemplate.getInstance().writeEvent(metadata, event, eventFile);
+            addJavaFile(eventFile);
+        });
     }
 
     public final void addAsyncServiceClient(String packageKeyWord, AsyncSyncClient asyncClient) {

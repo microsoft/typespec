@@ -44,6 +44,99 @@ import { createResponseErrorSchema } from "../src/external-schemas.js";
 import { cloneOperationParameter } from "../src/operation-utils.js";
 
 describe("code model characterization", () => {
+  it("warns and keeps unsupported experimental SSE responses binary", async () => {
+    const program = await compile(
+      NodeHost,
+      fileURLToPath(new URL("./fixtures/sse-unsupported.tsp", import.meta.url)),
+      { noEmit: true },
+    );
+    expectDiagnosticEmpty(program.diagnostics);
+
+    const codeModel = await new CodeModelBuilder(program, {
+      program,
+      emitterOutputDir: "/code-model-test-output",
+      options: {
+        flavor: "azure",
+        "dev-options": { "enable-sse": true },
+      } as any,
+      perf: {
+        startTimer: () => ({ end: () => 0 }),
+        time: (_label, callback) => callback(),
+        timeAsync: (_label, callback) => callback(),
+        report: () => {},
+      },
+    }).build();
+
+    expectDiagnostics(
+      program.diagnostics.filter(
+        (diagnostic) =>
+          diagnostic.code === "@typespec/http-client-java/experimental-sse-unsupported",
+      ),
+      [
+        {
+          code: "@typespec/http-client-java/experimental-sse-unsupported",
+          severity: "warning",
+        },
+      ],
+    );
+    const operation = codeModel.clients[0].operationGroups[0].operations![0];
+    expect(operation.sse).toBeUndefined();
+    expect(operation.responses?.[0]).toMatchObject({ binary: true });
+  });
+
+  it("keeps SSE responses binary unless experimental SSE generation is enabled", async () => {
+    const program = await compile(
+      NodeHost,
+      fileURLToPath(new URL("./fixtures/sse.tsp", import.meta.url)),
+      { noEmit: true },
+    );
+    expectDiagnosticEmpty(program.diagnostics);
+
+    const build = async (enableSse: boolean) =>
+      new CodeModelBuilder(program, {
+        program,
+        emitterOutputDir: "/code-model-test-output",
+        options: {
+          flavor: "azure",
+          "dev-options": { "enable-sse": enableSse },
+        } as any,
+        perf: {
+          startTimer: () => ({ end: () => 0 }),
+          time: (_label, callback) => callback(),
+          timeAsync: (_label, callback) => callback(),
+          report: () => {},
+        },
+      }).build();
+
+    const disabledOperation = (await build(false)).clients[0].operationGroups[0].operations![0];
+    expect(disabledOperation.sse).toBeUndefined();
+    expect(disabledOperation.responses?.[0]).toMatchObject({ binary: true });
+
+    const enabledOperation = (await build(true)).clients[0].operationGroups[0].operations![0];
+    expect(enabledOperation.generateProtocolApi).toBe(false);
+    expect(enabledOperation.sse).toMatchObject({
+      baseEventName: "RetrievalStreamEvent",
+      events: [
+        {
+          name: "retrieval.started",
+          wrapperName: "RetrievalStartedStreamEvent",
+          terminal: false,
+          payload: {
+            language: { default: { name: "RetrievalStarted" } },
+          },
+        },
+        {
+          name: "response.completed",
+          wrapperName: "ResponseCompletedStreamEvent",
+          terminal: true,
+          payload: {
+            language: { default: { name: "ResponseCompleted" } },
+          },
+        },
+      ],
+    });
+  });
+
   it.each(["azure", "standard"] as const)(
     "propagates %s usage to tagged descendants through an untagged intermediate",
     async (flavor) => {

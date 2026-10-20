@@ -26,6 +26,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Retur
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.util.MethodNamer;
 import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
+import com.microsoft.typespec.http.client.generator.core.util.SseUtil;
 import io.clientcore.core.utils.CoreUtils;
 import java.util.ArrayList;
 import java.util.List;
@@ -248,7 +249,15 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                 } else {
                     // Create Simple Client Methods.
                     //
-                    if (proxyMethod.isSync()) {
+                    if (operation.getSse() != null && settings.isSseEnabled() && !isProtocolMethod) {
+                        if (proxyMethod.isSync()) {
+                            createSimpleWithResponseClientMethods(true, baseMethod, methods, createMethodArgs);
+                            createSseClientMethod(true, operation, baseMethod, methods, methodNamer);
+                        } else {
+                            createSimpleWithResponseClientMethods(false, baseMethod, methods, createMethodArgs);
+                            createSseClientMethod(false, operation, baseMethod, methods, methodNamer);
+                        }
+                    } else if (proxyMethod.isSync()) {
                         createSimpleClientMethods(true, baseMethod, methods, createMethodArgs);
                     } else {
                         if (settings.getSyncMethods() != SyncMethodsGeneration.SYNC_ONLY) {
@@ -267,6 +276,23 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             .filter(m -> m.getMethodVisibility() != NOT_GENERATE)
             .distinct()
             .collect(Collectors.toList());
+    }
+
+    private void createSseClientMethod(boolean isSync, Operation operation, ClientMethod baseMethod,
+        List<ClientMethod> methods, MethodNamer methodNamer) {
+        IType eventType = SseUtil.getEventType(operation.getSse().getBaseEventName());
+        IType returnType = isSync ? GenericType.closeableIterableStream(eventType) : GenericType.flux(eventType);
+        String methodName = isSync ? methodNamer.getMethodName() : methodNamer.getSimpleAsyncMethodName();
+        ClientMethodType methodType = isSync ? ClientMethodType.SseSync : ClientMethodType.SseAsync;
+
+        methods.add(baseMethod.newBuilder()
+            .name(methodName)
+            .type(methodType)
+            .returnValue(new ReturnValue("the stream of server-sent events", returnType))
+            .methodVisibility(JavaVisibility.Public)
+            .methodVisibilityInWrapperClient(JavaVisibility.Public)
+            .sseMetadata(operation.getSse())
+            .build());
     }
 
     /**

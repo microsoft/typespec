@@ -7,11 +7,13 @@ import com.microsoft.typespec.http.client.generator.core.Javagen;
 import com.microsoft.typespec.http.client.generator.core.extension.jsonrpc.Connection;
 import com.microsoft.typespec.http.client.generator.core.extension.model.Message;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.CodeModel;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseMetadata;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.AsyncSyncClient;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Client;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientException;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ConvenienceMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.TypeSpecMetadata;
@@ -20,6 +22,7 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaPac
 import com.microsoft.typespec.http.client.generator.core.preprocessor.Preprocessor;
 import com.microsoft.typespec.http.client.generator.core.preprocessor.tranformer.Transformer;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
+import com.microsoft.typespec.http.client.generator.core.util.SseUtil;
 import com.microsoft.typespec.http.client.generator.mapper.TypeSpecAzureVNextMapperFactory;
 import com.microsoft.typespec.http.client.generator.mapper.TypeSpecClientCoreMapperFactory;
 import com.microsoft.typespec.http.client.generator.mapper.TypeSpecMapperFactory;
@@ -35,6 +38,7 @@ import java.nio.file.Paths;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
@@ -103,6 +107,40 @@ public class TypeSpecPlugin extends Javagen {
     @Override
     protected void writeHelperClasses(Client client, CodeModel codeModel, JavaPackage javaPackage,
         JavaSettings settings) {
+        if (settings.isSseEnabled()) {
+            String implementationPackage = settings.getPackage(settings.getImplementationSubpackage());
+            Map<String, SseMetadata> sseMetadata = new LinkedHashMap<>();
+            client.getServiceClients().forEach(serviceClient -> {
+                collectSseMetadata(serviceClient.getClientMethods(), sseMetadata);
+                serviceClient.getMethodGroupClients()
+                    .forEach(group -> collectSseMetadata(group.getClientMethods(), sseMetadata));
+            });
+            client.getAsyncClients()
+                .stream()
+                .flatMap(asyncClient -> asyncClient.getConvenienceMethods().stream())
+                .flatMap(convenienceMethod -> convenienceMethod.getConvenienceMethods().stream())
+                .map(ClientMethod::getSseMetadata)
+                .filter(Objects::nonNull)
+                .forEach(sse -> sseMetadata.putIfAbsent(SseUtil.getConverterClassName(sse), sse));
+            client.getSyncClients()
+                .stream()
+                .flatMap(syncClient -> syncClient.getConvenienceMethods().stream())
+                .flatMap(convenienceMethod -> convenienceMethod.getConvenienceMethods().stream())
+                .map(ClientMethod::getSseMetadata)
+                .filter(Objects::nonNull)
+                .forEach(sse -> sseMetadata.putIfAbsent(SseUtil.getConverterClassName(sse), sse));
+            if (!sseMetadata.isEmpty()) {
+                javaPackage.addJavaFromResources(implementationPackage, SseUtil.SERVER_SENT_EVENT_STREAMS);
+                javaPackage.addJavaFromResources(implementationPackage, "ServerSentEventStream");
+                javaPackage.addJavaFromResources(implementationPackage, "ServerSentEventStreamResponse");
+                String modelsPackage = settings.getPackage(settings.getModelsSubpackage());
+                sseMetadata.values().forEach(metadata -> {
+                    javaPackage.addSseEventModels(modelsPackage, metadata);
+                    javaPackage.addSseEventConverter(modelsPackage, metadata);
+                });
+            }
+        }
+
         // JsonMergePatchHelper
         List<ClientModel> jsonMergePatchModels = client.getModels()
             .stream()
@@ -158,6 +196,13 @@ public class TypeSpecPlugin extends Javagen {
             }
 
         }
+    }
+
+    private static void collectSseMetadata(List<ClientMethod> methods, Map<String, SseMetadata> metadata) {
+        methods.stream()
+            .map(ClientMethod::getSseMetadata)
+            .filter(Objects::nonNull)
+            .forEach(sse -> metadata.putIfAbsent(SseUtil.getConverterClassName(sse), sse));
     }
 
     @Override
@@ -244,6 +289,9 @@ public class TypeSpecPlugin extends Javagen {
         }
         if (options.getStreamStyleSerialization() != null) {
             SETTINGS_MAP.put("stream-style-serialization", options.getStreamStyleSerialization());
+        }
+        if (options.getDevOptions() != null && options.getDevOptions().getEnableSse() != null) {
+            SETTINGS_MAP.put("enable-sse", options.getDevOptions().getEnableSse());
         }
         if (options.getUseObjectForUnknown()) {
             SETTINGS_MAP.put("use-object-for-unknown", emitterOptions.getUseObjectForUnknown());

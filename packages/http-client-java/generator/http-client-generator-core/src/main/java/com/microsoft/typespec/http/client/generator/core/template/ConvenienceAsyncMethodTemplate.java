@@ -13,6 +13,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Gener
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlock;
+import com.microsoft.typespec.http.client.generator.core.util.SseUtil;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
 import io.clientcore.core.utils.CoreUtils;
 import java.util.List;
@@ -50,8 +51,13 @@ public class ConvenienceAsyncMethodTemplate extends ConvenienceMethodTemplateBas
 
     @Override
     protected boolean isMethodIncluded(ConvenienceMethod method) {
-        return isMethodAsync(method.getProtocolMethod()) && isMethodVisible(method.getProtocolMethod())
-        // for LRO, we actually choose the protocol method of "WithModel"
+        boolean hasSseMethod = method.getConvenienceMethods()
+            .stream()
+            .anyMatch(clientMethod -> clientMethod.getType() == ClientMethodType.SseAsync);
+        return isMethodAsync(method.getProtocolMethod())
+            && isMethodVisible(method.getProtocolMethod())
+            && (!hasSseMethod || method.getProtocolMethod().getType() == ClientMethodType.SimpleAsyncRestResponse)
+            // for LRO, we actually choose the protocol method of "WithModel"
             && (method.getProtocolMethod().getType() != ClientMethodType.LongRunningBeginAsync
                 || (method.getProtocolMethod().getImplementationDetails() != null
                     && method.getProtocolMethod().getImplementationDetails().isImplementationOnly()))
@@ -69,6 +75,14 @@ public class ConvenienceAsyncMethodTemplate extends ConvenienceMethodTemplateBas
         IType responseBodyType = getConvenienceResponseBodyType(convenienceMethod);
         IType protocolResponseBodyType = getConvenienceResponseBodyType(protocolMethod);
         IType rawResponseBodyType = convenienceMethod.getProxyMethod().getRawResponseBodyType();
+
+        if (convenienceMethod.getType() == ClientMethodType.SseAsync) {
+            String converterName = SseUtil.getConverterClassName(convenienceMethod.getSseMetadata());
+            methodBlock.methodReturn(String.format(
+                "%1$s(%2$s).flatMapMany(response -> ServerSentEventStreams.toFlux(response, %3$s::convert, %3$s::isTerminal))",
+                getMethodName(protocolMethod), invocationExpression, converterName));
+            return;
+        }
 
         if (convenienceMethod.getType() == ClientMethodType.SimpleAsync
             && responseBodyType.asNullable() == ClassType.VOID
@@ -167,7 +181,9 @@ public class ConvenienceAsyncMethodTemplate extends ConvenienceMethodTemplateBas
 
     @Override
     protected void writeThrowException(ClientMethodType methodType, String exceptionExpression, JavaBlock methodBlock) {
-        if (methodType == ClientMethodType.PagingAsync) {
+        if (methodType == ClientMethodType.SseAsync) {
+            methodBlock.methodReturn(String.format("Flux.error(%s)", exceptionExpression));
+        } else if (methodType == ClientMethodType.PagingAsync) {
             methodBlock.methodReturn(
                 String.format("PagedFlux.create(() -> (ignoredContinuationToken, ignoredPageSize) -> Flux.error(%s))",
                     exceptionExpression));

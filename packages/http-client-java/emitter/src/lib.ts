@@ -88,6 +88,14 @@ export const $lib = createTypeSpecLibrary({
         default: paramMessage`${"warningMessage"}`,
       },
     },
+    "experimental-sse-unsupported": {
+      ...doc("experimental-sse-unsupported"),
+      severity: "warning",
+      messages: {
+        default:
+          "Experimental Java SSE generation does not support this event stream shape. The operation will continue to return BinaryData.",
+      },
+    },
     "no-service": {
       ...doc("no-service"),
       severity: "warning",
