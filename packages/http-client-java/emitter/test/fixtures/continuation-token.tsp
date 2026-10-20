@@ -13,7 +13,13 @@ model Item {
 
 @list
 @route("/query-body")
-op queryBody(@query @continuationToken token?: string): {
+op queryBody(
+  #suppress "@azure-tools/typespec-client-generator-core/client-option" "Testing Java client options."
+  @clientOption("includeContinuationTokenParameter", true, "java")
+  @query
+  @continuationToken
+  token?: string,
+): {
   @pageItems items: Item[];
   next?: {
     @continuationToken token?: string;
@@ -22,7 +28,13 @@ op queryBody(@query @continuationToken token?: string): {
 
 @list
 @route("/header-body")
-op headerBody(@header @continuationToken token?: string): {
+op headerBody(
+  #suppress "@azure-tools/typespec-client-generator-core/client-option" "Testing Java client options."
+  @clientOption("includeContinuationTokenParameter", false, "java")
+  @header
+  @continuationToken
+  token?: string,
+): {
   @pageItems items: Item[];
   @continuationToken nextToken?: string;
 };
@@ -36,16 +48,16 @@ op queryHeader(@query @continuationToken token?: string): {
 
 @list
 @route("/header-header")
-op headerHeader(@header @continuationToken token?: string): {
+op headerHeader(
+  #suppress "@azure-tools/typespec-client-generator-core/client-option" "Testing Java client options."
+  @clientOption("includeContinuationTokenParameter", true, "java")
+  @header
+  @continuationToken
+  token?: string,
+): {
   @pageItems items: Item[];
   @header("next-token") @continuationToken nextToken?: string;
 };
 
-#suppress "@azure-tools/typespec-client-generator-core/client-option" "Testing Java client options."
-@@clientOption(queryBody::parameters.token, "includeContinuationTokenParameter", true, "java");
-#suppress "@azure-tools/typespec-client-generator-core/client-option" "Testing Java client options."
-@@clientOption(headerBody::parameters.token, "includeContinuationTokenParameter", false, "java");
-#suppress "@azure-tools/typespec-client-generator-core/client-option" "Testing Java client options."
-@@clientOption(headerHeader::parameters.token, "includeContinuationTokenParameter", true, "java");
 #suppress "@azure-tools/typespec-client-generator-core/client-option" "Operation options do not control parameter visibility."
 @@clientOption(queryHeader, "includeContinuationTokenParameter", true, "java");

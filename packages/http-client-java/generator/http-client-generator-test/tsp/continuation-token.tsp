@@ -30,11 +30,27 @@ model HeaderPage {
 
 @list
 @route("/request-query-response-body")
-op visibleQuery(@query @continuationToken token?: string, ...HeaderAndQuery): BodyPage;
+op visibleQuery(
+  #suppress "@azure-tools/typespec-client-generator-core/client-option" "Preserve the public cursor parameter."
+  @clientOption("includeContinuationTokenParameter", true, "java")
+  @query
+  @continuationToken
+  token?: string,
+
+  ...HeaderAndQuery,
+): BodyPage;
 
 @list
 @route("/request-header-response-header")
-op visibleHeader(@header @continuationToken token?: string, ...HeaderAndQuery): HeaderPage;
+op visibleHeader(
+  #suppress "@azure-tools/typespec-client-generator-core/client-option" "Preserve the public cursor parameter."
+  @clientOption("includeContinuationTokenParameter", true, "java")
+  @header
+  @continuationToken
+  token?: string,
+
+  ...HeaderAndQuery,
+): HeaderPage;
 
 @list
 @route("/request-query-response-header")
@@ -42,11 +58,12 @@ op defaultQuery(@query @continuationToken token?: string, ...HeaderAndQuery): He
 
 @list
 @route("/request-header-response-body")
-op hiddenHeader(@header @continuationToken token?: string, ...HeaderAndQuery): BodyPage;
+op hiddenHeader(
+  #suppress "@azure-tools/typespec-client-generator-core/client-option" "Exercise explicit default behavior."
+  @clientOption("includeContinuationTokenParameter", false, "java")
+  @header
+  @continuationToken
+  token?: string,
 
-#suppress "@azure-tools/typespec-client-generator-core/client-option" "Preserve the public cursor parameter."
-@@clientOption(visibleQuery::parameters.token, "includeContinuationTokenParameter", true, "java");
-#suppress "@azure-tools/typespec-client-generator-core/client-option" "Preserve the public cursor parameter."
-@@clientOption(visibleHeader::parameters.token, "includeContinuationTokenParameter", true, "java");
-#suppress "@azure-tools/typespec-client-generator-core/client-option" "Exercise explicit default behavior."
-@@clientOption(hiddenHeader::parameters.token, "includeContinuationTokenParameter", false, "java");
+  ...HeaderAndQuery,
+): BodyPage;
