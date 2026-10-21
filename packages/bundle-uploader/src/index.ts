@@ -216,6 +216,13 @@ export async function bundleAndUploadPackages({
     const manifest = bundle.manifest;
     const result = await uploader.upload(bundle);
     if (result.status === "uploaded") {
+      if (overwrite) {
+        for (const key of Object.keys(importMap)) {
+          if (key === manifest.name || key.startsWith(`${manifest.name}/`)) {
+            delete importMap[key];
+          }
+        }
+      }
       logSuccess(`Bundle for package ${manifest.name}@${manifest.version} uploaded.`);
     } else {
       logInfo(`Bundle for package ${manifest.name} already exist for version ${manifest.version}.`);

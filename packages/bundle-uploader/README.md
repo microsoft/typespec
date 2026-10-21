@@ -22,3 +22,6 @@ node eng/emitters/scripts/upload-bundled-emitter.ts path/to/package --overwrite
 Overwrite mode replaces the manifest, JavaScript files, static assets, and bundled peer
 dependencies for the uploaded versions. Both `bundleAndUploadPackages` and
 `bundleAndUploadStandalonePackage` accept an optional `overwrite: true` setting.
+
+The shared index also removes obsolete export mappings for successfully overwritten
+packages, while preserving mappings for other packages.
