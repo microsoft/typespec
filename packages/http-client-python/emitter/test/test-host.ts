@@ -9,7 +9,8 @@ import { $onEmit } from "../src/emitter.js";
 import { $lib, type PythonEmitterOptions } from "../src/lib.js";
 
 const PythonTester = createTester(resolvePath(import.meta.dirname, "../.."), {
-  libraries: ["@azure-tools/typespec-client-generator-core"],
+  libraries: ["@azure-tools/typespec-client-generator-core", "@typespec/http"],
+  features: ["union-extends"],
 });
 
 export const Tester = PythonTester;
@@ -79,7 +80,9 @@ export async function emitCodeModel(
       (name) => name.startsWith(".tsp-codegen-") && name.endsWith(".json"),
     );
     if (!pointerName) {
-      throw new Error("Emitter did not produce a code model.");
+      throw new Error(
+        `Emitter did not produce a code model: ${diagnostics.map((d) => d.message).join("\n")}`,
+      );
     }
     const pointer = JSON.parse(await readFile(join(outputDir, pointerName), "utf-8"));
     ({ yamlPath } = pointer);
