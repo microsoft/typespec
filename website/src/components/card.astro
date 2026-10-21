@@ -43,5 +43,7 @@ const { class: cls, noPadding, blend } = Astro.props;
 
 <div class:list={["card", noPadding && "no-padding", blend && "blend", cls]}>
   <div class="bg"></div>
-  <div class="content"><slot /></div>
+  <div class="content">
+    <slot />
+  </div>
 </div>

@@ -9,7 +9,8 @@ import {
 import { applyEnumMemberPipeline } from "../../lib/naming.js";
 
 /**
- * GraphQL-specific EnumMember mutation.
+ * Normalizes a GraphQL enum value name while preserving its connection to
+ * the containing enum.
  */
 export class GraphQLEnumMemberMutation extends EnumMemberMutation<
   MutationOptions,
@@ -18,6 +19,11 @@ export class GraphQLEnumMemberMutation extends EnumMemberMutation<
 > {
   #mutationNode: EnumMemberMutationNode;
 
+  /**
+   * Associates a value transformation with the engine's member node and cache
+   * identity. Normally created by the engine while mutating an enum, rather
+   * than constructed independently.
+   */
   constructor(
     engine: MutationEngine<any>,
     sourceType: EnumMember,
@@ -32,14 +38,17 @@ export class GraphQLEnumMemberMutation extends EnumMemberMutation<
     }) as EnumMemberMutationNode;
   }
 
+  /** Graph node used to synchronize this value with its containing enum. */
   get mutationNode() {
     return this.#mutationNode;
   }
 
+  /** Enum member held by the node, with its GraphQL value name after mutation completes. */
   get mutatedType() {
     return this.#mutationNode.mutatedType;
   }
 
+  /** Applies GraphQL enum-value naming and finalizes the member through the mutation framework. */
   mutate() {
     this.#mutationNode.mutate((member) => {
       member.name = applyEnumMemberPipeline(member.name);

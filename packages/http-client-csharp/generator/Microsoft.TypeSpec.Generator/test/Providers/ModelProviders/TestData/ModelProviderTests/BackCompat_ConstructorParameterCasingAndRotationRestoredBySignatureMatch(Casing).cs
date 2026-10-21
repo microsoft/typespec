@@ -19,9 +19,9 @@ namespace Sample.Models
             VMwareSiteId = vmwareSiteId;
         }
 
-        internal CasingModel(string vmwareSiteId, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties)
+        internal CasingModel(string vMwareSiteId, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties)
         {
-            VMwareSiteId = vmwareSiteId;
+            VMwareSiteId = vMwareSiteId;
             _additionalBinaryDataProperties = additionalBinaryDataProperties;
         }
 

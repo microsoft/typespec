@@ -20,17 +20,24 @@ export enum GraphQLTypeContext {
  *
  * @param typeContext - structural context (Input/Output/Interface)
  * @param visibilityFilter - which properties to include (from compiler's VisibilityFilter)
- * @param inputQualifier - when set, distinguishes cache entries and feeds the naming pipeline
+ * @param inputQualifier - when set, feeds the naming pipeline without changing the cache key
  *   (e.g., "Query" → UserQueryInput, "Mutation" → UserMutationInput)
  */
 export class GraphQLMutationOptions extends SimpleMutationOptions {
+  /** Structural variant propagated to referenced types: input object, output object, or interface. */
   readonly typeContext: GraphQLTypeContext;
+  /** Property-selection filter; undefined leaves model properties unfiltered. */
   readonly visibilityFilter?: VisibilityFilter;
-  /** Cache key discriminator — always set for input variants ("query" or "mutation"). */
+  /** Optional cache discriminator, conventionally "query" or "mutation" for input variants. */
   readonly operationKind?: string;
   /** Naming qualifier — only set when operation variance requires distinct type names. */
   readonly inputQualifier?: string;
 
+  /**
+   * Selects a structural variant and optional property filter. Callers must
+   * supply consistent filters and naming qualifiers for the same cache key:
+   * only `typeContext` and `operationKind` contribute to {@link mutationKey}.
+   */
   constructor(
     typeContext: GraphQLTypeContext,
     visibilityFilter?: VisibilityFilter,
@@ -44,6 +51,10 @@ export class GraphQLMutationOptions extends SimpleMutationOptions {
     this.inputQualifier = inputQualifier;
   }
 
+  /**
+   * Cache discriminator consisting of the context and, when truthy, operation
+   * kind separated by a hyphen. Filters and naming qualifiers are not included.
+   */
   override get mutationKey(): string {
     if (this.operationKind) {
       return `${this.typeContext}-${this.operationKind}`;

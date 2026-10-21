@@ -42,7 +42,9 @@ namespace Microsoft.TypeSpec.Generator.Tests
             bool includeXmlDocs = false,
             string? inputNamespaceName = null,
             string? outputPath = null,
-            ApiCompatBaseline? apiCompatBaseline = null)
+            ApiCompatBaseline? apiCompatBaseline = null,
+            Func<CSharpType, InputModelType, CSharpType?>? createLastContractModelBase = null,
+            Func<CSharpType, InputModelProperty, PropertyProvider, bool>? isLastContractModelBasePropertyCompatible = null)
         {
             var mockGenerator = LoadMockGenerator(
                 createCSharpTypeCore,
@@ -59,7 +61,9 @@ namespace Microsoft.TypeSpec.Generator.Tests
                 typesToKeep,
                 includeXmlDocs,
                 inputNamespaceName,
-                outputPath);
+                outputPath,
+                createLastContractModelBase,
+                isLastContractModelBasePropertyCompatible);
 
             var compilationResult = compilation == null ? null : await compilation();
             var lastContractCompilationResult = lastContractCompilation == null ? null : await lastContractCompilation();
@@ -85,7 +89,9 @@ namespace Microsoft.TypeSpec.Generator.Tests
             IEnumerable<string>? typesToKeep = null,
             bool includeXmlDocs = false,
             string? inputNamespaceName = null,
-            string? outputPath = null)
+            string? outputPath = null,
+            Func<CSharpType, InputModelType, CSharpType?>? createLastContractModelBase = null,
+            Func<CSharpType, InputModelProperty, PropertyProvider, bool>? isLastContractModelBasePropertyCompatible = null)
         {
             ResetCache();
 
@@ -109,6 +115,27 @@ namespace Microsoft.TypeSpec.Generator.Tests
             if (createModelCore != null)
             {
                 mockTypeFactory.Protected().Setup<ModelProvider?>("CreateModelCore", ItExpr.IsAny<InputModelType>()).Returns((InputModelType inputModel) => createModelCore.Invoke(inputModel));
+            }
+
+            if (createLastContractModelBase != null)
+            {
+                mockTypeFactory.Protected().Setup<CSharpType?>(
+                    "CreateLastContractModelBaseCore",
+                    ItExpr.IsAny<CSharpType>(),
+                    ItExpr.IsAny<InputModelType>()).Returns(
+                        (CSharpType previousBase, InputModelType currentModel) =>
+                            createLastContractModelBase.Invoke(previousBase, currentModel));
+            }
+
+            if (isLastContractModelBasePropertyCompatible != null)
+            {
+                mockTypeFactory.Protected().Setup<bool>(
+                    "IsLastContractModelBasePropertyCompatibleCore",
+                    ItExpr.IsAny<CSharpType>(),
+                    ItExpr.IsAny<InputModelProperty>(),
+                    ItExpr.IsAny<PropertyProvider>()).Returns(
+                        (CSharpType mappedBase, InputModelProperty currentProperty, PropertyProvider lastContractProperty) =>
+                            isLastContractModelBasePropertyCompatible.Invoke(mappedBase, currentProperty, lastContractProperty));
             }
 
             if (createEnumCore != null)

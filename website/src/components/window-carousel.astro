@@ -84,40 +84,36 @@ const slug = (name: string) =>
 
 <carousel-tabs>
   <div class="items">
-    {
-      tabs.map(async (name, i) => {
-        const render = await Astro.slots.render(name);
-        return (
-          <Window
-            class:list={["item", i === 0 && "item-selected"]}
-            id={`carousel-panel-${slug(name)}`}
-            role="tabpanel"
-            aria-labelledby={`carousel-tab-${slug(name)}`}
-            tabindex="0"
-          >
-            <Fragment set:html={render} />
-          </Window>
-        );
-      })
-    }
+    {tabs.map(async (name, i) => {
+      const render = await Astro.slots.render(name);
+      return (
+        <Window
+          class:list={["item", i === 0 && "item-selected"]}
+          id={`carousel-panel-${slug(name)}`}
+          role="tabpanel"
+          aria-labelledby={`carousel-tab-${slug(name)}`}
+          tabindex="0"
+        >
+          <Fragment set:html={render} />
+        </Window>
+      );
+    })}
   </div>
   <ul role="tablist" aria-label="Sample views">
-    {
-      tabs.map((name, i) => (
-        <li role="presentation" class="tab">
-          <button
-            type="button"
-            role="tab"
-            id={`carousel-tab-${slug(name)}`}
-            aria-controls={`carousel-panel-${slug(name)}`}
-            aria-selected={i === 0 ? "true" : "false"}
-            tabindex={i !== 0 ? -1 : 0}
-          >
-            {name}
-          </button>
-        </li>
-      ))
-    }
+    {tabs.map((name, i) => (
+      <li role="presentation" class="tab">
+        <button
+          type="button"
+          role="tab"
+          id={`carousel-tab-${slug(name)}`}
+          aria-controls={`carousel-panel-${slug(name)}`}
+          aria-selected={i === 0 ? "true" : "false"}
+          tabindex={i !== 0 ? -1 : 0}
+        >
+          {name}
+        </button>
+      </li>
+    ))}
   </ul>
 </carousel-tabs>
 

@@ -84,6 +84,10 @@ async function createTestHostInternal(): Promise<TestHost> {
 }
 /* eslint-enable @typescript-eslint/no-deprecated */
 
+/**
+ * Collect glob matches relative to a real directory, without sorting.
+ * Excludes `.test` and `.spec` files with TypeScript, TSX, JavaScript, or JSX extensions.
+ */
 export async function findFilesFromPattern(directory: string, pattern: string): Promise<string[]> {
   const results: string[] = [];
   for await (const file of glob(pattern, {

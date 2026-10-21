@@ -54,6 +54,7 @@ import {
   isArrayModelType,
   isNeverType,
   isSecret,
+  resolveEncodedEnumMemberValue,
   resolveEncodedName,
 } from "@typespec/compiler";
 import { capitalize } from "@typespec/compiler/casing";
@@ -132,6 +133,10 @@ export class OpenAPI3SchemaEmitterBase<
     return this.reduceContext(model);
   }
 
+  arrayDeclarationReferenceContext(array: Model, name: string, elementType: Type): Context {
+    return this.reduceContext(array);
+  }
+
   scalarDeclarationReferenceContext(scalar: Scalar, name: string): Context {
     return this.reduceContext(scalar);
   }
@@ -167,7 +172,7 @@ export class OpenAPI3SchemaEmitterBase<
       // with the discriminator field present.
       schema.discriminator = { ...discriminator };
       const discriminatedUnion = ignoreDiagnostics(
-        getDiscriminatedUnionFromInheritance(type, discriminator),
+        getDiscriminatedUnionFromInheritance(program, type, discriminator),
       );
       if (discriminatedUnion.variants.size > 0) {
         schema.discriminator.mapping = this.getDiscriminatorMapping(discriminatedUnion.variants);
@@ -552,14 +557,14 @@ export class OpenAPI3SchemaEmitterBase<
 
   enumMemberReference(member: EnumMember): EmitterOutput<Record<string, any>> {
     // would like to dispatch to the same `literal` codepaths but enum members aren't literal types
-    switch (typeof member.value) {
-      case "undefined":
-        return { type: "string", enum: [member.name] };
-      case "string":
-        return { type: "string", enum: [member.value] };
-      case "number":
-        return { type: "number", enum: [member.value] };
-    }
+    const value = resolveEncodedEnumMemberValue(
+      this.emitter.getProgram(),
+      member,
+      "application/json",
+    );
+    return typeof value === "number"
+      ? { type: "number", enum: [value] }
+      : { type: "string", enum: [value] };
   }
 
   unionDeclaration(union: Union, name: string): EmitterOutput<object> {
@@ -575,11 +580,11 @@ export class OpenAPI3SchemaEmitterBase<
   }
 
   /**
-   * Mapping of cached envelope models for union variants.
+   * Envelope models are keyed by variant name, since variants can share a payload type.
    */
   #unionVariantEnvelopeVisibilityMap: WeakMap<
     Union,
-    WeakMap<Type, { default: Model; byVisibility: Map<Visibility, Model> }>
+    Map<string, { default: Model; byVisibility: Map<Visibility, Model> }>
   > = new WeakMap();
 
   /**
@@ -605,15 +610,15 @@ export class OpenAPI3SchemaEmitterBase<
     let map = this.#unionVariantEnvelopeVisibilityMap.get(union.type);
 
     if (!map) {
-      map = new WeakMap();
+      map = new Map();
       this.#unionVariantEnvelopeVisibilityMap.set(union.type, map);
     }
 
-    let entry = map.get(variant);
+    let entry = map.get(variantName);
     if (!entry) {
       // Initialize entry
       entry = { default: createEnvelopeModel(), byVisibility: new Map() };
-      map.set(variant, entry);
+      map.set(variantName, entry);
 
       // Manually track the model's usage according to the union's usage.
       if (usage) this._visibilityUsage.manuallyTrack(entry.default, usage);
@@ -739,7 +744,12 @@ export class OpenAPI3SchemaEmitterBase<
       return type.value;
     }
     if (type.kind === "EnumMember") {
-      return typeof type.value === "string" ? type.value : type.name;
+      const value = resolveEncodedEnumMemberValue(
+        this.emitter.getProgram(),
+        type,
+        "application/json",
+      );
+      return typeof value === "string" ? value : type.name;
     }
     return undefined;
   }
@@ -839,7 +849,8 @@ export class OpenAPI3SchemaEmitterBase<
   }
 
   tupleLiteral(tuple: Tuple): EmitterOutput<Record<string, any>> {
-    return { type: "array", items: {} };
+    const size = tuple.values.length;
+    return { type: "array", items: {}, minItems: size, maxItems: size };
   }
   #getSchemaForScalar(scalar: Scalar): Schema {
     let result: Schema = {} as Schema;

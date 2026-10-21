@@ -1030,6 +1030,7 @@ const diagnostics = {
     messages: {
       default: paramMessage`Encoded name '${"name"}' conflicts with existing member name for mime type '${"mimeType"}'`,
       duplicate: paramMessage`Same encoded name '${"name"}' is used for 2 members '${"mimeType"}'`,
+      enumValue: paramMessage`Encoded name '${"name"}' conflicts with the value of another member for mime type '${"mimeType"}'`,
     },
   },
 
