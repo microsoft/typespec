@@ -36,7 +36,7 @@ catalog:
   "@astrojs/markdown-remark": ^7.3.0
   "@astrojs/react": ^7.0.1
   "@astrojs/starlight": ^0.42.0
-  "@azure/identity": ^4.13.2
+  "@azure/identity": ^4.14.0
   "@azure/storage-blob": ^12.34.0
   "@babel/code-frame": ^8.0.0
   "@babel/core": ^8.0.1
