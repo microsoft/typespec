@@ -13,7 +13,6 @@ import com.google.googlejavaformat.java.FormatterException;
 import com.google.googlejavaformat.java.RemoveUnusedImports;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.NewPlugin;
 import com.microsoft.typespec.http.client.generator.core.util.Constants;
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -25,7 +24,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.formatter.CodeFormatter;
-import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.text.edits.TextEdit;
@@ -59,14 +57,22 @@ public final class CodeFormatterUtil {
     }
 
     private static Stream<Map.Entry<String, String>> formatCodeInternal(Map<String, String> files, Logger logger) {
-        Map<String, String> eclipseSettings = loadEclipseSettings();
+        if (files.isEmpty()) {
+            return Stream.empty();
+        }
+
+        // Eclipse formatters are not thread-safe, so reuse only within this sequential batch.
+        CodeFormatter codeFormatter = ToolFactory.createCodeFormatter(loadEclipseSettings());
         DefaultImportOrderingStrategy orderingStrategy = new DefaultImportOrderingStrategy();
         orderingStrategy.setSortImportsAlphabetically(true);
 
         return removeUnusedImports(files.entrySet(), logger).stream().map(entry -> {
             try {
-                String file = reorderImports(entry.getValue(), orderingStrategy);
-                file = formatCode(file, entry.getKey(), ToolFactory.createCodeFormatter(eclipseSettings));
+                CompilationUnit compilationUnit = StaticJavaParser.parse(entry.getValue());
+                String file = reorderImports(entry.getValue(), compilationUnit, orderingStrategy);
+                boolean isModuleInfo
+                    = entry.getKey().endsWith("module-info.java") && compilationUnit.getModule().isPresent();
+                file = formatCode(file, isModuleInfo, codeFormatter);
                 return Map.entry(entry.getKey(), file);
             } catch (Exception e) {
                 // print file content
@@ -115,12 +121,13 @@ public final class CodeFormatterUtil {
      * results in newline removal and trailing space removal which is just noise for us.
      *
      * @param file The Java file to reorder imports for.
+     * @param compilationUnit The parsed Java file.
      * @param orderingStrategy The import ordering strategy to use.
      * @return The Java file with reordered imports, or if the file has no imports the file as-is.
      */
     @SuppressWarnings("OptionalGetWithoutIsPresent")
-    private static String reorderImports(String file, ImportOrderingStrategy orderingStrategy) {
-        CompilationUnit compilationUnit = StaticJavaParser.parse(file);
+    private static String reorderImports(String file, CompilationUnit compilationUnit,
+        ImportOrderingStrategy orderingStrategy) {
         com.github.javaparser.ast.NodeList<ImportDeclaration> imports = compilationUnit.getImports();
         if (imports.isEmpty()) {
             // File has no imports, nothing to reorder.
@@ -187,18 +194,9 @@ public final class CodeFormatterUtil {
         return sb.toString();
     }
 
-    private static String formatCode(String file, String fileName, CodeFormatter codeFormatter) throws Exception {
+    private static String formatCode(String file, boolean isModuleInfo, CodeFormatter codeFormatter) throws Exception {
         IDocument doc = new Document(file);
 
-        boolean isModuleInfo = fileName.endsWith(IModule.MODULE_INFO_JAVA);
-        if (isModuleInfo) {
-            // candidate module-info.java, confirm by check file content about module declaration
-            CompilationUnit compilationUnit = StaticJavaParser.parse(file);
-            if (compilationUnit.getModule().isEmpty()) {
-                // not module-info.java
-                isModuleInfo = false;
-            }
-        }
         int kind = isModuleInfo ? CodeFormatter.K_MODULE_INFO : CodeFormatter.K_COMPILATION_UNIT;
         kind |= CodeFormatter.F_INCLUDE_COMMENTS;
         TextEdit edit = codeFormatter.format(kind, file, 0, file.length(), 0, Constants.NEW_LINE);
@@ -233,8 +231,7 @@ public final class CodeFormatterUtil {
             String content = file.getValue();
             try {
                 // Use Google Java Formatter to remove unused imports.
-                updatedFiles.add(
-                    new AbstractMap.SimpleEntry<>(file.getKey(), RemoveUnusedImports.removeUnusedImports(content)));
+                updatedFiles.add(Map.entry(file.getKey(), RemoveUnusedImports.removeUnusedImports(content)));
             } catch (FormatterException ex) {
                 String[] fileLines = content.split("\n");
                 // Capture the error message and continue processing other files.
@@ -242,7 +239,6 @@ public final class CodeFormatterUtil {
                     appendDiagnosticError(errorCapture, diagnostic, file.getKey(), fileLines, logger);
                 }
             }
-            file.setValue(content);
         }
 
         if (errorCapture.length() > 0) {
