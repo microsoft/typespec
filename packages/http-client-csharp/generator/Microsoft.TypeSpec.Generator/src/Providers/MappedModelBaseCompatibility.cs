@@ -223,6 +223,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     attribute.Arguments.FirstOrDefault() is LiteralExpression { Literal: string path } && path == wireName);
         }
 
+        internal static bool HasConflictingKnownWireMetadata(InputModelProperty current, PropertyProvider previous)
+        {
+            var wireName = current.SerializedName ?? current.Name;
+            return previous.WireInfo?.SerializedName is { } previousWireName && previousWireName != wireName ||
+                previous.Attributes.Any(attribute => attribute.Type.Name == "WirePathAttribute" &&
+                    attribute.Arguments.FirstOrDefault() is LiteralExpression { Literal: string path } && path != wireName);
+        }
+
         private bool HasCompatibleFlatModel(SystemObjectModelProvider mappedBase)
         {
             // A previously created mapping may carry a different input contract. Do not introduce

@@ -292,21 +292,73 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             });
         }
 
+        [TestCase(false, false, false)]
+        [TestCase(false, false, true)]
+        [TestCase(false, true, false)]
+        [TestCase(false, true, true)]
+        [TestCase(true, false, false)]
+        [TestCase(true, false, true)]
+        [TestCase(true, true, false)]
+        [TestCase(true, true, true)]
+        public void KnownWireMetadataPreservesRoundTrip(bool restoreBase, bool changeWireName, bool projectClrName)
+        {
+            var wireName = changeWireName ? "newValue" : "oldValue";
+            var modelInput = InputFactory.Model("DerivedModel", properties:
+                [InputFactory.Property(projectClrName ? "renamedValue" : "value", InputPrimitiveType.Int32, serializedName: wireName),
+                    InputFactory.Property("child", InputPrimitiveType.String, isRequired: true)],
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Json);
+            var generator = CreateGenerator(modelInput, restoreBase, frameworkType: typeof(KnownWirePathMrwBase));
+            if (projectClrName)
+            {
+                Mock.Get(generator.Object.TypeFactory).Protected()
+                    .Setup<bool>("IsLastContractModelBasePropertyCompatibleCore", ItExpr.IsAny<CSharpType>(),
+                        ItExpr.IsAny<InputModelProperty>(), ItExpr.IsAny<PropertyProvider>())
+                    .Returns((CSharpType mappedBase, InputModelProperty current, PropertyProvider previous) =>
+                        current.Name == "renamedValue" && previous.Name == "Value" && previous.Type.Equals(new CSharpType(typeof(int))));
+            }
+            var model = generator.Object.TypeFactory.CreateModel(modelInput)!;
+            var historicalValue = model.LastContractView!.BaseTypeProvider!.Properties.Single(property => property.Name == "Value");
+            Assert.That(historicalValue.Attributes.Any(attribute => attribute.Type.Name == "WirePathAttribute" &&
+                attribute.Arguments.FirstOrDefault() is Microsoft.TypeSpec.Generator.Expressions.LiteralExpression { Literal: "oldValue" }), Is.True,
+                "The historical wire path must be visible to the core, not known only to downstream code.");
+            var generatedType = CompileModel(generator, model, CSharpSyntaxTree.ParseText(""));
+            var instance = Activator.CreateInstance(generatedType, "payload")!;
+            var valueProperty = generatedType.GetProperty("Value") ?? generatedType.GetProperty("RenamedValue")!;
+            valueProperty.SetValue(instance, 42);
+            var persistable = typeof(IPersistableModel<>).MakeGenericType(generatedType);
+            var options = new ModelReaderWriterOptions("J");
+            var data = (BinaryData)persistable.GetMethod("Write")!.Invoke(instance, [options])!;
+            var restored = persistable.GetMethod("Create")!.Invoke(instance, [data, options])!;
+            TestContext.WriteLine(data.ToString());
+            using var document = JsonDocument.Parse(data);
+            Assert.Multiple(() =>
+            {
+                Assert.That(document.RootElement.EnumerateObject().Select(property => property.Name),
+                    Is.EquivalentTo(new[] { wireName, "child" }), "Restoration must preserve the current wire contract.");
+                Assert.That(valueProperty.GetValue(restored), Is.EqualTo(42), "Known wire conflicts must not lose values on round-trip.");
+                Assert.That(generatedType.GetProperty("Child")!.GetValue(restored), Is.EqualTo("payload"));
+                Assert.That(model.BaseType?.Name, Is.EqualTo(restoreBase && !changeWireName ? nameof(KnownWirePathMrwBase) : null),
+                    "Matching wire metadata must still allow restoration, including downstream CLR-name projection.");
+            });
+        }
+
         private static Mock<ScmCodeModelGenerator> CreateGenerator(
             InputModelType modelInput,
             bool restoreBase = true,
-            SyntaxTree? customization = null)
+            SyntaxTree? customization = null,
+            Type? frameworkType = null)
         {
+            frameworkType ??= typeof(FlatMrwBase);
             var generator = MockHelpers.LoadMockGenerator(inputModels: () => [modelInput]);
             var historical = CSharpCompilation.Create("HistoricalFlatMrwBase",
-                [CSharpSyntaxTree.ParseText($"namespace Sample.Models {{ public class DerivedModel : {typeof(FlatMrwBase).FullName} {{ }} }}")],
+                [CSharpSyntaxTree.ParseText($"namespace Sample.Models {{ public class DerivedModel : {frameworkType.FullName} {{ }} }}")],
                 GetReferences(), new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
             var current = customization is null ? null : CSharpCompilation.Create("CurrentCustomization", [customization],
                 GetReferences(), new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
             generator.SetupProperty(plugin => plugin.SourceInputModel, new SourceInputModel(current, historical));
             Mock.Get(generator.Object.TypeFactory).Protected()
                 .Setup<CSharpType?>("CreateLastContractModelBaseCore", ItExpr.IsAny<CSharpType>(), ItExpr.IsAny<InputModelType>())
-                .Returns(restoreBase ? new CSharpType(typeof(FlatMrwBase)) : null);
+                .Returns(restoreBase ? new CSharpType(frameworkType) : null);
             return generator;
         }
 
@@ -359,5 +411,42 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                     }
                 }
                 """, path: "Customization.cs");
+    }
+
+    [AttributeUsage(AttributeTargets.Property)]
+    public sealed class WirePathAttribute : Attribute
+    {
+        public WirePathAttribute(string path) { }
+    }
+
+    public class KnownWirePathMrwBase : IJsonModel<KnownWirePathMrwBase>
+    {
+        public KnownWirePathMrwBase() { }
+        public KnownWirePathMrwBase(int value) { Value = value; }
+        [WirePath("oldValue")]
+        public int Value { get; set; }
+        protected virtual void JsonModelWriteCore(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+            => writer.WriteNumber("oldValue", Value);
+        protected virtual KnownWirePathMrwBase JsonModelCreateCore(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
+            => throw new NotImplementedException();
+        protected virtual BinaryData PersistableModelWriteCore(ModelReaderWriterOptions options)
+            => throw new NotImplementedException();
+        protected virtual KnownWirePathMrwBase PersistableModelCreateCore(BinaryData data, ModelReaderWriterOptions options)
+            => throw new NotImplementedException();
+        protected virtual string PersistableModelGetFormatFromOptions(ModelReaderWriterOptions options) => "J";
+        void IJsonModel<KnownWirePathMrwBase>.Write(Utf8JsonWriter writer, ModelReaderWriterOptions options)
+        {
+            writer.WriteStartObject();
+            JsonModelWriteCore(writer, options);
+            writer.WriteEndObject();
+        }
+        KnownWirePathMrwBase IJsonModel<KnownWirePathMrwBase>.Create(ref Utf8JsonReader reader, ModelReaderWriterOptions options)
+            => JsonModelCreateCore(ref reader, options);
+        BinaryData IPersistableModel<KnownWirePathMrwBase>.Write(ModelReaderWriterOptions options)
+            => PersistableModelWriteCore(options);
+        KnownWirePathMrwBase IPersistableModel<KnownWirePathMrwBase>.Create(BinaryData data, ModelReaderWriterOptions options)
+            => PersistableModelCreateCore(data, options);
+        string IPersistableModel<KnownWirePathMrwBase>.GetFormatFromOptions(ModelReaderWriterOptions options)
+            => PersistableModelGetFormatFromOptions(options);
     }
 }

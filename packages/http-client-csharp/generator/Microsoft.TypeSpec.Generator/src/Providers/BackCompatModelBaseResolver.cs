@@ -100,9 +100,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     }
                     if (matches.Length == 1)
                     {
-                        // Honor the real source owner's veto, including cached removals, without
-                        // populating the cache during a potentially reentrant property conversion.
-                        if (CodeModelGenerator.Instance.TypeFactory.IsPropertyRemoved(property, _model))
+                        // Preserve known historical wire metadata and honor the source owner's veto,
+                        // including cached removals, without caching a potentially reentrant conversion.
+                        if (MappedModelBaseCompatibility.HasConflictingKnownWireMetadata(property, matches[0]) ||
+                            CodeModelGenerator.Instance.TypeFactory.IsPropertyRemoved(property, _model))
                         {
                             provider = null;
                             return false;

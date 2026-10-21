@@ -907,6 +907,38 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelProviders
             Assert.That(MappedModelBaseCompatibility.HasKnownPropertyIdentity(current, historical), Is.EqualTo(overlaps));
         }
 
+        [TestCase(false, null, "newValue", false)]
+        [TestCase(false, "oldValue", "oldValue", false)]
+        [TestCase(false, "oldValue", "newValue", true)]
+        [TestCase(false, "properties.value", "value", true)]
+        [TestCase(false, "properties.value", "properties.value", false)]
+        [TestCase(false, "oldValue", "OldValue", true)]
+        [TestCase(true, null, "newValue", false)]
+        [TestCase(true, "oldValue", "oldValue", false)]
+        [TestCase(true, "oldValue", "newValue", true)]
+        [TestCase(true, "properties.value", "value", true)]
+        [TestCase(true, "properties.value", "properties.value", false)]
+        [TestCase(true, "oldValue", "OldValue", true)]
+        public void BackCompat_FlatMappedKnownWireMetadataUsesFullOrdinalIdentity(
+            bool useWirePath, string? historicalWireName, string currentWireName, bool conflicts)
+        {
+            var current = InputFactory.Property("value", InputPrimitiveType.String, serializedName: currentWireName);
+            var historical = new PropertyProvider(null, MethodSignatureModifiers.Public, typeof(string), "Value",
+                new AutoPropertyBody(false), new ModelProvider(InputFactory.Model("HistoricalBase")),
+                attributes: useWirePath && historicalWireName is not null
+                    ? [new AttributeStatement(
+                        new CSharpType("WirePathAttribute", "Sample", false, false, null, [], false, false),
+                        Snippet.Literal((object)historicalWireName))]
+                    : []);
+            if (!useWirePath && historicalWireName is not null)
+            {
+                historical.WireInfo = new PropertyWireInformation(
+                    SerializationFormat.Default, false, false, false, false, historicalWireName, false, false);
+            }
+
+            Assert.That(MappedModelBaseCompatibility.HasConflictingKnownWireMetadata(current, historical), Is.EqualTo(conflicts));
+        }
+
         [TestCase(false)]
         [TestCase(true)]
         public async Task BackCompat_FlatMappedBaseRequiresDownstreamOptInForExistingProvider(bool allowMapping)
