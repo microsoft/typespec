@@ -21,6 +21,8 @@ import com.microsoft.typespec.http.client.generator.core.preprocessor.tranformer
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import io.clientcore.core.utils.IOExceptionCheckedFunction;
 import java.io.IOException;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
@@ -28,7 +30,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
@@ -69,17 +70,12 @@ public class Preprocessor extends NewPlugin {
 
         Path codeModelFolder;
         try {
-            codeModelFolder = FileUtils.createTempDirectory("code-model" + UUID.randomUUID());
-            logger.info("Created temp directory for code model: {}", codeModelFolder);
+            codeModelFolder = createCodeModelDirectory();
+            if (codeModelFolder != null) {
+                Files.writeString(codeModelFolder.resolve("code-model.yaml"), file);
+            }
         } catch (IOException ex) {
-            logger.error("Failed to create temp directory for code model.", ex);
-            throw new RuntimeException("Failed to create temp directory for code model.", ex);
-        }
-
-        try {
-            Files.writeString(codeModelFolder.resolve("code-model.yaml"), file);
-        } catch (Exception e) {
-            //
+            throw new RuntimeException("Failed to write diagnostic code model.", ex);
         }
 
         CodeModel codeModel;
@@ -96,6 +92,37 @@ public class Preprocessor extends NewPlugin {
         codeModel = new Transformer().transform(codeModel);
         performPosttransformUpdates(codeModel);
 
+        if (codeModelFolder != null) {
+            try {
+                dumpCodeModel(codeModel, codeModelFolder.resolve("code-model-processed-no-tags.yaml"));
+            } catch (IOException ex) {
+                throw new RuntimeException("Failed to write diagnostic code model.", ex);
+            }
+        }
+        return codeModel;
+    }
+
+    /**
+     * Creates a diagnostic directory only when plugin debugging is enabled or the system property or environment
+     * variable {@code codegen.java.dump-code-model} is {@code true}. System properties take precedence.
+     *
+     * @return The diagnostic directory, or null when code model dumps are disabled.
+     * @throws IOException If the diagnostic directory cannot be created.
+     */
+    protected Path createCodeModelDirectory() throws IOException {
+        String dumpCodeModel = System.getProperty("codegen.java.dump-code-model");
+        if (dumpCodeModel == null) {
+            dumpCodeModel = System.getenv("codegen.java.dump-code-model");
+        }
+        if (!logger.isDebugEnabled() && !Boolean.parseBoolean(dumpCodeModel)) {
+            return null;
+        }
+        Path directory = FileUtils.createTempDirectory("code-model");
+        logger.info("Created temp directory for code model: {}", directory);
+        return directory;
+    }
+
+    protected static void dumpCodeModel(CodeModel codeModel, Path outputFile) throws IOException {
         Representer representer = new Representer(new DumperOptions()) {
             @Override
             protected NodeTuple representJavaBeanProperty(Object javaBean, Property property, Object propertyValue,
@@ -111,18 +138,12 @@ public class Preprocessor extends NewPlugin {
         LoaderOptions loaderOptions = new LoaderOptions();
         loaderOptions.setCodePointLimit(50 * 1024 * 1024);
         loaderOptions.setMaxAliasesForCollections(Integer.MAX_VALUE);
+        loaderOptions.setNestingDepthLimit(Integer.MAX_VALUE);
         loaderOptions.setTagInspector(new TrustedTagInspector());
         Yaml newYaml = new Yaml(new Constructor(loaderOptions), representer, new DumperOptions(), loaderOptions);
-        String output = newYaml.dump(codeModel);
-
-        try {
-            Files.writeString(codeModelFolder.resolve("code-model-processed-no-tags.yaml"), output);
-        } catch (Exception e) {
-            logger.error("Failed to pre-process the code model.", e);
-            throw new RuntimeException("Failed to pre-process the code model.", e);
+        try (Writer writer = Files.newBufferedWriter(outputFile, StandardCharsets.UTF_8)) {
+            newYaml.dump(codeModel, writer);
         }
-
-        return codeModel;
     }
 
     private CodeModel performPosttransformUpdates(CodeModel codeModel) {

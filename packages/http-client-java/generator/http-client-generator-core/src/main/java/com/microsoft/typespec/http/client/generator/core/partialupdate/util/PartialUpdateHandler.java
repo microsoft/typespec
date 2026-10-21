@@ -27,8 +27,10 @@ import com.github.javaparser.printer.DefaultPrettyPrinterVisitor;
 import java.io.BufferedReader;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -196,46 +198,38 @@ public class PartialUpdateHandler {
 //            }
 //        }, null);
 
+        Map<Object, BodyDeclaration<?>> generatedMembersByKey = new HashMap<>();
+        for (BodyDeclaration<?> member : generatedFileMembers) {
+            Object key = getCorrespondingMemberKey(member);
+            if (key != null) {
+                generatedMembersByKey.putIfAbsent(key, member);
+            }
+        }
         NodeList<BodyDeclaration<?>> updatedMembersList = new NodeList<>();
+        Set<Object> updatedMemberKeys = new LinkedHashSet<>();
+        Set<Object> manualMemberNames = new LinkedHashSet<>();
         // 5. Iterate existingFileMembers, keep manual written members, and replace generated members with the
         // corresponding newly generated one
         for (BodyDeclaration<?> existingMember : existingFileMembers) {
-            boolean isGeneratedMethod = isMemberGenerated(existingMember);
-            if (!isGeneratedMethod) { // manual written member
+            if (!isMemberGenerated(existingMember)) { // manual written member
                 // TODO (weidxu): for now, formatter:on/off is not added by codegen -- hence the commented out block
 //                updatedMembersList.add(surroundCustomCodeWithFormatterOff(existingMember));
-                updatedMembersList.add(existingMember);
+                addMember(existingMember, updatedMembersList, updatedMemberKeys, manualMemberNames);
             } else {
-                // find the corresponding newly generated member
-                for (BodyDeclaration<?> generatedMember : generatedFileMembers) {
-                    if (isMembersCorresponding(existingMember, generatedMember)) {
-                        updatedMembersList.add(generatedMember);
-                        break;
-                    }
+                BodyDeclaration<?> replacement = generatedMembersByKey.get(getCorrespondingMemberKey(existingMember));
+                if (replacement != null) {
+                    addMember(replacement, updatedMembersList, updatedMemberKeys, manualMemberNames);
                 }
             }
         }
 
         // 6. Add remaining members in generated file to the new members list
         for (BodyDeclaration<?> generatedMember : generatedFileMembers) {
-            boolean needToAddToUpdateMembersList = true;
-            for (BodyDeclaration<?> existingMember : updatedMembersList) {
-                if (existingMember instanceof NonGeneratedBodyDeclaration) {
-                    existingMember = ((NonGeneratedBodyDeclaration<?>) existingMember).wrapped;
-                }
-
-                // If the generated member and the existing member is corresponding,
-                // or if there is an existing member who has the same name as the generated member and is manually
-                // written,
-                // Then we don't put the generated member to the updatedMembersList.
-                if (isMembersCorresponding(existingMember, generatedMember)
-                    || (isMembersWithSameName(existingMember, generatedMember) && !isMemberGenerated(existingMember))) {
-                    needToAddToUpdateMembersList = false;
-                    break;
-                }
-            }
-            if (needToAddToUpdateMembersList) {
-                updatedMembersList.add(generatedMember);
+            // A handwritten member suppresses new overloads with the same name, but replacements already retained
+            // above must stay in their original positions.
+            if (!updatedMemberKeys.contains(getCorrespondingMemberKey(generatedMember))
+                && !manualMemberNames.contains(getMemberNameKey(generatedMember))) {
+                addMember(generatedMember, updatedMembersList, updatedMemberKeys, manualMemberNames);
             }
         }
 
@@ -407,10 +401,6 @@ public class PartialUpdateHandler {
             = mergeDirectiveNodeList(usesDirectivesForGeneratedFile, usesDirectivesForExistingFile);
         NodeList<ModuleDirective> providesDirectiveNodeList
             = mergeDirectiveNodeList(providesDirectivesForGeneratedFile, providesDirectivesForExistingFile);
-        addToEachTypeOfDirectiveList(directivesForGeneratedFile, requiresDirectivesForExistingFile,
-            exportsDirectivesForExistingFile, opensDirectivesForExistingFile, usesDirectivesForExistingFile,
-            providesDirectivesForExistingFile);
-
         NodeList<ModuleDirective> moduleDirectives = new NodeList<>();
         moduleDirectives.addAll(requiresDirectiveNodeList);
         moduleDirectives.addAll(exportsDirectiveNodeList);
@@ -570,38 +560,35 @@ public class PartialUpdateHandler {
         NodeList<ModuleDirective> list2) {
         NodeList<ModuleDirective> res = new NodeList<>();
         res.addAll(list1);
-        for (ModuleDirective directive2 : list2) {
-            boolean isInList1 = false;
-            for (ModuleDirective directive1 : list1) {
-                if (directive1.getTokenRange().isPresent() && directive2.getTokenRange().isPresent()) {
-                    // 1. build two token string lists from the two directives, only put in non-empty tokens
-                    // 2. compare the two token list
-                    // 3. if the two token lists are the same, then we consider directive2 is in list1, otherwise, we
-                    // consider directive2 is not in list1
-                    List<String> tokenList1 = new ArrayList<>();
-                    List<String> tokenList2 = new ArrayList<>();
-                    for (JavaToken token1 : directive1.getTokenRange().get()) {
-                        String trimmedToken1 = token1.asString().trim();
-                        if (!trimmedToken1.isEmpty()) {
-                            tokenList1.add(trimmedToken1);
-                        }
-                    }
-                    for (JavaToken token2 : directive2.getTokenRange().get()) {
-                        String trimmedToken2 = token2.asString().trim();
-                        if (!trimmedToken2.isEmpty()) {
-                            tokenList2.add(trimmedToken2);
-                        }
-                    }
-                    if (tokenList1.equals(tokenList2)) {
-                        isInList1 = true;
-                    }
-                }
+        Set<List<String>> generatedTokens = new LinkedHashSet<>();
+        for (ModuleDirective directive : list1) {
+            List<String> tokens = getDirectiveTokens(directive);
+            if (tokens != null) {
+                generatedTokens.add(tokens);
             }
-            if (!isInList1) {
+        }
+        for (ModuleDirective directive2 : list2) {
+            List<String> tokens = getDirectiveTokens(directive2);
+            // Compare only with generated directives, leaving existing duplicates and tokenless nodes unchanged.
+            if (tokens == null || !generatedTokens.contains(tokens)) {
                 res.add(directive2);
             }
         }
         return res;
+    }
+
+    private static List<String> getDirectiveTokens(ModuleDirective directive) {
+        if (directive.getTokenRange().isEmpty()) {
+            return null;
+        }
+        List<String> tokens = new ArrayList<>();
+        for (JavaToken token : directive.getTokenRange().get()) {
+            String text = token.asString().trim();
+            if (!text.isEmpty()) {
+                tokens.add(text);
+            }
+        }
+        return tokens;
     }
 
     private static void addToEachTypeOfDirectiveList(NodeList<ModuleDirective> allDirectives,
@@ -664,62 +651,44 @@ public class PartialUpdateHandler {
         }
     }
 
-    /**
-     * Compare whether two members are corresponding: if two members are callable, which means they are constructor or
-     * method, we will compare the signature, otherwise, we will compare the name.
-     *
-     * In the case of static initializer declaration, since they do not have a name, we would always treat them as
-     * corresponding. Given the assumption that user should not add such customization, and generated code cannot have
-     * more than 1 such block.
-     *
-     * @param member1
-     * @param member2
-     * @return true if two members are corresponding, false if two members are not corresponding.
-     */
-    private static boolean isMembersCorresponding(BodyDeclaration<?> member1, BodyDeclaration<?> member2) {
-        if (member1.isCallableDeclaration() && member2.isCallableDeclaration()) {
-            // compare signature
-            return member1.asCallableDeclaration()
-                .getSignature()
-                .equals(member2.asCallableDeclaration().getSignature());
-        } else if (member1 instanceof InitializerDeclaration
-            && member2 instanceof InitializerDeclaration
-            && ((InitializerDeclaration) member1).isStatic()
-            && ((InitializerDeclaration) member2).isStatic()) {
-            // the assumption here is that there is at most 1 static initializer declaration
-            // and the static initializer declaration is generated member; see "hasGeneratedAnnotation"
-            return true;
-        } else {
-            return isMembersWithSameName(member1, member2);
+    private static void addMember(BodyDeclaration<?> member, NodeList<BodyDeclaration<?>> members,
+        Set<Object> correspondingKeys, Set<Object> manualNames) {
+        members.add(member);
+        Object key = getCorrespondingMemberKey(member);
+        if (key != null) {
+            correspondingKeys.add(key);
+        }
+        Object name = getMemberNameKey(member);
+        if (name != null && !isMemberGenerated(member)) {
+            manualNames.add(name);
         }
     }
 
-    private static boolean isMembersWithSameName(BodyDeclaration<?> member1, BodyDeclaration<?> member2) {
-        if (member1.isFieldDeclaration() && member2.isFieldDeclaration()) {
-            return isFieldDeclarationWithSameName(member1, member2);
-        } else if (member1.getMetaModel().equals(member2.getMetaModel())
-            && member1 instanceof NodeWithSimpleName
-            && member2 instanceof NodeWithSimpleName) {
-            // compare name
-            return ((NodeWithSimpleName<?>) member2).getName().equals(((NodeWithSimpleName<?>) member1).getName());
+    private static Object getCorrespondingMemberKey(BodyDeclaration<?> member) {
+        if (member instanceof NonGeneratedBodyDeclaration) {
+            member = ((NonGeneratedBodyDeclaration<?>) member).wrapped;
         }
-        return false;
+        if (member.isCallableDeclaration()) {
+            return member.asCallableDeclaration().getSignature();
+        }
+        if (member instanceof InitializerDeclaration && ((InitializerDeclaration) member).isStatic()) {
+            return InitializerDeclaration.class;
+        }
+        return getMemberNameKey(member);
     }
 
-    private static boolean isFieldDeclarationWithSameName(BodyDeclaration<?> member1, BodyDeclaration<?> member2) {
-        if (member1.asFieldDeclaration().getVariables() != null
-            && !member1.asFieldDeclaration().getVariables().isEmpty()
-            && member2.asFieldDeclaration().getVariables() != null
-            && !member2.asFieldDeclaration().getVariables().isEmpty()) {
-            // for FieldDeclaration, currently make it simple, we only compare the first variable, if the first variable
-            // has the same name, then we consider they are field declarations with same name
-            return member1.asFieldDeclaration()
-                .getVariables()
-                .get(0)
-                .getName()
-                .equals(member2.asFieldDeclaration().getVariables().get(0).getName());
+    private static Object getMemberNameKey(BodyDeclaration<?> member) {
+        if (member instanceof NonGeneratedBodyDeclaration) {
+            member = ((NonGeneratedBodyDeclaration<?>) member).wrapped;
         }
-        return false;
+        if (member.isFieldDeclaration() && !member.asFieldDeclaration().getVariables().isEmpty()) {
+            // Preserve the existing first-variable matching rule for multi-variable declarations.
+            return Map.entry(member.getMetaModel(), member.asFieldDeclaration().getVariable(0).getName());
+        }
+        if (member instanceof NodeWithSimpleName) {
+            return Map.entry(member.getMetaModel(), ((NodeWithSimpleName<?>) member).getName());
+        }
+        return null;
     }
 
     private static ClassOrInterfaceDeclaration getClassOrInterfaceDeclaration(CompilationUnit cu) {
