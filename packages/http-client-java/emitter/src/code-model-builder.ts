@@ -1096,9 +1096,6 @@ export class CodeModelBuilder {
         this.program.reportDiagnostic(diagnostic);
       }
     }
-    if (codeModelOperation.sseMetadata && generateConvenienceApi && convenienceApiName) {
-      generateProtocolApi = false;
-    }
     if (generateConvenienceApi && convenienceApiName) {
       if (this.isAzureV1() && this.options["max-overload"] === "model") {
         // The model WithResponse overload replaces the public protocol method of the same name.

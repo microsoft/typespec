@@ -5,6 +5,7 @@ package tsptest.sse.models.implementation.sse;
 
 import com.azure.core.http.HttpHeaderName;
 import com.azure.core.http.HttpHeaders;
+import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
 import com.azure.core.http.rest.SimpleResponse;
 import com.azure.core.util.BinaryData;
@@ -13,6 +14,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -133,10 +135,16 @@ public class ServerSentEventStreamTests {
     }
 
     private static void assertHiddenRawOverloads(Class<?> clientType) {
+        Method protocolMethod = Arrays.stream(clientType.getDeclaredMethods())
+            .filter(method -> method.getName().equals("hiddenGeneratedReadWithResponse"))
+            .filter(method -> Arrays.equals(method.getParameterTypes(), new Class<?>[] { RequestOptions.class }))
+            .findFirst()
+            .orElseThrow();
         List<Method> hiddenReadMethods = Arrays.stream(clientType.getDeclaredMethods())
             .filter(method -> method.getName().equals("hiddenGeneratedRead"))
             .collect(Collectors.toList());
 
+        Assertions.assertTrue(Modifier.isPublic(protocolMethod.getModifiers()));
         Assertions.assertEquals(2, hiddenReadMethods.size());
         Assertions.assertTrue(hiddenReadMethods.stream().anyMatch(method -> method.getParameterCount() == 0));
         Assertions.assertTrue(hiddenReadMethods.stream()

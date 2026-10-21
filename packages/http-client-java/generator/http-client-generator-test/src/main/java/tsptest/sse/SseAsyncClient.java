@@ -68,7 +68,7 @@ public final class SseAsyncClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    Mono<Response<BinaryData>> hiddenGeneratedReadWithResponse(RequestOptions requestOptions) {
+    public Mono<Response<BinaryData>> hiddenGeneratedReadWithResponse(RequestOptions requestOptions) {
         return this.serviceClient.readWithResponseAsync(requestOptions);
     }
 

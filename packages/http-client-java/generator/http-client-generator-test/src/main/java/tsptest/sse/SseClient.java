@@ -66,7 +66,7 @@ public final class SseClient {
      */
     @Generated
     @ServiceMethod(returns = ReturnType.SINGLE)
-    Response<BinaryData> hiddenGeneratedReadWithResponse(RequestOptions requestOptions) {
+    public Response<BinaryData> hiddenGeneratedReadWithResponse(RequestOptions requestOptions) {
         return this.serviceClient.readWithResponse(requestOptions);
     }
 

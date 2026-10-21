@@ -119,7 +119,7 @@ describe("code model characterization", () => {
     const enabledOperation = enabledOperations.find(
       (operation) => operation.language.default.name === "retrieve",
     )!;
-    expect(enabledOperation.generateProtocolApi).toBe(false);
+    expect(enabledOperation.generateProtocolApi).toBe(true);
     expect(enabledOperation.sseMetadata).toMatchObject({
       streamName: "RetrievalStreamEvents",
       modelNamespace: "ssetest.retrieve",
