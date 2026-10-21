@@ -1,7 +1,7 @@
 import { Card, CardHeader, SearchBox, Text } from "@fluentui/react-components";
 import type { FunctionComponent } from "react";
 import { useDeferredValue, useMemo, useState } from "react";
-import type { CoverageSummary } from "../apis.js";
+import type { CoverageSummary, EmitterGroup } from "../apis.js";
 import { useTierFiltering } from "../hooks/use-tier-filtering.js";
 import type { TierConfig } from "../utils/tier-filtering-utils.js";
 import { CoverageOverview } from "./coverage-overview.js";
@@ -17,6 +17,8 @@ export interface DashboardProps {
   showOverview?: boolean;
   /** Optional friendly display names for emitters. Key is the emitter package name. */
   emitterDisplayNames?: Record<string, string>;
+  /** Combine emitter coverage in named overview cards. */
+  groupEmitters?: readonly EmitterGroup[];
 }
 
 export const Dashboard: FunctionComponent<DashboardProps> = ({
@@ -24,6 +26,7 @@ export const Dashboard: FunctionComponent<DashboardProps> = ({
   scenarioTierConfig,
   showOverview,
   emitterDisplayNames,
+  groupEmitters,
 }) => {
   const [selectedTier, setSelectedTier] = useState<string | undefined>(undefined);
   const [nameFilter, setNameFilter] = useState<string>("");
@@ -85,6 +88,7 @@ export const Dashboard: FunctionComponent<DashboardProps> = ({
         <CoverageOverview
           coverageSummaries={filteredSummaries}
           emitterDisplayNames={emitterDisplayNames}
+          groupEmitters={groupEmitters}
         />
       )}
       <div className={style["specs-row"]}>{specsCardTable}</div>

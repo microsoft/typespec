@@ -206,79 +206,83 @@ const { noLinks } = Astro.props;
   }
 </style>
 <nav aria-label="Main" class="navbar">
-  <span class="brand-item"><Link href="/" class="brand"><b>TypeSpec</b></Link></span>
+  <span class="brand-item">
+    <Link href="/" class="brand">
+      <b>TypeSpec</b>
+    </Link>
+  </span>
 
   <div id="header-nav-content" class="nav-content">
-    {
-      !noLinks && (
-        <div class="items">
-          <details id="use-cases-menu" class="group">
-            <summary class="item">
-              <span>Use cases</span> <Icon class="icon" name="down-caret" />
-            </summary>
-            <ul class="group-content">
-              <li>
-                <Link class="item link" href="/openapi">
-                  OpenAPI
-                </Link>
-              </li>
-              <li>
-                <Link class="item link" href="/data-validation">
-                  Data Validation
-                </Link>
-              </li>
-              <li>
-                <Link class="item link" href="/tooling">
-                  Tooling support
-                </Link>
-              </li>
-            </ul>
-          </details>
-          <Link class="item link" href="/docs">
-            Docs
-          </Link>
-          <Link class="item link" href="/videos">
-            Videos
-          </Link>
-          <Link class="item link" href="/playground">
-            Playground
-          </Link>
-          <Link class="item link" href="/blog">
-            Blog
-          </Link>
-          <Link class="item link" href="/community">
-            Community
-          </Link>
-        </div>
-      )
-    }
+    {!noLinks && (
+      <div class="items">
+        <details id="use-cases-menu" class="group">
+          <summary class="item">
+            <span>Use cases</span> <Icon class="icon" name="down-caret" />
+          </summary>
+          <ul class="group-content">
+            <li>
+              <Link class="item link" href="/openapi">
+                OpenAPI
+              </Link>
+            </li>
+            <li>
+              <Link class="item link" href="/data-validation">
+                Data Validation
+              </Link>
+            </li>
+            <li>
+              <Link class="item link" href="/tooling">
+                Tooling support
+              </Link>
+            </li>
+          </ul>
+        </details>
+        <Link class="item link" href="/docs">
+          Docs
+        </Link>
+        <Link class="item link" href="/videos">
+          Videos
+        </Link>
+        <Link class="item link" href="/playground">
+          Playground
+        </Link>
+        <Link class="item link" href="/blog">
+          Blog
+        </Link>
+        <Link class="item link" href="/community">
+          Community
+        </Link>
+      </div>
+    )}
     <div class="items right">
       <ReleaseNotification />
       <Link
         class="item icon link"
         href="https://github.com/microsoft/typespec"
         target="_blank"
-        rel="noopener noreferrer"><Icon name="github" label="github" /></Link
+        rel="noopener noreferrer"
       >
+        <Icon name="github" label="github" />
+      </Link>
       <Link
         class="item icon link"
         href="https://aka.ms/typespec/discord"
         target="_blank"
-        rel="noopener noreferrer"><Icon name="discord" label="discord" /></Link
+        rel="noopener noreferrer"
       >
+        <Icon name="discord" label="discord" />
+      </Link>
       <div class="item">
         <ThemePicker />
       </div>
     </div>
   </div>
   <Search />
-  {
-    !noLinks && (
-      <button id="header-drawer-button" type="button" class="lg:hidden icon" title="Show Menu">
-        <Icon name="bars" />
-      </button>
-    )
-  }
+  {!noLinks && (
+    <button id="header-drawer-button" type="button" class="lg:hidden icon" title="Show Menu">
+      <Icon name="bars" />
+    </button>
+  )}
 </nav>
 
 <script>

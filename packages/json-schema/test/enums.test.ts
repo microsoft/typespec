@@ -83,3 +83,61 @@ it("handles enum member refs", async () => {
   assert.deepStrictEqual(Bar.properties.b, { type: "number", const: 2 });
   assert.deepStrictEqual(Bar.properties.c, { type: "string", const: "c" });
 });
+
+it("uses the json encoded name as the member value", async () => {
+  const schemas = await emitSchema(`
+    enum Foo {
+      @encodedName("application/json", "on")
+      a;
+      @encodedName("application/json", "off")
+      b: "bye";
+      @encodedName("application/xml", "xml-c")
+      c;
+    }
+
+    model Bar {
+      a: Foo.a;
+      b: Foo.b;
+      withDefault?: Foo = Foo.a;
+    }
+  `);
+  const Foo = schemas["Foo.json"];
+  assert.deepStrictEqual(Foo.enum, ["on", "off", "c"]);
+
+  const Bar = schemas["Bar.json"];
+  assert.deepStrictEqual(Bar.properties.a, { type: "string", const: "on" });
+  assert.deepStrictEqual(Bar.properties.b, { type: "string", const: "off" });
+  assert.strictEqual(Bar.properties.withDefault.default, "on");
+});
+
+it("uses the json encoded name for a reference to a numeric member", async () => {
+  const schemas = await emitSchema(`
+    enum Foo {
+      @encodedName("application/json", "ready")
+      statusReady: 2,
+      plain: 3,
+    }
+
+    model Bar {
+      ready: Foo.statusReady;
+      plain: Foo.plain;
+    }
+  `);
+  const Bar = schemas["Bar.json"];
+  assert.deepStrictEqual(Bar.properties.ready, { type: "string", const: "ready" });
+  assert.deepStrictEqual(Bar.properties.plain, { type: "number", const: 3 });
+});
+
+it("handles an integer enum with an encoded name on only some members", async () => {
+  const schemas = await emitSchema(`
+    enum Foo {
+      @encodedName("application/json", "ready")
+      statusReady: 2,
+      plain: 3,
+    }
+  `);
+  const Foo = schemas["Foo.json"];
+
+  assert.deepStrictEqual(Foo.type, ["string", "number"]);
+  assert.deepStrictEqual(Foo.enum, ["ready", 3]);
+});

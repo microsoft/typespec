@@ -1,7 +1,13 @@
 import { Placeholder } from "../placeholder.js";
 import type { EmitEntity } from "../types.js";
 
+/**
+ * Assemble text while retaining unresolved placeholders for circular references.
+ * Resolution replaces segments in place and notifies listeners when no pending
+ * placeholders remain. Call `reduce` to obtain immediate text when nothing is pending.
+ */
 export class StringBuilder extends Placeholder<string> {
+  /** Ordered text and pending values; mutate through push methods to maintain placeholder tracking. */
   public segments: (string | Placeholder<string>)[] = [];
   #placeholders: Set<Placeholder<string>> = new Set();
 
@@ -22,6 +28,7 @@ export class StringBuilder extends Placeholder<string> {
     }
   }
 
+  /** Append text, coalescing it with the preceding segment when that segment is also text. */
   pushLiteralSegment(segment: string) {
     if (this.#shouldConcatLiteral()) {
       this.segments[this.segments.length - 1] += segment;
@@ -30,6 +37,10 @@ export class StringBuilder extends Placeholder<string> {
     }
   }
 
+  /**
+   * Append an unresolved value and subscribe to replace its occurrences when it publishes.
+   * Register before the placeholder is resolved; Placeholder does not replay earlier values.
+   */
   pushPlaceholder(ph: Placeholder<string>) {
     this.#placeholders.add(ph);
 
@@ -40,12 +51,17 @@ export class StringBuilder extends Placeholder<string> {
     this.segments.push(ph);
   }
 
+  /**
+   * Append the other builder's current segments, sharing their placeholders.
+   * Later segment additions to the other builder are not copied.
+   */
   pushStringBuilder(builder: StringBuilder) {
     for (const segment of builder.segments) {
       this.push(segment);
     }
   }
 
+  /** Append text or a pending value; nested builders are flattened into their current segments. */
   push(segment: StringBuilder | Placeholder<string> | string) {
     if (typeof segment === "string") {
       this.pushLiteralSegment(segment);
@@ -56,6 +72,7 @@ export class StringBuilder extends Placeholder<string> {
     }
   }
 
+  /** Return joined text if no placeholders are pending, otherwise return this builder for deferred resolution. */
   reduce() {
     if (this.#placeholders.size === 0) {
       return this.segments.join("");
@@ -69,6 +86,12 @@ export class StringBuilder extends Placeholder<string> {
   }
 }
 
+/**
+ * Interpolate emitted string output without losing deferred circular references.
+ * Unwraps declarations and raw code, flattens nested builders, and treats no-emit
+ * and circular sentinels as empty text. Returns a string when all segments are
+ * ready, otherwise a builder that publishes the completed text.
+ */
 export function code(
   parts: TemplateStringsArray,
   ...substitutions: (EmitEntity<string> | string | Placeholder<string> | StringBuilder)[]

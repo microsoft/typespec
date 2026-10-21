@@ -40,6 +40,7 @@ words:
   - blib
   - blockful
   - blockless
+  - bodyornocontent
   - buongiorno
   - cadl
   - cadleditor
@@ -280,11 +281,13 @@ words:
   - srnagar
   - ssdlrs
   - sses
+  - ssenoreconnect
   - ssvs
   - statment
   - strs
   - stubbed
   - swaggerui
+  - tabular-nums
   - TCGC
   - TEAMPROJECTID
   - terlson

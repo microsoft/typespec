@@ -5,6 +5,12 @@ import { Application, PageEvent, ReflectionKind } from "typedoc";
 import type { PluginOptions } from "typedoc-plugin-markdown";
 import { load } from "typedoc-plugin-markdown";
 import { stringify } from "yaml";
+/**
+ * Generates Markdown JavaScript API pages using TypeDoc and writes Docusaurus category metadata.
+ * Reads `src/index.ts` and `tsconfig.build.json` under `libraryPath`; the package must provide
+ * both files. Adds page front matter through {@link loadRenderer}.
+ * If TypeDoc cannot convert the project, it logs the error and returns without generating pages.
+ */
 export async function generateJsApiDocs(libraryPath: string, outputDir: string) {
   const markdownPluginOptions: Partial<PluginOptions> = {
     entryFileName: "index.md",
@@ -65,6 +71,10 @@ function setOptions(app: Application, options: any, reportErrors = true) {
   }
 }
 
+/**
+ * Registers a TypeDoc page-end hook that adds `jsApi` and title front matter and unescapes
+ * angle brackets in rendered pages. Call once before output generation to avoid duplicate hooks.
+ */
 export function loadRenderer(app: Application) {
   app.renderer.on(PageEvent.END, (page: PageEvent<any>) => {
     if (page.contents && page) {

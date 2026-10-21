@@ -1,5 +1,6 @@
 import { createTypeSpecLibrary, paramMessage } from "@typespec/compiler";
 
+/** Library definition providing diagnostic creation/reporting and decorator-state keys. */
 export const $lib = createTypeSpecLibrary({
   name: "@typespec/http-client-library",
   // Define diagnostics for the library. This will provide a typed API to report diagnostic as well as a auto doc generation.

@@ -6,6 +6,10 @@ packages:
   - "!packages/http-client-java/**"
   - "!packages/http-client-python/**"
 
+engineStrict: true
+pmOnFail: download
+updateNotifier: false
+
 allowBuilds:
   "@playwright/browser-chromium": false
   "@scarf/scarf": false
@@ -30,41 +34,41 @@ catalog:
   "@alloy-js/typescript": ^0.25.0
   "@astrojs/check": ^0.9.10
   "@astrojs/markdown-remark": ^7.3.0
-  "@astrojs/react": ^6.0.4
+  "@astrojs/react": ^7.0.1
   "@astrojs/starlight": ^0.42.0
   "@azure/identity": ^4.13.2
-  "@azure/storage-blob": ^12.33.0
+  "@azure/storage-blob": ^12.34.0
   "@babel/code-frame": ^8.0.0
-  "@babel/core": ^8.0.1
+  "@babel/core": ^8.0.7
   "@chronus/chronus": ^1.5.0
   "@chronus/github": ^1.2.0
   "@chronus/github-pr-commenter": ^1.1.1
-  "@docsearch/css": ^5.0.5
-  "@docsearch/js": ^5.0.5
+  "@docsearch/css": ^5.1.2
+  "@docsearch/js": ^5.1.2
   "@expressive-code/core": ^0.44.1
   # Pinned to pre-upgrade versions: newer @fluentui/react-components pulls tabster@8.8.0,
   # whose entry-point change breaks ESM named imports. See https://github.com/microsoft/tabster/issues/532
-  "@fluentui/react-components": 9.74.7
-  "@fluentui/react-icons": 2.0.339
-  "@fluentui/react-list": 9.6.18
+  "@fluentui/react-components": 9.74.9
+  "@fluentui/react-icons": 2.0.343
+  "@fluentui/react-list": 9.6.19
   "@inquirer/checkbox": ^5.2.2
-  "@inquirer/confirm": ^6.2.0
+  "@inquirer/confirm": ^6.3.3
   "@inquirer/input": ^5.1.3
   "@inquirer/select": ^5.2.2
-  "@microsoft/api-extractor": ^7.59.1
-  "@microsoft/api-extractor-model": ^7.33.12
-  "@microsoft/tsdoc": ^0.16.0
-  "@microsoft/tsdoc-config": ^0.18.1
+  "@microsoft/api-extractor": ^7.59.4
+  "@microsoft/api-extractor-model": ^7.33.15
+  "@microsoft/tsdoc": ^0.17.1
+  "@microsoft/tsdoc-config": ^0.18.3
   "@octokit/core": ^7.0.7
   "@octokit/plugin-paginate-graphql": ^6.0.0
   "@octokit/plugin-rest-endpoint-methods": ^18.0.0
-  "@playwright/test": ^1.62.1
+  "@playwright/test": ^1.63.0
   "@pinterest/alloy-graphql": ^1.1.1
-  "@scalar/json-magic": ^0.13.2
+  "@scalar/json-magic": ^0.15.5
   "@scalar/openapi-parser": ^0.29.1
   "@scalar/openapi-types": ^0.9.5
-  "@scalar/types": ^0.19.0
-  "@storybook/react-vite": ^10.5.10
+  "@scalar/types": ^0.23.0
+  "@storybook/react-vite": ^10.6.1
   "@testing-library/dom": ^10.4.1
   "@testing-library/jest-dom": ^7.0.1
   "@testing-library/react": ^16.3.2
@@ -74,11 +78,11 @@ catalog:
   "@types/express": ^5.0.6
   "@types/micromatch": ^4.0.10
   "@types/morgan": ^1.9.10
-  "@types/multer": ^2.2.0
+  "@types/multer": ^2.3.0
   "@types/mustache": ^4.2.6
-  "@types/node": ^26.3.0
-  "@types/react": ^19.2.18
-  "@types/react-dom": ^19.2.5
+  "@types/node": ^26.6.4
+  "@types/react": ^19.3.0
+  "@types/react-dom": ^19.3.0
   "@types/remark-heading-id": ^1.0.0
   "@types/semver": ^7.8.0
   "@types/swagger-ui": ^5.32.0
@@ -93,10 +97,10 @@ catalog:
   "@vscode/extension-telemetry": ^1.5.2
   "@vscode/test-electron": ^3.1.0
   "@vscode/test-web": ^0.0.81
-  "@vscode/vsce": ^3.9.2
+  "@vscode/vsce": ^4.0.0
   ajv: ^8.20.0
   ajv-formats: ^3.0.1
-  astro: ^7.2.8
+  astro: ^7.3.6
   astro-expressive-code: ^0.44.1
   astro-rehype-relative-markdown-links: ^0.19.2
   c8: ^12.0.0
@@ -106,7 +110,7 @@ catalog:
   concurrently: ^10.0.5
   cross-env: ^10.1.0
   cross-spawn: ^7.0.6
-  cspell: ^10.1.1
+  cspell: ^10.3.6
   debounce: ^3.0.0
   decimal.js: ^10.6.0
   ecmarkup: ^23.0.2
@@ -118,7 +122,7 @@ catalog:
   # is an npm cmd-shim that re-expands `%*` through a second `cmd.exe` parse. A batch file that
   # inspects its own arguments instead, like Maven's `mvn.cmd` (`if "%~1" == "-f"`), then fails with
   # "The syntax of the command is incorrect.". Revert once execa fixes this upstream.
-  execa: ^9.6.1
+  execa: ^10.1.0
   express: ^5.2.1
   fast-xml-parser: ^5.11.0
   graphql: ^17.0.2
@@ -127,26 +131,26 @@ catalog:
   log-symbols: ^7.0.1
   lzutf8: 0.6.3
   micromatch: ^4.0.8
-  monaco-editor: ^0.56.0
-  monaco-editor-core: ^0.56.0
+  monaco-editor: ^0.57.0
+  monaco-editor-core: ^0.57.0
   morgan: ^1.12.0
-  multer: ^2.3.0
+  multer: ^2.4.0
   mustache: ^4.2.0
   ora: ^9.4.1
-  oxlint: ^1.80.0
+  oxlint: ^1.87.0
   oxlint-tsgolint: ^7.0.2001
   p-limit: ^7.3.1
   pathe: ^2.0.3
   picocolors: ^1.1.1
-  playwright: ^1.62.1
+  playwright: ^1.63.0
   plist: ^5.0.0
   prettier: ^3.9.6
-  prettier-plugin-astro: ^0.14.1
+  prettier-plugin-astro: ^1.1.0
   prettier-plugin-organize-imports: ^4.3.0
-  prettier-plugin-sh: ^0.19.0
+  prettier-plugin-sh: ^0.20.2
   prism-react-renderer: ^2.4.1
-  react: ^19.2.8
-  react-dom: ^19.2.8
+  react: ^19.3.0
+  react-dom: ^19.3.0
   react-error-boundary: ^6.1.3
   react-hotkeys-hook: ^5.3.3
   react-markdown: ^10.1.0
@@ -155,11 +159,11 @@ catalog:
   rimraf: ^6.1.3
   rollup-plugin-visualizer: 7.1.1
   semver: ^7.8.5
-  sharp: ^0.35.4
-  simple-git: ^3.36.0
-  storybook: ^10.5.10
+  sharp: ^0.35.5
+  simple-git: ^4.0.2
+  storybook: ^10.6.1
   strip-json-comments: ^5.0.3
-  swagger-ui-dist: ^5.32.14
+  swagger-ui-dist: ^5.33.1
   swagger-ui-express: ^5.0.1
   tar: ^7.5.22
   temporal-polyfill: ^1.0.4
@@ -168,14 +172,14 @@ catalog:
   tree-sitter-javascript: ^0.25.0
   tree-sitter-python: ^0.25.0
   tree-sitter-typescript: ^0.23.2
-  turbo: ^2.10.11
+  turbo: ^2.11.7
   typedoc: ^0.28.20
-  typedoc-plugin-markdown: ^4.12.0
-  typescript: ~6.0.2
+  typedoc-plugin-markdown: ^4.13.1
+  typescript: npm:@typescript/typescript6@~6.0.2
+  typescript-native: npm:typescript@~7.0.2
   uri-template: ^2.0.0
-  vite: ^8.2.2
+  vite: ^8.3.4
   vite-plugin-checker: ^0.14.5
-  vite-plugin-dts: 5.1.0
   vitest: ^5.0.0
   vscode-languageclient: ^10.1.0
   vscode-languageserver: ^10.1.0
@@ -185,12 +189,18 @@ catalog:
   web-tree-sitter: ^0.27.0
   which: ^7.0.0
   yaml: ^2.9.0
-  yargs: ^18.1.0
+  yargs: ^18.2.0
 
 ignoredBuiltDependencies:
   - esbuild
 
 minimumReleaseAge: 10080 # 7 days
+
+packageExtensions:
+  "@alloy-js/cli@0.25.0":
+    dependencies:
+      # Alloy resolves typescript/bin/tsc directly instead of using the workspace PATH.
+      typescript: ~7.0.2
 
 overrides:
   "@pinterest/alloy-graphql@1.1.1>@alloy-js/core": ^0.25.0

@@ -15,14 +15,21 @@ import type { ParentResourceDecorator } from "../generated-defs/TypeSpec.Rest.js
 import { createStateSymbol, reportDiagnostic } from "./lib.js";
 import { CycleTracker } from "./utils/cycle-tracker/cycle-tracker.js";
 
+/** Associates a resource model with the property used to identify its instances. */
 export interface ResourceKey {
+  /** Resource model associated with the key; inherited keys may refer to a base model. */
   resourceType: Model;
+  /** Original key property, before it is copied into operation parameters. */
   keyProperty: ModelProperty;
 }
 
 const resourceKeysKey = createStateSymbol("resourceKeys");
 const resourceTypeForKeyParamKey = createStateSymbol("resourceTypeForKeyParam");
 
+/**
+ * Records the key property for a resource, replacing any previously cached key.
+ * This does not apply `@key` or modify the model's properties.
+ */
 export function setResourceTypeKey(
   program: Program,
   resourceType: Model,
@@ -34,6 +41,12 @@ export function setResourceTypeKey(
   });
 }
 
+/**
+ * Returns a cached resource key or discovers one from the model's own `@key` properties, then its base model.
+ * When discovering keys, reports a diagnostic for additional keys on the same model and keeps the first key.
+ * Discovered keys are cached for later queries.
+ * Returns `undefined` when neither the model nor its base models have a key.
+ */
 export function getResourceTypeKey(program: Program, resourceType: Model): ResourceKey | undefined {
   // Look up the key first
   let resourceKey = program.stateMap(resourceKeysKey).get(resourceType);
@@ -77,6 +90,10 @@ export function getResourceTypeKey(program: Program, resourceType: Model): Resou
   return resourceKey;
 }
 
+/**
+ * Records the resource that a copied key parameter identifies.
+ * Used when constructing resource key parameter models; it does not copy the key itself.
+ */
 export function $resourceTypeForKeyParam(
   context: DecoratorContext,
   entity: Type,
@@ -87,6 +104,10 @@ export function $resourceTypeForKeyParam(
 
 setTypeSpecNamespace("Private", $resourceTypeForKeyParam);
 
+/**
+ * Returns the resource associated with a copied key parameter, or `undefined` if none was recorded.
+ * This reads the parameter's metadata rather than inferring a resource from its type or name.
+ */
 export function getResourceTypeForKeyParam(
   program: Program,
   param: ModelProperty,
@@ -144,6 +165,13 @@ function cloneKeyProperties(context: DecoratorContext, target: Model, resourceTy
   }
 }
 
+/**
+ * Populates a `KeysOf<T>` or `ParentKeysOf<T>` model with required path parameters for resource keys.
+ * Copies ancestor keys before the resource's own key, using each key's `@key` name and retaining
+ * decorators other than visibility decorators.
+ *
+ * @param filter When `"parent"`, copies only ancestor keys; otherwise also copies the resource's key.
+ */
 export function $copyResourceKeyParameters(
   context: DecoratorContext,
   entity: Model,

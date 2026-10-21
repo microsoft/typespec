@@ -18,13 +18,19 @@ import java.io.UncheckedIOException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import javax.tools.DiagnosticCollector;
+import javax.tools.JavaCompiler;
+import javax.tools.JavaFileObject;
+import javax.tools.StandardJavaFileManager;
+import javax.tools.ToolProvider;
 import org.slf4j.Logger;
 
 public class Postprocessor {
@@ -167,17 +173,15 @@ public class Postprocessor {
         try {
             customizationCompile = FileUtils.createTempDirectory("customizationCompile" + UUID.randomUUID());
 
-            Path pomPath = customizationCompile.resolve("compile-pom.xml");
-            Files.copy(Postprocessor.class.getClassLoader().getResourceAsStream("readme/pom.xml"), pomPath);
-
             Path sourcePath = customizationCompile.resolve("src/main/java/" + className + ".java");
             Files.createDirectories(sourcePath.getParent());
 
             Files.writeString(sourcePath, code);
 
-            attemptMavenInstall(pomPath);
+            Path classesPath = customizationCompile.resolve("target/classes");
+            compileCustomization(sourcePath, classesPath);
 
-            URL fileUrl = customizationCompile.resolve("target/classes").toUri().toURL();
+            URL fileUrl = classesPath.toUri().toURL();
             URLClassLoader classLoader
                 = URLClassLoader.newInstance(new URL[] { fileUrl }, ClassLoader.getSystemClassLoader());
             return (Class<? extends Customization>) Class.forName(className, true, classLoader);
@@ -225,26 +229,29 @@ public class Postprocessor {
         logger.info("Finish handle partial update.");
     }
 
-    private static void attemptMavenInstall(Path pomPath) {
-        String[] command = Utils.isWindows()
-            ? new String[] { "cmd", "/c", "mvn", "compiler:compile", "-f", pomPath.toString() }
-            : new String[] { "mvn", "compiler:compile", "-f", pomPath.toString() };
+    private static void compileCustomization(Path sourcePath, Path classesPath) throws IOException {
+        JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+        if (compiler == null) {
+            throw new IllegalStateException("A JDK is required to compile a Java customization.");
+        }
 
-        try {
-            File outputFile = Files.createTempFile(pomPath.getParent(), "compile", ".log").toFile();
-            Process process = new ProcessBuilder(command).redirectErrorStream(true)
-                .redirectOutput(ProcessBuilder.Redirect.to(outputFile))
-                .start();
-            process.waitFor(60, TimeUnit.SECONDS);
-
-            if (process.isAlive() || process.exitValue() != 0) {
-                process.destroyForcibly();
-                throw new RuntimeException("Compile failed to complete within 60 seconds or failed with an error code. "
-                    + Files.readString(outputFile.toPath()) + "If this happens 'mvn compile -f " + pomPath
-                    + "' to install dependencies manually.");
+        Files.createDirectories(classesPath);
+        DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
+        try (StandardJavaFileManager fileManager
+            = compiler.getStandardFileManager(diagnostics, null, StandardCharsets.UTF_8)) {
+            List<String> options
+                = List.of("-classpath", System.getProperty("java.class.path"), "-d", classesPath.toString());
+            boolean compiled
+                = compiler
+                    .getTask(null, fileManager, diagnostics, options, null,
+                        fileManager.getJavaFileObjects(sourcePath.toFile()))
+                    .call();
+            if (!compiled) {
+                throw new RuntimeException("Failed to compile Java customization:\n" + diagnostics.getDiagnostics()
+                    .stream()
+                    .map(Object::toString)
+                    .collect(Collectors.joining(System.lineSeparator())));
             }
-        } catch (IOException | InterruptedException ex) {
-            throw new RuntimeException("Failed to run compile on generated code.", ex);
         }
     }
 }

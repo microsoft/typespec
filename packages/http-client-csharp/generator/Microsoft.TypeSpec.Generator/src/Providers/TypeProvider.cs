@@ -214,6 +214,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         private CSharpType? _type;
+
+        // Returns the already-materialized type without invoking the lazy Type builder. This is used
+        // during provider discovery, where building Type would also build BaseType and could re-enter
+        // the discovery operation or mutate provider caches while they are being inspected.
+        internal CSharpType? CachedType => _type;
+
         private CSharpType[]? _arguments;
         public CSharpType Type => _type ??=
             new(
@@ -715,6 +721,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected internal virtual CSharpType[] BuildImplements() => [];
 
+        /// <summary>
+        /// Determines whether a symbol-backed method contains signature metadata that the provider
+        /// model cannot represent, such as a by-reference return. Emitters should not use such a
+        /// signature as evidence that a generated method preserves a last-contract API.
+        /// </summary>
+        /// <param name="signature">The method signature to inspect.</param>
+        protected static bool HasUnsupportedSignature(MethodSignature signature)
+            => signature.HasUnsupportedBaseContract ||
+                signature.Parameters.Any(parameter => parameter.HasUnsupportedParameterModifiers);
+
         protected internal virtual MethodProvider[] BuildMethods() => [];
 
         protected internal virtual ConstructorProvider[] BuildConstructors() => [];
@@ -1202,7 +1218,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             foreach (var previousMethod in previousMethods)
             {
                 if (currentMethodSignatures.ContainsKey(previousMethod.Signature)
-                    || !MethodSignatureHelper.IsPublicApi(previousMethod.Signature.Modifiers)
+                    || !MethodSignatureHelper.IsPublicApi(previousMethod.Signature)
                     || BackCompatHelper.IsMethodRemovalAcceptedInBaseline(this, previousMethod.Signature))
                 {
                     continue;
@@ -1267,7 +1283,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // Check if the last contract had a public constructor with matching parameters
             foreach (var previousConstructor in LastContractView.Constructors)
             {
-                if (!previousConstructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public))
+                if (!previousConstructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public) ||
+                    !MethodSignatureHelper.IsPublicApi(previousConstructor.Signature))
                 {
                     continue;
                 }

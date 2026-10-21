@@ -13,6 +13,7 @@ enum Color {
   Red,
   Blue,
   Green,
+  CommentTerminator: "*/",
 }
 
 union ColorModel {
@@ -24,6 +25,7 @@ union ColorModel {
 union ColorModelBase {
   string,
   Red: "Red",
+  CommentTerminator: "*/",
 }
 
 union ReasoningEffort {

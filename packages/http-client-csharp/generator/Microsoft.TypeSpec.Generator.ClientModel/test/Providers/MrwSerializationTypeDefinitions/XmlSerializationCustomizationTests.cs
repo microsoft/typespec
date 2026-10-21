@@ -90,16 +90,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         }
 
         [Test]
-        public async Task ConcreteListPropertyUsesNullCheckForOptionalCollection()
+        public async Task ConcreteListPropertyUsesNullCheckForOptionalCollection(
+            [Values(false, true)] bool isNullable,
+            [Values(false, true)] bool supportsJson)
         {
             var inputModel = InputFactory.Model(
                 "model",
-                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml,
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Xml | (supportsJson ? InputModelTypeUsage.Json : InputModelTypeUsage.None),
                 properties:
                 [
                     InputFactory.Property(
                         "Names",
-                        InputFactory.Array(InputPrimitiveType.String),
+                        isNullable ? new InputNullableType(InputFactory.Array(InputPrimitiveType.String)) : InputFactory.Array(InputPrimitiveType.String),
                         serializationOptions: InputFactory.Serialization.Options(xml: InputFactory.Serialization.Xml("names")))
                 ]);
             var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(

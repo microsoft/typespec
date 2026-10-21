@@ -12,7 +12,9 @@ import { InterfaceExpression } from "./interface-declaration.js";
 import { RecordExpression } from "./record-expression.js";
 import { UnionExpression } from "./union/expression.js";
 
+/** Controls whether a TypeSpec type is rendered as a reference or an inline TypeScript type. */
 export interface TypeExpressionProps {
+  /** TypeSpec source, including property and union-variant wrappers that are unwrapped recursively. */
   type: Type;
 
   /**
@@ -23,6 +25,12 @@ export interface TypeExpressionProps {
   noReference?: boolean;
 }
 
+/**
+ * Renders a TypeScript type-use expression, honoring reference overrides.
+ * Named declarations normally resolve through their refkeys; `noReference` inlines
+ * the outer type instead. Unsupported kinds report a diagnostic and emit `any`.
+ * Requires a TypeSpec render context.
+ */
 export function TypeExpression(props: TypeExpressionProps) {
   const type = props.type;
   const { $ } = useTsp();

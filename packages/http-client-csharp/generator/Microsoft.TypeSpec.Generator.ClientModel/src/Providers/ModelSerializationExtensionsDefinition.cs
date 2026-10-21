@@ -692,6 +692,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 // int case
                 BuildWriteObjectValueSwitchCase(typeof(int), "i",
                     i => new MethodBodyStatement[] { writer.WriteNumberValue(i), Break }),
+                // short case
+                BuildWriteObjectValueSwitchCase(typeof(short), "shortValue",
+                    shortValue => new MethodBodyStatement[] { writer.WriteNumberValue(shortValue), Break }),
+                // ushort case
+                BuildWriteObjectValueSwitchCase(typeof(ushort), "ushortValue",
+                    ushortValue => new MethodBodyStatement[] { writer.WriteNumberValue(ushortValue), Break }),
+                // uint case
+                BuildWriteObjectValueSwitchCase(typeof(uint), "uintValue",
+                    uintValue => new MethodBodyStatement[] { writer.WriteNumberValue(uintValue), Break }),
+                // ulong case
+                BuildWriteObjectValueSwitchCase(typeof(ulong), "ulongValue",
+                    ulongValue => new MethodBodyStatement[] { writer.WriteNumberValue(ulongValue), Break }),
                 // decimal case
                 BuildWriteObjectValueSwitchCase(typeof(decimal), "d",
                     dec => new MethodBodyStatement[] { writer.WriteNumberValue(dec), Break }),

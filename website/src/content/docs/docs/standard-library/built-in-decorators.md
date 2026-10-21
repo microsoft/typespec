@@ -236,6 +236,7 @@ model FeatureFlags {
 ### `@encodedName` {#@encodedName}
 
 Provide an alternative name for this type when serialized to the given mime type.
+On an enum member, the name is the value the member is serialized as.
 ```typespec
 @encodedName(mimeType: valueof string, name: valueof string)
 ```
@@ -876,7 +877,12 @@ Provide example values for an operation's parameters and corresponding return ty
 #### Examples
 
 ```tsp
-@opExample(#{parameters: #{name: "Fluffy", age: 2}, returnType: #{name: "Fluffy", age: 2, id: "abc"})
+model Pet { name: string; age: int32; }
+
+@opExample(#{
+  parameters: #{pet: #{name: "Fluffy", age: 2}},
+  returnType: #{name: "Fluffy", age: 2}
+})
 op createPet(pet: Pet): Pet;
 ```
 

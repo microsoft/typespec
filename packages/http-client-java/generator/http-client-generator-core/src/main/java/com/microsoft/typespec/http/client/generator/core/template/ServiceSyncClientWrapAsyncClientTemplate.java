@@ -68,6 +68,8 @@ public class ServiceSyncClientWrapAsyncClientTemplate extends ServiceSyncClientT
         protected void writeMethodInvocation(ClientMethod clientMethod, JavaBlock function, boolean shouldReturn) {
             List<String> parameterNames = clientMethod.getMethodInputParameters()
                 .stream()
+                .filter(p -> !clientMethod.isPageStreamingType()
+                    || !clientMethod.getMethodPageDetails().shouldHideParameter(p))
                 .map(ClientMethodParameter::getName)
                 .collect(Collectors.toList());
 

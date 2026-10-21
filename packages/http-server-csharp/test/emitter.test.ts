@@ -120,3 +120,62 @@ it("emits the HTTP service exception filter for server output", async () => {
   expect(hasPathEndingWith("/generated/lib/HttpServiceException.cs")).toBe(true);
   expect(hasPathEndingWith("/generated/lib/HttpServiceExceptionFilter.cs")).toBe(true);
 });
+
+it("uses the json encoded name as the serialized value of an enum member", async () => {
+  const [result] = await compileAndDiagnose(
+    tester,
+    getStandardService(`
+      enum Status {
+        @encodedName("application/json", "on")
+        active,
+        @encodedName("application/json", "off")
+        inactive: "inactive-value",
+        @encodedName("application/xml", "xml-pending")
+        pending,
+      }
+
+      model Item {
+        status: Status;
+      }
+
+      op read(): Item;
+    `),
+    { "skip-format": true },
+  );
+  const status = [...result.fs.fs.entries()].find(([path]) =>
+    path.endsWith("/generated/models/Status.cs"),
+  )?.[1];
+
+  expect(status).toContain(`[JsonStringEnumMemberName("on")]`);
+  expect(status).toContain(`[JsonStringEnumMemberName("off")]`);
+  expect(status).toContain(`[JsonStringEnumMemberName("pending")]`);
+  expect(status).not.toContain(`[JsonStringEnumMemberName("active")]`);
+});
+
+it("types a non-integer enum whose members are all encoded as the enum", async () => {
+  const [result] = await compileAndDiagnose(
+    tester,
+    getStandardService(`
+      enum Ratio {
+        @encodedName("application/json", "half")
+        Half: 0.5,
+        @encodedName("application/json", "quarter")
+        Quarter: 0.25,
+      }
+
+      model Item {
+        ratio: Ratio;
+      }
+
+      op read(): Item;
+    `),
+    { "skip-format": true },
+  );
+  const files = [...result.fs.fs.entries()];
+  const item = files.find(([path]) => path.endsWith("/generated/models/Item.cs"))?.[1];
+  const ratio = files.find(([path]) => path.endsWith("/generated/models/Ratio.cs"))?.[1];
+
+  expect(item).toContain("public Ratio Ratio { get; set; }");
+  expect(ratio).toContain(`[JsonStringEnumMemberName("half")]`);
+  expect(ratio).toContain(`[JsonStringEnumMemberName("quarter")]`);
+});

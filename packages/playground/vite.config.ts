@@ -4,7 +4,6 @@ import { dirname, resolve } from "path";
 import { fileURLToPath } from "url";
 import { defineConfig } from "vite";
 import checker from "vite-plugin-checker";
-import dts from "vite-plugin-dts";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -48,7 +47,6 @@ export default defineConfig({
   optimizeDeps: {},
   plugins: [
     react({}),
-    dts({}),
     checker({
       // e.g. use TypeScript check
       typescript: true,

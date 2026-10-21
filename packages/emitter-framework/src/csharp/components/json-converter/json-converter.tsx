@@ -8,9 +8,13 @@ import { type Type } from "@typespec/compiler";
 import { capitalize } from "@typespec/compiler/casing";
 import { TypeExpression } from "../type-expression.jsx";
 
+/** Declaration identity, converted TypeSpec type, and generated Read/Write method bodies. */
 interface JsonConverterProps {
+  /** C# class name or shared namekey for references to the converter. */
   name: string | Namekey;
+  /** TypeSpec type rendered as the converter's generic argument. */
   type: Type;
+  /** Optional additional identity for resolving references to the declaration. */
   refkey?: Refkey;
   /** Decode and return value from reader*/
   decodeAndReturn: (reader: Namekey, typeToConvert: Namekey, options: Namekey) => Children;
@@ -82,9 +86,17 @@ export function JsonConverter(props: JsonConverterProps) {
   );
 }
 
+/**
+ * Declares a TimeSpan converter that reads and writes a numeric count of seconds.
+ * The encoded scalar selects the JSON reader and numeric cast; unsupported scalars
+ * throw during rendering. Requires a TypeSpec context.
+ */
 export function TimeSpanSecondsJsonConverter(props: {
+  /** Class name; defaults to `TimeSpanSeconds<EncodedScalarName>JsonConverter`. */
   name?: string | Namekey;
+  /** Optional reference identity for the generated converter class. */
   refkey?: Refkey;
+  /** Built-in int16/32/64, uint16/32/64, float32, or float64 scalar used on the wire. */
   encodeType: Type;
 }) {
   const { $ } = useTsp();
@@ -123,7 +135,16 @@ export function TimeSpanSecondsJsonConverter(props: {
   );
 }
 
-export function TimeSpanIso8601JsonConverter(props: { name?: string | Namekey; refkey?: Refkey }) {
+/**
+ * Declares a TimeSpan converter using XmlConvert for ISO 8601 duration strings.
+ * Generated reads reject JSON null with a FormatException. Requires a TypeSpec context.
+ */
+export function TimeSpanIso8601JsonConverter(props: {
+  /** Class name; defaults to `TimeSpanIso8601JsonConverter`. */
+  name?: string | Namekey;
+  /** Optional reference identity for the generated converter class. */
+  refkey?: Refkey;
+}) {
   const { $ } = useTsp();
   return (
     <JsonConverter

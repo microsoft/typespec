@@ -122,7 +122,13 @@ export interface ModelKit {
    */
   getProperties(
     model: Model,
-    options?: { includeExtended?: boolean },
+    options?: {
+      /**
+       * Include properties from the full base-model chain. Defaults to false.
+       * Existing result properties take precedence over inherited properties with the same name.
+       */
+      includeExtended?: boolean;
+    },
   ): RekeyableMap<string, ModelProperty>;
   /**
    * Get the record representing additional properties, if there are additional properties.
@@ -263,7 +269,7 @@ defineKit<TypekitExtension>({
         return [undefined, []];
       }
 
-      return getDiscriminatedUnionFromInheritance(model, discriminator);
+      return getDiscriminatedUnionFromInheritance(this.program, model, discriminator);
     }),
   },
 });
