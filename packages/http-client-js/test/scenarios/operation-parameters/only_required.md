@@ -51,7 +51,7 @@ export class TestClient {
   constructor(endpoint: string, options?: TestClientOptions) {
     this.#context = createTestClientContext(endpoint, options);
   }
-  async getWithParams(name: string, age: number, options?: GetWithParamsOptions) {
+  async getWithParams(name: string, age: number, options?: GetWithParamsOptions): Promise<number> {
     return getWithParams(this.#context, name, age, options);
   }
 }
