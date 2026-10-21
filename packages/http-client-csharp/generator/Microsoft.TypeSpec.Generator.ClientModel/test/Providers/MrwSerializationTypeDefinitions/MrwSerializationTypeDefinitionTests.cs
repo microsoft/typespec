@@ -64,6 +64,47 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.That(interfaces.Any(i => i.Equals(expectedJsonModelTInterface)));
         }
 
+        [TestCase(false, false, false)]
+        [TestCase(true, false, false)]
+        [TestCase(true, true, true)]
+        [TestCase(true, true, false)]
+        public void DeserializationOnlyInitializesTrackedPresence(bool hasProperty, bool isNullable, bool isRequired)
+        {
+            var inputModel = InputFactory.Model("model", properties: hasProperty
+                ? [InputFactory.Property("text", isNullable ? new InputNullableType(InputPrimitiveType.String) : InputPrimitiveType.String, isRequired: isRequired)]
+                : []);
+            var (model, serialization) = CreateModelAndSerialization(inputModel);
+            var returnStatement = (ExpressionStatement)serialization.BuildDeserializationMethod().BodyStatements!.Last();
+            var newInstance = (NewInstanceExpression)((KeywordExpression)returnStatement.Expression).Expression!;
+
+            if (hasProperty && isNullable && !isRequired)
+            {
+                var presence = ClientModel.Providers.ScmModelProvider.GetNullablePropertyPresence(model.Properties.Single());
+                Assert.That(newInstance.InitExpression, Is.Not.Null);
+                Assert.That(newInstance.InitExpression!.Values.Keys, Is.EqualTo(new[] { presence!.AsValueExpression }));
+            }
+            else
+            {
+                Assert.That(newInstance.InitExpression, Is.Null);
+            }
+        }
+
+        [Test]
+        public void SerializationUsesOptionalIsDefinedWithPresence(
+            [Values(false, true)] bool isValueType,
+            [Values(false, true)] bool isReadOnly,
+            [Values(false, true)] bool isDynamic)
+        {
+            var inputModel = InputFactory.Model("model", isDynamicModel: isDynamic, properties:
+                [InputFactory.Property("value", new InputNullableType(isValueType ? InputPrimitiveType.Int32 : InputPrimitiveType.String),
+                    isReadOnly: isReadOnly)]);
+            var (_, serialization) = CreateModelAndSerialization(inputModel);
+            var code = serialization.BuildJsonModelWriteCoreMethod().BodyStatements!.ToDisplayString();
+
+            StringAssert.Contains("Optional.IsDefined(Value, _valueIsDefined)", code);
+            StringAssert.DoesNotContain("_valueIsDefined ||", code);
+        }
+
         // This test validates the json model serialization write method is built correctly
         [TestCase(true)]
         [TestCase(false)]
@@ -909,13 +950,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             InputPrimitiveTypeKind.Integer,
             InputPrimitiveTypeKind.SafeInt,
             InputPrimitiveTypeKind.Int8,
-            // InputPrimitiveTypeKind.Int16, TODO: add them back when we decide the exact corresponding type
+            InputPrimitiveTypeKind.Int16,
             InputPrimitiveTypeKind.Int32,
             InputPrimitiveTypeKind.Int64,
-            InputPrimitiveTypeKind.UInt8
-            // InputPrimitiveTypeKind.UInt16,
-            // InputPrimitiveTypeKind.UInt32,
-            // InputPrimitiveTypeKind.UInt64
+            InputPrimitiveTypeKind.UInt8,
+            InputPrimitiveTypeKind.UInt16,
+            InputPrimitiveTypeKind.UInt32,
+            InputPrimitiveTypeKind.UInt64
             )] InputPrimitiveTypeKind kind,
             [Values("string", null)] string encode)
         {
@@ -969,11 +1010,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         [TestCase(typeof(long), SerializationFormat.Int_String, ExpectedResult = "long.Parse(foo.GetString())")]
         [TestCase(typeof(int), SerializationFormat.Int_String, ExpectedResult = "int.Parse(foo.GetString())")]
         [TestCase(typeof(short), SerializationFormat.Int_String, ExpectedResult = "short.Parse(foo.GetString())")]
+        [TestCase(typeof(ushort), SerializationFormat.Int_String, ExpectedResult = "ushort.Parse(foo.GetString())")]
+        [TestCase(typeof(uint), SerializationFormat.Int_String, ExpectedResult = "uint.Parse(foo.GetString())")]
+        [TestCase(typeof(ulong), SerializationFormat.Int_String, ExpectedResult = "ulong.Parse(foo.GetString())")]
         [TestCase(typeof(byte), SerializationFormat.Int_String, ExpectedResult = "byte.Parse(foo.GetString())")]
         [TestCase(typeof(sbyte), SerializationFormat.Int_String, ExpectedResult = "sbyte.Parse(foo.GetString())")]
         [TestCase(typeof(long), SerializationFormat.Default, ExpectedResult = "foo.GetInt64()")]
         [TestCase(typeof(int), SerializationFormat.Default, ExpectedResult = "foo.GetInt32()")]
         [TestCase(typeof(short), SerializationFormat.Default, ExpectedResult = "foo.GetInt16()")]
+        [TestCase(typeof(ushort), SerializationFormat.Default, ExpectedResult = "foo.GetUInt16()")]
+        [TestCase(typeof(uint), SerializationFormat.Default, ExpectedResult = "foo.GetUInt32()")]
+        [TestCase(typeof(ulong), SerializationFormat.Default, ExpectedResult = "foo.GetUInt64()")]
         [TestCase(typeof(byte), SerializationFormat.Default, ExpectedResult = "foo.GetByte()")]
         [TestCase(typeof(sbyte), SerializationFormat.Default, ExpectedResult = "foo.GetSByte()")]
         public string TestIntDeserializeExpression(Type type, SerializationFormat format)

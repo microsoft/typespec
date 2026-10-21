@@ -32,6 +32,7 @@ class OptionsDict(MutableMapping):
         "keep-pyproject-fields": "",
         "generate-test": False,
         "head-as-boolean": True,
+        "enable-sse-reconnect": False,
         "keep-version-file": False,
         "low-level-client": False,
         "no-async": False,
@@ -175,6 +176,9 @@ class OptionsDict(MutableMapping):
             raise ValueError("Can only have tracing turned on for Azure SDKs.")
 
     def _validate_and_transform(self, key: str, value: Any) -> Any:
+        if key == "enable-sse-reconnect" and not isinstance(value, bool):
+            raise ValueError("--enable-sse-reconnect must be a boolean")
+
         if key == "builders-visibility" and value not in ["public", "hidden", "embedded"]:
             raise ValueError("The value of --builders-visibility must be either 'public', 'hidden', or 'embedded'")
 

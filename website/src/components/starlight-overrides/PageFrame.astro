@@ -4,7 +4,9 @@ import Footer from "../footer/footer.astro";
 ---
 
 <Default {...Astro.props}>
-  <slot name="header" slot="header" /><slot name="sidebar" slot="sidebar" /><div>
+  <slot name="header" slot="header" />
+  <slot name="sidebar" slot="sidebar" />
+  <div>
     <slot />
     <div class="footer-wrapper">
       <div class="footer">

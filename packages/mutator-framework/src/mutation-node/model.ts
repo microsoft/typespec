@@ -4,15 +4,25 @@ import { HalfEdge } from "./mutation-edge.js";
 import { MutationNode } from "./mutation-node.js";
 import { traceNode } from "./tracer.js";
 
+/** Connection-key configuration shape; current node connection methods do not consume it. */
 export interface ModelConnectOptions {
-  /** Mutation key for the base model node. Defaults to this node's key. */
+  /** Key designated for a base model node; callers must select that node explicitly. */
   baseModel?: string;
-  /** Mutation key for the indexer value node. Defaults to this node's key. */
+  /** Key designated for an indexer value node; callers must select that node explicitly. */
   indexerValue?: string;
 }
 
+/**
+ * Updates model references as connected base, property, and indexer nodes change.
+ * Connections are explicit: construction alone does not traverse the model.
+ */
 export class ModelMutationNode extends MutationNode<Model> {
+  /** Selects model-specific connection behavior, even if this node is later replaced. */
   readonly kind = "Model";
+  /**
+   * Starts a base reference that follows model mutations, clears the base on
+   * deletion, and rejects replacements that are not models.
+   */
   startBaseModelEdge() {
     return new HalfEdge<Model, Model>(this, {
       onTailMutation: ({ tail }) => {
@@ -35,10 +45,16 @@ export class ModelMutationNode extends MutationNode<Model> {
       },
     });
   }
+  /** Completes {@link startBaseModelEdge} with the chosen base model node. */
   connectBase(baseNode: MutationNode<Model>) {
     this.startBaseModelEdge().setTail(baseNode);
   }
 
+  /**
+   * Starts a property reference and connects the property's containing-model
+   * back-reference. Renames replace the source-name entry in the output map;
+   * deletion removes it. Replacements must remain model properties.
+   */
   startPropertyEdge() {
     return new HalfEdge<Model, ModelProperty>(this, {
       onTailCreation: ({ tail }) => {
@@ -75,10 +91,15 @@ export class ModelMutationNode extends MutationNode<Model> {
     });
   }
 
+  /** Connects a property and its containing-model back-reference via {@link startPropertyEdge}. */
   connectProperty(propNode: ModelPropertyMutationNode) {
     this.startPropertyEdge().setTail(propNode);
   }
 
+  /**
+   * Starts a reference to an existing indexer's value type.
+   * Deletion substitutes `any`; no indexer is created if the output has none.
+   */
   startIndexerValueEdge() {
     return new HalfEdge<Model, Type>(this, {
       onTailMutation: ({ tail }) => {
@@ -114,6 +135,11 @@ export class ModelMutationNode extends MutationNode<Model> {
     });
   }
 
+  /**
+   * Starts a reference to an existing indexer's key scalar.
+   * Deletion substitutes `integer`; replacements must be scalars. No indexer is
+   * created if the output has none.
+   */
   startIndexerKeyEdge() {
     return new HalfEdge<Model, Scalar>(this, {
       onTailMutation: ({ tail }) => {
@@ -152,10 +178,12 @@ export class ModelMutationNode extends MutationNode<Model> {
     });
   }
 
+  /** Completes {@link startIndexerKeyEdge} with an explicitly selected key node. */
   connectIndexerKey(indexerNode: MutationNode<Scalar>) {
     this.startIndexerKeyEdge().setTail(indexerNode);
   }
 
+  /** Completes {@link startIndexerValueEdge} with an explicitly selected value node. */
   connectIndexerValue(indexerNode: MutationNode<Type>) {
     this.startIndexerValueEdge().setTail(indexerNode);
   }

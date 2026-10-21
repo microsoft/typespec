@@ -2,6 +2,7 @@ import assert from "assert";
 import { readFile } from "fs/promises";
 import { URL } from "url";
 import { describe, it } from "vitest";
+import { skipTrivia } from "../src/ast/index.js";
 import { isIdentifierContinue, isIdentifierStart } from "../src/core/charcode.js";
 import type { DiagnosticHandler } from "../src/core/diagnostics.js";
 import { formatDiagnostic } from "../src/core/logger/console-sink.js";
@@ -116,6 +117,30 @@ it("smoketest", () => {
     [Token.Whitespace],
     [Token.Identifier, "test", { value: "test" }],
   ]);
+});
+
+describe("skipTrivia", () => {
+  it("skips whitespace and comments without stopping at punctuation inside comments", () => {
+    const property = "value: string";
+    const trivia = " \t/* ; , */ // ; ,\r\n";
+    const input = `${property}${trivia}; next: string;`;
+
+    assert.strictEqual(skipTrivia(input, property.length), property.length + trivia.length);
+  });
+
+  it("stops at the supplied end position inside a comment", () => {
+    const input = " // comment; , continues\n;";
+    const endPosition = input.indexOf("continues");
+
+    assert.strictEqual(skipTrivia(input, 0, endPosition), endPosition);
+  });
+
+  it("returns the input length when only trivia remains", () => {
+    const input = " \t/* comment */ // comment\r\n";
+
+    assert.strictEqual(skipTrivia(input, 0), input.length);
+    assert.strictEqual(skipTrivia(input, 0, input.length + 100), input.length);
+  });
 });
 
 it("scans objects", () => {

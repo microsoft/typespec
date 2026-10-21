@@ -40,6 +40,7 @@ import {
   listServices,
   navigateTypesInNamespace,
   NoTarget,
+  resolveEncodedEnumMemberValue,
   resolvePath,
   sanitizePathSegment,
 } from "@typespec/compiler";
@@ -151,6 +152,11 @@ const defaultOptions = {
   "seal-object-schemas": false,
 } as const;
 
+/**
+ * Compiler emitter entry point: generates all requested OpenAPI specification
+ * versions, reports diagnostics and writes the configured file formats.
+ * Dry runs and programs with errors do not write documents.
+ */
 export async function $onEmit(context: EmitContext<OpenAPI3EmitterOptions>) {
   const options = resolveOptions(context);
   for (const specVersion of options.openapiVersions) {
@@ -165,12 +171,14 @@ export async function $onEmit(context: EmitContext<OpenAPI3EmitterOptions>) {
 type IrrelevantOpenAPI3EmitterOptionsForObject = "file-type" | "output-file" | "new-line";
 
 /**
- * Get the OpenAPI 3 document records from the given program. The documents are
- * returned as a JS object.
+ * Generates OpenAPI document objects without writing files. Results are grouped
+ * by service and API version; requesting multiple OpenAPI specification versions
+ * appends the service records for each requested specification version in order.
+ * Inspect each document's `openapi` field to distinguish those groups.
  *
  * @param program The program to emit to OpenAPI 3
  * @param options OpenAPI 3 emit options
- * @returns An array of OpenAPI 3 document records.
+ * @returns Service records with per-document diagnostics; a document that cannot be produced may be omitted.
  */
 export async function getOpenAPI3(
   program: Program,
@@ -209,6 +217,12 @@ function findFileTypeFromFilename(filename: string | undefined): FileType {
       return defaultFileType;
   }
 }
+/**
+ * Normalizes user options, inferring formats from the output filename when
+ * needed and applying defaults. The output path is resolved against the emitter
+ * directory and may retain service, version and format placeholders.
+ * Incompatible enum strategy/version combinations report a diagnostic.
+ */
 export function resolveOptions(
   context: EmitContext<OpenAPI3EmitterOptions>,
 ): ResolvedOpenAPI3EmitterOptions {
@@ -275,17 +289,34 @@ function resolveOperationIdDefaultStrategySeparator(strategy: OperationIdStrateg
   }
 }
 
+/** Normalized emitter settings returned by `resolveOptions`, before document-specific path interpolation. */
 export interface ResolvedOpenAPI3EmitterOptions {
+  /** Formats requested for each document; inferred from the output extension or defaulted to YAML when absent. */
   fileTypes: FileType[];
+  /** Resolved output path template; includes an OpenAPI-version directory when multiple specification versions are requested. */
   outputFile: string;
+  /** Specification versions generated in order; defaults to `["3.0.0"]`, independently of service API versions. */
   openapiVersions: OpenAPIVersion[];
+  /** Line ending convention for serialized files; defaults to `"lf"`. */
   newLine: NewLine;
+  /** When true, excludes service types not reachable from operations; defaults to false. */
   omitUnreachableTypes: boolean;
+  /** Debug-only TypeSpec name annotations for inline schemas, or `"never"` by default. */
   includeXTypeSpecName: "inline-only" | "never";
+  /** Format used for the TypeSpec `safeint` scalar; defaults to `"int64"`. */
   safeintStrategy: "double-int" | "int64";
+  /** When true, seals object schemas using version-appropriate additional/unevaluated-property constraints; defaults to false. */
   sealObjectSchemas: boolean;
+  /** Experimental parameter example representation; absent means operation examples do not supply parameter examples. */
   parameterExamplesStrategy?: "data" | "serialized";
-  operationIdStrategy: { kind: OperationIdStrategy; separator: string };
+  /** Generation policy for operations lacking `@operationId`, with a concrete segment separator. */
+  operationIdStrategy: {
+    /** Name-selection policy; defaults to `"parent-container"`. */
+    kind: OperationIdStrategy;
+    /** Segment separator; defaults to `"_"` for parent-container, `"."` for fqn, or `""` for explicit-only. */
+    separator: string;
+  };
+  /** Enum schema representation; defaults to `"default"`. Annotated output requires OpenAPI 3.1 or later. */
   enumStrategy: EnumStrategy;
 }
 
@@ -490,7 +521,8 @@ function createOAPIEmitter(
         return tk.type.isAssignableTo(type, tk.builtin.string, type);
       case "Enum":
         for (const member of type.members.values()) {
-          if (member.value && typeof member.value !== "string") {
+          const value = resolveEncodedEnumMemberValue(program, member, "application/json");
+          if (value && typeof value !== "string") {
             return false;
           }
         }

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -129,6 +130,35 @@ namespace Microsoft.TypeSpec.Generator.Tests
             Assert.IsTrue(ReferenceEquals(expected3, actual3));
             Assert.IsFalse(ReferenceEquals(actual3, actual));
             Assert.IsFalse(ReferenceEquals(actual3, actual2));
+        }
+
+        [TestCase(InputPrimitiveTypeKind.Int8, typeof(sbyte))]
+        [TestCase(InputPrimitiveTypeKind.Int16, typeof(short))]
+        [TestCase(InputPrimitiveTypeKind.Int32, typeof(int))]
+        [TestCase(InputPrimitiveTypeKind.Int64, typeof(long))]
+        [TestCase(InputPrimitiveTypeKind.UInt8, typeof(byte))]
+        [TestCase(InputPrimitiveTypeKind.UInt16, typeof(ushort))]
+        [TestCase(InputPrimitiveTypeKind.UInt32, typeof(uint))]
+        [TestCase(InputPrimitiveTypeKind.UInt64, typeof(ulong))]
+        [TestCase(InputPrimitiveTypeKind.String, typeof(string))]
+        [TestCase(InputPrimitiveTypeKind.Boolean, typeof(bool))]
+        [TestCase(InputPrimitiveTypeKind.Unknown, typeof(BinaryData))]
+        public void CreateCSharpType_PrimitiveAndCollections(InputPrimitiveTypeKind kind, Type expectedType)
+        {
+            var name = kind.ToString().ToLowerInvariant();
+            var input = new InputPrimitiveType(kind, name, $"TypeSpec.{name}");
+            var factory = CodeModelGenerator.Instance.TypeFactory;
+
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual(new CSharpType(expectedType), factory.CreateCSharpType(input));
+                Assert.AreEqual(new CSharpType(expectedType, isNullable: true),
+                    factory.CreateCSharpType(new InputNullableType(input)));
+                Assert.AreEqual(new CSharpType(typeof(IList<>), expectedType),
+                    factory.CreateCSharpType(new InputArrayType("Array", "TypeSpec.Array", input)));
+                Assert.AreEqual(new CSharpType(typeof(IDictionary<,>), typeof(string), expectedType),
+                    factory.CreateCSharpType(new InputDictionaryType("Record", InputPrimitiveType.String, input)));
+            });
         }
 
         [Test]

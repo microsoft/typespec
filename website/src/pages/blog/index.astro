@@ -33,13 +33,11 @@ posts.sort((a, b) => b.data.publishDate.getTime() - a.data.publishDate.getTime()
   <div class="content">
     <section class="list">
       <ul>
-        {
-          posts.map((post, index) => (
-            <li>
-              <BlogPostPreview post={post} imageLoading={index === 0 ? "eager" : "lazy"} />
-            </li>
-          ))
-        }
+        {posts.map((post, index) => (
+          <li>
+            <BlogPostPreview post={post} imageLoading={index === 0 ? "eager" : "lazy"} />
+          </li>
+        ))}
       </ul>
     </section>
   </div>

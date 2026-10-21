@@ -400,6 +400,28 @@ describe("json serialization of examples", () => {
     expect(result).toEqual({ exp: 1 });
   });
 
+  it("respect json encodedName of enum members", async () => {
+    const result = await getJsonValueOfExample(`
+      @example(#{
+        status: Status.active,
+        explicit: Status.enabled,
+      })
+      model /*test*/test {
+        status: Status;
+        explicit: Status;
+      }
+
+      enum Status {
+        @encodedName("application/json", "on")
+        active,
+        @encodedName("application/json", "off")
+        enabled: "enabled",
+      }
+    `);
+
+    expect(result).toEqual({ status: "on", explicit: "off" });
+  });
+
   describe("scalar encoding", () => {
     const allCases: [
       string,

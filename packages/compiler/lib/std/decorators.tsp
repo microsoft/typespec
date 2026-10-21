@@ -354,6 +354,7 @@ extern dec overload(target: Operation, overloadbase: Operation);
 
 /**
  * Provide an alternative name for this type when serialized to the given mime type.
+ * On an enum member, the name is the value the member is serialized as.
  * @param mimeType Mime type this should apply to. The mime type should be a known mime type as described here https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types without any suffix (e.g. `+json`)
  * @param name Alternative name
  *
@@ -642,10 +643,18 @@ extern dec example(
  * Operation example configuration.
  */
 model OperationExample {
-  /** Example request body. */
+  /**
+   * Example argument values keyed by operation parameter name.
+   * The object must match the operation's full parameter model. For HTTP operations,
+   * this includes required path, query, and header parameters as well as body parameters.
+   */
   parameters?: unknown;
 
-  /** Example response body. */
+  /**
+   * Example value matching the operation's full return type.
+   * This is not limited to an HTTP response body: required response metadata
+   * properties must also be present.
+   */
   returnType?: unknown;
 }
 
@@ -658,7 +667,12 @@ model OperationExample {
  * @example
  *
  * ```tsp
- * @opExample(#{parameters: #{name: "Fluffy", age: 2}, returnType: #{name: "Fluffy", age: 2, id: "abc"})
+ * model Pet { name: string; age: int32; }
+ *
+ * @opExample(#{
+ *   parameters: #{pet: #{name: "Fluffy", age: 2}},
+ *   returnType: #{name: "Fluffy", age: 2}
+ * })
  * op createPet(pet: Pet): Pet;
  * ```
  */

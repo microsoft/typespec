@@ -10,6 +10,7 @@ import java.util.List;
  */
 public class ConvenienceApi extends Metadata {
     private List<Request> requests;
+    private Response response;
     private boolean responseHeadersAsModel;
 
     /**
@@ -35,6 +36,24 @@ public class ConvenienceApi extends Metadata {
      */
     public void setRequests(List<Request> requests) {
         this.requests = requests;
+    }
+
+    /**
+     * Gets the convenience response override, leaving the protocol response unchanged.
+     *
+     * @return the convenience response override.
+     */
+    public Response getResponse() {
+        return response;
+    }
+
+    /**
+     * Sets the convenience response override.
+     *
+     * @param response the convenience response override.
+     */
+    public void setResponse(Response response) {
+        this.response = response;
     }
 
     /**

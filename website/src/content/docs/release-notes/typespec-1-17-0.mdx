@@ -1,0 +1,194 @@
+---
+slug: release-notes/typespec-1-17-0
+title: "1.17.0"
+releaseDate: 2026-10-07
+version: "1.17.0"
+---
+
+# 1.17.0
+
+This release introduces experimental declaration expressions across the compiler and major schema emitters, expands Protobuf support for unions and enum naming, and improves source navigation in the program viewer.
+
+## Highlights
+
+### Declaration expressions
+
+`model`, `enum`, `union`, and `scalar` declarations can now be used anywhere an expression is expected, including aliases, model properties, decorator arguments, template arguments, function arguments, and tuples.
+
+Enable the experimental `declaration-expressions` feature in `tspconfig.yaml` to use declaration expressions.
+
+```tsp
+alias Foo = enum {
+  a,
+  b,
+};
+
+model Bar {
+  status: enum { active, inactive };
+  unit: scalar extends string;
+  inner: model Inner { x: string };
+}
+
+@Versioning.versioned(enum Versions { v1, v2 })
+namespace MyService;
+```
+
+Declaration expressions support decorators and documentation comments, and the formatter now lays out decorated expressions cleanly when they exceed the configured print width.
+
+OpenAPI, OpenAPI 3, and JSON Schema also support declaration expressions. Anonymous declarations are inlined, while named declarations are emitted as reusable schemas or components.
+
+### Protobuf unions and enum prefixes
+
+The Protobuf emitter now supports `oneof` declarations generated from named TypeSpec unions. Apply `@field` to union variants to control field indices.
+
+```tsp
+union Payment {
+  @field(10) card: CardPayment,
+  @field(11) bank_transfer: BankTransfer,
+}
+
+model Order {
+  @field(1) id: string;
+  payment?: Payment;
+}
+```
+
+The new opt-in `enum-value-prefix: enum-name` option prefixes emitted enum values with the enum name in `UPPER_SNAKE_CASE`.
+
+```yaml
+options:
+  "@typespec/protobuf":
+    enum-value-prefix: enum-name
+```
+
+For example, `Shipped: 2` in `OrderState` emits as `ORDER_STATE_SHIPPED = 2`. Existing output remains unchanged unless the option is enabled.
+
+### Improved program viewer navigation
+
+The HTML program viewer now hides standard-library and library types from the type graph navigation tree by default, keeping the tree focused on project code. A toolbar control reveals all types when needed.
+
+Type views also show whether a declaration comes from project code, the standard library, or another library, including its source file and line. Hosts can provide `onRevealSource` to let users jump directly to declarations in project code.
+
+## Features
+
+### @typespec/compiler
+
+- Allow `model`, `enum`, `union`, and `scalar` declarations to be used as expressions. The experimental `declaration-expressions` feature must be enabled in `tspconfig.yaml`.
+- Allow inline and augment decorators to target declaration expressions.
+- Allow documentation comments on declaration expressions.
+- Improve formatting of declaration expressions containing documentation comments or decorators.
+- Make `$.enum.create` produce an enum expression when given an empty name, matching `$.model.create`.
+
+### @typespec/html-program-viewer
+
+- Display the `expression` property on `Model`, `Enum`, and `Scalar` types.
+- Hide standard-library and library types from the navigation tree by default, with controls to display them.
+- Show the declaration source and location for types and support revealing project declarations through the new `onRevealSource` callback.
+
+### @typespec/http-specs
+
+- Add named-model query parameter scenarios for standard expansion, standard continuation, and exploded continuation.
+
+```typespec
+model ExpandParameters {
+  field: string;
+  value: string;
+}
+```
+
+### @typespec/json-schema
+
+- Support declaration expressions. Anonymous declarations are inlined, while named declarations are hoisted into their own schema.
+
+```tsp
+model Foo {
+  status: enum {
+    active,
+    inactive,
+  }; // inlined
+  unit: scalar extends string; // inlined
+  inner: model Inner {
+    x: string;
+  }; // hoisted as `Inner.json`
+}
+```
+
+### @typespec/openapi and @typespec/openapi3
+
+- Support declaration expressions. Anonymous declarations are inlined, while named declarations are hoisted into referenced components.
+
+```tsp
+model Foo {
+  status: enum {
+    active,
+    inactive,
+  }; // inlined
+  unit: scalar extends string; // inlined
+  inner: model Inner {
+    x: string;
+  }; // hoisted as component `Inner`
+}
+```
+
+### @typespec/openapi3
+
+- OpenAPI 3.1 and 3.2 now emit `additionalProperties` for a `Record<T>` indexer. Models that extend another model or are sealed continue to use `unevaluatedProperties`.
+
+### @typespec/protobuf
+
+- Add the opt-in `enum-value-prefix: enum-name` option to prefix emitted enum values with the enum name.
+- Support `oneof` generation from named unions and allow `@field` on union variants.
+
+### @typespec/versioning
+
+- Validate variants of keyword-form union expressions in the same way as variants of named unions, reporting versioning incompatibilities on decorated variants.
+
+## Bug Fixes
+
+### @typespec/compiler
+
+- Disallow property and record spreads in array model declarations.
+- Fix `tsp compile` failing with `INVALID_MODULE_EXPORT_TARGET` when the project is on a Windows network share.
+- Correct `Sym.node` and `getSymNode` types to account for symbols without an associated syntax node.
+
+### @typespec/compiler, @typespec/graphql, and @typespec/protobuf
+
+- Prevent paths authored in TypeSpec from escaping template and emitter output directories.
+
+### @typespec/graphql
+
+- Set the required `expression` field when the model mutation engine creates replacement scalars.
+
+### @typespec/html-program-viewer
+
+- Remove visible scrollbars from the type graph breadcrumb bar while preserving horizontal scrolling and keeping the selected node in view.
+
+### @typespec/http
+
+- Fix `@statusCode` properties that inherit their range from `@minValue` and `@maxValue` on a scalar or base scalar.
+
+### @typespec/http-specs
+
+- Include smoke test specifications in the published package.
+
+### @typespec/json-schema
+
+- Emit `minItems` and `maxItems` for tuple types so schemas enforce the exact tuple length.
+- Emit tuple values that reference declared models as `$ref`.
+
+### @typespec/openapi3
+
+- Emit reusable models under a `Responses` namespace when converting `#/components/responses/...` references instead of inlining each response.
+- Emit valid `#deprecated` directives for converted operation parameters.
+- Avoid duplicate schemas for template instantiations referenced by both operations and unreachable derived models.
+- Apply `@encode` correctly to nullable properties and parameters in OpenAPI 3.1 and 3.2.
+- Escape quotes and line breaks in `@tagMetadata` strings generated from OpenAPI tags.
+- Emit tuple values that reference declared models as `$ref`.
+
+### @typespec/protobuf
+
+- Report an error when fields in the same message use duplicate field indices or names instead of emitting invalid Protobuf.
+
+### @typespec/versioning
+
+- Report references that remain available after their target type is removed.
