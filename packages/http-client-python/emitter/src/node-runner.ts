@@ -9,12 +9,11 @@ import type { EmitContext } from "@typespec/compiler";
 import { NoTarget } from "@typespec/compiler";
 import { execSync } from "child_process";
 import fs from "fs";
-import os from "os";
 import path, { dirname } from "path";
 import type { PyodideInterface } from "pyodide";
 import { loadPyodide } from "pyodide";
 import { fileURLToPath } from "url";
-import { blackExcludeDirs, PYGEN_WHEEL_FILENAME } from "./constants.js";
+import { PYGEN_WHEEL_FILENAME } from "./constants.js";
 import { saveCodeModelAsYaml } from "./external-process.js";
 import type { PythonEmitterOptions } from "./lib.js";
 import { reportDiagnostic } from "./lib.js";
@@ -112,14 +111,8 @@ export async function runNodeEmit({
   const commandFlags = Object.entries(commandArgs)
     .map(([key, value]) => `--${key}=${quoteShellArg(String(value))}`)
     .join(" ");
-  const command = `${venvPath} ${root}/eng/scripts/setup/run_tsp.py ${commandFlags}`;
+  const command = `${quoteShellArg(venvPath)} ${quoteShellArg(path.join(root, "eng", "scripts", "setup", "run_tsp.py"))} ${commandFlags}`;
   execSync(command);
-
-  const excludePattern = blackExcludeDirs.join("|");
-  execSync(
-    `${venvPath} -m black --line-length=120 --quiet --fast ${outputDir} --exclude "${excludePattern}"`,
-  );
-  await checkForPylintIssues(outputDir, excludePattern);
 }
 
 async function setupPyodideCall(root: string): Promise<PyodideInterface> {
@@ -160,65 +153,4 @@ async function setupPyodideCall(root: string): Promise<PyodideInterface> {
     }
   }
   return pyodide;
-}
-
-async function checkForPylintIssues(outputDir: string, excludePattern: string) {
-  const excludeRegex = new RegExp(excludePattern);
-
-  const shouldExcludePath = (filePath: string): boolean => {
-    const relativePath = path.relative(outputDir, filePath);
-    const normalizedPath = relativePath.replace(/\\/g, "/");
-    return excludeRegex.test(normalizedPath);
-  };
-
-  const processFile = async (filePath: string) => {
-    let fileContent = await fs.promises.readFile(filePath, "utf-8");
-    const pylintDisables: string[] = [];
-    const lineEnding = fileContent.includes("\r\n") && os.platform() === "win32" ? "\r\n" : "\n";
-    const lines: string[] = fileContent.split(lineEnding);
-    if (lines.length > 0) {
-      if (!lines[0].includes("line-too-long") && lines.some((line) => line.length > 120)) {
-        pylintDisables.push("line-too-long", "useless-suppression");
-      }
-      if (!lines[0].includes("too-many-lines") && lines.length > 1000) {
-        pylintDisables.push("too-many-lines");
-      }
-      if (pylintDisables.length > 0) {
-        fileContent = lines[0].includes("pylint: disable=")
-          ? [lines[0] + "," + pylintDisables.join(",")].concat(lines.slice(1)).join(lineEnding)
-          : `# pylint: disable=${pylintDisables.join(",")}${lineEnding}` + fileContent;
-        await fs.promises.writeFile(filePath, fileContent);
-      }
-    }
-  };
-
-  const collectPythonFiles = async (dir: string): Promise<string[]> => {
-    if (shouldExcludePath(dir)) {
-      return [];
-    }
-
-    const entries = await fs.promises.readdir(dir, { withFileTypes: true });
-
-    const promises = entries.map(async (entry) => {
-      const filePath = path.join(dir, entry.name);
-
-      if (shouldExcludePath(filePath)) {
-        return [];
-      }
-
-      if (entry.isDirectory()) {
-        return collectPythonFiles(filePath);
-      } else if (entry.name.endsWith(".py")) {
-        return [filePath];
-      }
-      return [];
-    });
-
-    const results = await Promise.all(promises);
-    return results.flat();
-  };
-
-  // Collect all Python files first, then process in parallel
-  const pythonFiles = await collectPythonFiles(outputDir);
-  await Promise.all(pythonFiles.map(processFile));
 }
