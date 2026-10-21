@@ -126,18 +126,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 usage: InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Json);
             var propertyName = customizesProjectedProperty ? "Value" : "Child";
             var wireName = customizesProjectedProperty ? "customValue" : "customChild";
-            var customization = CSharpSyntaxTree.ParseText($$"""
-                namespace Sample.Models
-                {
-                    [System.AttributeUsage(System.AttributeTargets.Class, AllowMultiple = true)]
-                    internal sealed class CodeGenSerializationAttribute : System.Attribute
-                    {
-                        public CodeGenSerializationAttribute(string propertyName, string serializationName) { }
-                    }
-                    [CodeGenSerialization("{{propertyName}}", "{{wireName}}")]
-                    public partial class DerivedModel { }
-                }
-                """, path: "SerializationCustomization.cs");
+            var customization = CSharpSyntaxTree.ParseText(Helpers.GetExpectedFromFile()
+                .Replace("__PROPERTY_NAME__", propertyName)
+                .Replace("__WIRE_NAME__", wireName), path: "SerializationCustomization.cs");
             var generator = CreateGenerator(modelInput, restoreBase, customization);
             var model = generator.Object.TypeFactory.CreateModel(modelInput)!;
             var generatedType = CompileModel(generator, model, customization);
@@ -185,18 +176,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                     InputFactory.Property("other", InputPrimitiveType.Int32)],
                 usage: InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Json);
             var suppressedName = suppressesProjectedProperty ? "Value" : "Other";
-            var customization = CSharpSyntaxTree.ParseText($$"""
-                namespace Sample.Models
-                {
-                    [System.AttributeUsage(System.AttributeTargets.Class, AllowMultiple = true)]
-                    internal sealed class CodeGenSuppressAttribute : System.Attribute
-                    {
-                        public CodeGenSuppressAttribute(string memberName, params System.Type[] parameterTypes) { }
-                    }
-                    [CodeGenSuppress("{{suppressedName}}")]
-                    public partial class DerivedModel { }
-                }
-                """, path: "SuppressionCustomization.cs");
+            var customization = CSharpSyntaxTree.ParseText(Helpers.GetExpectedFromFile()
+                .Replace("__SUPPRESSED_NAME__", suppressedName), path: "SuppressionCustomization.cs");
             var generator = CreateGenerator(modelInput, restoreBase, customization);
             Mock.Get(generator.Object.TypeFactory).Protected()
                 .Setup<ModelProvider?>("CreateModelCore", ItExpr.IsAny<InputModelType>())
@@ -259,7 +240,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                     ? new SystemObjectModelProvider(new CSharpType(typeof(FlatMrwBase)), input)
                     : new ClientModelProvider(input));
             var historical = CSharpCompilation.Create("HistoricalCachedMappedBase",
-                [CSharpSyntaxTree.ParseText($"namespace Sample.Models {{ public class DerivedModel : {typeof(FlatMrwBase).FullName} {{ }} }}")],
+                [CSharpSyntaxTree.ParseText(Helpers.GetExpectedFromFile(method: "HistoricalFrameworkBase")
+                    .Replace("__FRAMEWORK_BASE__", typeof(FlatMrwBase).FullName))],
                 GetReferences(), new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
             generator.SetupProperty(plugin => plugin.SourceInputModel, new SourceInputModel(null, historical));
             var hookCalled = false;
@@ -321,7 +303,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             Assert.That(historicalValue.Attributes.Any(attribute => attribute.Type.Name == "WirePathAttribute" &&
                 attribute.Arguments.FirstOrDefault() is Microsoft.TypeSpec.Generator.Expressions.LiteralExpression { Literal: "oldValue" }), Is.True,
                 "The historical wire path must be visible to the core, not known only to downstream code.");
-            var generatedType = CompileModel(generator, model, CSharpSyntaxTree.ParseText(""));
+            var generatedType = CompileModel(generator, model);
             var instance = Activator.CreateInstance(generatedType, "payload")!;
             var valueProperty = generatedType.GetProperty("Value") ?? generatedType.GetProperty("RenamedValue")!;
             valueProperty.SetValue(instance, 42);
@@ -351,7 +333,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             frameworkType ??= typeof(FlatMrwBase);
             var generator = MockHelpers.LoadMockGenerator(inputModels: () => [modelInput]);
             var historical = CSharpCompilation.Create("HistoricalFlatMrwBase",
-                [CSharpSyntaxTree.ParseText($"namespace Sample.Models {{ public class DerivedModel : {frameworkType.FullName} {{ }} }}")],
+                [CSharpSyntaxTree.ParseText(Helpers.GetExpectedFromFile(method: "HistoricalFrameworkBase")
+                    .Replace("__FRAMEWORK_BASE__", frameworkType.FullName))],
                 GetReferences(), new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
             var current = customization is null ? null : CSharpCompilation.Create("CurrentCustomization", [customization],
                 GetReferences(), new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
@@ -362,7 +345,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             return generator;
         }
 
-        private static Type CompileModel(Mock<ScmCodeModelGenerator> generator, ModelProvider model, SyntaxTree customization)
+        private static Type CompileModel(Mock<ScmCodeModelGenerator> generator, ModelProvider model, SyntaxTree? customization = null)
         {
             var providers = generator.Object.OutputLibrary.TypeProviders.Where(provider => provider == model ||
                 provider.Name is "Argument" or "Optional" or "ChangeTrackingList" or "ChangeTrackingDictionary" or
@@ -370,7 +353,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 provider is ModelReaderWriterContextDefinition);
             var trees = providers.SelectMany(provider => new[] { provider }.Concat(provider.SerializationProviders))
                 .Distinct().Select(provider => CSharpSyntaxTree.ParseText(
-                    new TypeProviderWriter(provider).Write().Content, path: provider.Name + ".cs")).Append(customization);
+                    new TypeProviderWriter(provider).Write().Content, path: provider.Name + ".cs"))
+                .Concat(customization is null ? Array.Empty<SyntaxTree>() : [customization]);
             var compilation = CSharpCompilation.Create("GeneratedFlatCustomization", trees, GetReferences(),
                 new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, nullableContextOptions: NullableContextOptions.Disable));
             var sourceGenerators = Assembly.Load("System.ClientModel.SourceGeneration").GetTypes()
@@ -396,21 +380,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 .Distinct().Select(path => MetadataReference.CreateFromFile(path)).ToArray();
 
         private static SyntaxTree CreateCustomization(string originalName, bool field = false)
-            => CSharpSyntaxTree.ParseText($$"""
-                namespace Sample.Models
-                {
-                    [System.AttributeUsage(System.AttributeTargets.Property | System.AttributeTargets.Field)]
-                    internal sealed class CodeGenMemberAttribute : System.Attribute
-                    {
-                        public CodeGenMemberAttribute(string name) { }
-                    }
-                    public partial class DerivedModel
-                    {
-                        [CodeGenMember("{{originalName}}")]
-                        public int RenamedValue{{(field ? ";" : " { get; set; }")}}
-                    }
-                }
-                """, path: "Customization.cs");
+            => CSharpSyntaxTree.ParseText(Helpers.GetExpectedFromFile(field ? "field" : "property")
+                .Replace("__ORIGINAL_NAME__", originalName), path: "Customization.cs");
     }
 
     [AttributeUsage(AttributeTargets.Property)]

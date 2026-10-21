@@ -36,13 +36,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var previousBase = InputFactory.Model("PreviousBase", properties: [InputFactory.Property("derived", derived)]);
             var generator = MockHelpers.LoadMockGenerator(inputModels: () => derivedFirst
                 ? [derived, currentBase, previousBase] : [previousBase, currentBase, derived]);
-            SetLastContract(generator, $$"""
-                namespace Sample.Models
-                {
-                    public class PreviousBase { {{(historicalProperty ? "public DerivedModel Derived { get; set; }" : "")}} }
-                    public class DerivedModel : PreviousBase { }
-                }
-                """);
+            SetLastContract(generator, Helpers.GetExpectedFromFile(historicalProperty ? "historical-property" : "empty"));
 
             var models = generator.Object.OutputLibrary.TypeProviders.OfType<ModelProvider>().ToArray();
             var previous = models.Single(model => model.Name == "PreviousBase");
@@ -61,7 +55,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var derived = InputFactory.Model("DerivedModel", properties: [], baseModel: currentBase);
             derived.Update(additionalProperties: array ? InputFactory.Array(derived) : derived);
             var generator = MockHelpers.LoadMockGenerator(inputModels: () => [currentBase, derived]);
-            SetLastContract(generator, "namespace Sample.Models { public class DerivedModel : System.Exception { } }");
+            SetLastContract(generator, Helpers.GetExpectedFromFile(method: "ExceptionBase"));
             Mock.Get(generator.Object.TypeFactory).Protected()
                 .Setup<CSharpType?>("CreateLastContractModelBaseCore", ItExpr.IsAny<CSharpType>(), ItExpr.IsAny<InputModelType>())
                 .Returns(new CSharpType(typeof(Exception)));
@@ -85,7 +79,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var derived = InputFactory.Model("DerivedModel", properties: [message]);
             derived.Update(additionalProperties: array ? InputFactory.Array(derived) : derived);
             var generator = MockHelpers.LoadMockGenerator(inputModels: () => [derived]);
-            SetLastContract(generator, "namespace Sample.Models { public class DerivedModel : System.Exception { } }");
+            SetLastContract(generator, Helpers.GetExpectedFromFile(method: "ExceptionBase"));
             Mock.Get(generator.Object.TypeFactory).Protected()
                 .Setup<CSharpType?>("CreateLastContractModelBaseCore", ItExpr.IsAny<CSharpType>(), ItExpr.IsAny<InputModelType>())
                 .Returns(new CSharpType(typeof(Exception)));
@@ -117,7 +111,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 createModelCore: input => input == compatible || input == incompatible
                     ? new SystemObjectModelProvider(new CSharpType(typeof(Exception)), input)
                     : new ClientModelProvider(input));
-            SetLastContract(generator, "namespace Sample.Models { public class DerivedModel : System.Exception { } }");
+            SetLastContract(generator, Helpers.GetExpectedFromFile(method: "ExceptionBase"));
 
             var model = generator.Object.OutputLibrary.TypeProviders.OfType<ModelProvider>().Single(model => model.Name == "DerivedModel");
             Assert.That(model.BaseType?.Name, Is.EqualTo(nameof(Exception)));
@@ -250,7 +244,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 .Append(typeof(FlatMrwBase).Assembly.Location)
                 .Distinct().Select(path => MetadataReference.CreateFromFile(path)).ToArray();
             var historical = CSharpCompilation.Create("HistoricalFlatMrwBase",
-                [CSharpSyntaxTree.ParseText($"namespace Sample.Models {{ public class DerivedModel : {typeof(FlatMrwBase).FullName} {{ }} }}")],
+                [CSharpSyntaxTree.ParseText(Helpers.GetExpectedFromFile(method: "HistoricalFrameworkBase")
+                    .Replace("__FRAMEWORK_BASE__", typeof(FlatMrwBase).FullName))],
                 references, new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
             generator.SetupProperty(plugin => plugin.SourceInputModel, new SourceInputModel(null, historical));
             Mock.Get(generator.Object.TypeFactory).Protected()
@@ -381,19 +376,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var derived = InputFactory.Model("DerivedModel", properties: reverseOrder ? [second, first] : [first, second]);
             var target = sameTypes ? typeof(SameTypeOrderedBase) : typeof(MixedTypeOrderedBase);
             var generator = MockHelpers.LoadMockGenerator(inputModels: () => [derived]);
-            SetLastContract(generator, $$"""
-                namespace {{target.Namespace}}
-                {
-                    public class {{target.Name}}
-                    {
-                        public {{target.Name}}() { }
-                        public {{target.Name}}(string first, {{(sameTypes ? "string" : "int")}} second) { }
-                        public string First { get; set; }
-                        public {{(sameTypes ? "string" : "int")}} Second { get; set; }
-                    }
-                }
-                namespace Sample.Models { public class DerivedModel : {{target.Namespace}}.{{target.Name}} { } }
-                """);
+            SetLastContract(generator, Helpers.GetExpectedFromFile()
+                .Replace("__BASE_NAMESPACE__", target.Namespace)
+                .Replace("__BASE_NAME__", target.Name)
+                .Replace("__SECOND_TYPE__", sameTypes ? "string" : "int"));
             Mock.Get(generator.Object.TypeFactory).Protected()
                 .Setup<CSharpType?>("CreateLastContractModelBaseCore", ItExpr.IsAny<CSharpType>(), ItExpr.IsAny<InputModelType>())
                 .Returns(new CSharpType(target));
@@ -449,21 +435,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             var generator = MockHelpers.LoadMockGenerator(
                 inputModels: () => currentBase is null ? [derived] : [currentBase, derived],
                 createModelCore: createModelCore);
-            SetLastContract(generator, $$"""
-                namespace {{target.Namespace}}
-                {
-                    public class {{target.Name}}
-                    {
-                        public {{target.Name}}() { }
-                        public {{target.Name}}({{constructorType}} value) { Value = value; }
-                        public {{propertyType}} Value { get; set; }
-                    }
-                }
-                namespace Sample.Models
-                {
-                    public class DerivedModel : {{target.Namespace}}.{{target.Name}} { }
-                }
-                """);
+            SetLastContract(generator, Helpers.GetExpectedFromFile()
+                .Replace("__BASE_NAMESPACE__", target.Namespace)
+                .Replace("__BASE_NAME__", target.Name)
+                .Replace("__CONSTRUCTOR_TYPE__", constructorType)
+                .Replace("__PROPERTY_TYPE__", propertyType));
             Mock.Get(generator.Object.TypeFactory).Protected()
                 .Setup<CSharpType?>("CreateLastContractModelBaseCore", ItExpr.IsAny<CSharpType>(), ItExpr.IsAny<InputModelType>())
                 .Returns(new CSharpType(target));
