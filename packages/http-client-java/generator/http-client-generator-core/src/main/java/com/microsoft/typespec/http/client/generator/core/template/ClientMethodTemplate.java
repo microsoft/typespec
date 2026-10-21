@@ -1231,7 +1231,10 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
         ClientMethodParameter tokenParameter
             = clientMethod.getMethodPageDetails().getContinuationToken().getClientMethodParameter();
         ClientMethod pagingMethod = clientMethod;
-        String initialToken = tokenParameter == null ? null : tokenParameter.getName();
+        String initialToken
+            = tokenParameter == null || clientMethod.getMethodPageDetails().shouldHideParameter(tokenParameter)
+                ? null
+                : tokenParameter.getName();
         if (settings.isDataPlaneClient() && tokenParameter == null) {
             initialToken = availablePagingVariableName("initialContinuationToken", pagingVariableNames(clientMethod));
             List<ClientMethodParameter> parameters = new ArrayList<>();
@@ -1257,7 +1260,9 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
                 addOptionalVariables(function, clientMethod);
                 String firstArguments = clientMethod.getMethodParameters()
                     .stream()
-                    .map(ClientMethodParameter::getName)
+                    .map(p -> p == tokenParameter && clientMethod.getMethodPageDetails().shouldHideParameter(p)
+                        ? "null"
+                        : p.getName())
                     .collect(Collectors.joining(", "));
                 String methodName = sync
                     ? clientMethod.getProxyMethod().getPagingSinglePageMethodName()

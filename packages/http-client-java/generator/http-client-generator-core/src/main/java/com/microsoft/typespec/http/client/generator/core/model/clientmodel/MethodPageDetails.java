@@ -86,7 +86,8 @@ public final class MethodPageDetails {
     }
 
     public boolean shouldHideParameter(ClientMethodParameter parameter) {
-        if (!JavaSettings.getInstance().isAzureV1() && continuationToken != null) {
+        if (continuationToken != null
+            && (!JavaSettings.getInstance().isAzureV1() || !continuationToken.isIncludeContinuationTokenParameter())) {
             if (parameter == continuationToken.getClientMethodParameter()) {
                 return true;
             }
@@ -106,13 +107,26 @@ public final class MethodPageDetails {
         private final ClientMethodParameter clientMethodParameter;
         private final String responseHeaderSerializedName;
         private final List<ModelPropertySegment> responsePropertyReference;
+        private final boolean includeContinuationTokenParameter;
 
         public ContinuationToken(ProxyMethodParameter requestParameter, ClientMethodParameter clientMethodParameter,
             String responseHeaderSerializedName, List<ModelPropertySegment> responsePropertyReference) {
+            this(requestParameter, clientMethodParameter, responseHeaderSerializedName, responsePropertyReference,
+                false);
+        }
+
+        public ContinuationToken(ProxyMethodParameter requestParameter, ClientMethodParameter clientMethodParameter,
+            String responseHeaderSerializedName, List<ModelPropertySegment> responsePropertyReference,
+            boolean includeContinuationTokenParameter) {
             this.requestParameter = requestParameter;
             this.clientMethodParameter = clientMethodParameter;
             this.responseHeaderSerializedName = responseHeaderSerializedName;
             this.responsePropertyReference = responsePropertyReference;
+            this.includeContinuationTokenParameter = includeContinuationTokenParameter;
+        }
+
+        public boolean isIncludeContinuationTokenParameter() {
+            return includeContinuationTokenParameter;
         }
 
         public ProxyMethodParameter getRequestParameter() {

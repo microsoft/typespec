@@ -1412,6 +1412,11 @@ export class CodeModelBuilder {
             continuationTokenParameter,
             continuationTokenResponseProperty,
             continuationTokenResponseHeader,
+            continuationTokenParameterSegment !== undefined &&
+              getClientOptions(
+                continuationTokenParameterSegment,
+                "includeContinuationTokenParameter",
+              ) === true,
           )
         : undefined,
       nextLinkReInjectedParameters: nextLinkReInjectedParameters,
