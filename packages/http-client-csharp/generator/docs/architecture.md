@@ -114,8 +114,11 @@ requests, parsing, and diagnostics through these providers; library visitors tra
 the nested helpers and their members. Helper names follow
 `<OperationName>[Async]CollectionResult[OfT]`, using the normalized current operation
 name without a client-name prefix or original-name fallback. Nesting scopes names to
-one client. When normalized names or sync/async variants collide, input operation
-order determines the suffix: the first name is unchanged, followed by `2`, `3`, etc.
+one client. Names also avoid the enclosing client name and generated or handwritten
+client members. Generated operation names are reserved directly from the input
+methods, without recursively building client methods. When normalized names or
+sync/async variants collide, input operation order determines the suffix: the first
+available name is unchanged, followed by `2`, `3`, etc., skipping reserved names.
 For example, two operations normalized to `GetAll` produce `GetAllCollectionResult`
 and `GetAllCollectionResult2`. Helper names do not determine output filenames.
 Paging iteration behavior is unchanged.

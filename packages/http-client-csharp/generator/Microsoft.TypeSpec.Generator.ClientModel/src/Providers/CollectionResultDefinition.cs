@@ -196,9 +196,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             var operations = Client.InputClient.Methods.OfType<InputPagingServiceMethod>().Select(m => m.Operation).Distinct().ToArray();
             var name = GetName(Operation, IsAsync);
-            // Nested helpers only need client-local uniqueness. Resolve normalized and sync/async
-            // collisions in input operation order, leaving the first name unchanged and appending 2, 3, etc.
-            var collisionIndex = 0;
+            // Reading Client.Methods here would recursively build the paging helpers.
+            var reservedNames = Client.InputClient.Methods
+                .SelectMany(m => new[] { m.Name, $"{m.Name}Async" })
+                .Concat(Client.Fields.Select(f => f.Name))
+                .Concat(Client.Properties.Select(p => p.Name))
+                .ToHashSet(StringComparer.Ordinal);
+            reservedNames.Add(Client.Name);
+            if (Client.CustomCodeView is { } customCodeView)
+            {
+                var customType = ScmCodeModelGenerator.Instance.SourceInputModel.Customization?
+                    .GetTypeByMetadataName(customCodeView.Type.FullyQualifiedName.TrimStart('.'));
+                reservedNames.UnionWith(customType?.GetMembers().Select(m => m.Name) ?? []);
+            }
+
+            // Allocate in input operation order, skipping client members and previously assigned helpers.
+            var candidate = name;
+            var suffix = 2;
             foreach (var operation in operations)
             {
                 foreach (var isAsync in new[] { false, true })
@@ -208,12 +222,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         continue;
                     }
 
-                    if (operation == Operation && isAsync == IsAsync)
+                    while (!reservedNames.Add(candidate))
                     {
-                        return collisionIndex == 0 ? name : $"{name}{collisionIndex + 1}";
+                        candidate = $"{name}{suffix++}";
                     }
 
-                    collisionIndex++;
+                    if (operation == Operation && isAsync == IsAsync)
+                    {
+                        return candidate;
+                    }
                 }
             }
 

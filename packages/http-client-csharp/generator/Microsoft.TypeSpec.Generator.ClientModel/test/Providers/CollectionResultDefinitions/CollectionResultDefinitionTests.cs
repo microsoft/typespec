@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -148,6 +149,89 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
             Assert.AreEqual(firstHelper.Name, secondHelper.Name);
             Assert.AreNotEqual(firstHelper.Type, secondHelper.Type);
             Assert.AreNotEqual(files[0].RelativeFilePath, files[1].RelativeFilePath);
+        }
+
+        [TestCase("GetItemsCollectionResult", false)]
+        [TestCase("GetItemsCollectionResult", true)]
+        [TestCase("GetItemsAsyncCollectionResult", false)]
+        [TestCase("GetItemsAsyncCollectionResult", true)]
+        [TestCase("GetItemsCollectionResultOfT", false)]
+        [TestCase("GetItemsCollectionResultOfT", true)]
+        [TestCase("GetItemsAsyncCollectionResultOfT", false)]
+        [TestCase("GetItemsAsyncCollectionResultOfT", true)]
+        public void HelperNamesAvoidGeneratedClientMethods(string collidingName, bool methodFirst)
+        {
+            var item = InputFactory.Model("Item");
+            var page = InputFactory.Model("Page", properties: [InputFactory.Property("items", InputFactory.Array(item))]);
+            var paging = InputFactory.PagingMetadata(["items"], null, null);
+            var firstOperation = InputFactory.Operation("GetItems", responses: [InputFactory.OperationResponse(bodytype: page)]);
+            var secondOperation = InputFactory.Operation("GetItems",
+                parameters: [InputFactory.QueryParameter("filter", InputPrimitiveType.String, isRequired: true)],
+                responses: [InputFactory.OperationResponse(bodytype: page)]);
+            InputServiceMethod[] pagingMethods =
+            [
+                InputFactory.PagingServiceMethod("GetItems", firstOperation, pagingMetadata: paging),
+                InputFactory.PagingServiceMethod("GetItems", secondOperation, pagingMetadata: paging)
+            ];
+            InputServiceMethod[] collidingMethods =
+            [
+                InputFactory.BasicServiceMethod(collidingName, InputFactory.Operation(collidingName)),
+                InputFactory.BasicServiceMethod($"{collidingName}2", InputFactory.Operation($"{collidingName}2"))
+            ];
+            var inputClient = InputFactory.Client("TestClient",
+                methods: methodFirst ? [.. collidingMethods, .. pagingMethods] : [.. pagingMethods, .. collidingMethods]);
+            MockHelpers.LoadMockGenerator(inputModels: () => [item, page], clients: () => [inputClient]);
+
+            var client = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.OfType<ClientProvider>().Single();
+            var names = client.CollectionResultProviders.NestedTypes.Select(t => t.Name).ToArray();
+
+            Assert.AreEqual(8, names.Length);
+            Assert.AreEqual(names.Length, names.Distinct().Count());
+            CollectionAssert.Contains(names, $"{collidingName}3");
+            CollectionAssert.Contains(names, $"{collidingName}4");
+            CollectionAssert.IsEmpty(names.Intersect(client.Methods.Select(m => m.Signature.Name)));
+        }
+
+        [Test]
+        public async Task HelperNamesAvoidCustomClientMembers()
+        {
+            var item = InputFactory.Model("Item");
+            var page = InputFactory.Model("Page", properties: [InputFactory.Property("items", InputFactory.Array(item))]);
+            var operation = InputFactory.Operation("GetItems", responses: [InputFactory.OperationResponse(bodytype: page)]);
+            var inputClient = InputFactory.Client("TestClient", methods:
+            [
+                InputFactory.PagingServiceMethod("GetItems", operation, pagingMetadata: InputFactory.PagingMetadata(["items"], null, null))
+            ]);
+            await MockHelpers.LoadMockGeneratorAsync(inputModels: () => [item, page], clients: () => [inputClient],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+
+            var client = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.OfType<ClientProvider>().Single();
+            Assert.IsNotNull(client.CustomCodeView);
+            CollectionAssert.AreEquivalent(
+                new[] { "GetItemsCollectionResult3", "GetItemsAsyncCollectionResult2", "GetItemsCollectionResultOfT2", "GetItemsAsyncCollectionResultOfT2" },
+                client.CollectionResultProviders.NestedTypes.Select(t => t.Name));
+        }
+
+        [TestCase("GetItemsCollectionResult")]
+        [TestCase("GetItemsAsyncCollectionResult")]
+        [TestCase("GetItemsCollectionResultOfT")]
+        [TestCase("GetItemsAsyncCollectionResultOfT")]
+        public void HelperNamesAvoidEnclosingClientName(string clientName)
+        {
+            var item = InputFactory.Model("Item");
+            var page = InputFactory.Model("Page", properties: [InputFactory.Property("items", InputFactory.Array(item))]);
+            var operation = InputFactory.Operation("GetItems", responses: [InputFactory.OperationResponse(bodytype: page)]);
+            var inputClient = InputFactory.Client(clientName, methods:
+            [
+                InputFactory.PagingServiceMethod("GetItems", operation, pagingMetadata: InputFactory.PagingMetadata(["items"], null, null))
+            ]);
+            MockHelpers.LoadMockGenerator(inputModels: () => [item, page], clients: () => [inputClient]);
+
+            var client = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.OfType<ClientProvider>().Single();
+            Assert.AreEqual(clientName, client.Name);
+            var names = client.CollectionResultProviders.NestedTypes.Select(t => t.Name).ToArray();
+            CollectionAssert.DoesNotContain(names, clientName);
+            CollectionAssert.Contains(names, $"{clientName}2");
         }
 
         [TestCase("GetItems", "GetItemsAsync", "GetItemsAsyncCollectionResult")]
