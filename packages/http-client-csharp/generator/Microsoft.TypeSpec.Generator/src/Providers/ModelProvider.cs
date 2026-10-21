@@ -832,7 +832,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             HashSet<string> skippedBasePropertyNames = [];
             foreach (var baseModelProvider in EnumerateBaseModelProviders())
             {
-                foreach (var baseProperty in baseModelProvider._inputModel.Properties)
+                var inheritedInputProperties = baseModelProvider is SystemObjectModelProvider mappedBase
+                    ? mappedBase.ProjectedInputProperties
+                    : baseModelProvider._inputModel.Properties;
+                foreach (var baseProperty in inheritedInputProperties)
                 {
                     if (baseProperties.ContainsKey(baseProperty.Name) ||
                         skippedBasePropertyNames.Contains(baseProperty.Name))
@@ -1262,6 +1265,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             restoredConstructor = null;
             var previousParameters = previousConstructor.Signature.Parameters;
+            var preservesInheritedContract = previousParameters.Any(parameter =>
+                restorablePropertyLookup.TryGetValue(parameter.Name, out var property) && !CanonicalView.Properties.Contains(property));
+            if (preservesInheritedContract && !SystemObjectModelProvider.HasSupportedConstructorParameters(previousParameters))
+            {
+                return false;
+            }
 
             // Find the public constructor to chain to: its parameters must form an in-order subsequence of
             // the previous constructor's parameters. Prefer the closest one. Without a chaining target the
@@ -1271,7 +1280,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             foreach (var candidate in currentConstructors)
             {
                 if (!MethodSignatureHelper.IsPublicApi(candidate.Signature.Modifiers)
-                    || candidate.Signature.Parameters.Count >= previousParameters.Count)
+                    || candidate.Signature.Parameters.Count >= previousParameters.Count
+                    || preservesInheritedContract && !SystemObjectModelProvider.HasSupportedConstructorParameters(candidate.Signature.Parameters))
                 {
                     continue;
                 }
@@ -1280,7 +1290,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 // more expensive subsequence lookup.
                 if ((targetConstructor == null
                         || candidate.Signature.Parameters.Count > targetConstructor.Signature.Parameters.Count)
-                    && IsParameterSubsequence(candidate.Signature.Parameters, previousParameters))
+                    && IsParameterSubsequence(candidate.Signature.Parameters, previousParameters, preservesInheritedContract))
                 {
                     targetConstructor = candidate;
                 }
@@ -1302,11 +1312,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 if (targetIndex < targetParameters.Count
                     && targetParameters[targetIndex].Equals(previousParameter))
                 {
-                    var keptParameter = PartialMethodCustomization.CloneParameterWithName(
-                        targetParameters[targetIndex],
-                        previousParameter.Name,
-                        removeDefault: false,
-                        validation: ParameterValidationType.None);
+                    var keptParameter = preservesInheritedContract
+                        ? CreateHistoricalConstructorParameter(previousParameter, targetParameters[targetIndex], ParameterValidationType.None)
+                        : PartialMethodCustomization.CloneParameterWithName(
+                            targetParameters[targetIndex], previousParameter.Name, removeDefault: false, validation: ParameterValidationType.None);
                     restoredParameters.Add(keptParameter);
                     initializerArguments.Add(keptParameter);
                     targetIndex++;
@@ -1325,7 +1334,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     return false;
                 }
 
-                var restoredParameter = PartialMethodCustomization.CloneParameterWithName(property.AsParameter, previousParameter.Name, removeDefault: true);
+                if (preservesInheritedContract && !CanAssignHistoricalConstructorParameter(previousParameter.Type, property.Type))
+                {
+                    return false;
+                }
+                var restoredParameter = preservesInheritedContract
+                    ? CreateHistoricalConstructorParameter(previousParameter, property.AsParameter, property.AsParameter.Validation)
+                    : PartialMethodCustomization.CloneParameterWithName(property.AsParameter, previousParameter.Name, removeDefault: true);
                 restoredParameters.Add(restoredParameter);
                 extraAssignments.Add((property, restoredParameter));
             }
@@ -1338,7 +1353,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
             var bodyStatements = new List<MethodBodyStatement>(extraAssignments.Count);
             foreach (var (property, parameter) in extraAssignments)
             {
-                ValueExpression assignee = property.BackingField is null ? property : property.BackingField;
+                ValueExpression assignee = property.BackingField is null || !CanonicalView.Properties.Contains(property)
+                    ? property
+                    : property.BackingField;
                 ValueExpression value = parameter;
                 if (CSharpType.RequiresToList(parameter.Type, property.Type))
                 {
@@ -1358,6 +1375,19 @@ namespace Microsoft.TypeSpec.Generator.Providers
             restoredConstructor = new ConstructorProvider(signature, bodyStatements, this);
             return true;
         }
+
+        private static bool CanAssignHistoricalConstructorParameter(CSharpType source, CSharpType destination)
+            => ModelBaseMemberCompatibility.AreTypesCompatible(source, destination) ||
+                // The ordinary value-to-nullable lift is lossless; the inverse and nested generic changes are not.
+                source.IsValueType && !source.IsNullable && destination.IsNullable &&
+                ModelBaseMemberCompatibility.AreTypesCompatible(source, destination.WithNullable(false));
+
+        private static ParameterProvider CreateHistoricalConstructorParameter(
+            ParameterProvider previous, ParameterProvider current, ParameterValidationType validation)
+            => new(previous.Name, previous.Description, previous.Type, previous.DefaultValue,
+                previous.IsRef, previous.IsOut, previous.IsIn, previous.IsParams, previous.Attributes,
+                current.Property, current.Field, current.InitializationValue, current.Location, current.WireInfo,
+                validation, current.InputParameter);
 
         private ConstructorProvider BuildBackCompatParameterlessConstructor(
             ConstructorProvider previousConstructor,
@@ -1402,7 +1432,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private static bool IsParameterSubsequence(
             IReadOnlyList<ParameterProvider> subset,
-            IReadOnlyList<ParameterProvider> full)
+            IReadOnlyList<ParameterProvider> full,
+            bool requireCompatibleTypes = false)
         {
             if (subset.Count > full.Count)
             {
@@ -1417,7 +1448,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     break;
                 }
 
-                if (subset[matched].Equals(parameter))
+                if (subset[matched].Equals(parameter) &&
+                    (!requireCompatibleTypes || ModelBaseMemberCompatibility.AreTypesCompatible(parameter.Type, subset[matched].Type)))
                 {
                     matched++;
                 }
@@ -1429,22 +1461,63 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private Dictionary<string, PropertyProvider> BuildRestorablePropertyLookup()
         {
             var lookup = new Dictionary<string, PropertyProvider>();
+            var declaredNames = CanonicalView.Properties.Select(property => property.Name).ToHashSet(StringComparer.Ordinal);
             foreach (var property in CanonicalView.Properties)
             {
-                if (!MethodSignatureHelper.IsPublicApi(property.Modifiers) || !property.Body.HasSetter || property.WireInfo == null)
+                if (MethodSignatureHelper.IsPublicApi(property.Modifiers) && property.Body.HasSetter && property.WireInfo is not null)
                 {
-                    continue;
+                    AddProperty(property);
                 }
+            }
 
+            if (BaseModelProvider is SystemObjectModelProvider { UsesLastContractType: true })
+            {
+                foreach (var provider in EnumerateBaseModelProviders())
+                {
+                    foreach (var property in provider.CanonicalView.Properties)
+                    {
+                        // A nearer declaration still hides an ancestor even when it cannot be assigned.
+                        if (!declaredNames.Add(property.Name) || property.IsInitOnly ||
+                            property.WireInfo is not { IsReadOnly: false } ||
+                            !MethodSignatureHelper.IsPublicApi(property.Modifiers) ||
+                            property.Modifiers.HasFlag(MethodSignatureModifiers.Static) || !HasAccessibleInheritedSetter(property))
+                        {
+                            continue;
+                        }
+                        AddProperty(property);
+                    }
+                }
+            }
+            return lookup;
+
+            void AddProperty(PropertyProvider property)
+            {
                 lookup.TryAdd(property.AsParameter.Name, property);
-
-                if (property.OriginalName != null)
+                if (property.OriginalName is not null)
                 {
                     lookup.TryAdd(property.OriginalName.ToVariableName(), property);
                 }
             }
+        }
 
-            return lookup;
+        private static bool HasAccessibleInheritedSetter(PropertyProvider property)
+        {
+            if (!property.Body.HasSetter)
+            {
+                return false;
+            }
+            var modifiers = property.Body switch
+            {
+                AutoPropertyBody body => body.SetterModifiers,
+                MethodPropertyBody body => body.SetterModifiers,
+                _ => MethodSignatureModifiers.None,
+            };
+            if (modifiers == MethodSignatureModifiers.None)
+            {
+                modifiers = property.Modifiers;
+            }
+            return !modifiers.HasFlag(MethodSignatureModifiers.Private) &&
+                (modifiers.HasFlag(MethodSignatureModifiers.Public) || modifiers.HasFlag(MethodSignatureModifiers.Protected));
         }
 
         /// <summary>

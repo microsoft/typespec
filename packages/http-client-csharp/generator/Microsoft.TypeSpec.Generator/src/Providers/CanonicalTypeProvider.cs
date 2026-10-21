@@ -29,7 +29,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             _generatedTypeProvider = generatedTypeProvider;
             var inputModel = inputType as InputModelType;
-            _specProperties = inputModel?.Properties ?? [];
+            _specProperties = generatedTypeProvider is SystemObjectModelProvider { HasInputPropertyProjection: true } mappedBase
+                ? mappedBase.ProjectedInputProperties
+                : inputModel?.Properties ?? [];
             _specPropertiesMap = [];
             _exactSpecPropertyNames = [];
             foreach (var property in _specProperties)

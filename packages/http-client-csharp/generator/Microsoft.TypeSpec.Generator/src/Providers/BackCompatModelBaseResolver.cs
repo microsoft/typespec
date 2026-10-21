@@ -48,6 +48,16 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             if (TrySelectCreatedModelBase(previousBase, out provider, out var foundAmbiguousMapping))
             {
+                if (provider is SystemObjectModelProvider mapped && MappedModelBaseUpgrade.IsUpgrade(_model, mapped.SystemType))
+                {
+                    if (_model.LastContractView?.BaseTypeProvider is not { } historicalBase ||
+                        !MappedModelBaseUpgrade.TryCreate(_model, mapped.SystemType, historicalBase, out var projected))
+                    {
+                        provider = null;
+                        return false;
+                    }
+                    provider = projected;
+                }
                 return true;
             }
             if (foundAmbiguousMapping)
@@ -67,7 +77,19 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return false;
             }
 
-            provider = new SystemObjectModelProvider(mappedType, currentBase, lastContractBase);
+            if (MappedModelBaseUpgrade.IsUpgrade(_model, mappedType))
+            {
+                if (!MappedModelBaseUpgrade.TryCreate(_model, mappedType, lastContractBase, out var projected))
+                {
+                    provider = null;
+                    return false;
+                }
+                provider = projected;
+            }
+            else
+            {
+                provider = new SystemObjectModelProvider(mappedType, currentBase, lastContractBase);
+            }
             return _compatibility.IsSupportedModelBase(provider);
         }
 

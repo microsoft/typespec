@@ -28,6 +28,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         private readonly CSharpType _systemType;
         private readonly bool _skipDerivedConstructorParameters;
         private readonly TypeProvider? _lastContractType;
+        private readonly IReadOnlyList<InputModelProperty>? _projectedInputProperties;
 
         /// <summary>
         /// Initializes a new instance of <see cref="SystemObjectModelProvider"/>.
@@ -55,16 +56,27 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
         }
 
+        internal SystemObjectModelProvider(
+            CSharpType systemType,
+            InputModelType inputModel,
+            TypeProvider lastContractType,
+            IReadOnlyList<InputModelProperty> projectedInputProperties)
+            : this(systemType, inputModel, skipDerivedConstructorParameters: false, lastContractType, projectedInputProperties)
+        {
+        }
+
         private SystemObjectModelProvider(
             CSharpType systemType,
             InputModelType inputModel,
             bool skipDerivedConstructorParameters,
-            TypeProvider? lastContractType)
+            TypeProvider? lastContractType,
+            IReadOnlyList<InputModelProperty>? projectedInputProperties = null)
             : base(inputModel)
         {
             _systemType = systemType ?? throw new ArgumentNullException(nameof(systemType));
             _skipDerivedConstructorParameters = skipDerivedConstructorParameters;
             _lastContractType = lastContractType;
+            _projectedInputProperties = projectedInputProperties;
             CrossLanguageDefinitionId = inputModel.CrossLanguageDefinitionId;
 
             // The base ModelProvider constructor can evaluate Type before _systemType is assigned.
@@ -78,6 +90,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public CSharpType SystemType => _systemType;
 
         internal bool UsesLastContractType => _lastContractType is not null;
+
+        internal bool HasInputPropertyProjection => _projectedInputProperties is not null;
+
+        internal IReadOnlyList<InputModelProperty> ProjectedInputProperties => _projectedInputProperties ?? InputModel.Properties;
 
         internal bool HasReconstructibleLastContractConstructor
         {
@@ -202,6 +218,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         /// <inheritdoc/>
         protected override CSharpType? BuildBaseType() => SystemType.BaseType ?? base.BuildBaseType();
+
+        // A projected last-contract provider already contains the effective historical hierarchy.
+        // Walking a cached mapped ancestor again would duplicate its properties and constructor inputs.
+        protected override ModelProvider? BuildBaseModelProvider()
+            => HasInputPropertyProjection ? null : base.BuildBaseModelProvider();
 
         /// <inheritdoc/>
         private protected override bool ShouldUseFullConstructorInDerivedTypes => !_skipDerivedConstructorParameters;
@@ -706,7 +727,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private PropertyProvider? ApplyCurrentInputMetadata(PropertyProvider lastContractProperty)
         {
-            var matchingInputProperties = InputModel.Properties.Where(property =>
+            var matchingInputProperties = ProjectedInputProperties.Where(property =>
                 CodeModelGenerator.Instance.TypeFactory.IsLastContractModelBasePropertyCompatible(
                     SystemType,
                     property,

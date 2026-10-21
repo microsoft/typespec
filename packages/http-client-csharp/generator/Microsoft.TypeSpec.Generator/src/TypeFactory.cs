@@ -463,6 +463,9 @@ namespace Microsoft.TypeSpec.Generator
         internal PropertyProvider? CreateUncachedProperty(InputProperty property, TypeProvider enclosingType)
             => CreatePropertyCore(property, enclosingType);
 
+        internal PropertyProvider? GetCachedOrUncachedProperty(InputProperty property, TypeProvider enclosingType)
+            => PropertyCache.TryGetValue(property, out var cached) ? cached : CreateUncachedProperty(property, enclosingType);
+
         /// <summary>
         /// Factory method for creating a <see cref="PropertyProvider"/> based on an input property <paramref name="property"/>.
         /// </summary>
