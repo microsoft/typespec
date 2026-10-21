@@ -30,6 +30,7 @@ from specialwords._utils.model_base import (
     _is_model,
     rest_discriminator,
     _deserialize,
+    _get_rest_field,
 )
 
 if sys.version_info >= (3, 9):
@@ -1813,6 +1814,24 @@ def test_nested_deserialization():
     new_serialized_datetime = "2022-12-31T23:59:59.999Z"
     model.inner_model.datetime_field = isodate.parse_datetime(new_serialized_datetime)
     assert model.inner_model["datetimeField"] == "2022-12-31T23:59:59.999000Z"
+
+
+def test_nested_public_input_serializes_python_values():
+    value = datetime.datetime(2026, 1, 1, tzinfo=datetime.timezone.utc)
+    expected = {"innerModel": {"datetimeField": "2026-01-01T00:00:00Z"}}
+
+    models = [
+        BaseModel({"innerModel": {"datetimeField": value}}),
+        BaseModel(inner_model={"datetimeField": value}),
+    ]
+    model_with_assignment = BaseModel({"innerModel": {"datetimeField": expected["innerModel"]["datetimeField"]}})
+    model_with_assignment.inner_model = {"datetimeField": value}
+    models.append(model_with_assignment)
+
+    for model in models:
+        assert model.inner_model.datetime_field == value
+        assert model.as_dict() == expected
+        assert json.loads(json.dumps(model.as_dict())) == expected
 
 
 class X(Model):
@@ -4904,3 +4923,205 @@ def test_eq_nested_models():
         optional_myself=OptionalModel(optional_str="inner"),
     )
     assert model1 != model2_different_pet
+
+
+class OwnershipChild(Model):
+    tags: list[str] = rest_field()
+    meta: dict[str, str] = rest_field()
+
+    @overload
+    def __init__(self, *, tags: list[str], meta: dict[str, str]): ...
+
+    @overload
+    def __init__(self, mapping: Mapping[str, Any], /): ...
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+
+class OwnershipParent(Model):
+    name: str = rest_field()
+    labels: list[str] = rest_field()
+    child: "OwnershipChild" = rest_field()
+
+    @overload
+    def __init__(self, *, name: str, labels: list[str], child: "OwnershipChild"): ...
+
+    @overload
+    def __init__(self, mapping: Mapping[str, Any], /): ...
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+
+class MappingAwareModel(Model):
+    value: str = rest_field()
+
+    def __init__(self, *args, **kwargs):
+        if args:
+            assert isinstance(args[0], Mapping)
+        super().__init__(*args, **kwargs)
+
+
+def test_public_constructor_does_not_alias_input():
+    """Constructing a model from a raw mapping must not alias the caller's containers.
+
+    The public constructor takes ownership by copying, so later mutating the caller's
+    input (at any nesting level, including inside a nested model) must not leak into the
+    model, and mutating the model must not leak back into the caller's input.
+    """
+    user_input = {
+        "name": "p",
+        "labels": ["x", "y"],
+        "child": {"tags": ["a", "b"], "meta": {"k": "v"}},
+    }
+    model = OwnershipParent(user_input)
+
+    # Mutate the caller's original structures after construction.
+    user_input["labels"].append("LEAKED")
+    user_input["child"]["tags"].append("LEAKED")
+    user_input["child"]["meta"]["k2"] = "LEAKED"
+
+    assert model.labels == ["x", "y"]
+    assert model.child.tags == ["a", "b"]
+    assert model.child.meta == {"k": "v"}
+
+    # Mutating the model must not leak back into the caller's input.
+    model.labels.append("from_model")
+    assert "from_model" not in user_input["labels"]
+
+
+def test_keyword_constructor_does_not_alias_nested_model_input():
+    child = {"tags": ["a"], "meta": {"k": "v"}}
+    model = OwnershipParent(name="p", labels=["x"], child=child)
+
+    child["tags"].append("from_input")
+    child["meta"]["other"] = "from_input"
+
+    assert model.child.tags == ["a"]
+    assert model.child.meta == {"k": "v"}
+
+
+def test_property_assignment_does_not_alias_nested_model_input():
+    child = {"tags": ["a"], "meta": {"k": "v"}}
+    model = OwnershipParent(name="p", labels=["x"], child=OwnershipChild(tags=[], meta={}))
+
+    model.child = child
+    child["tags"].append("from_input")
+    child["meta"]["other"] = "from_input"
+
+    assert model.child.tags == ["a"]
+    assert model.child.meta == {"k": "v"}
+
+
+def test_deserialize_shares_wire_ownership():
+    wire = {
+        "name": "p",
+        "labels": ["x", "y"],
+        "child": {"tags": ["a", "b"], "meta": {"k": "v"}},
+        "extension": {"values": [1, 2]},
+    }
+    model = _deserialize(OwnershipParent, wire)
+
+    assert model._data["labels"] is wire["labels"]
+    assert model._data["child"]._data["tags"] is wire["child"]["tags"]
+    assert model._data["child"]._data["meta"] is wire["child"]["meta"]
+    assert model._data["extension"] is wire["extension"]
+
+    assert model.name == "p"
+    assert model.labels == ["x", "y"]
+    assert isinstance(model.child, OwnershipChild)
+    assert model.child.tags == ["a", "b"]
+    assert model.child.meta == {"k": "v"}
+
+
+def test_wire_deserialization_passes_mapping_to_model_constructor():
+    model = _deserialize(MappingAwareModel, {"value": "test"})
+    assert model.value == "test"
+
+
+def test_wire_context_does_not_mark_unrelated_constructor_input_as_wire():
+    public_input = {"tags": ["a"], "meta": {"k": "v"}}
+
+    class ModelWithCustomConstructor(Model):
+        value: str = rest_field()
+
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            self.public_child = OwnershipChild(public_input)
+
+    model = _deserialize(ModelWithCustomConstructor, {"value": "test"})
+    public_input["tags"].append("changed")
+
+    assert model.public_child.tags == ["a"]
+
+
+class ComposedOwnershipParent(Model):
+    optional_child: Optional[InnerModel] = rest_field()
+    children: list[InnerModel] = rest_field()
+    salmon: Salmon = rest_field()
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+
+def test_composed_public_model_inputs_use_public_conversion():
+    value = datetime.datetime(2026, 1, 1, tzinfo=datetime.timezone.utc)
+    child = {"datetimeField": value}
+    children = [{"datetimeField": value}]
+    salmon = {
+        "age": 1,
+        "kind": "salmon",
+        "partner": {"age": 2, "kind": "shark", "sharktype": "saw"},
+    }
+
+    model = ComposedOwnershipParent(
+        optional_child=child,
+        children=children,
+        salmon=salmon,
+    )
+
+    assert model.optional_child.as_dict() == {"datetimeField": "2026-01-01T00:00:00Z"}
+    assert model.children[0].as_dict() == {"datetimeField": "2026-01-01T00:00:00Z"}
+    assert isinstance(model.salmon.partner, SawShark)
+
+    child["datetimeField"] = datetime.datetime(2027, 1, 1, tzinfo=datetime.timezone.utc)
+    children.append({"datetimeField": value})
+    salmon["partner"]["age"] = 3
+
+    assert model.optional_child.datetime_field == value
+    assert len(model.children) == 1
+    assert model.salmon.partner.age == 2
+
+
+class RestNameLookupModel(Model):
+    # rest_name differs from the attribute name (camelCase on the wire)
+    my_prop: str = rest_field(name="myProp")
+    # rest_name equals the attribute name
+    plain: str = rest_field()
+
+
+def test_rest_field_by_rest_name_matches_get_rest_field():
+    """The precomputed `_rest_field_by_rest_name` map must be a drop-in replacement for the
+    old per-key `_get_rest_field` linear scan: identical result for a match and identical
+    `None` fallback for keys that aren't rest names (e.g. attribute names or junk keys)."""
+    RestNameLookupModel()  # trigger __new__ population of the class-level maps
+    attr_map = RestNameLookupModel._attr_to_rest_field
+    fast_map = RestNameLookupModel._rest_field_by_rest_name
+
+    # Equivalence across matches, attr names, and junk keys (identity, not just equality).
+    for key in [
+        "myProp",  # rest name (differs from attr) -> match
+        "my_prop",  # attr name -> NOT a rest name
+        "plain",  # rest name == attr name -> match
+        "",  # empty junk key
+        "__nope__",  # junk key
+        "additionalProperties",  # junk key
+    ]:
+        assert fast_map.get(key) is _get_rest_field(attr_map, key)
+
+    # Explicit expectations to guard against both sides being wrong in the same way.
+    assert fast_map.get("myProp") is not None  # rest name matches
+    assert fast_map.get("my_prop") is None  # attr name is NOT a rest name
+    assert fast_map.get("plain") is not None  # rest name == attr name matches
+    assert fast_map.get("__nope__") is None  # junk key falls back to None
