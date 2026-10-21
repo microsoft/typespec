@@ -144,6 +144,25 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 return false;
             }
 
+            if (mappedBase.HasFlatInputProjection)
+            {
+                // Renamed custom members can claim an input property without colliding with
+                // the framework member's CLR name. Keep that property with its source owner.
+                var projectedNames = mappedBase.MappedInputProperties.SelectMany(property => property.IsExactName
+                    ? new[] { property.Name }
+                    : new[] { property.Name.ToIdentifierName(), GetInputPropertyClrName(property) })
+                    .ToHashSet(StringComparer.Ordinal);
+                bool ClaimsProjectedInput(string name, string? originalName)
+                    => projectedNames.Contains(name) || originalName is not null &&
+                        (projectedNames.Contains(originalName) || projectedNames.Contains(originalName.ToIdentifierName()));
+
+                if (customCode.Properties.Any(property => ClaimsProjectedInput(property.Name, property.OriginalName)) ||
+                    customCode.Fields.Any(field => ClaimsProjectedInput(field.Name, field.OriginalName)))
+                {
+                    return false;
+                }
+            }
+
             var customMemberNames = customCode.Properties.Select(property => property.Name)
                 .Concat(customCode.Fields.Select(field => field.Name))
                 .Concat(customCode.Methods.Select(method => method.Signature.Name))
