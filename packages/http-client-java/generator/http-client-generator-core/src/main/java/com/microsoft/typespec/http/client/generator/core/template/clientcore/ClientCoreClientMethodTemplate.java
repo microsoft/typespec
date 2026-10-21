@@ -1327,7 +1327,7 @@ public class ClientCoreClientMethodTemplate extends ClientMethodTemplate {
 
     @Override
     protected void addQueryParameterReInjectionLogic(MethodPageDetails.NextLinkReInjection nextLinkReInjection,
-        JavaBlock javaBlock) {
+        ClientMethod clientMethod, JavaBlock javaBlock) {
     }
 
     /**

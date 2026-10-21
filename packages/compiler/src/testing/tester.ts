@@ -40,7 +40,12 @@ import type {
   TesterInstance,
 } from "./types.js";
 
+/** Libraries and compiler defaults for a reusable tester created with {@link createTester}. */
 export interface TesterOptions {
+  /**
+   * Bare package names to load into the virtual filesystem, resolved from the tester's base directory.
+   * This makes libraries available but does not import them into `main.tsp`; use `importLibraries()` or `import()`.
+   */
   libraries: string[];
 
   /**
@@ -60,11 +65,12 @@ export interface TesterOptions {
    */
   host?: CompilerHost;
 }
-
 /**
- * Create a tester for a TypeSpec library.
- * @param base Path to the library root directory containing its package.json.
- * @param options Libraries and compiler options to use for testing.
+ * Create a reusable tester with the compiler's standard library and test decorators available.
+ * Libraries are loaded lazily and shared as a snapshot; each compilation gets its own mutable copy.
+ *
+ * @param base Real package directory containing `package.json`, used to resolve the listed libraries.
+ * @param options Libraries to make available and default settings for every compilation.
  */
 export function createTester(base: string, options: TesterOptions): Tester {
   return createTesterInternal({

@@ -32,8 +32,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Snippets
         public static ValueExpression GetSByte(this ScopedApi<JsonElement> jsonElement) => jsonElement.Invoke(nameof(JsonElement.GetSByte));
         public static ValueExpression GetByte(this ScopedApi<JsonElement> jsonElement) => jsonElement.Invoke(nameof(JsonElement.GetByte));
         public static ValueExpression GetInt16(this ScopedApi<JsonElement> jsonElement) => jsonElement.Invoke(nameof(JsonElement.GetInt16));
+        public static ValueExpression GetUInt16(this ScopedApi<JsonElement> jsonElement) => jsonElement.Invoke(nameof(JsonElement.GetUInt16));
         public static ValueExpression GetInt32(this ScopedApi<JsonElement> jsonElement) => jsonElement.Invoke(nameof(JsonElement.GetInt32));
+        public static ValueExpression GetUInt32(this ScopedApi<JsonElement> jsonElement) => jsonElement.Invoke(nameof(JsonElement.GetUInt32));
         public static ValueExpression GetInt64(this ScopedApi<JsonElement> jsonElement) => jsonElement.Invoke(nameof(JsonElement.GetInt64));
+        public static ValueExpression GetUInt64(this ScopedApi<JsonElement> jsonElement) => jsonElement.Invoke(nameof(JsonElement.GetUInt64));
         public static ScopedApi<string> GetRawText(this ScopedApi<JsonElement> jsonElement) => jsonElement.Invoke(nameof(JsonElement.GetRawText)).As<string>();
         public static ValueExpression GetSingle(this ScopedApi<JsonElement> jsonElement) => jsonElement.Invoke(nameof(JsonElement.GetSingle));
         public static ScopedApi<string> GetString(this ScopedApi<JsonElement> jsonElement) => jsonElement.Invoke(nameof(JsonElement.GetString)).As<string>();

@@ -1,3 +1,4 @@
+/** TypeSpec namespace containing this package's decorators; shared with the OpenAPI metadata library. */
 export const namespace = "TypeSpec.OpenAPI";
 
 export { convertOpenAPI3Document } from "./cli/actions/convert/convert.js";

@@ -26,6 +26,10 @@ export const mockFile = {
   },
 };
 
+/**
+ * Create an empty, mutable virtual filesystem and its compiler host.
+ * Library files and test decorators are not mounted automatically; {@link createTester} sets them up.
+ */
 export function createTestFileSystem(options?: TestHostOptions): TestFileSystem {
   const virtualFs = createStringMap<string>(!!options?.caseInsensitiveFileSystem);
   const jsImports = createStringMap<Promise<any>>(!!options?.caseInsensitiveFileSystem);

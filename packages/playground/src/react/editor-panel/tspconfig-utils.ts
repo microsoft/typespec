@@ -45,9 +45,11 @@ export function compilerOptionsToTspConfig(
 }
 
 /**
- * Update an existing tspconfig.yaml with structured changes coming from the visual form
+ * Update an existing valid mapping in tspconfig.yaml with structured changes from the visual form
  * (emitter + compiler options) while preserving comments and any other fields the form
  * doesn't manage (e.g. `output-dir`, `warn-as-error`, `imports`).
+ * Empty, invalid, or non-mapping YAML is rebuilt from the selected emitter and supported compiler
+ * options, discarding comments and unrelated settings.
  */
 export function updateTspConfigYaml(
   existingYaml: string,

@@ -17,29 +17,92 @@ import type {
   UnionVariant,
 } from "../src/index.js";
 
+/**
+ * Service options.
+ */
 export interface ServiceOptions {
+  /**
+   * Title of the service.
+   */
   readonly title?: string;
 }
 
+/**
+ * Options for `@discriminated` decorator.
+ */
 export interface DiscriminatedOptions {
+  /**
+   * How is the discriminated union serialized.
+   *
+   * @default object
+   */
   readonly envelope?: "object" | "none";
+  /**
+   * Name of the discriminator property
+   */
   readonly discriminatorPropertyName?: string;
+  /**
+   * Name of the property envelopping the data
+   */
   readonly envelopePropertyName?: string;
 }
 
+/**
+ * Options for example decorators
+ */
 export interface ExampleOptions {
+  /**
+   * The title of the example
+   */
   readonly title?: string;
+  /**
+   * Description of the example
+   */
   readonly description?: string;
 }
 
+/**
+ * Operation example configuration.
+ */
 export interface OperationExample {
+  /**
+   * Example argument values keyed by operation parameter name.
+   * The object must match the operation's full parameter model. For HTTP operations,
+   * this includes required path, query, and header parameters as well as body parameters.
+   */
   readonly parameters?: unknown;
+  /**
+   * Example value matching the operation's full return type.
+   * This is not limited to an HTTP response body: required response metadata
+   * properties must also be present.
+   */
   readonly returnType?: unknown;
 }
 
+/**
+ * A visibility filter, used to specify which properties should be included when
+ * using the `withVisibilityFilter` decorator.
+ *
+ * The filter matches any property with ALL of the following:
+ * - If the `any` key is present, the property must have at least one of the specified visibilities.
+ * - If the `all` key is present, the property must have all of the specified visibilities.
+ * - If the `none` key is present, the property must have none of the specified visibilities.
+ */
 export interface VisibilityFilter {
+  /**
+   * Require at least one of these visibility modifiers.
+   * Omit to impose no such requirement; an empty array matches no properties.
+   */
   readonly any?: readonly EnumValue[];
+  /**
+   * Require every one of these visibility modifiers.
+   * Omit or pass an empty array to impose no such requirement.
+   */
   readonly all?: readonly EnumValue[];
+  /**
+   * Exclude properties with any of these visibility modifiers.
+   * Omit or pass an empty array to exclude no properties by this condition.
+   */
   readonly none?: readonly EnumValue[];
 }
 
@@ -680,7 +743,12 @@ export type ExampleDecorator = (
  * @param options Optional metadata for the example.
  * @example
  * ```tsp
- * @opExample(#{parameters: #{name: "Fluffy", age: 2}, returnType: #{name: "Fluffy", age: 2, id: "abc"})
+ * model Pet { name: string; age: int32; }
+ *
+ * @opExample(#{
+ *   parameters: #{pet: #{name: "Fluffy", age: 2}},
+ *   returnType: #{name: "Fluffy", age: 2}
+ * })
  * op createPet(pet: Pet): Pet;
  * ```
  */
