@@ -149,9 +149,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     return false;
                 }
 
+                // Flat candidates establish discovery equivalence only. The model-local projection
+                // is rebuilt through the downstream opt-in and validated afterward.
                 var compatibleMappedCandidates = candidates
                     .OfType<SystemObjectModelProvider>()
-                    .Where(_compatibility.CanUseMappedBase)
+                    .Where(candidate => _model.InputModel.BaseModel is null || _compatibility.CanUseMappedBase(candidate))
                     .ToArray();
                 if (compatibleMappedCandidates.Length == 1 ||
                     (compatibleMappedCandidates.Length > 1 &&

@@ -1385,6 +1385,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return true;
         }
 
+        internal bool IsPropertySuppressed(PropertyProvider property)
+            => GetMemberSuppressionAttributes().Any(attribute => IsMatch(property, attribute));
+
         private bool ShouldGenerate(PropertyProvider property, HashSet<string> customProperties)
         {
             foreach (var attribute in GetMemberSuppressionAttributes())

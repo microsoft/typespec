@@ -464,9 +464,12 @@ namespace Microsoft.TypeSpec.Generator
             => CreatePropertyCore(property, enclosingType);
 
         internal bool IsPropertyRemoved(InputProperty property, TypeProvider enclosingType)
-            => PropertyCache.TryGetValue(property, out var cachedProperty)
-                ? cachedProperty is null
-                : CreateUncachedProperty(property, enclosingType) is null;
+        {
+            var provider = PropertyCache.TryGetValue(property, out var cachedProperty)
+                ? cachedProperty
+                : CreateUncachedProperty(property, enclosingType);
+            return provider is null || enclosingType.IsPropertySuppressed(provider);
+        }
 
         /// <summary>
         /// Factory method for creating a <see cref="PropertyProvider"/> based on an input property <paramref name="property"/>.

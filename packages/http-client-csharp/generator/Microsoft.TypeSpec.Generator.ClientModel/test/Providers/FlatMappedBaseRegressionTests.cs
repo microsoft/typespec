@@ -11,6 +11,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
+using ClientModelProvider = Microsoft.TypeSpec.Generator.ClientModel.Providers.ScmModelProvider;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
@@ -165,6 +166,129 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             {
                 Assert.That(generatedType.GetProperty("Value")!.GetValue(restored), Is.EqualTo(42));
                 Assert.That(generatedType.GetProperty("Child")!.GetValue(restored), Is.EqualTo("payload"));
+            });
+        }
+
+        [TestCase(false, false, false)]
+        [TestCase(false, false, true)]
+        [TestCase(false, true, false)]
+        [TestCase(false, true, true)]
+        [TestCase(true, false, false)]
+        [TestCase(true, false, true)]
+        [TestCase(true, true, false)]
+        [TestCase(true, true, true)]
+        public void SuppressionRetainsSourceDecision(bool restoreBase, bool cachePropertyFirst, bool suppressesProjectedProperty)
+        {
+            var value = InputFactory.Property("value", InputPrimitiveType.Int32, serializedName: "wireValue");
+            var modelInput = InputFactory.Model("DerivedModel", properties:
+                [value, InputFactory.Property("child", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.Property("other", InputPrimitiveType.Int32)],
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Json);
+            var suppressedName = suppressesProjectedProperty ? "Value" : "Other";
+            var customization = CSharpSyntaxTree.ParseText($$"""
+                namespace Sample.Models
+                {
+                    [System.AttributeUsage(System.AttributeTargets.Class, AllowMultiple = true)]
+                    internal sealed class CodeGenSuppressAttribute : System.Attribute
+                    {
+                        public CodeGenSuppressAttribute(string memberName, params System.Type[] parameterTypes) { }
+                    }
+                    [CodeGenSuppress("{{suppressedName}}")]
+                    public partial class DerivedModel { }
+                }
+                """, path: "SuppressionCustomization.cs");
+            var generator = CreateGenerator(modelInput, restoreBase, customization);
+            Mock.Get(generator.Object.TypeFactory).Protected()
+                .Setup<ModelProvider?>("CreateModelCore", ItExpr.IsAny<InputModelType>())
+                .Returns((InputModelType input) =>
+                {
+                    var source = new ClientModelProvider(input);
+                    if (cachePropertyFirst && ReferenceEquals(input, modelInput))
+                    {
+                        generator.Object.TypeFactory.CreateProperty(value, source);
+                    }
+                    return source;
+                });
+            var model = generator.Object.TypeFactory.CreateModel(modelInput)!;
+            var generatedType = CompileModel(generator, model, customization);
+            var instance = Activator.CreateInstance(generatedType, "payload")!;
+            generatedType.GetProperty("Value")?.SetValue(instance, 42);
+            generatedType.GetProperty("Other")?.SetValue(instance, 7);
+            var persistable = typeof(IPersistableModel<>).MakeGenericType(generatedType);
+            var options = new ModelReaderWriterOptions("J");
+            var data = (BinaryData)persistable.GetMethod("Write")!.Invoke(instance, [options])!;
+            TestContext.WriteLine(data.ToString());
+            using var document = JsonDocument.Parse(data);
+            var retainedName = suppressesProjectedProperty ? "other" : "wireValue";
+            Assert.That(document.RootElement.EnumerateObject().Select(property => property.Name),
+                Is.EquivalentTo(new[] { "child", retainedName }),
+                "Restoration must not resurrect a source-owner-suppressed property in either cache order.");
+            Assert.Multiple(() =>
+            {
+                Assert.That(generatedType.GetProperty(suppressedName), Is.Null);
+                Assert.That(model.BaseType?.Name,
+                    Is.EqualTo(restoreBase && !suppressesProjectedProperty ? nameof(FlatMrwBase) : null),
+                    "Unrelated source-property suppressions must not prevent restoration.");
+            });
+            var restored = persistable.GetMethod("Create")!.Invoke(instance, [data, options])!;
+            Assert.Multiple(() =>
+            {
+                Assert.That(generatedType.GetProperty("Child")!.GetValue(restored), Is.EqualTo("payload"));
+                Assert.That(generatedType.GetProperty(suppressesProjectedProperty ? "Other" : "Value")!.GetValue(restored),
+                    Is.EqualTo(suppressesProjectedProperty ? 7 : 42));
+            });
+        }
+
+        [TestCase(1, true, false)]
+        [TestCase(1, true, true)]
+        [TestCase(2, true, false)]
+        [TestCase(2, true, true)]
+        [TestCase(2, false, false)]
+        [TestCase(2, false, true)]
+        public void EquivalentCachedMappingsReachOptIn(int count, bool equivalent, bool allowMapping)
+        {
+            var modelInput = InputFactory.Model("DerivedModel", properties:
+                [InputFactory.Property("value", InputPrimitiveType.Int32, serializedName: "wireValue"),
+                    InputFactory.Property("child", InputPrimitiveType.String, isRequired: true)],
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Json);
+            var mappedInputs = Enumerable.Range(0, count).Select(index => InputFactory.Model("MappedInput" + index,
+                properties: [InputFactory.Property("value", index == 0 || equivalent ? InputPrimitiveType.Int32 : InputPrimitiveType.String,
+                    serializedName: "wireValue")])).ToArray();
+            var generator = MockHelpers.LoadMockGenerator(inputModels: () => mappedInputs.Append(modelInput).ToArray(),
+                createModelCore: input => mappedInputs.Contains(input)
+                    ? new SystemObjectModelProvider(new CSharpType(typeof(FlatMrwBase)), input)
+                    : new ClientModelProvider(input));
+            var historical = CSharpCompilation.Create("HistoricalCachedMappedBase",
+                [CSharpSyntaxTree.ParseText($"namespace Sample.Models {{ public class DerivedModel : {typeof(FlatMrwBase).FullName} {{ }} }}")],
+                GetReferences(), new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            generator.SetupProperty(plugin => plugin.SourceInputModel, new SourceInputModel(null, historical));
+            var hookCalled = false;
+            Mock.Get(generator.Object.TypeFactory).Protected()
+                .Setup<CSharpType?>("CreateLastContractModelBaseCore", ItExpr.IsAny<CSharpType>(), ItExpr.IsAny<InputModelType>())
+                .Returns((CSharpType previous, InputModelType current) =>
+                {
+                    hookCalled = true;
+                    return allowMapping ? new CSharpType(typeof(FlatMrwBase)) : null;
+                });
+            var cached = mappedInputs.Select(input => (SystemObjectModelProvider)generator.Object.TypeFactory.CreateModel(input)!).ToArray();
+            if (count == 2)
+            {
+                Assert.That(ModelBaseTypeCompatibility.AreMappedContractsEquivalent(cached[0], cached[1]), Is.EqualTo(equivalent));
+            }
+            var model = generator.Object.TypeFactory.CreateModel(modelInput)!;
+            var shouldRestore = equivalent && allowMapping;
+            Assert.Multiple(() =>
+            {
+                Assert.That(model.BaseType?.Name, Is.EqualTo(shouldRestore ? nameof(FlatMrwBase) : null));
+                Assert.That(hookCalled, Is.EqualTo(equivalent),
+                    "Equivalent mappings must still reach the opt-in or veto; conflicting mappings remain ambiguous.");
+                Assert.That(generator.Object.TypeFactory.CSharpTypeMap[cached.Last().Type], Is.SameAs(cached.Last()));
+                if (shouldRestore && model.BaseModelProvider is SystemObjectModelProvider projection)
+                {
+                    Assert.That(cached, Does.Not.Contain(projection));
+                    Assert.That(projection.InputModel, Is.SameAs(modelInput));
+                    Assert.That(projection.MappedInputProperties, Is.EqualTo(new[] { modelInput.Properties[0] }));
+                }
             });
         }
 
