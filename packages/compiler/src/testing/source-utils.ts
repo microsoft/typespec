@@ -3,12 +3,17 @@ import { ok } from "assert";
 /**
  * Takes source code with a cursor position indicated by the given marker
  * ("┆" by default), and returns the source without the marker along with
- * the cursor position.
+ * the cursor position. Only the first occurrence is removed; throws if no marker is found.
  */
 export function extractCursor(
   sourceWithCursor: string,
   marker = "┆",
-): { source: string; pos: number } {
+): {
+  /** Source with the first cursor marker removed. */
+  source: string;
+  /** Zero-based UTF-16 offset at which the marker was removed. */
+  pos: number;
+} {
   const pos = sourceWithCursor.indexOf(marker);
   ok(pos >= 0, "marker not found");
   const source = sourceWithCursor.replace(marker, "");
@@ -40,12 +45,19 @@ export function extractCursors(
 /**
  * Takes source code with start and end positions indicated by given marker
  * ("~~~" by default) and returns the source without the markers along with
- * the start and end positions.
+ * the start and end positions. Removes the first two occurrences and throws if either is missing.
  */
 export function extractSquiggles(
   sourceWithSquiggles: string,
   marker = "~~~",
-): { source: string; pos: number; end: number } {
+): {
+  /** Source with the two range markers removed. */
+  source: string;
+  /** Zero-based UTF-16 start offset in the returned source. */
+  pos: number;
+  /** Exclusive UTF-16 end offset in the returned source. */
+  end: number;
+} {
   const { source: sourceWithoutFistSquiggle, pos } = extractCursor(sourceWithSquiggles, marker);
   const { source, pos: end } = extractCursor(sourceWithoutFistSquiggle, marker);
   return { source, pos, end };

@@ -152,7 +152,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
 
             owner.ProcessTypeForBackCompatibility();
             var shims = owner.Methods.Where(m => m.Signature.Attributes.Any(a => a.Type.Equals(typeof(EditorBrowsableAttribute)))).ToArray();
-            Assert.AreEqual(3, shims.Length);
+            Assert.AreEqual(previouslyExperimental ? 0 : 3, shims.Length);
             foreach (var shim in shims)
             {
                 var experiment = shim.Signature.Attributes.SingleOrDefault(a => a.Type.Equals(typeof(ExperimentalAttribute)));
@@ -300,6 +300,111 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             var signature = methods[0].Signature;
             Assert.AreEqual("Foo", signature.Name);
             Assert.AreEqual("p1", signature.Parameters[0].Name);
+        }
+
+        [Test]
+        public async Task BackCompatibilityIgnoresExperimentalLastContract(
+            [Values("ExperimentalType", "StableType", "UnrelatedExperimentalType")] string name,
+            [Values] bool currentlyExperimental)
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                lastContractCompilation: () => Helpers.GetCompilationFromDirectoryAsync());
+            var typeProvider = new TestTypeProvider(
+                name: name,
+                declarationModifiers: TypeSignatureModifiers.Public | TypeSignatureModifiers.Abstract | TypeSignatureModifiers.Class);
+            typeProvider.Update(
+                attributes: ExperimentalApiHelpers.BuildAttributes(
+                    currentlyExperimental ? new InputExperimentalDetails("CURRENT001") : null),
+                methods:
+                [
+                    new MethodProvider(
+                        new MethodSignature("DoWork", null, MethodSignatureModifiers.Public, null, null,
+                        [
+                            new ParameterProvider("value", $"", typeof(int)),
+                            new ParameterProvider("added", $"", typeof(bool), defaultValue: Snippet.Default, location: ParameterLocation.Query)
+                        ]),
+                        MethodBodyStatement.Empty,
+                        typeProvider)
+                ]);
+
+            var previouslyExperimental = name == "ExperimentalType";
+            Assert.AreEqual(previouslyExperimental, typeProvider.LastContractView is null);
+            Assert.AreEqual(previouslyExperimental, typeProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract));
+
+            typeProvider.ProcessTypeForBackCompatibility();
+
+            Assert.AreEqual(previouslyExperimental ? 1 : 2, typeProvider.Methods.Count);
+            Assert.AreEqual(2, typeProvider.Methods[0].Signature.Parameters.Count);
+        }
+
+        [Test]
+        public async Task BackCompatibilityIgnoresPolyfilledExperimentalAttribute()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                lastContractCompilation: () => Helpers.GetCompilationFromDirectoryAsync());
+            var typeProvider = new TestTypeProvider(name: "ExperimentalType");
+
+            Assert.IsNull(typeProvider.LastContractView);
+        }
+
+        [Test]
+        public async Task ExperimentalAttributesAreExcludedForMethodConstructorAndFieldDetection()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                lastContractCompilation: () => Helpers.GetCompilationFromDirectoryAsync(
+                    method: "BackCompatibilityIgnoresExperimentalMembersLastContract"));
+            var typeProvider = new TestTypeProvider(name: "ExperimentalMembersType");
+            var lastContractView = typeProvider.LastContractView;
+
+            Assert.IsNotNull(lastContractView);
+            CollectionAssert.AreEquivalent(
+                new[] { "ExperimentalMethod", "StableMethod" },
+                lastContractView!.Methods.Select(method => method.Signature.Name).ToArray());
+            CollectionAssert.AreEquivalent(
+                new[] { "ExperimentalProperty", "StableProperty" },
+                lastContractView.Properties.Select(property => property.Name).ToArray());
+            CollectionAssert.AreEquivalent(
+                new[] { 0, 1 },
+                lastContractView.Constructors.Select(constructor => constructor.Signature.Parameters.Count).ToArray());
+            var experimentalMethod = lastContractView.Methods.Single(method => method.Signature.Name == "ExperimentalMethod");
+            var stableMethod = lastContractView.Methods.Single(method => method.Signature.Name == "StableMethod");
+            var experimentalProperty = lastContractView.Properties.Single(property => property.Name == "ExperimentalProperty");
+            var stableProperty = lastContractView.Properties.Single(property => property.Name == "StableProperty");
+            var experimentalConstructor = lastContractView.Constructors.Single(constructor => constructor.Signature.Parameters.Count == 1);
+            var experimentalField = lastContractView.Fields.Single(field => field.Name == "ExperimentalField");
+
+            Assert.IsFalse(MethodSignatureHelper.IsPublicApi(experimentalMethod.Signature));
+            Assert.IsTrue(MethodSignatureHelper.IsPublicApi(stableMethod.Signature));
+            Assert.IsFalse(MethodSignatureHelper.IsPublicApi(experimentalProperty.Modifiers, experimentalProperty.Attributes));
+            Assert.IsTrue(MethodSignatureHelper.IsPublicApi(stableProperty.Modifiers));
+            Assert.IsFalse(MethodSignatureHelper.IsPublicApi(experimentalConstructor.Signature));
+            Assert.IsFalse(MethodSignatureHelper.IsPublicApi(experimentalField.Modifiers, experimentalField.Attributes));
+        }
+
+        [Test]
+        public async Task BackCompatibilityDoesNotPromoteProtectedConstructor()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                lastContractCompilation: () => Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompatibilityDoesNotPromoteProtectedConstructor)));
+            var typeProvider = new TestTypeProvider(
+                name: "ProtectedConstructorType",
+                declarationModifiers: TypeSignatureModifiers.Public | TypeSignatureModifiers.Abstract | TypeSignatureModifiers.Class);
+            var privateProtectedConstructor = new ConstructorProvider(
+                new ConstructorSignature(
+                    typeProvider.Type,
+                    null,
+                    MethodSignatureModifiers.Private | MethodSignatureModifiers.Protected,
+                    [new ParameterProvider("value", $"", typeof(int))]),
+                MethodBodyStatement.Empty,
+                typeProvider);
+            typeProvider.Update(constructors: [privateProtectedConstructor]);
+
+            typeProvider.ProcessTypeForBackCompatibility();
+
+            Assert.AreEqual(
+                MethodSignatureModifiers.Private | MethodSignatureModifiers.Protected,
+                privateProtectedConstructor.Signature.Modifiers);
         }
 
         // Validates that a custom TypeProvider inherits the parameter-reordering back-compat behavior

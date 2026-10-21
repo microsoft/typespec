@@ -1,4 +1,4 @@
-import { describe, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import type { DiagnosticMatch } from "../../src/testing/index.js";
 import {
   expectDiagnosticEmpty,
@@ -313,6 +313,106 @@ describe("#deprecated directive", () => {
   });
 
   describe("skips type deprecation warning when referenced in a deprecated parent context", () => {
+    const signatures = [
+      ["parameter", "op test(body: ┆Legacy.Old): void;"],
+      ["nested parameter", "op test(body: { nested: ┆Legacy.Old }): void;"],
+      ["spread parameter", "op test(...┆┆Legacy.Old): void;"],
+      ["array parameter", "op test(body: ┆Legacy.Old[]): void;"],
+      ["tuple parameter", "op test(body: [┆Legacy.Old]): void;"],
+      ["union parameter", "op test(body: string | ┆Legacy.Old): void;"],
+      ["intersection parameter", "op test(body: ┆Legacy.Old & {}): void;"],
+      ["templated parameter", "op test(body: Box<┆Legacy.Old>): void;"],
+      ["response", "op test(): ┆Legacy.Old;"],
+      ["nested response", "op test(): { body: ┆Legacy.Old };"],
+      ["spread response", "op test(): { ...┆┆Legacy.Old };"],
+      ["array response", "op test(): ┆Legacy.Old[];"],
+      ["tuple response", "op test(): [┆Legacy.Old];"],
+      ["union response", "op test(): string | ┆Legacy.Old;"],
+      ["intersection response", "op test(): ┆Legacy.Old & {};"],
+      ["templated response", "op test(): Box<┆Legacy.Old>;"],
+      ["operation template parameter", "op test is Generic<┆Legacy.Old, void>;"],
+      ["operation template body", "op test is Generic<{ body: ┆Legacy.Old }, void>;"],
+      ["operation template response", "op test is Generic<{}, ┆Legacy.Old>;"],
+      ["operation template nested body", "op test is Generic<{ body: Box<┆Legacy.Old[]> }, void>;"],
+      [
+        "operation template nested response",
+        "op test is Generic<{}, { body: Box<┆Legacy.Old[]> }>;",
+      ],
+      ["named template argument", "op test is Generic<R = ┆Legacy.Old, P = {}>;"],
+      ["template constraint", "op test<T extends ┆Legacy.Old>(body: T): T;"],
+      ["template default", "op test<T = ┆Legacy.Old>(body: T): T;"],
+    ];
+
+    describe.each(["standalone", "interface", "deprecated interface"])("%s operation", (scope) => {
+      describe.each([false, true])("deprecated: %s", (deprecated) => {
+        it.each(signatures)("%s", async (_name, signature) => {
+          const suppressed = deprecated || scope === "deprecated interface";
+          const operation = `${deprecated ? '#deprecated "Operation is deprecated"' : ""}
+            ${signature}`;
+          const source = `
+            namespace Legacy {
+              #deprecated "Old is deprecated"
+              model Old { value: string; }
+            }
+            model Box<T> { value: T; }
+            op Generic<P extends {}, R>(...P): R;
+
+            ${
+              scope === "standalone"
+                ? operation
+                : `${scope === "deprecated interface" ? '#deprecated "API is deprecated"' : ""}
+                  interface API { ${operation} }`
+            }
+          `;
+          await expectDeprecations(
+            suppressed ? source.replaceAll("┆", "") : source,
+            suppressed ? [] : Array(signature.split("┆").length - 1).fill("Old is deprecated"),
+          );
+        });
+      });
+    });
+
+    it("still warns in an independently declared model used by a deprecated operation", async () => {
+      await expectDeprecations(
+        `
+          #deprecated "Old is deprecated"
+          model Old {}
+          model Body { value: ┆Old; }
+
+          #deprecated "Operation is deprecated"
+          op test(body: Body): Body;
+        `,
+        ["Old is deprecated"],
+      );
+    });
+
+    it("still warns in active operations next to a deprecated operation", async () => {
+      await expectDeprecations(
+        `
+          #deprecated "Old is deprecated"
+          model Old {}
+          interface API {
+            #deprecated "Operation is deprecated"
+            op old(body: Old): Old;
+            op active(body: ┆Old): ┆Old;
+          }
+        `,
+        ["Old is deprecated", "Old is deprecated"],
+      );
+    });
+
+    it("offers the existing suppression code fix for an active operation body", async () => {
+      const diagnostics = await Tester.diagnose(`
+        #deprecated "Old is deprecated"
+        model Old {}
+        op test(body: { nested: Old }): void;
+      `);
+      expectDiagnostics(diagnostics, [{ code: "deprecated" }]);
+      expect(diagnostics[0].codefixes).toContainEqual(
+        expect.objectContaining({ id: "suppress", label: 'Suppress warning: "deprecated"' }),
+      );
+    });
+
     it("deprecated model used in deprecated types", async () => {
       await expectDeprecations(
         `

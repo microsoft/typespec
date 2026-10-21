@@ -2,6 +2,18 @@
 
 Spector is a tool and typespec library used to describe spec for various protocols and running mock server and mock client based on these specs and some mock apis data.
 
+## Scenario project features
+
+Scenario compilation and mock API validation honor compiler feature flags in the scenario's project configuration. For example, place this `tspconfig.yaml` next to a scenario using `union extends`:
+
+```yaml
+kind: project
+features:
+  - union-extends
+```
+
+Configuration errors are reported alongside TypeSpec diagnostics. Spector continues to compile without emitting code and treats compiler warnings as errors; emitter and linter settings do not change its validation behavior.
+
 ## Commands
 
 ### `serve`
