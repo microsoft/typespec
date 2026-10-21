@@ -88,6 +88,9 @@ export interface TypeSpecConfig {
 
   /** Rule sets and individual rule overrides applied during linting. */
   linter?: LinterConfig;
+
+  /** @internal Paths to the config files that supplied nested linter fields after inheritance. */
+  linterSource?: Partial<Record<keyof LinterConfig, string>>;
 }
 
 /**
