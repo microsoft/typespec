@@ -33,7 +33,6 @@ export interface License {
 
 export interface EmitterOptions {
   flavor?: string;
-  "float32-as-double"?: boolean;
   license?: License;
   "dev-options"?: DevOptions;
 }
@@ -44,11 +43,6 @@ export const EmitterOptionsSchema: JSONSchemaType<EmitterOptions> = {
     flavor: {
       type: "string",
       description: "Select the Azure runtime flavor used by the Java generator.",
-      nullable: true,
-    },
-    "float32-as-double": {
-      type: "boolean",
-      description: "Generate Java double values for TypeSpec float32 values.",
       nullable: true,
     },
     ...UnbrandedSdkEmitterOptions.license,
