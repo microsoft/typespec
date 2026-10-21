@@ -49,6 +49,7 @@ words:
   - canonicalizer
   - Cblack
   - Cbrown
+  - chatcmpl
   - clid
   - clsx
   - cobertura

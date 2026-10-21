@@ -251,7 +251,7 @@ The terminal branch retains both `event.const` and `data.contentSchema`. Removin
 would remove the disconnect instruction, not change either field's representation.
 
 This example describes a successful, conventional single-response HTTP stream. A complete
-definition needs the other lifecycle and error events. Do not infer stream terminality from an
+definition needs the other lifecycle and error events. Do not infer stream termination from an
 event's spelling alone: a per-item `.done` event can occur before the response finishes, and
 protocol modes that produce successor responses may have different lifecycle rules.
 
@@ -539,7 +539,7 @@ not `data: done`. A payload-level `contentSchema: { const: "done" }` describes t
 value; an outer `data.const` would need to match the serialized string, including those quotes.
 `@terminalEvent` must not change this encoding distinction.
 
-## Terminality and validation
+## Stream termination and validation
 
 OpenAPI 3.2 has no standard keyword expressing the instruction to disconnect on an event.
 Its `itemSchema` also does not describe event ordering, require a terminal event to occur, or
