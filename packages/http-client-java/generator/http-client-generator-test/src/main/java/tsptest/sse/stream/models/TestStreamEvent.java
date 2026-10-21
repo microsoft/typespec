@@ -5,9 +5,9 @@
 package tsptest.sse.stream.models;
 
 import com.azure.core.annotation.Generated;
+import tsptest.sse.implementation.TestStreamEventConverter;
 import tsptest.sse.models.CompletedPayload;
 import tsptest.sse.models.StartedPayload;
-import tsptest.sse.stream.implementation.TestStreamEventConverter;
 
 /**
  * Base for polymorphic events emitted by a streaming test.

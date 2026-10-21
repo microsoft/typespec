@@ -36,7 +36,7 @@ public final class SseEventModelTemplate {
         String baseEventName = names.getBaseEventName();
         String converterName = names.getConverterName();
         Set<String> imports = new LinkedHashSet<>();
-        new ClassType.Builder().packageName(SseUtil.getConverterPackage(metadata))
+        new ClassType.Builder().packageName(SseUtil.getConverterPackage())
             .name(converterName)
             .build()
             .addImportsTo(imports, false);

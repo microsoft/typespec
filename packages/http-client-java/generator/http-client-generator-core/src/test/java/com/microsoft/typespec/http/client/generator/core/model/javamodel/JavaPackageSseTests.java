@@ -70,7 +70,6 @@ public class JavaPackageSseTests {
         JavaPackage javaPackage = new JavaPackage(mockJavagenWithGeneratedHeader());
         SseMetadata metadata = metadata();
         metadata.setStreamName("KnowledgeBaseRetrievalStreamEvents");
-        metadata.setClientNamespace("com.azure.search.documents.knowledgebases");
         metadata.setModelNamespace("com.azure.search.documents.knowledgebases");
 
         javaPackage.addSseEventFiles(metadata);
@@ -78,7 +77,7 @@ public class JavaPackageSseTests {
         Assertions.assertEquals(List.of(
             "src/main/java/com/azure/search/documents/knowledgebases/models/KnowledgeBaseRetrievalStreamEvent.java",
             "src/main/java/com/azure/search/documents/knowledgebases/models/KnowledgeBaseRetrievalStartedStreamEvent.java",
-            "src/main/java/com/azure/search/documents/knowledgebases/implementation/KnowledgeBaseRetrievalStreamEventConverter.java"),
+            "src/main/java/com/azure/mock/implementation/KnowledgeBaseRetrievalStreamEventConverter.java"),
             javaPackage.getJavaFiles().stream().map(JavaFile::getFilePath).toList());
         String baseEventSource = javaPackage.getJavaFiles().get(0).getContents().toString();
         String wrapperSource = javaPackage.getJavaFiles().get(1).getContents().toString();
@@ -133,7 +132,6 @@ public class JavaPackageSseTests {
         event.setPayload(payload);
         SseMetadata metadata = new SseMetadata();
         metadata.setStreamName("RetrievalStreamEvents");
-        metadata.setClientNamespace("com.azure.mock");
         metadata.setModelNamespace("com.azure.mock");
         metadata.setEvents(List.of(event));
         return metadata;

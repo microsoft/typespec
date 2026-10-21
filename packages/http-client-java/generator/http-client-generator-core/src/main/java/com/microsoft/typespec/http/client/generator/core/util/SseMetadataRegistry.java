@@ -40,7 +40,7 @@ public final class SseMetadataRegistry {
         List<String> generatedNames = new ArrayList<>();
         String eventPackage = SseUtil.getEventPackage(metadata);
         generatedNames.add(eventPackage + "." + names.getBaseEventName());
-        generatedNames.add(SseUtil.getConverterPackage(metadata) + "." + names.getConverterName());
+        generatedNames.add(SseUtil.getConverterPackage() + "." + names.getConverterName());
         metadata.getEvents()
             .stream()
             .map(SseEventMetadata::getName)
@@ -91,7 +91,6 @@ public final class SseMetadataRegistry {
     private static List<Object> semanticKey(SseMetadata metadata) {
         List<Object> key = new ArrayList<>();
         key.add(metadata.getStreamName());
-        key.add(metadata.getClientNamespace());
         key.add(metadata.getModelNamespace());
         metadata.getEvents().stream().sorted(Comparator.comparing(SseEventMetadata::getName)).forEach(event -> {
             List<Object> eventKey = new ArrayList<>();

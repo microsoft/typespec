@@ -63,7 +63,6 @@ public class SseMetadataRegistryTests {
     private static SseMetadata metadata(String streamName, SseEventMetadata... events) {
         SseMetadata metadata = new SseMetadata();
         metadata.setStreamName(streamName);
-        metadata.setClientNamespace("com.azure.mock");
         metadata.setModelNamespace("com.azure.mock");
         metadata.setEvents(List.of(events));
         return metadata;

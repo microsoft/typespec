@@ -112,7 +112,7 @@ public class JavaPackage {
             .map(event -> javaFileFactory.createSourceFile(eventPackage, names.getEventWrapperName(event.getName())))
             .collect(Collectors.toList());
         JavaFile converterFile
-            = javaFileFactory.createSourceFile(SseUtil.getConverterPackage(metadata), names.getConverterName());
+            = javaFileFactory.createSourceFile(SseUtil.getConverterPackage(), names.getConverterName());
         List<JavaFile> sseFiles = new ArrayList<>();
         sseFiles.add(baseFile);
         sseFiles.addAll(eventFiles);

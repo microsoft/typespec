@@ -23,9 +23,9 @@ public final class SseUtil {
         return settings.getPackageName(metadata.getModelNamespace(), settings.getModelsSubpackage());
     }
 
-    public static String getConverterPackage(SseMetadata metadata) {
+    public static String getConverterPackage() {
         JavaSettings settings = JavaSettings.getInstance();
-        return settings.getPackageName(metadata.getClientNamespace(), settings.getImplementationSubpackage());
+        return settings.getPackage(settings.getImplementationSubpackage());
     }
 
     public static String getRuntimePackage() {

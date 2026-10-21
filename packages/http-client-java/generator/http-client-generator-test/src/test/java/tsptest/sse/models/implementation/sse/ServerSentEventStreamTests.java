@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;
 import tsptest.sse.SseAsyncClient;
 import tsptest.sse.SseClient;
-import tsptest.sse.stream.implementation.TestStreamEventConverter;
+import tsptest.sse.implementation.TestStreamEventConverter;
 import tsptest.sse.stream.models.TestCompletedStreamEvent;
 import tsptest.sse.stream.models.TestStartedStreamEvent;
 import tsptest.sse.stream.models.TestStreamEvent;

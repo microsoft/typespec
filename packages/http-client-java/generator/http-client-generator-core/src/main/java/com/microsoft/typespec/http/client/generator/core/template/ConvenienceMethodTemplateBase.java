@@ -753,7 +753,7 @@ abstract class ConvenienceMethodTemplateBase {
 
             if (m.getSseMetadata() != null) {
                 imports.add(SseUtil.getRuntimePackage() + "." + SseUtil.SERVER_SENT_EVENT_STREAMS);
-                imports.add(SseUtil.getConverterPackage(m.getSseMetadata()) + "."
+                imports.add(SseUtil.getConverterPackage() + "."
                     + SseNamingResolver.resolve(m.getSseMetadata()).getConverterName());
             }
         });

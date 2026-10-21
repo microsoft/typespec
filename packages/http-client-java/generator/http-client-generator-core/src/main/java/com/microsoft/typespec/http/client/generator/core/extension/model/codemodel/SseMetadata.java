@@ -11,7 +11,6 @@ import java.util.List;
  */
 public class SseMetadata {
     private String streamName;
-    private String clientNamespace;
     private String modelNamespace;
     private List<SseEventMetadata> events = new ArrayList<>();
 
@@ -21,14 +20,6 @@ public class SseMetadata {
 
     public void setStreamName(String streamName) {
         this.streamName = streamName;
-    }
-
-    public String getClientNamespace() {
-        return clientNamespace;
-    }
-
-    public void setClientNamespace(String clientNamespace) {
-        this.clientNamespace = clientNamespace;
     }
 
     public String getModelNamespace() {

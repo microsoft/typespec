@@ -861,10 +861,7 @@ export class CodeModelBuilder {
     codeModelGroup.language.default.crossLanguageDefinitionId = client.crossLanguageDefinitionId;
     for (const serviceMethod of serviceMethodsWithoutSubClient) {
       if (!this.needToSkipProcessingOperation(serviceMethod.__raw, clientContext)) {
-        addOperation(
-          codeModelGroup,
-          this.processOperation(serviceMethod, clientContext, "", javaNamespace),
-        );
+        addOperation(codeModelGroup, this.processOperation(serviceMethod, clientContext, ""));
       }
     }
     if ((codeModelGroup.operations?.length ?? 0) > 0 || enableSubclient) {
@@ -902,12 +899,7 @@ export class CodeModelBuilder {
             if (!this.needToSkipProcessingOperation(serviceMethod.__raw, clientContext)) {
               addOperation(
                 codeModelGroup,
-                this.processOperation(
-                  serviceMethod,
-                  clientContext,
-                  subClient.name,
-                  this.getJavaNamespace(subClient),
-                ),
+                this.processOperation(serviceMethod, clientContext, subClient.name),
               );
             }
           }
@@ -1038,7 +1030,6 @@ export class CodeModelBuilder {
     sdkMethod: SdkServiceMethod<SdkHttpOperation>,
     clientContext: ClientContext,
     groupName: string,
-    clientNamespace: string | undefined,
   ): CodeModelOperation {
     const operationName = sdkMethod.name;
     const httpOperation = sdkMethod.operation;
@@ -1060,10 +1051,7 @@ export class CodeModelBuilder {
     codeModelOperation.language.default.crossLanguageDefinitionId =
       sdkMethod.crossLanguageDefinitionId;
     codeModelOperation.internalApi = sdkMethod.access === "internal";
-    codeModelOperation.sseMetadata = this.processSseMetadata(
-      sdkMethod.response,
-      clientNamespace ?? this.baseJavaNamespace,
-    );
+    codeModelOperation.sseMetadata = this.processSseMetadata(sdkMethod.response);
 
     const convenienceApiName = this.getConvenienceApiName(sdkMethod);
     let generateConvenienceApi: boolean = sdkMethod.generateConvenient;
@@ -1272,7 +1260,6 @@ export class CodeModelBuilder {
 
   private processSseMetadata(
     response: SdkMethodResponse,
-    clientNamespace: string,
   ): CodeModelOperation["sseMetadata"] | undefined {
     if (!this.options["dev-options"]?.["enable-sse"] || !this.isAzureV1()) {
       return undefined;
@@ -1353,7 +1340,6 @@ export class CodeModelBuilder {
     }
     return {
       streamName: streamType.name,
-      clientNamespace,
       modelNamespace,
       events: supportedEvents.map(({ event, payload }) => ({
         name: event.eventType!,

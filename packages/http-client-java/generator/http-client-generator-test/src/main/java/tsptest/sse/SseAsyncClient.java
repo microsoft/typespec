@@ -20,8 +20,8 @@ import com.azure.core.util.FluxUtil;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import tsptest.sse.implementation.StreamOperationsImpl;
+import tsptest.sse.implementation.TestStreamEventConverter;
 import tsptest.sse.models.implementation.sse.ServerSentEventStreams;
-import tsptest.sse.stream.implementation.TestStreamEventConverter;
 import tsptest.sse.stream.models.TestStreamEvent;
 
 /**
