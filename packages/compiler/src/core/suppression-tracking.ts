@@ -1,5 +1,11 @@
+import {
+  collectSuppressions,
+  type ProgramSuppression,
+  type Suppression,
+} from "../ast/suppressions.js";
 import type { DiagnosticCodeResolver } from "./diagnostic-code.js";
 import { defineCodeFix, getSourceLocation } from "./diagnostics.js";
+import { parseDirective } from "./directives.js";
 import { builtInLinterLibraryName } from "./linter.js";
 import { compilerDiagnosticCodes } from "./messages.js";
 import { visitChildren } from "./parser.js";
@@ -11,7 +17,6 @@ import type {
   Node,
   SuppressDirective,
 } from "./types.js";
-import { SyntaxKind } from "./types.js";
 
 export interface UnusedSuppression {
   directive: SuppressDirective;
@@ -29,6 +34,7 @@ export interface AmbiguousSuppression {
 
 export interface SuppressionTracker {
   markUsed(directiveNode: DirectiveExpressionNode): void;
+  getSuppressions(): readonly ProgramSuppression[];
   getUnusedSuppressions(): UnusedSuppression[];
 }
 
@@ -36,7 +42,7 @@ export function createSuppressionTracker(
   sourceResolution: SourceResolution,
   codeResolver?: DiagnosticCodeResolver,
 ): SuppressionTracker {
-  const suppressions = collectSuppressions(sourceResolution);
+  const suppressions = collectProjectSuppressions(sourceResolution);
 
   return {
     markUsed(directiveNode) {
@@ -44,6 +50,9 @@ export function createSuppressionTracker(
       if (suppression) {
         suppression.used = true;
       }
+    },
+    getSuppressions() {
+      return [...suppressions.values()].map((suppression) => ({ ...suppression }));
     },
     getUnusedSuppressions() {
       const unused: UnusedSuppression[] = [];
@@ -141,12 +150,11 @@ export function findAmbiguousSuppressions(
   }
 }
 
-interface SuppressionRecord {
-  directive: SuppressDirective;
+interface SuppressionRecord extends Suppression {
   used: boolean;
 }
 
-function collectSuppressions(
+function collectProjectSuppressions(
   sourceResolution: SourceResolution,
 ): Map<DirectiveExpressionNode, SuppressionRecord> {
   const suppressions = new Map<DirectiveExpressionNode, SuppressionRecord>();
@@ -155,21 +163,12 @@ function collectSuppressions(
       continue;
     }
 
-    visit(script);
+    for (const suppression of collectSuppressions(script)) {
+      suppressions.set(suppression.directive.node, { ...suppression, used: false });
+    }
   }
 
   return suppressions;
-
-  function visit(node: Node) {
-    for (const directiveNode of node.directives ?? []) {
-      const directive = parseDirective(directiveNode);
-      if (directive?.name === "suppress") {
-        suppressions.set(directive.node, { directive, used: false });
-      }
-    }
-
-    visitChildren(node, visit);
-  }
 }
 
 function resolveCode(codeResolver: DiagnosticCodeResolver | undefined, code: string): string {
@@ -239,26 +238,6 @@ export function findDirectiveSuppressingCode(
     }
   }
   return undefined;
-}
-
-export function parseDirective(node: DirectiveExpressionNode): Directive | undefined {
-  const args = node.arguments.map((x) => {
-    return x.kind === SyntaxKind.Identifier ? x.sv : x.value;
-  });
-  switch (node.target.sv) {
-    case "suppress":
-      if (typeof args[0] !== "string") {
-        return undefined;
-      }
-      return { name: "suppress", code: args[0], message: args[1] ?? "", node };
-    case "deprecated":
-      if (typeof args[0] !== "string") {
-        return undefined;
-      }
-      return { name: "deprecated", message: args[0], node };
-    default:
-      return undefined;
-  }
 }
 
 export function createRemoveUnusedSuppressionCodeFix(node: DirectiveExpressionNode): CodeFix {
