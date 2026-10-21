@@ -50,7 +50,7 @@ describe("typespec-python: built-in types", () => {
     },
   );
 
-  it.each(["base64", "base64url"] as const)("preserves bytes encoded as %s", (encode) => {
+  it.each(["base64", "base64url", "bytes"] as const)("preserves bytes encoded as %s", (encode) => {
     deepStrictEqual(
       emitBuiltInType(createBuiltInType("bytes", encode, createBuiltInType("string"))),
       {
