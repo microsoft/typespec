@@ -113,6 +113,61 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             });
         }
 
+        [TestCase(false, false)]
+        [TestCase(false, true)]
+        [TestCase(true, false)]
+        [TestCase(true, true)]
+        public void SerializationCustomizationRetainsWireName(bool restoreBase, bool customizesProjectedProperty)
+        {
+            var modelInput = InputFactory.Model("DerivedModel", properties:
+                [InputFactory.Property("value", InputPrimitiveType.Int32, serializedName: "wireValue"),
+                    InputFactory.Property("child", InputPrimitiveType.String, isRequired: true)],
+                usage: InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Json);
+            var propertyName = customizesProjectedProperty ? "Value" : "Child";
+            var wireName = customizesProjectedProperty ? "customValue" : "customChild";
+            var customization = CSharpSyntaxTree.ParseText($$"""
+                namespace Sample.Models
+                {
+                    [System.AttributeUsage(System.AttributeTargets.Class, AllowMultiple = true)]
+                    internal sealed class CodeGenSerializationAttribute : System.Attribute
+                    {
+                        public CodeGenSerializationAttribute(string propertyName, string serializationName) { }
+                    }
+                    [CodeGenSerialization("{{propertyName}}", "{{wireName}}")]
+                    public partial class DerivedModel { }
+                }
+                """, path: "SerializationCustomization.cs");
+            var generator = CreateGenerator(modelInput, restoreBase, customization);
+            var model = generator.Object.TypeFactory.CreateModel(modelInput)!;
+            var generatedType = CompileModel(generator, model, customization);
+            var instance = Activator.CreateInstance(generatedType, "payload")!;
+            generatedType.GetProperty("Value")!.SetValue(instance, 42);
+            var persistable = typeof(IPersistableModel<>).MakeGenericType(generatedType);
+            var options = new ModelReaderWriterOptions("J");
+            var data = (BinaryData)persistable.GetMethod("Write")!.Invoke(instance, [options])!;
+            TestContext.WriteLine(data.ToString());
+            using var document = JsonDocument.Parse(data);
+            var valueWireName = customizesProjectedProperty ? wireName : "wireValue";
+            var childWireName = customizesProjectedProperty ? "child" : wireName;
+            Assert.That(document.RootElement.EnumerateObject().Select(property => property.Name),
+                Is.EquivalentTo(new[] { valueWireName, childWireName }),
+                "Restoration must preserve serialization overrides and emit each wire property exactly once.");
+            Assert.Multiple(() =>
+            {
+                Assert.That(document.RootElement.GetProperty(valueWireName).GetInt32(), Is.EqualTo(42));
+                Assert.That(document.RootElement.GetProperty(childWireName).GetString(), Is.EqualTo("payload"));
+                Assert.That(model.BaseType?.Name,
+                    Is.EqualTo(restoreBase && !customizesProjectedProperty ? nameof(FlatMrwBase) : null),
+                    "Only serialization customizations targeting projected properties should prevent restoration.");
+            });
+            var restored = persistable.GetMethod("Create")!.Invoke(instance, [data, options])!;
+            Assert.Multiple(() =>
+            {
+                Assert.That(generatedType.GetProperty("Value")!.GetValue(restored), Is.EqualTo(42));
+                Assert.That(generatedType.GetProperty("Child")!.GetValue(restored), Is.EqualTo("payload"));
+            });
+        }
+
         private static Mock<ScmCodeModelGenerator> CreateGenerator(
             InputModelType modelInput,
             bool restoreBase = true,

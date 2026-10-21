@@ -9,6 +9,7 @@ using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
 using Microsoft.TypeSpec.Generator.Primitives;
+using Microsoft.TypeSpec.Generator.SourceInput;
 using Microsoft.TypeSpec.Generator.Utilities;
 
 namespace Microsoft.TypeSpec.Generator.Providers
@@ -157,7 +158,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         (projectedNames.Contains(originalName) || projectedNames.Contains(originalName.ToIdentifierName()));
 
                 if (customCode.Properties.Any(property => ClaimsProjectedInput(property.Name, property.OriginalName)) ||
-                    customCode.Fields.Any(field => ClaimsProjectedInput(field.Name, field.OriginalName)))
+                    customCode.Fields.Any(field => ClaimsProjectedInput(field.Name, field.OriginalName)) ||
+                    // These overrides are applied to the source model, not the framework writer.
+                    customCode.Attributes.Any(attribute => CodeGenAttributes.TryGetCodeGenSerializationAttributeValue(
+                        attribute, out var propertyName, out _, out _, out _, out _) && projectedNames.Contains(propertyName)))
                 {
                     return false;
                 }
