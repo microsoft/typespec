@@ -6,6 +6,7 @@
 """Specification strings must remain literal data in generated Python."""
 
 import ast
+import textwrap
 from types import SimpleNamespace
 from typing import Literal, get_args
 
@@ -16,7 +17,9 @@ from pygen import OptionsDict
 from pygen.codegen.models import CodeModel, build_type
 from pygen.codegen.models.primitive_types import StringType
 from pygen.codegen.serializers.enum_serializer import EnumSerializer
+from pygen.codegen.serializers.builder_serializer import _get_polymorphic_subtype_template
 from pygen.codegen.serializers.model_serializer import DpgModelSerializer
+from pygen.codegen.serializers.utils import json_dumps_template
 
 VALUES = [
     "ordinary",
@@ -29,6 +32,9 @@ VALUES = [
     "\u96ea\U0001f600",
     'prefix" + marker() + "suffix',
     "prefix' + marker() + 'suffix",
+    "before # after",
+    'triple """ quotes',
+    "a long discriminator value " * 8,
 ]
 
 
@@ -68,6 +74,24 @@ def test_string_declarations_are_literals(code_model, value):
     assert ast.literal_eval(declaration) == value
 
 
+def test_json_template_preserves_nested_python_expressions():
+    representation = {
+        '"nested"': [
+            {
+                '"text"': repr("str"),
+                '"count"': "0",
+                '"flag"': "True",
+                '"data"': "None",
+            }
+        ],
+        '"model"': "models.Example()",
+    }
+    template = json_dumps_template(representation)
+    expression = ast.parse(template, mode="eval").body
+    assert ast.literal_eval(expression.values[0]) == [{"text": "str", "count": 0, "flag": True, "data": None}]
+    assert ast.unparse(expression.values[1]) == "models.Example()"
+
+
 @pytest.mark.parametrize("value", VALUES)
 def test_discriminator_generation_preserves_values(code_model, env, value):
     model = build_type(
@@ -95,6 +119,31 @@ def test_discriminator_generation_preserves_values(code_model, env, value):
     if value:
         representation = model.get_json_template_representation()
         assert {ast.literal_eval(k): ast.literal_eval(v) for k, v in representation.items()} == {"kind": value}
+        template = json_dumps_template(representation)
+        assert ast.literal_eval(template) == {"kind": value}
+        model.parents[0].discriminated_subtypes = {value: model}
+        model.parents[0].parents = []
+        model.parents[0].snake_case_name = "base"
+        rendered = "\n".join(_get_polymorphic_subtype_template(model))
+        assignments = ast.parse(rendered).body
+        assert len(assignments) == 1
+        assert ast.literal_eval(assignments[0].value) == {"kind": value}
+        documentation = env.from_string(
+            '{% import "operation_tools.jinja2" as tools %}{{ tools.description(builder, serializer) }}'
+        ).render(
+            builder=SimpleNamespace(),
+            serializer=SimpleNamespace(
+                example_template=lambda builder: rendered.splitlines(),
+                param_description_and_response_docstring=lambda builder: [],
+                description_and_summary=lambda builder: ["Example operation."],
+            ),
+        )
+        function = ast.parse("def operation():\n" + textwrap.indent(documentation.strip(), "    ")).body[0]
+        docstring = ast.get_docstring(function)
+        example = textwrap.dedent(docstring.split(".. code-block:: python\n", 1)[1])
+        documented_assignments = ast.parse(example).body
+        assert len(documented_assignments) == 1
+        assert ast.literal_eval(documented_assignments[0].value) == {"kind": value}
     calls = []
 
     def marker():
