@@ -32,7 +32,7 @@ export async function create(
   const path = parse("/").expand({});
   const httpRequestOptions = {
     headers: {
-      ...(widget.foo && { foo: widget.foo }),
+      ...(widget.foo != undefined && { foo: widget.foo }),
     },
     body: {
       id: widget.id,
