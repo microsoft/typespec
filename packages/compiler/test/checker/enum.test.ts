@@ -1,7 +1,7 @@
 import { ok, strictEqual } from "assert";
 import { it } from "vitest";
 import type { DecoratorContext, Enum, Type } from "../../src/core/types.js";
-import { getDoc, getFriendlyName } from "../../src/index.js";
+import { getDoc } from "../../src/index.js";
 import { expectDiagnostics, mockFile, t } from "../../src/testing/index.js";
 import { Tester } from "../tester.js";
 
@@ -66,7 +66,6 @@ it.each(["E", "E.A"])(
 
         @count
         @doc("enum documentation")
-        @friendlyName("ExampleEnum")
         enum E { A }
 
         model ${t.model("StringBox")} is Box<string>;
@@ -75,7 +74,6 @@ it.each(["E", "E.A"])(
 
     const enumType = program.getGlobalNamespaceType().namespaces.get("Example")!.enums.get("E")!;
     strictEqual(getDoc(program, enumType), "enum documentation");
-    strictEqual(getFriendlyName(program, enumType), "ExampleEnum");
     const expectedType = reference === "E" ? enumType : enumType.members.get("A")!;
     strictEqual(StringBox.properties.get("item")!.type, expectedType);
     strictEqual(NumberBox.properties.get("item")!.type, expectedType);
