@@ -18,7 +18,7 @@ namespace SampleTypeSpec
         /// <summary> Keeps track of any properties unknown to the library. </summary>
         private protected readonly IDictionary<string, BinaryData> _additionalBinaryDataProperties;
         private string _optionalNullableString;
-        internal bool _optionalNullableStringIsDefined;
+        private bool _optionalNullableStringIsDefined;
 
         /// <summary> Initializes a new instance of <see cref="Thing"/>. </summary>
         /// <param name="rename"> name of the Thing. </param>

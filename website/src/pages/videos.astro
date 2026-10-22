@@ -14,23 +14,19 @@ const otherVideos = videoData.filter((video) => !video.featured);
     </section>
     <section class="list">
       <div class="featured-video">
-        {
-          featuredVideo && (
-            <section>
-              <h2>Featured Video</h2>
-              <Video url={featuredVideo.url} />
-            </section>
-          )
-        }
+        {featuredVideo && (
+          <section>
+            <h2>Featured Video</h2>
+            <Video url={featuredVideo.url} />
+          </section>
+        )}
       </div>
       <div class="video-grid">
-        {
-          otherVideos.map((video) => (
-            <div class="video-box">
-              <Video url={video.url} />
-            </div>
-          ))
-        }
+        {otherVideos.map((video) => (
+          <div class="video-box">
+            <Video url={video.url} />
+          </div>
+        ))}
       </div>
     </section>
   </div>

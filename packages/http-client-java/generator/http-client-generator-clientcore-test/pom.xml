@@ -34,7 +34,7 @@
     <dependency>
       <groupId>io.projectreactor</groupId>
       <artifactId>reactor-test</artifactId>
-      <version>3.7.18</version>
+      <version>3.8.7</version>
     </dependency>
     <dependency>
       <groupId>org.mockito</groupId>
@@ -47,13 +47,13 @@
     <dependency>
       <groupId>net.bytebuddy</groupId>
       <artifactId>byte-buddy</artifactId>
-      <version>1.17.7</version>
+      <version>1.18.11</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>net.bytebuddy</groupId>
       <artifactId>byte-buddy-agent</artifactId>
-      <version>1.17.7</version>
+      <version>1.18.11</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -80,7 +80,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.14.0</version>
+        <version>3.15.0</version>
         <configuration>
           <!-- Generated service implementations must compile without an annotation processor. -->
           <proc>none</proc>

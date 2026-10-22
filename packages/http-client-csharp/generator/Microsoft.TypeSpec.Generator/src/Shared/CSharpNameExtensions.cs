@@ -5,6 +5,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using Microsoft.TypeSpec.Generator.Input;
+using Microsoft.TypeSpec.Generator.Input.Extensions;
 
 namespace Microsoft.TypeSpec.Generator.Utilities
 {
@@ -21,7 +22,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             ("Os", "OS")
         ];
 
-        public static string NormalizeCSharpAcronyms(this string name, bool normalizeDateTimeSuffix = false)
+        public static string NormalizeCSharpAcronyms(this string name, bool normalizeDateTimeSuffix = false, bool useCamelCase = false)
         {
             name = normalizeDateTimeSuffix ? name.NormalizeDateTimeSuffix() : name;
             StringBuilder? normalizedName = null;
@@ -30,7 +31,9 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             {
                 foreach (var rule in _acronymRenamingRules)
                 {
-                    if (!name.AsSpan(index).StartsWith(rule.Source, StringComparison.Ordinal))
+                    var isLeadingParameterAcronym = useCamelCase && index == 0;
+                    if (!name.AsSpan(index).StartsWith(rule.Source,
+                        isLeadingParameterAcronym ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal))
                     {
                         continue;
                     }
@@ -43,7 +46,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
 
                     normalizedName ??= new StringBuilder(name.Length);
                     normalizedName.Append(name, segmentStart, index - segmentStart);
-                    normalizedName.Append(rule.Replacement);
+                    normalizedName.Append(isLeadingParameterAcronym ? rule.Replacement.ToVariableName() : rule.Replacement);
                     segmentStart = boundaryIndex;
                     index = boundaryIndex - 1;
                     break;

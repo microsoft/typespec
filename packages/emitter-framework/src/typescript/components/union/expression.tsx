@@ -12,11 +12,19 @@ import { useTsp } from "../../../core/context/tsp-context.js";
 import { efRefkey } from "../../utils/refkey.js";
 import { TypeExpression } from "../type-expression.jsx";
 
+/** TypeSpec alternatives and optional extra content for a TypeScript union expression. */
 export interface UnionExpressionProps {
+  /** Union variants or enum members; enum values use their application/json encoded values. */
   type: Union | Enum;
+  /** Additional alternatives appended after a union separator; supply valid TypeScript type content. */
   children?: Children;
 }
 
+/**
+ * Renders union alternatives without declaring an alias.
+ * Discriminated unions use the configured object or no-envelope representation;
+ * enum alternatives are serialized literal values rather than enum-member references.
+ */
 export function UnionExpression({ type, children }: UnionExpressionProps) {
   const { $ } = useTsp();
   const items = ($.union.is(type) ? type.variants : type.members) as Map<

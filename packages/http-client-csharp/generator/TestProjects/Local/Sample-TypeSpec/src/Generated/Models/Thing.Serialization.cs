@@ -119,7 +119,7 @@ namespace SampleTypeSpec
             {
                 writer.WriteNull("requiredNullableString"u8);
             }
-            if (_optionalNullableStringIsDefined || Optional.IsDefined(OptionalNullableString))
+            if (Optional.IsDefined(OptionalNullableString, _optionalNullableStringIsDefined))
             {
                 if (OptionalNullableString != null)
                 {

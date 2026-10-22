@@ -40,6 +40,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public FieldProvider? BackingField { get; set; }
         public PropertyProvider? BaseProperty { get; set; }
         public bool IsRef { get; private set; }
+        internal bool IsInitOnly { get; set; }
+        // Preserve the fact that a symbol has accessor/member metadata this provider cannot model.
+        internal bool HasUnsupportedBaseContract { get; init; }
         public SerializationFormat SerializationFormat => _serializationFormat;
 
         /// <summary>
@@ -110,7 +113,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 var canonicalName = identifierName.NormalizeCSharpAcronyms(isDateTime);
                 var enclosingTypeName = enclosingType.Name;
                 var lastContractProperties = enclosingType.LastContractView?.Properties
-                    .Where(p => MethodSignatureHelper.IsPublicApi(p.Modifiers))
+                    .Where(p => MethodSignatureHelper.IsPublicApi(p.Modifiers, p.Attributes))
                     .ToList();
 
                 // An exact input-identifier match is authoritative: it is the name this property would have had
@@ -398,6 +401,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
         }
 
         private MemberExpression? _asMember;
+
+        internal void SynchronizePropertyShape()
+        {
+            _asMember?.Update(memberName: Name);
+            AsParameter.SynchronizePropertyShape();
+        }
 
         public static implicit operator MemberExpression(PropertyProvider property)
             => property._asMember ??= new MemberExpression(null, property.Name);

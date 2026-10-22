@@ -7,9 +7,14 @@ import type { Typekit } from "@typespec/compiler/typekit";
  * the mutated graph, and serves as the inter-stage / inter-emitter contract.
  */
 export interface TypeGraph {
+  /**
+   * Flat namespace holding the graph's registered types. The namespace and its
+   * type collections remain mutable despite this readonly reference.
+   */
   readonly globalNamespace: Namespace;
 }
 
+/** Controls which referenced types are registered alongside the explicit graph roots. */
 export interface BuildTypeGraphOptions {
   /**
    * Filter for transitively-discovered types. Return false to exclude a type
@@ -24,6 +29,11 @@ export interface BuildTypeGraphOptions {
  * Adds the given root types and transitively discovers all types they
  * reference (through properties, return types, parameters), producing
  * a self-contained graph the renderer can resolve without external lookups.
+ *
+ * Registered types are not cloned: their namespace is reassigned to the new
+ * flat namespace and they are marked finished. Pass mutated types or clones
+ * when the original program's types must remain unchanged. Array containers
+ * and unnamed unions are not registered as declarations.
  */
 export function buildTypeGraph(
   program: Program,

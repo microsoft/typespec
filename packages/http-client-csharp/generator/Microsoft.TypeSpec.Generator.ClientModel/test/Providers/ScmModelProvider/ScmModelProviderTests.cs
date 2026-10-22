@@ -214,6 +214,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
                 Assert.That(property.BackingField!.Type, Is.EqualTo(property.Type));
                 Assert.That(property.BackingField.WireInfo, Is.Null);
                 Assert.That(property.Body.HasSetter, Is.True);
+                Assert.That(ScmModel.GetNullablePropertyPresence(property)!.Modifiers, Is.EqualTo(FieldModifiers.Private));
             }
             Assert.That(model.Properties.Single(p => p.Name == "OptionalText").Body, Is.InstanceOf<AutoPropertyBody>());
             Assert.That(model.Properties.Single(p => p.Name == "RequiredText").Body, Is.InstanceOf<AutoPropertyBody>());
@@ -237,6 +238,76 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
             Assert.That(property.BackingField, Is.Not.Null);
             Assert.That(property.Body.HasSetter, Is.False);
             Assert.That(model.FullConstructor.Signature.Parameters.Count, Is.EqualTo(2));
+            Assert.That(ScmModel.GetNullablePropertyPresence(property)!.Modifiers, Is.EqualTo(FieldModifiers.Private));
+        }
+
+        [Test]
+        public void OptionalNullableInheritedPresenceIsPrivateProtected(
+            [Values(false, true)] bool isDynamic,
+            [Values(false, true)] bool overridesProperty,
+            [Values(0, 1, 3)] int intermediateModelCount)
+        {
+            var baseModel = InputFactory.Model("baseModel", isDynamicModel: isDynamic, properties:
+                [InputFactory.Property("text", new InputNullableType(InputPrimitiveType.String))]);
+            var inputs = new List<InputModelType> { baseModel };
+            var ancestor = baseModel;
+            for (var index = 0; index < intermediateModelCount; index++)
+            {
+                ancestor = InputFactory.Model($"middleModel{index}", baseModel: ancestor, properties:
+                    [InputFactory.Property($"middleText{index}", new InputNullableType(InputPrimitiveType.String))],
+                    isDynamicModel: isDynamic);
+                inputs.Add(ancestor);
+            }
+            var leafProperties = new List<InputModelProperty>
+            {
+                InputFactory.Property("leafText", new InputNullableType(InputPrimitiveType.String))
+            };
+            if (overridesProperty)
+            {
+                leafProperties.Add(InputFactory.Property("text", new InputNullableType(InputPrimitiveType.String)));
+            }
+            var leafModel = InputFactory.Model("leafModel", baseModel: ancestor,
+                properties: leafProperties, isDynamicModel: isDynamic);
+            inputs.Add(leafModel);
+            MockHelpers.LoadMockGenerator(inputModels: () => inputs);
+            var generator = ScmCodeModelGenerator.Instance;
+            var leaf = (ScmModel)generator.TypeFactory.CreateModel(leafModel)!;
+            var models = inputs.Select(input => (ScmModel)generator.TypeFactory.CreateModel(input)!).ToArray();
+            var inheritedPresence = models[..^1]
+                .SelectMany(model => model.Fields.Where(field => field.Type.Equals(typeof(bool)))).ToArray();
+
+            Assert.That(inheritedPresence, Has.Length.EqualTo(intermediateModelCount + 1));
+            Assert.That(inheritedPresence.Select(field => field.Modifiers),
+                Is.All.EqualTo(FieldModifiers.Private | FieldModifiers.Protected));
+            var leafPresence = ScmModel.GetNullablePropertyPresence(leaf.Properties.Single(property => property.Name == "LeafText"))!;
+            Assert.That(leafPresence.Modifiers, Is.EqualTo(FieldModifiers.Private));
+            var serialization = (MrwSerializationTypeDefinition)leaf.SerializationProviders.Single();
+            var returnStatement = (ExpressionStatement)serialization.BuildDeserializationMethod().BodyStatements!.Last();
+            var newInstance = (NewInstanceExpression)((KeywordExpression)returnStatement.Expression).Expression!;
+            Assert.That(newInstance.InitExpression!.Values.Keys,
+                Is.EquivalentTo(inheritedPresence.Append(leafPresence).Select(field => field.AsValueExpression)));
+        }
+
+        [Test]
+        public void OptionalNullablePresenceIsPrivateProtectedForUnknownDiscriminatorVariant()
+        {
+            var input = InputFactory.Model("model", properties:
+            [
+                InputFactory.Property("kind", InputPrimitiveType.String, isRequired: true, isDiscriminator: true),
+                InputFactory.Property("text", new InputNullableType(InputPrimitiveType.String))
+            ]);
+            MockHelpers.LoadMockGenerator(inputModels: () => [input]);
+            var generator = ScmCodeModelGenerator.Instance;
+            var model = (ScmModel)generator.TypeFactory.CreateModel(input)!;
+            var presence = ScmModel.GetNullablePropertyPresence(model.Properties.Single(property => property.Name == "Text"))!;
+
+            Assert.That(input.DerivedModels, Is.Empty);
+            Assert.That(presence.Modifiers, Is.EqualTo(FieldModifiers.Private | FieldModifiers.Protected));
+            var unknown = generator.TypeFactory.CreateModel(input.DiscriminatedSubtypes["unknown"])!;
+            var serialization = (MrwSerializationTypeDefinition)unknown.SerializationProviders.Single();
+            var returnStatement = (ExpressionStatement)serialization.BuildDeserializationMethod().BodyStatements!.Last();
+            var newInstance = (NewInstanceExpression)((KeywordExpression)returnStatement.Expression).Expression!;
+            Assert.That(newInstance.InitExpression!.Values.Keys, Does.Contain(presence.AsValueExpression));
         }
 
         [Test]
@@ -391,8 +462,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
             var references = AppDomain.CurrentDomain.GetAssemblies()
                 .Where(assembly => !assembly.IsDynamic && !string.IsNullOrEmpty(assembly.Location))
                 .Select(assembly => MetadataReference.CreateFromFile(assembly.Location));
+            // Serialization partials, which read presence flags, are not included in this compilation.
+            var options = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, generalDiagnosticOption: ReportDiagnostic.Error)
+                .WithSpecificDiagnosticOptions(new Dictionary<string, ReportDiagnostic> { ["CS0414"] = ReportDiagnostic.Suppress });
             var compilation = CSharpCompilation.Create("InheritedGeneratedPropertyCollisions", trees, references,
-                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, generalDiagnosticOption: ReportDiagnostic.Error));
+                options);
 
             Assert.That(compilation.GetDiagnostics().Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error), Is.Empty);
             Assert.That(models[0].CanonicalView.Properties.Select(property => property.Name),
@@ -450,6 +524,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
             Assert.That(ScmModel.GetNullablePropertyPresence(property),
                 Is.SameAs(ScmModel.GetNullablePropertyPresence(baseProperty)));
             Assert.That(ScmModel.GetNullablePropertyPresence(property), Is.Not.Null);
+            Assert.That(ScmModel.GetNullablePropertyPresence(property)!.Modifiers,
+                Is.EqualTo(FieldModifiers.Private | FieldModifiers.Protected));
             Assert.That(provider.Fields, Is.Empty);
             Assert.That(property.Body, Is.InstanceOf<MethodPropertyBody>());
         }
@@ -510,6 +586,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ScmModelProvi
             Assert.That(property.Modifiers.HasFlag(MethodSignatureModifiers.New), Is.True);
             Assert.That(presence, Is.Not.Null);
             Assert.That(presence!.EnclosingType, Is.SameAs(model));
+            Assert.That(presence.Modifiers, Is.EqualTo(FieldModifiers.Private));
             Assert.That(property.BackingField!.EnclosingType, Is.SameAs(model));
             Assert.That(model.Fields, Does.Contain(property.BackingField));
             Assert.That(model.Fields, Does.Contain(presence));

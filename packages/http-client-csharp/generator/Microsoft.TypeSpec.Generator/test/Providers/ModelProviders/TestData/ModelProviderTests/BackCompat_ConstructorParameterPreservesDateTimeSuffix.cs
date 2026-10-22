@@ -16,9 +16,9 @@ namespace Sample.Models
             StartsOn = startTime;
         }
 
-        internal DateTimeModel(global::System.DateTimeOffset startTime, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties)
+        internal DateTimeModel(global::System.DateTimeOffset startsOn, global::System.Collections.Generic.IDictionary<string, global::System.BinaryData> additionalBinaryDataProperties)
         {
-            StartsOn = startTime;
+            StartsOn = startsOn;
             _additionalBinaryDataProperties = additionalBinaryDataProperties;
         }
 

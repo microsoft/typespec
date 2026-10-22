@@ -64,7 +64,7 @@ namespace Sample.Models
                 writer.WritePropertyName("prop1"u8);
                 this.SerializationMethod(writer, options);
             }
-            if ((_prop2IsDefined || global::Sample.Optional.IsDefined(Prop2)))
+            if (global::Sample.Optional.IsDefined(Prop2, _prop2IsDefined))
             {
                 if ((Prop2 != null))
                 {

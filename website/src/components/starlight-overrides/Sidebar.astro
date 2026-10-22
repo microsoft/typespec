@@ -42,13 +42,11 @@ const filtered = sidebar.filter((entry) =>
 
 <nav class="site-nav md:sl-hidden" aria-label="Site">
   <ul>
-    {
-      primaryNav.map((entry) => (
-        <li>
-          <Link href={entry.href}>{entry.label}</Link>
-        </li>
-      ))
-    }
+    {primaryNav.map((entry) => (
+      <li>
+        <Link href={entry.href}>{entry.label}</Link>
+      </li>
+    ))}
   </ul>
 </nav>
 

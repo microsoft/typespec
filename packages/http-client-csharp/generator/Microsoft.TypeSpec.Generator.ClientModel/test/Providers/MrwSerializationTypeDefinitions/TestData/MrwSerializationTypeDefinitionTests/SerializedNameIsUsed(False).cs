@@ -3,7 +3,7 @@ if ((format != "J"))
 {
     throw new global::System.FormatException($"The model {nameof(global::Sample.Models.MockInputModel)} does not support writing '{format}' format.");
 }
-if ((_mockPropertyIsDefined || global::Sample.Optional.IsDefined(MockProperty)))
+if (global::Sample.Optional.IsDefined(MockProperty, _mockPropertyIsDefined))
 {
     if ((MockProperty != null))
     {

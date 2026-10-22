@@ -770,6 +770,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
         }
 
         [TestCase(typeof(int), SerializationFormat.Default, ExpectedResult = "writer.WriteValue(value);\n")]
+        [TestCase(typeof(short), SerializationFormat.Default, ExpectedResult = "writer.WriteValue(value);\n")]
+        [TestCase(typeof(ushort), SerializationFormat.Default, ExpectedResult = "writer.WriteValue(value);\n")]
+        [TestCase(typeof(uint), SerializationFormat.Default, ExpectedResult = "writer.WriteValue(value);\n")]
+        [TestCase(typeof(ulong), SerializationFormat.Default, ExpectedResult = "writer.WriteValue(((decimal)value));\n")]
         [TestCase(typeof(string), SerializationFormat.Default, ExpectedResult = "writer.WriteValue(value);\n")]
         [TestCase(typeof(bool), SerializationFormat.Default, ExpectedResult = "writer.WriteValue(value);\n")]
         [TestCase(typeof(long), SerializationFormat.Default, ExpectedResult = "writer.WriteValue(value);\n")]

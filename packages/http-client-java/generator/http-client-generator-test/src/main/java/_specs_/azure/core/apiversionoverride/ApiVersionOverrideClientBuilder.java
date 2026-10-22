@@ -191,24 +191,6 @@ public final class ApiVersionOverrideClientBuilder implements HttpTrait<ApiVersi
     }
 
     /*
-     * Service version
-     */
-    @Generated
-    private ApiVersionOverrideServiceVersion serviceVersion;
-
-    /**
-     * Sets Service version.
-     * 
-     * @param serviceVersion the serviceVersion value.
-     * @return the ApiVersionOverrideClientBuilder.
-     */
-    @Generated
-    public ApiVersionOverrideClientBuilder serviceVersion(ApiVersionOverrideServiceVersion serviceVersion) {
-        this.serviceVersion = serviceVersion;
-        return this;
-    }
-
-    /*
      * The retry policy that will attempt to retry failed requests, if applicable.
      */
     @Generated
@@ -236,10 +218,8 @@ public final class ApiVersionOverrideClientBuilder implements HttpTrait<ApiVersi
         this.validateClient();
         HttpPipeline localPipeline = (pipeline != null) ? pipeline : createHttpPipeline();
         String localEndpoint = (endpoint != null) ? endpoint : "http://localhost:3000";
-        ApiVersionOverrideServiceVersion localServiceVersion
-            = (serviceVersion != null) ? serviceVersion : ApiVersionOverrideServiceVersion.getLatest();
         ApiVersionOverrideClientImpl client = new ApiVersionOverrideClientImpl(localPipeline,
-            JacksonAdapter.createDefaultSerializerAdapter(), localEndpoint, localServiceVersion);
+            JacksonAdapter.createDefaultSerializerAdapter(), localEndpoint);
         return client;
     }
 

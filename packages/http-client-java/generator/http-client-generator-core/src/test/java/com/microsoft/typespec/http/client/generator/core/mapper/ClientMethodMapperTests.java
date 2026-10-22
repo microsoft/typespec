@@ -3,6 +3,7 @@
 
 package com.microsoft.typespec.http.client.generator.core.mapper;
 
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ConvenienceApi;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Language;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Languages;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Operation;
@@ -11,6 +12,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Request;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Response;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Schema;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.StringSchema;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
@@ -28,6 +30,39 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class ClientMethodMapperTests {
+
+    @Test
+    public void testConvenienceResponseReplacement() {
+        Operation operation = operationWithNoDesc();
+        operation.getRequests().get(0).getProtocol().getHttp().setMethod(HttpMethod.GET.name());
+        StringSchema schema = new StringSchema();
+        schema.setType(Schema.AllSchemaTypes.STRING);
+        operation.getResponses().get(0).setSchema(schema);
+        ConvenienceApi convenienceApi = new ConvenienceApi();
+        operation.setConvenienceApi(convenienceApi);
+        Response response = new Response();
+        convenienceApi.setResponse(response);
+
+        Assertions.assertEquals(PrimitiveType.VOID,
+            ClientMethodsReturnDescription.create(operation, false, true).getSyncReturnType());
+        Assertions.assertEquals(ClassType.BINARY_DATA,
+            ClientMethodsReturnDescription.create(operation, true, true).getSyncReturnType());
+
+        response.setBinary(true);
+        Assertions.assertEquals(ClassType.BINARY_DATA,
+            ClientMethodsReturnDescription.create(operation, false, true).getSyncReturnType());
+        Assertions.assertEquals(ClassType.BINARY_DATA,
+            ClientMethodsReturnDescription.create(operation, true, true).getSyncReturnType());
+
+        response.setBinary(false);
+        response.setSchema(schema);
+        Assertions.assertEquals(ClassType.STRING,
+            ClientMethodsReturnDescription.create(operation, false, true).getSyncReturnType());
+
+        convenienceApi.setResponse(null);
+        Assertions.assertEquals(ClassType.STRING,
+            ClientMethodsReturnDescription.create(operation, false, true).getSyncReturnType());
+    }
 
     @Test
     public void testOverloadedSignatures() {

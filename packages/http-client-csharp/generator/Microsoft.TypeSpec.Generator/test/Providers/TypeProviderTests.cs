@@ -152,7 +152,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
 
             owner.ProcessTypeForBackCompatibility();
             var shims = owner.Methods.Where(m => m.Signature.Attributes.Any(a => a.Type.Equals(typeof(EditorBrowsableAttribute)))).ToArray();
-            Assert.AreEqual(3, shims.Length);
+            Assert.AreEqual(previouslyExperimental ? 0 : 3, shims.Length);
             foreach (var shim in shims)
             {
                 var experiment = shim.Signature.Attributes.SingleOrDefault(a => a.Type.Equals(typeof(ExperimentalAttribute)));
@@ -300,6 +300,111 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             var signature = methods[0].Signature;
             Assert.AreEqual("Foo", signature.Name);
             Assert.AreEqual("p1", signature.Parameters[0].Name);
+        }
+
+        [Test]
+        public async Task BackCompatibilityIgnoresExperimentalLastContract(
+            [Values("ExperimentalType", "StableType", "UnrelatedExperimentalType")] string name,
+            [Values] bool currentlyExperimental)
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                lastContractCompilation: () => Helpers.GetCompilationFromDirectoryAsync());
+            var typeProvider = new TestTypeProvider(
+                name: name,
+                declarationModifiers: TypeSignatureModifiers.Public | TypeSignatureModifiers.Abstract | TypeSignatureModifiers.Class);
+            typeProvider.Update(
+                attributes: ExperimentalApiHelpers.BuildAttributes(
+                    currentlyExperimental ? new InputExperimentalDetails("CURRENT001") : null),
+                methods:
+                [
+                    new MethodProvider(
+                        new MethodSignature("DoWork", null, MethodSignatureModifiers.Public, null, null,
+                        [
+                            new ParameterProvider("value", $"", typeof(int)),
+                            new ParameterProvider("added", $"", typeof(bool), defaultValue: Snippet.Default, location: ParameterLocation.Query)
+                        ]),
+                        MethodBodyStatement.Empty,
+                        typeProvider)
+                ]);
+
+            var previouslyExperimental = name == "ExperimentalType";
+            Assert.AreEqual(previouslyExperimental, typeProvider.LastContractView is null);
+            Assert.AreEqual(previouslyExperimental, typeProvider.DeclarationModifiers.HasFlag(TypeSignatureModifiers.Abstract));
+
+            typeProvider.ProcessTypeForBackCompatibility();
+
+            Assert.AreEqual(previouslyExperimental ? 1 : 2, typeProvider.Methods.Count);
+            Assert.AreEqual(2, typeProvider.Methods[0].Signature.Parameters.Count);
+        }
+
+        [Test]
+        public async Task BackCompatibilityIgnoresPolyfilledExperimentalAttribute()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                lastContractCompilation: () => Helpers.GetCompilationFromDirectoryAsync());
+            var typeProvider = new TestTypeProvider(name: "ExperimentalType");
+
+            Assert.IsNull(typeProvider.LastContractView);
+        }
+
+        [Test]
+        public async Task ExperimentalAttributesAreExcludedForMethodConstructorAndFieldDetection()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                lastContractCompilation: () => Helpers.GetCompilationFromDirectoryAsync(
+                    method: "BackCompatibilityIgnoresExperimentalMembersLastContract"));
+            var typeProvider = new TestTypeProvider(name: "ExperimentalMembersType");
+            var lastContractView = typeProvider.LastContractView;
+
+            Assert.IsNotNull(lastContractView);
+            CollectionAssert.AreEquivalent(
+                new[] { "ExperimentalMethod", "StableMethod" },
+                lastContractView!.Methods.Select(method => method.Signature.Name).ToArray());
+            CollectionAssert.AreEquivalent(
+                new[] { "ExperimentalProperty", "StableProperty" },
+                lastContractView.Properties.Select(property => property.Name).ToArray());
+            CollectionAssert.AreEquivalent(
+                new[] { 0, 1 },
+                lastContractView.Constructors.Select(constructor => constructor.Signature.Parameters.Count).ToArray());
+            var experimentalMethod = lastContractView.Methods.Single(method => method.Signature.Name == "ExperimentalMethod");
+            var stableMethod = lastContractView.Methods.Single(method => method.Signature.Name == "StableMethod");
+            var experimentalProperty = lastContractView.Properties.Single(property => property.Name == "ExperimentalProperty");
+            var stableProperty = lastContractView.Properties.Single(property => property.Name == "StableProperty");
+            var experimentalConstructor = lastContractView.Constructors.Single(constructor => constructor.Signature.Parameters.Count == 1);
+            var experimentalField = lastContractView.Fields.Single(field => field.Name == "ExperimentalField");
+
+            Assert.IsFalse(MethodSignatureHelper.IsPublicApi(experimentalMethod.Signature));
+            Assert.IsTrue(MethodSignatureHelper.IsPublicApi(stableMethod.Signature));
+            Assert.IsFalse(MethodSignatureHelper.IsPublicApi(experimentalProperty.Modifiers, experimentalProperty.Attributes));
+            Assert.IsTrue(MethodSignatureHelper.IsPublicApi(stableProperty.Modifiers));
+            Assert.IsFalse(MethodSignatureHelper.IsPublicApi(experimentalConstructor.Signature));
+            Assert.IsFalse(MethodSignatureHelper.IsPublicApi(experimentalField.Modifiers, experimentalField.Attributes));
+        }
+
+        [Test]
+        public async Task BackCompatibilityDoesNotPromoteProtectedConstructor()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(
+                lastContractCompilation: () => Helpers.GetCompilationFromDirectoryAsync(
+                    method: nameof(BackCompatibilityDoesNotPromoteProtectedConstructor)));
+            var typeProvider = new TestTypeProvider(
+                name: "ProtectedConstructorType",
+                declarationModifiers: TypeSignatureModifiers.Public | TypeSignatureModifiers.Abstract | TypeSignatureModifiers.Class);
+            var privateProtectedConstructor = new ConstructorProvider(
+                new ConstructorSignature(
+                    typeProvider.Type,
+                    null,
+                    MethodSignatureModifiers.Private | MethodSignatureModifiers.Protected,
+                    [new ParameterProvider("value", $"", typeof(int))]),
+                MethodBodyStatement.Empty,
+                typeProvider);
+            typeProvider.Update(constructors: [privateProtectedConstructor]);
+
+            typeProvider.ProcessTypeForBackCompatibility();
+
+            Assert.AreEqual(
+                MethodSignatureModifiers.Private | MethodSignatureModifiers.Protected,
+                privateProtectedConstructor.Signature.Modifiers);
         }
 
         // Validates that a custom TypeProvider inherits the parameter-reordering back-compat behavior
@@ -1028,6 +1133,122 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             var typeProvider = new TestTypeProvider(name: "TestClient");
             Assert.IsNull(typeProvider.LastContractView);
             Assert.IsNull(BackCompatHelper.FindPreviousParameterName(typeProvider.LastContractView, "oldParam", "Foo"));
+        }
+
+        [Test]
+        public void AcronymParameterReorderingPreservesPublishedDefaults()
+        {
+            MockHelpers.LoadMockGenerator();
+            var source = new ParameterProvider(InputFactory.MethodParameter("sourceIpAddress", InputPrimitiveType.String));
+            var target = new ParameterProvider(InputFactory.MethodParameter("targetDbName", InputPrimitiveType.String));
+            var sourceDefault = Snippet.Literal("source");
+            var targetDefault = Snippet.Literal("target");
+            var method = new MethodProvider(
+                new MethodSignature("Foo", $"", MethodSignatureModifiers.Public, typeof(string), $"", [source, target]),
+                Snippet.Return(Snippet.Null), new TestTypeProvider());
+            var previous = new MethodSignature(
+                "Foo", $"", MethodSignatureModifiers.Public, typeof(string), $"",
+                [new ParameterProvider("targetDbName", $"", target.Type, targetDefault), new ParameterProvider("sourceIpAddress", $"", source.Type, sourceDefault)]);
+
+            Assert.IsTrue(BackCompatHelper.TryRestorePreviousParameterOrder(method, previous));
+            Assert.AreSame(target, method.Signature.Parameters[0]);
+            Assert.AreSame(source, method.Signature.Parameters[1]);
+            Assert.AreSame(targetDefault, target.DefaultValue);
+            Assert.AreSame(sourceDefault, source.DefaultValue);
+        }
+
+        [Test]
+        public void ParameterOrderUsesRawIdentityWhenNormalizedNamesCollide()
+        {
+            MockHelpers.LoadMockGenerator();
+            var dateTime = new InputDateTimeType(
+                DateTimeKnownEncoding.Rfc3339, "utcDateTime", "TypeSpec.utcDateTime", InputPrimitiveType.String);
+            var first = new ParameterProvider(InputFactory.MethodParameter("startTime", dateTime, isRequired: true));
+            var second = new ParameterProvider(InputFactory.MethodParameter("startsOn", dateTime, isRequired: true));
+            ParameterProvider[] previous =
+                [new ParameterProvider("startsOn", $"", first.Type), new ParameterProvider("startTime", $"", first.Type)];
+
+            Assert.IsTrue(MethodSignatureHelper.TryMatchParameterOrder([first, second], previous, out var matched));
+            Assert.AreSame(second, matched[0]);
+            Assert.AreSame(first, matched[1]);
+        }
+
+        [Test]
+        public void ParameterOrderPreservesExactCaseSensitiveIdentities()
+        {
+            MockHelpers.LoadMockGenerator();
+            var first = new ParameterProvider(InputFactory.MethodParameter("sourceIPAddress", InputPrimitiveType.String, isRequired: true, isExactName: true));
+            var second = new ParameterProvider(InputFactory.MethodParameter("sourceIpAddress", InputPrimitiveType.String, isRequired: true, isExactName: true));
+            var method = new MethodProvider(
+                new MethodSignature("Foo", $"", MethodSignatureModifiers.Public, typeof(string), $"", [first, second]),
+                Snippet.Return(Snippet.Null), new TestTypeProvider());
+            var previous = new MethodSignature(
+                "Foo", $"", MethodSignatureModifiers.Public, typeof(string), $"",
+                [new ParameterProvider("sourceIpAddress", $"", typeof(string)), new ParameterProvider("sourceIPAddress", $"", typeof(string))]);
+
+            Assert.IsTrue(BackCompatHelper.TryRestorePreviousParameterOrder(method, previous));
+            Assert.AreSame(second, method.Signature.Parameters[0]);
+            Assert.AreSame(first, method.Signature.Parameters[1]);
+            Assert.AreEqual("sourceIPAddress", first.Name);
+            Assert.AreEqual("sourceIpAddress", second.Name);
+        }
+
+        [Test]
+        public void ParameterOrderRejectsAmbiguousNormalizedIdentities()
+        {
+            MockHelpers.LoadMockGenerator();
+            var first = new ParameterProvider("sourceIpAddress", $"", typeof(string));
+            var second = new ParameterProvider("sourceIPAddress", $"", typeof(string));
+            var method = new MethodProvider(
+                new MethodSignature("Foo", $"", MethodSignatureModifiers.Public, typeof(string), $"", [first, second]),
+                Snippet.Return(Snippet.Null), new TestTypeProvider());
+            var previous = new MethodSignature(
+                "Foo", $"", MethodSignatureModifiers.Public, typeof(string), $"",
+                [new ParameterProvider("SOURCEIPADDRESS", $"", typeof(string)), new ParameterProvider("other", $"", typeof(string))]);
+
+            Assert.IsFalse(BackCompatHelper.TryRestorePreviousParameterOrder(method, previous));
+            Assert.AreSame(first, method.Signature.Parameters[0]);
+            Assert.AreSame(second, method.Signature.Parameters[1]);
+        }
+
+        [Test]
+        public void PublishedParameterOrderDoesNotOverridePartialDeclarations()
+        {
+            MockHelpers.LoadMockGenerator();
+            var source = new ParameterProvider(InputFactory.MethodParameter("sourceIpAddress", InputPrimitiveType.String, isRequired: true));
+            var target = new ParameterProvider(InputFactory.MethodParameter("targetDbName", InputPrimitiveType.Int32, isRequired: true));
+            var method = new MethodProvider(
+                new MethodSignature("Foo", $"", MethodSignatureModifiers.Public | MethodSignatureModifiers.Partial, typeof(string), $"", [source, target]),
+                Snippet.Return(Snippet.Null), new TestTypeProvider());
+            var previous = new MethodSignature(
+                "Foo", $"", MethodSignatureModifiers.Public, typeof(string), $"",
+                [new ParameterProvider("targetDbName", $"", typeof(int)), new ParameterProvider("sourceIpAddress", $"", typeof(string))]);
+
+            Assert.IsFalse(BackCompatHelper.TryRestorePreviousParameterOrder(method, previous));
+            Assert.IsNull(BackCompatHelper.FindMethodWithSameParametersDifferentOrder(previous,
+                new Dictionary<MethodSignature, MethodProvider> { [method.Signature] = method }));
+            Assert.AreSame(source, method.Signature.Parameters[0]);
+            Assert.AreSame(target, method.Signature.Parameters[1]);
+        }
+
+        [Test]
+        public async Task MixedAcronymDateTimeRenameRetainsLegacyFallback()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var dateTime = new InputDateTimeType(
+                DateTimeKnownEncoding.Rfc3339, "utcDateTime", "TypeSpec.utcDateTime", InputPrimitiveType.String);
+            var parameter = new ParameterProvider(InputFactory.MethodParameter("sourceIpCreationTime", dateTime, isRequired: true));
+            Assert.AreEqual("sourceIPCreatedOn", parameter.Name);
+            var method = new MethodProvider(
+                new MethodSignature("Foo", $"", MethodSignatureModifiers.Public, typeof(string), $"", [parameter]),
+                Snippet.Return(Snippet.Null),
+                new TestTypeProvider());
+            var type = new TestTypeProvider(name: "TestClient", methods: [method]);
+
+            BackCompatHelper.RestorePreviousParameterNames(type, type.Methods);
+
+            Assert.AreEqual("sourceIpCreationTime", parameter.Name);
+            Assert.AreEqual("sourceIpCreationTime", parameter.AsVariable().Declaration.RequestedName);
         }
 
         [Test]

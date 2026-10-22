@@ -14,7 +14,7 @@ namespace SampleTypeSpec
     public partial class Tree : Plant
     {
         private string _nullableText;
-        internal bool _nullableTextIsDefined;
+        private bool _nullableTextIsDefined;
 
         /// <summary> Initializes a new instance of <see cref="Tree"/>. </summary>
         /// <param name="id"> The unique identifier of the plant. </param>

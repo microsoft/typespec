@@ -7,38 +7,49 @@ import {
   getReturnTypeChangedFrom,
   getTypeChangedFrom,
 } from "./decorators.js";
+import { hasChangedOptionality } from "./optionality.js";
 import type { Version } from "./types.js";
 import { VersioningTimeline, type TimelineMoment } from "./versioning-timeline.js";
 import { Availability, getAvailabilityMapInTimeline, resolveVersions } from "./versioning.js";
 
 /**
- * When the service is versioned.
+ * Snapshot mutators for a service with its own declared versions.
  */
 export interface VersionedMutators {
+  /** Discriminant for a result containing one snapshot per root version. */
   readonly kind: "versioned";
+  /** Newly allocated list in root version enum order; each entry selects its own dependency versions. */
   readonly snapshots: VersionSnapshotMutation[];
 }
 
 /** Mutator to mutate the service to the specific version. */
 export interface VersionSnapshotMutation {
+  /** Shared source metadata identifying the root version represented by this snapshot. */
   readonly version: Version;
+  /** Mutation recipe to apply with the compiler's experimental namespace mutation API. */
   readonly mutator: MutatorWithNamespace;
 }
 
 /**
- * When the service itself is not versioned but use specific version from another library.
+ * A single dependency-version snapshot for a service without its own versions.
  */
 export interface TransientVersioningMutator {
+  /** Discriminant for an unversioned root with versioned dependencies. */
   readonly kind: "transient";
+  /** Mutation recipe applying the selected dependency versions without adding a root version. */
   readonly mutator: MutatorWithNamespace;
 }
 
 /**
  * Resolve the set of mutators needed to apply versioning to the service.
+ * This constructs mutation recipes without modifying the source namespace.
+ * Apply a recipe with `unsafe_mutateSubgraphWithNamespace` from
+ * `@typespec/compiler/experimental` to obtain a snapshot with version-specific
+ * names, types, optionality, and unavailable members removed.
  * @returns either:
  *   - VersionedMutators when the service is versioned.
  *   - TransientVersioningMutator when the service is not versioned but use specific version from another library.
- *   - undefined when the service is not versioned.
+ *   - undefined when neither the service nor its resolved dependencies are versioned.
  */
 export function getVersioningMutators(
   program: Program,
@@ -226,6 +237,10 @@ class VersioningHelper {
     return type.returnType;
   }
   getOptionalAtVersion(type: ModelProperty, moment: TimelineMoment): boolean {
+    // Compare before creating the snapshot, whose optionality may legitimately
+    // differ from its declaration because of versioning itself.
+    if (hasChangedOptionality(type)) return type.optional;
+
     const optionalAt = getMadeOptionalOn(this.#program, type);
     const requiredAt = getMadeRequiredOn(this.#program, type);
     if (!optionalAt && !requiredAt) return type.optional;

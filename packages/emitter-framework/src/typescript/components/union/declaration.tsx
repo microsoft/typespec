@@ -6,14 +6,19 @@ import { useTsp } from "../../../core/context/tsp-context.js";
 import { reportDiagnostic } from "../../../lib.js";
 import { UnionExpression } from "./expression.jsx";
 
+/** TypeSpec-backed union alias options, with children contributing additional union alternatives. */
 export interface TypedUnionDeclarationProps extends Omit<ts.TypeDeclarationProps, "name"> {
+  /** Union variants or enum member values used as the alias alternatives. */
   type: Union | Enum;
   doc?: Children;
+  /** Name override, passed through the TypeScript type naming policy. */
   name?: string;
 }
 
+/** Props for a TypeSpec union/enum alias or an ordinary Alloy type declaration. */
 export type UnionDeclarationProps = TypedUnionDeclarationProps | ts.TypeDeclarationProps;
 
+/** Declares a union type alias with source documentation and reference identity, or delegates to Alloy without `type`. */
 export function UnionDeclaration(props: UnionDeclarationProps) {
   const { $ } = useTsp();
   if (!isTypedUnionDeclarationProps(props)) {
