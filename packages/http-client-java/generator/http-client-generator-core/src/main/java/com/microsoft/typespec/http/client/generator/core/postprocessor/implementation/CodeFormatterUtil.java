@@ -64,12 +64,17 @@ public final class CodeFormatterUtil {
             return Stream.empty();
         }
 
-        // Eclipse formatters are not thread-safe, so reuse only within this sequential batch.
+        // Reuse the stateful parser and formatter only within this sequential batch, never across concurrent
+        // calls or parallel stream elements. Each call owns these instances and uses the caller's parser settings.
         CodeFormatter codeFormatter = ToolFactory.createCodeFormatter(loadEclipseSettings());
+        // Keep token/range storage and comment handling: import reordering relies on source positions, so disabling
+        // tokens to reduce parser allocations would change behavior even though we do not print the AST.
         JavaParser javaParser = new JavaParser(StaticJavaParser.getParserConfiguration());
         DefaultImportOrderingStrategy orderingStrategy = new DefaultImportOrderingStrategy();
         orderingStrategy.setSortImportsAlphabetically(true);
 
+        // Keep unused-import validation eager: collect errors across the whole batch before emitting any files,
+        // rather than interleaving writes with validation and reporting only the first invalid file.
         return removeUnusedImports(files.entrySet(), logger).stream().map(entry -> {
             try {
                 ParseResult<CompilationUnit> parsed = javaParser.parse(entry.getValue());
@@ -78,6 +83,8 @@ public final class CodeFormatterUtil {
                 }
                 CompilationUnit compilationUnit = parsed.getResult().orElseThrow();
                 String file = reorderImports(entry.getValue(), compilationUnit, orderingStrategy);
+                // Reordering imports cannot change whether a module is declared, so reuse this parse. The name
+                // alone is insufficient: some module-info.java inputs are only comments or ordinary Java source.
                 boolean isModuleInfo
                     = entry.getKey().endsWith("module-info.java") && compilationUnit.getModule().isPresent();
                 file = formatCode(file, isModuleInfo, codeFormatter);

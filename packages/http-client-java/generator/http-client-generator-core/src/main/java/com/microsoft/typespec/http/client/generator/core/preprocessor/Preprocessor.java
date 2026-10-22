@@ -104,7 +104,11 @@ public class Preprocessor extends NewPlugin {
 
     /**
      * Creates a diagnostic directory only when plugin debugging is enabled or the system property or environment
-     * variable {@code codegen.java.dump-code-model} is {@code true}. System properties take precedence.
+     * variable {@code codegen.java.dump-code-model} is {@code true}. The system property overrides the environment
+     * flag; plugin debugging independently enables snapshots, even when the flag is false.
+     * <p>
+     * A null result disables the entire snapshot pipeline, not just file writes. Callers must also guard YAML
+     * serialization with this result, because traversing and dumping the full model is expensive on large inputs.
      *
      * @return The diagnostic directory, or null when code model dumps are disabled.
      * @throws IOException If the diagnostic directory cannot be created.
@@ -122,6 +126,14 @@ public class Preprocessor extends NewPlugin {
         return directory;
     }
 
+    /**
+     * Writes an enabled diagnostic snapshot directly to a UTF-8 writer, avoiding a second, serialized-model-sized
+     * string in memory. Call this only after createCodeModelDirectory has opted into diagnostic output.
+     *
+     * @param codeModel The model to snapshot.
+     * @param outputFile The snapshot path within the diagnostic directory.
+     * @throws IOException If the snapshot cannot be written.
+     */
     protected static void dumpCodeModel(CodeModel codeModel, Path outputFile) throws IOException {
         Representer representer = new Representer(new DumperOptions()) {
             @Override

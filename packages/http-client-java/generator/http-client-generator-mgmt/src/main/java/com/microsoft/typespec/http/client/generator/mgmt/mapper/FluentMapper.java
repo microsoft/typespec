@@ -215,7 +215,7 @@ public class FluentMapper {
     }
 
     private void processInnerModel(CodeModel codeModel) {
-        // Add "Inner" to all method response types, and recursively to types having it as property.
+        // Add "Inner" to method response types, then propagate it to models containing them as properties.
 
         final FluentObjectMapper objectMapper = (FluentObjectMapper) Mappers.getObjectMapper();
 
@@ -272,6 +272,8 @@ public class FluentMapper {
         compositeTypes.removeAll(errorTypes);
 
         compositeTypes = objectMapper.addInnerModels(compositeTypes);
+        // Marking an Inner model changes mapper state, not schema names or property edges. The same index can
+        // therefore serve both response-derived seeds and explicitly requested additions below.
         Map<String, Set<ObjectSchema>> reverseReferences
             = compositeTypes.isEmpty() && fluentJavaSettings.getJavaNamesForAddInner().isEmpty()
                 ? Map.of()
@@ -309,6 +311,12 @@ public class FluentMapper {
 //                || (Utils.getJavaName(operation).equals(WellKnownMethodName.LIST) || Utils.getJavaName(operation).equals(WellKnownMethodName.LIST_BY_RESOURCE_GROUP));
     }
 
+    /**
+     * Maps a property type's Java name to the models that contain it, so propagation visits owners directly.
+     * The original scan compared Java names, not schema identity; distinct schema objects with the same Java name
+     * must therefore share a lookup entry. Preserve its search scope: direct object-valued properties on objects,
+     * including object elements registered in the array and dictionary schema lists.
+     */
     private static Map<String, Set<ObjectSchema>> indexInnerModelReferences(CodeModel codeModel) {
         Map<String, Set<ObjectSchema>> references = new LinkedHashMap<>();
         Stream
@@ -341,15 +349,22 @@ public class FluentMapper {
         return references;
     }
 
+    /**
+     * Walk reverse edges from each newly marked Inner model to its containing models. An explicit queue avoids
+     * recursive stack growth on deep owner chains and repeated full-model searches at each propagation step.
+     */
     private static void addInnerModelReferences(FluentObjectMapper objectMapper,
         Map<String, Set<ObjectSchema>> reverseReferences, Collection<ObjectSchema> compositeTypes) {
         Queue<ObjectSchema> pending = new ArrayDeque<>(compositeTypes);
+        // Name-based visitation matches the index's equivalence rule, including distinct same-named instances.
         Set<String> visited = new LinkedHashSet<>();
         while (!pending.isEmpty()) {
             String typeName = Utils.getJavaName(pending.remove());
             if (typeName == null || !visited.add(typeName)) {
                 continue;
             }
+            // The mapper returns only newly marked owners. Requeue those, not every owner, so shared references
+            // and cycles do not repeatedly propagate models that have already become Inner.
             Set<ObjectSchema> added = objectMapper.addInnerModels(reverseReferences.getOrDefault(typeName, Set.of()));
             if (added.isEmpty()) {
                 continue;

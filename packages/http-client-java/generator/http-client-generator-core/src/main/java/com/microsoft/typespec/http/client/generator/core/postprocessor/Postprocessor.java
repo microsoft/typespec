@@ -196,13 +196,18 @@ public class Postprocessor {
 
     private static void handlePartialUpdate(Map<String, String> fileContents, NewPlugin plugin, Logger logger) {
         logger.info("Begin handle partial update...");
+        // Non-Java batches do not need project metadata. Check before resolving paths, which can require settings
+        // and plugin callbacks that are unavailable or unnecessary when there is nothing to merge.
         if (fileContents.keySet().stream().noneMatch(path -> path.endsWith(".java"))) {
             logger.info("Finish handle partial update.");
             return;
         }
+        // The output location is invariant across this batch. Resolve it once, including any plugin/readme lookup,
+        // rather than repeating configuration access and directory checks for every generated Java file.
         String outputFolderPath = JavaSettings.getInstance().getProjectSettings().getOutputFolder();
         String projectBaseDirectoryPath = Paths.get(outputFolderPath).isAbsolute() ? outputFolderPath : null;
         if (projectBaseDirectoryPath == null || !(new File(projectBaseDirectoryPath).isDirectory())) {
+            // Preserve the legacy readme-based fallback for relative or nonexistent output folders.
             projectBaseDirectoryPath = new File(getBaseDirectory(plugin)).getParent();
         }
         final String baseDirectory = projectBaseDirectoryPath;

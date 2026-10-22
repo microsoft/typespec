@@ -30,6 +30,11 @@ import org.slf4j.Logger;
 
 /**
  * Cleans up unused flattened types.
+ * <p>
+ * Index references once, then peel off removable schemas with no incoming references. Removing a model releases
+ * its outgoing references and can make another model unused, so a queue reaches a fixed point without rescanning
+ * the entire code model or limiting the length of an unused chain. This is not reachability-based garbage
+ * collection: mutually referencing models remain, preserving the previous cleanup's treatment of cycles.
  */
 public class SchemaCleanup {
 
@@ -42,6 +47,8 @@ public class SchemaCleanup {
     }
 
     public CodeModel process(CodeModel codeModel) {
+        // Count one incoming reference per owning object, not per property. Keep the same deduplicated target set
+        // for removal, so deleting an owner decrements exactly the references it originally contributed.
         Set<Schema> candidates = new LinkedHashSet<>();
         Map<Schema, Set<Schema>> outgoingReferences = new LinkedHashMap<>();
         Map<Schema, Integer> referenceCounts = new HashMap<>();
@@ -53,6 +60,8 @@ public class SchemaCleanup {
             }
             Set<Schema> references = new LinkedHashSet<>();
             String name = Utils.getJavaName(object);
+            // Retain the legacy exclusions: built-in system-data and management-error properties do not keep
+            // otherwise unused user schemas alive.
             if (FluentType.nonSystemData(name) && FluentType.nonManagementError(name)) {
                 for (Property property : object.getProperties()) {
                     Schema target = schemaOrElementInCollection(property.getSchema());
@@ -69,6 +78,8 @@ public class SchemaCleanup {
         candidates.addAll(codeModel.getSchemas().getChoices());
         candidates.removeIf(schema -> javaNamesForPreserveModel.contains(Utils.getJavaName(schema)));
 
+        // Operations act as permanent roots. Their union contributes one reference per target, which is never
+        // decremented. Preserved and otherwise non-removable objects likewise retain their outgoing references.
         Set<Schema> operationReferences = new LinkedHashSet<>();
         for (OperationGroup group : ClientModelUtil.getAllOperationGroups(codeModel)) {
             group.getOperations().forEach(operation -> {
@@ -94,6 +105,8 @@ public class SchemaCleanup {
         }
         operationReferences.forEach(target -> referenceCounts.merge(target, 1, Integer::sum));
 
+        // Only the transition to zero can enqueue a newly unused candidate. Multi-model cycles never reach zero;
+        // direct self-properties were excluded above so they do not prevent removal of an isolated unused model.
         Queue<Schema> unused = new ArrayDeque<>();
         candidates.stream().filter(schema -> referenceCounts.getOrDefault(schema, 0) == 0).forEach(unused::add);
         Set<Schema> removed = new LinkedHashSet<>();
@@ -109,12 +122,15 @@ public class SchemaCleanup {
             }
         }
 
+        // Keep schema lists intact while the graph is being processed, then remove in place to retain survivor order.
         codeModel.getSchemas().getObjects().removeIf(schema -> removeUnused(schema, removed, "object"));
         codeModel.getSchemas().getSealedChoices().removeIf(schema -> removeUnused(schema, removed, "sealed choice"));
         codeModel.getSchemas().getChoices().removeIf(schema -> removeUnused(schema, removed, "choice"));
         return codeModel;
     }
 
+    // Preserve the existing inheritance policy: only leaf objects with no parents or solely resource-type parents
+    // are candidates. Other objects still participate as reference owners even though they cannot be removed.
     private static boolean canRemoveObject(ObjectSchema schema) {
         return (schema.getChildren() == null
             || schema.getChildren().getImmediate() == null
@@ -135,6 +151,11 @@ public class SchemaCleanup {
         }
     }
 
+    /**
+     * A reference keeps its target, the target's modeled parent hierarchy, and their discriminator types alive.
+     * Cache that expansion for this cleanup run; property edges are tracked separately on their owning objects,
+     * rather than recursively expanding every reachable property here.
+     */
     private static Set<Schema> getReferenceDependencies(Schema schema, Map<Schema, Set<Schema>> dependencies) {
         return dependencies.computeIfAbsent(schema, target -> {
             Set<Schema> result = new LinkedHashSet<>();
@@ -153,7 +174,8 @@ public class SchemaCleanup {
                         .forEach(result::add);
                 }
             }
-            // Include discriminator types of the referenced model and its parents, as in the original cleanup pass.
+            // Snapshot the model/parent set before adding discriminator types. The original cleanup includes these
+            // types once; it does not recursively expand newly added discriminators as further dependencies.
             for (Schema dependency : new ArrayList<>(result)) {
                 if (dependency instanceof ObjectSchema && ((ObjectSchema) dependency).getDiscriminator() != null) {
                     Schema discriminator = ((ObjectSchema) dependency).getDiscriminator().getProperty().getSchema();

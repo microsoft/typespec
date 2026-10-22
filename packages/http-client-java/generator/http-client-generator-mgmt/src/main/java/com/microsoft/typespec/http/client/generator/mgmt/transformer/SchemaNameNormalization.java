@@ -152,11 +152,18 @@ public class SchemaNameNormalization {
         schema.getLanguage().getDefault().setName(newName);
     }
 
+    /**
+     * Records the first naming context for each schema in a normalization stage, replacing a full-model search
+     * for every unnamed schema. Keys use identity to retain the previous {@code ==} reference matching: distinct
+     * schema instances must not share a context merely because their names or contents happen to be equal.
+     */
     private static final class SchemaReferences {
         private final Map<Schema, NamingContext> usages = new IdentityHashMap<>();
 
         private SchemaReferences(CodeModel codeModel) {
-            // Keep the original four-tier precedence, and the first owner/value within each tier.
+            // First match wins across four tiers: direct properties, array-element properties, direct parameters,
+            // then array-element parameters. Finish each whole-model tier before starting the next; combining the
+            // property loops would let an earlier array property displace a later direct property.
             for (ObjectSchema owner : codeModel.getSchemas().getObjects()) {
                 for (Property property : owner.getProperties()) {
                     add(property.getSchema(), owner, property, false);
@@ -176,6 +183,8 @@ public class SchemaNameNormalization {
         private void indexParameters(CodeModel codeModel, boolean arrays) {
             for (OperationGroup group : codeModel.getOperationGroups()) {
                 for (Operation operation : group.getOperations()) {
+                    // Preserve encounter order within a tier: operation parameters precede request parameters,
+                    // and the first referencing operation group supplies the name.
                     Stream
                         .concat(operation.getParameters().stream(),
                             operation.getRequests().stream().flatMap(request -> request.getParameters().stream()))
@@ -198,9 +207,15 @@ public class SchemaNameNormalization {
         }
     }
 
+    /**
+     * Keep the owner and value themselves, not a precomputed name: earlier renames can change an owner's name
+     * before a later schema uses it. Reading their names in renameSchema preserves that sequential dependency
+     * while allowing the reference index to be reused throughout the stage.
+     */
     private static final class NamingContext {
         private final Metadata owner;
         private final Value value;
+        // Only array-valued properties are singularized; array parameters historically keep the parameter name.
         private final boolean arrayProperty;
 
         private NamingContext(Metadata owner, Value value, boolean arrayProperty) {

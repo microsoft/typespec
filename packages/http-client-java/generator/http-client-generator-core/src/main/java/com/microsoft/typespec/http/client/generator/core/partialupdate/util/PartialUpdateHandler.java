@@ -23,6 +23,7 @@ import com.github.javaparser.ast.modules.ModuleDirective;
 import com.github.javaparser.ast.nodeTypes.NodeWithSimpleName;
 import com.github.javaparser.ast.visitor.GenericVisitor;
 import com.github.javaparser.ast.visitor.VoidVisitor;
+import com.github.javaparser.metamodel.BodyDeclarationMetaModel;
 import com.github.javaparser.printer.DefaultPrettyPrinterVisitor;
 import java.io.BufferedReader;
 import java.io.StringReader;
@@ -170,6 +171,8 @@ public class PartialUpdateHandler {
         }
 
         // 3. Verify Generated File, will throw error if there is invalid part found.
+        // Cache by AST node identity: structural Node.equals/hashCode can walk whole member bodies and would conflate
+        // separate, identical declarations. The cached signature/name keys deliberately use value equality instead.
         Map<BodyDeclaration<?>, MemberKeys> memberKeys = new IdentityHashMap<>();
         validateGeneratedClassOrInterface(generatedFileMembers, memberKeys);
 
@@ -200,16 +203,20 @@ public class PartialUpdateHandler {
 //            }
 //        }, null);
 
+        // Index only the lookup, not the output order. The two list passes below retain existing member positions
+        // first, then append genuinely new members in generated order.
         Map<Object, BodyDeclaration<?>> generatedMembersByKey = new HashMap<>();
         for (BodyDeclaration<?> member : generatedFileMembers) {
             Object key = memberKeys.computeIfAbsent(member, MemberKeys::new).corresponding;
             if (key != null) {
+                // Match the first declaration as the previous linear search did. Validation rejects duplicate
+                // callables, but other declaration kinds can still share a key.
                 generatedMembersByKey.putIfAbsent(key, member);
             }
         }
         NodeList<BodyDeclaration<?>> updatedMembersList = new NodeList<>();
         Set<Object> updatedMemberKeys = new LinkedHashSet<>();
-        Set<Object> manualMemberNames = new LinkedHashSet<>();
+        Set<Map.Entry<BodyDeclarationMetaModel, SimpleName>> manualMemberNames = new LinkedHashSet<>();
         // 5. Iterate existingFileMembers, keep manual written members, and replace generated members with the
         // corresponding newly generated one
         for (BodyDeclaration<?> existingMember : existingFileMembers) {
@@ -228,8 +235,9 @@ public class PartialUpdateHandler {
 
         // 6. Add remaining members in generated file to the new members list
         for (BodyDeclaration<?> generatedMember : generatedFileMembers) {
-            // A handwritten member suppresses new overloads with the same name, but replacements already retained
-            // above must stay in their original positions.
+            // Signature matching and handwritten-name suppression are separate rules: a manual method blocks ALL
+            // new overloads with its name, even if their parameter lists differ. Apply this only to additions;
+            // existing generated overloads were already replaced in place above and must not be discarded.
             MemberKeys keys = memberKeys.computeIfAbsent(generatedMember, MemberKeys::new);
             if (!updatedMemberKeys.contains(keys.corresponding) && !manualMemberNames.contains(keys.name)) {
                 addMember(generatedMember, updatedMembersList, updatedMemberKeys, manualMemberNames, memberKeys);
@@ -307,7 +315,7 @@ public class PartialUpdateHandler {
      * Verify if the generated class or interface is valid
      *
      * @param generatedFileMembers, members in the generated file
-     * @return true if the generated class or interface is valid, otherwise return false
+     * @param memberKeys Per-node keys shared with the merge passes to avoid reconstructing callable signatures.
      */
     private static void validateGeneratedClassOrInterface(List<BodyDeclaration<?>> generatedFileMembers,
         Map<BodyDeclaration<?>, MemberKeys> memberKeys) {
@@ -363,8 +371,8 @@ public class PartialUpdateHandler {
      */
     private static String mergeModuleFileContent(CompilationUnit compilationUnitForGeneratedFile,
         CompilationUnit compilationUnitForExistingFile) {
-        if (!compilationUnitForExistingFile.getModule().isPresent()
-            || !compilationUnitForGeneratedFile.getModule().isPresent()) {
+        if (compilationUnitForExistingFile.getModule().isEmpty()
+            || compilationUnitForGeneratedFile.getModule().isEmpty()) {
             throw new RuntimeException("Generated file or existing file is not module-info file");
         }
 
@@ -564,6 +572,9 @@ public class PartialUpdateHandler {
         NodeList<ModuleDirective> list2) {
         NodeList<ModuleDirective> res = new NodeList<>();
         res.addAll(list1);
+        // Normalize each directive once instead of rebuilding its tokens for every generated/existing pair.
+        // This set must contain ONLY generated directives: adding existing-only directives would also deduplicate
+        // the handwritten list, changing its contents and order relative to the previous pairwise comparison.
         Set<List<String>> generatedTokens = new LinkedHashSet<>();
         for (ModuleDirective directive : list1) {
             List<String> tokens = getDirectiveTokens(directive);
@@ -581,6 +592,10 @@ public class PartialUpdateHandler {
         return res;
     }
 
+    /**
+     * Retains the original token-by-token comparison: ignore whitespace, but not token order or comment text.
+     * A missing token range yields null rather than an empty key, so tokenless directives never compare equal.
+     */
     private static List<String> getDirectiveTokens(ModuleDirective directive) {
         if (directive.getTokenRange().isEmpty()) {
             return null;
@@ -656,7 +671,8 @@ public class PartialUpdateHandler {
     }
 
     private static void addMember(BodyDeclaration<?> member, NodeList<BodyDeclaration<?>> members,
-        Set<Object> correspondingKeys, Set<Object> manualNames, Map<BodyDeclaration<?>, MemberKeys> memberKeys) {
+        Set<Object> correspondingKeys, Set<Map.Entry<BodyDeclarationMetaModel, SimpleName>> manualNames,
+        Map<BodyDeclaration<?>, MemberKeys> memberKeys) {
         members.add(member);
         MemberKeys keys = memberKeys.computeIfAbsent(member, MemberKeys::new);
         if (keys.corresponding != null) {
@@ -667,38 +683,39 @@ public class PartialUpdateHandler {
         }
     }
 
+    /**
+     * The two equivalence rules used by the merge. {@code corresponding} identifies a replacement or an already
+     * retained member; {@code name} also suppresses new generated overloads when that name belongs to manual code.
+     * Name keys include the declaration kind, so a handwritten field does not suppress a method of the same name.
+     * Members without either key remain unmatched, just as in the original linear searches.
+     */
     private static final class MemberKeys {
         private final Object corresponding;
-        private final Object name;
+        private final Map.Entry<BodyDeclarationMetaModel, SimpleName> name;
 
         private MemberKeys(BodyDeclaration<?> member) {
             if (member instanceof NonGeneratedBodyDeclaration) {
+                // A formatter wrapper affects printing, not the wrapped declaration's matching rules.
                 member = ((NonGeneratedBodyDeclaration<?>) member).wrapped;
             }
-            name = getMemberNameKey(member);
+            if (member.isFieldDeclaration() && !member.asFieldDeclaration().getVariables().isEmpty()) {
+                // Preserve the existing first-variable matching rule for multi-variable declarations.
+                name = Map.entry(member.getMetaModel(), member.asFieldDeclaration().getVariable(0).getName());
+            } else if (member instanceof NodeWithSimpleName) {
+                name = Map.entry(member.getMetaModel(), ((NodeWithSimpleName<?>) member).getName());
+            } else {
+                name = null;
+            }
             if (member.isCallableDeclaration()) {
                 // JavaParser clones parameter types when constructing a signature. Do this once per member.
                 corresponding = member.asCallableDeclaration().getSignature();
             } else if (member instanceof InitializerDeclaration && ((InitializerDeclaration) member).isStatic()) {
+                // Validation allows only one static initializer, so it needs no name or signature to match.
                 corresponding = InitializerDeclaration.class;
             } else {
                 corresponding = name;
             }
         }
-    }
-
-    private static Object getMemberNameKey(BodyDeclaration<?> member) {
-        if (member instanceof NonGeneratedBodyDeclaration) {
-            member = ((NonGeneratedBodyDeclaration<?>) member).wrapped;
-        }
-        if (member.isFieldDeclaration() && !member.asFieldDeclaration().getVariables().isEmpty()) {
-            // Preserve the existing first-variable matching rule for multi-variable declarations.
-            return Map.entry(member.getMetaModel(), member.asFieldDeclaration().getVariable(0).getName());
-        }
-        if (member instanceof NodeWithSimpleName) {
-            return Map.entry(member.getMetaModel(), ((NodeWithSimpleName<?>) member).getName());
-        }
-        return null;
     }
 
     private static ClassOrInterfaceDeclaration getClassOrInterfaceDeclaration(CompilationUnit cu) {
