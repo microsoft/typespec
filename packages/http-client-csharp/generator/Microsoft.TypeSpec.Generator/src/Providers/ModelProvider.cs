@@ -832,7 +832,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             HashSet<string> skippedBasePropertyNames = [];
             foreach (var baseModelProvider in EnumerateBaseModelProviders())
             {
-                foreach (var baseProperty in baseModelProvider._inputModel.Properties)
+                var inputProperties = baseModelProvider is SystemObjectModelProvider mappedBase
+                    ? mappedBase.MappedInputProperties
+                    : baseModelProvider._inputModel.Properties;
+                foreach (var baseProperty in inputProperties)
                 {
                     if (baseProperties.ContainsKey(baseProperty.Name) ||
                         skippedBasePropertyNames.Contains(baseProperty.Name))
