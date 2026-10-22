@@ -29,8 +29,10 @@ import com.microsoft.typespec.http.client.generator.core.model.projectmodel.Proj
 import com.microsoft.typespec.http.client.generator.core.model.projectmodel.TextFile;
 import com.microsoft.typespec.http.client.generator.core.model.xmlmodel.XmlFile;
 import com.microsoft.typespec.http.client.generator.core.template.ChangelogTemplate;
+import com.microsoft.typespec.http.client.generator.core.template.ClientCoreConstantsTemplate;
 import com.microsoft.typespec.http.client.generator.core.template.ClientMethodTestTemplate;
 import com.microsoft.typespec.http.client.generator.core.template.ModelTestTemplate;
+import com.microsoft.typespec.http.client.generator.core.template.OptionalUtilityTemplate;
 import com.microsoft.typespec.http.client.generator.core.template.ProtocolSampleBlankTemplate;
 import com.microsoft.typespec.http.client.generator.core.template.ProtocolTestBaseTemplate;
 import com.microsoft.typespec.http.client.generator.core.template.ProtocolTestTemplate;
@@ -350,6 +352,37 @@ public class JavaPackage {
                 graalVmConfig.toResourceConfigJson(artifactId));
             textFiles.add(resourceConfigFile);
         }
+    }
+
+    public void addClientCoreProtocolUtils() {
+        if (settings.isAzureV1()) {
+            return;
+        }
+        addOptionalUtilityFromResources(settings.getPackage(settings.getImplementationSubpackage()),
+            ClientModelUtil.CLIENT_CORE_PROTOCOL_UTILS, ClientModelUtil.CLIENT_CORE_PROTOCOL_UTILS);
+    }
+
+    public void addClientCoreConstants() {
+        if (settings.isAzureV1()) {
+            return;
+        }
+        String packageName = settings.getPackage(settings.getImplementationSubpackage());
+        ClientCoreConstantsTemplate template = new ClientCoreConstantsTemplate(packageName, settings.getPackage());
+        JavaFile constants = javaFileFactory.createSourceFile(packageName, template.getClassName());
+        if (template.write(javaFiles, constants)) {
+            addJavaFile(constants);
+        }
+    }
+
+    public void addOptionalUtilityFromResources(String packageName, String resourceName, String className) {
+        OptionalUtilityTemplate template = new OptionalUtilityTemplate(resourceName, className);
+        Set<String> members = template.getRequiredMembers(javaFiles);
+        if (members.isEmpty()) {
+            return;
+        }
+        JavaFile javaFile = javaFileFactory.createSourceFile(packageName, className);
+        template.write(members, javaFile);
+        addJavaFile(javaFile);
     }
 
     public void addJsonMergePatchHelper(List<ClientModel> models) {

@@ -1,26 +1,27 @@
 package payload.xml.implementation;
 
 import io.clientcore.core.annotations.ReturnType;
-import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.annotations.BodyParam;
-import io.clientcore.core.http.annotations.HeaderParam;
-import io.clientcore.core.http.annotations.HostParam;
-import io.clientcore.core.http.annotations.HttpRequestInformation;
-import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
+import io.clientcore.core.http.models.HttpHeaderName;
 import io.clientcore.core.http.models.HttpMethod;
+import io.clientcore.core.http.models.HttpRequest;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.instrumentation.Instrumentation;
-import java.lang.reflect.InvocationTargetException;
+import io.clientcore.core.instrumentation.logging.ClientLogger;
+import io.clientcore.core.models.binarydata.BinaryData;
+import io.clientcore.core.serialization.json.JsonSerializer;
+import io.clientcore.core.serialization.xml.XmlSerializer;
+import io.clientcore.core.utils.CoreUtils;
 import payload.xml.ModelWithRenamedProperty;
 
 /**
  * An instance of this class provides access to all the operations defined in ModelWithRenamedPropertyValues.
  */
 public final class ModelWithRenamedPropertyValuesImpl {
+
     /**
      * The proxy service used to perform REST calls.
      */
@@ -38,7 +39,7 @@ public final class ModelWithRenamedPropertyValuesImpl {
 
     /**
      * Initializes an instance of ModelWithRenamedPropertyValuesImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     ModelWithRenamedPropertyValuesImpl(XmlClientImpl client) {
@@ -47,44 +48,85 @@ public final class ModelWithRenamedPropertyValuesImpl {
         this.instrumentation = client.getInstrumentation();
     }
 
-    /**
-     * The interface defining all the services for XmlClientModelWithRenamedPropertyValues to be used by the proxy
-     * service to perform REST calls.
-     */
-    @ServiceInterface(name = "XmlClientModelWithRenamedPropertyValues", host = "{endpoint}")
     public interface ModelWithRenamedPropertyValuesService {
-        static ModelWithRenamedPropertyValuesService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("payload.xml.implementation.ModelWithRenamedPropertyValuesServiceImpl");
-                return (ModelWithRenamedPropertyValuesService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
 
+        static ModelWithRenamedPropertyValuesService getNewInstance(HttpPipeline pipeline) {
+            return new ModelWithRenamedPropertyValuesServiceImpl(pipeline);
         }
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/payload/xml/modelWithRenamedProperty",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<ModelWithRenamedProperty> get(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Accept") String accept, RequestContext requestContext);
+        Response<ModelWithRenamedProperty> get(String endpoint, String accept, RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.PUT,
-            path = "/payload/xml/modelWithRenamedProperty",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> put(@HostParam("endpoint") String endpoint, @HeaderParam("content-type") String contentType,
-            @BodyParam("application/xml") ModelWithRenamedProperty input, RequestContext requestContext);
+        Response<Void> put(String endpoint, String contentType, ModelWithRenamedProperty input,
+            RequestContext requestContext);
+    }
+
+    private static final class ModelWithRenamedPropertyValuesServiceImpl
+        implements ModelWithRenamedPropertyValuesService {
+
+        private static final ClientLogger LOGGER = new ClientLogger(ModelWithRenamedPropertyValuesServiceImpl.class);
+
+        private final HttpPipeline httpPipeline;
+
+        private static final JsonSerializer JSON_SERIALIZER = JsonSerializer.getInstance();
+
+        private static final XmlSerializer XML_SERIALIZER = XmlSerializer.getInstance();
+
+        private ModelWithRenamedPropertyValuesServiceImpl(HttpPipeline pipeline) {
+            this.httpPipeline = pipeline;
+        }
+
+        @Override
+        public Response<ModelWithRenamedProperty> get(String endpoint, String accept, RequestContext requestContext) {
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.GET)
+                .setUri(endpoint + "/payload/xml/modelWithRenamedProperty");
+            if (accept != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.ACCEPT, accept);
+            }
+            Response<BinaryData> networkResponse
+                = ClientCoreProtocolUtils.send(this.httpPipeline, httpRequest, requestContext);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 200)) {
+                ClientCoreProtocolUtils.handleUnexpectedResponse(networkResponse,
+                    ModelWithRenamedPropertyValuesServiceImpl.JSON_SERIALIZER,
+                    ModelWithRenamedPropertyValuesServiceImpl.XML_SERIALIZER, null, null,
+                    ModelWithRenamedPropertyValuesServiceImpl.LOGGER);
+            }
+            return ClientCoreProtocolUtils.mapResponse(networkResponse,
+                () -> ClientCoreProtocolUtils.readMixed(networkResponse,
+                    () -> CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
+                        ModelWithRenamedPropertyValuesServiceImpl.JSON_SERIALIZER,
+                        PayloadXmlConstants.RESPONSE_OF_MODEL_WITH_RENAMED_PROPERTY_TYPE),
+                    () -> CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
+                        ModelWithRenamedPropertyValuesServiceImpl.XML_SERIALIZER,
+                        PayloadXmlConstants.RESPONSE_OF_MODEL_WITH_RENAMED_PROPERTY_TYPE)));
+        }
+
+        @Override
+        public Response<Void> put(String endpoint, String contentType, ModelWithRenamedProperty input,
+            RequestContext requestContext) {
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.PUT)
+                .setUri(endpoint + "/payload/xml/modelWithRenamedProperty");
+            if (contentType != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, contentType);
+            }
+            ClientCoreProtocolUtils.setBody(httpRequest, input, "application/xml",
+                () -> BinaryData.fromObject(input, ModelWithRenamedPropertyValuesServiceImpl.XML_SERIALIZER));
+            Response<BinaryData> networkResponse
+                = ClientCoreProtocolUtils.send(this.httpPipeline, httpRequest, requestContext);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 204)) {
+                ClientCoreProtocolUtils.handleUnexpectedResponse(networkResponse,
+                    ModelWithRenamedPropertyValuesServiceImpl.JSON_SERIALIZER,
+                    ModelWithRenamedPropertyValuesServiceImpl.XML_SERIALIZER, null, null,
+                    ModelWithRenamedPropertyValuesServiceImpl.LOGGER);
+            }
+            return ClientCoreProtocolUtils.mapResponse(networkResponse, () -> null);
+        }
     }
 
     /**
      * The get operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -102,7 +144,7 @@ public final class ModelWithRenamedPropertyValuesImpl {
 
     /**
      * The put operation.
-     * 
+     *
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -118,4 +160,6 @@ public final class ModelWithRenamedPropertyValuesImpl {
                 return service.put(this.client.getEndpoint(), contentType, input, updatedContext);
             });
     }
+
+    private static final ClientLogger LOGGER = new ClientLogger(ModelWithRenamedPropertyValuesImpl.class);
 }

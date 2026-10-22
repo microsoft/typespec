@@ -57,6 +57,7 @@ public class ClientModelUtil {
 
     public static final String MULTI_PART_FORM_DATA_HELPER_CLASS_NAME = "MultipartFormDataHelper";
     public static final String GENERIC_MULTI_PART_FORM_DATA_HELPER_CLASS_NAME = "GenericMultipartFormDataHelper";
+    public static final String CLIENT_CORE_PROTOCOL_UTILS = "ClientCoreProtocolUtils";
 
     public static final String XML_SERIALIZER_CLASS_NAME = "XmlSerializer";
     public static final String XML_SERIALIZER_PROVIDERS_CLASS_NAME = "XmlSerializerProviders";

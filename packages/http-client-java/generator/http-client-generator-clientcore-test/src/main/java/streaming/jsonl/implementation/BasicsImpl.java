@@ -1,21 +1,21 @@
 package streaming.jsonl.implementation;
 
 import io.clientcore.core.annotations.ReturnType;
-import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.annotations.BodyParam;
-import io.clientcore.core.http.annotations.HeaderParam;
-import io.clientcore.core.http.annotations.HostParam;
-import io.clientcore.core.http.annotations.HttpRequestInformation;
-import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
+import io.clientcore.core.http.models.HttpHeaderName;
 import io.clientcore.core.http.models.HttpMethod;
+import io.clientcore.core.http.models.HttpRequest;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.instrumentation.Instrumentation;
+import io.clientcore.core.instrumentation.logging.ClientLogger;
 import io.clientcore.core.models.binarydata.BinaryData;
-import java.lang.reflect.InvocationTargetException;
+import io.clientcore.core.serialization.SerializationFormat;
+import io.clientcore.core.serialization.json.JsonSerializer;
+import io.clientcore.core.utils.CoreUtils;
+import io.clientcore.core.utils.GeneratedCodeUtils;
 
 /**
  * An instance of this class provides access to all the operations defined in Basics.
@@ -47,39 +47,93 @@ public final class BasicsImpl {
         this.instrumentation = client.getInstrumentation();
     }
 
-    /**
-     * The interface defining all the services for JsonlClientBasics to be used by the proxy service to perform REST
-     * calls.
-     */
-    @ServiceInterface(name = "JsonlClientBasics", host = "{endpoint}")
     public interface BasicsService {
         static BasicsService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("streaming.jsonl.implementation.BasicsServiceImpl");
-                return (BasicsService) clazz.getMethod("getNewInstance", HttpPipeline.class).invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
+            return new BasicsServiceImpl(pipeline);
         }
 
-        @HttpRequestInformation(
-            method = HttpMethod.POST,
-            path = "/streaming/jsonl/basic/send",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> send(@HostParam("endpoint") String endpoint, @HeaderParam("content-type") String contentType,
-            @BodyParam("application/jsonl") BinaryData body, @HeaderParam("Content-Length") long contentLength,
+        Response<Void> send(String endpoint, String contentType, BinaryData body, long contentLength,
             RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/streaming/jsonl/basic/receive",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<BinaryData> receive(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
-            RequestContext requestContext);
+        Response<BinaryData> receive(String endpoint, String accept, RequestContext requestContext);
+    }
+
+    private static final class BasicsServiceImpl implements BasicsService {
+        private static final ClientLogger LOGGER = new ClientLogger(BasicsServiceImpl.class);
+
+        private final HttpPipeline httpPipeline;
+
+        private BasicsServiceImpl(HttpPipeline pipeline) {
+            this.httpPipeline = pipeline;
+        }
+
+        @Override
+        public Response<Void> send(String endpoint, String contentType, BinaryData body, long contentLength,
+            RequestContext requestContext) {
+            HttpRequest httpRequest
+                = new HttpRequest().setMethod(HttpMethod.POST).setUri(endpoint + "/streaming/jsonl/basic/send");
+            if (contentType != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("content-type"), contentType);
+            }
+            httpRequest.getHeaders().set(HttpHeaderName.fromString("Content-Length"), String.valueOf(contentLength));
+            if (body != null) {
+                if (httpRequest.getHeaders().get(HttpHeaderName.CONTENT_TYPE) == null) {
+                    httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, "application/jsonl");
+                }
+                httpRequest.setBody(body);
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 204)) {
+                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == SerializationFormat.XML) {
+                    try {
+                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, JsonSerializer.getInstance(),
+                    null, null, null, BasicsServiceImpl.LOGGER);
+            }
+            try {
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
+            } finally {
+                networkResponse.close();
+            }
+        }
+
+        @Override
+        public Response<BinaryData> receive(String endpoint, String accept, RequestContext requestContext) {
+            HttpRequest httpRequest
+                = new HttpRequest().setMethod(HttpMethod.GET).setUri(endpoint + "/streaming/jsonl/basic/receive");
+            if (accept != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("Accept"), accept);
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 200)) {
+                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == SerializationFormat.XML) {
+                    try {
+                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, JsonSerializer.getInstance(),
+                    null, null, null, BasicsServiceImpl.LOGGER);
+            }
+            return networkResponse;
+        }
     }
 
     /**
@@ -119,4 +173,6 @@ public final class BasicsImpl {
                 return service.receive(this.client.getEndpoint(), accept, updatedContext);
             });
     }
+
+    private static final ClientLogger LOGGER = new ClientLogger(BasicsImpl.class);
 }

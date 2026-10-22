@@ -1,26 +1,31 @@
 package payload.xml.implementation;
 
 import io.clientcore.core.annotations.ReturnType;
-import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.annotations.HeaderParam;
-import io.clientcore.core.http.annotations.HostParam;
-import io.clientcore.core.http.annotations.HttpRequestInformation;
-import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
+import io.clientcore.core.http.models.HttpHeaderName;
 import io.clientcore.core.http.models.HttpMethod;
+import io.clientcore.core.http.models.HttpRequest;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.instrumentation.Instrumentation;
-import java.lang.reflect.InvocationTargetException;
+import io.clientcore.core.instrumentation.logging.ClientLogger;
+import io.clientcore.core.models.binarydata.BinaryData;
+import io.clientcore.core.serialization.json.JsonSerializer;
+import io.clientcore.core.serialization.xml.XmlSerializer;
+import io.clientcore.core.utils.CoreUtils;
+import java.lang.reflect.ParameterizedType;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import payload.xml.SimpleModel;
-import payload.xml.XmlErrorBody;
 
 /**
  * An instance of this class provides access to all the operations defined in XmlErrorValues.
  */
 public final class XmlErrorValuesImpl {
+
     /**
      * The proxy service used to perform REST calls.
      */
@@ -38,7 +43,7 @@ public final class XmlErrorValuesImpl {
 
     /**
      * Initializes an instance of XmlErrorValuesImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     XmlErrorValuesImpl(XmlClientImpl client) {
@@ -47,34 +52,64 @@ public final class XmlErrorValuesImpl {
         this.instrumentation = client.getInstrumentation();
     }
 
-    /**
-     * The interface defining all the services for XmlClientXmlErrorValues to be used by the proxy service to perform
-     * REST calls.
-     */
-    @ServiceInterface(name = "XmlClientXmlErrorValues", host = "{endpoint}")
     public interface XmlErrorValuesService {
-        static XmlErrorValuesService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("payload.xml.implementation.XmlErrorValuesServiceImpl");
-                return (XmlErrorValuesService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
 
+        static XmlErrorValuesService getNewInstance(HttpPipeline pipeline) {
+            return new XmlErrorValuesServiceImpl(pipeline);
         }
 
-        @HttpRequestInformation(method = HttpMethod.GET, path = "/payload/xml/error", expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail(statusCode = { 400 }, exceptionBodyClass = XmlErrorBody.class)
-        @UnexpectedResponseExceptionDetail
-        Response<SimpleModel> get(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
-            RequestContext requestContext);
+        Response<SimpleModel> get(String endpoint, String accept, RequestContext requestContext);
+    }
+
+    private static final class XmlErrorValuesServiceImpl implements XmlErrorValuesService {
+
+        private static final ClientLogger LOGGER = new ClientLogger(XmlErrorValuesServiceImpl.class);
+
+        private final HttpPipeline httpPipeline;
+
+        private static final JsonSerializer JSON_SERIALIZER = JsonSerializer.getInstance();
+
+        private static final XmlSerializer XML_SERIALIZER = XmlSerializer.getInstance();
+
+        private static final Map<Integer, ParameterizedType> ERROR_TYPES_0;
+
+        static {
+            Map<Integer, ParameterizedType> errorTypes = new HashMap<>();
+            errorTypes.put(400, PayloadXmlConstants.XML_ERROR_BODY_TYPE);
+            ERROR_TYPES_0 = Collections.unmodifiableMap(errorTypes);
+        }
+
+        private XmlErrorValuesServiceImpl(HttpPipeline pipeline) {
+            this.httpPipeline = pipeline;
+        }
+
+        @Override
+        public Response<SimpleModel> get(String endpoint, String accept, RequestContext requestContext) {
+            HttpRequest httpRequest
+                = new HttpRequest().setMethod(HttpMethod.GET).setUri(endpoint + "/payload/xml/error");
+            if (accept != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.ACCEPT, accept);
+            }
+            Response<BinaryData> networkResponse
+                = ClientCoreProtocolUtils.send(this.httpPipeline, httpRequest, requestContext);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 200)) {
+                ClientCoreProtocolUtils.handleUnexpectedResponse(networkResponse,
+                    XmlErrorValuesServiceImpl.JSON_SERIALIZER, XmlErrorValuesServiceImpl.XML_SERIALIZER, null,
+                    XmlErrorValuesServiceImpl.ERROR_TYPES_0, XmlErrorValuesServiceImpl.LOGGER);
+            }
+            return ClientCoreProtocolUtils.mapResponse(networkResponse,
+                () -> ClientCoreProtocolUtils.readMixed(networkResponse,
+                    () -> CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
+                        XmlErrorValuesServiceImpl.JSON_SERIALIZER, PayloadXmlConstants.RESPONSE_OF_SIMPLE_MODEL_TYPE),
+                    () -> CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
+                        XmlErrorValuesServiceImpl.XML_SERIALIZER, PayloadXmlConstants.RESPONSE_OF_SIMPLE_MODEL_TYPE)));
+        }
     }
 
     /**
      * The get operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -89,4 +124,6 @@ public final class XmlErrorValuesImpl {
                 return service.get(this.client.getEndpoint(), accept, updatedContext);
             });
     }
+
+    private static final ClientLogger LOGGER = new ClientLogger(XmlErrorValuesImpl.class);
 }

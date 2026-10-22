@@ -1,22 +1,24 @@
 package encode.datetime.implementation;
 
 import io.clientcore.core.annotations.ReturnType;
-import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.annotations.HeaderParam;
-import io.clientcore.core.http.annotations.HostParam;
-import io.clientcore.core.http.annotations.HttpRequestInformation;
-import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
+import io.clientcore.core.http.models.HttpHeaderName;
 import io.clientcore.core.http.models.HttpMethod;
+import io.clientcore.core.http.models.HttpRequest;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.instrumentation.Instrumentation;
+import io.clientcore.core.instrumentation.logging.ClientLogger;
 import io.clientcore.core.models.binarydata.BinaryData;
+import io.clientcore.core.serialization.SerializationFormat;
+import io.clientcore.core.serialization.json.JsonSerializer;
+import io.clientcore.core.utils.CoreUtils;
 import io.clientcore.core.utils.DateTimeRfc1123;
-import java.lang.reflect.InvocationTargetException;
+import io.clientcore.core.utils.GeneratedCodeUtils;
 import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -50,62 +52,189 @@ public final class HeadersImpl {
         this.instrumentation = client.getInstrumentation();
     }
 
-    /**
-     * The interface defining all the services for DatetimeClientHeaders to be used by the proxy service to perform REST
-     * calls.
-     */
-    @ServiceInterface(name = "DatetimeClientHeaders", host = "{endpoint}")
     public interface HeadersService {
         static HeadersService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("encode.datetime.implementation.HeadersServiceImpl");
-                return (HeadersService) clazz.getMethod("getNewInstance", HttpPipeline.class).invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
+            return new HeadersServiceImpl(pipeline);
         }
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/encode/datetime/header/default",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> defaultMethod(@HostParam("endpoint") String endpoint,
-            @HeaderParam("value") DateTimeRfc1123 value, RequestContext requestContext);
+        Response<Void> defaultMethod(String endpoint, DateTimeRfc1123 value, RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/encode/datetime/header/rfc3339",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> rfc3339(@HostParam("endpoint") String endpoint, @HeaderParam("value") OffsetDateTime value,
-            RequestContext requestContext);
+        Response<Void> rfc3339(String endpoint, OffsetDateTime value, RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/encode/datetime/header/rfc7231",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> rfc7231(@HostParam("endpoint") String endpoint, @HeaderParam("value") DateTimeRfc1123 value,
-            RequestContext requestContext);
+        Response<Void> rfc7231(String endpoint, DateTimeRfc1123 value, RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/encode/datetime/header/unix-timestamp",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> unixTimestamp(@HostParam("endpoint") String endpoint, @HeaderParam("value") long value,
-            RequestContext requestContext);
+        Response<Void> unixTimestamp(String endpoint, long value, RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/encode/datetime/header/unix-timestamp-array",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> unixTimestampArray(@HostParam("endpoint") String endpoint, @HeaderParam("value") String value,
-            RequestContext requestContext);
+        Response<Void> unixTimestampArray(String endpoint, String value, RequestContext requestContext);
+    }
+
+    private static final class HeadersServiceImpl implements HeadersService {
+        private static final ClientLogger LOGGER = new ClientLogger(HeadersServiceImpl.class);
+
+        private final HttpPipeline httpPipeline;
+
+        private HeadersServiceImpl(HttpPipeline pipeline) {
+            this.httpPipeline = pipeline;
+        }
+
+        @Override
+        public Response<Void> defaultMethod(String endpoint, DateTimeRfc1123 value, RequestContext requestContext) {
+            HttpRequest httpRequest
+                = new HttpRequest().setMethod(HttpMethod.GET).setUri(endpoint + "/encode/datetime/header/default");
+            if (value != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("value"), String.valueOf(value));
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 204)) {
+                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == SerializationFormat.XML) {
+                    try {
+                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, JsonSerializer.getInstance(),
+                    null, null, null, HeadersServiceImpl.LOGGER);
+            }
+            try {
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
+            } finally {
+                networkResponse.close();
+            }
+        }
+
+        @Override
+        public Response<Void> rfc3339(String endpoint, OffsetDateTime value, RequestContext requestContext) {
+            HttpRequest httpRequest
+                = new HttpRequest().setMethod(HttpMethod.GET).setUri(endpoint + "/encode/datetime/header/rfc3339");
+            if (value != null) {
+                httpRequest.getHeaders()
+                    .set(HttpHeaderName.fromString("value"), value.format(DateTimeFormatter.ISO_INSTANT));
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 204)) {
+                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == SerializationFormat.XML) {
+                    try {
+                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, JsonSerializer.getInstance(),
+                    null, null, null, HeadersServiceImpl.LOGGER);
+            }
+            try {
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
+            } finally {
+                networkResponse.close();
+            }
+        }
+
+        @Override
+        public Response<Void> rfc7231(String endpoint, DateTimeRfc1123 value, RequestContext requestContext) {
+            HttpRequest httpRequest
+                = new HttpRequest().setMethod(HttpMethod.GET).setUri(endpoint + "/encode/datetime/header/rfc7231");
+            if (value != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("value"), String.valueOf(value));
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 204)) {
+                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == SerializationFormat.XML) {
+                    try {
+                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, JsonSerializer.getInstance(),
+                    null, null, null, HeadersServiceImpl.LOGGER);
+            }
+            try {
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
+            } finally {
+                networkResponse.close();
+            }
+        }
+
+        @Override
+        public Response<Void> unixTimestamp(String endpoint, long value, RequestContext requestContext) {
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.GET)
+                .setUri(endpoint + "/encode/datetime/header/unix-timestamp");
+            httpRequest.getHeaders().set(HttpHeaderName.fromString("value"), String.valueOf(value));
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 204)) {
+                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == SerializationFormat.XML) {
+                    try {
+                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, JsonSerializer.getInstance(),
+                    null, null, null, HeadersServiceImpl.LOGGER);
+            }
+            try {
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
+            } finally {
+                networkResponse.close();
+            }
+        }
+
+        @Override
+        public Response<Void> unixTimestampArray(String endpoint, String value, RequestContext requestContext) {
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.GET)
+                .setUri(endpoint + "/encode/datetime/header/unix-timestamp-array");
+            if (value != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("value"), value);
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 204)) {
+                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == SerializationFormat.XML) {
+                    try {
+                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, JsonSerializer.getInstance(),
+                    null, null, null, HeadersServiceImpl.LOGGER);
+            }
+            try {
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
+            } finally {
+                networkResponse.close();
+            }
+        }
     }
 
     /**
@@ -232,4 +361,6 @@ public final class HeadersImpl {
                 return service.unixTimestampArray(this.client.getEndpoint(), valueConverted, updatedContext);
             });
     }
+
+    private static final ClientLogger LOGGER = new ClientLogger(HeadersImpl.class);
 }

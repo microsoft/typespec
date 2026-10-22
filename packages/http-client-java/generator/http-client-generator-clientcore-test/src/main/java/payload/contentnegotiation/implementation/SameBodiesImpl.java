@@ -1,20 +1,21 @@
 package payload.contentnegotiation.implementation;
 
 import io.clientcore.core.annotations.ReturnType;
-import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.annotations.HeaderParam;
-import io.clientcore.core.http.annotations.HostParam;
-import io.clientcore.core.http.annotations.HttpRequestInformation;
-import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
+import io.clientcore.core.http.models.HttpHeaderName;
 import io.clientcore.core.http.models.HttpMethod;
+import io.clientcore.core.http.models.HttpRequest;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.instrumentation.Instrumentation;
+import io.clientcore.core.instrumentation.logging.ClientLogger;
 import io.clientcore.core.models.binarydata.BinaryData;
-import java.lang.reflect.InvocationTargetException;
+import io.clientcore.core.serialization.SerializationFormat;
+import io.clientcore.core.serialization.json.JsonSerializer;
+import io.clientcore.core.utils.CoreUtils;
+import io.clientcore.core.utils.GeneratedCodeUtils;
 
 /**
  * An instance of this class provides access to all the operations defined in SameBodies.
@@ -46,38 +47,80 @@ public final class SameBodiesImpl {
         this.instrumentation = client.getInstrumentation();
     }
 
-    /**
-     * The interface defining all the services for ContentNegotiationClientSameBodies to be used by the proxy service to
-     * perform REST calls.
-     */
-    @ServiceInterface(name = "ContentNegotiationClientSameBodies", host = "{endpoint}")
     public interface SameBodiesService {
         static SameBodiesService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("payload.contentnegotiation.implementation.SameBodiesServiceImpl");
-                return (SameBodiesService) clazz.getMethod("getNewInstance", HttpPipeline.class).invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
+            return new SameBodiesServiceImpl(pipeline);
         }
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/content-negotiation/same-body",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<BinaryData> getAvatarAsPng(@HostParam("endpoint") String endpoint,
-            @HeaderParam("accept") String accept, RequestContext requestContext);
+        Response<BinaryData> getAvatarAsPng(String endpoint, String accept, RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/content-negotiation/same-body",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<BinaryData> getAvatarAsJpeg(@HostParam("endpoint") String endpoint,
-            @HeaderParam("accept") String accept, RequestContext requestContext);
+        Response<BinaryData> getAvatarAsJpeg(String endpoint, String accept, RequestContext requestContext);
+    }
+
+    private static final class SameBodiesServiceImpl implements SameBodiesService {
+        private static final ClientLogger LOGGER = new ClientLogger(SameBodiesServiceImpl.class);
+
+        private final HttpPipeline httpPipeline;
+
+        private SameBodiesServiceImpl(HttpPipeline pipeline) {
+            this.httpPipeline = pipeline;
+        }
+
+        @Override
+        public Response<BinaryData> getAvatarAsPng(String endpoint, String accept, RequestContext requestContext) {
+            HttpRequest httpRequest
+                = new HttpRequest().setMethod(HttpMethod.GET).setUri(endpoint + "/content-negotiation/same-body");
+            if (accept != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("accept"), accept);
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 200)) {
+                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == SerializationFormat.XML) {
+                    try {
+                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, JsonSerializer.getInstance(),
+                    null, null, null, SameBodiesServiceImpl.LOGGER);
+            }
+            return networkResponse;
+        }
+
+        @Override
+        public Response<BinaryData> getAvatarAsJpeg(String endpoint, String accept, RequestContext requestContext) {
+            HttpRequest httpRequest
+                = new HttpRequest().setMethod(HttpMethod.GET).setUri(endpoint + "/content-negotiation/same-body");
+            if (accept != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("accept"), accept);
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 200)) {
+                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == SerializationFormat.XML) {
+                    try {
+                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, JsonSerializer.getInstance(),
+                    null, null, null, SameBodiesServiceImpl.LOGGER);
+            }
+            return networkResponse;
+        }
     }
 
     /**
@@ -115,4 +158,6 @@ public final class SameBodiesImpl {
                 return service.getAvatarAsJpeg(this.client.getEndpoint(), accept, updatedContext);
             });
     }
+
+    private static final ClientLogger LOGGER = new ClientLogger(SameBodiesImpl.class);
 }

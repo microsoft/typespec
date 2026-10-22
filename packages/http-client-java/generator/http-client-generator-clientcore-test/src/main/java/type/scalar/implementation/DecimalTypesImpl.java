@@ -1,21 +1,22 @@
 package type.scalar.implementation;
 
 import io.clientcore.core.annotations.ReturnType;
-import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.annotations.BodyParam;
-import io.clientcore.core.http.annotations.HeaderParam;
-import io.clientcore.core.http.annotations.HostParam;
-import io.clientcore.core.http.annotations.HttpRequestInformation;
-import io.clientcore.core.http.annotations.QueryParam;
-import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
+import io.clientcore.core.http.models.HttpHeaderName;
 import io.clientcore.core.http.models.HttpMethod;
+import io.clientcore.core.http.models.HttpRequest;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.instrumentation.Instrumentation;
-import java.lang.reflect.InvocationTargetException;
+import io.clientcore.core.instrumentation.logging.ClientLogger;
+import io.clientcore.core.models.binarydata.BinaryData;
+import io.clientcore.core.serialization.SerializationFormat;
+import io.clientcore.core.serialization.json.JsonSerializer;
+import io.clientcore.core.utils.CoreUtils;
+import io.clientcore.core.utils.GeneratedCodeUtils;
+import io.clientcore.core.utils.UriBuilder;
 import java.math.BigDecimal;
 
 /**
@@ -48,48 +49,133 @@ public final class DecimalTypesImpl {
         this.instrumentation = client.getInstrumentation();
     }
 
-    /**
-     * The interface defining all the services for ScalarClientDecimalTypes to be used by the proxy service to perform
-     * REST calls.
-     */
-    @ServiceInterface(name = "ScalarClientDecimalTypes", host = "{endpoint}")
     public interface DecimalTypesService {
         static DecimalTypesService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("type.scalar.implementation.DecimalTypesServiceImpl");
-                return (DecimalTypesService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
+            return new DecimalTypesServiceImpl(pipeline);
         }
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/type/scalar/decimal/response_body",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<BigDecimal> responseBody(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
-            RequestContext requestContext);
+        Response<BigDecimal> responseBody(String endpoint, String accept, RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.PUT,
-            path = "/type/scalar/decimal/resquest_body",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> requestBody(@HostParam("endpoint") String endpoint,
-            @HeaderParam("content-type") String contentType, @BodyParam("application/json") BigDecimal body,
-            RequestContext requestContext);
+        Response<Void> requestBody(String endpoint, String contentType, BigDecimal body, RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/type/scalar/decimal/request_parameter",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> requestParameter(@HostParam("endpoint") String endpoint, @QueryParam("value") BigDecimal value,
-            RequestContext requestContext);
+        Response<Void> requestParameter(String endpoint, BigDecimal value, RequestContext requestContext);
+    }
+
+    private static final class DecimalTypesServiceImpl implements DecimalTypesService {
+        private static final ClientLogger LOGGER = new ClientLogger(DecimalTypesServiceImpl.class);
+
+        private final HttpPipeline httpPipeline;
+
+        private final JsonSerializer jsonSerializer = JsonSerializer.getInstance();
+
+        private DecimalTypesServiceImpl(HttpPipeline pipeline) {
+            this.httpPipeline = pipeline;
+        }
+
+        @Override
+        public Response<BigDecimal> responseBody(String endpoint, String accept, RequestContext requestContext) {
+            HttpRequest httpRequest
+                = new HttpRequest().setMethod(HttpMethod.GET).setUri(endpoint + "/type/scalar/decimal/response_body");
+            if (accept != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("Accept"), accept);
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 200)) {
+                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == SerializationFormat.XML) {
+                    try {
+                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer, null,
+                    null, null, DecimalTypesServiceImpl.LOGGER);
+            }
+            try {
+                BigDecimal deserializedResult;
+                deserializedResult = CoreUtils.decodeNetworkResponse(networkResponse.getValue(), this.jsonSerializer,
+                    CoreUtils.createParameterizedType(Response.class, BigDecimal.class));
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(),
+                    deserializedResult);
+            } finally {
+                networkResponse.close();
+            }
+        }
+
+        @Override
+        public Response<Void> requestBody(String endpoint, String contentType, BigDecimal body,
+            RequestContext requestContext) {
+            HttpRequest httpRequest
+                = new HttpRequest().setMethod(HttpMethod.PUT).setUri(endpoint + "/type/scalar/decimal/resquest_body");
+            if (contentType != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("content-type"), contentType);
+            }
+            if (body != null) {
+                if (httpRequest.getHeaders().get(HttpHeaderName.CONTENT_TYPE) == null) {
+                    httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, "application/json");
+                }
+                httpRequest.setBody(BinaryData.fromObject(body, this.jsonSerializer));
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 204)) {
+                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == SerializationFormat.XML) {
+                    try {
+                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer, null,
+                    null, null, DecimalTypesServiceImpl.LOGGER);
+            }
+            try {
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
+            } finally {
+                networkResponse.close();
+            }
+        }
+
+        @Override
+        public Response<Void> requestParameter(String endpoint, BigDecimal value, RequestContext requestContext) {
+            UriBuilder uriBuilder = UriBuilder.parse(endpoint + "/type/scalar/decimal/request_parameter");
+            GeneratedCodeUtils.addQueryParameter(uriBuilder, "value", true, value, true);
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.GET).setUri(uriBuilder.toString());
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 204)) {
+                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == SerializationFormat.XML) {
+                    try {
+                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer, null,
+                    null, null, DecimalTypesServiceImpl.LOGGER);
+            }
+            try {
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
+            } finally {
+                networkResponse.close();
+            }
+        }
     }
 
     /**
@@ -146,4 +232,6 @@ public final class DecimalTypesImpl {
                 return service.requestParameter(this.client.getEndpoint(), value, updatedContext);
             });
     }
+
+    private static final ClientLogger LOGGER = new ClientLogger(DecimalTypesImpl.class);
 }

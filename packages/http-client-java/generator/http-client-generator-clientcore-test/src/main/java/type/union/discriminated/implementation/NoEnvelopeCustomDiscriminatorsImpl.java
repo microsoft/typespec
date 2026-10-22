@@ -1,22 +1,22 @@
 package type.union.discriminated.implementation;
 
 import io.clientcore.core.annotations.ReturnType;
-import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.annotations.BodyParam;
-import io.clientcore.core.http.annotations.HeaderParam;
-import io.clientcore.core.http.annotations.HostParam;
-import io.clientcore.core.http.annotations.HttpRequestInformation;
-import io.clientcore.core.http.annotations.QueryParam;
-import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
+import io.clientcore.core.http.models.HttpHeaderName;
 import io.clientcore.core.http.models.HttpMethod;
+import io.clientcore.core.http.models.HttpRequest;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.instrumentation.Instrumentation;
+import io.clientcore.core.instrumentation.logging.ClientLogger;
 import io.clientcore.core.models.binarydata.BinaryData;
-import java.lang.reflect.InvocationTargetException;
+import io.clientcore.core.serialization.SerializationFormat;
+import io.clientcore.core.serialization.json.JsonSerializer;
+import io.clientcore.core.utils.CoreUtils;
+import io.clientcore.core.utils.GeneratedCodeUtils;
+import io.clientcore.core.utils.UriBuilder;
 
 /**
  * An instance of this class provides access to all the operations defined in NoEnvelopeCustomDiscriminators.
@@ -48,41 +48,94 @@ public final class NoEnvelopeCustomDiscriminatorsImpl {
         this.instrumentation = client.getInstrumentation();
     }
 
-    /**
-     * The interface defining all the services for DiscriminatedClientNoEnvelopeCustomDiscriminators to be used by the
-     * proxy service to perform REST calls.
-     */
-    @ServiceInterface(name = "DiscriminatedClientNoEnvelopeCustomDiscriminators", host = "{endpoint}")
     public interface NoEnvelopeCustomDiscriminatorsService {
         static NoEnvelopeCustomDiscriminatorsService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class
-                    .forName("type.union.discriminated.implementation.NoEnvelopeCustomDiscriminatorsServiceImpl");
-                return (NoEnvelopeCustomDiscriminatorsService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
+            return new NoEnvelopeCustomDiscriminatorsServiceImpl(pipeline);
         }
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/type/union/discriminated/no-envelope/custom-discriminator",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<BinaryData> get(@HostParam("endpoint") String endpoint, @QueryParam("type") String type,
-            @HeaderParam("Accept") String accept, RequestContext requestContext);
+        Response<BinaryData> get(String endpoint, String type, String accept, RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.PUT,
-            path = "/type/union/discriminated/no-envelope/custom-discriminator",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<BinaryData> put(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
-            @BodyParam("application/json") BinaryData input, RequestContext requestContext);
+        Response<BinaryData> put(String endpoint, String contentType, String accept, BinaryData input,
+            RequestContext requestContext);
+    }
+
+    private static final class NoEnvelopeCustomDiscriminatorsServiceImpl
+        implements NoEnvelopeCustomDiscriminatorsService {
+        private static final ClientLogger LOGGER = new ClientLogger(NoEnvelopeCustomDiscriminatorsServiceImpl.class);
+
+        private final HttpPipeline httpPipeline;
+
+        private NoEnvelopeCustomDiscriminatorsServiceImpl(HttpPipeline pipeline) {
+            this.httpPipeline = pipeline;
+        }
+
+        @Override
+        public Response<BinaryData> get(String endpoint, String type, String accept, RequestContext requestContext) {
+            UriBuilder uriBuilder
+                = UriBuilder.parse(endpoint + "/type/union/discriminated/no-envelope/custom-discriminator");
+            GeneratedCodeUtils.addQueryParameter(uriBuilder, "type", true, type, true);
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.GET).setUri(uriBuilder.toString());
+            if (accept != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("Accept"), accept);
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 200)) {
+                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == SerializationFormat.XML) {
+                    try {
+                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, JsonSerializer.getInstance(),
+                    null, null, null, NoEnvelopeCustomDiscriminatorsServiceImpl.LOGGER);
+            }
+            return networkResponse;
+        }
+
+        @Override
+        public Response<BinaryData> put(String endpoint, String contentType, String accept, BinaryData input,
+            RequestContext requestContext) {
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.PUT)
+                .setUri(endpoint + "/type/union/discriminated/no-envelope/custom-discriminator");
+            if (contentType != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("Content-Type"), contentType);
+            }
+            if (accept != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("Accept"), accept);
+            }
+            if (input != null) {
+                if (httpRequest.getHeaders().get(HttpHeaderName.CONTENT_TYPE) == null) {
+                    httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, "application/json");
+                }
+                httpRequest.setBody(input);
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 200)) {
+                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == SerializationFormat.XML) {
+                    try {
+                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, JsonSerializer.getInstance(),
+                    null, null, null, NoEnvelopeCustomDiscriminatorsServiceImpl.LOGGER);
+            }
+            return networkResponse;
+        }
     }
 
     /**
@@ -127,4 +180,6 @@ public final class NoEnvelopeCustomDiscriminatorsImpl {
                 return service.put(this.client.getEndpoint(), contentType, accept, input, updatedContext);
             });
     }
+
+    private static final ClientLogger LOGGER = new ClientLogger(NoEnvelopeCustomDiscriminatorsImpl.class);
 }

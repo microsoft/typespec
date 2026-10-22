@@ -1,21 +1,20 @@
 package encode.bytes.implementation;
 
 import io.clientcore.core.annotations.ReturnType;
-import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.annotations.HostParam;
-import io.clientcore.core.http.annotations.HttpRequestInformation;
-import io.clientcore.core.http.annotations.QueryParam;
-import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
 import io.clientcore.core.http.models.HttpMethod;
+import io.clientcore.core.http.models.HttpRequest;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.instrumentation.Instrumentation;
+import io.clientcore.core.instrumentation.logging.ClientLogger;
 import io.clientcore.core.models.binarydata.BinaryData;
+import io.clientcore.core.serialization.json.JsonSerializer;
 import io.clientcore.core.utils.Base64Uri;
-import java.lang.reflect.InvocationTargetException;
+import io.clientcore.core.utils.GeneratedCodeUtils;
+import io.clientcore.core.utils.UriBuilder;
 import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -50,54 +49,88 @@ public final class QueriesImpl {
         this.instrumentation = client.getInstrumentation();
     }
 
-    /**
-     * The interface defining all the services for BytesClientQueries to be used by the proxy service to perform REST
-     * calls.
-     */
-    @ServiceInterface(name = "BytesClientQueries", host = "{endpoint}")
     public interface QueriesService {
         static QueriesService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("encode.bytes.implementation.QueriesServiceImpl");
-                return (QueriesService) clazz.getMethod("getNewInstance", HttpPipeline.class).invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
+            return new QueriesServiceImpl(pipeline);
         }
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/encode/bytes/query/default",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> defaultMethod(@HostParam("endpoint") String endpoint, @QueryParam("value") String value,
-            RequestContext requestContext);
+        Response<Void> defaultMethod(String endpoint, String value, RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/encode/bytes/query/base64",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> base64(@HostParam("endpoint") String endpoint, @QueryParam("value") String value,
-            RequestContext requestContext);
+        Response<Void> base64(String endpoint, String value, RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/encode/bytes/query/base64url",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> base64url(@HostParam("endpoint") String endpoint, @QueryParam("value") Base64Uri value,
-            RequestContext requestContext);
+        Response<Void> base64url(String endpoint, Base64Uri value, RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/encode/bytes/query/base64url-array",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> base64urlArray(@HostParam("endpoint") String endpoint, @QueryParam("value") String value,
-            RequestContext requestContext);
+        Response<Void> base64urlArray(String endpoint, String value, RequestContext requestContext);
+    }
+
+    private static final class QueriesServiceImpl implements QueriesService {
+        private static final ClientLogger LOGGER = new ClientLogger(QueriesServiceImpl.class);
+
+        private final HttpPipeline httpPipeline;
+
+        private QueriesServiceImpl(HttpPipeline pipeline) {
+            this.httpPipeline = pipeline;
+        }
+
+        @Override
+        public Response<Void> defaultMethod(String endpoint, String value, RequestContext requestContext) {
+            UriBuilder uriBuilder = UriBuilder.parse(endpoint + "/encode/bytes/query/default");
+            GeneratedCodeUtils.addQueryParameter(uriBuilder, "value", true, value, true);
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.GET).setUri(uriBuilder.toString());
+            Response<BinaryData> networkResponse
+                = ClientCoreProtocolUtils.send(this.httpPipeline, httpRequest, requestContext);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 204)) {
+                ClientCoreProtocolUtils.handleUnexpectedResponse(networkResponse, JsonSerializer.getInstance(), null,
+                    null, null, QueriesServiceImpl.LOGGER);
+            }
+            return ClientCoreProtocolUtils.mapResponse(networkResponse, () -> null);
+        }
+
+        @Override
+        public Response<Void> base64(String endpoint, String value, RequestContext requestContext) {
+            UriBuilder uriBuilder = UriBuilder.parse(endpoint + "/encode/bytes/query/base64");
+            GeneratedCodeUtils.addQueryParameter(uriBuilder, "value", true, value, true);
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.GET).setUri(uriBuilder.toString());
+            Response<BinaryData> networkResponse
+                = ClientCoreProtocolUtils.send(this.httpPipeline, httpRequest, requestContext);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 204)) {
+                ClientCoreProtocolUtils.handleUnexpectedResponse(networkResponse, JsonSerializer.getInstance(), null,
+                    null, null, QueriesServiceImpl.LOGGER);
+            }
+            return ClientCoreProtocolUtils.mapResponse(networkResponse, () -> null);
+        }
+
+        @Override
+        public Response<Void> base64url(String endpoint, Base64Uri value, RequestContext requestContext) {
+            UriBuilder uriBuilder = UriBuilder.parse(endpoint + "/encode/bytes/query/base64url");
+            GeneratedCodeUtils.addQueryParameter(uriBuilder, "value", true, value, true);
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.GET).setUri(uriBuilder.toString());
+            Response<BinaryData> networkResponse
+                = ClientCoreProtocolUtils.send(this.httpPipeline, httpRequest, requestContext);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 204)) {
+                ClientCoreProtocolUtils.handleUnexpectedResponse(networkResponse, JsonSerializer.getInstance(), null,
+                    null, null, QueriesServiceImpl.LOGGER);
+            }
+            return ClientCoreProtocolUtils.mapResponse(networkResponse, () -> null);
+        }
+
+        @Override
+        public Response<Void> base64urlArray(String endpoint, String value, RequestContext requestContext) {
+            UriBuilder uriBuilder = UriBuilder.parse(endpoint + "/encode/bytes/query/base64url-array");
+            GeneratedCodeUtils.addQueryParameter(uriBuilder, "value", true, value, true);
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.GET).setUri(uriBuilder.toString());
+            Response<BinaryData> networkResponse
+                = ClientCoreProtocolUtils.send(this.httpPipeline, httpRequest, requestContext);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 204)) {
+                ClientCoreProtocolUtils.handleUnexpectedResponse(networkResponse, JsonSerializer.getInstance(), null,
+                    null, null, QueriesServiceImpl.LOGGER);
+            }
+            return ClientCoreProtocolUtils.mapResponse(networkResponse, () -> null);
+        }
     }
 
     /**
@@ -206,4 +239,6 @@ public final class QueriesImpl {
                 return service.base64urlArray(this.client.getEndpoint(), valueConverted, updatedContext);
             });
     }
+
+    private static final ClientLogger LOGGER = new ClientLogger(QueriesImpl.class);
 }

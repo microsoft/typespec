@@ -1,21 +1,18 @@
 package encode.bytes.implementation;
 
 import io.clientcore.core.annotations.ReturnType;
-import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.annotations.HeaderParam;
-import io.clientcore.core.http.annotations.HostParam;
-import io.clientcore.core.http.annotations.HttpRequestInformation;
-import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
 import io.clientcore.core.http.models.HttpMethod;
+import io.clientcore.core.http.models.HttpRequest;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.instrumentation.Instrumentation;
+import io.clientcore.core.instrumentation.logging.ClientLogger;
 import io.clientcore.core.models.binarydata.BinaryData;
+import io.clientcore.core.serialization.json.JsonSerializer;
 import io.clientcore.core.utils.Base64Uri;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,6 +21,7 @@ import java.util.stream.Collectors;
  * An instance of this class provides access to all the operations defined in Headers.
  */
 public final class HeadersImpl {
+
     /**
      * The proxy service used to perform REST calls.
      */
@@ -41,7 +39,7 @@ public final class HeadersImpl {
 
     /**
      * Initializes an instance of HeadersImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     HeadersImpl(BytesClientImpl client) {
@@ -50,59 +48,103 @@ public final class HeadersImpl {
         this.instrumentation = client.getInstrumentation();
     }
 
-    /**
-     * The interface defining all the services for BytesClientHeaders to be used by the proxy service to perform REST
-     * calls.
-     */
-    @ServiceInterface(name = "BytesClientHeaders", host = "{endpoint}")
     public interface HeadersService {
-        static HeadersService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("encode.bytes.implementation.HeadersServiceImpl");
-                return (HeadersService) clazz.getMethod("getNewInstance", HttpPipeline.class).invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
 
+        static HeadersService getNewInstance(HttpPipeline pipeline) {
+            return new HeadersServiceImpl(pipeline);
         }
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/encode/bytes/header/default",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> defaultMethod(@HostParam("endpoint") String endpoint, @HeaderParam("value") String value,
-            RequestContext requestContext);
+        Response<Void> defaultMethod(String endpoint, String value, RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/encode/bytes/header/base64",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> base64(@HostParam("endpoint") String endpoint, @HeaderParam("value") String value,
-            RequestContext requestContext);
+        Response<Void> base64(String endpoint, String value, RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/encode/bytes/header/base64url",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> base64url(@HostParam("endpoint") String endpoint, @HeaderParam("value") Base64Uri value,
-            RequestContext requestContext);
+        Response<Void> base64url(String endpoint, Base64Uri value, RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/encode/bytes/header/base64url-array",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> base64urlArray(@HostParam("endpoint") String endpoint, @HeaderParam("value") String value,
-            RequestContext requestContext);
+        Response<Void> base64urlArray(String endpoint, String value, RequestContext requestContext);
+    }
+
+    private static final class HeadersServiceImpl implements HeadersService {
+
+        private static final ClientLogger LOGGER = new ClientLogger(HeadersServiceImpl.class);
+
+        private final HttpPipeline httpPipeline;
+
+        private HeadersServiceImpl(HttpPipeline pipeline) {
+            this.httpPipeline = pipeline;
+        }
+
+        @Override
+        public Response<Void> defaultMethod(String endpoint, String value, RequestContext requestContext) {
+            HttpRequest httpRequest
+                = new HttpRequest().setMethod(HttpMethod.GET).setUri(endpoint + "/encode/bytes/header/default");
+            if (value != null) {
+                httpRequest.getHeaders().set(EncodeBytesConstants.HEADER_VALUE, value);
+            }
+            Response<BinaryData> networkResponse
+                = ClientCoreProtocolUtils.send(this.httpPipeline, httpRequest, requestContext);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 204)) {
+                ClientCoreProtocolUtils.handleUnexpectedResponse(networkResponse, JsonSerializer.getInstance(), null,
+                    null, null, HeadersServiceImpl.LOGGER);
+            }
+            return ClientCoreProtocolUtils.mapResponse(networkResponse, () -> null);
+        }
+
+        @Override
+        public Response<Void> base64(String endpoint, String value, RequestContext requestContext) {
+            HttpRequest httpRequest
+                = new HttpRequest().setMethod(HttpMethod.GET).setUri(endpoint + "/encode/bytes/header/base64");
+            if (value != null) {
+                httpRequest.getHeaders().set(EncodeBytesConstants.HEADER_VALUE, value);
+            }
+            Response<BinaryData> networkResponse
+                = ClientCoreProtocolUtils.send(this.httpPipeline, httpRequest, requestContext);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 204)) {
+                ClientCoreProtocolUtils.handleUnexpectedResponse(networkResponse, JsonSerializer.getInstance(), null,
+                    null, null, HeadersServiceImpl.LOGGER);
+            }
+            return ClientCoreProtocolUtils.mapResponse(networkResponse, () -> null);
+        }
+
+        @Override
+        public Response<Void> base64url(String endpoint, Base64Uri value, RequestContext requestContext) {
+            HttpRequest httpRequest
+                = new HttpRequest().setMethod(HttpMethod.GET).setUri(endpoint + "/encode/bytes/header/base64url");
+            if (value != null) {
+                httpRequest.getHeaders().set(EncodeBytesConstants.HEADER_VALUE, String.valueOf(value));
+            }
+            Response<BinaryData> networkResponse
+                = ClientCoreProtocolUtils.send(this.httpPipeline, httpRequest, requestContext);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 204)) {
+                ClientCoreProtocolUtils.handleUnexpectedResponse(networkResponse, JsonSerializer.getInstance(), null,
+                    null, null, HeadersServiceImpl.LOGGER);
+            }
+            return ClientCoreProtocolUtils.mapResponse(networkResponse, () -> null);
+        }
+
+        @Override
+        public Response<Void> base64urlArray(String endpoint, String value, RequestContext requestContext) {
+            HttpRequest httpRequest
+                = new HttpRequest().setMethod(HttpMethod.GET).setUri(endpoint + "/encode/bytes/header/base64url-array");
+            if (value != null) {
+                httpRequest.getHeaders().set(EncodeBytesConstants.HEADER_VALUE, value);
+            }
+            Response<BinaryData> networkResponse
+                = ClientCoreProtocolUtils.send(this.httpPipeline, httpRequest, requestContext);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 204)) {
+                ClientCoreProtocolUtils.handleUnexpectedResponse(networkResponse, JsonSerializer.getInstance(), null,
+                    null, null, HeadersServiceImpl.LOGGER);
+            }
+            return ClientCoreProtocolUtils.mapResponse(networkResponse, () -> null);
+        }
     }
 
     /**
      * The defaultMethod operation.
-     * 
+     *
      * @param value The value parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -121,7 +163,7 @@ public final class HeadersImpl {
 
     /**
      * The base64 operation.
-     * 
+     *
      * @param value The value parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -140,7 +182,7 @@ public final class HeadersImpl {
 
     /**
      * The base64url operation.
-     * 
+     *
      * @param value The value parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -159,7 +201,7 @@ public final class HeadersImpl {
 
     /**
      * The base64urlArray operation.
-     * 
+     *
      * @param value The value parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -196,7 +238,6 @@ public final class HeadersImpl {
                                 if (itemValueString.charAt(endOffset) != '"') {
                                     break;
                                 }
-
                                 endOffset--;
                             }
                             return itemValueString.substring(startOffset, endOffset + 1);
@@ -206,4 +247,6 @@ public final class HeadersImpl {
                 return service.base64urlArray(this.client.getEndpoint(), valueConverted, updatedContext);
             });
     }
+
+    private static final ClientLogger LOGGER = new ClientLogger(HeadersImpl.class);
 }

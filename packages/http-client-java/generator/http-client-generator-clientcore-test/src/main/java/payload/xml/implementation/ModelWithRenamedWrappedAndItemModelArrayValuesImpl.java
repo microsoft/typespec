@@ -1,20 +1,20 @@
 package payload.xml.implementation;
 
 import io.clientcore.core.annotations.ReturnType;
-import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.annotations.BodyParam;
-import io.clientcore.core.http.annotations.HeaderParam;
-import io.clientcore.core.http.annotations.HostParam;
-import io.clientcore.core.http.annotations.HttpRequestInformation;
-import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
+import io.clientcore.core.http.models.HttpHeaderName;
 import io.clientcore.core.http.models.HttpMethod;
+import io.clientcore.core.http.models.HttpRequest;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.instrumentation.Instrumentation;
-import java.lang.reflect.InvocationTargetException;
+import io.clientcore.core.instrumentation.logging.ClientLogger;
+import io.clientcore.core.models.binarydata.BinaryData;
+import io.clientcore.core.serialization.json.JsonSerializer;
+import io.clientcore.core.serialization.xml.XmlSerializer;
+import io.clientcore.core.utils.CoreUtils;
 import payload.xml.ModelWithRenamedWrappedAndItemModelArray;
 
 /**
@@ -22,6 +22,7 @@ import payload.xml.ModelWithRenamedWrappedAndItemModelArray;
  * ModelWithRenamedWrappedAndItemModelArrayValues.
  */
 public final class ModelWithRenamedWrappedAndItemModelArrayValuesImpl {
+
     /**
      * The proxy service used to perform REST calls.
      */
@@ -39,7 +40,7 @@ public final class ModelWithRenamedWrappedAndItemModelArrayValuesImpl {
 
     /**
      * Initializes an instance of ModelWithRenamedWrappedAndItemModelArrayValuesImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     ModelWithRenamedWrappedAndItemModelArrayValuesImpl(XmlClientImpl client) {
@@ -48,47 +49,88 @@ public final class ModelWithRenamedWrappedAndItemModelArrayValuesImpl {
         this.instrumentation = client.getInstrumentation();
     }
 
-    /**
-     * The interface defining all the services for XmlClientModelWithRenamedWrappedAndItemModelArrayValues to be used by
-     * the proxy service to perform REST calls.
-     */
-    @ServiceInterface(name = "XmlClientModelWithRenamedWrappedAndItemModelArrayValues", host = "{endpoint}")
     public interface ModelWithRenamedWrappedAndItemModelArrayValuesService {
-        static ModelWithRenamedWrappedAndItemModelArrayValuesService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class
-                    .forName("payload.xml.implementation.ModelWithRenamedWrappedAndItemModelArrayValuesServiceImpl");
-                return (ModelWithRenamedWrappedAndItemModelArrayValuesService) clazz
-                    .getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
 
+        static ModelWithRenamedWrappedAndItemModelArrayValuesService getNewInstance(HttpPipeline pipeline) {
+            return new ModelWithRenamedWrappedAndItemModelArrayValuesServiceImpl(pipeline);
         }
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/payload/xml/modelWithRenamedWrappedAndItemModelArray",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<ModelWithRenamedWrappedAndItemModelArray> get(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Accept") String accept, RequestContext requestContext);
-
-        @HttpRequestInformation(
-            method = HttpMethod.PUT,
-            path = "/payload/xml/modelWithRenamedWrappedAndItemModelArray",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> put(@HostParam("endpoint") String endpoint, @HeaderParam("content-type") String contentType,
-            @BodyParam("application/xml") ModelWithRenamedWrappedAndItemModelArray input,
+        Response<ModelWithRenamedWrappedAndItemModelArray> get(String endpoint, String accept,
             RequestContext requestContext);
+
+        Response<Void> put(String endpoint, String contentType, ModelWithRenamedWrappedAndItemModelArray input,
+            RequestContext requestContext);
+    }
+
+    private static final class ModelWithRenamedWrappedAndItemModelArrayValuesServiceImpl
+        implements ModelWithRenamedWrappedAndItemModelArrayValuesService {
+
+        private static final ClientLogger LOGGER
+            = new ClientLogger(ModelWithRenamedWrappedAndItemModelArrayValuesServiceImpl.class);
+
+        private final HttpPipeline httpPipeline;
+
+        private static final JsonSerializer JSON_SERIALIZER = JsonSerializer.getInstance();
+
+        private static final XmlSerializer XML_SERIALIZER = XmlSerializer.getInstance();
+
+        private ModelWithRenamedWrappedAndItemModelArrayValuesServiceImpl(HttpPipeline pipeline) {
+            this.httpPipeline = pipeline;
+        }
+
+        @Override
+        public Response<ModelWithRenamedWrappedAndItemModelArray> get(String endpoint, String accept,
+            RequestContext requestContext) {
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.GET)
+                .setUri(endpoint + "/payload/xml/modelWithRenamedWrappedAndItemModelArray");
+            if (accept != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.ACCEPT, accept);
+            }
+            Response<BinaryData> networkResponse
+                = ClientCoreProtocolUtils.send(this.httpPipeline, httpRequest, requestContext);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 200)) {
+                ClientCoreProtocolUtils.handleUnexpectedResponse(networkResponse,
+                    ModelWithRenamedWrappedAndItemModelArrayValuesServiceImpl.JSON_SERIALIZER,
+                    ModelWithRenamedWrappedAndItemModelArrayValuesServiceImpl.XML_SERIALIZER, null, null,
+                    ModelWithRenamedWrappedAndItemModelArrayValuesServiceImpl.LOGGER);
+            }
+            return ClientCoreProtocolUtils.mapResponse(networkResponse,
+                () -> ClientCoreProtocolUtils.readMixed(networkResponse,
+                    () -> CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
+                        ModelWithRenamedWrappedAndItemModelArrayValuesServiceImpl.JSON_SERIALIZER,
+                        PayloadXmlConstants.RESPONSE_OF_MODEL_WITH_RENAMED_WRAPPED_AND_ITEM_MODEL_ARRAY_TYPE),
+                    () -> CoreUtils.decodeNetworkResponse(networkResponse.getValue(),
+                        ModelWithRenamedWrappedAndItemModelArrayValuesServiceImpl.XML_SERIALIZER,
+                        PayloadXmlConstants.RESPONSE_OF_MODEL_WITH_RENAMED_WRAPPED_AND_ITEM_MODEL_ARRAY_TYPE)));
+        }
+
+        @Override
+        public Response<Void> put(String endpoint, String contentType, ModelWithRenamedWrappedAndItemModelArray input,
+            RequestContext requestContext) {
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.PUT)
+                .setUri(endpoint + "/payload/xml/modelWithRenamedWrappedAndItemModelArray");
+            if (contentType != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, contentType);
+            }
+            ClientCoreProtocolUtils.setBody(httpRequest, input, "application/xml", () -> BinaryData.fromObject(input,
+                ModelWithRenamedWrappedAndItemModelArrayValuesServiceImpl.XML_SERIALIZER));
+            Response<BinaryData> networkResponse
+                = ClientCoreProtocolUtils.send(this.httpPipeline, httpRequest, requestContext);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 204)) {
+                ClientCoreProtocolUtils.handleUnexpectedResponse(networkResponse,
+                    ModelWithRenamedWrappedAndItemModelArrayValuesServiceImpl.JSON_SERIALIZER,
+                    ModelWithRenamedWrappedAndItemModelArrayValuesServiceImpl.XML_SERIALIZER, null, null,
+                    ModelWithRenamedWrappedAndItemModelArrayValuesServiceImpl.LOGGER);
+            }
+            return ClientCoreProtocolUtils.mapResponse(networkResponse, () -> null);
+        }
     }
 
     /**
      * The get operation.
-     * 
+     *
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws HttpResponseException thrown if the service returns an error.
@@ -106,7 +148,7 @@ public final class ModelWithRenamedWrappedAndItemModelArrayValuesImpl {
 
     /**
      * The put operation.
-     * 
+     *
      * @param input The input parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -123,4 +165,7 @@ public final class ModelWithRenamedWrappedAndItemModelArrayValuesImpl {
                 return service.put(this.client.getEndpoint(), contentType, input, updatedContext);
             });
     }
+
+    private static final ClientLogger LOGGER
+        = new ClientLogger(ModelWithRenamedWrappedAndItemModelArrayValuesImpl.class);
 }
