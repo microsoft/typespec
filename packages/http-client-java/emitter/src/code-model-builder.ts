@@ -1273,6 +1273,9 @@ export class CodeModelBuilder {
       });
       return undefined;
     };
+    if (this.options["stream-style-serialization"] === false) {
+      return unsupported();
+    }
     const sseMetadata: SdkSseMetadata | undefined = response.sseMetadata;
     if (!sseMetadata || sseMetadata.events.length === 0) {
       return unsupported();
@@ -1288,6 +1291,12 @@ export class CodeModelBuilder {
         return undefined;
       }
       if (event.payloadType.kind !== "model" && event.payloadType.kind !== "array") {
+        return undefined;
+      }
+      if (
+        event.payloadType.kind === "array" &&
+        !this.isSupportedSseArrayElementType(event.payloadType.valueType)
+      ) {
         return undefined;
       }
       // This only names anonymous code-model schemas; the generator owns Java SSE type names.
@@ -1344,6 +1353,28 @@ export class CodeModelBuilder {
         terminal: event.isTerminalEvent,
       })),
     };
+  }
+
+  private isSupportedSseArrayElementType(type: SdkType): boolean {
+    if (isSdkBuiltInKind(type.kind)) {
+      return true;
+    }
+    switch (type.kind) {
+      case "array":
+        return this.isSupportedSseArrayElementType(type.valueType);
+      case "nullable":
+        return this.isSupportedSseArrayElementType(type.type);
+      case "model":
+      case "enum":
+      case "enumvalue":
+      case "constant":
+      case "duration":
+      case "utcDateTime":
+      case "offsetDateTime":
+        return true;
+      default:
+        return false;
+    }
   }
 
   private processRouteForPaged(

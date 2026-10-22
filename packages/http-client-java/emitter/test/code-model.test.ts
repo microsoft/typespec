@@ -84,6 +84,46 @@ describe("code model characterization", () => {
     expect(operation.responses?.[0]).toMatchObject({ binary: true });
   });
 
+  it("warns and keeps arrays of maps as binary SSE responses", async () => {
+    const program = await compile(
+      NodeHost,
+      fileURLToPath(new URL("./fixtures/sse-array-unsupported.tsp", import.meta.url)),
+      { noEmit: true },
+    );
+    expectDiagnosticEmpty(program.diagnostics);
+
+    const codeModel = await new CodeModelBuilder(program, {
+      program,
+      emitterOutputDir: "/code-model-test-output",
+      options: {
+        flavor: "azure",
+        "dev-options": { "enable-sse": true },
+      } as any,
+      perf: {
+        startTimer: () => ({ end: () => 0 }),
+        time: (_label, callback) => callback(),
+        timeAsync: (_label, callback) => callback(),
+        report: () => {},
+      },
+    }).build();
+
+    expectDiagnostics(
+      program.diagnostics.filter(
+        (diagnostic) =>
+          diagnostic.code === "@typespec/http-client-java/experimental-sse-unsupported",
+      ),
+      [
+        {
+          code: "@typespec/http-client-java/experimental-sse-unsupported",
+          severity: "warning",
+        },
+      ],
+    );
+    const operation = codeModel.clients[0].operationGroups[0].operations![0];
+    expect(operation.sseMetadata).toBeUndefined();
+    expect(operation.responses?.[0]).toMatchObject({ binary: true });
+  });
+
   it("keeps SSE responses binary unless experimental SSE generation is enabled", async () => {
     const program = await compile(
       NodeHost,
@@ -148,6 +188,45 @@ describe("code model characterization", () => {
     expect(protocolOnlyOperation.convenienceApi).toBeUndefined();
     expect(protocolOnlyOperation.generateProtocolApi).toBe(true);
     expect(protocolOnlyOperation.responses?.[0]).toMatchObject({ binary: true });
+
+    const jacksonOperations = (
+      await new CodeModelBuilder(program, {
+        program,
+        emitterOutputDir: "/code-model-test-output",
+        options: {
+          flavor: "azure",
+          "stream-style-serialization": false,
+          "dev-options": { "enable-sse": true },
+        } as any,
+        perf: {
+          startTimer: () => ({ end: () => 0 }),
+          time: (_label, callback) => callback(),
+          timeAsync: (_label, callback) => callback(),
+          report: () => {},
+        },
+      }).build()
+    ).clients[0].operationGroups[0].operations!;
+    const jacksonOperation = jacksonOperations.find(
+      (operation) => operation.language.default.name === "retrieve",
+    )!;
+    expect(jacksonOperation.sseMetadata).toBeUndefined();
+    expect(jacksonOperation.responses?.[0]).toMatchObject({ binary: true });
+    expectDiagnostics(
+      program.diagnostics.filter(
+        (diagnostic) =>
+          diagnostic.code === "@typespec/http-client-java/experimental-sse-unsupported",
+      ),
+      [
+        {
+          code: "@typespec/http-client-java/experimental-sse-unsupported",
+          severity: "warning",
+        },
+        {
+          code: "@typespec/http-client-java/experimental-sse-unsupported",
+          severity: "warning",
+        },
+      ],
+    );
   });
 
   it.each(["azure", "standard"] as const)(
