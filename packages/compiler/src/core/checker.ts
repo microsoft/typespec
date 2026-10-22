@@ -2167,11 +2167,14 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       }
     }
 
-    function check() {
-      if (waitingFor.size === 0) {
-        callback();
-      }
+    if (waitingFor.size === 0) {
+      callback();
+      return;
     }
+
+    // The callback resumes checking from here once the types are resolved: only the base types
+    // pending now are part of its base type chain, not the ones pending when it runs.
+    const pendingBaseTypes = pendingResolutions.list(ResolutionKind.BaseType);
     for (const type of waitingFor) {
       waitingForResolution.set(type, [
         ...(waitingForResolution.get(type) || []),
@@ -2179,13 +2182,40 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           awaitingType,
           () => {
             waitingFor.delete(type);
-            check();
+            if (waitingFor.size === 0) {
+              const restoreBaseTypes = pendingResolutions.replace(
+                ResolutionKind.BaseType,
+                pendingBaseTypes,
+              );
+              try {
+                callback();
+              } finally {
+                restoreBaseTypes();
+              }
+            }
           },
         ],
       ]);
     }
+  }
 
-    check();
+  /** Check if `type` waits, directly or through other types, for `target` to be resolved. */
+  function isWaitingForResolution(type: Type, target: Type): boolean {
+    const visited = new Set<Type>();
+    const queue = [target];
+    while (queue.length > 0) {
+      const current = queue.pop()!;
+      for (const [awaiting] of waitingForResolution.get(current) ?? []) {
+        if (awaiting === type) {
+          return true;
+        }
+        if (!visited.has(awaiting)) {
+          visited.add(awaiting);
+          queue.push(awaiting);
+        }
+      }
+    }
+    return false;
   }
 
   function checkDecoratorDeclaration(
@@ -5210,7 +5240,21 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       }
     }
 
-    const isBase = checkModelIs(ctx, node, node.is);
+    let isBase = checkModelIs(ctx, node, node.is);
+    if (isBase && isWaitingForResolution(isBase, type)) {
+      // The base was reached without going through the base type chain of this model (e.g. via a
+      // property of an alias argument) but its own base type chain leads back to this model.
+      if (ctx.mapper === undefined) {
+        reportCheckerDiagnostic(
+          createDiagnostic({
+            code: "circular-base-type",
+            format: { typeName: type.name },
+            target: node.symbol,
+          }),
+        );
+      }
+      isBase = undefined;
+    }
     ensureResolved(
       [
         isBase,
@@ -5258,10 +5302,18 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
           type.namespace?.models.set(type.name, type);
         }
 
-        // Evaluate the properties after
-        checkModelProperties(ctx, node, type.properties, type);
+        // Properties and decorators are not part of the base type chain: a model they
+        // reference may `is`/`extends` a model whose base type is still being resolved
+        // without forming a cycle. Such a model waits for its base via `ensureResolved`.
+        const resumeBaseTypes = pendingResolutions.replace(ResolutionKind.BaseType, []);
+        try {
+          // Evaluate the properties after
+          checkModelProperties(ctx, node, type.properties, type);
 
-        decorators.push(...checkDecorators(ctx, type, node));
+          decorators.push(...checkDecorators(ctx, type, node));
+        } finally {
+          resumeBaseTypes();
+        }
 
         linkMapper(type, ctx.mapper);
         finishType(type, { skipDecorators: ctx.hasFlags(CheckFlags.InTemplateDeclaration) });
@@ -6489,6 +6541,39 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       return;
     }
 
+    if (!checkOverriddenProperty(newProp, diagnosticTarget)) return;
+
+    properties.set(newProp.name, newProp);
+  }
+
+  /** Find the first model in the base chain of `model` that is still being checked. */
+  function findCreatingBaseModel(model: Model | undefined): Model | undefined {
+    for (let current = model?.baseModel; current; current = current.baseModel) {
+      if (current.creating) {
+        return current;
+      }
+    }
+    return undefined;
+  }
+
+  /**
+   * Check `newProp` is compatible with the property it overrides in the base chain of its model.
+   * @returns false if it is an invalid override.
+   */
+  function checkOverriddenProperty(
+    newProp: ModelProperty,
+    diagnosticTarget: DiagnosticTarget | undefined,
+  ): boolean {
+    // A model referenced from a property of its own base is checked before that base chain is
+    // complete: validate once it is. An invalid override is then reported but still kept.
+    const creatingBase = findCreatingBaseModel(newProp.model);
+    if (creatingBase) {
+      ensureResolved([creatingBase], newProp, () =>
+        checkOverriddenProperty(newProp, diagnosticTarget),
+      );
+      return true;
+    }
+
     const overriddenProp = getOverriddenProperty(newProp);
     if (overriddenProp) {
       const [isAssignable, _] = relation.isTypeAssignableTo(
@@ -6524,10 +6609,10 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         invalid = true;
       }
 
-      if (invalid) return;
+      if (invalid) return false;
     }
 
-    properties.set(newProp.name, newProp);
+    return true;
   }
 
   /**
@@ -9268,6 +9353,33 @@ class PendingResolutions {
     if (existing.size === 0) {
       this.#data.delete(symId);
     }
+  }
+
+  /** List the symbols with a pending resolution of the given kind. */
+  list(kind: ResolutionKind): Sym[] {
+    return [...this.#data.keys()].filter((symId) => this.has(symId, kind));
+  }
+
+  /**
+   * Temporarily replace every pending resolution of the given kind with the given symbols.
+   * @returns a function restoring the replaced resolutions.
+   */
+  replace(kind: ResolutionKind, symIds: readonly Sym[]): () => void {
+    const replaced = this.list(kind);
+    for (const symId of replaced) {
+      this.finish(symId, kind);
+    }
+    for (const symId of symIds) {
+      this.start(symId, kind);
+    }
+    return () => {
+      for (const symId of symIds) {
+        this.finish(symId, kind);
+      }
+      for (const symId of replaced) {
+        this.start(symId, kind);
+      }
+    };
   }
 }
 
