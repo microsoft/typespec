@@ -2,9 +2,12 @@
 // Licensed under the MIT License.
 
 using System;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
@@ -15,6 +18,51 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
 {
     public class ModelFactoriesCustomizationTests
     {
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task CustomConstructorDiscriminator(bool unknown)
+        {
+            var discriminator = InputFactory.Property("kind", InputPrimitiveType.String, isDiscriminator: true);
+            var baseModel = InputFactory.Model("Base", properties:
+                [discriminator, InputFactory.Property("name", InputPrimitiveType.String)],
+                discriminatorProperty: discriminator);
+            var derived = InputFactory.Model("Derived", properties: [], baseModel: baseModel, discriminatedKind: unknown ? "unknown" : "tool",
+                modelAsStruct: false);
+            Compilation? custom = null;
+            var generator = await MockHelpers.LoadMockGeneratorAsync(inputModelTypes: [baseModel, derived],
+                compilation: async () => custom = await Helpers.GetCompilationFromDirectoryAsync(),
+                additionalMetadataReferences: [MetadataReference.CreateFromFile(typeof(BinaryData).Assembly.Location)]);
+            var provider = generator.Object.TypeFactory.CreateModel(derived)!;
+            Assert.That(provider.CanonicalView.Constructors.Single(constructor =>
+                constructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal))
+                .Signature.Parameters.First().Property, Is.Null, "Exercise a source-backed constructor.");
+            var method = generator.Object.OutputLibrary.ModelFactory.Value.Methods.Single(method =>
+                method.Signature.Name == "Derived");
+            Assert.That(method.Signature.Parameters.Any(parameter => parameter.Name == "kind"), Is.EqualTo(unknown));
+            Assert.That(method.BodyStatements!.ToDisplayString(), Does.Contain(unknown
+                ? "kind" : "\"tool\""));
+
+            var references = ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!).Split(Path.PathSeparator)
+                .Append(typeof(BinaryData).Assembly.Location).Distinct()
+                .Select(path => MetadataReference.CreateFromFile(path));
+            var trees = generator.Object.OutputLibrary.TypeProviders.Select(provider =>
+                CSharpSyntaxTree.ParseText(new TypeProviderWriter(provider).Write().Content));
+            var compilation = CSharpCompilation.Create("CustomFactory" + Guid.NewGuid().ToString("N"),
+                custom!.SyntaxTrees.Where(tree => Path.GetFileName(tree.FilePath) == "Models.cs").Concat(trees),
+                references, new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            using var stream = new MemoryStream();
+            var result = compilation.Emit(stream);
+            Assert.That(result.Success, Is.True, string.Join(Environment.NewLine,
+                result.Diagnostics.Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error)));
+            var assembly = Assembly.Load(stream.ToArray());
+            var factory = generator.Object.OutputLibrary.ModelFactory.Value;
+            var factoryType = assembly.GetType(factory.Type.Namespace + "." + factory.Name)!;
+            var instance = factoryType.GetMethod("Derived")!.Invoke(null,
+                method.Signature.Parameters.Select(parameter => parameter.Name == "kind" ? "future_kind" : (object?)null).ToArray())!;
+            Assert.That(instance.GetType().GetProperty("Kind", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)!
+                .GetValue(instance), Is.EqualTo(unknown ? "future_kind" : "tool"));
+        }
+
         [Test]
         public async Task CanReplaceModelMethod()
         {

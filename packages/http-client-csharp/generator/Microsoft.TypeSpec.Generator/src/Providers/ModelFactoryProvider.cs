@@ -816,6 +816,25 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     if (constructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal)
                         && customCtorParamCount >= fullCtorParamCount)
                     {
+                        foreach (var parameter in constructor.Signature.Parameters)
+                        {
+                            if (parameter.Property is null && parameter.Field is null)
+                            {
+                                var generatedParameter = fullConstructor.Signature.Parameters.FirstOrDefault(candidate =>
+                                    candidate.Name == parameter.Name &&
+                                    candidate.Type.Namespace == parameter.Type.Namespace &&
+                                    candidate.IsRef == parameter.IsRef &&
+                                    candidate.IsOut == parameter.IsOut &&
+                                    candidate.IsIn == parameter.IsIn &&
+                                    candidate.IsParams == parameter.IsParams &&
+                                    candidate.Type.AreNamesEqual(parameter.Type));
+                                if (generatedParameter?.Property is { IsDiscriminator: true } property)
+                                {
+                                    parameter.Update(property: property);
+                                }
+                            }
+                        }
+
                         binaryDataParam = constructor.Signature.Parameters
                             .FirstOrDefault(p => p?.Type.Equals(typeof(IDictionary<string, BinaryData>)) == true, binaryDataParam);
 
@@ -861,7 +880,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
 
                 // skip discriminator parameters if the model has a discriminator value as those shouldn't be exposed in the factory methods
-                if (param.Property?.IsDiscriminator == true && modelProvider.DiscriminatorValue != null)
+                if (param.Property?.IsDiscriminator == true &&
+                    modelProvider.DiscriminatorValue != null &&
+                    !modelProvider.IsUnknownDiscriminatorModel)
                 {
                     continue;
                 }

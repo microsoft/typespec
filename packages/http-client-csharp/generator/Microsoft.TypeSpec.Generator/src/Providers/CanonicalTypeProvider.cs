@@ -29,7 +29,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             _generatedTypeProvider = generatedTypeProvider;
             var inputModel = inputType as InputModelType;
-            _specProperties = inputModel?.Properties ?? [];
+            _specProperties = [.. inputModel?.Properties ?? [], .. GetExternalPropertyReplacements(inputModel)];
             _specPropertiesMap = [];
             _exactSpecPropertyNames = [];
             foreach (var property in _specProperties)
@@ -49,6 +49,25 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _renamedFields = (_generatedTypeProvider.CustomCodeView?.Fields ?? [])
                 .Where(p => p.OriginalName != null).Select(p => p.OriginalName!).ToHashSet();
         }
+
+        private IEnumerable<InputModelProperty> GetExternalPropertyReplacements(InputModelType? inputModel)
+        {
+            var replacements = (_generatedTypeProvider.CustomCodeView?.Properties ?? [])
+                .Where(property => property.OriginalName is not null)
+                .Select(property => property.OriginalName!)
+                .ToHashSet(StringComparer.Ordinal);
+            for (var baseModel = inputModel?.BaseModel; baseModel?.External is not null; baseModel = baseModel.BaseModel)
+            {
+                foreach (var property in baseModel.Properties)
+                {
+                    if (replacements.Contains(property.Name) || replacements.Contains(property.Name.ToIdentifierName()))
+                    {
+                        yield return property;
+                    }
+                }
+            }
+        }
+
         protected override string BuildRelativeFilePath() => throw new InvalidOperationException("This type should not be writing in generation");
 
         protected override string BuildName() => _generatedTypeProvider.Name;
@@ -187,7 +206,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             if (_specProperties.Count > 0)
             {
-                // Input properties will only contain this types properties, i.e. it won't include base type properties.
+                // Include local spec properties and explicitly claimed external-base properties.
                 var inputProperties = new HashSet<InputProperty>(_specProperties.Count);
                 var nonSpecProperties = new List<PropertyProvider>();
 
@@ -234,11 +253,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 // Add non-spec properties
                 result.AddRange(nonSpecProperties);
 
-                return [..result];
+                return [.. result];
             }
 
             // For other types, there is no canonical order, so we can just return generated followed by custom properties.
-            return [..filteredGeneratedProperties, ..customProperties];
+            return [.. filteredGeneratedProperties, .. customProperties];
         }
 
         protected internal override FieldProvider[] BuildFields()
@@ -303,7 +322,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             // Order is not important for fields, so we can just return generated followed by custom fields
-            return [..FilterCustomizedFields(generatedFields), ..customFields];
+            return [.. FilterCustomizedFields(generatedFields), .. customFields];
         }
 
         private bool TryGetSpecProperty(

@@ -94,6 +94,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
         // rather than emitted by this library. Such a type's constructor surface is owned elsewhere.
         internal bool IsExternal => _inputModel.External is not null;
 
+        /// <summary>
+        /// Gets explicitly customized members that own properties added to an externally mapped base model.
+        /// </summary>
+        public IEnumerable<PropertyProvider> ExternalPropertyReplacements => CanonicalView.Properties.Where(property =>
+            property.OriginalName is not null &&
+            property.InputProperty?.EnclosingType is InputModelType { External: not null } owner &&
+            owner != _inputModel);
+
         public string? DiscriminatorValue => _inputModel.DiscriminatorValue;
 
         private ValueExpression? _discriminatorValueExpression;
@@ -1607,8 +1615,25 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             // Build constructor parameters first so we can use them for initializer
+            var externalReplacements = ExternalPropertyReplacements.ToArray();
+            foreach (var replacement in externalReplacements)
+            {
+                var index = baseParameters.FindIndex(parameter =>
+                    parameter.Property?.InputProperty == replacement.InputProperty);
+                if (index >= 0)
+                {
+                    // Keep the inherited constructor slot without mutating the shared external provider.
+                    replacement.AsParameter.Update(name: baseParameters[index].Name);
+                    baseParameters[index] = replacement.AsParameter;
+                }
+            }
+
             foreach (var property in CanonicalView.Properties)
             {
+                if (externalReplacements.Contains(property) && baseParameters.Any(parameter => parameter.Property == property))
+                {
+                    continue;
+                }
                 AddInitializationParameterForCtor(constructorParameters, Type.IsStruct, isInitializationConstructor, property);
             }
 
