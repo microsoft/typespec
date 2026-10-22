@@ -394,6 +394,46 @@ describe("with extends", () => {
     ]);
   });
 
+  describe("emit error for an invalid override in a model referenced from a property of its base", () => {
+    it("when the base is declared first", async () => {
+      const diagnostics = await Tester.diagnose(`
+        model A extends B {}
+        model B { p: int32; x: C; }
+        model C extends A { p: string; }
+        `);
+      expectDiagnostics(diagnostics, {
+        code: "override-property-mismatch",
+        message:
+          "Model has an inherited property named p of type string which cannot override type int32",
+      });
+    });
+
+    it("when the derived model is declared first", async () => {
+      const diagnostics = await Tester.diagnose(`
+        model C extends A { p: string; }
+        model A extends B {}
+        model B { p: int32; x: C; }
+        `);
+      expectDiagnostics(diagnostics, {
+        code: "override-property-mismatch",
+        message:
+          "Model has an inherited property named p of type string which cannot override type int32",
+      });
+    });
+  });
+
+  it("emit error for an invalid override of a property declared after a property referencing the derived model", async () => {
+    const diagnostics = await Tester.diagnose(`
+        model B { x: A; p: int32; }
+        model A extends B { p: string; }
+        `);
+    expectDiagnostics(diagnostics, {
+      code: "override-property-mismatch",
+      message:
+        "Model has an inherited property named p of type string which cannot override type int32",
+    });
+  });
+
   it("removes decorators not specified on derived type that are on the base type", async () => {
     const { Widget } = await Tester.compile(t.code`
         model Base { @doc("Base") h: string;}
@@ -566,6 +606,49 @@ describe("with extends", () => {
     });
   });
 
+  describe("emit error for a circular reference through an alias with a property referencing the derived model", () => {
+    it("when the alias user is declared first", async () => {
+      const diagnostics = await Tester.diagnose(`
+        alias Select<T, U> = U;
+        model A is Select<Trigger, C>;
+        model Trigger { c: C; }
+        model C is A;
+        `);
+      expectDiagnostics(diagnostics, {
+        code: "circular-base-type",
+        message: "Type 'A' recursively references itself as a base type.",
+      });
+    });
+
+    it("when the derived model is declared first", async () => {
+      const diagnostics = await Tester.diagnose(`
+        model C is A;
+        alias Select<T, U> = U;
+        model A is Select<Trigger, C>;
+        model Trigger { c: C; }
+        `);
+      expectDiagnostics(diagnostics, {
+        code: "circular-base-type",
+        message: "Type 'C' recursively references itself as a base type.",
+      });
+    });
+  });
+
+  it("emit error for a circular reference reached through a property of an is base", async () => {
+    const diagnostics = await Tester.diagnose(`
+        model A is B;
+        model B {
+          x: C
+        }
+        model C is D;
+        model D is C;
+        `);
+    expectDiagnostics(diagnostics, {
+      code: "circular-base-type",
+      message: "Type 'C' recursively references itself as a base type.",
+    });
+  });
+
   it("emit no error when extends has property to base model", async () => {
     const diagnostics = await Tester.diagnose(`
         model A extends B {}
@@ -574,6 +657,61 @@ describe("with extends", () => {
         }
         `);
     expectDiagnosticEmpty(diagnostics);
+  });
+
+  it("emit no error when is base has property to a model that is the derived model", async () => {
+    const { C } = await Tester.compile(t.code`
+        model A is B;
+        model B {
+          x: C
+        }
+        model ${t.model("C")} is A;
+        `);
+    ok(C.properties.has("x"));
+  });
+
+  it("emit no error when extends base has property to a model that extends the derived model", async () => {
+    const diagnostics = await Tester.diagnose(`
+        model A extends B {}
+        model B {
+          x: C
+        }
+        model C extends A {}
+        `);
+    expectDiagnosticEmpty(diagnostics);
+  });
+
+  it("emit no error when is base has decorator referencing a model that is the derived model", async () => {
+    const diagnostics = await Tester.files({
+      "dec.js": mockFile.js({ $myDec() {} }),
+    }).import("./dec.js").diagnose(`
+        model A is B;
+        @myDec(getC)
+        model B {}
+        op getC(): C;
+        model C is A;
+        `);
+    expectDiagnosticEmpty(diagnostics);
+  });
+
+  describe("emit no error when a model referenced from a property of an is base spreads that base", () => {
+    it("when the base is declared first", async () => {
+      const { C } = await Tester.compile(t.code`
+        model A is B;
+        model B { x: C; }
+        model ${t.model("C")} extends A { ...B }
+        `);
+      ok(C.properties.has("x"));
+    });
+
+    it("when the derived model is declared first", async () => {
+      const { C } = await Tester.compile(t.code`
+        model ${t.model("C")} extends A { ...B }
+        model A is B;
+        model B { x: C; }
+        `);
+      ok(C.properties.has("x"));
+    });
   });
 });
 
@@ -845,6 +983,18 @@ describe("with is", () => {
         `);
     strictEqual(diagnostics.length, 1);
     strictEqual(diagnostics[0].message, "Type 'A' recursively references itself as a base type.");
+  });
+
+  it("emit error for a circular reference resolved after a spread target", async () => {
+    const diagnostics = await Tester.diagnose(`
+        model X { a: A; }
+        model A is C;
+        model C extends A { ...X }
+        `);
+    expectDiagnostics(diagnostics, {
+      code: "circular-base-type",
+      message: "Type 'A' recursively references itself as a base type.",
+    });
   });
 
   it("emit no error when extends has property to base model", async () => {
