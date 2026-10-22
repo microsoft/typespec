@@ -147,7 +147,17 @@ Prepare, validate, and publish a release PR for `@typespec/http-client-python`.
 1. Stage only the validated release files, including the new internal change file and any explicitly requested skill update. Commit with a conventional message such as `chore(python): release <version>` and any required co-author trailer. When resuming, preserve existing release commits and add a new commit for additional changes; do not amend unless requested.
 2. Publish the actual task branch using an available authenticated mechanism, such as Git, a VS Code GitHub integration, or the environment's publishing workflow. Follow repository rules for personal forks; do not assume the push remote is `origin`.
 3. Prefer authenticated `gh` when available. Otherwise discover and try an authenticated GitHub/VS Code publishing or PR integration before asking the user to log in. If the PR tool can publish an unpublished branch, let it do so and verify the published result.
+   - A VS Code PR tool error such as `Callback URL is required` means that integration is unavailable, not that the PR title or body needs changing. Fall back to Git and `gh`; do not repeat the same tool call unchanged.
+   - Check Git publishing independently of `gh` authentication with `git push --dry-run <fork-remote> HEAD`. Public fetch access and read-only GitHub tools do not establish push permission.
+   - If neither Git nor a publishing integration can authenticate, ask the user to run `gh auth login` and, when needed, `gh auth setup-git`, or repair the integration. Do not ask them to paste a token into chat. Resume from publishing after authentication; do not repeat versioning or validation of unchanged files.
 4. Create a non-draft PR against `microsoft/typespec`, targeting `main`, with the exact title `[python] release new version` and an empty body. Reuse an existing matching open release PR rather than creating a duplicate.
+   With authenticated Git and CLI access, use:
+
+   ```bash
+   git push --set-upstream <fork-remote> HEAD
+   gh pr create --repo microsoft/typespec --base main --head <fork-owner>:<actual-branch> --title "[python] release new version" --body ""
+   ```
+
 5. Verify the returned PR's repository, base and actual head branch, head commit, exact title, empty body, release file list, and inclusion of the internal change file and any requested skill update. A local commit or a branch push alone is not completion.
 6. If a publishing attempt fails, inspect the actual error, correct the documented workflow when warranted, and retry through an available authorized integration. Do not retry unchanged failures indefinitely, fabricate a PR URL, or report an unpublished branch as a completed release. If no authenticated publishing mechanism works, report the specific blocker and request the minimum user action needed.
 
