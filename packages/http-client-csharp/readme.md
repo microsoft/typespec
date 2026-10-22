@@ -125,6 +125,12 @@ options:
     option: value
 ```
 
+### Playground publishing
+
+The standalone playground upload reads `playgroundConfig.bundlePeerDependencies` from
+`package.json`. Keep `@typespec/http-client` in that list so its browser bundle and subpath
+imports, including `@typespec/http-client/typekit`, are published with the emitter.
+
 ## Emitter options
 
 ### `emitter-output-dir`
