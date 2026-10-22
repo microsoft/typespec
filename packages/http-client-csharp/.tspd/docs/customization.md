@@ -6,26 +6,6 @@ Before customizing generated code, consider whether your change should be made i
 
 Use C# code customizations (partial classes) when TypeSpec cannot express the behavior you need.
 
-## Properties added to an external base model
-
-Mapping a TypeSpec base model to a CLR type with `@@alternateType` reuses that type; it does not add members to the external assembly. The external writer remains responsible for its own properties. A TypeSpec property added to the mapped base is not automatically written by that assembly's serializer, and the generator cannot infer how to initialize or store it.
-
-On the first generated subclass of the external model, explicitly bind a handwritten property to the added TypeSpec property using `[CodeGenMember("ResponseId")]` (the original generated C# property name). The generator then uses that member's wire metadata for both serialization and deserialization, retaining a single inherited serialization-constructor argument rather than introducing another argument with the same wire name. `[CodeGenSerialization]` can additionally customize that member's wire name or hooks; `SerializationName` alone introduces a new serialized member, not a replacement of an inherited property.
-
-```csharp
-public partial class ToolResponse
-{
-    [CodeGenMember("ResponseId")]
-    internal string ResponseIdInternal => GetResponseId();
-}
-```
-
-Supply handwritten constructors matching the generated initialization and serialization signatures when the external CLR constructors differ from the TypeSpec shape. Those constructors must call an accessible external constructor and initialize the extension's storage. Do not assume the external type accepts the newly added properties or exposes an additional-data bag or `JsonPatch` compatible with the generated code.
-
-An explicitly bound replacement owns its JSON key: generated additional-data writers on that subclass omit that key, including when a proxy reads its value from the bag. Unrelated additional data is preserved with the existing format behavior. This is not general wire-name deduplication; two independent serialized members with the same name are not treated as replacements. Only bind added properties that the external writer does not already write, and keep exactly one serialization owner for each key. The generator cannot inspect or override an external writer's custom handling of additional data or patches.
-
-Model factories retain fixed discriminator values for known variants, including variants with handwritten serialization constructors whose parameter names and types match the generated signature. Unknown variants continue to accept a discriminator value.
-
 ## Optional nullable model properties
 
 For a TypeSpec property such as `feature?: Feature | null`, generated model classes distinguish an omitted property from an explicitly assigned `null` during JSON serialization. Leaving the property untouched omits it; assigning `null` writes `"feature": null`; assigning a value writes that value. Reading JSON preserves the same distinction when the model is serialized again, including nested models and wire-format serialization.
