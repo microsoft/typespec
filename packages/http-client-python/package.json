@@ -1,6 +1,6 @@
 {
   "name": "@typespec/http-client-python",
-  "version": "0.39.0",
+  "version": "0.39.1",
   "author": "Microsoft Corporation",
   "description": "TypeSpec emitter for Python SDKs",
   "homepage": "https://typespec.io",
@@ -66,7 +66,7 @@
     "emitter"
   ],
   "peerDependencies": {
-    "@azure-tools/typespec-autorest": ">=0.73.0 <1.0.0",
+    "@azure-tools/typespec-autorest": ">=0.73.1 <1.0.0",
     "@azure-tools/typespec-azure-core": ">=0.73.0 <1.0.0",
     "@azure-tools/typespec-azure-resource-manager": ">=0.73.0 <1.0.0",
     "@azure-tools/typespec-azure-rulesets": ">=0.73.0 <1.0.0",
@@ -104,7 +104,7 @@
     "tsx": "^4.23.13"
   },
   "devDependencies": {
-    "@azure-tools/typespec-autorest": "~0.73.0",
+    "@azure-tools/typespec-autorest": "~0.73.1",
     "@azure-tools/typespec-azure-core": "~0.73.0",
     "@azure-tools/typespec-azure-resource-manager": "~0.73.0",
     "@azure-tools/typespec-azure-rulesets": "~0.73.0",
