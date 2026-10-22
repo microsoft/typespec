@@ -4,4 +4,4 @@ packages:
   - "@typespec/http-client-python"
 ---
 
-Upgrade pip and uv in generator virtual environments to compatible releases satisfying pip >=26.2.2 and uv >=0.13.4.
+Upgrade pip in existing generator virtual environments as well as newly created ones.

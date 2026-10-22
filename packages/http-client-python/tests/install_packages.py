@@ -13,11 +13,6 @@ import glob
 import os
 import subprocess
 import sys
-from pathlib import Path
-from types import SimpleNamespace
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "eng" / "scripts" / "setup"))
-from package_manager import detect_package_manager, upgrade_tooling
 
 
 def _find_packages(generated_dir):
@@ -74,9 +69,6 @@ def install_packages(flavor, tests_dir):
     print(f"Installing {len(packages)} packages from {generated_dir}")
 
     use_wheels = os.path.isdir(wheel_dir) and bool(glob.glob(os.path.join(wheel_dir, "*.whl")))
-    if sys.prefix != sys.base_prefix:
-        upgrade_tooling(SimpleNamespace(env_exe=sys.executable), detect_package_manager())
-    uv_command = [sys.executable, "-m", "uv"] if sys.prefix != sys.base_prefix else ["uv"]
     use_uv = True
 
     if use_wheels:
@@ -86,7 +78,7 @@ def install_packages(flavor, tests_dir):
         wheel_files = glob.glob(os.path.join(wheel_dir, "*.whl"))
         print(f"  Using {len(wheel_files)} pre-built wheels from .wheels/{flavor}/")
         try:
-            cmd = uv_command + ["pip", "install", "--no-deps", "--no-index", "--find-links", wheel_dir] + wheel_files
+            cmd = ["uv", "pip", "install", "--no-deps", "--no-index", "--find-links", wheel_dir] + wheel_files
             subprocess.run(cmd, check=True)
             print(f"Successfully installed {len(wheel_files)} packages")
             return
@@ -108,7 +100,7 @@ def install_packages(flavor, tests_dir):
     for i in range(0, len(packages), batch_size):
         batch = packages[i:i + batch_size]
         if use_uv:
-            cmd = uv_command + ["pip", "install", "--no-deps", "--cache-dir", cache_dir] + batch
+            cmd = ["uv", "pip", "install", "--no-deps", "--cache-dir", cache_dir] + batch
         else:
             cmd = [sys.executable, "-m", "pip", "install", "--no-deps"] + batch
         try:

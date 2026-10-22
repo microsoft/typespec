@@ -13,8 +13,6 @@ import venv
 from pathlib import Path
 from venvtools import ExtendedEnvBuilder
 
-TOOL_REQUIREMENTS = ["pip>=26.2.2", "uv>=0.13.4"]
-
 
 class PackageManagerNotFoundError(Exception):
     """Raised when no suitable package manager is found."""
@@ -69,7 +67,7 @@ def get_install_command(package_manager: str, venv_context=None) -> list:
         list: The base install command as a list
     """
     if package_manager == "uv":
-        cmd = [venv_context.env_exe, "-m", "uv", "pip", "install"] if venv_context else ["uv", "pip", "install"]
+        cmd = ["uv", "pip", "install"]
         if venv_context:
             cmd.extend(["--python", venv_context.env_exe])
         return cmd
@@ -119,16 +117,6 @@ def install_packages(packages: list, venv_context=None, package_manager: str = N
         raise RuntimeError(f"Failed to install packages with {package_manager}: {e}")
 
 
-def upgrade_tooling(venv_context, package_manager: str) -> None:
-    """Refresh tooling only in the supplied emitter-owned virtual environment."""
-    host_install = get_install_command(package_manager)
-    if package_manager == "uv":
-        command = host_install + ["--python", venv_context.env_exe, "--upgrade", "--prerelease=disallow"]
-    else:
-        command = host_install[:-1] + ["--python", venv_context.env_exe, "install", "--upgrade"]
-    subprocess.run(command + TOOL_REQUIREMENTS, check=True)
-
-
 def create_venv_with_package_manager(venv_path):
     """Create virtual environment using the best available package manager.
 
@@ -155,16 +143,16 @@ def create_venv_with_package_manager(venv_path):
                 )
 
         context = MockVenvContext(venv_path)
-        upgrade_tooling(context, package_manager)
+        install_packages(["--upgrade", "pip"], context, package_manager="uv")
         return context
     else:
         # Use standard venv for pip
         if venv_path.exists():
-            env_builder = venv.EnvBuilder(with_pip=False)
+            env_builder = venv.EnvBuilder(with_pip=True)
             context = env_builder.ensure_directories(venv_path)
+            install_packages(["--upgrade", "pip"], context, package_manager)
         else:
-            env_builder = ExtendedEnvBuilder(with_pip=False)
+            env_builder = ExtendedEnvBuilder(with_pip=True, upgrade_deps=True)
             env_builder.create(venv_path)
             context = env_builder.context
-        upgrade_tooling(context, package_manager)
         return context
