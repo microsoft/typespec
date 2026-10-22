@@ -20,6 +20,31 @@ describe("Operation Converter", () => {
   });
 
   it.each([
+    { start: 200, end: 299 },
+    { start: 204, end: 204 },
+  ])("preserves exactly the $start-$end response status range", async ({ start, end }) => {
+    const program = await typeSpecCompile(
+      `
+        model RangedResponse {
+          @statusCode @minValue(${start}) @maxValue(${end})
+          code: int32;
+        }
+        @get op read(): RangedResponse;
+      `,
+      runner,
+    );
+    const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+    const [root] = createModel(sdkContext);
+    const responses = root.clients[0].methods[0].operation.responses;
+    const expected = Array.from({ length: end - start + 1 }, (_, index) => start + index);
+
+    strictEqual(responses.length, 1);
+    deepStrictEqual(responses[0].statusCodes, expected);
+    const serialized = JSON.parse(serializeCodeModel(sdkContext, root));
+    deepStrictEqual(serialized.clients[0].methods[0].operation.responses[0].statusCodes, expected);
+  });
+
+  it.each([
     { decorator: "@responseAsBool", enabled: true },
     { decorator: '@responseAsBool("csharp")', enabled: true },
     { decorator: '@responseAsBool("java")', enabled: false },

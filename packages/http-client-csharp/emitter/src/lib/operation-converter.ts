@@ -871,7 +871,7 @@ function fromSdkServiceResponseHeaders(
 function toStatusCodesArray(range: number | HttpStatusCodeRange): number[] {
   if (typeof range === "number") return [range];
 
-  const statusCodes: number[] = [range.end - range.start + 1];
+  const statusCodes: number[] = [];
   for (let i = range.start; i <= range.end; i++) {
     statusCodes.push(i);
   }

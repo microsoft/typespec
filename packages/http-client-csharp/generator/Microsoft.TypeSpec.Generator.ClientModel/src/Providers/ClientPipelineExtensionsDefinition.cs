@@ -73,8 +73,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private MethodBodyStatement GetProcessHeadAsBoolMessageBody(HttpResponseApi response)
         {
+            var errorResult = Return(New.Instance(ErrorResultSnippets.ErrorResultType.MakeGenericType([typeof(bool)]), [response, New.Instance(ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseExceptionType, [response])]));
             return new MethodBodyStatement[]
             {
+                new IfStatement(response.IsError())
+                {
+                    errorResult
+                },
                 new SwitchStatement(new MemberExpression(response, "Status"),
                 [
                     new SwitchCaseStatement(ValueExpression.Empty.GreaterThanOrEqual(Literal(200)).AndExpr(ValueExpression.Empty.LessThan(Literal(300))), new MethodBodyStatement[]
@@ -87,7 +92,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     }),
                     new SwitchCaseStatement(Array.Empty<ValueExpression>(), new MethodBodyStatement[]
                     {
-                        Return(New.Instance(ErrorResultSnippets.ErrorResultType.MakeGenericType([typeof(bool)]), [response, New.Instance(ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseExceptionType, [response])]))
+                        errorResult
                     })
                 ]),
             };

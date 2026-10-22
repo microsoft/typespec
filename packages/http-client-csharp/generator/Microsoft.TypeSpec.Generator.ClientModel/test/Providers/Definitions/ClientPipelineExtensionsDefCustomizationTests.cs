@@ -57,7 +57,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
         }
 
         [Test]
-        public async Task HeadResponseAsBoolPreservesNoThrowErrors([Values(403, 412, 500)] int status, [Values] bool isAsync)
+        public async Task HeadResponseAsBoolPreservesNoThrowErrors([Values(200, 299, 403, 412, 500)] int status, [Values] bool isAsync)
         {
             using var httpClient = CreateHttpClient(status);
             var client = CreateHeadClient(httpClient);

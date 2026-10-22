@@ -42,6 +42,10 @@ namespace SampleTypeSpec
         public static async ValueTask<ClientResult<bool>> ProcessHeadAsBoolMessageAsync(this ClientPipeline pipeline, PipelineMessage message, RequestOptions options)
         {
             PipelineResponse response = await pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false);
+            if (response.IsError)
+            {
+                return new ErrorResult<bool>(response, new ClientResultException(response));
+            }
             switch (response.Status)
             {
                 case >= 200 and < 300:
@@ -56,6 +60,10 @@ namespace SampleTypeSpec
         public static ClientResult<bool> ProcessHeadAsBoolMessage(this ClientPipeline pipeline, PipelineMessage message, RequestOptions options)
         {
             PipelineResponse response = pipeline.ProcessMessage(message, options);
+            if (response.IsError)
+            {
+                return new ErrorResult<bool>(response, new ClientResultException(response));
+            }
             switch (response.Status)
             {
                 case >= 200 and < 300:
