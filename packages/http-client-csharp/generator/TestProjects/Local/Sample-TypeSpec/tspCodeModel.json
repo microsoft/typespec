@@ -14289,12 +14289,12 @@
             "2024-07-16-preview",
             "2024-08-16-preview"
           ],
-          "doc": "Check whether a resource exists: return true for 2xx, false for 404, and throw for other errors.",
+          "doc": "Check whether a resource exists: return true for success, false for 404, and throw for unexpected responses.",
           "operation": {
             "$id": "940",
             "name": "headAsBoolean",
             "isExactName": false,
-            "doc": "Check whether a resource exists: return true for 2xx, false for 404, and throw for other errors.",
+            "doc": "Check whether a resource exists: return true for success, false for 404, and throw for unexpected responses.",
             "accessibility": "public",
             "parameters": [
               {

@@ -452,9 +452,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 var statusCodes = GetSuccessStatusCodes(inputOperation);
                 if (statusCodes.Count > 0 && !classifiers.ContainsKey(statusCodes))
                 {
-                    var classifierNameSuffix = inputOperation.ResponseAsBool
-                        ? "HeadAsBool"
-                        : string.Join(string.Empty, statusCodes);
+                    var classifierNameSuffix = string.Join(string.Empty, statusCodes);
                     var classifierBackingField = new FieldProvider(
                         FieldModifiers.Private | FieldModifiers.Static,
                         ScmCodeModelGenerator.Instance.TypeFactory.StatusCodeClassifierApi.ResponseClassifierType,
@@ -467,7 +465,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         ScmCodeModelGenerator.Instance.TypeFactory.StatusCodeClassifierApi.ResponseClassifierType,
                         classifierBackingField.Name.Substring(1).ToIdentifierName(),
                         new ExpressionPropertyBody(
-                            classifierBackingField.Assign(This.ToApi<StatusCodeClassifierApi>().Create(GetSuccessStatusCodes(inputOperation)), nullCoalesce: true)),
+                            classifierBackingField.Assign(This.ToApi<StatusCodeClassifierApi>().Create(statusCodes), nullCoalesce: true)),
                         this)
                     {
                         BackingField = classifierBackingField
@@ -1211,11 +1209,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private static List<int> GetSuccessStatusCodes(InputOperation operation)
         {
-            if (operation.ResponseAsBool)
-            {
-                return [.. Enumerable.Range(200, 100), 404];
-            }
-
             HashSet<int> statusCodes = [];
             foreach (var response in operation.Responses)
             {
@@ -1224,13 +1217,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     continue;
                 }
 
-                foreach (var statusCode in response.StatusCodes)
-                {
-                    if (statusCode >= 200 && statusCode < 400)
-                    {
-                        statusCodes.Add(statusCode);
-                    }
-                }
+                statusCodes.UnionWith(response.StatusCodes);
             }
 
             return [.. statusCodes.OrderBy(i => i)];

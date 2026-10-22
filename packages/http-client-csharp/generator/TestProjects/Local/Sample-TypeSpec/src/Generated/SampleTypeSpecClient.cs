@@ -1220,7 +1220,7 @@ namespace SampleTypeSpec
         }
 
         /// <summary>
-        /// [Protocol Method] Check whether a resource exists: return true for 2xx, false for 404, and throw for other errors.
+        /// [Protocol Method] Check whether a resource exists: return true for success, false for 404, and throw for unexpected responses.
         /// <list type="bullet">
         /// <item>
         /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
@@ -1242,7 +1242,7 @@ namespace SampleTypeSpec
         }
 
         /// <summary>
-        /// [Protocol Method] Check whether a resource exists: return true for 2xx, false for 404, and throw for other errors.
+        /// [Protocol Method] Check whether a resource exists: return true for success, false for 404, and throw for unexpected responses.
         /// <list type="bullet">
         /// <item>
         /// <description> This <see href="https://aka.ms/azsdk/net/protocol-methods">protocol method</see> allows explicit creation of the request and processing of the response for advanced scenarios. </description>
@@ -1263,7 +1263,7 @@ namespace SampleTypeSpec
             return await Pipeline.ProcessHeadAsBoolMessageAsync(message, options).ConfigureAwait(false);
         }
 
-        /// <summary> Check whether a resource exists: return true for 2xx, false for 404, and throw for other errors. </summary>
+        /// <summary> Check whether a resource exists: return true for success, false for 404, and throw for unexpected responses. </summary>
         /// <param name="id"></param>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="id"/> is null. </exception>
@@ -1276,7 +1276,7 @@ namespace SampleTypeSpec
             return HeadAsBoolean(id, cancellationToken.ToRequestOptions());
         }
 
-        /// <summary> Check whether a resource exists: return true for 2xx, false for 404, and throw for other errors. </summary>
+        /// <summary> Check whether a resource exists: return true for success, false for 404, and throw for unexpected responses. </summary>
         /// <param name="id"></param>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="id"/> is null. </exception>

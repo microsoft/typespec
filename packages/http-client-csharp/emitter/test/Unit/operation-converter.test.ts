@@ -1,5 +1,5 @@
 import type { TestHost } from "@typespec/compiler/testing";
-import { ok, strictEqual } from "assert";
+import { deepStrictEqual, ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import { serializeCodeModel } from "../../src/code-model-writer.js";
 import { createModel } from "../../src/lib/client-model-builder.js";
@@ -41,9 +41,9 @@ describe("Operation Converter", () => {
 
     strictEqual(operation.responseAsBool, enabled ? true : undefined);
     strictEqual(method.response.type?.kind, enabled ? "boolean" : undefined);
-    strictEqual(
-      method.operation.responses.some((response) => response.statusCodes.includes(404)),
-      enabled,
+    deepStrictEqual(
+      method.operation.responses.flatMap((response) => response.statusCodes),
+      enabled ? [204, 404] : [204],
     );
     ok(method.operation.responses.every((response) => response.bodyType === undefined));
   });

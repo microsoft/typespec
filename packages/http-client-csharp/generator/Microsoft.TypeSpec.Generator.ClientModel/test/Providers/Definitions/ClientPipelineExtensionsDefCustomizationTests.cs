@@ -23,7 +23,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
     public class ClientPipelineExtensionsDefCustomizationTests
     {
         [Test]
-        public async Task HeadResponseAsBoolProcessesStatus([Values(200, 204, 299, 404)] int status, [Values] bool isAsync, [Values] bool isProtocol)
+        public async Task HeadResponseAsBoolProcessesStatus([Values(204, 404)] int status, [Values] bool isAsync, [Values] bool isProtocol)
         {
             using var httpClient = CreateHttpClient(status);
             var client = CreateHeadClient(httpClient);
@@ -37,7 +37,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
         }
 
         [Test]
-        public void HeadResponseAsBoolThrowsForOtherErrors([Values(400, 401, 403, 412, 500)] int status, [Values] bool isAsync, [Values] bool isProtocol)
+        public void HeadResponseAsBoolThrowsForUnexpectedStatusCodes([Values(200, 299, 400, 401, 403, 412, 500)] int status, [Values] bool isAsync, [Values] bool isProtocol)
         {
             using var httpClient = CreateHttpClient(status);
             var client = CreateHeadClient(httpClient);
