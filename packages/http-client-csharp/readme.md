@@ -19,30 +19,6 @@ npm install @typespec/http-client-csharp
 
 For detailed instructions on how to customize the generated C# code, see the [Customization Guide](https://github.com/microsoft/typespec/blob/main/packages/http-client-csharp/.tspd/docs/customization.md).
 
-### Checking whether a resource exists
-
-Use TCGC's `@responseAsBool` decorator to generate a HEAD operation that returns
-`ClientResult<bool>` (or `Task<ClientResult<bool>>` for asynchronous methods):
-
-```typespec
-import "@typespec/http";
-import "@azure-tools/typespec-client-generator-core";
-
-using TypeSpec.Http;
-using Azure.ClientGenerator.Core;
-
-@route("/widgets/{id}")
-@head
-@responseAsBool
-op exists(@path id: string): void;
-```
-
-Both protocol and convenience methods return `true` for 2xx responses and `false`
-for 404 responses, while preserving the raw response. Other error responses still
-throw `ClientResultException` unless error throwing is explicitly disabled through
-`RequestOptions`. HEAD operations without this decorator keep their existing behavior,
-including throwing for 404 responses by default.
-
 ### Experimental types and members
 
 Use `@TypeSpec.HttpClient.experimental` to assign a public diagnostic ID to a generated
