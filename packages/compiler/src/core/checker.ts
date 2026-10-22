@@ -7761,6 +7761,11 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     ctx: CheckContext,
     node: EnumStatementNode | EnumDeclarationExpressionNode,
   ): Type {
+    if (node.kind === SyntaxKind.EnumStatement) {
+      // Unlike enum expressions, namespace enums do not inherit template context.
+      ctx = CheckContext.DEFAULT;
+    }
+
     const links = getSymbolLinks(node.symbol);
 
     if (links.declaredType && ctx.mapper === undefined) {
