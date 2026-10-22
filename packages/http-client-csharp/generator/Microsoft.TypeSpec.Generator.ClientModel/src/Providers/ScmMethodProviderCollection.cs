@@ -1792,14 +1792,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private CSharpType GetConvenienceReturnType(IReadOnlyList<InputOperationResponse> responses, bool isAsync, out CSharpType? responseBodyType)
         {
             var response = responses.FirstOrDefault(r => !r.IsErrorResponse);
-            if (response?.BodyType is InputStreamingType streamingType)
+            var responseType = ServiceMethod is InputBasicServiceMethod ? ServiceMethod.Response.Type : response?.BodyType;
+            if (responseType is InputStreamingType streamingType)
             {
                 responseBodyType = GetConvenienceStreamingItemType(streamingType);
                 var resultType = AsyncStreamingResultSnippets.Of(responseBodyType);
                 return isAsync ? new CSharpType(typeof(Task<>), resultType) : resultType;
             }
 
-            responseBodyType = GetResponseBodyType(response?.BodyType);
+            responseBodyType = GetResponseBodyType(responseType);
 
             if (_pagingServiceMethod != null)
             {
