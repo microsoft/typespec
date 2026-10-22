@@ -13,6 +13,11 @@ import glob
 import os
 import subprocess
 import sys
+from pathlib import Path
+from types import SimpleNamespace
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "eng" / "scripts" / "setup"))
+from package_manager import detect_package_manager, upgrade_tooling
 
 
 def _find_packages(generated_dir):
@@ -75,6 +80,8 @@ def install_packages(flavor, tests_dir):
     print(f"Installing {len(packages)} packages from {generated_dir}")
 
     use_wheels = os.path.isdir(wheel_dir) and bool(glob.glob(os.path.join(wheel_dir, "*.whl")))
+    if sys.prefix != sys.base_prefix:
+        upgrade_tooling(SimpleNamespace(env_exe=sys.executable), detect_package_manager())
     use_uv = True
 
     if use_wheels:

@@ -13,6 +13,8 @@ import venv
 from pathlib import Path
 from venvtools import ExtendedEnvBuilder
 
+TOOL_REQUIREMENTS = ["pip>=26.2.2", "uv>=0.13.4"]
+
 
 class PackageManagerNotFoundError(Exception):
     """Raised when no suitable package manager is found."""
@@ -117,6 +119,16 @@ def install_packages(packages: list, venv_context=None, package_manager: str = N
         raise RuntimeError(f"Failed to install packages with {package_manager}: {e}")
 
 
+def upgrade_tooling(venv_context, package_manager: str) -> None:
+    """Refresh tooling only in the supplied emitter-owned virtual environment."""
+    host_install = get_install_command(package_manager)
+    if package_manager == "uv":
+        command = host_install + ["--python", venv_context.env_exe, "--upgrade", "--prerelease=disallow"]
+    else:
+        command = host_install[:-1] + ["--python", venv_context.env_exe, "install", "--upgrade"]
+    subprocess.run(command + TOOL_REQUIREMENTS, check=True)
+
+
 def create_venv_with_package_manager(venv_path):
     """Create virtual environment using the best available package manager.
 
@@ -142,13 +154,17 @@ def create_venv_with_package_manager(venv_path):
                     else str(venv_path / "Scripts" / "python.exe")
                 )
 
-        return MockVenvContext(venv_path)
+        context = MockVenvContext(venv_path)
+        upgrade_tooling(context, package_manager)
+        return context
     else:
         # Use standard venv for pip
         if venv_path.exists():
-            env_builder = venv.EnvBuilder(with_pip=True)
-            return env_builder.ensure_directories(venv_path)
+            env_builder = venv.EnvBuilder(with_pip=False)
+            context = env_builder.ensure_directories(venv_path)
         else:
-            env_builder = ExtendedEnvBuilder(with_pip=True, upgrade_deps=True)
+            env_builder = ExtendedEnvBuilder(with_pip=False)
             env_builder.create(venv_path)
-            return env_builder.context
+            context = env_builder.context
+        upgrade_tooling(context, package_manager)
+        return context
