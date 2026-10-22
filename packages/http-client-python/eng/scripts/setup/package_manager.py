@@ -69,7 +69,7 @@ def get_install_command(package_manager: str, venv_context=None) -> list:
         list: The base install command as a list
     """
     if package_manager == "uv":
-        cmd = ["uv", "pip", "install"]
+        cmd = [venv_context.env_exe, "-m", "uv", "pip", "install"] if venv_context else ["uv", "pip", "install"]
         if venv_context:
             cmd.extend(["--python", venv_context.env_exe])
         return cmd

@@ -48,16 +48,10 @@ def build_wheels(flavor, tests_dir):
     batch_size = 50
     for i in range(0, len(packages), batch_size):
         batch = packages[i:i + batch_size]
-        try:
-            subprocess.run(
-                ["uv", "pip", "wheel", "--no-deps", "--wheel-dir", wheel_dir] + batch,
-                check=True,
-            )
-        except FileNotFoundError:
-            subprocess.run(
-                [sys.executable, "-m", "pip", "wheel", "--no-deps", "--wheel-dir", wheel_dir] + batch,
-                check=True,
-            )
+        subprocess.run(
+            [sys.executable, "-m", "pip", "wheel", "--no-deps", "--wheel-dir", wheel_dir] + batch,
+            check=True,
+        )
 
     wheel_count = len(glob.glob(os.path.join(wheel_dir, "*.whl")))
     print(f"Built {wheel_count} wheels for {flavor}")
@@ -82,6 +76,7 @@ def install_packages(flavor, tests_dir):
     use_wheels = os.path.isdir(wheel_dir) and bool(glob.glob(os.path.join(wheel_dir, "*.whl")))
     if sys.prefix != sys.base_prefix:
         upgrade_tooling(SimpleNamespace(env_exe=sys.executable), detect_package_manager())
+    uv_command = [sys.executable, "-m", "uv"] if sys.prefix != sys.base_prefix else ["uv"]
     use_uv = True
 
     if use_wheels:
@@ -91,7 +86,7 @@ def install_packages(flavor, tests_dir):
         wheel_files = glob.glob(os.path.join(wheel_dir, "*.whl"))
         print(f"  Using {len(wheel_files)} pre-built wheels from .wheels/{flavor}/")
         try:
-            cmd = ["uv", "pip", "install", "--no-deps", "--no-index", "--find-links", wheel_dir] + wheel_files
+            cmd = uv_command + ["pip", "install", "--no-deps", "--no-index", "--find-links", wheel_dir] + wheel_files
             subprocess.run(cmd, check=True)
             print(f"Successfully installed {len(wheel_files)} packages")
             return
@@ -113,7 +108,7 @@ def install_packages(flavor, tests_dir):
     for i in range(0, len(packages), batch_size):
         batch = packages[i:i + batch_size]
         if use_uv:
-            cmd = ["uv", "pip", "install", "--no-deps", "--cache-dir", cache_dir] + batch
+            cmd = uv_command + ["pip", "install", "--no-deps", "--cache-dir", cache_dir] + batch
         else:
             cmd = [sys.executable, "-m", "pip", "install", "--no-deps"] + batch
         try:
