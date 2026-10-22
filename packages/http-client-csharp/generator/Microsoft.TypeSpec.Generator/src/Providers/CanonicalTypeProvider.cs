@@ -60,7 +60,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 foreach (var property in baseModel.Properties)
                 {
-                    if (replacements.Contains(property.Name) || replacements.Contains(property.Name.ToIdentifierName()))
+                    var name = property.IsExactName ? property.Name : property.Name.ToIdentifierName();
+                    if (replacements.Contains(property.Name) || replacements.Contains(name) ||
+                        (!property.IsExactName && replacements.Contains(name.NormalizeCSharpAcronyms(property.Type.IsDateTimeInputType()))))
                     {
                         yield return property;
                     }

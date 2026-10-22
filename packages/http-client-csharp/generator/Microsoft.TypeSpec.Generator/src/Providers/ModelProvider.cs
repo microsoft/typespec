@@ -1564,7 +1564,24 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             // parameters need to be ordered from the base-most class to the derived class
-            return properties.SelectMany(l => l);
+            var result = new List<PropertyProvider>();
+            var externalSlots = new Dictionary<InputProperty, int>();
+            foreach (var property in properties.SelectMany(l => l))
+            {
+                if (property.InputProperty is { EnclosingType: InputModelType { External: not null } } inputProperty)
+                {
+                    if (externalSlots.TryGetValue(inputProperty, out var index))
+                    {
+                        // Keep the original slot order and name, but use the nearest replacement's metadata.
+                        property.AsParameter.Update(name: result[index].AsParameter.Name);
+                        result[index] = property;
+                        continue;
+                    }
+                    externalSlots.Add(inputProperty, result.Count);
+                }
+                result.Add(property);
+            }
+            return result;
         }
 
         private IEnumerable<FieldProvider> GetAllBaseFieldsForConstructorInitialization()

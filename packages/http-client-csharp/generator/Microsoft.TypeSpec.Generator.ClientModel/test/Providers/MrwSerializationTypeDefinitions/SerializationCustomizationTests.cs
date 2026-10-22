@@ -27,21 +27,26 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
     {
         [Test]
         public async Task ExternalPropertyReplacementCompilesAndRoundTrips(
-            [Values("J", "W")] string format, [Values] bool typedAdditionalProperties, [Values] bool readOnly)
+            [Values("J", "W")] string format, [Values] bool typedAdditionalProperties, [Values] bool readOnly,
+            [Values] bool generatedGrandchild)
         {
             var externalKind = InputFactory.StringEnum("ResponseKind", [("Tool", "tool")], isExtensible: true,
                 external: new InputExternalTypeMetadata(typeof(ExternalResponseKind).AssemblyQualifiedName!, null, null));
             var kind = InputFactory.Property("kind", externalKind, serializedName: "type", isDiscriminator: true, isRequired: true);
             var responseId = InputFactory.Property("responseId", InputPrimitiveType.String, serializedName: "response_id", isReadOnly: readOnly);
+            var parentValue = InputFactory.Property("parentValue", InputPrimitiveType.String, serializedName: "parent_value", isRequired: true);
             var external = InputFactory.Model("ExternalResponse",
-                properties: [kind, InputFactory.Property("id", InputPrimitiveType.String), responseId],
+                properties: [kind, InputFactory.Property("id", InputPrimitiveType.String, isRequired: true), responseId, parentValue],
                 external: new InputExternalTypeMetadata(typeof(ExternalResponse).AssemblyQualifiedName!, null, null));
             var input = InputFactory.Model("Model", baseModel: external,
-                properties: [InputFactory.Property("name", InputPrimitiveType.String)],
+                properties: [InputFactory.Property("name", InputPrimitiveType.String, isRequired: true)],
                 usage: InputModelTypeUsage.Input | InputModelTypeUsage.Output | InputModelTypeUsage.Json,
                 discriminatedKind: "tool",
                 additionalProperties: typedAdditionalProperties ? InputPrimitiveType.Any : null);
-            var generator = MockHelpers.LoadMockGenerator(inputModels: () => [external, input], inputEnums: () => [externalKind]);
+            var leaf = generatedGrandchild ? InputFactory.Model("Leaf", baseModel: input,
+                properties: [InputFactory.Property("leafName", InputPrimitiveType.String, isRequired: true)]) : null;
+            var generator = MockHelpers.LoadMockGenerator(inputModels: () => leaf is null ? [external, input] : [external, input, leaf],
+                inputEnums: () => [externalKind]);
             var references = ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!).Split(Path.PathSeparator)
                 .Append(typeof(ModelReaderWriterOptions).Assembly.Location)
                 .Append(typeof(BinaryData).Assembly.Location)
@@ -51,6 +56,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 .AddReferences(references);
             generator.SetupProperty(plugin => plugin.SourceInputModel, new SourceInputModel(custom, null));
             var model = generator.Object.TypeFactory.CreateModel(input)!;
+            var runtimeModel = leaf is null ? model : generator.Object.TypeFactory.CreateModel(leaf)!;
+            if (leaf is not null)
+            {
+                _ = model.Constructors;
+                var initialization = runtimeModel.Constructors.Single(constructor =>
+                    constructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Public));
+                Assert.That(initialization.Signature.Parameters.Select(parameter => parameter.Name),
+                    Is.EqualTo(new[] { "id", "parentValue", "name", "leafName" }));
+                Assert.That(initialization.Signature.Parameters[1].Property,
+                    Is.SameAs(model.CanonicalView.Properties.Single(property => property.Name == "ParentValueInternal")),
+                    "The nearest replacement must own the inherited slot at its original position.");
+                Assert.That(runtimeModel.FullConstructor.Signature.Parameters.Count(parameter =>
+                    parameter.Property?.InputProperty == parentValue), Is.EqualTo(1));
+            }
             var replacement = model.CanonicalView.Properties.Single(property => property.Name == "ResponseIdInternal");
             Assert.That(replacement.OriginalName, Is.EqualTo("ResponseId"),
                 string.Join(Environment.NewLine, custom.GetDiagnostics().Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error)));
@@ -61,7 +80,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.That(model.BaseModelProvider!.FullConstructor.Signature.Parameters
                 .Single(parameter => parameter.Property?.InputProperty == responseId).Property!.Name, Is.EqualTo("ResponseId"),
                 "A replacement must not mutate the external provider shared by sibling models.");
-            var providers = generator.Object.OutputLibrary.TypeProviders.Where(provider => provider == model ||
+            var providers = generator.Object.OutputLibrary.TypeProviders.Where(provider => provider == model || provider == runtimeModel ||
                 provider.Name is "Argument" or "Optional" or "ChangeTrackingList" or "ChangeTrackingDictionary" or
                     "ModelSerializationExtensions" or "TypeFormatters" or "SerializationFormat" ||
                 provider is ModelReaderWriterContextDefinition or ModelFactoryProvider).ToArray();
@@ -84,7 +103,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             Assert.That(result.Success, Is.True, string.Join(Environment.NewLine,
                 result.Diagnostics.Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error)));
             var assembly = Assembly.Load(stream.ToArray());
-            var generatedType = assembly.GetType("Sample.Models.Model")!;
+            var generatedType = assembly.GetType("Sample.Models." + runtimeModel.Name)!;
+            if (leaf is not null)
+            {
+                var initialized = Activator.CreateInstance(generatedType, "item", "parent", "payload", "leaf")!;
+                Assert.That(generatedType.GetProperty("ParentValueInternal")!.GetValue(initialized), Is.EqualTo("parent"));
+                Assert.That(generatedType.GetProperty("LeafName")!.GetValue(initialized), Is.EqualTo("leaf"));
+            }
             var factory = providers.OfType<ModelFactoryProvider>().Single();
             var factoryMethod = factory.Methods.Single(method => method.Signature.Name == "Model");
             Assert.That(factoryMethod.Signature.Parameters.Select(parameter => parameter.Name), Does.Not.Contain("kind"));
@@ -92,9 +117,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var factoryInstance = (ExternalResponse)factoryType.GetMethod("Model")!.Invoke(null,
                 factoryMethod.Signature.Parameters.Select(_ => (object?)null).ToArray())!;
             Assert.That(factoryInstance.Kind.ToString(), Is.EqualTo("tool"));
-            var deserialize = generatedType.GetMethod("DeserializeModel", BindingFlags.Static | BindingFlags.NonPublic)!;
+            var deserialize = generatedType.GetMethod("Deserialize" + runtimeModel.Name, BindingFlags.Static | BindingFlags.NonPublic)!;
             var options = new ModelReaderWriterOptions(format);
-            using var payload = JsonDocument.Parse("""{"type":"tool","id":"item","response_id":"response","name":"payload","extra":42}""");
+            using var payload = JsonDocument.Parse("""{"type":"tool","id":"item","response_id":"response","parent_value":"parent","name":"payload","leafName":"leaf","extra":42}""");
             var instance = (ExternalResponse)deserialize.Invoke(null, [payload.RootElement, options])!;
             Assert.That(generatedType.GetProperty("ResponseIdInternal", BindingFlags.Instance | BindingFlags.NonPublic)!
                 .GetValue(instance), Is.EqualTo("response"));
@@ -114,6 +139,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 Assert.That(serializedResponseId.GetString(), Is.EqualTo("response"));
             }
             Assert.That(document.RootElement.GetProperty("type").GetString(), Is.EqualTo("tool"));
+            Assert.That(document.RootElement.GetProperty("parent_value").GetString(), Is.EqualTo("parent"));
             Assert.That(document.RootElement.TryGetProperty("extra", out _), Is.EqualTo(typedAdditionalProperties || format == "J"));
             var restored = deserialize.Invoke(null, [document.RootElement, options])!;
             Assert.That(generatedType.GetProperty("ResponseIdInternal", BindingFlags.Instance | BindingFlags.NonPublic)!
@@ -124,6 +150,34 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var persistedModel = ((IPersistableModel<ExternalResponse>)instance).Create(persisted, options);
             Assert.That(generatedType.GetProperty("ResponseIdInternal", BindingFlags.Instance | BindingFlags.NonPublic)!
                 .GetValue(persistedModel), Is.EqualTo(writesResponseId ? "response" : null));
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task ExternalPropertyReplacementsHonorNormalizedNames(bool exactName)
+        {
+            var ipFoo = InputFactory.Property("ipFoo", InputPrimitiveType.String, serializedName: "ip_foo", isExactName: exactName);
+            var createdAt = InputFactory.Property("createdAt",
+                new InputDateTimeType(DateTimeKnownEncoding.Rfc3339, "utcDateTime", "TypeSpec.utcDateTime", InputPrimitiveType.String),
+                serializedName: "created_at", isExactName: exactName);
+            var external = InputFactory.Model("ExternalResponse", properties: [ipFoo, createdAt],
+                external: new InputExternalTypeMetadata(typeof(ExternalResponse).AssemblyQualifiedName!, null, null));
+            var input = InputFactory.Model("Model", properties: [], baseModel: external);
+            var generator = await MockHelpers.LoadMockGeneratorAsync(inputModels: () => [external, input],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+            var model = generator.Object.TypeFactory.CreateModel(input)!;
+            var properties = model.CanonicalView.Properties;
+            Assert.Multiple(() =>
+            {
+                Assert.That(properties.Single(property => property.Name == "IPFooInternal").InputProperty,
+                    exactName ? Is.Null : Is.SameAs(ipFoo));
+                Assert.That(properties.Single(property => property.Name == "CreatedOnInternal").InputProperty,
+                    exactName ? Is.Null : Is.SameAs(createdAt));
+            });
+            var write = model.SerializationProviders.Single().Methods.Single(method => method.Signature.Name == "JsonModelWriteCore")
+                .BodyStatements!.ToDisplayString();
+            Assert.That(write.Contains("\"ip_foo\""), Is.EqualTo(!exactName));
+            Assert.That(write.Contains("\"created_at\""), Is.EqualTo(!exactName));
         }
 
         [TestCase(false)]

@@ -10,20 +10,28 @@ namespace Sample.Models
 {
     public partial class Model
     {
-        public Model() : this("tool", null, null, null, null)
+        public Model() : this("tool", null, null, null, null, null)
         {
         }
 
-        internal Model(ExternalResponseKind kind, string id, string responseId, string name, IDictionary<string, BinaryData> additionalBinaryDataProperties)
+        public Model(string id, string parentValue, string name) : this("tool", id, null, parentValue, name, null)
+        {
+        }
+
+        internal Model(ExternalResponseKind kind, string id, string responseId, string parentValue, string name, IDictionary<string, BinaryData> additionalBinaryDataProperties)
             : base(kind, id)
         {
             Name = name;
+            ParentValueInternal = parentValue;
             _additionalBinaryDataProperties = additionalBinaryDataProperties ?? new Dictionary<string, BinaryData>();
             if (responseId != null)
             {
                 _additionalBinaryDataProperties["response_id"] = BinaryData.FromObjectAsJson(responseId);
             }
         }
+
+        [CodeGenMember("ParentValue")]
+        public string ParentValueInternal { get; set; }
 
         [CodeGenMember("ResponseId")]
         internal string ResponseIdInternal
