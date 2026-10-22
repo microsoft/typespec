@@ -4,4 +4,4 @@ packages:
   - "@typespec/compiler"
 ---
 
-Fix decorators being skipped on enums first referenced from template declarations, including references to enum members.
+Fix decorators being skipped when concrete types are first referenced from template declarations, including references through model properties, union variants, and enum members.

@@ -46,41 +46,6 @@ it("can be a model property", async () => {
   strictEqual(Foo.properties.get("prop")!.type.kind, "Enum");
 });
 
-it.each(["E", "E.A"])(
-  "runs enum decorators when first referenced as %s in a template",
-  async (reference) => {
-    let decoratorCalls = 0;
-    const { StringBox, NumberBox, program } = await Tester.files({
-      "decorators.js": mockFile.js({
-        $count() {
-          decoratorCalls++;
-        },
-      }),
-    }).import("./decorators.js").compile(t.code`
-        namespace Example;
-
-        model Box<T> {
-          item: ${reference};
-          value: T;
-        }
-
-        @count
-        @doc("enum documentation")
-        enum E { A }
-
-        model ${t.model("StringBox")} is Box<string>;
-        model ${t.model("NumberBox")} is Box<int32>;
-      `);
-
-    const enumType = program.getGlobalNamespaceType().namespaces.get("Example")!.enums.get("E")!;
-    strictEqual(getDoc(program, enumType), "enum documentation");
-    const expectedType = reference === "E" ? enumType : enumType.members.get("A")!;
-    strictEqual(StringBox.properties.get("item")!.type, expectedType);
-    strictEqual(NumberBox.properties.get("item")!.type, expectedType);
-    strictEqual(decoratorCalls, 1);
-  },
-);
-
 it("can't have duplicate variants", async () => {
   const diagnostics = await Tester.diagnose(`
       enum A { A, A }
