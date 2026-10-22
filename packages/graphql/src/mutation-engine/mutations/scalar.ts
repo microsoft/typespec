@@ -55,10 +55,26 @@ export class GraphQLScalarMutation extends SimpleScalarMutation<SimpleMutationOp
   }
 
   /**
+   * Removes the base scalar from the mutated type. GraphQL scalars have no
+   * inheritance, so the emitted scalar must not extend anything.
+   *
+   * This must run after `mutationNode.mutate()` rather than inside its
+   * initializer: the mutation node calls `finishType` on the clone, which
+   * re-runs the source scalar's decorators. Compiler decorators such as
+   * `@pattern`, `@minLength`, and `@format` validate their target against the
+   * base scalar chain (e.g. "is assignable to string") and would report
+   * `decorator-wrong-target` if the base were already gone.
+   */
+  private stripBaseScalar() {
+    this.mutationNode.mutatedType.baseScalar = undefined;
+  }
+
+  /**
    * Maps GraphQL ID descendants to ID and normalizes custom scalar names,
-   * removing their base scalar. Standard TypeSpec scalars keep their names for
-   * mapping at emission time. Explicit specification URLs take precedence over
-   * URLs inherited from the scalar mapping table.
+   * removing their base scalar once the clone's decorators have been
+   * validated. Standard TypeSpec scalars keep their names for mapping at
+   * emission time. Explicit specification URLs take precedence over URLs
+   * inherited from the scalar mapping table.
    */
   mutate() {
     const tk = this.engine.$;
@@ -69,8 +85,8 @@ export class GraphQLScalarMutation extends SimpleScalarMutation<SimpleMutationOp
       // GraphQL library scalar ID (or extends it) → built-in GraphQL ID type
       this.mutationNode.mutate((scalar) => {
         scalar.name = "ID";
-        scalar.baseScalar = undefined;
       });
+      this.stripBaseScalar();
     } else {
       if (!isStdScalar(tk, this.sourceType)) {
         // User-defined custom scalar — sanitize name, strip extends.
@@ -89,8 +105,8 @@ export class GraphQLScalarMutation extends SimpleScalarMutation<SimpleMutationOp
         }
         this.mutationNode.mutate((scalar) => {
           scalar.name = finalName;
-          scalar.baseScalar = undefined;
         });
+        this.stripBaseScalar();
       }
       // else: Built-in std scalars (string, boolean, int32, etc.) are left untouched —
       // they map to GraphQL built-in types and are resolved at emit time.

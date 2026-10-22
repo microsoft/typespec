@@ -330,6 +330,60 @@ describe("e2e: scalars", () => {
       }"
     `);
   });
+
+  it("renders a constrained string scalar used as both input and output", async () => {
+    const result = await emitSingleSchemaWithDiagnostics(`
+      @schema namespace Test {
+        @pattern("^round_[a-z0-9]{22}$")
+        @minLength(28)
+        @maxLength(28)
+        scalar RoundId extends string;
+        model Round { id: RoundId; }
+        @query op getRound(id: RoundId): Round;
+        @mutation op renameRound(id: RoundId, name: string): Round;
+      }
+    `);
+    expectDiagnosticEmpty(result.diagnostics);
+    expect(result.graphQLOutput).toMatchInlineSnapshot(`
+      "scalar RoundId
+
+      type Round {
+        id: RoundId!
+      }
+
+      type Query {
+        getRound(id: RoundId!): Round!
+      }
+
+      type Mutation {
+        renameRound(id: RoundId!, name: String!): Round!
+      }"
+    `);
+  });
+
+  it("renders a constrained numeric scalar", async () => {
+    const result = await emitSingleSchemaWithDiagnostics(`
+      @schema namespace Test {
+        @minValue(0)
+        @maxValue(100)
+        scalar Percent extends int32;
+        model Progress { done: Percent; }
+        @query op getProgress(): Progress;
+      }
+    `);
+    expectDiagnosticEmpty(result.diagnostics);
+    expect(result.graphQLOutput).toMatchInlineSnapshot(`
+      "scalar Percent
+
+      type Progress {
+        done: Percent!
+      }
+
+      type Query {
+        getProgress: Progress!
+      }"
+    `);
+  });
 });
 
 describe("e2e: unions", () => {
