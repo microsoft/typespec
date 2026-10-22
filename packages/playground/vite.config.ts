@@ -34,13 +34,14 @@ export default defineConfig({
         "react/viewers/index": "src/react/viewers/index.tsx",
         "tooling/index": "src/tooling/index.ts",
         "vite/index": "src/vite/index.ts",
+        "vite/workers": "src/vite/workers.ts",
       },
       cssFileName: "style",
       formats: ["es"],
     },
 
     rolldownOptions: {
-      external: (id) => !id.endsWith("?worker") && externals.some((x) => id.startsWith(x)),
+      external: (id) => externals.some((x) => id.startsWith(x)),
     },
   },
   assetsInclude: [/\.tsp$/],
