@@ -20,12 +20,11 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import org.junit.jupiter.api.parallel.ResourceLock;
-import org.junit.jupiter.api.parallel.Resources;
+import org.junit.jupiter.api.parallel.Isolated;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-@ResourceLock(Resources.SYSTEM_PROPERTIES)
+@Isolated("Diagnostic directories are also used by tests that do not acquire the system-properties lock")
 public class PreprocessorTests {
     private static final String DUMP_PROPERTY = "codegen.java.dump-code-model";
     private static final String TEMP_PROPERTY = "codegen.java.temp.directory";

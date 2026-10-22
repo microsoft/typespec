@@ -3,6 +3,9 @@
 
 package com.microsoft.typespec.http.client.generator.core.postprocessor.implementation;
 
+import com.github.javaparser.JavaParser;
+import com.github.javaparser.ParseProblemException;
+import com.github.javaparser.ParseResult;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.ImportDeclaration;
@@ -63,12 +66,17 @@ public final class CodeFormatterUtil {
 
         // Eclipse formatters are not thread-safe, so reuse only within this sequential batch.
         CodeFormatter codeFormatter = ToolFactory.createCodeFormatter(loadEclipseSettings());
+        JavaParser javaParser = new JavaParser(StaticJavaParser.getParserConfiguration());
         DefaultImportOrderingStrategy orderingStrategy = new DefaultImportOrderingStrategy();
         orderingStrategy.setSortImportsAlphabetically(true);
 
         return removeUnusedImports(files.entrySet(), logger).stream().map(entry -> {
             try {
-                CompilationUnit compilationUnit = StaticJavaParser.parse(entry.getValue());
+                ParseResult<CompilationUnit> parsed = javaParser.parse(entry.getValue());
+                if (!parsed.isSuccessful()) {
+                    throw new ParseProblemException(parsed.getProblems());
+                }
+                CompilationUnit compilationUnit = parsed.getResult().orElseThrow();
                 String file = reorderImports(entry.getValue(), compilationUnit, orderingStrategy);
                 boolean isModuleInfo
                     = entry.getKey().endsWith("module-info.java") && compilationUnit.getModule().isPresent();

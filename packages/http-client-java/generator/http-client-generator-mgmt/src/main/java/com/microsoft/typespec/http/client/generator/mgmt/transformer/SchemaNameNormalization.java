@@ -11,7 +11,6 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ObjectSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Operation;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.OperationGroup;
-import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Parameter;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Property;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.RequestParameterLocation;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Schema;
@@ -23,6 +22,7 @@ import com.microsoft.typespec.http.client.generator.mgmt.FluentNamer;
 import com.microsoft.typespec.http.client.generator.mgmt.util.Utils;
 import io.clientcore.core.utils.CoreUtils;
 import java.util.ArrayList;
+import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -78,7 +78,8 @@ public class SchemaNameNormalization {
             return name.startsWith(prefix) && name.endsWith(postfix);
         }).collect(Collectors.toList());
         if (!unnamedObjectSchemas.isEmpty()) {
-            unnamedObjectSchemas.forEach(s -> renameSchema(codeModel, s, names));
+            SchemaReferences references = new SchemaReferences(codeModel);
+            unnamedObjectSchemas.forEach(s -> renameSchema(references, s, names));
         }
         return codeModel;
     }
@@ -89,8 +90,11 @@ public class SchemaNameNormalization {
             .stream()
             .filter(s -> isUnnamedChoice(Utils.getDefaultName(s)))
             .collect(Collectors.toList());
-        if (!unnamedChoiceSchemas.isEmpty()) {
-            unnamedChoiceSchemas.forEach(s -> renameSchema(codeModel, s, names));
+        SchemaReferences references = unnamedChoiceSchemas.isEmpty() ? null : new SchemaReferences(codeModel);
+        if (references != null) {
+            for (ChoiceSchema schema : unnamedChoiceSchemas) {
+                renameSchema(references, schema, names);
+            }
         }
 
         List<SealedChoiceSchema> unnamedSealedChoiceSchemas = codeModel.getSchemas()
@@ -99,7 +103,12 @@ public class SchemaNameNormalization {
             .filter(s -> isUnnamedChoice(Utils.getDefaultName(s)))
             .collect(Collectors.toList());
         if (!unnamedSealedChoiceSchemas.isEmpty()) {
-            unnamedSealedChoiceSchemas.forEach(s -> renameSchema(codeModel, s, names));
+            if (references == null) {
+                references = new SchemaReferences(codeModel);
+            }
+            for (SealedChoiceSchema schema : unnamedSealedChoiceSchemas) {
+                renameSchema(references, schema, names);
+            }
         }
 
         return codeModel;
@@ -122,81 +131,82 @@ public class SchemaNameNormalization {
         return unnamed;
     }
 
-    private static void renameSchema(CodeModel codeModel, Schema schema, Set<String> names) {
-        final boolean deduplicate = false;
+    private static void renameSchema(SchemaReferences references, Schema schema, Set<String> names) {
+        NamingContext context = references.usages.get(schema);
+        if (context == null) {
+            return;
+        }
+        String valueName = context.value instanceof Property
+            ? ((Property) context.value).getSerializedName()
+            : Utils.getDefaultName(context.value);
+        String suffix = context.arrayProperty ? Utils.getSingular(valueName) : valueName;
+        // Resolve the owner's name now: earlier normalization may have renamed it after indexing.
+        String newName = rename(Utils.getDefaultName(context.owner) + CodeNamer.toPascalCase(suffix), names, false);
+        if (context.value instanceof Property) {
+            LOGGER.warn("Rename schema from '{}' to '{}', based on parent schema '{}' and property '{}'",
+                Utils.getDefaultName(schema), newName, Utils.getDefaultName(context.owner), valueName);
+        } else {
+            LOGGER.warn("Rename schema from '{}' to '{}', based on operation group '{}'", Utils.getDefaultName(schema),
+                newName, Utils.getDefaultName(context.owner));
+        }
+        schema.getLanguage().getDefault().setName(newName);
+    }
 
-        // rename based on schema and property
-        for (ObjectSchema compositeType : codeModel.getSchemas().getObjects()) {
-            Optional<Property> property
-                = compositeType.getProperties().stream().filter(p -> p.getSchema() == schema).findFirst();
-            if (property.isPresent()) {
-                String newName
-                    = Utils.getDefaultName(compositeType) + CodeNamer.toPascalCase(property.get().getSerializedName());
-                newName = rename(newName, names, deduplicate);
-                LOGGER.warn("Rename schema from '{}' to '{}', based on parent schema '{}' and property '{}'",
-                    Utils.getDefaultName(schema), newName, Utils.getDefaultName(compositeType),
-                    property.get().getSerializedName());
-                schema.getLanguage().getDefault().setName(newName);
-                return;
+    private static final class SchemaReferences {
+        private final Map<Schema, NamingContext> usages = new IdentityHashMap<>();
+
+        private SchemaReferences(CodeModel codeModel) {
+            // Keep the original four-tier precedence, and the first owner/value within each tier.
+            for (ObjectSchema owner : codeModel.getSchemas().getObjects()) {
+                for (Property property : owner.getProperties()) {
+                    add(property.getSchema(), owner, property, false);
+                }
             }
+            for (ObjectSchema owner : codeModel.getSchemas().getObjects()) {
+                for (Property property : owner.getProperties()) {
+                    if (property.getSchema() instanceof ArraySchema) {
+                        add(((ArraySchema) property.getSchema()).getElementType(), owner, property, true);
+                    }
+                }
+            }
+            indexParameters(codeModel, false);
+            indexParameters(codeModel, true);
         }
 
-        // rename based for object in array
-        for (ObjectSchema compositeType : codeModel.getSchemas().getObjects()) {
-            Optional<Property> arrayProperty = compositeType.getProperties()
-                .stream()
-                .filter(p -> p.getSchema() instanceof ArraySchema)
-                .filter(p -> ((ArraySchema) p.getSchema()).getElementType() == schema)
-                .findFirst();
-            if (arrayProperty.isPresent()) {
-                String newName = Utils.getDefaultName(compositeType)
-                    + CodeNamer.toPascalCase(Utils.getSingular(arrayProperty.get().getSerializedName()));
-                newName = rename(newName, names, deduplicate);
-                LOGGER.warn("Rename schema from '{}' to '{}', based on parent schema '{}' and property '{}'",
-                    Utils.getDefaultName(schema), newName, Utils.getDefaultName(compositeType),
-                    arrayProperty.get().getSerializedName());
-                schema.getLanguage().getDefault().setName(newName);
-                return;
-            }
-        }
-
-        // rename based on operation and parameter
-        for (OperationGroup operationGroup : codeModel.getOperationGroups()) {
-            for (Operation operation : operationGroup.getOperations()) {
-                Optional<Parameter> parameter = Stream
-                    .concat(operation.getParameters().stream(),
-                        operation.getRequests().stream().flatMap(r -> r.getParameters().stream()))
-                    .filter(p -> p.getSchema() == schema)
-                    .findFirst();
-                if (parameter.isPresent()) {
-                    String newName = Utils.getDefaultName(operationGroup)
-                        + CodeNamer.toPascalCase(Utils.getDefaultName(parameter.get()));
-                    newName = rename(newName, names, deduplicate);
-                    LOGGER.warn("Rename schema from '{}' to '{}', based on operation group '{}'",
-                        Utils.getDefaultName(schema), newName, Utils.getDefaultName(operationGroup));
-                    schema.getLanguage().getDefault().setName(newName);
-                    return;
+        private void indexParameters(CodeModel codeModel, boolean arrays) {
+            for (OperationGroup group : codeModel.getOperationGroups()) {
+                for (Operation operation : group.getOperations()) {
+                    Stream
+                        .concat(operation.getParameters().stream(),
+                            operation.getRequests().stream().flatMap(request -> request.getParameters().stream()))
+                        .forEach(parameter -> {
+                            Schema schema = parameter.getSchema();
+                            if (!arrays) {
+                                add(schema, group, parameter, false);
+                            } else if (schema instanceof ArraySchema) {
+                                add(((ArraySchema) schema).getElementType(), group, parameter, false);
+                            }
+                        });
                 }
             }
         }
-        for (OperationGroup operationGroup : codeModel.getOperationGroups()) {
-            for (Operation operation : operationGroup.getOperations()) {
-                Optional<Parameter> parameter = Stream
-                    .concat(operation.getParameters().stream(),
-                        operation.getRequests().stream().flatMap(r -> r.getParameters().stream()))
-                    .filter(p -> (p.getSchema() instanceof ArraySchema)
-                        && ((ArraySchema) p.getSchema()).getElementType() == schema)
-                    .findFirst();
-                if (parameter.isPresent()) {
-                    String newName = Utils.getDefaultName(operationGroup)
-                        + CodeNamer.toPascalCase(Utils.getDefaultName(parameter.get()));
-                    newName = rename(newName, names, deduplicate);
-                    LOGGER.warn("Rename schema from '{}' to '{}', based on operation group '{}'",
-                        Utils.getDefaultName(schema), newName, Utils.getDefaultName(operationGroup));
-                    schema.getLanguage().getDefault().setName(newName);
-                    return;
-                }
+
+        private void add(Schema schema, Metadata owner, Value value, boolean arrayProperty) {
+            if (schema != null && !usages.containsKey(schema)) {
+                usages.put(schema, new NamingContext(owner, value, arrayProperty));
             }
+        }
+    }
+
+    private static final class NamingContext {
+        private final Metadata owner;
+        private final Value value;
+        private final boolean arrayProperty;
+
+        private NamingContext(Metadata owner, Value value, boolean arrayProperty) {
+            this.owner = owner;
+            this.value = value;
+            this.arrayProperty = arrayProperty;
         }
     }
 

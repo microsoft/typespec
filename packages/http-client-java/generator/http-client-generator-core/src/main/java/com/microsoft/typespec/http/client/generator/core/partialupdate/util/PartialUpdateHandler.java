@@ -28,6 +28,7 @@ import java.io.BufferedReader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -169,7 +170,8 @@ public class PartialUpdateHandler {
         }
 
         // 3. Verify Generated File, will throw error if there is invalid part found.
-        validateGeneratedClassOrInterface(generatedFileMembers);
+        Map<BodyDeclaration<?>, MemberKeys> memberKeys = new IdentityHashMap<>();
+        validateGeneratedClassOrInterface(generatedFileMembers, memberKeys);
 
         // 4. Check if the file is in scope of partial update:
         // if there is a method has @Generated annotation, then the file is in scope of partial update, otherwise return
@@ -200,7 +202,7 @@ public class PartialUpdateHandler {
 
         Map<Object, BodyDeclaration<?>> generatedMembersByKey = new HashMap<>();
         for (BodyDeclaration<?> member : generatedFileMembers) {
-            Object key = getCorrespondingMemberKey(member);
+            Object key = memberKeys.computeIfAbsent(member, MemberKeys::new).corresponding;
             if (key != null) {
                 generatedMembersByKey.putIfAbsent(key, member);
             }
@@ -214,11 +216,12 @@ public class PartialUpdateHandler {
             if (!isMemberGenerated(existingMember)) { // manual written member
                 // TODO (weidxu): for now, formatter:on/off is not added by codegen -- hence the commented out block
 //                updatedMembersList.add(surroundCustomCodeWithFormatterOff(existingMember));
-                addMember(existingMember, updatedMembersList, updatedMemberKeys, manualMemberNames);
+                addMember(existingMember, updatedMembersList, updatedMemberKeys, manualMemberNames, memberKeys);
             } else {
-                BodyDeclaration<?> replacement = generatedMembersByKey.get(getCorrespondingMemberKey(existingMember));
+                BodyDeclaration<?> replacement = generatedMembersByKey
+                    .get(memberKeys.computeIfAbsent(existingMember, MemberKeys::new).corresponding);
                 if (replacement != null) {
-                    addMember(replacement, updatedMembersList, updatedMemberKeys, manualMemberNames);
+                    addMember(replacement, updatedMembersList, updatedMemberKeys, manualMemberNames, memberKeys);
                 }
             }
         }
@@ -227,9 +230,9 @@ public class PartialUpdateHandler {
         for (BodyDeclaration<?> generatedMember : generatedFileMembers) {
             // A handwritten member suppresses new overloads with the same name, but replacements already retained
             // above must stay in their original positions.
-            if (!updatedMemberKeys.contains(getCorrespondingMemberKey(generatedMember))
-                && !manualMemberNames.contains(getMemberNameKey(generatedMember))) {
-                addMember(generatedMember, updatedMembersList, updatedMemberKeys, manualMemberNames);
+            MemberKeys keys = memberKeys.computeIfAbsent(generatedMember, MemberKeys::new);
+            if (!updatedMemberKeys.contains(keys.corresponding) && !manualMemberNames.contains(keys.name)) {
+                addMember(generatedMember, updatedMembersList, updatedMemberKeys, manualMemberNames, memberKeys);
             }
         }
 
@@ -239,7 +242,7 @@ public class PartialUpdateHandler {
         // 8. Update imports
         compilationUnitForGeneratedFile.getImports().addAll(compilationUnitForExistingFile.getImports());
 
-        return compilationUnitForGeneratedFile.toString();
+        return PartialUpdatePrinter.print(compilationUnitForGeneratedFile);
     }
 
     /**
@@ -306,17 +309,18 @@ public class PartialUpdateHandler {
      * @param generatedFileMembers, members in the generated file
      * @return true if the generated class or interface is valid, otherwise return false
      */
-    private static void validateGeneratedClassOrInterface(List<BodyDeclaration<?>> generatedFileMembers) {
+    private static void validateGeneratedClassOrInterface(List<BodyDeclaration<?>> generatedFileMembers,
+        Map<BodyDeclaration<?>, MemberKeys> memberKeys) {
         // 1. Verify there is no duplicate methods (methods with same signature are considered duplicate methods)
         Set<CallableDeclaration.Signature> methodSignatureSet = new LinkedHashSet<>();
         for (BodyDeclaration<?> generatedMember : generatedFileMembers) {
             if (generatedMember.isCallableDeclaration()) {
-                if (methodSignatureSet.contains(generatedMember.asCallableDeclaration().getSignature())) {
+                CallableDeclaration.Signature signature = (CallableDeclaration.Signature) memberKeys
+                    .computeIfAbsent(generatedMember, MemberKeys::new).corresponding;
+                if (!methodSignatureSet.add(signature)) {
                     throw new RuntimeException(
-                        String.format("Found duplicate methods in the generated file. Signature: %s",
-                            generatedMember.asCallableDeclaration().getSignature()));
+                        String.format("Found duplicate methods in the generated file. Signature: %s", signature));
                 }
-                methodSignatureSet.add(generatedMember.asCallableDeclaration().getSignature());
             }
         }
 
@@ -419,7 +423,7 @@ public class PartialUpdateHandler {
             comments.append(comment.toString());
         }
 
-        return comments + "\n" + compilationUnitForGeneratedFile;
+        return comments + "\n" + PartialUpdatePrinter.print(compilationUnitForGeneratedFile);
     }
 
     /**
@@ -447,7 +451,7 @@ public class PartialUpdateHandler {
 
         // If the existing file has no Javadocs just return the generated file.
         if (existingJavadoc == null) {
-            return compilationUnitForGeneratedFile.toString();
+            return PartialUpdatePrinter.print(compilationUnitForGeneratedFile);
         }
 
         // Use JavadocComment.parse and get the description text as this doesn't contain the leading '*' character.
@@ -460,7 +464,7 @@ public class PartialUpdateHandler {
         if (existingGeneratedDocStartPosition == -1 && existingGeneratedDocEndPosition == -1) {
             // If the existing file has no generated doc, just return the existing file.
             compilationUnitForGeneratedFile.getPackageDeclaration().get().setComment(existingJavadoc);
-            return compilationUnitForExistingFile.toString();
+            return PartialUpdatePrinter.print(compilationUnitForExistingFile);
         }
 
         if (existingGeneratedDocEndPosition == -1) {
@@ -542,7 +546,7 @@ public class PartialUpdateHandler {
                 .setComment(new JavadocComment(String.join(lineEnding, lines)));
         }
 
-        return compilationUnitForGeneratedFile.toString();
+        return PartialUpdatePrinter.print(compilationUnitForGeneratedFile);
     }
 
     /**
@@ -652,29 +656,35 @@ public class PartialUpdateHandler {
     }
 
     private static void addMember(BodyDeclaration<?> member, NodeList<BodyDeclaration<?>> members,
-        Set<Object> correspondingKeys, Set<Object> manualNames) {
+        Set<Object> correspondingKeys, Set<Object> manualNames, Map<BodyDeclaration<?>, MemberKeys> memberKeys) {
         members.add(member);
-        Object key = getCorrespondingMemberKey(member);
-        if (key != null) {
-            correspondingKeys.add(key);
+        MemberKeys keys = memberKeys.computeIfAbsent(member, MemberKeys::new);
+        if (keys.corresponding != null) {
+            correspondingKeys.add(keys.corresponding);
         }
-        Object name = getMemberNameKey(member);
-        if (name != null && !isMemberGenerated(member)) {
-            manualNames.add(name);
+        if (keys.name != null && !isMemberGenerated(member)) {
+            manualNames.add(keys.name);
         }
     }
 
-    private static Object getCorrespondingMemberKey(BodyDeclaration<?> member) {
-        if (member instanceof NonGeneratedBodyDeclaration) {
-            member = ((NonGeneratedBodyDeclaration<?>) member).wrapped;
+    private static final class MemberKeys {
+        private final Object corresponding;
+        private final Object name;
+
+        private MemberKeys(BodyDeclaration<?> member) {
+            if (member instanceof NonGeneratedBodyDeclaration) {
+                member = ((NonGeneratedBodyDeclaration<?>) member).wrapped;
+            }
+            name = getMemberNameKey(member);
+            if (member.isCallableDeclaration()) {
+                // JavaParser clones parameter types when constructing a signature. Do this once per member.
+                corresponding = member.asCallableDeclaration().getSignature();
+            } else if (member instanceof InitializerDeclaration && ((InitializerDeclaration) member).isStatic()) {
+                corresponding = InitializerDeclaration.class;
+            } else {
+                corresponding = name;
+            }
         }
-        if (member.isCallableDeclaration()) {
-            return member.asCallableDeclaration().getSignature();
-        }
-        if (member instanceof InitializerDeclaration && ((InitializerDeclaration) member).isStatic()) {
-            return InitializerDeclaration.class;
-        }
-        return getMemberNameKey(member);
     }
 
     private static Object getMemberNameKey(BodyDeclaration<?> member) {
