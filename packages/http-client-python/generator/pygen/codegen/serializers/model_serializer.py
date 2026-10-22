@@ -137,7 +137,7 @@ class _ModelSerializer(BaseSerializer, ABC):
 
     @staticmethod
     def initialize_discriminator_property(model: ModelType, prop: Property) -> str:
-        discriminator_value = f"'{model.discriminator_value}'" if model.discriminator_value else None
+        discriminator_value = repr(model.discriminator_value) if model.discriminator_value else None
         if not discriminator_value:
             typing = "Optional[str]"
         else:
@@ -422,7 +422,7 @@ class DpgModelSerializer(_ModelSerializer):
         if model.parents:
             basename = ", ".join([m.name for m in model.parents])
         if model.discriminator_value:
-            basename += f", discriminator='{model.discriminator_value}'"
+            basename += f", discriminator={model.discriminator_value!r}"
         return f"class {model.name}({basename}):{self.class_pylint_disable(model)}"
 
     def class_pylint_disable(self, model: ModelType) -> str:

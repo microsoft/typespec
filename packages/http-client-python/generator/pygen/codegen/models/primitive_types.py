@@ -332,8 +332,8 @@ class StringType(PrimitiveType):
             validation["pattern"] = RawString(self.pattern)  # type: ignore
         return validation or None
 
-    def get_declaration(self, value) -> str:
-        return f"'{value}'" if value == '"' else f'"{value}"'
+    def get_declaration(self, value: str) -> str:
+        return repr(value)
 
     def serialization_type(self, **kwargs: Any) -> str:
         return "str"
