@@ -100,7 +100,7 @@ model Person {
 
 #### Using the `is` operator
 
-When using `is Record<T>`, it indicates that all properties of this model are of type T. This means that each property explicitly defined in the model must also be of type T.
+Using `is Record<T>` copies the record's indexer into the new model without creating an inheritance relationship. Each property explicitly defined in the model must be assignable to `T`.
 
 The example below would be invalid
 
@@ -121,13 +121,15 @@ model Person is Record<string> {
 
 #### Using the `extends` operator
 
-The `extends` operator has similar semantics to `is`, but it defines the relationship between the two models. In many languages, this would probably result in the same emitted code as `is` and it is recommended to use `is Record<T>` instead.
+Using `extends Record<T>` creates an inheritance relationship with the record. As with `is Record<T>`, each property explicitly defined in the model must be assignable to `T`.
 
 ```tsp
 model Person extends Record<string> {
   name: string;
 }
 ```
+
+Choose `is` when you want to copy a model and `extends` when you want to preserve an inheritance relationship. Emitters can represent these relationships differently; the two forms do not necessarily produce the same output. See [model composition](#model-composition) for how they handle properties and decorators.
 
 ### Special property types
 
@@ -159,7 +161,7 @@ Arrays are models created using the `[]` syntax, which is a shorthand for using 
 
 ### Spread
 
-The spread operator (`...`) copies the members of a source model into a target model. This operation doesn't create any nominal relationship between the source and target, making it useful when you want to reuse common properties without generating complex inheritance relationships.
+The spread operator (`...`) copies the members of a source model into a target model. Decorators on the copied properties are preserved, but decorators on the source model itself are not copied. This operation doesn't create any nominal relationship between the source and target, making it useful when you want to reuse common properties without generating complex inheritance relationships.
 
 ```typespec
 model Animal {
@@ -186,6 +188,8 @@ model Dog {
 
 There are times when you want to create an explicit relationship between two models, such as when you're generating class definitions in languages that support inheritance. The `extends` keyword can be used to establish this relationship.
 
+The derived model refers to its base model rather than copying its properties or model-level decorators. It can declare additional properties. Decorators and emitters may use the base model relationship to provide inherited behavior.
+
 ```typespec
 model Animal {
   species: string;
@@ -196,20 +200,27 @@ model Dog extends Animal {}
 
 ### Is
 
-There are instances when you want to create a new type that is an exact copy of an existing type but with additional properties or metadata, without creating a nominal inheritance relationship. The `is` keyword can be used for this purpose. It copies all the properties (like spread), but also copies [decorators](./decorators.md) as well. A common use case is to provide a better name to a [template](#model-templates) instantiation:
+The `is` keyword copies a model's properties and model-level [decorators](./decorators.md) without creating an inheritance relationship with that model. Decorators on the copied properties are also preserved. You can add properties and decorators to the new model; `is` does not restrict it to the source model's existing properties.
+
+If the source model has a base model, the new model retains that same base model relationship.
+
+A common use case is to provide a better name to a [template](#model-templates) instantiation:
 
 ```typespec
-@decorator
+@doc("A container.")
 model Thing<T> {
   property: T;
 }
 
-model StringThing is Thing<string>;
+model StringThing is Thing<string> {
+  label?: string;
+}
 
 // The StringThing declaration is equivalent to the following declaration:
-@decorator
+@doc("A container.")
 model StringThing {
   property: string;
+  label?: string;
 }
 ```
 
