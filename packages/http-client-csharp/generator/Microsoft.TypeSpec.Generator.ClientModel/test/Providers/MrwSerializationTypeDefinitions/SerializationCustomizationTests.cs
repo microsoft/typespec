@@ -26,9 +26,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
     public class SerializationCustomizationTests
     {
         [Test]
-        public async Task ExternalPropertyReplacementCompilesAndRoundTrips(
+        public Task ExternalPropertyReplacementCompilesAndRoundTrips(
             [Values("J", "W")] string format, [Values] bool typedAdditionalProperties, [Values] bool readOnly,
             [Values] bool generatedGrandchild, [Values] bool listProperty)
+            => ValidateExternalPropertyReplacementRoundTrip(format, typedAdditionalProperties, readOnly, generatedGrandchild, listProperty);
+
+        [Test]
+        public Task InheritedExternalPropertyReplacementsExcludeAdditionalPropertyKeys(
+            [Values("J", "W")] string format, [Values] bool readOnly, [Values] bool listProperty)
+            => ValidateExternalPropertyReplacementRoundTrip(format, false, readOnly, true, listProperty, true);
+
+        private static async Task ValidateExternalPropertyReplacementRoundTrip(
+            string format, bool typedAdditionalProperties, bool readOnly, bool generatedGrandchild, bool listProperty,
+            bool leafOwnedAdditionalProperties = false)
         {
             var externalKind = InputFactory.StringEnum("ResponseKind", [("Tool", "tool")], isExtensible: true,
                 external: new InputExternalTypeMetadata(typeof(ExternalResponseKind).AssemblyQualifiedName!, null, null));
@@ -46,7 +56,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 discriminatedKind: "tool",
                 additionalProperties: typedAdditionalProperties ? InputPrimitiveType.Any : null);
             var leaf = generatedGrandchild ? InputFactory.Model("Leaf", baseModel: input,
-                properties: [InputFactory.Property("leafName", InputPrimitiveType.String, isRequired: true)]) : null;
+                properties: [InputFactory.Property("leafName", InputPrimitiveType.String, isRequired: true)],
+                additionalProperties: leafOwnedAdditionalProperties ? InputPrimitiveType.String : null) : null;
             var generator = MockHelpers.LoadMockGenerator(inputModels: () => leaf is null ? [external, input] : [external, input, leaf],
                 inputEnums: () => [externalKind]);
             var references = ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!).Split(Path.PathSeparator)
@@ -146,6 +157,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var instance = (ExternalResponse)deserialize.Invoke(null, [payload.RootElement, options])!;
             Assert.That(generatedType.GetProperty("ResponseIdInternal", BindingFlags.Instance | BindingFlags.NonPublic)!
                 .GetValue(instance), Is.EqualTo("response"));
+            if (leafOwnedAdditionalProperties)
+            {
+                var bagProperty = runtimeModel.Properties.Single(property => property.IsAdditionalProperties);
+                var bag = (IDictionary<string, string>)generatedType.GetProperty(bagProperty.Name)!.GetValue(instance)!;
+                bag["response_id"] = "shadowed";
+                bag["leaf_extra"] = "leaf";
+            }
             using var output = new MemoryStream();
             using (var writer = new Utf8JsonWriter(output))
             {
@@ -165,6 +183,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var serializedParent = document.RootElement.GetProperty("parent_value");
             Assert.That(listProperty ? serializedParent[0].GetString() : serializedParent.GetString(), Is.EqualTo("parent"));
             Assert.That(document.RootElement.TryGetProperty("extra", out _), Is.EqualTo(typedAdditionalProperties || format == "J"));
+            if (leafOwnedAdditionalProperties)
+            {
+                Assert.That(document.RootElement.GetProperty("leaf_extra").GetString(), Is.EqualTo("leaf"),
+                    "Unclaimed additional properties must still be serialized by the descendant.");
+            }
             var restored = deserialize.Invoke(null, [document.RootElement, options])!;
             Assert.That(generatedType.GetProperty("ResponseIdInternal", BindingFlags.Instance | BindingFlags.NonPublic)!
                 .GetValue(restored), Is.EqualTo(writesResponseId ? "response" : null));

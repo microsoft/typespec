@@ -2981,8 +2981,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         }
 
         private MethodBodyStatement[] SkipExternalPropertyReplacementKeys(KeyValuePairExpression item)
-            => [.. _model.ExternalPropertyReplacements.Where(property => property.WireInfo is { IsHttpMetadata: false })
-                .Select(property => new IfStatement(item.Key.Equal(Literal(GetJsonSerializedName(property.WireInfo!))))
+            => [.. EnumerateModelAndBaseModelProviders().SelectMany(model => model.ExternalPropertyReplacements)
+                .Where(property => property.WireInfo is { IsHttpMetadata: false })
+                .Select(property => GetJsonSerializedName(property.WireInfo!))
+                .Distinct(StringComparer.Ordinal)
+                .Select(name => new IfStatement(item.Key.Equal(Literal(name)))
                 {
                     Continue
                 })];
