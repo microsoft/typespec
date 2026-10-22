@@ -172,7 +172,7 @@ class ModelType(BaseType):  # pylint: disable=too-many-instance-attributes, too-
             ]
         }
         if self.discriminator and self.discriminator_value:
-            representation[f'"{self.discriminator.wire_name}"'] = f'"{self.discriminator_value}"'
+            representation[f'"{self.discriminator.wire_name}"'] = repr(self.discriminator_value)
 
         # once we've finished, we want to reset created_json_template_representation to false
         # so we can call it again

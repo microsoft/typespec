@@ -738,7 +738,7 @@ def test_enum_value_typeddict_annotation_uses_literal_value():
     """
     code_model = _make_code_model(models_mode="typeddict")
     enum_value = _make_enum_value(code_model)
-    assert enum_value.type_annotation() == 'Literal["red"]'
+    assert enum_value.type_annotation() == "Literal['red']"
 
 
 def test_enum_value_typeddict_does_not_import_enums_module():
@@ -894,7 +894,7 @@ def test_literal_value_false_positive_no_builtins_import_and_value_preserved():
 
     env = _make_env()
     output = TypesSerializer(code_model=code_model, env=env, models=[model]).serialize()
-    assert 'Literal["type"]' in output
+    assert "Literal['type']" in output
     assert "builtins.type" not in output
     assert "import builtins" not in output
 

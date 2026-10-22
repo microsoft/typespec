@@ -99,7 +99,7 @@ def _escape_str(input_str: str) -> str:
 def _get_polymorphic_subtype_template(polymorphic_subtype: ModelType) -> list[str]:
     retval: list[str] = []
     retval.append("")
-    retval.append(f'# JSON input template for discriminator value "{polymorphic_subtype.discriminator_value}":')
+    retval.append(f"# JSON input template for discriminator value {polymorphic_subtype.discriminator_value!r}:")
     subtype_template = utils.json_dumps_template(
         polymorphic_subtype.get_json_template_representation(),
     )
