@@ -4677,6 +4677,44 @@ def test_set_collection():
     assert 50 in m.my_set
 
 
+def test_list_getitem_reference_survives_attribute_access():
+    """A list obtained via dict syntax must stay attached after attribute access."""
+
+    class MyModel(Model):
+        extensions: list[str] = rest_field()
+
+    m = MyModel(extensions=[".txt"])
+    filters = m["extensions"]
+    _ = m.extensions
+    filters.append(".csv")
+    assert m.as_dict()["extensions"] == [".txt", ".csv"]
+
+
+def test_dict_getitem_reference_survives_attribute_access():
+    """A dict obtained via dict syntax must stay attached after attribute access."""
+
+    class MyModel(Model):
+        tags: dict[str, str] = rest_field()
+
+    m = MyModel(tags={"a": "1"})
+    tags = m["tags"]
+    _ = m.tags
+    tags["b"] = "2"
+    assert m.as_dict()["tags"] == {"a": "1", "b": "2"}
+
+
+def test_list_attribute_reference_mutation_serializes():
+    """A list obtained via attribute syntax and then mutated must serialize the mutation."""
+
+    class MyModel(Model):
+        extensions: list[str] = rest_field()
+
+    m = MyModel(extensions=[".txt"])
+    filters = m.extensions
+    filters.append(".csv")
+    assert m.as_dict()["extensions"] == [".txt", ".csv"]
+
+
 def test_dictionary_set_datetime():
     """Test that dictionary with datetime values properly serializes/deserializes."""
     from datetime import datetime, timezone
