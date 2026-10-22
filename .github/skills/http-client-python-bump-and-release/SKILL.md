@@ -1,75 +1,84 @@
 ---
 name: http-client-python-bump-and-release
-description: "Release @typespec/http-client-python with updated TypeSpec/Azure Tools dependencies. Use when: bumping Python emitter dependencies, preparing a release, resuming a release branch, or creating its release PR."
+description: Create a PR to bump TypeSpec/Azure Tools dependencies, update peer dependencies, or release a new version of the http-client-python package.
 ---
 
 # HTTP Client Python Bump and Release
 
-Prepare, validate, and publish a release PR for `@typespec/http-client-python`.
+Create a PR to bump dependencies and release a new version of the http-client-python package.
 
 > **Note:** `{REPO}` refers to the root folder of the `microsoft/typespec` repository.
 
-## Requirements
+## Prerequisites
 
-- Release only `@typespec/http-client-python`. This package is excluded from the pnpm workspace; use its npm scripts for installation, building, tests, formatting, and linting.
-- Preserve existing task changes and commits. Reuse a supplied task branch or an existing release branch when resuming; do not bump an already prepared release again.
-- Never reset, clean, delete, or overwrite unrelated changes or existing branches.
-- Use an available authenticated integration for publishing and PR creation. An unauthenticated GitHub CLI is not proof that other integrations are unavailable.
-- Do not publish an npm package or merge the PR. Completion means a verified release PR exists unless the user explicitly requests local preparation only.
+Before starting, verify that `npm-check-updates` is available:
+
+```bash
+npx npm-check-updates --version
+```
+
+If the command fails or prompts for installation, install it globally:
+
+```bash
+npm install -g npm-check-updates
+```
 
 ## Workflow
 
-### 1. Prepare or Resume the Task Branch
+Before starting or resuming, inspect the working tree, current branch, remotes, and existing release commits. Preserve existing task work. If the branch already contains the prepared release, continue from the first incomplete step instead of repeating dependency updates or incrementing the version again.
 
-1. From `{REPO}`, inspect `git status --short`, the current branch, remotes, and existing task commits. Identify the remote for `microsoft/typespec` by URL, not by assuming its name is `origin`.
-2. If a task or release branch already contains the intended release changes, retain it and continue from the first incomplete step. Record its actual name and the prepared version. Do not rerun versioning or dependency installation without a reason.
-3. Otherwise, fetch `main` from the Microsoft remote and create an unused branch from that remote's `main`:
+1. Navigate to the package directory:
+
+   ```bash
+   cd {REPO}/packages/http-client-python
+   ```
+
+2. For a new release, fetch `main` from the remote whose URL points to `microsoft/typespec`:
 
    ```bash
    git fetch <microsoft-remote> main
-   git switch --create publish/python-release-<MM-DD> <microsoft-remote>/main
    ```
 
-   Use the current date. If the name is occupied by unrelated work, choose an unused suffix; do not overwrite it. If existing uncommitted changes prevent switching safely, stop and ask rather than discarding them.
+   Do not reset or discard existing changes to prepare a release.
 
-4. Record the actual branch with `git branch --show-current`. Run the following package commands from `{REPO}/packages/http-client-python` unless otherwise stated.
-
-### 2. Update Dependencies
-
-1. Verify `npm-check-updates` is available:
+3. Create release branch (use current date in MM-DD format), unless the environment already supplied the task branch:
 
    ```bash
-   npx --no-install npm-check-updates --version
+   git switch --create publish/python-release-{MM-DD} <microsoft-remote>/main
    ```
 
-   If missing, install it with `npm install -g npm-check-updates`.
+   If the name belongs to unrelated work, choose an unused suffix; never overwrite it. Record the actual task branch with `git branch --show-current` for publishing and PR verification.
 
-2. Record the original dependency versions, especially the peer ranges and the two spec packages. Update only the TypeSpec/Azure Tools dependencies:
+4. Update dependencies:
 
    ```bash
-   npx --no-install npm-check-updates -u --filter '@typespec/*,@azure-tools/*' --packageFile package.json
+   npx npm-check-updates -u --filter @typespec/*,@azure-tools/* --packageFile package.json
    ```
 
-3. Update `peerDependencies` to the corresponding latest versions while preserving the existing range format:
-   - For `">=0.a.b <1.0.0"`, update only the lower bound; keep `<1.0.0`.
-   - For `"^1.a.b"`, update the version and keep `^`.
-4. Verify `@typespec/http-specs` and `@azure-tools/azure-http-specs` did not regress. Compare semantic versions rather than strings. Preserve an original development prerelease if it is newer than the proposed update:
-   - `0.1.0-alpha.12-dev.5` is newer than `0.1.0-alpha.11`: keep the original.
-   - `0.1.0-alpha.12` is newer than `0.1.0-alpha.12-dev.5`: accept the update.
-5. If dependencies are already current, report that fact and continue with the release.
+5. Update `peerDependencies` in package.json:
+   - If format is `">=0.a.b <1.0.0"`: Update only the `0.a.b` portion, keep the range format unchanged
+   - If format is `"^1.a.b"`: Update to the latest version
 
-### 3. Version the Python Emitter
+6. Verify `devDependencies` versions for specs:
+   - Check `@typespec/http-specs` and `@azure-tools/azure-http-specs`
+   - If the original version in `package.json` is newer than the updated value, keep the original version
+   - Dev versions are typically in the form `x.y.z-alpha.N-dev.M` (e.g., `0.1.0-alpha.37-dev.3`).
 
-1. Record the original package version, then run:
+   Example:
+   - Original: `@typespec/http-specs: 0.1.0-alpha.12-dev.5`, updated by step 4 to `0.1.0-alpha.11` → keep `0.1.0-alpha.12-dev.5`.
+   - Original: `@typespec/http-specs: 0.1.0-alpha.12-dev.5`, updated by step 4 to `0.1.0-alpha.12` → keep `0.1.0-alpha.12` (step 4 works as expected).
+   - Original: `@azure-tools/azure-http-specs: 0.1.0-alpha.12-dev.2`, updated to `0.1.0-alpha.11` → keep `0.1.0-alpha.12-dev.2`.
+   - Original: `@azure-tools/azure-http-specs: 0.1.0-alpha.12-dev.2`, updated to `0.1.0-alpha.12` → keep `0.1.0-alpha.12` (step 4 works as expected).
+
+7. Run version change script:
 
    ```bash
    npm run change:version
    ```
 
-2. Check the command's exit status and inspect its effects on the package, changelog, and change files. A failure or a partial version bump is not success. Investigate partial changes before continuing.
-3. If both `package.json` and `CHANGELOG.md` remain unchanged, including when pnpm fails during root dependency setup, use the manual fallback instead of repeatedly retrying the same failing setup:
-   - Increment only the patch component from `a.b.c` to `a.b.(c+1)`.
-   - Add this entry immediately below the changelog title:
+   Check the command's exit status and investigate partial changes on failure. Verify that the script updated both the emitter version in `package.json` and `CHANGELOG.md`. If neither file was updated:
+   - Increment the third component of the emitter version in `package.json` (for example, `a.b.c` to `a.b.(c+1)`).
+   - Add this entry near the top of `CHANGELOG.md`, immediately after the changelog title:
 
      ```markdown
      ## <new emitter version>
@@ -79,87 +88,38 @@ Prepare, validate, and publish a release PR for `@typespec/http-client-python`.
      - Bump dependencies of `@typespec/*` and `@azure-tools/*` to latest versions
      ```
 
-4. Verify the package version matches the newest changelog heading. If Chronus generated a release entry, keep it instead of adding a duplicate.
+   - Verify that the version in `package.json` matches the new `CHANGELOG.md` heading.
 
-### 4. Install and Validate
-
-1. Install dependencies and update the package-local lockfile:
+8. Build and commit:
 
    ```bash
-   npm install
+   npm install && npm run build
    ```
 
-   If the configured Azure npm mirror fails with a missing public package or tarball, report the error and retry public dependencies against npmjs without changing repository or global registry settings:
+   Complete the repository's applicable validation before committing. Stage only the release files and any explicitly requested skill update; do not stage unrelated work. Use a conventional commit message and the required co-author trailer. Preserve existing release commits when resuming.
 
-   ```bash
-   npm install --registry=https://registry.npmjs.org --replace-registry-host=always
-   ```
-
-   Do not bypass supply-chain checks or expose credentials. For authentication failures affecting non-public packages, use an available authorized integration or report the blocker. Keep lockfile changes scoped to this release and its transitive dependency updates.
-
-2. Build and run emitter tests:
-
-   ```bash
-   npm run build
-   npm run test:emitter
-   ```
-
-   ```bash
-   npm run format
-   npm run lint
-   ```
-
-3. If formatting fails only because unrelated root Prettier plugins are unavailable, report that limitation and validate the changed JSON files with the repository's scalar formatting settings. For the current configuration:
-
-   ```bash
-   npm exec -- prettier --no-config --print-width 100 --end-of-line lf --write package.json package-lock.json
-   npm exec -- prettier --no-config --print-width 100 --end-of-line lf --check package.json package-lock.json
-   ```
-
-   Run lint separately even if formatting failed. Do not claim the full formatter passed. For modified skill Markdown, validate its frontmatter and format it using the same scalar settings; do not skip applicable plugins for source-code changes.
-
-4. Compile a small TypeSpec service with `@typespec/http-client-python`, verify it generated Python files, and check their syntax. Use a task-owned temporary location and remove only those smoke-test files afterward.
-5. Verify the package and lockfile versions agree, the lockfile matches the manifest, and installed peer dependencies satisfy all declared ranges.
-6. From `{REPO}`, add an `internal` change description for only the Python emitter after versioning:
-
-   ```bash
-   pnpm chronus add @typespec/http-client-python --kind internal --message "Release @typespec/http-client-python <version> with updated dependencies."
-   ```
-
-   Verify an actual valid file was created; a zero exit status or `No package changed. Exiting.` is not sufficient. If Chronus is unavailable or creates no file, report the outcome and manually create a uniquely named `.md` file under `.chronus/changes/`:
-
-   ```markdown
-   ---
-   changeKind: internal
-   packages:
-     - "@typespec/http-client-python"
-   ---
-
-   Release @typespec/http-client-python <version> with updated dependencies.
-   ```
-
-   Do not rerun versioning after adding this file; it must remain in the release PR.
-
-7. Inspect `git diff --check`, `git diff --stat`, and `git status --short`. Expected changes are the Python package's `package.json`, `package-lock.json`, `CHANGELOG.md`, change files consumed by Chronus, and the new `internal` change file. Include skill changes only when the user requested them in this PR. Investigate unexpected changes before committing.
-
-### 5. Commit, Publish, and Verify the Pull Request
-
-1. Stage only the validated release files, including the new internal change file and any explicitly requested skill update. Commit with a conventional message such as `chore(python): release <version>` and any required co-author trailer. When resuming, preserve existing release commits and add a new commit for additional changes; do not amend unless requested.
-2. Publish the actual task branch using an available authenticated mechanism, such as Git, a VS Code GitHub integration, or the environment's publishing workflow. Follow repository rules for personal forks; do not assume the push remote is `origin`.
-3. Prefer authenticated `gh` when available. Otherwise discover and try an authenticated GitHub/VS Code publishing or PR integration before asking the user to log in. If the PR tool can publish an unpublished branch, let it do so and verify the published result.
-   - A VS Code PR tool error such as `Callback URL is required` means that integration is unavailable, not that the PR title or body needs changing. Fall back to Git and `gh`; do not repeat the same tool call unchanged.
-   - Check Git publishing independently of `gh` authentication with `git push --dry-run <fork-remote> HEAD`. Public fetch access and read-only GitHub tools do not establish push permission.
-   - If neither Git nor a publishing integration can authenticate, ask the user to run `gh auth login` and, when needed, `gh auth setup-git`, or repair the integration. Do not ask them to paste a token into chat. Resume from publishing after authentication; do not repeat versioning or validation of unchanged files.
-4. Create a non-draft PR against `microsoft/typespec`, targeting `main`, with the exact title `[python] release new version` and an empty body. Reuse an existing matching open release PR rather than creating a duplicate.
-   With authenticated Git and CLI access, use:
+9. Publish the actual task branch:
+   - Identify the push remote by URL, following the repository's personal-fork rules; do not assume it is `origin`.
+   - Prefer authenticated Git and `gh`. If GitHub CLI is unavailable or unauthenticated, discover and try an available authenticated GitHub/VS Code publishing integration before asking the user to log in.
+   - Git authentication is independent of `gh`: check it with `git push --dry-run <fork-remote> HEAD`. Public fetch access and read-only API access do not establish push permission.
+   - Publish with Git, or let a publishing-capable PR integration publish the branch:
 
    ```bash
    git push --set-upstream <fork-remote> HEAD
-   gh pr create --repo microsoft/typespec --base main --head <fork-owner>:<actual-branch> --title "[python] release new version" --body ""
    ```
 
-5. Verify the returned PR's repository, base and actual head branch, head commit, exact title, empty body, release file list, and inclusion of the internal change file and any requested skill update. A local commit or a branch push alone is not completion.
-6. If a publishing attempt fails, inspect the actual error, correct the documented workflow when warranted, and retry through an available authorized integration. Do not retry unchanged failures indefinitely, fabricate a PR URL, or report an unpublished branch as a completed release. If no authenticated publishing mechanism works, report the specific blocker and request the minimum user action needed.
+10. Create and verify the PR:
+    - Target `microsoft/typespec`, base `main`, from the actual published branch, with the exact title `[python] release new version` and an empty body. Reuse an existing matching open PR rather than creating a duplicate.
+    - Use an available authenticated integration; GitHub CLI is optional. With authenticated CLI access:
+
+    ```bash
+    gh pr create --repo microsoft/typespec --base main --head <fork-owner>:<actual-branch> --title "[python] release new version" --body ""
+    ```
+
+    - Verify the created PR's repository, base and head branches, head commit, exact title, empty body, and release files. If the user requested skill changes in this PR, verify they are included too.
+    - Inspect publishing errors before retrying. For example, `Callback URL is required` indicates the VS Code integration is unavailable; fall back to another authorized publishing route, not another identical tool call.
+    - If Git and all available publishing integrations are blocked, report the errors and request authentication, such as `gh auth login` and `gh auth setup-git`, or integration repair. Never ask for a token in chat. Resume at publishing once access is restored.
+    - A local commit or branch push is not completion: return a verified PR URL, or explicitly report that PR creation is blocked. Do not publish to npm or merge the PR.
 
 ## Post-Process Review
 
