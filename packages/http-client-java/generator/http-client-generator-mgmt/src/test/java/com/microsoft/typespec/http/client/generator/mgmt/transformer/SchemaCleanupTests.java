@@ -16,6 +16,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Language;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Languages;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.LongRunningMetadata;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Metadata;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ObjectSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Operation;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.OperationGroup;
@@ -28,6 +29,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Schemas;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SealedChoiceSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.StringSchema;
+import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.mgmt.FluentGen;
 import com.microsoft.typespec.http.client.generator.mgmt.FluentNamer;
 import com.microsoft.typespec.http.client.generator.mgmt.TestUtils;
@@ -37,6 +39,7 @@ import java.util.Set;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 public class SchemaCleanupTests {
@@ -121,6 +124,89 @@ public class SchemaCleanupTests {
         new SchemaCleanup(Set.of()).process(model);
 
         assertEquals(List.of(requestModel, responseModel, exceptionModel), model.getSchemas().getObjects());
+    }
+
+    @ParameterizedTest
+    @CsvSource({ "false, false", "true, false", "true, true" })
+    public void filteredGroupsDoNotKeepSchemasAlive(boolean nestedClients, boolean bridgeRootGroups) {
+        ObjectSchema removed = named(new ObjectSchema(), "Removed");
+        ObjectSchema dependency = named(new ObjectSchema(), "RemovedDependency");
+        ObjectSchema first = named(new ObjectSchema(), "First");
+        ObjectSchema second = named(new ObjectSchema(), "Second");
+        ObjectSchema shared = named(new ObjectSchema(), "Shared");
+        SealedChoiceSchema choice = named(new SealedChoiceSchema(), "RemovedChoice");
+        removed.getProperties().addAll(List.of(property(dependency), property(shared), property(choice)));
+        first.getProperties().add(property(shared));
+        CodeModel model = model(removed, first, dependency, second, shared, choice);
+        OperationGroup firstGroup = operationGroup("FirstGroup", first);
+        OperationGroup removedGroup = operationGroup("RemovedGroup", removed);
+        OperationGroup secondGroup = operationGroup("SecondGroup", second);
+        setOperationGroups(model, nestedClients, bridgeRootGroups, List.of(firstGroup, removedGroup),
+            List.of(secondGroup));
+
+        assertSame(model, new OperationGroupFilter(Set.of("RemovedGroups")).process(model));
+        new SchemaCleanup(Set.of()).process(model);
+
+        assertEquals(List.of(first, second, shared), model.getSchemas().getObjects());
+        assertTrue(model.getSchemas().getSealedChoices().isEmpty());
+        assertEquals(List.of(firstGroup, secondGroup), model.getOperationGroups());
+        assertEquals(model.getOperationGroups(), ClientModelUtil.getAllOperationGroups(model));
+        if (nestedClients) {
+            assertEquals(List.of(firstGroup), model.getClients().get(0).getOperationGroups());
+            assertEquals(List.of(secondGroup), model.getClients().get(1).getOperationGroups());
+        }
+    }
+
+    @ParameterizedTest
+    @CsvSource({ "false, false", "true, false", "true, true" })
+    public void removingAllGroupsLeavesNoOperationRoots(boolean nestedClients, boolean bridgeRootGroups) {
+        ObjectSchema first = named(new ObjectSchema(), "First");
+        ObjectSchema second = named(new ObjectSchema(), "Second");
+        ObjectSchema dependency = named(new ObjectSchema(), "Dependency");
+        ChoiceSchema choice = named(new ChoiceSchema(), "Choice");
+        first.getProperties().add(property(dependency));
+        second.getProperties().add(property(choice));
+        CodeModel model = model(first, second, dependency, choice);
+        setOperationGroups(model, nestedClients, bridgeRootGroups, List.of(operationGroup("FirstGroup", first)),
+            List.of(operationGroup("SecondGroup", second)));
+
+        new OperationGroupFilter(Set.of("FirstGroups", "SecondGroups")).process(model);
+        new SchemaCleanup(Set.of()).process(model);
+
+        assertTrue(model.getSchemas().getObjects().isEmpty());
+        assertTrue(model.getSchemas().getChoices().isEmpty());
+        assertTrue(model.getOperationGroups().isEmpty());
+        assertTrue(ClientModelUtil.getAllOperationGroups(model).isEmpty());
+        if (nestedClients) {
+            // Keep the client containers even when their groups are empty; stale root groups must not reappear.
+            assertEquals(2, model.getClients().size());
+            model.getClients().forEach(client -> assertTrue(client.getOperationGroups().isEmpty()));
+        }
+    }
+
+    @ParameterizedTest
+    @CsvSource({ "false, false", "true, false", "true, true" })
+    public void unmatchedFiltersPreserveGroupListsAndCleanupRoots(boolean nestedClients, boolean bridgeRootGroups) {
+        ObjectSchema first = named(new ObjectSchema(), "First");
+        ObjectSchema second = named(new ObjectSchema(), "Second");
+        CodeModel model = model(first, second);
+        List<OperationGroup> firstGroups = List.of(operationGroup("FirstGroup", first));
+        List<OperationGroup> secondGroups = List.of(operationGroup("SecondGroup", second));
+        setOperationGroups(model, nestedClients, bridgeRootGroups, firstGroups, secondGroups);
+        List<OperationGroup> originalRootGroups = model.getOperationGroups();
+
+        new OperationGroupFilter(Set.of("AbsentGroups")).process(model);
+        new SchemaCleanup(Set.of()).process(model);
+
+        assertEquals(List.of(first, second), model.getSchemas().getObjects());
+        assertEquals(List.of(firstGroups.get(0), secondGroups.get(0)), model.getOperationGroups());
+        assertEquals(model.getOperationGroups(), ClientModelUtil.getAllOperationGroups(model));
+        if (nestedClients) {
+            assertSame(firstGroups, model.getClients().get(0).getOperationGroups());
+            assertSame(secondGroups, model.getClients().get(1).getOperationGroups());
+        } else {
+            assertSame(originalRootGroups, model.getOperationGroups());
+        }
     }
 
     @Test
@@ -221,16 +307,16 @@ public class SchemaCleanupTests {
         return model;
     }
 
-    private static <T extends Schema> T named(T schema, String name) {
+    private static <T extends Metadata> T named(T metadata, String name) {
         Language language = new Language();
         language.setName(name);
         Languages languages = new Languages();
         languages.setJava(language);
-        schema.setLanguage(languages);
-        if (schema instanceof ChoiceSchema) {
-            ((ChoiceSchema) schema).setChoiceType(new StringSchema());
+        metadata.setLanguage(languages);
+        if (metadata instanceof ChoiceSchema) {
+            ((ChoiceSchema) metadata).setChoiceType(new StringSchema());
         }
-        return schema;
+        return metadata;
     }
 
     private static Property property(Schema schema) {
@@ -243,6 +329,32 @@ public class SchemaCleanupTests {
         Response response = new Response();
         response.setSchema(schema);
         return response;
+    }
+
+    private static OperationGroup operationGroup(String name, Schema responseSchema) {
+        Operation operation = new Operation();
+        operation.setRequests(List.of());
+        operation.getResponses().add(response(responseSchema));
+        OperationGroup group = named(new OperationGroup(), name);
+        group.getOperations().add(operation);
+        return group;
+    }
+
+    private static void setOperationGroups(CodeModel model, boolean nestedClients, boolean bridgeRootGroups,
+        List<OperationGroup> firstGroups, List<OperationGroup> secondGroups) {
+        if (nestedClients) {
+            Client firstClient = new Client();
+            firstClient.setOperationGroups(firstGroups);
+            Client secondClient = new Client();
+            secondClient.setOperationGroups(secondGroups);
+            model.setClients(List.of(firstClient, secondClient));
+        }
+        if (!nestedClients || bridgeRootGroups) {
+            // Model the flattened copy exposed by TypeSpecFluentNamer to legacy management transformers.
+            List<OperationGroup> rootGroups = new ArrayList<>(firstGroups);
+            rootGroups.addAll(secondGroups);
+            model.setOperationGroups(rootGroups);
+        }
     }
 
     private static void addOperation(CodeModel model, Operation operation, boolean nestedClients) {
