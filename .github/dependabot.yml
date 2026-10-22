@@ -123,20 +123,6 @@ updates:
       interval: weekly
     cooldown:
       default-days: 7
-  - directories:
-      - /packages/http-client-csharp
-      - /packages/http-client-java
-      - /packages/http-client-python
-    groups:
-      emitter-security:
-        applies-to: security-updates
-        patterns:
-          - "*"
-    labels: []
-    open-pull-requests-limit: 0
-    package-ecosystem: npm
-    schedule:
-      interval: weekly
   - directory: /
     exclude-paths:
       - .github/workflows/*.lock.{yaml,yml}
