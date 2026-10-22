@@ -1641,7 +1641,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 {
                     // Keep the inherited constructor slot without mutating the shared external provider.
                     replacement.AsParameter.Update(name: baseParameters[index].Name);
-                    baseParameters[index] = replacement.AsParameter;
+                    baseParameters[index] = isInitializationConstructor
+                        ? replacement.AsParameter.ToPublicInputParameter()
+                        : replacement.AsParameter;
                 }
             }
 

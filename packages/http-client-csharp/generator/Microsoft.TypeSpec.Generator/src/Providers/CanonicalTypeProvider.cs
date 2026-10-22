@@ -29,7 +29,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             _generatedTypeProvider = generatedTypeProvider;
             var inputModel = inputType as InputModelType;
-            _specProperties = [.. inputModel?.Properties ?? [], .. GetExternalPropertyReplacements(inputModel)];
+            var externalReplacements = GetExternalPropertyReplacements(inputModel).ToArray();
+            _specProperties = [.. inputModel?.Properties ?? [], .. externalReplacements.Select(replacement => replacement.Property)];
             _specPropertiesMap = [];
             _exactSpecPropertyNames = [];
             foreach (var property in _specProperties)
@@ -37,6 +38,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 var name = property.IsExactName ? property.Name : property.Name.ToIdentifierName();
                 _specPropertiesMap.TryAdd(name, property);
                 _exactSpecPropertyNames.Add(name);
+            }
+            foreach (var replacement in externalReplacements)
+            {
+                _specPropertiesMap.TryAdd(replacement.EmittedName, replacement.Property);
             }
             foreach (var property in _specProperties.Where(p => !p.IsExactName))
             {
@@ -50,7 +55,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 .Where(p => p.OriginalName != null).Select(p => p.OriginalName!).ToHashSet();
         }
 
-        private IEnumerable<InputModelProperty> GetExternalPropertyReplacements(InputModelType? inputModel)
+        private IEnumerable<(InputModelProperty Property, string EmittedName)> GetExternalPropertyReplacements(InputModelType? inputModel)
         {
             var replacements = (_generatedTypeProvider.CustomCodeView?.Properties ?? [])
                 .Where(property => property.OriginalName is not null)
@@ -58,13 +63,18 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 .ToHashSet(StringComparer.Ordinal);
             for (var baseModel = inputModel?.BaseModel; baseModel?.External is not null; baseModel = baseModel.BaseModel)
             {
-                foreach (var property in baseModel.Properties)
+                foreach (var generatedProperty in CodeModelGenerator.Instance.TypeFactory.CreateModel(baseModel)?.Properties ?? [])
                 {
+                    if (generatedProperty.InputProperty is not InputModelProperty property)
+                    {
+                        continue;
+                    }
                     var name = property.IsExactName ? property.Name : property.Name.ToIdentifierName();
                     if (replacements.Contains(property.Name) || replacements.Contains(name) ||
+                        replacements.Contains(generatedProperty.Name) ||
                         (!property.IsExactName && replacements.Contains(name.NormalizeCSharpAcronyms(property.Type.IsDateTimeInputType()))))
                     {
-                        yield return property;
+                        yield return (property, generatedProperty.Name);
                     }
                 }
             }

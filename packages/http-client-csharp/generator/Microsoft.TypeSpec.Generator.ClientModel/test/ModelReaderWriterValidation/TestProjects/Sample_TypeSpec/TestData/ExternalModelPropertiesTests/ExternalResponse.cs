@@ -3,6 +3,7 @@
 
 using System;
 using System.ClientModel.Primitives;
+using System.Collections.Generic;
 using System.Text.Json;
 
 namespace ExternalModels
@@ -15,6 +16,11 @@ namespace ExternalModels
         {
             Kind = kind;
             Id = id;
+        }
+
+        protected ExternalResponse(ExternalResponseKind kind, string id, IEnumerable<string> parentValue)
+            : this(kind, id)
+        {
         }
 
         public ExternalResponseKind Kind { get; }
