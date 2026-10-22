@@ -81,7 +81,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     {
                         Return(ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ToExpression().FromValue<bool>(True, response))
                     }),
-                    new SwitchCaseStatement(ValueExpression.Empty.GreaterThanOrEqual(Literal(400)).AndExpr(ValueExpression.Empty.LessThan(Literal(500))), new MethodBodyStatement[]
+                    new SwitchCaseStatement(Literal(404), new MethodBodyStatement[]
                     {
                         Return(ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ToExpression().FromValue<bool>(False, response))
                     }),

@@ -452,7 +452,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 var statusCodes = GetSuccessStatusCodes(inputOperation);
                 if (statusCodes.Count > 0 && !classifiers.ContainsKey(statusCodes))
                 {
-                    var classifierNameSuffix = string.Join(string.Empty, statusCodes);
+                    var classifierNameSuffix = inputOperation.ResponseAsBool
+                        ? "HeadAsBool"
+                        : string.Join(string.Empty, statusCodes);
                     var classifierBackingField = new FieldProvider(
                         FieldModifiers.Private | FieldModifiers.Static,
                         ScmCodeModelGenerator.Instance.TypeFactory.StatusCodeClassifierApi.ResponseClassifierType,
@@ -1209,6 +1211,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private static List<int> GetSuccessStatusCodes(InputOperation operation)
         {
+            if (operation.ResponseAsBool)
+            {
+                return [.. Enumerable.Range(200, 100), 404];
+            }
+
             HashSet<int> statusCodes = [];
             foreach (var response in operation.Responses)
             {

@@ -26,6 +26,7 @@ import {
   getClientOptions,
   getHttpOperationParameter,
   getParamAlias,
+  getResponseAsBool,
   isHttpMetadata,
   shouldGenerateConvenient,
   shouldGenerateProtocol,
@@ -230,6 +231,9 @@ export function fromSdkServiceMethodOperation(
       fromSdkHttpOperationResponses(sdkContext, method.operation.responses),
     ),
     httpMethod: parseHttpRequestMethod(method.operation.verb),
+    responseAsBool: getResponseAsBool(sdkContext, method.operation.__raw.operation)
+      ? true
+      : undefined,
     uri: uri,
     path: method.operation.path,
     externalDocsUrl: getExternalDocs(sdkContext, method.operation.__raw.operation)?.url,

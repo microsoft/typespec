@@ -46,7 +46,7 @@ namespace SampleTypeSpec
             {
                 case >= 200 and < 300:
                     return ClientResult.FromValue(true, response);
-                case >= 400 and < 500:
+                case 404:
                     return ClientResult.FromValue(false, response);
                 default:
                     return new ErrorResult<bool>(response, new ClientResultException(response));
@@ -60,7 +60,7 @@ namespace SampleTypeSpec
             {
                 case >= 200 and < 300:
                     return ClientResult.FromValue(true, response);
-                case >= 400 and < 500:
+                case 404:
                     return ClientResult.FromValue(false, response);
                 default:
                     return new ErrorResult<bool>(response, new ClientResultException(response));

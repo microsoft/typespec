@@ -20,6 +20,35 @@ describe("Operation Converter", () => {
   });
 
   it.each([
+    { decorator: "@responseAsBool", enabled: true },
+    { decorator: '@responseAsBool("csharp")', enabled: true },
+    { decorator: '@responseAsBool("java")', enabled: false },
+    { decorator: "", enabled: false },
+  ])("preserves HEAD response-as-bool metadata for $decorator", async ({ decorator, enabled }) => {
+    const program = await typeSpecCompile(
+      `
+        ${decorator}
+        @head op exists(): void;
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+    const [root] = createModel(sdkContext);
+    const method = root.clients[0].methods[0];
+    const serialized = JSON.parse(serializeCodeModel(sdkContext, root));
+    const operation = serialized.clients[0].methods[0].operation;
+
+    strictEqual(operation.responseAsBool, enabled ? true : undefined);
+    strictEqual(method.response.type?.kind, enabled ? "boolean" : undefined);
+    strictEqual(
+      method.operation.responses.some((response) => response.statusCodes.includes(404)),
+      enabled,
+    );
+    ok(method.operation.responses.every((response) => response.bodyType === undefined));
+  });
+
+  it.each([
     {
       scope: "namespace",
       code: `@get @route("/widgets") op getWidget(): string;`,

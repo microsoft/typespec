@@ -40,6 +40,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             MockHelpers.LoadMockGenerator();
         }
 
+        [TestCase(true)]
+        [TestCase(false)]
+        public void HeadResponseAsBoolClassifies404AsSuccess(bool responseAsBool)
+        {
+            var operation = InputFactory.Operation("Exists", httpMethod: "HEAD",
+                responses: [InputFactory.OperationResponse([200, 404])]);
+            operation.Update(responseAsBool: responseAsBool);
+            var client = InputFactory.Client("TestClient",
+                methods: [InputFactory.BasicServiceMethod("Exists", operation)]);
+            var restClient = new ClientProvider(client).RestClient;
+            var classifiers = restClient.Properties.Where(p => p.Name.StartsWith("PipelineMessageClassifier")).ToArray();
+
+            Assert.AreEqual(1, classifiers.Length);
+            Assert.AreEqual(responseAsBool ? "PipelineMessageClassifierHeadAsBool" : "PipelineMessageClassifier200", classifiers[0].Name);
+        }
+
         [TestCaseSource(nameof(DefaultCSharpMethodCollectionTestCases))]
         public void TestRestClientMethods(InputServiceMethod inputServiceMethod)
         {
