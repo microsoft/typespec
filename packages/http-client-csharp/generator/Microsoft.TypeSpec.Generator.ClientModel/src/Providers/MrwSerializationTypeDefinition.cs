@@ -2939,7 +2939,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var rawDataDictionaryExp = rawDataMemberExp.AsDictionary(_rawDataField.Type);
             var forEachStatement = new ForEachStatement("item", rawDataDictionaryExp, out KeyValuePairExpression item)
             {
-                SkipExternalPropertyReplacementKeys(item),
+                CreateExternalPropertyReplacementKeyFilters(item),
                 _utf8JsonWriterSnippet.WritePropertyName(item.Key),
                 CreateSerializationStatement(_rawDataField.Type.Arguments[1], item.Value, SerializationFormat.Default, _rawDataField.WireInfo?.SerializedName ?? _rawDataField.Name),
             };
@@ -2967,7 +2967,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 // generate serialization statements for each key-value pair in the additional properties dictionary
                 var forEachStatement = new ForEachStatement("item", additionalPropertiesProperty.AsDictionary(tKey, tValue), out KeyValuePairExpression item)
                 {
-                    SkipExternalPropertyReplacementKeys(item),
+                    CreateExternalPropertyReplacementKeyFilters(item),
                     _utf8JsonWriterSnippet.WritePropertyName(item.Key),
                     tValue.IsNullable
                         ? CreateNullCheckAndSerializationStatement(tValue, item.Value, SerializationFormat.Default, serializedName)
@@ -2980,7 +2980,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return statements;
         }
 
-        private MethodBodyStatement[] SkipExternalPropertyReplacementKeys(KeyValuePairExpression item)
+        /// <summary>
+        /// Creates conditional continue statements for the generated additional-properties loop.
+        /// The collection initializer passes the returned statements to ForEachStatement.Add;
+        /// this does not mutate the additional-properties dictionary during generation.
+        /// </summary>
+        private MethodBodyStatement[] CreateExternalPropertyReplacementKeyFilters(KeyValuePairExpression item)
             => [.. EnumerateModelAndBaseModelProviders().SelectMany(model => model.ExternalPropertyReplacements)
                 .Where(property => property.WireInfo is { IsHttpMetadata: false })
                 .Select(property => GetJsonSerializedName(property.WireInfo!))

@@ -22,7 +22,7 @@ namespace Sample.Models
             : base(kind, id)
         {
             Name = name;
-            ParentValueInternal = parentValue;
+            ParentValueReplacement = parentValue;
             _additionalBinaryDataProperties = additionalBinaryDataProperties ?? new Dictionary<string, BinaryData>();
             if (responseId != null)
             {
@@ -31,7 +31,7 @@ namespace Sample.Models
         }
 
         [CodeGenMember("ParentValue")]
-        public string ParentValueInternal { get; set; }
+        public string ParentValueReplacement { get; set; }
 
         [CodeGenMember("ResponseId")]
         internal string ResponseIdInternal

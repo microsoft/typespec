@@ -799,6 +799,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 : null;
         }
 
+        /// <summary>
+        /// Selects the serialization constructor and its additional-data parameter for the model factory.
+        /// Handwritten constructor parameters lack generated property metadata, so matching discriminator
+        /// parameters recover that link by name, type, and passing modifiers. This lets known variants
+        /// keep their fixed discriminator while unknown variants expose the caller's value.
+        /// </summary>
         private static (ParameterProvider? BinaryDataParam, ConstructorProvider FullCtor) GetBinaryDataParamAndFullCtorForFactoryMethod(
             ModelProvider modelProvider)
         {

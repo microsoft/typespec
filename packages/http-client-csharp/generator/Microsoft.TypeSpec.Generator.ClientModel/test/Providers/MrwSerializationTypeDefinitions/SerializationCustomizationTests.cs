@@ -91,7 +91,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 Assert.That(initialization.Signature.Parameters.Select(parameter => parameter.Name),
                     Is.EqualTo(new[] { "id", "parentValue", "name", "leafName" }));
                 Assert.That(initialization.Signature.Parameters[1].Property,
-                    Is.SameAs(model.CanonicalView.Properties.Single(property => property.Name == "ParentValueInternal")),
+                    Is.SameAs(model.CanonicalView.Properties.Single(property => property.Name == "ParentValueReplacement")),
                     "The nearest replacement must own the inherited slot at its original position.");
                 Assert.That(runtimeModel.FullConstructor.Signature.Parameters.Count(parameter =>
                     parameter.Property?.InputProperty == parentValue), Is.EqualTo(1));
@@ -135,7 +135,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 object parent = listProperty ? new[] { "parent" }.Select(value => value) : "parent";
                 object[] arguments = leaf is null ? ["item", parent, "payload"] : ["item", parent, "payload", "leaf"];
                 var initialized = Activator.CreateInstance(generatedType, arguments)!;
-                Assert.That(generatedType.GetProperty("ParentValueInternal")!.GetValue(initialized),
+                Assert.That(generatedType.GetProperty("ParentValueReplacement")!.GetValue(initialized),
                     Is.EqualTo(listProperty ? new[] { "parent" } : (object)"parent"));
                 if (leaf is not null)
                 {
@@ -199,9 +199,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 .GetValue(persistedModel), Is.EqualTo(writesResponseId ? "response" : null));
         }
 
-        [TestCase(false)]
-        [TestCase(true)]
-        public async Task ExternalPropertyReplacementsHonorNormalizedNames(bool exactName)
+        [Test]
+        public async Task ExternalPropertyReplacementsHonorSupportedNames([Values] bool exactName, [Values] bool rawSpecNames)
         {
             var ipFoo = InputFactory.Property("ipFoo", InputPrimitiveType.String, serializedName: "ip_foo", isExactName: exactName);
             var createdAt = InputFactory.Property("createdAt",
@@ -211,20 +210,22 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
                 external: new InputExternalTypeMetadata(typeof(ExternalResponse).AssemblyQualifiedName!, null, null));
             var input = InputFactory.Model("Model", properties: [], baseModel: external);
             var generator = await MockHelpers.LoadMockGeneratorAsync(inputModels: () => [external, input],
-                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync());
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(method: rawSpecNames
+                    ? "ExternalPropertyReplacementsHonorRawSpecNames" : "ExternalPropertyReplacementsHonorNormalizedNames"));
             var model = generator.Object.TypeFactory.CreateModel(input)!;
             var properties = model.CanonicalView.Properties;
+            var binds = rawSpecNames || !exactName;
             Assert.Multiple(() =>
             {
                 Assert.That(properties.Single(property => property.Name == "IPFooInternal").InputProperty,
-                    exactName ? Is.Null : Is.SameAs(ipFoo));
+                    binds ? Is.SameAs(ipFoo) : Is.Null);
                 Assert.That(properties.Single(property => property.Name == "CreatedOnInternal").InputProperty,
-                    exactName ? Is.Null : Is.SameAs(createdAt));
+                    binds ? Is.SameAs(createdAt) : Is.Null);
             });
             var write = model.SerializationProviders.Single().Methods.Single(method => method.Signature.Name == "JsonModelWriteCore")
                 .BodyStatements!.ToDisplayString();
-            Assert.That(write.Contains("\"ip_foo\""), Is.EqualTo(!exactName));
-            Assert.That(write.Contains("\"created_at\""), Is.EqualTo(!exactName));
+            Assert.That(write.Contains("\"ip_foo\""), Is.EqualTo(binds));
+            Assert.That(write.Contains("\"created_at\""), Is.EqualTo(binds));
         }
 
         [TestCase("externalResponse", false, true)]

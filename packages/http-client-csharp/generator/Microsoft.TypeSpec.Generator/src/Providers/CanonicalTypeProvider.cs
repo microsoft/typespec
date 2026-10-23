@@ -29,7 +29,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         {
             _generatedTypeProvider = generatedTypeProvider;
             var inputModel = inputType as InputModelType;
-            var externalReplacements = GetExternalPropertyReplacements(inputModel).ToArray();
+            var externalReplacements = GetExternalPropertyReplacements(inputModel);
             _specProperties = [.. inputModel?.Properties ?? [], .. externalReplacements.Select(replacement => replacement.Property)];
             _specPropertiesMap = [];
             _exactSpecPropertyNames = [];
@@ -55,8 +55,13 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 .Where(p => p.OriginalName != null).Select(p => p.OriginalName!).ToHashSet();
         }
 
-        private IEnumerable<(InputModelProperty Property, string EmittedName)> GetExternalPropertyReplacements(InputModelType? inputModel)
+        /// <summary>
+        /// Collects explicitly claimed properties in declaration order, visiting the nearest external base first.
+        /// The custom-name set is used only for membership checks; its enumeration order does not affect property order.
+        /// </summary>
+        private IReadOnlyList<(InputModelProperty Property, string EmittedName)> GetExternalPropertyReplacements(InputModelType? inputModel)
         {
+            List<(InputModelProperty Property, string EmittedName)> result = [];
             var replacements = (_generatedTypeProvider.CustomCodeView?.Properties ?? [])
                 .Where(property => property.OriginalName is not null)
                 .Select(property => property.OriginalName!)
@@ -70,14 +75,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         continue;
                     }
                     var name = property.IsExactName ? property.Name : property.Name.ToIdentifierName();
+                    // CodeGenMember accepts raw spec names as well as C# names. The emitted name already
+                    // respects IsExactName, including the enclosing-type collision suffix.
                     if (replacements.Contains(property.Name) || replacements.Contains(name) ||
                         replacements.Contains(generatedProperty.Name) ||
                         (!property.IsExactName && replacements.Contains(name.NormalizeCSharpAcronyms(property.Type.IsDateTimeInputType()))))
                     {
-                        yield return (property, generatedProperty.Name);
+                        result.Add((property, generatedProperty.Name));
                     }
                 }
             }
+            return result;
         }
 
         protected override string BuildRelativeFilePath() => throw new InvalidOperationException("This type should not be writing in generation");
