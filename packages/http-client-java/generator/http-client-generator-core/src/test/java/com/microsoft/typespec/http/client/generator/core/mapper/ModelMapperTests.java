@@ -27,8 +27,10 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SerializationFormats;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.StringSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.XmlSerializationFormat;
+import com.microsoft.typespec.http.client.generator.core.extension.model.extensionmodel.XmsExtensions;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModelProperty;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModels;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.EnumType;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
@@ -67,6 +69,39 @@ public class ModelMapperTests {
         ClientModels.getInstance().clear();
         new MockUnitJavagen();
         JavaSettings.clear();
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+        "create,true,true",
+        "update,true,false",
+        ",true,true",
+        "create,false,false",
+        "update,false,false",
+        ",false,false" })
+    public void mergePatchRequiredForCreateRespectsMutability(String mutability, boolean required,
+        boolean expectedRequiredForCreate) {
+        Property source = property("state", new StringSchema());
+        source.setRequired(required);
+        if (mutability != null) {
+            XmsExtensions extensions = new XmsExtensions();
+            extensions.setXmsMutability(List.of("read", mutability));
+            source.setExtensions(extensions);
+        }
+        ClientModelProperty mapped = ModelPropertyMapper.getInstance().map(source, true);
+        Assertions.assertFalse(mapped.isRequired());
+        Assertions.assertEquals(expectedRequiredForCreate, mapped.isRequiredForCreate());
+
+        ClientModel model = new ClientModel.Builder().name("ChatTopic")
+            .packageName("com.azure.mock.models")
+            .properties(List.of(mapped))
+            .build();
+        JavaFile file = new JavaFile("ChatTopic.java");
+        StreamSerializationModelTemplate.getInstance().write(model, file);
+        String generated = file.getContents().toString();
+        Assertions.assertTrue(generated.contains("setState(String state)"), generated);
+        Assertions.assertEquals(expectedRequiredForCreate, generated.contains("Required when create the resource."),
+            generated);
     }
 
     @ParameterizedTest

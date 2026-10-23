@@ -1,0 +1,7 @@
+---
+changeKind: fix
+packages:
+  - "@typespec/http-client-java"
+---
+
+Fix creation-required documentation for merge-patch properties without Create visibility.
