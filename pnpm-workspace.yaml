@@ -93,7 +93,7 @@ catalog:
   "@typespec/ts-http-runtime": 0.3.9
   "@vitejs/plugin-react": ^6.1.0
   "@vitest/coverage-v8": ^5.0.0
-  "@vitest/ui": ^5.0.0
+  "@vitest/ui": ^5.0.5
   "@vscode/extension-telemetry": ^1.5.2
   "@vscode/test-electron": ^3.1.0
   "@vscode/test-web": ^0.0.81
@@ -161,7 +161,7 @@ catalog:
   semver: ^7.8.5
   sharp: ^0.35.5
   simple-git: ^4.0.2
-  storybook: ^10.6.1
+  storybook: ^10.6.2
   strip-json-comments: ^5.0.3
   swagger-ui-dist: ^5.33.1
   swagger-ui-express: ^5.0.1
