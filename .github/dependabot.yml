@@ -68,6 +68,10 @@ updates:
       scalar:
         patterns:
           - "@scalar/*"
+      security:
+        applies-to: security-updates
+        patterns:
+          - "*"
       testing:
         patterns:
           - vitest
