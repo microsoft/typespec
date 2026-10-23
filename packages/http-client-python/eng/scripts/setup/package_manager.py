@@ -142,13 +142,17 @@ def create_venv_with_package_manager(venv_path):
                     else str(venv_path / "Scripts" / "python.exe")
                 )
 
-        return MockVenvContext(venv_path)
+        context = MockVenvContext(venv_path)
+        install_packages(["--upgrade", "pip"], context, package_manager="uv")
+        return context
     else:
         # Use standard venv for pip
         if venv_path.exists():
             env_builder = venv.EnvBuilder(with_pip=True)
-            return env_builder.ensure_directories(venv_path)
+            context = env_builder.ensure_directories(venv_path)
+            install_packages(["--upgrade", "pip"], context, package_manager)
         else:
             env_builder = ExtendedEnvBuilder(with_pip=True, upgrade_deps=True)
             env_builder.create(venv_path)
-            return env_builder.context
+            context = env_builder.context
+        return context
