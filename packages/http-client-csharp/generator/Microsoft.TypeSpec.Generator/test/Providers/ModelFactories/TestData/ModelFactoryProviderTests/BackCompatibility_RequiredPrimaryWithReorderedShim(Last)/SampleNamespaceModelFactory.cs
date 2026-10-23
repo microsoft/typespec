@@ -8,13 +8,13 @@ namespace Sample.Namespace
             string id,
             bool? allow,
             string kind)
-        { }
+        { return default; }
 
         public static CompatibilityModel CompatibilityModel(
             string id = default,
             string kind = default,
             bool? allow = default)
-        { }
+        { return default; }
     }
 }
 
