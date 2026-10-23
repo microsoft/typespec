@@ -128,9 +128,12 @@ public final class ResourceGroupResourceImpl
         azure.resourcemanager.methodsubscriptionid.MethodSubscriptionIdManager serviceManager) {
         this.innerObject = innerObject;
         this.serviceManager = serviceManager;
-        this.resourceGroupName = ResourceManagerUtils.getValueFromIdByName(innerObject.id(), "resourceGroups");
-        this.resourceGroupResourceName
-            = ResourceManagerUtils.getValueFromIdByName(innerObject.id(), "resourceGroupResources");
+        this.resourceGroupName = ResourceManagerUtils.getValueFromIdByParameterName(innerObject.id(),
+            "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.MethodSubscriptionId/resourceGroupResources/{resourceGroupResourceName}",
+            "resourceGroupName");
+        this.resourceGroupResourceName = ResourceManagerUtils.getValueFromIdByParameterName(innerObject.id(),
+            "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.MethodSubscriptionId/resourceGroupResources/{resourceGroupResourceName}",
+            "resourceGroupResourceName");
     }
 
     public ResourceGroupResource refresh() {
