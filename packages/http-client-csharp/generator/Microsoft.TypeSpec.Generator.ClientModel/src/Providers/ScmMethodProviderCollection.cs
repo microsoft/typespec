@@ -215,6 +215,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             ApplyExperimentalAttributes(methodSignature, customSignature, BuildConvenienceMethodAttributes() ?? []);
+            ApplyDeprecationAttribute(methodSignature, customSignature);
 
             // Recompute the response body type so we can branch the body accordingly.
             GetResponseType(ServiceMethod.Operation.Responses, true, isAsync, out var responseBodyType);
@@ -299,6 +300,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             var convenienceMethod = new ScmMethodProvider(methodSignature, methodBody, EnclosingType, ScmMethodKind.Convenience, collectionDefinition: collection, serviceMethod: ServiceMethod);
             ExperimentalApiHelpers.AddDependencySuppressions(convenienceMethod, ServiceMethod.Operation);
+            if (protocolMethod.Signature.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute))
+            {
+                convenienceMethod.Update(suppressions: ExperimentalApiHelpers.MergeSuppressions(
+                    convenienceMethod.Suppressions, DeprecationApiHelpers.GetSuppressions()));
+            }
 
             if (convenienceMethod.XmlDocs != null)
             {
@@ -1149,6 +1155,24 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
         }
 
+        private void ApplyDeprecationAttribute(MethodSignature signature, MethodSignature? customSignature)
+        {
+            if (customSignature?.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute) == true)
+            {
+                // Attributes on the defining partial declaration also apply to the implementation.
+                signature.Update(attributes: [.. signature.Attributes.Where(a => !DeprecationApiHelpers.IsObsoleteAttribute(a))]);
+            }
+            else if (!signature.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute)
+                && Client.BackCompatProvider.LastContractView?.Methods.Any(previous =>
+                    MethodSignatureHelper.IsPublicApi(previous.Signature)
+                    && MethodSignatureBase.SignatureComparer.Equals(previous.Signature, signature)
+                    && !previous.Signature.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute)) != true
+                && DeprecationApiHelpers.BuildAttribute(ServiceMethod.Operation.Deprecated) is { } attribute)
+            {
+                signature.Update(attributes: [.. signature.Attributes, attribute]);
+            }
+        }
+
         private IReadOnlyList<ValueExpression> GetMethodArguments(
             MethodSignature signature,
             Dictionary<string, ValueExpression> declarations,
@@ -1492,6 +1516,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             ApplyExperimentalAttributes(methodSignature, customSignature, ExperimentalApiHelpers.BuildAttributes(ServiceMethod.Operation.Experimental));
+            ApplyDeprecationAttribute(methodSignature, customSignature);
 
             TypeProvider? collection = null;
             MethodBodyStatement[] methodBody;

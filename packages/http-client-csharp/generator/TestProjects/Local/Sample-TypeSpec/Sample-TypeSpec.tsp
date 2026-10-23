@@ -1131,3 +1131,36 @@ op getAcronymParameters(
 @post
 @convenientAPI(true, "csharp")
 op setAcronymAddresses(@query ipV4Address: string, @query ipV6Address?: string): void;
+
+#deprecated "Use \"CurrentDetails\" instead.\nSee C:\\sdk."
+model LegacyDetails {
+  choice: LegacyChoice;
+  extensibleChoice: LegacyExtensibleChoice;
+}
+
+#deprecated "Use CurrentChoice instead."
+enum LegacyChoice {
+  one,
+  two,
+}
+
+#deprecated "Use CurrentExtensibleChoice instead."
+union LegacyExtensibleChoice {
+  string,
+  one: "one",
+}
+
+model CurrentDetails extends LegacyDetails {
+  previous?: LegacyDetails[];
+}
+
+interface DeprecationSamples {
+  #deprecated "Use \"read\" instead.\nSee C:\\sdk."
+  @route("/deprecated")
+  @get
+  legacy(): LegacyDetails;
+
+  @route("/deprecated/current")
+  @get
+  read(): CurrentDetails;
+}

@@ -41,6 +41,7 @@ namespace SampleTypeSpec
         private PetOperations _cachedPetOperations;
         private DogOperations _cachedDogOperations;
         private PlantOperations _cachedPlantOperations;
+        private DeprecationSamples _cachedDeprecationSamples;
 
         /// <summary> Initializes a new instance of SampleTypeSpecClient for mocking. </summary>
         protected SampleTypeSpecClient()
@@ -2306,6 +2307,12 @@ namespace SampleTypeSpec
             Argument.AssertNotNull(notebook, nameof(notebook));
 
             return new Notebooks(Pipeline, _endpoint, notebook);
+        }
+
+        /// <summary> Initializes a new instance of DeprecationSamples. </summary>
+        public virtual DeprecationSamples GetDeprecationSamplesClient()
+        {
+            return Volatile.Read(ref _cachedDeprecationSamples) ?? Interlocked.CompareExchange(ref _cachedDeprecationSamples, new DeprecationSamples(Pipeline, _endpoint), null) ?? _cachedDeprecationSamples;
         }
     }
 }

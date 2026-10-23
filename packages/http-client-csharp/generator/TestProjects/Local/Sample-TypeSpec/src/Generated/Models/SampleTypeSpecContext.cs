@@ -16,11 +16,15 @@ namespace SampleTypeSpec
     /// </summary>
     [ModelReaderWriterBuildable(typeof(Animal))]
     [ModelReaderWriterBuildable(typeof(AnotherDynamicModel))]
+    [ModelReaderWriterBuildable(typeof(CurrentDetails))]
     [ModelReaderWriterBuildable(typeof(Dog))]
     [ModelReaderWriterBuildable(typeof(DynamicModel))]
     [ModelReaderWriterBuildable(typeof(Friend))]
     [ModelReaderWriterBuildable(typeof(GetNotebookResult))]
     [ModelReaderWriterBuildable(typeof(GetWidgetMetricsResult))]
+#pragma warning disable CS0618 // global::SampleTypeSpec.LegacyDetails is obsolete and may be removed in future versions.
+    [ModelReaderWriterBuildable(typeof(LegacyDetails))]
+#pragma warning restore CS0618 // global::SampleTypeSpec.LegacyDetails is obsolete and may be removed in future versions.
     [ModelReaderWriterBuildable(typeof(LifecycleModel))]
     [ModelReaderWriterBuildable(typeof(ModelWithEmbeddedNonBodyParameters))]
     [ModelReaderWriterBuildable(typeof(ModelWithRequiredNullableProperties))]

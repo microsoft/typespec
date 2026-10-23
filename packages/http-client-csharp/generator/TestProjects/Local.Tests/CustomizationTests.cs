@@ -13,6 +13,42 @@ namespace TestProjects.Local.Tests
 {
     public class CustomizationTests
     {
+        [TestCase("LegacyDetails", "Use \"CurrentDetails\" instead.\nSee C:\\sdk.")]
+        [TestCase("LegacyChoice", "Use CurrentChoice instead.")]
+        [TestCase("LegacyExtensibleChoice", "Use CurrentExtensibleChoice instead.")]
+        [TestCase("CurrentDetails", null)]
+        public void DeprecatedTypesPreserveWarningOnlyMessages(string typeName, string? message)
+        {
+            var type = typeof(SampleTypeSpecClient).Assembly.GetType($"SampleTypeSpec.{typeName}");
+            Assert.IsNotNull(type);
+            var attribute = type!.GetCustomAttribute<ObsoleteAttribute>();
+            Assert.AreEqual(message, attribute?.Message);
+            if (message is not null)
+            {
+                Assert.IsFalse(attribute!.IsError);
+            }
+        }
+
+        [TestCase("Legacy", "Use \"read\" instead.\nSee C:\\sdk.")]
+        [TestCase("LegacyAsync", "Use \"read\" instead.\nSee C:\\sdk.")]
+        [TestCase("Read", null)]
+        [TestCase("ReadAsync", null)]
+        public void DeprecatedOperationsPreserveWarningOnlyMessages(string methodName, string? message)
+        {
+            var methods = typeof(SampleTypeSpecClient).Assembly.GetType("SampleTypeSpec.DeprecationSamples")!
+                .GetMethods().Where(m => m.Name == methodName).ToArray();
+            Assert.AreEqual(2, methods.Length);
+            foreach (var method in methods)
+            {
+                var attribute = method.GetCustomAttribute<ObsoleteAttribute>();
+                Assert.AreEqual(message, attribute?.Message);
+                if (message is not null)
+                {
+                    Assert.IsFalse(attribute!.IsError);
+                }
+            }
+        }
+
         [TestCase("GetNotebookResult", "GetNotebookResponse", true)]
         [TestCase("GetWidgetMetricsResult", "GetWidgetMetricsResponse", true)]
         [TestCase("ListWithContinuationTokenHeaderResponseResult", "ListWithContinuationTokenHeaderResponseResponse", false)]

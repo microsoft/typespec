@@ -209,7 +209,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         public string? Deprecated
         {
-            get => _deprecated;
+            get => _deprecated ??= _inputType switch
+            {
+                InputModelType model => model.Deprecation,
+                InputEnumType enumType => enumType.Deprecation,
+                _ => null
+            };
             private set => _deprecated = value;
         }
 
@@ -758,10 +763,20 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         protected virtual IReadOnlyList<MethodBodyStatement> BuildAttributes()
         {
+            var attributes = new List<MethodBodyStatement>();
             var attribute = ExperimentalApiHelpers.BuildAttribute(_inputType?.Experimental);
-            return attribute is null || CustomCodeView?.Attributes.Any(ExperimentalApiHelpers.IsExperimentalAttribute) == true
-                ? []
-                : [attribute];
+            if (attribute is not null && CustomCodeView?.Attributes.Any(ExperimentalApiHelpers.IsExperimentalAttribute) != true)
+            {
+                attributes.Add(attribute);
+            }
+            var obsoleteAttribute = DeprecationApiHelpers.BuildAttribute(Deprecated);
+            if (obsoleteAttribute is not null
+                && CustomCodeView?.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute) != true
+                && (LastContractView is null || LastContractView.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute)))
+            {
+                attributes.Add(obsoleteAttribute);
+            }
+            return attributes;
         }
 
         private CSharpType? _enumUnderlyingType;
@@ -1235,6 +1250,18 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             BackCompatHelper.RestorePreviousParameterNames(this, methods);
             BackCompatHelper.AddBackCompatOverloads(this, methods);
+
+            foreach (var method in methods)
+            {
+                if (method.Signature.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute)
+                    && previousMethods.Any(previous => MethodSignatureHelper.IsPublicApi(previous.Signature)
+                        && MethodSignatureBase.SignatureComparer.Equals(previous.Signature, method.Signature)
+                        && !previous.Signature.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute)))
+                {
+                    method.Signature.Update(attributes: [.. method.Signature.Attributes.Where(a => !DeprecationApiHelpers.IsObsoleteAttribute(a))]);
+                    method.Update(suppressions: ExperimentalApiHelpers.MergeSuppressions(method.Suppressions, DeprecationApiHelpers.GetSuppressions()));
+                }
+            }
 
             return methods;
         }

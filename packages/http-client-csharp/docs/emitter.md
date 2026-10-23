@@ -27,6 +27,21 @@ options:
     option: value
 ```
 
+## Deprecation
+
+The TypeSpec `#deprecated` directive emits warning-only C# `Obsolete` attributes on
+models, enums, and operation methods, including synchronous, asynchronous, protocol,
+and convenience methods. The attribute preserves the directive's message. An
+`Obsolete` attribute supplied in a custom partial declaration takes precedence.
+
+When a last released GA contract is available, an API that was not previously
+obsolete does not gain an `Obsolete` attribute. Newly added APIs and APIs that were
+already obsolete use the current TypeSpec deprecation message. Compatibility
+overloads also preserve the published API's non-obsolete status.
+
+Warnings for references to obsolete APIs are suppressed only within the generated
+implementation. Consumers still receive deprecation warnings.
+
 ## Emitter options
 
 ### `emitter-output-dir`

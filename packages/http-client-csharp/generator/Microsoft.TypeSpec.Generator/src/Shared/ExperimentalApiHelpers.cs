@@ -58,7 +58,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
         {
             var collector = new DiagnosticCollector();
             collector.AddReference(type);
-            return CreateSuppressions(collector.Ids.Order(StringComparer.Ordinal));
+            return collector.GetSuppressions();
         }
 
         public static SuppressionStatement[] GetReferenceSuppressions(CSharpType? type)
@@ -79,8 +79,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             }
             if (CodeModelGenerator.Instance.TypeFactory.CSharpTypeMap.TryGetValue(type, out var provider) && provider is not null)
             {
-                var custom = GetAttributeSuppressions(provider.CustomCodeView?.Attributes ?? []);
-                suppressions.AddRange(custom.Length > 0 ? custom : GetAttributeSuppressions(provider.Attributes));
+                suppressions.AddRange(GetAttributeSuppressions(provider.Attributes.Concat(provider.CustomCodeView?.Attributes ?? [])));
                 if (type.IsLiteral && type.Literal is EnumTypeMember member)
                 {
                     suppressions.AddRange(GetAttributeSuppressions(provider.Properties.Where(p => p.Name == member.Name).SelectMany(p => p.Attributes)));
@@ -93,8 +92,10 @@ namespace Microsoft.TypeSpec.Generator.Utilities
         public static SuppressionStatement[] GetAttributeSuppressions(IEnumerable<AttributeStatement> attributes)
         {
             var ids = new List<string>();
+            bool obsolete = false;
             foreach (var attribute in attributes)
             {
+                obsolete |= DeprecationApiHelpers.IsObsoleteAttribute(attribute);
                 if (!IsExperimentalAttribute(attribute))
                 {
                     continue;
@@ -110,7 +111,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 }
                 ids.Add(id);
             }
-            return CreateSuppressions(ids);
+            return MergeSuppressions(CreateSuppressions(ids), obsolete ? DeprecationApiHelpers.GetSuppressions() : []);
         }
 
         public static SuppressionStatement[] GetMemberSuppressions(PropertyProvider property)
@@ -140,7 +141,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             {
                 collector.AddReference(response.BodyType);
             }
-            return CreateSuppressions(collector.Ids.Order(StringComparer.Ordinal));
+            return collector.GetSuppressions();
         }
 
         public static SuppressionStatement[] MergeSuppressions(params IEnumerable<SuppressionStatement>[] suppressions)
@@ -164,7 +165,12 @@ namespace Microsoft.TypeSpec.Generator.Utilities
         private sealed class DiagnosticCollector
         {
             private readonly HashSet<InputType> _references = [];
+            private bool _hasDeprecatedReference;
             public HashSet<string> Ids { get; } = new(StringComparer.Ordinal);
+
+            public SuppressionStatement[] GetSuppressions()
+                => MergeSuppressions(CreateSuppressions(Ids.Order(StringComparer.Ordinal)),
+                    _hasDeprecatedReference ? DeprecationApiHelpers.GetSuppressions() : []);
 
             public void AddId(string? id)
             {
@@ -198,6 +204,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                     return;
                 }
                 AddId(type.Experimental?.DiagnosticId);
+                _hasDeprecatedReference |= type is InputModelType { Deprecation: not null } or InputEnumType { Deprecation: not null };
                 switch (type)
                 {
                     case InputArrayType array:
