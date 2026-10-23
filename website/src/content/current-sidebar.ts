@@ -212,7 +212,7 @@ const sidebar: SidebarItem[] = [
             "emitters/clients/http-client-csharp",
             "CSharp",
             false,
-            ["emitters/clients/http-client-csharp/naming-conventions"],
+            [],
             "preview",
           ),
         ],

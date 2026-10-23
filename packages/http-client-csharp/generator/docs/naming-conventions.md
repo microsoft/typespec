@@ -1,6 +1,4 @@
----
-title: Automatic naming conversions
----
+# Automatic naming conversions
 
 The C# HTTP client emitter converts TypeSpec names into C# identifiers and applies additional .NET
 naming conventions. These conversions affect generated API names, not HTTP parameter names, JSON
@@ -78,6 +76,9 @@ The recognized suffixes are `Timestamp`, `TimeStamp`, `DateTime`, `Time`, `Date`
 Suffix matching is case-sensitive, except for standalone `date` and `timestamp` spellings, which are
 left unchanged. An existing `On` suffix still participates in the noun-to-verb rules below.
 
+The `DateTime` suffix is recognized only in names longer than `DateTime`. A standalone `DateTime`
+instead matches `Time`, producing the property name `DateOn` or parameter name `dateOn`.
+
 | Date/time input name  | Generated property  | Generated parameter |
 | --------------------- | ------------------- | ------------------- |
 | `createdAt`           | `CreatedOn`         | `createdOn`         |
@@ -88,6 +89,7 @@ left unchanged. An existing `On` suffix still participates in the noun-to-verb r
 | `leaseStartDateTime`  | `LeaseStartsOn`     | `leaseStartsOn`     |
 | `accountCreationDate` | `AccountCreatedOn`  | `accountCreatedOn`  |
 | `ipStartTime`         | `IPStartsOn`        | `ipStartsOn`        |
+| `dateTime`            | `DateOn`            | `dateOn`            |
 
 The stem before the suffix is also converted from these nouns to verbs:
 
@@ -111,7 +113,7 @@ and acronym rules can still apply:
 
 | Exclusion                                                                | Examples                                                 |
 | ------------------------------------------------------------------------ | -------------------------------------------------------- |
-| The recognized suffix is the entire name                                 | `Date`, `Timestamp`, `TimeStamp`                         |
+| The selected suffix is the entire name                                   | `Date`, `Timestamp`, `TimeStamp`                         |
 | The entire stem is `First` or `Last`, ignoring case                      | `firstTimestamp`, `LastAt`                               |
 | The name starts with `From` or `To`, ignoring case                       | `fromTime`, `toDate`, `TotalTime`, `TokenExpirationDate` |
 | The name ends with `PointInTime`, ignoring case                          | `pointInTime`, `recoveryPointInTime`                     |
@@ -165,14 +167,18 @@ those normalizations. This is not a general resolver for every possible method-n
 
 In addition to casing, acronym, and date/time rules, paging operations apply these conversions:
 
-| Input                                                    | Generated name | Scope                                                                  |
-| -------------------------------------------------------- | -------------- | ---------------------------------------------------------------------- |
-| `top`, ignoring case                                     | `maxCount`     | A paging operation parameter whose original name is `top`              |
-| A casing variant of `maxPageSize`, such as `maxpagesize` | `maxPageSize`  | The parameter identified by paging metadata as the page-size parameter |
+| Input                                                    | Generated name | Scope                                                                                                |
+| -------------------------------------------------------- | -------------- | ---------------------------------------------------------------------------------------------------- |
+| `top`, ignoring case                                     | `maxCount`     | A paging operation parameter whose original name is `top`, unless it is also the page-size parameter |
+| A casing variant of `maxPageSize`, such as `maxpagesize` | `maxPageSize`  | The parameter identified by paging metadata as the page-size parameter                               |
 
 Other page-size names are not generally changed to `maxPageSize`. These paging conversions do not
 apply to non-paging operations. Exact names and matching previously published parameter names can
 prevent a conversion.
+
+Page-size metadata is applied after the `top` conversion. If the original parameter name and the
+page-size metadata name are both `top`, the metadata supersedes `maxCount` and the parameter stays
+`top`, even without an exact name or a previous contract.
 
 Some parameters describe generated infrastructure rather than a renamed service parameter:
 
@@ -221,8 +227,12 @@ the ordinary enum-member underscore-removal rule.
 
 For multi-service namespace disambiguation, the generator adds namespace segments from right to
 left until the suffix is unique. If the full namespace still collides, the input enum name is
-appended. Service-version type suffixes are not repeated when the last segment already ends with
-that suffix, ignoring case.
+appended. On the non-colliding last-segment path, the `ServiceVersion` suffix is not repeated when
+the last segment already ends with that suffix, ignoring case.
+
+The namespace-disambiguation path always appends `Version`, even when the unique suffix already
+ends in `Version`. For example, `A.ServiceVersion` and `B.ServiceVersion` produce
+`AServiceVersionVersion` and `BServiceVersionVersion`.
 
 ## Namespace and client names
 

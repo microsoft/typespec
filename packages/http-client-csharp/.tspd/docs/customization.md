@@ -4,8 +4,6 @@
 
 Before customizing generated code, consider whether your change should be made in TypeSpec (`client.tsp`) instead. TypeSpec customizations allow you to apply changes to multiple languages at once, are more discoverable for other languages, and live right near the spec bringing us more to a single source of truth. See the [TypeSpec Client Customizations Reference](https://github.com/Azure/azure-sdk-tools/blob/main/eng/common/knowledge/customizing-client-tsp.md) for available decorators like `@@clientName`, `@@access`, etc.
 
-Check the [automatic naming conversions](https://typespec.io/docs/emitters/clients/http-client-csharp/naming-conventions/) before adding a naming customization. The emitter applies C# conventions such as acronym normalization, date/time suffixes, and operation-name conversions; the reference also explains exact-name overrides and backward-compatibility exceptions.
-
 Use C# code customizations (partial classes) when TypeSpec cannot express the behavior you need.
 
 ## Optional nullable model properties
