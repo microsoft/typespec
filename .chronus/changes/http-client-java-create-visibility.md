@@ -5,3 +5,5 @@ packages:
 ---
 
 Fix creation-required documentation for merge-patch properties without Create visibility.
+
+Generate normal models for management operations using JSON Merge Patch content type.
