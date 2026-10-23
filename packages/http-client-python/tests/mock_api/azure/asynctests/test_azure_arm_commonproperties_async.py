@@ -13,6 +13,7 @@ SUBSCRIPTION_ID = "00000000-0000-0000-0000-000000000000"
 RESOURCE_GROUP_NAME = "test-rg"
 
 SIMPLE_ARM_ID = f"/subscriptions/{SUBSCRIPTION_ID}/resourceGroups/{RESOURCE_GROUP_NAME}/providers/Microsoft.Network/virtualNetworks/myVnet"
+ARM_RESOURCE_ID = f"/subscriptions/{SUBSCRIPTION_ID}/resourceGroups/{RESOURCE_GROUP_NAME}/providers/Azure.ResourceManager.CommonProperties/armResourceIdentifierResources/armId"
 ARM_ID_WITH_TYPE = SIMPLE_ARM_ID
 ARM_ID_WITH_TYPE_AND_SCOPE = SIMPLE_ARM_ID
 ARM_ID_WITH_ALL_SCOPES = f"/subscriptions/{SUBSCRIPTION_ID}/resourceGroups/{RESOURCE_GROUP_NAME}/providers/Microsoft.Compute/virtualMachines/myVm"
@@ -106,6 +107,7 @@ async def test_arm_resource_identifiers_get(client):
     result = await client.arm_resource_identifiers.get(
         resource_group_name=RESOURCE_GROUP_NAME, arm_resource_identifier_resource_name="armId"
     )
+    assert result.id == ARM_RESOURCE_ID
     assert result.location == "eastus"
     assert result.properties.provisioning_state == "Succeeded"
     assert result.properties.simple_arm_id == SIMPLE_ARM_ID
@@ -131,6 +133,7 @@ async def test_arm_resource_identifiers_create_or_replace(client):
             ),
         ),
     )
+    assert result.id == ARM_RESOURCE_ID
     assert result.location == "eastus"
     assert result.properties.provisioning_state == "Succeeded"
     assert result.properties.simple_arm_id == SIMPLE_ARM_ID
