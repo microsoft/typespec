@@ -200,6 +200,24 @@ async function runCli(
             type: "boolean",
             describe: "Do not run any emitters.",
           })
+          .option("no-linter", {
+            type: "boolean",
+            describe: "Disable all linter rules for this compilation.",
+          })
+          .option("linter-ruleset", {
+            type: "array",
+            string: true,
+            requiresArg: true,
+            describe:
+              "Replace configured linter rulesets. Accepts a library ruleset or file:<path>. Can be repeated.",
+          })
+          .option("linter-rule", {
+            type: "array",
+            string: true,
+            requiresArg: true,
+            describe:
+              "Override a linter rule using <rule>=true, false, or a JSON options object. Can be repeated.",
+          })
           .option("dry-run", {
             type: "boolean",
             describe:

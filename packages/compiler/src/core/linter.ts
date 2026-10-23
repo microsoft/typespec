@@ -37,7 +37,7 @@ type LinterLibraryInstance = { linter: LinterResolvedDefinition };
 /**
  * Where a ruleset came from. `file:` references need a directory to resolve against, so they are
  * only supported for rulesets anchored to a location on disk (the project config or another ruleset
- * file). Rulesets defined by a library are not anchored anywhere and cannot use them.
+ * file, or a CLI invocation). Rulesets defined by a library are not anchored anywhere and cannot use them.
  */
 type RuleSetOrigin =
   | {
@@ -61,6 +61,8 @@ export interface ExtendRuleSetOptions {
   readonly baseDir?: string;
   /** Yaml the ruleset was defined in. */
   readonly source?: RuleSetYamlSource;
+  /** Canonical rule IDs supplied by a higher-precedence layer, skipped throughout inheritance. */
+  readonly excludeRules?: ReadonlySet<string>;
 }
 
 export interface Linter {
@@ -165,13 +167,14 @@ export function createLinter(
       baseDir: options?.baseDir ?? program.projectRoot,
       source: options?.source,
     };
-    return extendRuleSetInternal(ruleSet, origin, []);
+    return extendRuleSetInternal(ruleSet, origin, [], options?.excludeRules);
   }
 
   async function extendRuleSetInternal(
     ruleSet: LinterRuleSet,
     origin: RuleSetOrigin,
     fileStack: readonly string[],
+    excludeRules: ReadonlySet<string> | undefined,
   ): Promise<readonly Diagnostic[]> {
     tracer.trace("extend-rule-set.start", JSON.stringify(ruleSet, null, 2));
     const diagnostics = createDiagnosticCollector();
@@ -203,6 +206,7 @@ export function createLinter(
             origin.baseDir,
             fileStack,
             target,
+            excludeRules,
           )) {
             diagnostics.add(diagnostic);
           }
@@ -223,6 +227,7 @@ export function createLinter(
               extendingRuleSet,
               { kind: "library", ruleSetId: `${ref.libraryName}/${ref.name}` },
               fileStack,
+              excludeRules,
             )) {
               diagnostics.add(diagnostic);
             }
@@ -242,7 +247,7 @@ export function createLinter(
     const enabledInThisRuleSet = new Set<string>();
     if (ruleSet.enable) {
       for (const [rawRuleName, enableValue] of Object.entries(ruleSet.enable)) {
-        if (enableValue === false) {
+        if (enableValue === false || excludeRules?.has(resolveCode(rawRuleName))) {
           continue;
         }
         if (reportIfAmbiguous(rawRuleName, diagnostics)) {
@@ -277,6 +282,9 @@ export function createLinter(
 
     if (ruleSet.disable) {
       for (const rawRuleName of Object.keys(ruleSet.disable)) {
+        if (excludeRules?.has(resolveCode(rawRuleName))) {
+          continue;
+        }
         if (reportIfAmbiguous(rawRuleName, diagnostics)) {
           continue;
         }
@@ -396,6 +404,7 @@ export function createLinter(
     baseDir: string,
     fileStack: readonly string[],
     target: DiagnosticTarget | typeof NoTarget,
+    excludeRules: ReadonlySet<string> | undefined,
   ): Promise<readonly Diagnostic[]> {
     const resolvedPath = resolvePath(baseDir, path);
     tracer.trace("extend-rule-set.file", resolvedPath);
@@ -423,6 +432,7 @@ export function createLinter(
           source: { script: loaded.script, path: [] },
         },
         [...fileStack, resolvedPath],
+        excludeRules,
       )),
     ];
   }
