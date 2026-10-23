@@ -23,9 +23,9 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 public class ResourceManagerUtilsTests {
     private static final String TEMPLATE = "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}"
-        + "/providers/Microsoft.AgriculturePlatform/agriServices/{agriServiceResourceName}";
-    private static final String ID = "/subscriptions/sub/resourceGroups/agriServices"
-        + "/providers/Microsoft.AgriculturePlatform/agriServices/farm";
+        + "/providers/Microsoft.Test/services/{serviceResourceName}";
+    private static final String ID
+        = "/subscriptions/sub/resourceGroups/services" + "/providers/Microsoft.Test/services/farm";
 
     @TempDir
     static Path compilationDirectory;
@@ -41,7 +41,8 @@ public class ResourceManagerUtilsTests {
         Files.writeString(source, file.getContents().toString());
         ByteArrayOutputStream diagnostics = new ByteArrayOutputStream();
         int result = ToolProvider.getSystemJavaCompiler()
-            .run(null, diagnostics, diagnostics, "-classpath", System.getProperty("java.class.path"), "-d",
+            .run(null, diagnostics, diagnostics, "-classpath",
+                System.getProperty("surefire.test.class.path", System.getProperty("java.class.path")), "-d",
                 compilationDirectory.toString(), source.toString());
         Assertions.assertEquals(0, result, diagnostics.toString(StandardCharsets.UTF_8));
         classLoader = new URLClassLoader(new URL[] { compilationDirectory.toUri().toURL() },
@@ -65,19 +66,17 @@ public class ResourceManagerUtilsTests {
     @Test
     public void resolvesResourceGroupTypeCollision() throws Exception {
         Assertions.assertEquals("sub", value(ID, TEMPLATE, "subscriptionId"));
-        Assertions.assertEquals("agriServices", value(ID, TEMPLATE, "resourceGroupName"));
-        Assertions.assertEquals("farm", value(ID, TEMPLATE, "agriServiceResourceName"));
-        Assertions.assertEquals("farm", value(ID.replace("resourceGroups/agriServices", "resourceGroups/ordinary"),
-            TEMPLATE, "agriServiceResourceName"));
+        Assertions.assertEquals("services", value(ID, TEMPLATE, "resourceGroupName"));
+        Assertions.assertEquals("farm", value(ID, TEMPLATE, "serviceResourceName"));
+        Assertions.assertEquals("farm",
+            value(ID.replace("resourceGroups/services", "resourceGroups/ordinary"), TEMPLATE, "serviceResourceName"));
     }
 
     @Test
     public void matchesArmLiteralsIgnoringCase() throws Exception {
         Assertions.assertEquals("farm",
-            value(
-                ID.replace("resourceGroups", "RESOURCEGROUPS")
-                    .replace("Microsoft.AgriculturePlatform", "microsoft.agricultureplatform"),
-                TEMPLATE, "agriServiceResourceName"));
+            value(ID.replace("resourceGroups", "RESOURCEGROUPS").replace("Microsoft.Test", "microsoft.test"), TEMPLATE,
+                "serviceResourceName"));
     }
 
     @Test
@@ -140,19 +139,19 @@ public class ResourceManagerUtilsTests {
     @ParameterizedTest
     @ValueSource(
         strings = {
-            "/subscriptions/sub/resourceGroups/agriServices/providers/Microsoft.Other/agriServices/farm",
-            "/subscriptions/sub/resourceGroups/agriServices/providers/Microsoft.AgriculturePlatform/other/farm",
-            "/subscriptions/sub/resourceGroups/agriServices/providers/Microsoft.AgriculturePlatform/agriServices",
-            "/subscriptions/sub/resourceGroups/agriServices/providers/Microsoft.AgriculturePlatform/agriServices/",
-            "/subscriptions/sub/resourceGroups//providers/Microsoft.AgriculturePlatform/agriServices/farm",
-            "/subscriptions/sub/resourceGroups/agriServices/providers/Microsoft.AgriculturePlatform/agriServices/farm/extra",
-            "/extra/subscriptions/sub/resourceGroups/agriServices/providers/Microsoft.AgriculturePlatform/agriServices/farm",
-            "//subscriptions/sub/resourceGroups/agriServices/providers/Microsoft.AgriculturePlatform/agriServices/farm",
+            "/subscriptions/sub/resourceGroups/services/providers/Microsoft.Other/services/farm",
+            "/subscriptions/sub/resourceGroups/services/providers/Microsoft.Test/other/farm",
+            "/subscriptions/sub/resourceGroups/services/providers/Microsoft.Test/services",
+            "/subscriptions/sub/resourceGroups/services/providers/Microsoft.Test/services/",
+            "/subscriptions/sub/resourceGroups//providers/Microsoft.Test/services/farm",
+            "/subscriptions/sub/resourceGroups/services/providers/Microsoft.Test/services/farm/extra",
+            "/extra/subscriptions/sub/resourceGroups/services/providers/Microsoft.Test/services/farm",
+            "//subscriptions/sub/resourceGroups/services/providers/Microsoft.Test/services/farm",
             "" })
     public void rejectsIncompatibleIdsBeforeReturningAnyParameter(String id) throws Exception {
         Assertions.assertNull(value(id, TEMPLATE, "subscriptionId"));
         Assertions.assertNull(value(id, TEMPLATE, "resourceGroupName"));
-        Assertions.assertNull(value(id, TEMPLATE, "agriServiceResourceName"));
+        Assertions.assertNull(value(id, TEMPLATE, "serviceResourceName"));
     }
 
     @Test
