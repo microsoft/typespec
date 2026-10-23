@@ -30,6 +30,6 @@ export const hsjsDependencies: Record<string, string> = {
   "typescript": "~7.0.2",
   "vitest": "^5.0.0",
   "yargs": "^18.2.0",
-  "prettier": "^3.9.6",
+  "prettier": "^3.9.10",
   "yaml": "^2.9.0",
 };
