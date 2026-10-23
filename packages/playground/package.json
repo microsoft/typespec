@@ -31,6 +31,10 @@
       "types": "./dist/src/vite/index.d.ts",
       "default": "./dist/vite/index.js"
     },
+    "./vite/workers": {
+      "types": "./dist/src/vite/workers.d.ts",
+      "default": "./dist/vite/workers.js"
+    },
     "./tooling": {
       "types": "./dist/src/tooling/index.d.ts",
       "default": "./dist/tooling/index.js"

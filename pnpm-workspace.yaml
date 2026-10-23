@@ -6,6 +6,10 @@ packages:
   - "!packages/http-client-java/**"
   - "!packages/http-client-python/**"
 
+engineStrict: true
+pmOnFail: download
+updateNotifier: false
+
 allowBuilds:
   "@playwright/browser-chromium": false
   "@scarf/scarf": false
@@ -35,7 +39,7 @@ catalog:
   "@azure/identity": ^4.13.2
   "@azure/storage-blob": ^12.34.0
   "@babel/code-frame": ^8.0.0
-  "@babel/core": ^8.0.1
+  "@babel/core": ^8.0.7
   "@chronus/chronus": ^1.5.0
   "@chronus/github": ^1.2.0
   "@chronus/github-pr-commenter": ^1.1.1
@@ -174,7 +178,7 @@ catalog:
   typescript: npm:@typescript/typescript6@~6.0.2
   typescript-native: npm:typescript@~7.0.2
   uri-template: ^2.0.0
-  vite: ^8.3.1
+  vite: ^8.3.4
   vite-plugin-checker: ^0.14.5
   vitest: ^5.0.0
   vscode-languageclient: ^10.1.0

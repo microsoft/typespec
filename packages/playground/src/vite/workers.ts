@@ -1,5 +1,12 @@
+import type { Environment } from "monaco-editor";
+
+/**
+ * Install Monaco's global worker factory using Vite's `?worker` imports.
+ * JSON models use the JSON worker; other labels use the base editor worker.
+ * Call before Monaco requests workers. Replaces any existing `MonacoEnvironment`.
+ */
 export function registerMonacoDefaultWorkersForVite() {
-  (self as any).MonacoEnvironment = {
+  const environment: Environment = {
     getWorker: async function (workerId: string, label: string) {
       switch (label) {
         case "json": {
@@ -15,4 +22,5 @@ export function registerMonacoDefaultWorkersForVite() {
       }
     },
   };
+  self.MonacoEnvironment = environment;
 }

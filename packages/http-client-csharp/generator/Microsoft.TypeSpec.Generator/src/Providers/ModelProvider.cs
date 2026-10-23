@@ -94,6 +94,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
         // rather than emitted by this library. Such a type's constructor surface is owned elsewhere.
         internal bool IsExternal => _inputModel.External is not null;
 
+        /// <summary>
+        /// Gets explicitly customized members that own properties added to an externally mapped base model.
+        /// </summary>
+        public IEnumerable<PropertyProvider> ExternalPropertyReplacements => CanonicalView.Properties.Where(property =>
+            property.OriginalName is not null &&
+            property.InputProperty?.EnclosingType is InputModelType { External: not null } owner &&
+            owner != _inputModel);
+
         public string? DiscriminatorValue => _inputModel.DiscriminatorValue;
 
         private ValueExpression? _discriminatorValueExpression;
@@ -107,7 +115,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private IDictionary<string, CSharpType> LastContractPropertiesMap
             => _lastContractPropertiesMap ??= LastContractView?.Properties
-                .Where(p => MethodSignatureHelper.IsPublicApi(p.Modifiers))
+                .Where(p => MethodSignatureHelper.IsPublicApi(p.Modifiers, p.Attributes))
                 .ToDictionary(p => p.Name, p => p.Type) ?? [];
 
         private IDictionary<string, CSharpType>? _lastContractPropertiesMap;
@@ -832,7 +840,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
             HashSet<string> skippedBasePropertyNames = [];
             foreach (var baseModelProvider in EnumerateBaseModelProviders())
             {
-                foreach (var baseProperty in baseModelProvider._inputModel.Properties)
+                var inputProperties = baseModelProvider is SystemObjectModelProvider mappedBase
+                    ? mappedBase.MappedInputProperties
+                    : baseModelProvider._inputModel.Properties;
+                foreach (var baseProperty in inputProperties)
                 {
                     if (baseProperties.ContainsKey(baseProperty.Name) ||
                         skippedBasePropertyNames.Contains(baseProperty.Name))
@@ -1111,7 +1122,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             foreach (var previousConstructor in restorablePreviousConstructors)
             {
-                if (!MethodSignatureHelper.IsPublicApi(previousConstructor.Signature.Modifiers))
+                if (!MethodSignatureHelper.IsPublicApi(previousConstructor.Signature))
                 {
                     continue;
                 }
@@ -1183,7 +1194,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             const MethodSignatureModifiers privateProtected = MethodSignatureModifiers.Private | MethodSignatureModifiers.Protected;
             foreach (var previousConstructor in previousConstructors)
             {
-                if (!MethodSignatureHelper.IsPublicApi(previousConstructor.Signature.Modifiers))
+                if (!MethodSignatureHelper.IsPublicApi(previousConstructor.Signature))
                 {
                     continue;
                 }
@@ -1553,7 +1564,24 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             // parameters need to be ordered from the base-most class to the derived class
-            return properties.SelectMany(l => l);
+            var result = new List<PropertyProvider>();
+            var externalSlots = new Dictionary<InputProperty, int>();
+            foreach (var property in properties.SelectMany(l => l))
+            {
+                if (property.InputProperty is { EnclosingType: InputModelType { External: not null } } inputProperty)
+                {
+                    if (externalSlots.TryGetValue(inputProperty, out var index))
+                    {
+                        // Keep the original slot order and name, but use the nearest replacement's metadata.
+                        property.AsParameter.Update(name: result[index].AsParameter.Name);
+                        result[index] = property;
+                        continue;
+                    }
+                    externalSlots.Add(inputProperty, result.Count);
+                }
+                result.Add(property);
+            }
+            return result;
         }
 
         private IEnumerable<FieldProvider> GetAllBaseFieldsForConstructorInitialization()
@@ -1604,8 +1632,27 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
 
             // Build constructor parameters first so we can use them for initializer
+            var externalReplacements = ExternalPropertyReplacements.ToArray();
+            foreach (var replacement in externalReplacements)
+            {
+                var index = baseParameters.FindIndex(parameter =>
+                    parameter.Property?.InputProperty == replacement.InputProperty);
+                if (index >= 0)
+                {
+                    // Keep the inherited constructor slot without mutating the shared external provider.
+                    replacement.AsParameter.Update(name: baseParameters[index].Name);
+                    baseParameters[index] = isInitializationConstructor
+                        ? replacement.AsParameter.ToPublicInputParameter()
+                        : replacement.AsParameter;
+                }
+            }
+
             foreach (var property in CanonicalView.Properties)
             {
+                if (externalReplacements.Contains(property) && baseParameters.Any(parameter => parameter.Property == property))
+                {
+                    continue;
+                }
                 AddInitializationParameterForCtor(constructorParameters, Type.IsStruct, isInitializationConstructor, property);
             }
 
@@ -1624,27 +1671,24 @@ namespace Microsoft.TypeSpec.Generator.Providers
             ConstructorInitializer? constructorInitializer = null;
             if (BaseModelProvider != null)
             {
-                if (baseParameters.Count > 0)
+                // Check if we should call multi-level discriminator constructor
+                if (isInitializationConstructor && (IsMultiLevelDiscriminator || BaseModelProvider.IsMultiLevelDiscriminator))
                 {
-                    // Check if we should call multi-level discriminator constructor
-                    if (isInitializationConstructor && (IsMultiLevelDiscriminator || BaseModelProvider.IsMultiLevelDiscriminator))
-                    {
-                        var baseDiscriminatorParam = baseParameters.FirstOrDefault(p => p.Property?.IsDiscriminator == true);
+                    var baseDiscriminatorParam = baseParameters.FirstOrDefault(p => p.Property?.IsDiscriminator == true);
 
-                        ValueExpression discriminatorExpression = (baseDiscriminatorParam is not null && includeDiscriminatorParameter)
-                            ? constructorParameters.FirstOrDefault(p => p.Property?.IsDiscriminator == true) ?? baseDiscriminatorParam
-                            : DiscriminatorLiteral;
+                    ValueExpression discriminatorExpression = (baseDiscriminatorParam is not null && includeDiscriminatorParameter)
+                        ? constructorParameters.FirstOrDefault(p => p.Property?.IsDiscriminator == true) ?? baseDiscriminatorParam
+                        : DiscriminatorLiteral;
 
-                        var args = baseParameters.Where(p => p.Property?.IsDiscriminator != true)
-                            .Select(p => GetExpressionForCtor(p, overriddenProperties, isInitializationConstructor, constructorParameters));
+                    var args = baseParameters.Where(p => p.Property?.IsDiscriminator != true)
+                        .Select(p => GetExpressionForCtor(p, overriddenProperties, isInitializationConstructor, constructorParameters));
 
-                        constructorInitializer = new ConstructorInitializer(true, [discriminatorExpression, .. args]);
-                    }
-                    else
-                    {
-                        // Standard base constructor call
-                        constructorInitializer = new ConstructorInitializer(true, [.. baseParameters.Select(p => GetExpressionForCtor(p, overriddenProperties, isInitializationConstructor, constructorParameters))]);
-                    }
+                    constructorInitializer = new ConstructorInitializer(true, [discriminatorExpression, .. args]);
+                }
+                else if (baseParameters.Count > 0)
+                {
+                    // Standard base constructor call
+                    constructorInitializer = new ConstructorInitializer(true, [.. baseParameters.Select(p => GetExpressionForCtor(p, overriddenProperties, isInitializationConstructor, constructorParameters))]);
                 }
                 else
                 {
@@ -2056,7 +2100,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             // Check if the property exists in the last contract by name
             var lastContractProperty = LastContractView.Properties.FirstOrDefault(p =>
-                MethodSignatureHelper.IsPublicApi(p.Modifiers) &&
+                MethodSignatureHelper.IsPublicApi(p.Modifiers, p.Attributes) &&
                 p.Name == AdditionalPropertiesHelper.DefaultAdditionalPropertiesPropertyName);
 
             if (lastContractProperty == null)

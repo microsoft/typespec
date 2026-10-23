@@ -2788,8 +2788,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private static bool ValueTypeIsInt(Type valueType) =>
             valueType == typeof(long) ||
+            valueType == typeof(ulong) ||
             valueType == typeof(int) ||
+            valueType == typeof(uint) ||
             valueType == typeof(short) ||
+            valueType == typeof(ushort) ||
             valueType == typeof(sbyte) ||
             valueType == typeof(byte);
 
@@ -2807,8 +2810,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             _ => type switch
             {
                 Type t when t == typeof(long) => element.GetInt64(),
+                Type t when t == typeof(ulong) => element.GetUInt64(),
                 Type t when t == typeof(int) => element.GetInt32(),
+                Type t when t == typeof(uint) => element.GetUInt32(),
                 Type t when t == typeof(short) => element.GetInt16(),
+                Type t when t == typeof(ushort) => element.GetUInt16(),
                 Type t when t == typeof(sbyte) => element.GetSByte(),
                 Type t when t == typeof(byte) => element.GetByte(),
                 _ => throw new NotSupportedException($"Framework type {type} is not int.")
@@ -2968,6 +2974,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var rawDataDictionaryExp = rawDataMemberExp.AsDictionary(_rawDataField.Type);
             var forEachStatement = new ForEachStatement("item", rawDataDictionaryExp, out KeyValuePairExpression item)
             {
+                CreateExternalPropertyReplacementKeyFilters(item),
                 _utf8JsonWriterSnippet.WritePropertyName(item.Key),
                 CreateSerializationStatement(_rawDataField.Type.Arguments[1], item.Value, SerializationFormat.Default, _rawDataField.WireInfo?.SerializedName ?? _rawDataField.Name),
             };
@@ -2995,6 +3002,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 // generate serialization statements for each key-value pair in the additional properties dictionary
                 var forEachStatement = new ForEachStatement("item", additionalPropertiesProperty.AsDictionary(tKey, tValue), out KeyValuePairExpression item)
                 {
+                    CreateExternalPropertyReplacementKeyFilters(item),
                     _utf8JsonWriterSnippet.WritePropertyName(item.Key),
                     tValue.IsNullable
                         ? CreateNullCheckAndSerializationStatement(tValue, item.Value, SerializationFormat.Default, serializedName)
@@ -3006,6 +3014,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             return statements;
         }
+
+        /// <summary>
+        /// Creates conditional continue statements for the generated additional-properties loop.
+        /// The collection initializer passes the returned statements to ForEachStatement.Add;
+        /// this does not mutate the additional-properties dictionary during generation.
+        /// </summary>
+        private MethodBodyStatement[] CreateExternalPropertyReplacementKeyFilters(KeyValuePairExpression item)
+            => [.. EnumerateModelAndBaseModelProviders().SelectMany(model => model.ExternalPropertyReplacements)
+                .Where(property => property.WireInfo is { IsHttpMetadata: false })
+                .Select(property => GetJsonSerializedName(property.WireInfo!))
+                .Distinct(StringComparer.Ordinal)
+                .Select(name => new IfStatement(item.Key.Equal(Literal(name)))
+                {
+                    Continue
+                })];
 
         private PropertyProvider? GetAdditionalBinaryDataPropertiesProp()
         {

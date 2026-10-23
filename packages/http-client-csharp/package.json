@@ -99,6 +99,11 @@
     "typescript": "~5.8.2",
     "vitest": "^4.1.11"
   },
+  "playgroundConfig": {
+    "bundlePeerDependencies": [
+      "@typespec/http-client"
+    ]
+  },
   "dependencies": {
     "@azure/identity": "^4.13.0"
   }

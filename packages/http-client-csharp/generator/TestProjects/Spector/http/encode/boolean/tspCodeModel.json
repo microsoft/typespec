@@ -252,7 +252,6 @@
                 "$id": "26",
                 "name": "trueLower",
                 "isExactName": false,
-                "resourceName": "Property",
                 "accessibility": "public",
                 "parameters": [
                   {
@@ -442,7 +441,6 @@
                 "$id": "34",
                 "name": "falseLower",
                 "isExactName": false,
-                "resourceName": "Property",
                 "accessibility": "public",
                 "parameters": [
                   {
@@ -632,7 +630,6 @@
                 "$id": "42",
                 "name": "trueUpper",
                 "isExactName": false,
-                "resourceName": "Property",
                 "accessibility": "public",
                 "parameters": [
                   {
@@ -822,7 +819,6 @@
                 "$id": "50",
                 "name": "falseMixed",
                 "isExactName": false,
-                "resourceName": "Property",
                 "accessibility": "public",
                 "parameters": [
                   {

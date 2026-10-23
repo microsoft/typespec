@@ -5,12 +5,17 @@ import { useTsp } from "../../core/context/tsp-context.js";
 import { InterfaceMethod } from "./interface-method.jsx";
 import { TypeExpression } from "./type-expression.js";
 
+/** TypeSpec source for one interface property or method. Overrides apply to property rendering. */
 export interface InterfaceMemberProps {
+  /** Property to render, or operation delegated to {@link InterfaceMethod}. */
   type: ModelProperty | Operation;
+  /** Property documentation override; defaults to the source property's documentation. */
   doc?: Children;
+  /** Property optionality override; otherwise preserves the source property's optionality. */
   optional?: boolean;
 }
 
+/** Renders a property or method signature, omitting properties whose type is `never`. */
 export function InterfaceMember(props: InterfaceMemberProps) {
   const { $ } = useTsp();
   const namer = ts.useTSNamePolicy();

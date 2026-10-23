@@ -167,3 +167,31 @@ Widget:
 ```
 
 This is a common pattern with the versioning decorators. The TypeSpec should represent the _current state_ of the API. The decorators indicate the version at which this definition became accurate and, depending on the decorator, the other parameters reflect the previous values to retain that information.
+
+## Optionality of derived properties
+
+Properties copied through model `is` or spread retain their versioning history. If a property's current optionality differs from its original declaration, versioning treats that difference as a transformation: it skips `@madeOptional` and `@madeRequired` validation for the property and preserves its current optionality in version snapshots. This compares the property with its syntax node, without recognizing any particular helper or tracking how it was copied.
+
+For example:
+
+```typespec
+model Source {
+  @madeRequired(Versions.v2)
+  foo: string;
+}
+
+model Patch {
+  ...OptionalProperties<Source>;
+}
+```
+
+`Source.foo` is optional before `v2` and required from `v2` onward. `Patch.foo` is optional in every version. Using `model Patch is OptionalProperties<Source>` also works. Other history, such as `@added`, `@removed`, `@renamedFrom`, and `@typeChangedFrom`, continues to apply. The metadata getters still return the recorded decorator values; only validation and snapshot optionality use the declaration comparison.
+
+This is a declaration-based heuristic, with limitations:
+
+- Applying `OptionalProperties` to an already-optional property produces no difference. Spreading a property declared as `@madeOptional(Versions.v2) foo?: string` therefore retains its historical requiredness before `v2`.
+- Restoring a property's declared optionality after an intermediate transformation makes its history apply again.
+- When optionality differs from the declaration, newly authored optionality augments are ignored for validation and snapshots too: this rule cannot distinguish them from inherited annotations.
+- Properties without a model-property declaration node cannot be identified as transformed.
+
+Declare the derived property explicitly when independent optionality history is needed. Invalid optionality annotations on unchanged original declarations are still diagnosed.

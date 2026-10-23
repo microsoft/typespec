@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { createUrlStateStorage } from "@typespec/playground/state-storage";
 
 const host = `http://localhost:5173`;
 const ctrlOrCmd = process.platform === "darwin" ? "Meta" : "Control";
@@ -18,6 +19,52 @@ test.describe("playground UI tests", () => {
     await httpServiceCard.click();
 
     await expect(page.getByText(`title: Widget Service`)).toBeVisible();
+  });
+
+  test("Monaco workers respond for source and JSON output", async ({ page }) => {
+    await page.addInitScript(() => {
+      const workers: { url: string; receivedMessage: boolean }[] = [];
+      Object.assign(window, { monacoWorkers: workers });
+      const OriginalWorker = window.Worker;
+      window.Worker = class extends OriginalWorker {
+        constructor(url: string | URL, options?: WorkerOptions) {
+          super(url, options);
+          const state = { url: String(url), receivedMessage: false };
+          workers.push(state);
+          this.addEventListener("message", () => {
+            state.receivedMessage = true;
+          });
+        }
+      };
+    });
+
+    const storage = createUrlStateStorage<{ content: string; tspconfig: string }>({
+      content: { queryParam: "c", compress: "lz-base64" },
+      tspconfig: { queryParam: "tspconfig", compress: "lz-base64" },
+    });
+    const params = storage.resolveSearchParams({
+      content:
+        'import "@typespec/json-schema"; using TypeSpec.JsonSchema; @jsonSchema model WorkerTest { name: string; }',
+      tspconfig:
+        'emit:\n  - "@typespec/json-schema"\noptions:\n  "@typespec/json-schema":\n    file-type: json\n',
+    });
+    await page.goto(`${host}/?${params}`);
+
+    await expect(page.getByText("WorkerTest.json", { exact: true })).toBeVisible();
+    await expect
+      .poll(() => page.evaluate(() => Reflect.get(window, "monacoWorkers")))
+      .toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            url: expect.stringContaining("editor.worker"),
+            receivedMessage: true,
+          }),
+          expect.objectContaining({
+            url: expect.stringContaining("json.worker"),
+            receivedMessage: true,
+          }),
+        ]),
+      );
   });
 
   test("emit C# server", async ({ page }) => {

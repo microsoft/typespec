@@ -4,14 +4,22 @@ import { HalfEdge } from "./mutation-edge.js";
 import { MutationNode } from "./mutation-node.js";
 import { traceNode } from "./tracer.js";
 
+/** Connection-key configuration shape; current node connection methods do not consume it. */
 export interface ModelPropertyConnectOptions {
-  /** Mutation key for the property's type node. Defaults to this node's key. */
+  /** Key designated for the underlying type; callers must select that node explicitly. */
   typeMutationKey?: string;
 }
 
+/** Maintains a property's underlying type and containing-model references through explicit edges. */
 export class ModelPropertyMutationNode extends MutationNode<ModelProperty> {
+  /** Selects property-specific connections independently of a replacement node's kind. */
   readonly kind = "ModelProperty";
 
+  /**
+   * Starts a type reference that follows mutations and replacements of any kind.
+   * Deletion substitutes `any`. Replacing this property with another property
+   * transfers the type connection to the replacement.
+   */
   startTypeEdge() {
     return new HalfEdge<ModelProperty, Type>(this, {
       onTailMutation: ({ tail }) => {
@@ -40,10 +48,16 @@ export class ModelPropertyMutationNode extends MutationNode<ModelProperty> {
     });
   }
 
+  /** Completes {@link startTypeEdge} with the chosen underlying type node. */
   connectType(typeNode: MutationNode<Type>) {
     this.startTypeEdge().setTail(typeNode);
   }
 
+  /**
+   * Starts the containing-model back-reference.
+   * Model changes update the output's owner; model deletion or replacement
+   * deletes this property rather than moving it to a new owner.
+   */
   startModelEdge() {
     return new HalfEdge<ModelProperty, Model>(this, {
       onTailMutation: ({ tail }) => {
@@ -60,6 +74,7 @@ export class ModelPropertyMutationNode extends MutationNode<ModelProperty> {
     });
   }
 
+  /** Completes {@link startModelEdge}; normally established by a model's property connection. */
   connectModel(modelNode: MutationNode<Model>) {
     this.startModelEdge().setTail(modelNode);
   }

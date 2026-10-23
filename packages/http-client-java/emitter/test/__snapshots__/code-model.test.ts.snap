@@ -421,7 +421,8 @@ clients:
                               immediate:
                                 - *a4
                             discriminator:
-                              all: {}
+                              all:
+                                cat: *a4
                               immediate: {}
                               property:
                                 language:
@@ -1416,7 +1417,8 @@ clients:
                               immediate:
                                 - *a4
                             discriminator:
-                              all: {}
+                              all:
+                                cat: *a4
                               immediate: {}
                               property:
                                 language:

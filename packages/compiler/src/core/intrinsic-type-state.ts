@@ -41,16 +41,16 @@ export function getMinValueForScalar(program: Program, target: Type): ScalarValu
   return !isNumeric(value) ? value : undefined;
 }
 
-/** Get the minimum value for a numeric type. If the value cannot be represented as a JS number(Overflow) undefined will be returned */
+/** Read the precise numeric `@minValue` constraint, or undefined if no numeric constraint is stored. */
 export function getMinValueAsNumeric(program: Program, target: Type): Numeric | undefined {
   const value = getMinValueRaw(program, target);
   return isNumeric(value) ? value : undefined;
 }
 
 /**
- * Get the minimum value for a numeric type.
- * If the value cannot be represented as a JS number(Overflow) undefined will be returned
- * See {@link getMinValueAsNumeric} to get the precise value
+ * Read the numeric `@minValue` constraint as a JavaScript number.
+ * Returns undefined when no numeric constraint is stored or a finite conversion loses precision;
+ * throws on numeric overflow. Use {@link getMinValueAsNumeric} to avoid number conversion.
  */
 export function getMinValue(program: Program, target: Type): number | undefined {
   return getMinValueAsNumeric(program, target)?.asNumber() ?? undefined;
@@ -73,16 +73,16 @@ export function getMaxValueForScalar(program: Program, target: Type): ScalarValu
   return !isNumeric(value) ? value : undefined;
 }
 
-/** Get the maximum value for a numeric type. If the value cannot be represented as a JS number(Overflow) undefined will be returned */
+/** Read the precise numeric `@maxValue` constraint, or undefined if no numeric constraint is stored. */
 export function getMaxValueAsNumeric(program: Program, target: Type): Numeric | undefined {
   const value = getMaxValueRaw(program, target);
   return isNumeric(value) ? value : undefined;
 }
 
 /**
- * Get the maximum value for a numeric type.
- * If the value cannot be represented as a JS number(Overflow) undefined will be returned
- * See {@link getMaxValueAsNumeric} to get the precise value
+ * Read the numeric `@maxValue` constraint as a JavaScript number.
+ * Returns undefined when no numeric constraint is stored or a finite conversion loses precision;
+ * throws on numeric overflow. Use {@link getMaxValueAsNumeric} to avoid number conversion.
  */
 export function getMaxValue(program: Program, target: Type): number | undefined {
   return getMaxValueAsNumeric(program, target)?.asNumber() ?? undefined;
@@ -108,16 +108,16 @@ export function getMinValueExclusiveForScalar(
   return !isNumeric(value) ? value : undefined;
 }
 
-/** Get the minimum value exclusive for a numeric type. If the value cannot be represented as a JS number(Overflow) undefined will be returned */
+/** Read the precise numeric `@minValueExclusive` constraint, or undefined if no numeric constraint is stored. */
 export function getMinValueExclusiveAsNumeric(program: Program, target: Type): Numeric | undefined {
   const value = getMinValueExclusiveRaw(program, target);
   return isNumeric(value) ? value : undefined;
 }
 
 /**
- * Get the minimum value exclusive for a numeric type.
- * If the value cannot be represented as a JS number(Overflow) undefined will be returned
- * See {@link getMinValueExclusiveAsNumeric} to get the precise value
+ * Read the numeric `@minValueExclusive` constraint as a JavaScript number.
+ * Returns undefined when no numeric constraint is stored or a finite conversion loses precision;
+ * throws on numeric overflow. Use {@link getMinValueExclusiveAsNumeric} to avoid number conversion.
  */
 export function getMinValueExclusive(program: Program, target: Type): number | undefined {
   return getMinValueExclusiveAsNumeric(program, target)?.asNumber() ?? undefined;
@@ -143,16 +143,16 @@ export function getMaxValueExclusiveForScalar(
   return !isNumeric(value) ? value : undefined;
 }
 
-/** Get the maximum value exclusive for a numeric type. If the value cannot be represented as a JS number(Overflow) undefined will be returned */
+/** Read the precise numeric `@maxValueExclusive` constraint, or undefined if no numeric constraint is stored. */
 export function getMaxValueExclusiveAsNumeric(program: Program, target: Type): Numeric | undefined {
   const value = getMaxValueExclusiveRaw(program, target);
   return isNumeric(value) ? value : undefined;
 }
 
 /**
- * Get the maximum value exclusive for a numeric type.
- * If the value cannot be represented as a JS number(Overflow) undefined will be returned
- * See {@link getMaxValueExclusiveAsNumeric} to get the precise value
+ * Read the numeric `@maxValueExclusive` constraint as a JavaScript number.
+ * Returns undefined when no numeric constraint is stored or a finite conversion loses precision;
+ * throws on numeric overflow. Use {@link getMaxValueExclusiveAsNumeric} to avoid number conversion.
  */
 export function getMaxValueExclusive(program: Program, target: Type): number | undefined {
   return getMaxValueExclusiveAsNumeric(program, target)?.asNumber() ?? undefined;
@@ -173,6 +173,11 @@ export function getMinLengthAsNumeric(program: Program, target: Type): Numeric |
   return program.stateMap(stateKeys.minLength).get(target);
 }
 
+/**
+ * Read `@minLength` as a JavaScript number.
+ * Returns undefined when absent or when a finite conversion loses precision; throws on numeric overflow.
+ * Use {@link getMinLengthAsNumeric} to avoid number conversion.
+ */
 export function getMinLength(program: Program, target: Type): number | undefined {
   return getMinLengthAsNumeric(program, target)?.asNumber() ?? undefined;
 }
@@ -184,7 +189,7 @@ export function setMaxLength(program: Program, target: Type, value: Numeric): vo
 }
 
 /**
- * Get the minimum length of a string type as a {@link Numeric} value.
+ * Get the maximum length of a string type as a {@link Numeric} value.
  * @param program Current program
  * @param target Type with the `@maxLength` decorator
  */
@@ -192,6 +197,11 @@ export function getMaxLengthAsNumeric(program: Program, target: Type): Numeric |
   return program.stateMap(stateKeys.maxLength).get(target);
 }
 
+/**
+ * Read `@maxLength` as a JavaScript number.
+ * Returns undefined when absent or when a finite conversion loses precision; throws on numeric overflow.
+ * Use {@link getMaxLengthAsNumeric} to avoid number conversion.
+ */
 export function getMaxLength(program: Program, target: Type): number | undefined {
   return getMaxLengthAsNumeric(program, target)?.asNumber() ?? undefined;
 }
@@ -202,10 +212,16 @@ export function setMinItems(program: Program, target: Type, value: Numeric): voi
   program.stateMap(stateKeys.minItems).set(target, value);
 }
 
+/** Read the target's precise `@minItems` constraint, or undefined when none is stored. */
 export function getMinItemsAsNumeric(program: Program, target: Type): Numeric | undefined {
   return program.stateMap(stateKeys.minItems).get(target);
 }
 
+/**
+ * Read `@minItems` as a JavaScript number.
+ * Returns undefined when absent or when a finite conversion loses precision; throws on numeric overflow.
+ * Use {@link getMinItemsAsNumeric} to avoid number conversion.
+ */
 export function getMinItems(program: Program, target: Type): number | undefined {
   return getMinItemsAsNumeric(program, target)?.asNumber() ?? undefined;
 }
@@ -216,10 +232,16 @@ export function setMaxItems(program: Program, target: Type, value: Numeric): voi
   program.stateMap(stateKeys.maxItems).set(target, value);
 }
 
+/** Read the target's precise `@maxItems` constraint, or undefined when none is stored. */
 export function getMaxItemsAsNumeric(program: Program, target: Type): Numeric | undefined {
   return program.stateMap(stateKeys.maxItems).get(target);
 }
 
+/**
+ * Read `@maxItems` as a JavaScript number.
+ * Returns undefined when absent or when a finite conversion loses precision; throws on numeric overflow.
+ * Use {@link getMaxItemsAsNumeric} to avoid number conversion.
+ */
 export function getMaxItems(program: Program, target: Type): number | undefined {
   return getMaxItemsAsNumeric(program, target)?.asNumber() ?? undefined;
 }
@@ -230,6 +252,7 @@ export function getMaxItems(program: Program, target: Type): number | undefined 
 /** @internal */
 export type DocTarget = "self" | "returns" | "errors";
 
+/** Documentation text together with whether it originated in a decorator or a source doc comment. */
 export interface DocData {
   /**
    * Doc value.
@@ -288,7 +311,9 @@ export function getDocData(program: Program, target: Type): DocData | undefined 
 
 // #region discriminator
 
+/** Metadata identifying the property used by an inheritance-based `@discriminator`. */
 export interface Discriminator {
+  /** Name of the property whose literal values select derived models. */
   readonly propertyName: string;
 }
 
@@ -296,10 +321,12 @@ export function setDiscriminator(program: Program, entity: Type, discriminator: 
   program.stateMap(stateKeys.discriminator).set(entity, discriminator);
 }
 
+/** Read the target's stored `@discriminator` metadata, or undefined if none is set. */
 export function getDiscriminator(program: Program, entity: Type): Discriminator | undefined {
   return program.stateMap(stateKeys.discriminator).get(entity);
 }
 
+/** List targets with stored `@discriminator` metadata, preserving state-map insertion order. */
 export function getDiscriminatedTypes(program: Program): [Model | Union, Discriminator][] {
   return [...program.stateMap(stateKeys.discriminator).entries()] as any;
 }

@@ -28,9 +28,25 @@ One can use npm to install the `@typespec/http-client-java` tgz locally.
 npm install [path-to-typespec-http-client-java-tgz]
 ```
 
+## Unit Tests
+
+From the `generator` directory, run:
+
+```
+mvn --no-transfer-progress --define spotless.skip=true test
+```
+
+This runs the unit tests in `http-client-generator-core`, `http-client-generator-mgmt`, and `http-client-generator`.
+It does not require generated clients or a Spector server. Omit `--define spotless.skip=true` to also apply Java formatting.
+
+<!-- cspell:ignore Dtest Dsurefire -->
+
+When selecting tests with `-Dtest=...`, disable the automatically activated end-to-end test profile with `-P '!test'`.
+For a multi-module run, add `-Dsurefire.failIfNoSpecifiedTests=false` if some modules have no matching tests.
+
 ## End-to-end Tests
 
-There is 2 end-to-end test modules:
+There are 2 end-to-end test modules:
 
 - `packages/http-client-java/generator/http-client-generator-clientcore-test` for testing of unbranded code
 - `packages/http-client-java/generator/http-client-generator-test` for testing of branded code
@@ -78,6 +94,18 @@ When writing / updating Java tests, you can manually
 
 1. Start the test server with `npm run spector-serve` (or `npm run spector-start` to start as a background process, `npm run spector-stop` to stop).
 2. Run the Java tests in the module.
+
+## Sync Java Dependency Versions
+
+From this package directory, run `pwsh eng\versioning\Sync-Versions.ps1` to sync
+`Project.Dependency`, generator/module POMs, the customization POM, and the generated-POM
+template with Azure SDK for Java's version files. Use `-WhatIf` to preview changes.
+
+`eng\versioning\external_dependencies.txt` lists the packages to sync; append `;version`
+to pin a package. The script prefers the first (released) version in `version_client.txt`,
+then falls back to `external_dependencies.txt`. Unlisted dependencies are unchanged.
+
+Run the script's offline tests with `pwsh eng\versioning\Sync-Versions.Tests.ps1`.
 
 ## Format Code
 
