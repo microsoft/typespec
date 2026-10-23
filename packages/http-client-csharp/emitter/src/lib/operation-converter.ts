@@ -26,6 +26,7 @@ import {
   getClientOptions,
   getHttpOperationParameter,
   getParamAlias,
+  getResponseAsBool,
   isHttpMetadata,
   shouldGenerateConvenient,
   shouldGenerateProtocol,
@@ -230,6 +231,9 @@ export function fromSdkServiceMethodOperation(
       fromSdkHttpOperationResponses(sdkContext, method.operation.responses),
     ),
     httpMethod: parseHttpRequestMethod(method.operation.verb),
+    responseAsBool: getResponseAsBool(sdkContext, method.operation.__raw.operation)
+      ? true
+      : undefined,
     uri: uri,
     path: method.operation.path,
     externalDocsUrl: getExternalDocs(sdkContext, method.operation.__raw.operation)?.url,
@@ -867,7 +871,7 @@ function fromSdkServiceResponseHeaders(
 function toStatusCodesArray(range: number | HttpStatusCodeRange): number[] {
   if (typeof range === "number") return [range];
 
-  const statusCodes: number[] = [range.end - range.start + 1];
+  const statusCodes: number[] = [];
   for (let i = range.start; i <= range.end; i++) {
     statusCodes.push(i);
   }

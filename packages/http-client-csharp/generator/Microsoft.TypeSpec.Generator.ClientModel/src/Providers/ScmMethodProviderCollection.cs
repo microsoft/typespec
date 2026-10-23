@@ -261,7 +261,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         useConvenienceType: true))
                 ];
             }
-            else if (responseBodyType is null)
+            else if (responseBodyType is null || ServiceMethod.Operation.ResponseAsBool)
             {
                 methodBody =
                 [
@@ -1511,7 +1511,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     .. ServiceMethod.Operation.BufferResponse
                         ? []
                         : new MethodBodyStatement[] { message.ToApi<HttpMessageApi>().BufferResponse().Assign(False).Terminate() },
-                    Return(streamingResponse != null
+                    Return(ServiceMethod.Operation.ResponseAsBool
+                        ? client.PipelineProperty.ToApi<ClientPipelineApi>().ProcessHeadAsBoolMessage(
+                            message,
+                            requestOptionsParameter.ToApi<HttpRequestOptionsApi>(),
+                            isAsync)
+                        : streamingResponse != null
                         ? CreateStreamingResultExpression(
                             streamingResponse,
                             client.PipelineProperty.ToApi<ClientPipelineApi>().ProcessMessage(
@@ -1763,6 +1768,13 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private CSharpType GetResponseType(IReadOnlyList<InputOperationResponse> responses, bool isConvenience, bool isAsync, out CSharpType? responseBodyType)
         {
             responseBodyType = null;
+
+            if (ServiceMethod.Operation.ResponseAsBool)
+            {
+                responseBodyType = typeof(bool);
+                var boolResultType = new CSharpType(ScmCodeModelGenerator.Instance.TypeFactory.ClientResponseApi.ClientResponseOfTType.FrameworkType, responseBodyType);
+                return isAsync ? new CSharpType(typeof(Task<>), boolResultType) : boolResultType;
+            }
 
             if (isConvenience)
             {
