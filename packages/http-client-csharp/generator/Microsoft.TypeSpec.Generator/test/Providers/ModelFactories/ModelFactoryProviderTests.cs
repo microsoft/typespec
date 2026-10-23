@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -839,12 +840,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
         }
 
-        // A current generated overload can have the same signature as a previously published overload
-        // while acquiring different defaults from the current model shape. That overload keeps the
-        // published required boundary, while its reordered companion becomes a hidden compatibility
-        // overload that requires every parameter.
+        // The historical optional overload becomes required, so the matching primary must retain
+        // the current model shape's defaults rather than copy its published required boundary.
         [Test]
-        public async Task BackCompatibility_PublishedOverloadBoundariesArePreserved()
+        public async Task BackCompatibility_RequiredPrimaryWithReorderedShim()
         {
             InputModelType model = InputFactory.Model("CompatibilityModel", properties:
             [
@@ -868,7 +867,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
                 m.Signature.Name == "CompatibilityModel"
                 && m.Signature.Parameters[1].Name == "kind");
 
-            Assert.IsTrue(currentOverload.Signature.Parameters.All(p => p.DefaultValue is null));
+            Assert.IsTrue(currentOverload.Signature.Parameters.All(p => p.DefaultValue is not null));
             Assert.IsTrue(compatibilityOverload.Signature.Parameters.All(p => p.DefaultValue is null));
         }
 
@@ -2129,7 +2128,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
         [TestCase(EditorBrowsableState.Advanced, "member", false, false)]
         [TestCase(EditorBrowsableState.Never, "other", false, false)]
         [TestCase(EditorBrowsableState.Never, "none", false, false)]
-        [TestCase(EditorBrowsableState.Never, "member", true, false)]
+        [TestCase(EditorBrowsableState.Never, "member", true, true)]
         public async Task BackCompatibility_RequiredHiddenShimClassification(
             EditorBrowsableState state, string attributeRepresentation, bool isCustom, bool keepsCurrentDefaults)
         {
@@ -2214,6 +2213,137 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             var legacy = (isCustom ? modelFactory.CustomCodeView!.Methods : modelFactory.Methods)
                 .Single(m => m.Signature.Parameters[1].Name == "count");
             Assert.IsTrue(legacy.Signature.Parameters.All(p => p.DefaultValue is null));
+        }
+
+        [TestCase(false, false, "Last")]
+        [TestCase(true, false, "Last")]
+        [TestCase(true, true, "Last")]
+        [TestCase(false, false, "Partial")]
+        [TestCase(true, false, "Partial")]
+        [TestCase(true, true, "Partial")]
+        public async Task BackCompatibility_RequiredPrimaryRetainsOptionalEntryPoint(
+            bool restoreShim, bool sharePreviousParameters, string baseline)
+        {
+            var model = InputFactory.Model("CompatibilityModel", properties:
+            [
+                InputFactory.Property("Id", InputPrimitiveType.String),
+                InputFactory.Property("Name", InputPrimitiveType.String),
+                InputFactory.Property("Enabled", new InputNullableType(InputPrimitiveType.Boolean)),
+            ]);
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [model],
+                additionalMetadataReferences:
+                [
+                    MetadataReference.CreateFromFile(typeof(EditorBrowsableAttribute).Assembly.Location),
+                    MetadataReference.CreateFromFile(Assembly.Load("System.Runtime").Location),
+                ],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: baseline))).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            if (restoreShim)
+            {
+                _instance.AddVisitor(new RequiredFactoryOverloadVisitor(sharePreviousParameters));
+                foreach (var type in _instance.OutputLibrary.TypeProviders)
+                {
+                    type.EnsureBuilt();
+                }
+                foreach (var visitor in _instance.Visitors)
+                {
+                    visitor.VisitLibrary(_instance.OutputLibrary);
+                }
+            }
+
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            await AssertOptionalFactoryCallsAsync(content);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
+        [TestCase("Last")]
+        [TestCase("LastWithoutCustom")]
+        public async Task BackCompatibility_RequiredCustomOverloadsRetainOptionalEntryPoint(string baseline)
+        {
+            var model = InputFactory.Model("CompatibilityModel", properties:
+            [
+                InputFactory.Property("Id", InputPrimitiveType.String),
+                InputFactory.Property("Name", InputPrimitiveType.String),
+                InputFactory.Property("Enabled", new InputNullableType(InputPrimitiveType.Boolean)),
+                InputFactory.Property("Count", new InputNullableType(InputPrimitiveType.Int32)),
+            ]);
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [model],
+                additionalMetadataReferences:
+                [
+                    MetadataReference.CreateFromFile(typeof(EditorBrowsableAttribute).Assembly.Location),
+                    MetadataReference.CreateFromFile(Assembly.Load("System.Runtime").Location),
+                ],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Custom"),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: baseline))).Object;
+
+            var modelFactory = _instance.OutputLibrary.ModelFactory.Value;
+            modelFactory.ProcessTypeForBackCompatibility();
+
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            var customSource = File.ReadAllText(Path.Combine(
+                Helpers.GetAssetFileOrDirectoryPath(false, parameters: "Custom"), "SampleNamespaceModelFactory.cs"));
+            await AssertOptionalFactoryCallsAsync(content, customSource);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
+        private static async Task AssertOptionalFactoryCallsAsync(string factorySource, string customSource = "")
+        {
+            var consumerSource = Helpers.GetExpectedFromFile();
+            var compilation = await Helpers.GetCompilationFromSourceFilesAsync(
+                [("Factory.cs", factorySource), ("Custom.cs", customSource), ("Consumer.cs", consumerSource)]);
+            // This consumer does not use the customization helpers automatically included by Helpers.
+            compilation = compilation.RemoveSyntaxTrees(compilation.SyntaxTrees.Where(tree =>
+                tree.FilePath != "Factory.cs" && tree.FilePath != "Custom.cs" && tree.FilePath != "Consumer.cs"));
+            using var stream = new MemoryStream();
+            var result = compilation.Emit(stream);
+            Assert.IsTrue(result.Success, string.Join(Environment.NewLine,
+                result.Diagnostics.Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error)));
+            var assembly = Assembly.Load(stream.ToArray());
+            Assert.AreEqual(true, assembly.GetType("Consumer")!.GetMethod("Validate")!.Invoke(null, null));
+        }
+
+        private class RequiredFactoryOverloadVisitor(bool sharePreviousParameters) : LibraryVisitor
+        {
+            protected override TypeProvider? VisitType(TypeProvider type)
+            {
+                if (type is not ModelFactoryProvider factory)
+                {
+                    return type;
+                }
+
+                var current = factory.Methods.Single();
+                var previous = factory.LastContractView!.Methods.Single(m => m.Signature.Parameters.Count == 2);
+                var parameters = sharePreviousParameters
+                    ? previous.Signature.Parameters
+                    : previous.Signature.Parameters.Select(p => new ParameterProvider(
+                        p.Name, p.Description, p.Type, defaultValue: p.DefaultValue)).ToArray();
+                foreach (var parameter in parameters)
+                {
+                    parameter.DefaultValue = null;
+                }
+                var signature = new MethodSignature(
+                    previous.Signature.Name, null, previous.Signature.Modifiers, previous.Signature.ReturnType, null,
+                    parameters,
+                    Attributes: [new AttributeStatement(typeof(EditorBrowsableAttribute), Snippet.FrameworkEnumValue(EditorBrowsableState.Never))]);
+                var restored = new MethodProvider(
+                    signature,
+                    Snippet.Return(new InvokeMethodExpression(null, current.Signature,
+                    [
+                        current.Signature.Parameters[0].PositionalReference(parameters[0]),
+                        Snippet.PositionalReference(current.Signature.Parameters[1], Snippet.Default),
+                        current.Signature.Parameters[2].PositionalReference(parameters[1]),
+                    ])),
+                    factory);
+                factory.Update(methods: [current, restored]);
+                return factory;
+            }
         }
 
         private static InputModelType GetCompatibilityModel(bool includeCount)

@@ -153,12 +153,22 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
                     if (isGeneratedMethod)
                     {
+                        // Published required parameters may have disambiguated an optional historical
+                        // overload that is now an all-required shim. Keep the current defaults unless
+                        // another optional overload still exists on the final type.
+                        bool hasOptionalCompetingOverload = allFactoryMethods.Any(method =>
+                            !ReferenceEquals(method, matchingCurrentMethod)
+                            && method.Signature.Name == matchingCurrentMethod.Signature.Name
+                            && HasOptionalParameters(method.Signature));
                         for (int i = 0; i < previousMethod.Signature.Parameters.Count; i++)
                         {
                             var currentParameter = matchingCurrentMethod.Signature.Parameters[i];
                             if (previousMethod.Signature.Parameters[i].DefaultValue is null)
                             {
-                                currentParameter.DefaultValue = null;
+                                if (hasOptionalCompetingOverload)
+                                {
+                                    currentParameter.DefaultValue = null;
+                                }
                             }
                             else
                             {
@@ -173,7 +183,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     int currentMinimumArgumentCount = matchingCurrentMethod.Signature.Parameters
                         .TakeWhile(p => p.DefaultValue is null && !p.IsParams)
                         .Count();
-                    if (currentMinimumArgumentCount == previousMinimumArgumentCount)
+                    // Required custom overloads keep their binary signatures, but do not compete
+                    // for calls that need defaults substituted on the current factory.
+                    if (currentMinimumArgumentCount == previousMinimumArgumentCount
+                        && (isGeneratedMethod || HasOptionalParameters(matchingCurrentMethod.Signature)))
                     {
                         preservedPreviousSignatures.Add(previousMethod.Signature);
                     }
@@ -209,9 +222,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 preservedPreviousSignatures.Add(previousMethod.Signature);
             }
 
-            // Preserve every published signature as-is and constrain only newly generated overloads.
-            // Unlike a compatibility signature, a new overload has no existing callers whose minimum
-            // argument count must be retained.
+            // Constrain only newly generated overloads. Matching published signatures retain their
+            // defaults above when they still coexist with optional overloads.
             foreach (var currentMethod in factoryMethods)
             {
                 if (previousPublicSignatures.Any(previous =>
@@ -228,7 +240,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 // compatibility overload is emitted for it, so there is nothing to disambiguate
                 // from and stripping defaults would break the published omitted-argument calls.
                 // The exclusion is name-based and therefore applies only to published signatures;
-                // a custom overload is always emitted and must always constrain.
+                // an optional custom overload is always emitted and must always constrain.
                 // A published signature that is restored as a compatibility overload is excluded
                 // from this constraint set as well. It is still generated below: either as a hidden
                 // overload that requires every parameter or as a visible replacement for this
@@ -241,6 +253,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         signature))
                     .Concat(customFactoryMethods
                         .Where(method => !nonConstrainingCustomMethods.Any(m => ReferenceEquals(m, method)))
+                        // An all-required custom overload needs no default substitution and wins an
+                        // otherwise tied call against a longer optional factory.
+                        .Where(method => HasOptionalParameters(method.Signature))
                         .Select(method => method.Signature))
                     .Where(signature =>
                         signature.Name == currentMethod.Signature.Name
@@ -374,9 +389,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
             return [.. factoryMethods];
         }
 
+        private static bool HasOptionalParameters(MethodSignature signature)
+            => signature.Parameters.Any(parameter => parameter.DefaultValue is not null || parameter.IsParams);
+
         private static bool IsRequiredHiddenCompatibilityMethod(MethodSignature signature)
         {
-            if (signature.Parameters.Any(parameter => parameter.DefaultValue is not null || parameter.IsParams))
+            if (HasOptionalParameters(signature))
             {
                 return false;
             }
