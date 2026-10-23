@@ -28,7 +28,7 @@ export function definePlaygroundViteConfig(config: PlaygroundUserConfig): UserCo
     },
     assetsInclude: [/\.tsp$/],
     optimizeDeps: {
-      exclude: ["swagger-ui"],
+      exclude: ["swagger-ui", "@typespec/playground/vite/workers"],
     },
     plugins: [
       react({}),

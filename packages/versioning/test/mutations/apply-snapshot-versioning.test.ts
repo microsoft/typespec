@@ -1,14 +1,17 @@
 import {
   getMediaTypeHint,
+  type DecoratorContext,
+  type Model,
   type Namespace,
   type Program,
   type Scalar,
   type Type,
 } from "@typespec/compiler";
 import { unsafe_mutateSubgraphWithNamespace } from "@typespec/compiler/experimental";
-import { t } from "@typespec/compiler/testing";
+import { expectDiagnosticEmpty, expectDiagnostics, mockFile, t } from "@typespec/compiler/testing";
 import { strictEqual } from "assert";
 import { describe, expect, it } from "vitest";
+import { getMadeOptionalOn, getMadeRequiredOn } from "../../src/decorators.js";
 import { getVersioningMutators } from "../../src/mutator.js";
 import { Tester } from "../test-host.js";
 
@@ -21,8 +24,9 @@ const baseCode = `
 `;
 async function testMutationLogic(
   code: string,
+  tester = Tester,
 ): Promise<{ program: Program; v1: Namespace; v2: Namespace; v3: Namespace }> {
-  const runner = await Tester.createInstance();
+  const runner = await tester.createInstance();
   const fullCode = baseCode + "\n" + code;
   const { Service } = await runner.compile(fullCode);
   const mutators = getVersioningMutators(runner.program, Service as Namespace);
@@ -165,6 +169,217 @@ describe("model properties", () => {
     expect(accessor(v1).get("a")!.optional).toBe(true);
     expect(accessor(v2).get("a")!.optional).toBe(false);
     expect(accessor(v3).get("a")!.optional).toBe(false);
+  });
+
+  describe("derived optionality", () => {
+    const optionalityTester = Tester.files({
+      "optionality.js": mockFile.js({
+        $setOptionality(_context: DecoratorContext, model: Model, optional: boolean) {
+          for (const property of model.properties.values()) {
+            property.optional = optional;
+          }
+        },
+        $withoutPropertyNodes(_context: DecoratorContext, model: Model) {
+          for (const property of model.properties.values()) {
+            delete property.node;
+          }
+        },
+      }),
+      "optionality.tsp": `
+        import "./optionality.js";
+        extern dec setOptionality(target: TypeSpec.Reflection.Model, optional: valueof boolean);
+        extern dec withoutPropertyNodes(target: TypeSpec.Reflection.Model);
+      `,
+    }).import("./optionality.tsp");
+
+    it.each([
+      "model Test is OptionalProperties<Source>;",
+      "model Test { ...OptionalProperties<Source>; }",
+      `
+        model BeforeSpread { ...Source; }
+        model BeforeCopy is BeforeSpread;
+        model Optional is OptionalProperties<BeforeCopy>;
+        model AfterSpread { ...Optional; }
+        model Test is AfterSpread;
+      `,
+    ])("keeps transformed properties optional in every snapshot: %s", async (derived) => {
+      const { program, v1, v2, v3 } = await testMutationLogic(`
+        model Source {
+          @madeRequired(Versions.v2)
+          a: string;
+        }
+        ${derived}
+      `);
+      for (const ns of [v1, v2, v3]) {
+        const property = accessor(ns).get("a")!;
+        expect(property.optional).toBe(true);
+        expect(getMadeRequiredOn(program, property)?.name).toBe("v2");
+      }
+      expect(v1.models.get("Source")!.properties.get("a")!.optional).toBe(true);
+      expect(v2.models.get("Source")!.properties.get("a")!.optional).toBe(false);
+      expect(v3.models.get("Source")!.properties.get("a")!.optional).toBe(false);
+    });
+
+    it.each([true, false])("recognizes custom optionality transforms to %s", async (optional) => {
+      const { program, v1, v2, v3 } = await testMutationLogic(
+        `
+          model Source {
+            @${optional ? "madeRequired" : "madeOptional"}(Versions.v2)
+            a${optional ? "" : "?"}: string;
+          }
+          model Before { ...Source; }
+          @setOptionality(${optional})
+          model Changed { ...Before; }
+          model After is Changed;
+          model Test { ...After; }
+        `,
+        optionalityTester,
+      );
+      for (const ns of [v1, v2, v3]) {
+        const property = accessor(ns).get("a")!;
+        expect(property.optional).toBe(optional);
+        const getter = optional ? getMadeRequiredOn : getMadeOptionalOn;
+        expect(getter(program, property)?.name).toBe("v2");
+      }
+    });
+
+    it.each([true, false])(
+      "cannot distinguish new history on a copy transformed to %s",
+      async (optional) => {
+        const diagnostics = await optionalityTester.diagnose(`
+        ${baseCode}
+        model Source {
+          @${optional ? "madeRequired" : "madeOptional"}(Versions.v2)
+          a${optional ? "" : "?"}: string;
+        }
+        @setOptionality(${optional})
+        model Changed { ...Source; }
+        model Test { ...Changed; }
+        @@${optional ? "madeRequired" : "madeOptional"}(Test.a, Versions.v2);
+      `);
+        expectDiagnosticEmpty(diagnostics);
+      },
+    );
+
+    it("retains history when a later transform restores the declared optionality", async () => {
+      const { program, v1, v2, v3 } = await testMutationLogic(
+        `
+          model Source {
+            @madeRequired(Versions.v2)
+            a: string;
+          }
+          @setOptionality(true)
+          model Optional { ...Source; }
+          model Copy { ...Optional; }
+          @setOptionality(false)
+          model Required { ...Copy; }
+          model Test { ...Required; }
+        `,
+        optionalityTester,
+      );
+      expect(accessor(v1).get("a")!.optional).toBe(true);
+      expect(accessor(v2).get("a")!.optional).toBe(false);
+      expect(accessor(v3).get("a")!.optional).toBe(false);
+      expect(getMadeRequiredOn(program, accessor(v1).get("a")!)?.name).toBe("v2");
+    });
+
+    it("retains history when a transform makes no discernible optionality change", async () => {
+      const { program, v1, v2, v3 } = await testMutationLogic(`
+        model Source {
+          @madeOptional(Versions.v2)
+          a?: string;
+        }
+        model Test { ...OptionalProperties<Source>; }
+      `);
+      expect(accessor(v1).get("a")!.optional).toBe(false);
+      expect(accessor(v2).get("a")!.optional).toBe(true);
+      expect(accessor(v3).get("a")!.optional).toBe(true);
+      for (const ns of [v1, v2, v3]) {
+        expect(getMadeOptionalOn(program, accessor(ns).get("a")!)?.name).toBe("v2");
+      }
+    });
+
+    it.each([true, false])("preserves unchanged optionality history (%s)", async (optional) => {
+      const { program, v1, v2, v3 } = await testMutationLogic(`
+        model Source {
+          @${optional ? "madeOptional" : "madeRequired"}(Versions.v2)
+          a${optional ? "?" : ""}: string;
+        }
+        model Spread { ...Source; }
+        model Copy is Spread;
+        model Test { ...Copy; }
+      `);
+      expect(accessor(v1).get("a")!.optional).toBe(!optional);
+      expect(accessor(v2).get("a")!.optional).toBe(optional);
+      expect(accessor(v3).get("a")!.optional).toBe(optional);
+      for (const ns of [v1, v2, v3]) {
+        const getter = optional ? getMadeOptionalOn : getMadeRequiredOn;
+        expect(getter(program, accessor(ns).get("a")!)?.name).toBe("v2");
+      }
+    });
+
+    it("preserves unrelated history on transformed properties", async () => {
+      const { v1, v2, v3 } = await testMutationLogic(`
+        model Source {
+          @madeRequired(Versions.v2)
+          @renamedFrom(Versions.v2, "old")
+          @typeChangedFrom(Versions.v2, string)
+          a: int32;
+          @added(Versions.v2)
+          @madeRequired(Versions.v3)
+          added: string;
+          @removed(Versions.v3)
+          @madeRequired(Versions.v2)
+          removed: string;
+        }
+        model Test { ...OptionalProperties<Source>; }
+      `);
+      expect(accessor(v1).get("old")!.optional).toBe(true);
+      expect((accessor(v1).get("old")!.type as Scalar).name).toBe("string");
+      expect(accessor(v1).has("a")).toBe(false);
+      for (const ns of [v2, v3]) {
+        expect(accessor(ns).get("a")!.optional).toBe(true);
+        expect((accessor(ns).get("a")!.type as Scalar).name).toBe("int32");
+        expect(accessor(ns).has("old")).toBe(false);
+        expect(accessor(ns).get("added")!.optional).toBe(true);
+      }
+      expect(accessor(v1).has("added")).toBe(false);
+      expect(accessor(v1).get("removed")!.optional).toBe(true);
+      expect(accessor(v2).get("removed")!.optional).toBe(true);
+      expect(accessor(v3).has("removed")).toBe(false);
+    });
+
+    it("also ignores new history when optionality differs from the declaration", async () => {
+      const { program, v1, v2, v3 } = await testMutationLogic(`
+        model Source {
+          @madeRequired(Versions.v2)
+          a: string;
+        }
+        @withOptionalProperties
+        model Changed { ...Source; }
+        @@madeOptional(Changed.a, Versions.v3);
+        model Test { ...Changed; }
+      `);
+      for (const ns of [v1, v2, v3]) {
+        expect(accessor(ns).get("a")!.optional).toBe(true);
+        expect(getMadeOptionalOn(program, accessor(ns).get("a")!)?.name).toBe("v3");
+      }
+    });
+
+    it("does not infer an optionality change without a declaration node", async () => {
+      const diagnostics = await optionalityTester.diagnose(`
+        ${baseCode}
+        @withoutPropertyNodes
+        model Source {
+          @madeRequired(Versions.v2)
+          a: string;
+        }
+        model Test { ...OptionalProperties<Source>; }
+      `);
+      expectDiagnostics(diagnostics, {
+        code: "@typespec/versioning/made-required-optional",
+      });
+    });
   });
 });
 
