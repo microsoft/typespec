@@ -14,7 +14,7 @@ namespace _Type.Property.AdditionalProperties
     {
         protected ExtendsDifferentSpreadModelArray() => throw null;
 
-        internal ExtendsDifferentSpreadModelArray(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal ExtendsDifferentSpreadModelArray(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

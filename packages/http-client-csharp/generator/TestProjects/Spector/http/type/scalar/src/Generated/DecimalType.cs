@@ -14,7 +14,7 @@ namespace _Type.Scalar
     {
         protected DecimalType() => throw null;
 
-        internal DecimalType(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal DecimalType(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

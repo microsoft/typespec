@@ -14,7 +14,7 @@ namespace Encode.Bytes._ResponseBody
     {
         protected ResponseBody() => throw null;
 
-        internal ResponseBody(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal ResponseBody(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

@@ -14,7 +14,7 @@ namespace Payload.Pageable._PageSize
     {
         protected PageSize() => throw null;
 
-        internal PageSize(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal PageSize(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

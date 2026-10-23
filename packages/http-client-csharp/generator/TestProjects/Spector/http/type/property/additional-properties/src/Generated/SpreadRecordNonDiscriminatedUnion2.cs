@@ -14,7 +14,7 @@ namespace _Type.Property.AdditionalProperties
     {
         protected SpreadRecordNonDiscriminatedUnion2() => throw null;
 
-        internal SpreadRecordNonDiscriminatedUnion2(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal SpreadRecordNonDiscriminatedUnion2(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

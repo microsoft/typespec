@@ -311,7 +311,7 @@ namespace SampleTypeSpec
                         nullableModel = null;
                         continue;
                     }
-                    nullableModel = OptionalNullableChild.DeserializeOptionalNullableChild(prop.Value, options);
+                    nullableModel = options == ModelSerializationExtensions.WireOptions ? OptionalNullableChild.DeserializeOptionalNullableChild(prop.Value, options) : ModelReaderWriter.Read<OptionalNullableChild>(prop.Value.GetUtf8Bytes(), options, SampleTypeSpecContext.Default);
                     continue;
                 }
                 if (prop.NameEquals("nullableString"u8))

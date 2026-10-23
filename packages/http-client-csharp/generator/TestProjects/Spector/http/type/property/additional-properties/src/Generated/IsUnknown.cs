@@ -14,7 +14,7 @@ namespace _Type.Property.AdditionalProperties
     {
         protected IsUnknown() => throw null;
 
-        internal IsUnknown(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal IsUnknown(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

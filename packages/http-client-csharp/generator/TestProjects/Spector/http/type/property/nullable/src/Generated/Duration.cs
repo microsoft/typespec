@@ -14,7 +14,7 @@ namespace _Type.Property.Nullable
     {
         protected Duration() => throw null;
 
-        internal Duration(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal Duration(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

@@ -14,7 +14,7 @@ namespace _Type.Property.AdditionalProperties
     {
         protected IsString() => throw null;
 
-        internal IsString(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal IsString(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

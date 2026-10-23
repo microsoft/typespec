@@ -14,7 +14,7 @@ namespace _Type.Property.Optional
     {
         protected RequiredAndOptional() => throw null;
 
-        internal RequiredAndOptional(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal RequiredAndOptional(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 

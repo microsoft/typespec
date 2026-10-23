@@ -22,7 +22,8 @@ namespace SampleTypeSpec
         }
 
         /// <summary></summary>
-        internal MultiPartFormContent ToMultipartFormContent()
+        /// <param name="options"></param>
+        internal MultiPartFormContent ToMultipartFormContent(ModelReaderWriterOptions options)
         {
             MultiPartFormContent content = new MultiPartFormContent();
 
@@ -35,13 +36,13 @@ namespace SampleTypeSpec
             content.Add("decimalPart", DecimalPart);
             content.Add("int8Part", Int8Part);
             content.Add("uint8Part", Uint8Part, "text/plain");
-            BinaryData dictionaryPartData = MultipartFormDataHelper.FromDictionary(DictionaryPart, "application/json");
+            BinaryData dictionaryPartData = MultipartFormDataHelper.FromDictionary(DictionaryPart, options, "application/json");
             content.Add("dictionaryPart", dictionaryPartData);
-            BinaryData dictionaryModelPartData = ModelReaderWriter.Write(DictionaryModelPart, ModelSerializationExtensions.WireOptions, SampleTypeSpecContext.Default).WithMediaType("application/json");
+            BinaryData dictionaryModelPartData = ModelReaderWriter.Write(DictionaryModelPart, options, SampleTypeSpecContext.Default).WithMediaType("application/json");
             content.Add("dictionaryModelPart", dictionaryModelPartData);
-            BinaryData listPartData = MultipartFormDataHelper.FromEnumerable(ListPart, "application/json");
+            BinaryData listPartData = MultipartFormDataHelper.FromEnumerable(ListPart, options, "application/json");
             content.Add("listPart", listPartData);
-            BinaryData listModelPartData = ModelReaderWriter.Write(ListModelPart, ModelSerializationExtensions.WireOptions, SampleTypeSpecContext.Default).WithMediaType("application/json");
+            BinaryData listModelPartData = ModelReaderWriter.Write(ListModelPart, options, SampleTypeSpecContext.Default).WithMediaType("application/json");
             content.Add("listModelPart", listModelPartData);
             foreach (string item in MultipleListPart)
             {

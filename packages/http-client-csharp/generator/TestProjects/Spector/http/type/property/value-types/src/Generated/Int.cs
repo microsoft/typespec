@@ -14,7 +14,7 @@ namespace _Type.Property.ValueTypes
     {
         protected Int() => throw null;
 
-        internal Int(ClientPipeline pipeline, Uri endpoint) => throw null;
+        internal Int(ClientPipeline pipeline, ModelReaderWriterOptions modelReaderWriterOptions, Uri endpoint) => throw null;
 
         public ClientPipeline Pipeline => throw null;
 
