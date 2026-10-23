@@ -1,5 +1,5 @@
 import { deepStrictEqual, fail, ok, strictEqual } from "assert";
-import { describe, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { getSourceLocation } from "../../src/core/diagnostics.js";
 import type {
   DecoratorContext,
@@ -8,7 +8,7 @@ import type {
   StringLiteral,
   Type,
 } from "../../src/core/types.js";
-import { getDoc, isUnknownType } from "../../src/index.js";
+import { isUnknownType } from "../../src/index.js";
 import {
   expectDiagnosticEmpty,
   expectDiagnostics,
@@ -522,20 +522,16 @@ describe("compiler: templates", () => {
   });
 
   describe.each([
-    ["model", "model Target { member: string; }", "models"],
-    ["union", "union Target { member: string }", "unions"],
-    ["enum", "enum Target { member }", "enums"],
-  ] as const)("decorators on concrete %s references", (_kind, declaration, collection) => {
+    ["model", ": string;"],
+    ["union", ": string"],
+    ["enum", ""],
+  ] as const)("decorators on concrete %s references", (kind, memberType) => {
     it.each(["Target", "Target.member"])(
       "runs decorators when first referenced as %s in a template",
       async (reference) => {
-        let decoratorCalls = 0;
-        const { StringBox, NumberBox, program } = await Tester.files({
-          "decorators.js": mockFile.js({
-            $count() {
-              decoratorCalls++;
-            },
-          }),
+        const $count = vi.fn();
+        const { Target, member, StringBox, NumberBox } = await Tester.files({
+          "decorators.js": mockFile.js({ $count }),
         }).import("./decorators.js").compile(t.code`
             namespace Example;
 
@@ -545,21 +541,18 @@ describe("compiler: templates", () => {
             }
 
             @count
-            @doc("declaration documentation")
-            ${declaration}
+            ${kind} ${t.type("Target")} {
+              ${t.type("member")}${memberType}
+            }
 
             model ${t.model("StringBox")} is Box<string>;
             model ${t.model("NumberBox")} is Box<int32>;
           `);
 
-        const namespace = program.getGlobalNamespaceType().namespaces.get("Example")!;
-        const target = namespace[collection].get("Target")!;
-        strictEqual(getDoc(program, target), "declaration documentation");
-        const [expectedType, diagnostics] = program.resolveTypeReference(`Example.${reference}`);
-        expectDiagnosticEmpty(diagnostics);
+        const expectedType = reference === "Target" ? Target : member;
         strictEqual(StringBox.properties.get("item")!.type, expectedType);
         strictEqual(NumberBox.properties.get("item")!.type, expectedType);
-        strictEqual(decoratorCalls, 1);
+        expect($count).toHaveBeenCalledExactlyOnceWith(expect.anything(), Target);
       },
     );
   });
