@@ -1157,12 +1157,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
         private void ApplyDeprecationAttribute(MethodSignature signature, MethodSignature? customSignature)
         {
-            if (customSignature?.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute) == true)
-            {
-                // Attributes on the defining partial declaration also apply to the implementation.
-                signature.Update(attributes: [.. signature.Attributes.Where(a => !DeprecationApiHelpers.IsObsoleteAttribute(a))]);
-            }
-            else if (!signature.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute)
+            if (customSignature?.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute) != true
+                && !signature.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute)
                 && Client.BackCompatProvider.LastContractView?.Methods.Any(previous =>
                     MethodSignatureHelper.IsPublicApi(previous.Signature)
                     && MethodSignatureBase.SignatureComparer.Equals(previous.Signature, signature)

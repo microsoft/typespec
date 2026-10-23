@@ -2179,6 +2179,32 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 $"Partial implementation wrote a return type with no namespace:\n{result}");
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task CustomPartialMethodsKeepObsoleteOnDeclaration(bool expressionBody)
+        {
+            await MockHelpers.LoadMockGeneratorAsync(compilation: () => Helpers.GetCompilationFromDirectoryAsync());
+            var typeProvider = new TestTypeProvider(name: "CustomPartialMethodType");
+            var methods = new[] { "Legacy", "WithoutMessage", "Current" }.Select(name =>
+            {
+                var signature = new MethodSignature(name, null, MethodSignatureModifiers.Public, typeof(int), null, []);
+                return expressionBody
+                    ? new MethodProvider(signature, Snippet.Literal(1), typeProvider)
+                    : new MethodProvider(signature, Snippet.Return(Snippet.Literal(1)), typeProvider);
+            });
+            typeProvider.Update(methods: methods);
+
+            Assert.AreEqual(3, typeProvider.Methods.Count);
+            Assert.IsTrue(typeProvider.Methods.All(method => method.IsPartialMethod));
+            Assert.IsTrue(typeProvider.Methods.All(method => !method.Signature.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute)));
+            var customMethods = typeProvider.CustomCodeView!.Methods;
+            Assert.AreEqual("\"Use \\\"Current\\\" instead.\\nSee C:\\\\sdk.\"",
+                customMethods.Single(method => method.Signature.Name == "Legacy").Signature.Attributes.Single().Arguments.Single().ToDisplayString());
+            Assert.IsEmpty(customMethods.Single(method => method.Signature.Name == "WithoutMessage").Signature.Attributes.Single().Arguments);
+            Assert.IsEmpty(customMethods.Single(method => method.Signature.Name == "Current").Signature.Attributes);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(expressionBody.ToString()), new TypeProviderWriter(typeProvider).Write().Content);
+        }
+
         [Test]
         public async Task TestSpecViewReturnsAllPropertiesEvenWhenSuppressed()
         {
