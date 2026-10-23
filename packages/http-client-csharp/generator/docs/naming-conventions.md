@@ -241,9 +241,12 @@ Each namespace segment receives PascalCase identifier cleanup independently. For
 date/time, or `Url` conversions above.
 
 The segments `Type`, `Array`, and `Enum` are prefixed with `_` after cleanup, for example
-`type.array` becomes `_Type._Array`. A segment that matches a client name is also marked for this
-escaping. When this changes a client's final namespace segment, the generator reports
-`client-namespace-conflict`; use a client-name customization to resolve it.
+`type.array` becomes `_Type._Array`. A client adds a name to this escaping list only when its final
+namespace segment exactly matches its cleaned, nested-prefixed client name during code-model
+loading. For example, a `PetsClient` in `PetsClient.Services` alone does not register `PetsClient`;
+a `PetsClient` in `Services.PetsClient` does. Registered names are then escaped wherever they occur
+as matching namespace segments. When escaping changes a client's final namespace segment, the
+generator reports `client-namespace-conflict`; use a client-name customization to resolve it.
 
 When `package-name` supplies the root namespace, hyphens become dots and the first letter of each
 segment is capitalized: `pet-store` produces `Pet.Store`. Otherwise, root namespace selection uses
