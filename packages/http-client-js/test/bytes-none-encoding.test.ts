@@ -58,4 +58,25 @@ describe("bytes none encoding", () => {
     expect(diagnostics.length).toBeGreaterThan(0);
     expect(diagnostics.some((d) => d.code === "@typespec/http-client-js/unknown-encoding")).toBe(true);
   });
+
+  it("should still report unknown-encoding for unsupported explicit encoding on response body", async () => {
+    const code = `
+      import "@typespec/http";
+      using Http;
+      @service(#{ title: "Repro" })
+      @server("{endpoint}", "", { endpoint?: url = "http://localhost:3000" })
+      namespace Repro;
+
+      @encode("invalid-encoding")
+      scalar invalidBytes extends bytes;
+
+      @get op download(): {
+        @header("Content-Type") contentType: "application/octet-stream";
+        @body body: invalidBytes;
+      };
+    `;
+    const [outputs, diagnostics] = await emitWithDiagnostics(code);
+    expect(diagnostics.length).toBeGreaterThan(0);
+    expect(diagnostics.some((d) => d.code === "@typespec/http-client-js/unknown-encoding")).toBe(true);
+  });
 });
