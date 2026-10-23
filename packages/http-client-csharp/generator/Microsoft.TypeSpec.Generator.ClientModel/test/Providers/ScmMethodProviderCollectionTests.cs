@@ -32,6 +32,28 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 {
     internal class ScmMethodProviderCollectionTests
     {
+        [TestCase(true)]
+        [TestCase(false)]
+        public void HeadResponseAsBoolReturnsTypedResults(bool responseAsBool)
+        {
+            var operation = InputFactory.Operation("Exists", httpMethod: "HEAD");
+            operation.Update(responseAsBool: responseAsBool);
+            var serviceMethod = InputFactory.BasicServiceMethod("Exists", operation);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+            var methods = new ScmMethodProviderCollection(serviceMethod, client);
+
+            Assert.AreEqual(4, methods.Count);
+            foreach (var method in methods)
+            {
+                var isAsync = method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Async);
+                CSharpType resultType = responseAsBool ? typeof(ClientResult<bool>) : typeof(ClientResult);
+                var expectedType = isAsync ? new CSharpType(typeof(Task<>), resultType) : resultType;
+                Assert.AreEqual(expectedType, method.Signature.ReturnType);
+            }
+        }
+
         [Test]
         public void ExperimentalApiHelpersAreSharedInternally()
         {

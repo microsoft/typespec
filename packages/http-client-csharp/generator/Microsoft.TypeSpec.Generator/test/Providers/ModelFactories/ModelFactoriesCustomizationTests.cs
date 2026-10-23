@@ -203,6 +203,47 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             CollectionAssert.DoesNotContain(modelFactory.Methods.Select(m => m.Signature.Name), "DerivedModel");
         }
 
+        [Test]
+        public async Task CustomFullConstructorModelParametersRetainNamespaces()
+        {
+            var resource = InputFactory.Model("NetworkSubResource");
+            var association = InputFactory.Model("EffectiveNetworkSecurityGroupAssociation");
+            var rule = InputFactory.Model("EffectiveSecurityRule");
+            var model = InputFactory.Model("EffectiveNetworkSecurityGroup", properties:
+            [
+                InputFactory.Property("NetworkSecurityGroup", resource),
+                InputFactory.Property("Association", association),
+                InputFactory.Property("EffectiveSecurityRules", InputFactory.Array(rule), isReadOnly: true),
+                InputFactory.Property("TagMap", InputPrimitiveType.String)
+            ]);
+            var mockGenerator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModelTypes: [resource, association, rule, model],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(),
+                additionalMetadataReferences: [MetadataReference.CreateFromFile(typeof(BinaryData).Assembly.Location)]);
+
+            await new CSharpGen().ExecuteAsync();
+
+            var modelProvider = mockGenerator.Object.OutputLibrary.TypeProviders.OfType<ModelProvider>()
+                .Single(p => p.Name == "EffectiveNetworkSecurityGroup");
+            Assert.That(modelProvider.Constructors, Does.Not.Contain(modelProvider.FullConstructor),
+                "The factory must use the custom constructor, not the generated full constructor.");
+            Assert.That(modelProvider.CustomCodeView!.Constructors, Has.Count.EqualTo(1));
+
+            var modelFactory = mockGenerator.Object.OutputLibrary.TypeProviders.OfType<ModelFactoryProvider>().Single();
+            var method = modelFactory.Methods.Single(m => m.Signature.Name == model.Name);
+            Assert.That(method.Signature.Parameters, Has.Count.EqualTo(4));
+            Assert.That(modelFactory.CustomCodeView!.Methods.Single().Signature.Parameters, Has.Count.EqualTo(1));
+
+            var content = new TypeProviderWriter(modelFactory).Write().Content;
+            Assert.That(content, Does.Not.Contain("using ;"));
+            Assert.That(content, Does.Not.Contain("global::."));
+            Assert.That(content, Does.Contain("global::Sample.Models.NetworkSubResource networkSecurityGroup"));
+            Assert.That(content, Does.Contain("global::Sample.Models.EffectiveNetworkSecurityGroupAssociation association"));
+            Assert.That(content, Does.Contain("IEnumerable<global::Sample.Models.EffectiveSecurityRule> effectiveSecurityRules"));
+            Assert.That(content, Does.Contain("ChangeTrackingList<global::Sample.Models.EffectiveSecurityRule>"));
+            Assert.That(content, Does.Contain("effectiveSecurityRules.ToList(), tagMap, additionalBinaryDataProperties: null"));
+        }
+
         [TestCase(true)]
         [TestCase(false)]
         public async Task CanCustomizeModelFullConstructor(bool extraParameters)
