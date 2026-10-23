@@ -18,12 +18,14 @@ import type {
   SdkHttpResponse,
   SdkLroPagingServiceMethod,
   SdkLroServiceMethod,
+  SdkMethodResponse,
   SdkModelPropertyType,
   SdkModelType,
   SdkPathParameter,
   SdkQueryParameter,
   SdkServiceMethod,
   SdkServiceResponseHeader,
+  SdkSseMetadata,
   SdkType,
   SdkUnionType,
 } from "@azure-tools/typespec-client-generator-core";
@@ -1049,6 +1051,7 @@ export class CodeModelBuilder {
     codeModelOperation.language.default.crossLanguageDefinitionId =
       sdkMethod.crossLanguageDefinitionId;
     codeModelOperation.internalApi = sdkMethod.access === "internal";
+    codeModelOperation.sseMetadata = this.processSseMetadata(sdkMethod.response);
 
     const convenienceApiName = this.getConvenienceApiName(sdkMethod);
     let generateConvenienceApi: boolean = sdkMethod.generateConvenient;
@@ -1250,6 +1253,128 @@ export class CodeModelBuilder {
     this.processRouteForLongRunning(codeModelOperation, lroMetadata);
 
     return codeModelOperation;
+  }
+
+  private processSseMetadata(
+    response: SdkMethodResponse,
+  ): CodeModelOperation["sseMetadata"] | undefined {
+    if (!this.options["dev-options"]?.["enable-sse"] || !this.isAzureV1()) {
+      return undefined;
+    }
+
+    if (!response.streamMetadata?.contentTypes.includes("text/event-stream")) {
+      return undefined;
+    }
+
+    const unsupported = () => {
+      reportDiagnostic(this.program, {
+        code: "experimental-sse-unsupported",
+        target: response.type?.__raw ?? NoTarget,
+      });
+      return undefined;
+    };
+    if (this.options["stream-style-serialization"] === false) {
+      return unsupported();
+    }
+    const sseMetadata: SdkSseMetadata | undefined = response.sseMetadata;
+    if (!sseMetadata || sseMetadata.events.length === 0) {
+      return unsupported();
+    }
+
+    const streamType = response.streamMetadata.streamType;
+    if (streamType.kind !== "union" || !streamType.name) {
+      return unsupported();
+    }
+
+    const events = sseMetadata.events.map((event) => {
+      if (typeof event.eventType !== "string") {
+        return undefined;
+      }
+      if (event.payloadType.kind !== "model" && event.payloadType.kind !== "array") {
+        return undefined;
+      }
+      if (
+        event.payloadType.kind === "array" &&
+        !this.isSupportedSseArrayElementType(event.payloadType.valueType)
+      ) {
+        return undefined;
+      }
+      // This only names anonymous code-model schemas; the generator owns Java SSE type names.
+      const payloadSchemaNameHint = event.eventType
+        .split(/[^A-Za-z0-9]+/)
+        .filter((segment) => segment.length > 0)
+        .map(pascalCase)
+        .join("");
+      const payload = this.processSchema(event.payloadType, `${payloadSchemaNameHint}EventPayload`);
+      return {
+        event,
+        payload,
+      };
+    });
+    if (events.some((event) => event === undefined)) {
+      return unsupported();
+    }
+
+    const supportedEvents = events as Array<NonNullable<(typeof events)[number]>>;
+    const modelNamespaces = new Set(
+      supportedEvents.map(({ event }) => {
+        if (
+          event.type.kind !== "model" &&
+          event.type.kind !== "enum" &&
+          event.type.kind !== "union"
+        ) {
+          return undefined;
+        }
+        return this.getJavaNamespace(event.type);
+      }),
+    );
+    modelNamespaces.delete(undefined);
+    if (modelNamespaces.size > 1) {
+      return unsupported();
+    }
+    const modelNamespace =
+      modelNamespaces.values().next().value ?? this.getJavaNamespace(streamType);
+    if (!modelNamespace) {
+      return unsupported();
+    }
+
+    for (const { payload } of supportedEvents) {
+      this.trackSchemaUsage(payload, {
+        usage: [SchemaContext.Output, SchemaContext.Public],
+        serializationFormats: [KnownMediaType.Json],
+      });
+    }
+    return {
+      streamName: streamType.name,
+      modelNamespace,
+      events: supportedEvents.map(({ event, payload }) => ({
+        name: event.eventType!,
+        payload,
+        terminal: event.isTerminalEvent,
+      })),
+    };
+  }
+
+  private isSupportedSseArrayElementType(type: SdkType): boolean {
+    if (isSdkBuiltInKind(type.kind)) {
+      return true;
+    }
+    switch (type.kind) {
+      case "array":
+        return this.isSupportedSseArrayElementType(type.valueType);
+      case "nullable":
+        return this.isSupportedSseArrayElementType(type.type);
+      case "model":
+      case "enum":
+      case "enumvalue":
+      case "constant":
+      case "duration":
+      case "utcDateTime":
+      case "offsetDateTime":
+        return true;
+      default:
+        return false;
+    }
   }
 
   private processRouteForPaged(

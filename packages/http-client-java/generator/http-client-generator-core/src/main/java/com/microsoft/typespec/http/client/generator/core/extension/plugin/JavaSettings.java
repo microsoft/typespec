@@ -313,6 +313,7 @@ public class JavaSettings {
         // If set to true, sync methods are generated using sync stack. i.e these methods do not use sync-over-async
         // stack.
         this.syncStackEnabled = getBooleanValue(host, "enable-sync-stack", false);
+        this.sseEnabled = getBooleanValue(host, "enable-sse", false);
 
         this.modelMaxOverload = "model".equalsIgnoreCase(getStringValue(host, "max-overload"));
 
@@ -1231,6 +1232,8 @@ public class JavaSettings {
 
     private final boolean syncStackEnabled;
 
+    private final boolean sseEnabled;
+
     /**
      * Whether to enable sync stack.
      *
@@ -1238,6 +1241,15 @@ public class JavaSettings {
      */
     public boolean isSyncStackEnabled() {
         return syncStackEnabled;
+    }
+
+    /**
+     * Whether experimental server-sent event generation is enabled.
+     *
+     * @return Whether experimental server-sent event generation is enabled.
+     */
+    public boolean isSseEnabled() {
+        return sseEnabled;
     }
 
     private final boolean modelMaxOverload;

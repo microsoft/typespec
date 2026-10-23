@@ -13,6 +13,7 @@ import com.microsoft.typespec.http.client.generator.core.extension.model.codemod
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Response;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Schema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.StringSchema;
+import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings.SyncMethodsGeneration;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
@@ -30,6 +31,18 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class ClientMethodMapperTests {
+    @Test
+    public void sseSyncOnlyModeDoesNotGenerateAsyncMethods() {
+        Assertions.assertFalse(ClientMethodMapper.shouldGenerateAsyncSseMethod(false, SyncMethodsGeneration.SYNC_ONLY));
+        Assertions
+            .assertTrue(ClientMethodMapper.shouldGenerateSyncSseMethod(false, SyncMethodsGeneration.SYNC_ONLY, false));
+    }
+
+    @Test
+    public void sseSyncOverAsyncGeneratesBothMethodKinds() {
+        Assertions.assertTrue(ClientMethodMapper.shouldGenerateAsyncSseMethod(false, SyncMethodsGeneration.ALL));
+        Assertions.assertTrue(ClientMethodMapper.shouldGenerateSyncSseMethod(false, SyncMethodsGeneration.ALL, false));
+    }
 
     @Test
     public void testConvenienceResponseReplacement() {

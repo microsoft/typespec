@@ -6,6 +6,7 @@ import type {
   ModelOptions,
   Parameter,
   Response,
+  Schema,
 } from "./schemas/model.js";
 import {
   createAspect,
@@ -64,6 +65,31 @@ export interface Operation extends Aspect {
 
   /** the long-running operation metadata */
   lroMetadata?: LongRunningMetadata;
+
+  /** Experimental server-sent event metadata. */
+  sseMetadata?: SseMetadata;
+}
+
+export interface SseEventMetadata {
+  /** SSE event field value. */
+  name: string;
+
+  /** Typed event payload. */
+  payload: Schema;
+
+  /** Whether this event inclusively terminates the stream. */
+  terminal: boolean;
+}
+
+export interface SseMetadata {
+  /** Semantic name of the named event stream. */
+  streamName: string;
+
+  /** Java namespace used as the base for generated event models. */
+  modelNamespace: string;
+
+  /** Supported named event variants. */
+  events: SseEventMetadata[];
 }
 
 export interface ConvenienceApi extends Metadata {
