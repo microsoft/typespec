@@ -105,11 +105,11 @@ Those commands can be run on the workspace or in a specific package(`cd ./packag
 
 ### Test transform caching
 
-The shared Vitest configuration caches transformed modules in `node_modules/.vitest-cache` to speed up subsequent test runs. The first run populates the cache.
+The shared Vitest configuration caches transformed modules in `node_modules/.vitest-cache` to speed up subsequent local test runs. The first run populates the cache.
 
 To run without the transform cache, use `pnpm test --fsModuleCache=false`. To clear Vitest's caches, run `pnpm exec vitest --clearCache`.
 
-On CI, caching only helps across jobs if the cache directory is persisted between runs.
+The cache is disabled by default when `CI` or `TF_BUILD` is set, including GitHub Actions and Azure Pipelines. CI jobs would need to persist the cache directory between runs to benefit from it.
 
 ### Verbose test logging
 
