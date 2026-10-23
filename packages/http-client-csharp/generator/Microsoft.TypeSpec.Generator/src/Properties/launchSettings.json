@@ -25,6 +25,11 @@
       "commandName": "Executable",
       "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
     },
+    "http-azure-client-generator-core-response-replacement": {
+      "commandLineArgs": "$(SolutionDir)/TestProjects/Spector/http/azure/client-generator-core/response-replacement -g StubLibraryGenerator",
+      "commandName": "Executable",
+      "executablePath": "$(SolutionDir)/../dist/generator/Microsoft.TypeSpec.Generator.exe"
+    },
     "http-client-structure-client-operation-group": {
       "commandLineArgs": "$(SolutionDir)/TestProjects/Spector/http/client/structure/client-operation-group -g StubLibraryGenerator",
       "commandName": "Executable",
