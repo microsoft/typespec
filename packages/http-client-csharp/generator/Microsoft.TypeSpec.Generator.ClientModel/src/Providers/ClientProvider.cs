@@ -70,6 +70,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         private readonly Lazy<IReadOnlyList<ParameterProvider>> _subClientInternalConstructorParams;
         private readonly Lazy<IReadOnlyList<ClientProvider>> _subClients;
         private RestClientProvider? _restClient;
+        private ClientCollectionsProvider? _collectionResultProviders;
         private readonly IReadOnlyList<InputParameter> _allClientParameters;
         private readonly Lazy<IReadOnlyList<FieldProvider>> _additionalClientFields;
 
@@ -491,6 +492,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// Gets the corresponding <see cref="RestClientProvider"/> for this client.
         /// </summary>
         public RestClientProvider RestClient => _restClient ??= new RestClientProvider(_inputClient, this);
+
+        /// <summary>
+        /// Gets the partial client declaration containing this client's nested paging helpers.
+        /// </summary>
+        public ClientCollectionsProvider CollectionResultProviders => _collectionResultProviders ??= new ClientCollectionsProvider(this);
+
         public ClientOptionsProvider? ClientOptions { get; }
         public ClientSettingsProvider? ClientSettings { get; }
 
@@ -520,6 +527,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             UpdateDependentIdentity(_restClient, string.Empty);
             UpdateDependentIdentity(ClientOptions, "Options");
             UpdateDependentIdentity(ClientSettings, "Settings");
+            if (_collectionResultProviders is { } collections)
+            {
+                collections.Update(name: Name, @namespace: Type.Namespace);
+                foreach (var helper in collections.NestedTypes)
+                {
+                    // Identity updates reset constructors; retain customizations from earlier visitors.
+                    var constructors = helper.Constructors;
+                    helper.Update(@namespace: Type.Namespace);
+                    helper.Update(constructors: constructors);
+                }
+            }
             if (previousOptionsType != null && !CSharpType.IgnoreNullableComparer.Equals(previousOptionsType, ClientOptions!.Type))
             {
                 UpdateOptionsReferences(this);

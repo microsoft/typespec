@@ -3553,8 +3553,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
         // applied only once (by the ClientProvider); otherwise the base pass would add duplicate overloads to
         // the RestClientProvider partial (CS0111). Here the convenience delegation target lives in custom
         // code shared by both partials, and the last contract published the nullable overload.
-        [Test]
-        public async Task BackCompatibility_RestClientProviderDoesNotDuplicateOverloads()
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task BackCompatibility_RestClientProviderDoesNotDuplicateOverloads(bool hasPaging)
         {
             var enumType = InputFactory.StringEnum(
                 "fileFormatType",
@@ -3572,10 +3573,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 operation,
                 parameters: [InputFactory.MethodParameter("type", enumType, isRequired: true, location: InputRequestLocation.Query)]);
 
-            var client = InputFactory.Client(TestClientName, methods: [method]);
+            var page = InputFactory.Model("Page", properties:
+                [InputFactory.Property("items", InputFactory.Array(InputPrimitiveType.String))]);
+            var pagingOperation = InputFactory.Operation("GetItems", responses: [InputFactory.OperationResponse(bodytype: page)]);
+            var pagingMethod = InputFactory.PagingServiceMethod("GetItems", pagingOperation,
+                pagingMetadata: InputFactory.PagingMetadata(["items"], null, null));
+            var client = InputFactory.Client(TestClientName, methods: hasPaging ? [method, pagingMethod] : [method]);
 
             var generator = await MockHelpers.LoadMockGeneratorAsync(
                 clients: () => [client],
+                inputModels: () => hasPaging ? [page] : [],
                 compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Custom"),
                 lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"));
 
@@ -3584,6 +3591,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
 
             clientProvider.ProcessTypeForBackCompatibility();
             restClientProvider.ProcessTypeForBackCompatibility();
+            if (hasPaging)
+            {
+                var collections = clientProvider.CollectionResultProviders;
+                collections.ProcessTypeForBackCompatibility();
+                Assert.IsEmpty(collections.Methods, "The collections partial must not add duplicate back-compat overloads.");
+            }
 
             static int NullableEnumOverloads(TypeProvider provider) => provider.Methods.Count(m =>
                 m.Signature.Name.StartsWith("GetData")
@@ -5531,7 +5544,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 var body = method.BodyStatements!.ToDisplayString();
                 if (kind == "Paging")
                 {
-                    StringAssert.Contains(isAsync ? "TestClientGetIPAddressesAsyncCollectionResult" : "TestClientGetIPAddressesCollectionResult", body);
+                    StringAssert.Contains(isAsync ? "GetIPAddressesAsyncCollectionResult" : "GetIPAddressesCollectionResult", body);
                 }
                 else if (method.Kind == ScmMethodKind.Protocol)
                 {
@@ -5548,7 +5561,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             StringAssert.DoesNotContain("CreateGetIPAddressesRequest", output);
             if (kind == "Paging")
             {
-                var collections = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.OfType<CollectionResultDefinition>().ToList();
+                var collections = ScmCodeModelGenerator.Instance.OutputLibrary.TypeProviders.SelectMany(t => t.NestedTypes).OfType<CollectionResultDefinition>().ToList();
                 Assert.IsNotEmpty(collections);
                 foreach (var collection in collections)
                 {

@@ -311,14 +311,68 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
 
             // The paging helpers (collection result definitions) are still emitted so that the custom code
             // referencing them continues to compile.
-            var collectionResultDefinitions = mockGenerator.Object.OutputLibrary.TypeProviders
+            var collectionResultDefinitions = mockGenerator.Object.OutputLibrary.TypeProviders.SelectMany(t => t.NestedTypes)
                 .OfType<CollectionResultDefinition>()
                 .Select(t => t.Name)
                 .ToList();
-            CollectionAssert.Contains(collectionResultDefinitions, "TestClientGetItemsCollectionResult");
-            CollectionAssert.Contains(collectionResultDefinitions, "TestClientGetItemsAsyncCollectionResult");
-            CollectionAssert.Contains(collectionResultDefinitions, "TestClientGetItemsCollectionResultOfT");
-            CollectionAssert.Contains(collectionResultDefinitions, "TestClientGetItemsAsyncCollectionResultOfT");
+            CollectionAssert.Contains(collectionResultDefinitions, "GetItemsCollectionResult");
+            CollectionAssert.Contains(collectionResultDefinitions, "GetItemsAsyncCollectionResult");
+            CollectionAssert.Contains(collectionResultDefinitions, "GetItemsCollectionResultOfT");
+            CollectionAssert.Contains(collectionResultDefinitions, "GetItemsAsyncCollectionResultOfT");
+        }
+
+        [TestCase(false, false)]
+        [TestCase(true, false)]
+        [TestCase(false, true)]
+        [TestCase(true, true)]
+        public async Task SuppressedPagingMethodsPruneUnreferencedHelpers(bool customReference, bool keepAll)
+        {
+            var item = InputFactory.Model("item", properties: [InputFactory.Property("color", InputPrimitiveType.String)]);
+            var page = InputFactory.Model("page", access: "internal", usage: InputModelTypeUsage.Output | InputModelTypeUsage.Json, properties:
+            [
+                InputFactory.Property("items", InputFactory.Array(item)),
+                InputFactory.Property("nextLink", InputPrimitiveType.Url),
+            ]);
+            var operation = InputFactory.Operation("GetItems", responses: [InputFactory.OperationResponse(bodytype: page)]);
+            var method = InputFactory.PagingServiceMethod("GetItems", operation,
+                pagingMetadata: InputFactory.NextLinkPagingMetadata(["items"], ["nextLink"], InputResponseLocation.Body));
+            var inputClient = InputFactory.Client("TestClient", methods: [method]);
+            var otherOperation = InputFactory.Operation("GetItems", responses: [InputFactory.OperationResponse(bodytype: page)]);
+            var otherMethod = InputFactory.PagingServiceMethod("GetItems", otherOperation,
+                pagingMetadata: InputFactory.NextLinkPagingMetadata(["items"], ["nextLink"], InputResponseLocation.Body));
+            var otherInputClient = InputFactory.Client("OtherClient", methods: [otherMethod]);
+            var generator = await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [item, page],
+                clients: () => [inputClient, otherInputClient],
+                configuration: keepAll
+                    ? """{"unreferenced-types-handling":"keepAll"}"""
+                    : """{"unreferenced-types-handling":"removeOrInternalize"}""",
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(customReference.ToString()));
+            var providers = generator.Object.OutputLibrary.TypeProviders;
+            var client = providers.OfType<ClientProvider>().Single(p => p.Name == "TestClient");
+            var otherClient = providers.OfType<ClientProvider>().Single(p => p.Name == "OtherClient");
+            otherClient.Update(methods: []);
+            Assert.IsFalse(client.Methods.Any(m => m.Signature.Name is "GetItems" or "GetItemsAsync"));
+            var collections = client.CollectionResultProviders;
+            var helpers = collections.NestedTypes;
+            Assert.AreEqual(4, helpers.Count);
+
+            using var session = ProviderReferenceMapAnalyzer.PrepareForGeneration(providers);
+            Assert.IsTrue(session.ShouldWriteProvider(client));
+            foreach (var helper in helpers)
+            {
+                Assert.AreEqual(keepAll || customReference && helper.Name == "GetItemsCollectionResult", session.ShouldWriteProvider(helper), helper.Name);
+            }
+            foreach (var helper in otherClient.CollectionResultProviders.NestedTypes)
+            {
+                Assert.AreEqual(keepAll, session.ShouldWriteProvider(helper), $"OtherClient.{helper.Name}");
+            }
+            var pageProvider = generator.Object.TypeFactory.CreateModel(page)!;
+            Assert.AreEqual(keepAll || customReference, session.ShouldWriteProvider(pageProvider), pageProvider.Type.ToString());
+            var output = new TypeProviderWriter(collections).Write().Content;
+            Assert.AreEqual(keepAll, output.Contains("class GetItemsAsyncCollectionResult :"));
+            Assert.AreEqual(keepAll, output.Contains("class GetItemsCollectionResultOfT :"));
+            Assert.AreEqual(keepAll || customReference, output.Contains("class GetItemsCollectionResult :"));
         }
 
         // Validates that a method with a struct parameter can be replaced
