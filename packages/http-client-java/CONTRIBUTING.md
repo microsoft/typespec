@@ -28,6 +28,20 @@ One can use npm to install the `@typespec/http-client-java` tgz locally.
 npm install [path-to-typespec-http-client-java-tgz]
 ```
 
+## Unit Tests
+
+From the `generator` directory, run:
+
+```
+mvn --no-transfer-progress --define spotless.skip=true test
+```
+
+This runs the unit tests in `http-client-generator-core`, `http-client-generator-mgmt`, and `http-client-generator`.
+It does not require generated clients or a Spector server. Omit `--define spotless.skip=true` to also apply Java formatting.
+
+When selecting tests with `-Dtest=...`, disable the automatically activated end-to-end test profile with `-P '!test'`.
+For a multi-module run, add `-Dsurefire.failIfNoSpecifiedTests=false` if some modules have no matching tests.
+
 ## End-to-end Tests
 
 There is 2 end-to-end test modules:
