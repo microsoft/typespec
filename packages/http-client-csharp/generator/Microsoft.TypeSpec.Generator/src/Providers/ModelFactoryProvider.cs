@@ -121,6 +121,17 @@ namespace Microsoft.TypeSpec.Generator.Providers
                .Concat(customFactoryMethods)
                .ToList();
 
+            // A visible visitor-restored method may regain published defaults later in the pass.
+            // Snapshot that effective optionality before mutations so declaration order cannot hide it.
+            var optionalFactoryMethods = allFactoryMethods.Where(method =>
+                HasOptionalParameters(method.Signature)
+                || (factoryMethods.Any(generated => ReferenceEquals(generated, method))
+                    && !IsRequiredHiddenCompatibilityMethod(method.Signature)
+                    && LastContractView.Methods.Any(previous =>
+                        MethodSignatureHelper.IsPublicApi(previous.Signature)
+                        && MethodSignature.MethodSignatureComparer.Equals(previous.Signature, method.Signature)
+                        && HasOptionalParameters(previous.Signature)))).ToList();
+
             var compatiblePreviousMethods = new List<MethodProvider>();
             List<MethodSignature> previousPublicSignatures = [];
             List<MethodSignature> preservedPreviousSignatures = [];
@@ -156,10 +167,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                         // Published required parameters may have disambiguated an optional historical
                         // overload that is now an all-required shim. Keep the current defaults unless
                         // another optional overload still exists on the final type.
-                        bool hasOptionalCompetingOverload = allFactoryMethods.Any(method =>
+                        bool hasOptionalCompetingOverload = optionalFactoryMethods.Any(method =>
                             !ReferenceEquals(method, matchingCurrentMethod)
-                            && method.Signature.Name == matchingCurrentMethod.Signature.Name
-                            && HasOptionalParameters(method.Signature));
+                            && method.Signature.Name == matchingCurrentMethod.Signature.Name);
                         for (int i = 0; i < previousMethod.Signature.Parameters.Count; i++)
                         {
                             var currentParameter = matchingCurrentMethod.Signature.Parameters[i];
@@ -183,10 +193,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     int currentMinimumArgumentCount = matchingCurrentMethod.Signature.Parameters
                         .TakeWhile(p => p.DefaultValue is null && !p.IsParams)
                         .Count();
-                    // Required custom overloads keep their binary signatures, but do not compete
-                    // for calls that need defaults substituted on the current factory.
-                    if (currentMinimumArgumentCount == previousMinimumArgumentCount
-                        && (isGeneratedMethod || HasOptionalParameters(matchingCurrentMethod.Signature)))
+                    if (currentMinimumArgumentCount == previousMinimumArgumentCount)
                     {
                         preservedPreviousSignatures.Add(previousMethod.Signature);
                     }
@@ -251,6 +258,11 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     .Where(signature => !MethodSignatureHelper.HaveSameParametersInSameOrder(
                         currentMethod.Signature,
                         signature))
+                    // Keep published custom signatures for visible reorder replacements below,
+                    // but required custom methods must not constrain a new factory's defaults.
+                    .Where(signature => !customFactoryMethods.Any(method =>
+                        !HasOptionalParameters(method.Signature)
+                        && MethodSignature.MethodSignatureComparer.Equals(signature, method.Signature)))
                     .Concat(customFactoryMethods
                         .Where(method => !nonConstrainingCustomMethods.Any(m => ReferenceEquals(m, method)))
                         // An all-required custom overload needs no default substitution and wins an

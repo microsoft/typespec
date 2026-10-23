@@ -9,6 +9,8 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Input.Extensions;
@@ -2293,9 +2295,77 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
             Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
         }
 
+        [TestCase("Last")]
+        [TestCase("Reversed")]
+        public async Task BackCompatibility_VisibleVisitorRestoresPublishedDefaults(string baseline)
+        {
+            var model = InputFactory.Model("CompatibilityModel", properties:
+            [
+                InputFactory.Property("Id", InputPrimitiveType.String),
+                InputFactory.Property("Name", InputPrimitiveType.String),
+                InputFactory.Property("Enabled", new InputNullableType(InputPrimitiveType.Boolean)),
+            ]);
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [model],
+                additionalMetadataReferences:
+                [
+                    MetadataReference.CreateFromFile(typeof(EditorBrowsableAttribute).Assembly.Location),
+                    MetadataReference.CreateFromFile(Assembly.Load("System.Runtime").Location),
+                ],
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(
+                    parameters: baseline, method: nameof(BackCompatibility_RequiredPrimaryRetainsOptionalEntryPoint)))).Object;
+
+            var factory = _instance.OutputLibrary.ModelFactory.Value;
+            new RequiredFactoryOverloadVisitor(false, hideMethod: false).VisitLibrary(_instance.OutputLibrary);
+            factory.ProcessTypeForBackCompatibility();
+
+            await AssertFactoryConsumerAsync(new TypeProviderWriter(factory).Write().Content, Helpers.GetExpectedFromFile());
+            var current = factory.Methods.Single(method => method.Signature.Parameters.Count == 3);
+            Assert.IsNull(current.Signature.Parameters[0].DefaultValue);
+            Assert.IsTrue(factory.Methods.Single(method => method.Signature.Parameters.Count == 2)
+                .Signature.Parameters.All(parameter => parameter.DefaultValue is not null));
+        }
+
+        [Test]
+        public async Task BackCompatibility_RequiredCustomPreservesReorderDefaults()
+        {
+            var model = InputFactory.Model("CompatibilityModel", properties:
+            [
+                InputFactory.Property("Id", InputPrimitiveType.String),
+                InputFactory.Property("Count", InputPrimitiveType.Int32),
+            ]);
+            _instance = (await MockHelpers.LoadMockGeneratorAsync(
+                inputNamespaceName: "Sample.Namespace",
+                inputModelTypes: [model],
+                additionalMetadataReferences: [MetadataReference.CreateFromFile(Assembly.Load("System.Runtime").Location)],
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Custom"),
+                lastContractCompilation: async () => await Helpers.GetCompilationFromDirectoryAsync(parameters: "Last"))).Object;
+
+            var factory = _instance.OutputLibrary.ModelFactory.Value;
+            factory.ProcessTypeForBackCompatibility();
+            var content = new TypeProviderWriter(factory).Write().Content;
+            var customSource = File.ReadAllText(Path.Combine(
+                Helpers.GetAssetFileOrDirectoryPath(false, parameters: "Custom"), "SampleNamespaceModelFactory.cs"));
+            await AssertFactoryConsumerAsync(content, Helpers.GetExpectedFromFile(parameters: "Consumer"), customSource);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), content);
+        }
+
         private static async Task AssertOptionalFactoryCallsAsync(string factorySource, string customSource = "")
         {
             var consumerSource = Helpers.GetExpectedFromFile();
+            var compilation = await AssertFactoryConsumerAsync(factorySource, consumerSource, customSource);
+            var tree = compilation.SyntaxTrees.Single(tree => tree.FilePath == "Consumer.cs");
+            var nullCall = tree.GetRoot().DescendantNodes().OfType<InvocationExpressionSyntax>().Single(call =>
+                call.ArgumentList.Arguments.Count == 2
+                && call.ArgumentList.Arguments[1].Expression.IsKind(SyntaxKind.NullLiteralExpression));
+            var target = compilation.GetSemanticModel(tree).GetSymbolInfo(nullCall).Symbol as IMethodSymbol;
+            Assert.AreEqual(2, target?.Parameters.Length,
+                "The null-argument call must select the fully supplied required overload.");
+        }
+
+        private static async Task<Compilation> AssertFactoryConsumerAsync(string factorySource, string consumerSource, string customSource = "")
+        {
             var compilation = await Helpers.GetCompilationFromSourceFilesAsync(
                 [("Factory.cs", factorySource), ("Custom.cs", customSource), ("Consumer.cs", consumerSource)]);
             // This consumer does not use the customization helpers automatically included by Helpers.
@@ -2307,9 +2377,10 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
                 result.Diagnostics.Where(diagnostic => diagnostic.Severity == DiagnosticSeverity.Error)));
             var assembly = Assembly.Load(stream.ToArray());
             Assert.AreEqual(true, assembly.GetType("Consumer")!.GetMethod("Validate")!.Invoke(null, null));
+            return compilation;
         }
 
-        private class RequiredFactoryOverloadVisitor(bool sharePreviousParameters) : LibraryVisitor
+        private class RequiredFactoryOverloadVisitor(bool sharePreviousParameters, bool hideMethod = true) : LibraryVisitor
         {
             protected override TypeProvider? VisitType(TypeProvider type)
             {
@@ -2331,7 +2402,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.ModelFactories
                 var signature = new MethodSignature(
                     previous.Signature.Name, null, previous.Signature.Modifiers, previous.Signature.ReturnType, null,
                     parameters,
-                    Attributes: [new AttributeStatement(typeof(EditorBrowsableAttribute), Snippet.FrameworkEnumValue(EditorBrowsableState.Never))]);
+                    Attributes: hideMethod ? [new AttributeStatement(typeof(EditorBrowsableAttribute), Snippet.FrameworkEnumValue(EditorBrowsableState.Never))] : []);
                 var restored = new MethodProvider(
                     signature,
                     Snippet.Return(new InvokeMethodExpression(null, current.Signature,

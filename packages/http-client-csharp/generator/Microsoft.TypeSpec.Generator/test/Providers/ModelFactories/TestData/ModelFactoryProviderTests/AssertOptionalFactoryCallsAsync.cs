@@ -25,6 +25,7 @@ public static class Consumer
         var namedCurrent = SampleNamespaceModelFactory.CompatibilityModel(name: "name");
         var positional = SampleNamespaceModelFactory.CompatibilityModel("id", "name", true);
         var historical = SampleNamespaceModelFactory.CompatibilityModel("legacy", (bool?)true);
+        var nullArgument = SampleNamespaceModelFactory.CompatibilityModel("id", null);
         var shortCall = SampleNamespaceModelFactory.CompatibilityModel("short");
         var reordered = SampleNamespaceModelFactory.CompatibilityModel(enabled: true, id: "named");
         return empty.Id == null && empty.Name == null && empty.Enabled == null
@@ -32,6 +33,7 @@ public static class Consumer
             && namedCurrent.Name == "name"
             && positional.Id == "id" && positional.Name == "name" && positional.Enabled == true
             && historical.Id == "legacy" && historical.Name == null && historical.Enabled == true
+            && nullArgument.Id == "id" && nullArgument.Name == null && nullArgument.Enabled == null
             && shortCall.Id == "short" && shortCall.Name == null
             && reordered.Id == "named" && reordered.Enabled == true;
     }
