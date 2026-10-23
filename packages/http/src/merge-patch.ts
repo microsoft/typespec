@@ -13,17 +13,22 @@ import type {
   VisibilityFilter,
 } from "@typespec/compiler";
 import {
+  $friendlyName,
   $invisible,
+  $key,
   $removeVisibility,
   $visibility,
   compilerAssert,
   getDiscriminatedUnion,
   getDiscriminator,
+  getFriendlyName,
   getLifecycleVisibilityEnum,
+  getNamespaceFullName,
   isVisible,
   navigateType,
   resetVisibilityModifiersForClass,
   setMediaTypeHint,
+  walkPropertiesInherited,
 } from "@typespec/compiler";
 
 import type {
@@ -76,20 +81,33 @@ interface MutatorResultCache {
   [MUTATOR_RESULT_CACHE]?: WeakMap<MutableType, ReturnType<typeof mutateSubgraph>>;
 }
 
+/**
+ * Metadata checks of transformed models, run the first time a model is used as a patch subject.
+ * A model reached only as the base of another model is not checked on its own, because the
+ * derived model may override its metadata properties.
+ */
+const pendingMetadataChecks = new WeakMap<Type, () => void>();
+
 function cachedMutateSubgraph(
   program: Program,
   mutator: Mutator,
   type: MutableType,
+  isBaseModel = false,
 ): ReturnType<typeof mutateSubgraph> {
   const cache = ((mutator as MutatorResultCache)[MUTATOR_RESULT_CACHE] ??= new WeakMap());
 
   let cached = cache.get(type);
 
-  if (cached) return cached;
+  if (!cached) {
+    cached = mutateSubgraph(program, [mutator], type);
+    cache.set(type, cached);
+  }
 
-  cached = mutateSubgraph(program, [mutator], type);
-
-  cache.set(type, cached);
+  const check = isBaseModel ? undefined : pendingMetadataChecks.get(cached.type);
+  if (check) {
+    pendingMetadataChecks.delete(cached.type);
+    check();
+  }
   return cached;
 }
 
@@ -193,6 +211,21 @@ function isDiscriminatedProperty(program: Program, property: ModelProperty): boo
   return true;
 }
 
+/**
+ * Whether a property made optional by the transform drops this decorator. `@key` rejects optional
+ * properties, and the versioning `@madeOptional` and `@madeRequired` would report
+ * `made-required-optional` or make the patch property required again in some versions.
+ */
+function conflictsWithOptional(application: DecoratorApplication): boolean {
+  if (application.decorator === $key) return true;
+  const definition = application.definition;
+  return (
+    definition !== undefined &&
+    (definition.name === "@madeOptional" || definition.name === "@madeRequired") &&
+    getNamespaceFullName(definition.namespace) === "TypeSpec.Versioning"
+  );
+}
+
 function overrideDiscriminatedUnionProperty(program: Program, variant: UnionVariant) {
   const [discriminated, _] = getDiscriminatedUnion(program, variant.union);
   if (!discriminated || variant.type.kind !== "Model") return;
@@ -256,6 +289,7 @@ function createMergePatchMutator(
     function isReplaceMutator(): boolean {
       return _replaceInteriorMutator === undefined;
     }
+    const reportedMetadata = new WeakSet<ModelProperty>();
     const mpMutator: Mutator = {
       name: `MergePatchProperty${visibilityMode}`,
       ModelProperty: {
@@ -310,6 +344,11 @@ function createMergePatchMutator(
             clone.optional =
               overrides?.optional ?? (isDiscriminatedProperty(program, prop) ? false : true);
             clone.defaultValue = undefined;
+            if (clone.optional) {
+              // A patch property is optional in every version, so it does not replay decorators
+              // that conflict with that.
+              clone.decorators = clone.decorators.filter((d) => !conflictsWithOptional(d));
+            }
           }
 
           clone.decorators.push({
@@ -351,46 +390,21 @@ function createMergePatchMutator(
             ];
           }
 
-          rename(ctx.program, clone, nameTemplate);
+          rename(ctx.program, union, clone, nameTemplate);
         },
       },
       Model: {
         filter: () => MutatorFlow.DoNotRecur,
         mutate: (model, clone, program, realm) => {
-          if ($(realm).array.is(model) && isMergePatchSubject(model.indexer!.value)) {
-            clone.indexer = {
-              key: model.indexer!.key,
-              value: cachedMutateSubgraph(
-                program,
-                _replaceInteriorMutator ?? self,
-                model.indexer!.value,
-              ).type,
-            };
-          } else if ($(realm).record.is(model) && isMergePatchSubject(model.indexer!.value)) {
-            clone.indexer = {
-              key: model.indexer!.key,
-              value: mutateSubgraph(
-                program,
-                [_optionalInteriorMutator ?? self], // records are always CreateOrUpdate
-                model.indexer!.value,
-              ).type,
-            };
-          }
-
-          for (const [key, prop] of model.properties) {
-            if (!isVisible(program, prop, visibilityFilter)) {
-              // Property is not visible, remove it
-              const clonedProp = clone.properties.get(key);
-              if (clonedProp) {
-                clone.properties.delete(key);
-                realm.remove(clonedProp);
+          // Report the metadata a patch of this model contains: its own properties and the
+          // inherited ones it does not override. Registered before recursing, so a nested use of
+          // this model as a patch subject that is reached while it is still being transformed
+          // runs the check too.
+          pendingMetadataChecks.set(clone, () => {
+            for (const prop of walkPropertiesInherited(model)) {
+              if (reportedMetadata.has(prop) || !isVisible(program, prop, visibilityFilter)) {
+                continue;
               }
-            } else if (!isMetadata(program, prop)) {
-              const mutated = mutateSubgraph(program, [mpMutator], prop);
-              const mutatedProp = mutated.type as ModelProperty;
-              mutatedProp.model = clone;
-              clone.properties.set(key, mutatedProp);
-            } else {
               const decorator: string | undefined = isPathParam(program, prop)
                 ? "@path"
                 : isHeader(program, prop)
@@ -403,6 +417,7 @@ function createMergePatchMutator(
                         ? "@statusCode"
                         : undefined;
               if (decorator) {
+                reportedMetadata.add(prop);
                 reportDiagnostic(program, {
                   code: "merge-patch-contains-metadata",
                   target: prop,
@@ -410,6 +425,54 @@ function createMergePatchMutator(
                 });
               }
             }
+          });
+
+          if ($(realm).array.is(model) && isMergePatchSubject(model.indexer!.value)) {
+            clone.indexer = {
+              key: model.indexer!.key,
+              value: cachedMutateSubgraph(
+                program,
+                _replaceInteriorMutator ?? self,
+                model.indexer!.value,
+              ).type,
+            };
+          } else if ($(realm).record.is(model) && isMergePatchSubject(model.indexer!.value)) {
+            clone.indexer = {
+              key: model.indexer!.key,
+              value: cachedMutateSubgraph(
+                program,
+                _optionalInteriorMutator ?? self, // records are always CreateOrUpdate
+                model.indexer!.value,
+              ).type,
+            };
+          }
+
+          for (const [key, prop] of model.properties) {
+            if (!isVisible(program, prop, visibilityFilter) || isMetadata(program, prop)) {
+              // Property is not visible or is http metadata, remove it. Visible metadata is
+              // reported below unless a derived model overrides it.
+              const clonedProp = clone.properties.get(key);
+              if (clonedProp) {
+                clone.properties.delete(key);
+                realm.remove(clonedProp);
+              }
+            } else {
+              const mutated = mutateSubgraph(program, [mpMutator], prop);
+              const mutatedProp = mutated.type as ModelProperty;
+              mutatedProp.model = clone;
+              clone.properties.set(key, mutatedProp);
+            }
+          }
+
+          if (model.baseModel) {
+            // Inherited properties are part of the patch document too, so the base model goes
+            // through the same transform instead of pointing at the original base.
+            const base = cachedMutateSubgraph(program, self, model.baseModel, true).type;
+            compilerAssert(
+              base.kind === "Model",
+              "Expected the base of a MergePatch model to be a Model",
+            );
+            clone.baseModel = base;
           }
 
           clone.decorators = clone.decorators.filter((d) => d.decorator !== $applyMergePatch);
@@ -423,7 +486,7 @@ function createMergePatchMutator(
             args: [],
           });
           ctx.program.stateMap(HttpStateKeys.mergePatchModel).set(clone, model);
-          rename(ctx.program, clone, nameTemplate);
+          rename(ctx.program, model, clone, nameTemplate);
         },
       },
       ModelProperty: {
@@ -499,22 +562,42 @@ function isMergePatchSubject(type: Type): type is MergePatchSubject {
 
 function rename(
   program: Program,
-  type: Extract<MergePatchSubject, { name?: string }>,
+  source: Model | Union,
+  clone: Model | Union,
   nameTemplate: string,
 ) {
-  if ($(program).array.is(type) && type.name === "Array") return;
-  if (type.name && nameTemplate) {
-    type.name = replaceTemplatedStringFromProperties(nameTemplate, type);
+  if ($(program).array.is(clone) && clone.name === "Array") return;
+  if (clone.name && nameTemplate) {
+    clone.name = replaceTemplatedStringFromProperties(nameTemplate, clone);
+
+    // The clone replays the source's decorators, so `@friendlyName` would give it the same
+    // emitter name as the source. Derive the clone's friendly name with the same template.
+    const friendlyName = getFriendlyName(program, source);
+    if (friendlyName !== undefined) {
+      const name = replaceTemplatedStringFromProperties(nameTemplate, clone, friendlyName);
+      clone.decorators = clone.decorators.map((d) =>
+        d.decorator === $friendlyName
+          ? {
+              ...d,
+              args: [{ ...d.args[0], value: $(program).value.createString(name), jsValue: name }],
+            }
+          : d,
+      );
+    }
   }
 }
 
-function replaceTemplatedStringFromProperties(formatString: string, sourceObject: Type) {
+function replaceTemplatedStringFromProperties(
+  formatString: string,
+  sourceObject: Type,
+  name?: string,
+) {
   // Template parameters are not valid source objects, just skip them
   if (sourceObject.kind === "TemplateParameter") {
     return formatString;
   }
 
   return formatString.replace(/{(\w+)}/g, (_, propName) => {
-    return (sourceObject as any)[propName];
+    return propName === "name" && name !== undefined ? name : (sourceObject as any)[propName];
   });
 }
