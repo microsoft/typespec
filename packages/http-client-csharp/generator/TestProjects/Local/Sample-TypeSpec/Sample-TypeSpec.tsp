@@ -1133,6 +1133,10 @@ op getAcronymParameters(
 op setAcronymAddresses(@query ipV4Address: string, @query ipV6Address?: string): void;
 
 #deprecated "Use \"CurrentDetails\" instead.\nSee C:\\sdk."
+@TypeSpec.HttpClient.experimental(#{
+  emitterScope: "@typespec/http-client-csharp",
+  diagnosticId: "SAMPLE0011",
+})
 model LegacyDetails {
   choice: LegacyChoice;
   extensibleChoice: LegacyExtensibleChoice;

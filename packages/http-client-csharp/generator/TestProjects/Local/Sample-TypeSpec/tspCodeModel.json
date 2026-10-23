@@ -9699,7 +9699,11 @@
           "isHttpMetadata": false,
           "isExactName": false
         }
-      ]
+      ],
+      "experimental": {
+        "diagnosticId": "SAMPLE0011",
+        "dependsOn": []
+      }
     },
     {
       "$id": "663",

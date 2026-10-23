@@ -46,12 +46,14 @@ namespace SampleTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
+#pragma warning disable SAMPLE0011 // This generated code depends on experimental functionality.
         [Obsolete("Use \"read\" instead.\nSee C:\\sdk.")]
         public virtual ClientResult Legacy(RequestOptions options)
         {
             using PipelineMessage message = CreateLegacyRequest(options);
             return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
         }
+#pragma warning restore SAMPLE0011 // This generated code depends on experimental functionality.
 
         /// <summary>
         /// [Protocol Method] Legacy
@@ -64,32 +66,38 @@ namespace SampleTypeSpec
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
         /// <returns> The response returned from the service. </returns>
+#pragma warning disable SAMPLE0011 // This generated code depends on experimental functionality.
         [Obsolete("Use \"read\" instead.\nSee C:\\sdk.")]
         public virtual async Task<ClientResult> LegacyAsync(RequestOptions options)
         {
             using PipelineMessage message = CreateLegacyRequest(options);
             return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
         }
+#pragma warning restore SAMPLE0011 // This generated code depends on experimental functionality.
 
         /// <summary> Legacy. </summary>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+#pragma warning disable SAMPLE0011 // This generated code depends on experimental functionality.
         [Obsolete("Use \"read\" instead.\nSee C:\\sdk.")]
         public virtual ClientResult<LegacyDetails> Legacy(CancellationToken cancellationToken = default)
         {
             ClientResult result = Legacy(cancellationToken.ToRequestOptions());
             return ClientResult.FromValue((LegacyDetails)result, result.GetRawResponse());
         }
+#pragma warning restore SAMPLE0011 // This generated code depends on experimental functionality.
 
         /// <summary> Legacy. </summary>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
+#pragma warning disable SAMPLE0011 // This generated code depends on experimental functionality.
         [Obsolete("Use \"read\" instead.\nSee C:\\sdk.")]
         public virtual async Task<ClientResult<LegacyDetails>> LegacyAsync(CancellationToken cancellationToken = default)
         {
             ClientResult result = await LegacyAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
             return ClientResult.FromValue((LegacyDetails)result, result.GetRawResponse());
         }
+#pragma warning restore SAMPLE0011 // This generated code depends on experimental functionality.
 
         /// <summary>
         /// [Protocol Method] Read

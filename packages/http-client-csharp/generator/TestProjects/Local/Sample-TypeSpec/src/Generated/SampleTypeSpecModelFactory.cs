@@ -559,6 +559,7 @@ namespace SampleTypeSpec
         /// <returns> A new <see cref="SampleTypeSpec.LegacyDetails"/> instance for mocking. </returns>
 #pragma warning disable CS0612 // This generated code references obsolete functionality.
 #pragma warning disable CS0618 // This generated code references obsolete functionality.
+        [Experimental("SAMPLE0011")]
         public static LegacyDetails LegacyDetails(LegacyChoice choice = default, LegacyExtensibleChoice extensibleChoice = default)
         {
             return new LegacyDetails(choice, extensibleChoice, additionalBinaryDataProperties: null);
@@ -571,6 +572,7 @@ namespace SampleTypeSpec
         /// <param name="extensibleChoice"></param>
         /// <param name="previous"></param>
         /// <returns> A new <see cref="SampleTypeSpec.CurrentDetails"/> instance for mocking. </returns>
+#pragma warning disable SAMPLE0011 // This generated code depends on experimental functionality.
 #pragma warning disable CS0612 // This generated code references obsolete functionality.
 #pragma warning disable CS0618 // This generated code references obsolete functionality.
         public static CurrentDetails CurrentDetails(LegacyChoice choice = default, LegacyExtensibleChoice extensibleChoice = default, IEnumerable<LegacyDetails> previous = default)
@@ -579,6 +581,7 @@ namespace SampleTypeSpec
 
             return new CurrentDetails(choice, extensibleChoice, additionalBinaryDataProperties: null, previous.ToList());
         }
+#pragma warning restore SAMPLE0011 // This generated code depends on experimental functionality.
 #pragma warning restore CS0612 // This generated code references obsolete functionality.
 #pragma warning restore CS0618 // This generated code references obsolete functionality.
 

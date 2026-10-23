@@ -115,6 +115,44 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             }
         }
 
+        [Test]
+        public async Task DeprecationPreservesObsoleteOverloadsBesideStableSignatures()
+        {
+            var operation = InputFactory.Operation("Read", deprecated: "Current message",
+                parameters:
+                [
+                    InputFactory.QueryParameter("value", InputPrimitiveType.Int32, isRequired: true),
+                    InputFactory.QueryParameter("added", InputPrimitiveType.Boolean)
+                ]);
+            var serviceMethod = InputFactory.BasicServiceMethod("Read", operation, parameters:
+            [
+                InputFactory.MethodParameter("value", InputPrimitiveType.Int32, isRequired: true, location: InputRequestLocation.Query),
+                InputFactory.MethodParameter("added", InputPrimitiveType.Boolean, location: InputRequestLocation.Query)
+            ]);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            await MockHelpers.LoadMockGeneratorAsync(clients: () => [inputClient],
+                lastContractCompilation: () => Helpers.GetCompilationFromDirectoryAsync());
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+            client.ProcessTypeForBackCompatibility();
+
+            Assert.AreEqual(6, client.Methods.Count);
+            Assert.AreEqual(2, client.Methods.Count(method => method.Signature.Parameters.Count == 2));
+            foreach (var method in client.Methods)
+            {
+                var obsolete = method.Signature.Attributes.SingleOrDefault(a => a.Type.Equals(typeof(ObsoleteAttribute)));
+                if (method.Signature.Parameters.Count == 2)
+                {
+                    Assert.IsNotNull(obsolete, method.Signature.Name);
+                    Assert.AreEqual("\"Current message\"", obsolete!.Arguments.Single().ToDisplayString());
+                }
+                else
+                {
+                    Assert.AreEqual(3, method.Signature.Parameters.Count);
+                    Assert.IsNull(obsolete, method.Signature.Name);
+                }
+            }
+        }
+
         [TestCase(true)]
         [TestCase(false)]
         public void HeadResponseAsBoolReturnsTypedResults(bool responseAsBool)

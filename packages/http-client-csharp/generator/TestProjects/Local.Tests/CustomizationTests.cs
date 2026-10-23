@@ -84,6 +84,7 @@ namespace TestProjects.Local.Tests
         [TestCase("SampleTypeSpec.PreviewDetails", "SAMPLE0003")]
         [TestCase("SampleTypeSpec.PreviewChoice", "SAMPLE0004")]
         [TestCase("SampleTypeSpec.PreviewExtensibleChoice", "SAMPLE0005")]
+        [TestCase("SampleTypeSpec.LegacyDetails", "SAMPLE0011")]
         [TestCase("SampleTypeSpec.ExperimentalSamples", "SAMPLE0009")]
         [TestCase("SampleTypeSpec.LifecycleModel", null)]
         public void ExperimentalTypeDiagnostics(string typeName, string? diagnosticId)

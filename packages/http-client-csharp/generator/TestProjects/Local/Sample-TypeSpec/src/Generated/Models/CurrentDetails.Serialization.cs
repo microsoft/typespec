@@ -11,6 +11,7 @@ using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Text.Json;
 
+#pragma warning disable SAMPLE0011 // This generated code depends on experimental functionality.
 #pragma warning disable CS0612 // This generated code references obsolete functionality.
 #pragma warning disable CS0618 // This generated code references obsolete functionality.
 namespace SampleTypeSpec
@@ -166,5 +167,6 @@ namespace SampleTypeSpec
         }
     }
 }
+#pragma warning restore SAMPLE0011 // This generated code depends on experimental functionality.
 #pragma warning restore CS0612 // This generated code references obsolete functionality.
 #pragma warning restore CS0618 // This generated code references obsolete functionality.

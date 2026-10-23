@@ -7,10 +7,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SampleTypeSpec
 {
     /// <summary> The LegacyDetails. </summary>
+    [Experimental("SAMPLE0011")]
     [Obsolete("Use \"CurrentDetails\" instead.\nSee C:\\sdk.")]
     public partial class LegacyDetails
     {

@@ -1159,10 +1159,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         {
             if (customSignature?.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute) != true
                 && !signature.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute)
-                && Client.BackCompatProvider.LastContractView?.Methods.Any(previous =>
-                    MethodSignatureHelper.IsPublicApi(previous.Signature)
-                    && MethodSignatureBase.SignatureComparer.Equals(previous.Signature, signature)
-                    && !previous.Signature.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute)) != true
                 && DeprecationApiHelpers.BuildAttribute(ServiceMethod.Operation.Deprecated) is { } attribute)
             {
                 signature.Update(attributes: [.. signature.Attributes, attribute]);
