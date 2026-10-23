@@ -14,6 +14,12 @@ trigger:
 
 pr: none
 
+parameters:
+  - name: overwritePlaygroundPackages
+    displayName: Overwrite existing Playground package versions
+    type: boolean
+    default: false
+
 extends:
   template: /eng/common/pipelines/templates/1es-redirect.yml
   parameters:
@@ -29,6 +35,8 @@ extends:
 
         jobs:
           - template: /eng/tsp-core/pipelines/jobs/build-packages.yml@self
+            parameters:
+              overwritePlaygroundPackages: ${{ parameters.overwritePlaygroundPackages }}
           - template: /eng/tsp-core/pipelines/jobs/build-vs.yml@self
           - template: /eng/tsp-core/pipelines/jobs/cli/build-tsp-cli-all.yml@self
           - template: /eng/tsp-core/pipelines/jobs/e2e.yml@self
