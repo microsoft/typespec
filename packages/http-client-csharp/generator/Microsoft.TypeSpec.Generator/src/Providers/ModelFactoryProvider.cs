@@ -883,7 +883,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 parameter.Name,
                 parameter.Description,
                 // in order to avoid exposing discriminator enums as public, we will use the underlying types in the model factory methods
-                IsEnumDiscriminator(parameter) ? parameter.Type.UnderlyingEnumType : parameter.Type.InputType,
+                // Resolve generated types referenced by custom constructors before converting to the input collection shape.
+                IsEnumDiscriminator(parameter)
+                    ? parameter.Type.UnderlyingEnumType
+                    : parameter.Type.ApplyInputSpecProperty(null).InputType,
                 Default,
                 parameter.IsRef,
                 parameter.IsOut,
