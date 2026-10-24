@@ -1004,14 +1004,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 _attributes = [.. attributes];
             }
 
-            if (name != null)
+            if (name != null || @namespace != null)
             {
-                ResetMembersBasedOnIdentityChange(name);
-            }
-
-            if (@namespace != null)
-            {
-                ResetMembersBasedOnIdentityChange(@namespace: @namespace);
+                ResetMembersBasedOnIdentityChange(name, @namespace);
             }
 
             RefreshGeneratedDeprecationAttribute();

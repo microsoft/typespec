@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -10,6 +11,7 @@ using Microsoft.TypeSpec.Generator.Input;
 using Microsoft.TypeSpec.Generator.Primitives;
 using Microsoft.TypeSpec.Generator.Providers;
 using Microsoft.TypeSpec.Generator.Tests.Common;
+using Microsoft.TypeSpec.Generator.Utilities;
 using NUnit.Framework;
 
 namespace Microsoft.TypeSpec.Generator.Tests
@@ -75,6 +77,36 @@ namespace Microsoft.TypeSpec.Generator.Tests
             Assert.AreSame(registered, factory.TypeProvidersByName[registered.Name]);
             Assert.IsFalse(factory.CSharpTypeMap.ContainsKey(unregistered.Type));
             Assert.IsFalse(factory.TypeProvidersByName.ContainsKey(unregistered.Name));
+        }
+
+        [TestCase("model")]
+        [TestCase("fixed")]
+        [TestCase("extensible")]
+        public void CombinedIdentityUpdateDoesNotReplaceIntermediateProvider(string kind)
+        {
+            var factory = CodeModelGenerator.Instance.TypeFactory;
+            TypeProvider CreateProvider(string name) => kind == "model"
+                ? factory.CreateModel(InputFactory.Model(name, @namespace: "Alpha.Models", deprecation: "Use Current instead."))!
+                : factory.CreateEnum(InputFactory.StringEnum(name, [("One", "one")],
+                    clientNamespace: "Alpha.Models", isExtensible: kind == "extensible", deprecation: "Use Current instead."))!;
+            var moving = CreateProvider("Original");
+            var untouched = CreateProvider("Existing");
+            var originalIdentity = moving.Type.WithNullable(true);
+            var untouchedIdentity = untouched.Type.WithNullable(true);
+            var count = factory.CSharpTypeMap.Count;
+
+            moving.Update(name: "Existing", @namespace: "Beta.Models");
+
+            Assert.AreEqual(count, factory.CSharpTypeMap.Count);
+            Assert.AreSame(moving, factory.CSharpTypeMap[moving.Type.WithNullable(true)]);
+            Assert.AreSame(untouched, factory.CSharpTypeMap[untouchedIdentity]);
+            Assert.IsFalse(factory.CSharpTypeMap.ContainsKey(originalIdentity));
+            Assert.AreEqual("Alpha.Models", untouched.Type.Namespace);
+            Assert.AreEqual("Existing", untouched.Name);
+            CollectionAssert.AreEqual(new[] { "\"CS0612\"", "\"CS0618\"" },
+                ExperimentalApiHelpers.GetReferenceSuppressions(untouchedIdentity).Select(suppression => suppression.Code.ToDisplayString()));
+            CollectionAssert.AreEqual(new[] { "\"CS0612\"", "\"CS0618\"" },
+                ExperimentalApiHelpers.GetReferenceSuppressions(moving.Type).Select(suppression => suppression.Code.ToDisplayString()));
         }
 
         [Test]
