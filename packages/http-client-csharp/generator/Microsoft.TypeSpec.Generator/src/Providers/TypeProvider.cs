@@ -1040,7 +1040,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             ResetConstructors();
             // serialization providers need to reflect the new type name/namespace
             _serializationProviders = null;
-            Type.Update(name: name, @namespace: @namespace);
+            CodeModelGenerator.Instance.TypeFactory.UpdateTypeIdentity(this, _inputType, name, @namespace);
             if (Type.Name != previousName || Type.Namespace != previousNamespace)
             {
                 OnIdentityUpdated(previousName, previousNamespace);

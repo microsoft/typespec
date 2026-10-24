@@ -23,6 +23,61 @@ namespace Microsoft.TypeSpec.Generator.Tests
         }
 
         [Test]
+        public void ProviderLookupFollowsIdentityUpdates(
+            [Values("model", "fixed", "extensible")] string kind,
+            [Values] bool changeNamespace)
+        {
+            var factory = CodeModelGenerator.Instance.TypeFactory;
+            TypeProvider provider = kind == "model"
+                ? factory.CreateModel(InputFactory.Model("Original"))!
+                : factory.CreateEnum(InputFactory.StringEnum("Original", [("One", "one")], isExtensible: kind == "extensible"))!;
+            var unrelated = factory.CreateModel(InputFactory.Model("Unrelated"))!;
+            var originalIdentity = provider.Type.WithNullable(true);
+            var count = factory.CSharpTypeMap.Count;
+            Assert.AreSame(provider, factory.CSharpTypeMap[provider.Type]);
+
+            provider.Update(
+                name: changeNamespace ? null : "Renamed",
+                @namespace: changeNamespace ? "Renamed.Models" : null);
+
+            Assert.AreEqual(count, factory.CSharpTypeMap.Count);
+            Assert.IsFalse(factory.CSharpTypeMap.ContainsKey(originalIdentity));
+            Assert.AreSame(provider, factory.CSharpTypeMap[provider.Type]);
+            Assert.AreSame(provider, factory.CSharpTypeMap[provider.Type.WithNullable(true)]);
+            Assert.AreSame(provider, factory.TypeProvidersByName[provider.Name]);
+            Assert.AreSame(unrelated, factory.CSharpTypeMap[unrelated.Type]);
+            Assert.AreSame(unrelated, factory.TypeProvidersByName[unrelated.Name]);
+            if (!changeNamespace)
+            {
+                Assert.IsFalse(factory.TypeProvidersByName.ContainsKey("Original"));
+            }
+
+            provider.Update(name: "Final", @namespace: "Final.Models");
+
+            Assert.AreEqual(count, factory.CSharpTypeMap.Count);
+            Assert.AreSame(provider, factory.CSharpTypeMap[provider.Type.WithNullable(true)]);
+            Assert.IsFalse(factory.TypeProvidersByName.ContainsKey(changeNamespace ? "Original" : "Renamed"));
+            Assert.AreSame(provider, factory.TypeProvidersByName["Final"]);
+        }
+
+        [Test]
+        public void UnregisteredIdentityUpdatesDoNotReplaceMappedProviders()
+        {
+            var factory = CodeModelGenerator.Instance.TypeFactory;
+            var registered = factory.CreateModel(InputFactory.Model("Original", @namespace: "Test"))!;
+            var unregistered = new TestTypeProvider(name: "Original");
+            var count = factory.CSharpTypeMap.Count;
+
+            unregistered.Update(name: "Renamed", @namespace: "Renamed.Models");
+
+            Assert.AreEqual(count, factory.CSharpTypeMap.Count);
+            Assert.AreSame(registered, factory.CSharpTypeMap[registered.Type]);
+            Assert.AreSame(registered, factory.TypeProvidersByName[registered.Name]);
+            Assert.IsFalse(factory.CSharpTypeMap.ContainsKey(unregistered.Type));
+            Assert.IsFalse(factory.TypeProvidersByName.ContainsKey(unregistered.Name));
+        }
+
+        [Test]
         public void ExtensibleStringEnumType()
         {
             // Updated to use StringEnum with collection expression for values
