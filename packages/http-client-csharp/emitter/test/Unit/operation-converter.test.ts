@@ -19,6 +19,22 @@ describe("Operation Converter", () => {
     runner = await createEmitterTestHost();
   });
 
+  it.each([undefined, "", 'Use "read" instead.\nSee C:\\sdk.'])(
+    "preserves operation deprecation metadata: %s",
+    async (message) => {
+      const program = await typeSpecCompile(
+        `${message === undefined ? "" : `#deprecated ${JSON.stringify(message)}`}
+         @get op legacy(): string;`,
+        runner,
+      );
+      const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+      const [root] = createModel(sdkContext);
+      strictEqual(root.clients[0].methods[0].operation.deprecated, message);
+      const serialized = JSON.parse(serializeCodeModel(sdkContext, root));
+      strictEqual(serialized.clients[0].methods[0].operation.deprecated, message);
+    },
+  );
+
   it.each([
     { start: 200, end: 299 },
     { start: 204, end: 204 },
