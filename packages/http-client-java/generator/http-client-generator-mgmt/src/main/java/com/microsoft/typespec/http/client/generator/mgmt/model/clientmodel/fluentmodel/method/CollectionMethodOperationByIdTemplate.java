@@ -23,7 +23,6 @@ import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.immut
 import com.microsoft.typespec.http.client.generator.mgmt.util.FluentUtils;
 import com.microsoft.typespec.http.client.generator.mgmt.util.Utils;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -81,8 +80,6 @@ public class CollectionMethodOperationByIdTemplate implements ImmutableMethod {
             .collect(Collectors.joining(", "));
         String methodInvocation = String.format("%1$s(%2$s)", collectionMethod.getMethodName(), argumentsLine);
 
-        List<UrlPathSegments.ParameterSegment> segments = urlPathSegments.getReverseParameterSegments();
-        Collections.reverse(segments);
         Map<String, String> urlSegmentNameByParameterName = urlPathSegments.getReverseParameterSegments()
             .stream()
             .collect(Collectors.toMap(UrlPathSegments.ParameterSegment::getParameterName,
@@ -110,16 +107,10 @@ public class CollectionMethodOperationByIdTemplate implements ImmutableMethod {
                 // init path parameters from resource id
                 pathParameters.forEach(p -> {
                     String urlSegmentName = urlSegmentNameByParameterName.get(p.getSerializedName());
-                    String valueFromIdText;
-                    if (urlPathSegments.hasScope()) {
-                        valueFromIdText = String.format("%1$s.getValueFromIdByParameterName(%2$s, \"%3$s\", \"%4$s\")",
+                    String valueFromIdText
+                        = String.format("%1$s.getValueFromIdByParameterName(%2$s, \"%3$s\", \"%4$s\")",
                             ModelNaming.CLASS_RESOURCE_MANAGER_UTILS, ModelNaming.METHOD_PARAMETER_NAME_ID,
                             urlPathSegments.getPath(), p.getSerializedName());
-                    } else {
-                        valueFromIdText = String.format("%1$s.getValueFromIdByName(%2$s, \"%3$s\")",
-                            ModelNaming.CLASS_RESOURCE_MANAGER_UTILS, ModelNaming.METHOD_PARAMETER_NAME_ID,
-                            urlSegmentName);
-                    }
                     LocalVariable var = localVariables.getLocalVariableByMethodParameter(p.getClientMethodParameter());
                     // need additional conversion from String to LocalVariable.variableType
                     boolean needsLocalVar = var.getVariableType() != ClassType.STRING;
