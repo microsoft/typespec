@@ -2205,6 +2205,37 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual(Helpers.GetExpectedFromFile(expressionBody.ToString()), new TypeProviderWriter(typeProvider).Write().Content);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task CustomPartialMethodsKeepExperimentalOnDeclaration(bool expressionBody)
+        {
+            await MockHelpers.LoadMockGeneratorAsync(compilation: () => Helpers.GetCompilationFromDirectoryAsync());
+            var typeProvider = new TestTypeProvider(name: "CustomPartialMethodType");
+            var methods = new[] { "Preview", "Combined", "Current" }.Select(name =>
+            {
+                var signature = new MethodSignature(name, null, MethodSignatureModifiers.Public, typeof(int), null, []);
+                return expressionBody
+                    ? new MethodProvider(signature, Snippet.Literal(1), typeProvider)
+                    : new MethodProvider(signature, Snippet.Return(Snippet.Literal(1)), typeProvider);
+            });
+            typeProvider.Update(methods: methods);
+
+            Assert.AreEqual(3, typeProvider.Methods.Count);
+            Assert.IsTrue(typeProvider.Methods.All(method => method.IsPartialMethod));
+            Assert.IsTrue(typeProvider.Methods.All(method => method.Signature.Attributes.Count == 0));
+            var customMethods = typeProvider.CustomCodeView!.Methods;
+            foreach (var method in customMethods.Where(method => method.Signature.Name != "Current"))
+            {
+                Assert.AreEqual("\"CUSTOM001\"",
+                    method.Signature.Attributes.Single(ExperimentalApiHelpers.IsExperimentalAttribute).Arguments.Single().ToDisplayString());
+            }
+            Assert.AreEqual("\"Custom message\"",
+                customMethods.Single(method => method.Signature.Name == "Combined").Signature.Attributes
+                    .Single(DeprecationApiHelpers.IsObsoleteAttribute).Arguments.Single().ToDisplayString());
+            Assert.IsEmpty(customMethods.Single(method => method.Signature.Name == "Current").Signature.Attributes);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(expressionBody.ToString()), new TypeProviderWriter(typeProvider).Write().Content);
+        }
+
         [Test]
         public async Task TestSpecViewReturnsAllPropertiesEvenWhenSuppressed()
         {
