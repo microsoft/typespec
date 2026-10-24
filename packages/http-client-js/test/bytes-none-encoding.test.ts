@@ -1,6 +1,6 @@
-import { expectDiagnosticEmpty } from "@typespec/compiler/testing";
+import { expectDiagnostics } from "@typespec/compiler/testing";
 import { describe, expect, it } from "vitest";
-import { emitWithDiagnostics } from "./test-host.js";
+import { emit, emitWithDiagnostics } from "./test-host.js";
 
 describe("bytes none encoding", () => {
   it("should not report unknown-encoding for raw bytes request body with application/octet-stream", async () => {
@@ -16,8 +16,7 @@ describe("bytes none encoding", () => {
         @body body: bytes,
       ): void;
     `;
-    const [outputs, diagnostics] = await emitWithDiagnostics(code);
-    expectDiagnosticEmpty(diagnostics);
+    const outputs = await emit(code);
     expect(outputs).toBeDefined();
   });
 
@@ -34,8 +33,7 @@ describe("bytes none encoding", () => {
         @body body: bytes;
       };
     `;
-    const [outputs, diagnostics] = await emitWithDiagnostics(code);
-    expectDiagnosticEmpty(diagnostics);
+    const outputs = await emit(code);
     expect(outputs).toBeDefined();
   });
 
@@ -54,9 +52,11 @@ describe("bytes none encoding", () => {
         @body body: invalidBytes,
       ): void;
     `;
-    const [outputs, diagnostics] = await emitWithDiagnostics(code);
-    expect(diagnostics.length).toBeGreaterThan(0);
-    expect(diagnostics.some((d) => d.code === "@typespec/http-client-js/unknown-encoding")).toBe(true);
+    const [, diagnostics] = await emitWithDiagnostics(code);
+    expectDiagnostics(diagnostics, [
+      { code: "@typespec/http-client-js/unknown-encoding", severity: "warning" },
+      { code: "@typespec/http-client-js/unknown-encoding", severity: "warning" },
+    ]);
   });
 
   it("should still report unknown-encoding for unsupported explicit encoding on response body", async () => {
@@ -75,8 +75,10 @@ describe("bytes none encoding", () => {
         @body body: invalidBytes;
       };
     `;
-    const [outputs, diagnostics] = await emitWithDiagnostics(code);
-    expect(diagnostics.length).toBeGreaterThan(0);
-    expect(diagnostics.some((d) => d.code === "@typespec/http-client-js/unknown-encoding")).toBe(true);
+    const [, diagnostics] = await emitWithDiagnostics(code);
+    expectDiagnostics(diagnostics, {
+      code: "@typespec/http-client-js/unknown-encoding",
+      severity: "warning",
+    });
   });
 });
