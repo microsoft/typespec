@@ -5,7 +5,7 @@
 # --------------------------------------------------------------------------
 from typing import Any, Optional, TYPE_CHECKING
 from .base import BaseType
-from .imports import FileImport
+from .imports import FileImport, ImportType
 
 if TYPE_CHECKING:
     from .code_model import CodeModel
@@ -29,6 +29,7 @@ class DictionaryType(BaseType):
     ) -> None:
         super().__init__(yaml_data=yaml_data, code_model=code_model)
         self.element_type = element_type
+        self.element_nullable: bool = yaml_data.get("elementNullable", False)
 
     @property
     def encode(self) -> Optional[str]:
@@ -48,13 +49,19 @@ class DictionaryType(BaseType):
         :return: The type annotation for this schema
         :rtype: str
         """
-        return f"dict[str, {self.element_type.type_annotation(**kwargs)}]"
+        element_annotation = self.element_type.type_annotation(**kwargs)
+        if self.element_nullable:
+            element_annotation = f"Optional[{element_annotation}]"
+        return f"dict[str, {element_annotation}]"
 
     def description(self, *, is_operation_file: bool) -> str:
         return "" if is_operation_file else self.yaml_data.get("description", "")
 
     def docstring_text(self, **kwargs: Any) -> str:
-        return f"dict mapping str to {self.element_type.docstring_text(**kwargs)}"
+        element_text = self.element_type.docstring_text(**kwargs)
+        if self.element_nullable:
+            element_text = f"({element_text} or None)"
+        return f"dict mapping str to {element_text}"
 
     @property
     def xml_serialization_ctxt(self) -> Optional[str]:
@@ -66,7 +73,10 @@ class DictionaryType(BaseType):
 
         :param str namespace: Optional. The namespace for the models.
         """
-        return f"dict[str, {self.element_type.docstring_type(**kwargs)}]"
+        element_docstring = self.element_type.docstring_type(**kwargs)
+        if self.element_nullable:
+            element_docstring = f"Optional[{element_docstring}]"
+        return f"dict[str, {element_docstring}]"
 
     def get_json_template_representation(
         self,
@@ -114,6 +124,8 @@ class DictionaryType(BaseType):
     def imports(self, **kwargs: Any) -> FileImport:
         file_import = FileImport(self.code_model)
         file_import.merge(self.element_type.imports(**kwargs))
+        if self.element_nullable:
+            file_import.add_submodule_import("typing", "Optional", ImportType.STDLIB)
         return file_import
 
     @property
