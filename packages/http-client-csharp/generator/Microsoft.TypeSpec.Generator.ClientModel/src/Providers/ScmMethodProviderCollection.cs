@@ -300,12 +300,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             var convenienceMethod = new ScmMethodProvider(methodSignature, methodBody, EnclosingType, ScmMethodKind.Convenience, collectionDefinition: collection, serviceMethod: ServiceMethod);
             ExperimentalApiHelpers.AddDependencySuppressions(convenienceMethod, ServiceMethod.Operation);
-            var obsoleteProtocol = protocolMethod.Signature.Attributes.FirstOrDefault(DeprecationApiHelpers.IsObsoleteAttribute);
-            if (obsoleteProtocol is not null)
-            {
-                convenienceMethod.Update(suppressions: ExperimentalApiHelpers.MergeSuppressions(
-                    convenienceMethod.Suppressions, DeprecationApiHelpers.GetSuppressions(obsoleteProtocol)));
-            }
+            var customProtocol = client.CustomCodeView?.Methods.FirstOrDefault(method =>
+                MethodSignatureBase.SignatureComparer.Equals(method.Signature, protocolMethod.Signature));
+            var declarationSuppressions = ExperimentalApiHelpers.GetAttributeSuppressions(
+                methodSignature.Attributes.Concat(customSignature?.Attributes ?? []));
+            convenienceMethod.Update(suppressions: ExperimentalApiHelpers.MergeSuppressions(
+                convenienceMethod.Suppressions,
+                ExperimentalApiHelpers.GetAttributeSuppressions(
+                    protocolMethod.Signature.Attributes.Concat(customProtocol?.Signature.Attributes ?? []))
+                    .ExceptBy(declarationSuppressions.Select(suppression => suppression.Code.ToDisplayString()),
+                        suppression => suppression.Code.ToDisplayString())));
 
             if (convenienceMethod.XmlDocs != null)
             {
@@ -321,6 +325,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             MethodSignatureModifiers modifiers,
             IReadOnlyList<ParameterProvider> signatureParameters)
         {
+            modifiers &= ~MethodSignatureModifiers.Partial;
             // The convenience method's public/internal accessibility follows the service method's
             // accessibility, independent of the protocol method. The protocol method may be internal
             // (e.g. when `@protocolAPI(false)` sets GenerateProtocolMethod to false) while the

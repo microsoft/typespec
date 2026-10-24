@@ -31,8 +31,6 @@ namespace TestProjects.Local.Tests
 
         [TestCase("Legacy", "Use \"read\" instead.\nSee C:\\sdk.")]
         [TestCase("LegacyAsync", "Use \"read\" instead.\nSee C:\\sdk.")]
-        [TestCase("Read", null)]
-        [TestCase("ReadAsync", null)]
         public void DeprecatedOperationsPreserveWarningOnlyMessages(string methodName, string? message)
         {
             var methods = typeof(SampleTypeSpecClient).Assembly.GetType("SampleTypeSpec.DeprecationSamples")!
@@ -47,6 +45,21 @@ namespace TestProjects.Local.Tests
                     Assert.IsFalse(attribute!.IsError);
                 }
             }
+        }
+
+        [TestCase("Read", "OBS001")]
+        [TestCase("ReadAsync", "OBS002")]
+        public void CustomProtocolDeprecationDoesNotDeprecateConvenienceOverload(string methodName, string diagnosticId)
+        {
+            var methods = typeof(DeprecationSamples).GetMethods().Where(method => method.Name == methodName).ToArray();
+            Assert.AreEqual(2, methods.Length);
+            var protocol = methods.Single(method => method.GetParameters().Last().ParameterType == typeof(RequestOptions));
+            var obsolete = protocol.GetCustomAttribute<ObsoleteAttribute>();
+            Assert.IsNotNull(obsolete);
+            Assert.AreEqual(diagnosticId, obsolete!.DiagnosticId);
+            Assert.AreEqual("Use the convenience overload instead.", obsolete.Message);
+            Assert.IsFalse(obsolete.IsError);
+            Assert.IsNull(methods.Single(method => method != protocol).GetCustomAttribute<ObsoleteAttribute>());
         }
 
         [TestCase("GetNotebookResult", "GetNotebookResponse", true)]

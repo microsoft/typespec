@@ -82,6 +82,45 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
                 m.Signature.Attributes.Single().Arguments.Single().ToDisplayString() == "\"Custom message\""));
         }
 
+        [TestCase("Custom", "OBS001", "OBS002")]
+        [TestCase("WithoutMessage", null, null)]
+        [TestCase("Preview", "EXP001", "EXP002")]
+        [TestCase("Combined", "OBS001", "OBS002")]
+        [TestCase("Current", "", "")]
+        public async Task CustomProtocolDiagnosticsAreSuppressedByConvenienceMethods(string name, string? syncId, string? asyncId)
+        {
+            var operation = InputFactory.Operation(name);
+            var serviceMethod = InputFactory.BasicServiceMethod(name, operation);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            await MockHelpers.LoadMockGeneratorAsync(clients: () => [inputClient],
+                compilation: () => Helpers.GetCompilationFromDirectoryAsync());
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+            var methods = new ScmMethodProviderCollection(serviceMethod, client);
+
+            Assert.AreEqual(4, methods.Count);
+            foreach (var protocol in methods.Where(method => method.Kind == ScmMethodKind.Protocol))
+            {
+                Assert.IsTrue(protocol.IsPartialMethod);
+                Assert.IsEmpty(protocol.Signature.Attributes);
+            }
+            foreach (var method in methods.Where(method => method.Kind == ScmMethodKind.Convenience))
+            {
+                var isAsync = method.Signature.Name.EndsWith("Async", StringComparison.Ordinal);
+                var diagnosticId = isAsync ? asyncId : syncId;
+                string[] expected = diagnosticId switch
+                {
+                    null => ["CS0612", "CS0618"],
+                    "" => [],
+                    _ when name == "Combined" => [isAsync ? "EXP002" : "EXP001", diagnosticId],
+                    _ => [diagnosticId]
+                };
+                Assert.IsEmpty(method.Signature.Attributes);
+                CollectionAssert.AreEqual(expected.Select(id => Snippet.Literal(id).ToDisplayString()),
+                    method.Suppressions.Select(suppression => suppression.Code.ToDisplayString()));
+                Assert.IsFalse(method.IsPartialMethod);
+            }
+        }
+
         [Test]
         public async Task DeprecationPreservesLastContractMethods()
         {

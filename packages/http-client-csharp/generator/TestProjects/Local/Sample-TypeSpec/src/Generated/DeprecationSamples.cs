@@ -109,8 +109,7 @@ namespace SampleTypeSpec
         /// </summary>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual ClientResult Read(RequestOptions options)
+        public partial ClientResult Read(RequestOptions options)
         {
             using PipelineMessage message = CreateReadRequest(options);
             return ClientResult.FromResponse(Pipeline.ProcessMessage(message, options));
@@ -126,8 +125,7 @@ namespace SampleTypeSpec
         /// </summary>
         /// <param name="options"> The request options, which can override default behaviors of the client pipeline on a per-call basis. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        /// <returns> The response returned from the service. </returns>
-        public virtual async Task<ClientResult> ReadAsync(RequestOptions options)
+        public partial async Task<ClientResult> ReadAsync(RequestOptions options)
         {
             using PipelineMessage message = CreateReadRequest(options);
             return ClientResult.FromResponse(await Pipeline.ProcessMessageAsync(message, options).ConfigureAwait(false));
@@ -136,19 +134,23 @@ namespace SampleTypeSpec
         /// <summary> Read. </summary>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual ClientResult<CurrentDetails> Read(CancellationToken cancellationToken = default)
+#pragma warning disable OBS001 // This generated code references obsolete functionality.
+        public ClientResult<CurrentDetails> Read(CancellationToken cancellationToken = default)
         {
             ClientResult result = Read(cancellationToken.ToRequestOptions());
             return ClientResult.FromValue((CurrentDetails)result, result.GetRawResponse());
         }
+#pragma warning restore OBS001 // This generated code references obsolete functionality.
 
         /// <summary> Read. </summary>
         /// <param name="cancellationToken"> The cancellation token that can be used to cancel the operation. </param>
         /// <exception cref="ClientResultException"> Service returned a non-success status code. </exception>
-        public virtual async Task<ClientResult<CurrentDetails>> ReadAsync(CancellationToken cancellationToken = default)
+#pragma warning disable OBS002 // This generated code references obsolete functionality.
+        public async Task<ClientResult<CurrentDetails>> ReadAsync(CancellationToken cancellationToken = default)
         {
             ClientResult result = await ReadAsync(cancellationToken.ToRequestOptions()).ConfigureAwait(false);
             return ClientResult.FromValue((CurrentDetails)result, result.GetRawResponse());
         }
+#pragma warning restore OBS002 // This generated code references obsolete functionality.
     }
 }
