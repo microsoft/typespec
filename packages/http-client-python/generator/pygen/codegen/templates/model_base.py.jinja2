@@ -1219,15 +1219,20 @@ def _deserialize_sequence(
     if isinstance(obj, ET.Element):
         obj = list(obj)
 
+    # Optional elements still use the array's encoding; keep their wrapper for item decoding.
+    array_deserializer = deserializer
+    if isinstance(array_deserializer, functools.partial) and array_deserializer.func is _deserialize_with_optional:
+        array_deserializer = array_deserializer.args[0]
+
     # encoded string may be deserialized to sequence
-    if isinstance(obj, str) and isinstance(deserializer, functools.partial):
+    if isinstance(obj, str) and isinstance(array_deserializer, functools.partial):
         # for list[str]
-        if _is_array_encoded_deserializer(deserializer):
-            return deserializer(obj)
+        if _is_array_encoded_deserializer(array_deserializer):
+            return array_deserializer(obj)
 
         # for list[Union[...]]
-        if isinstance(deserializer.args[0], list):
-            for sub_deserializer in deserializer.args[0]:
+        if isinstance(array_deserializer.args[0], list):
+            for sub_deserializer in array_deserializer.args[0]:
                 if _is_array_encoded_deserializer(sub_deserializer):
                     return sub_deserializer(obj)
 
@@ -1244,6 +1249,8 @@ def _get_deserialize_callable_from_annotation(  # pylint: disable=too-many-retur
     annotation: typing.Any,
     module: typing.Optional[str],
     rf: typing.Optional["_RestField"] = None,
+    *,
+    is_field_type: bool = True,
 ) -> typing.Optional[typing.Callable[[typing.Any], typing.Any]]:
     if not annotation:
         return None
@@ -1281,18 +1288,22 @@ def _get_deserialize_callable_from_annotation(  # pylint: disable=too-many-retur
     # is it optional?
     try:
         if any(a is _NONE_TYPE for a in annotation.__args__):  # pyright: ignore
-            if rf:
+            # Nullable elements do not make the containing XML field optional.
+            if rf and is_field_type:
                 rf._is_optional = True
             if len(annotation.__args__) <= 2:  # pyright: ignore
                 if_obj_deserializer = _get_deserialize_callable_from_annotation(
-                    next(a for a in annotation.__args__ if a is not _NONE_TYPE), module, rf  # pyright: ignore
+                    next(a for a in annotation.__args__ if a is not _NONE_TYPE), module, rf,  # pyright: ignore
+                    is_field_type=is_field_type,
                 )
 
                 return functools.partial(_deserialize_with_optional, if_obj_deserializer)
             # the type is Optional[Union[...]], we need to remove the None type from the Union
             annotation_copy = copy.copy(annotation)
             annotation_copy.__args__ = [a for a in annotation_copy.__args__ if a is not _NONE_TYPE]  # pyright: ignore
-            return _get_deserialize_callable_from_annotation(annotation_copy, module, rf)
+            return _get_deserialize_callable_from_annotation(
+                annotation_copy, module, rf, is_field_type=is_field_type
+            )
     except AttributeError:
         pass
 
@@ -1300,7 +1311,7 @@ def _get_deserialize_callable_from_annotation(  # pylint: disable=too-many-retur
     if getattr(annotation, "__origin__", None) is typing.Union:
         # initial ordering is we make `string` the last deserialization option, because it is often them most generic
         deserializers = [
-            _get_deserialize_callable_from_annotation(arg, module, rf)
+            _get_deserialize_callable_from_annotation(arg, module, rf, is_field_type=is_field_type)
             for arg in _sorted_annotations(annotation.__args__)  # pyright: ignore
         ]
 
@@ -1312,7 +1323,7 @@ def _get_deserialize_callable_from_annotation(  # pylint: disable=too-many-retur
         )
         if annotation_name.lower() == "dict":
             value_deserializer = _get_deserialize_callable_from_annotation(
-                annotation.__args__[1], module, rf  # pyright: ignore
+                annotation.__args__[1], module, rf, is_field_type=False  # pyright: ignore
             )
 
             return functools.partial(
@@ -1329,12 +1340,12 @@ def _get_deserialize_callable_from_annotation(  # pylint: disable=too-many-retur
         if annotation_name.lower() in ["list", "set", "tuple", "sequence"]:
             if len(annotation.__args__) > 1:  # pyright: ignore
                 entry_deserializers = [
-                    _get_deserialize_callable_from_annotation(dt, module, rf)
+                    _get_deserialize_callable_from_annotation(dt, module, rf, is_field_type=False)
                     for dt in annotation.__args__  # pyright: ignore
                 ]
                 return functools.partial(_deserialize_multiple_sequence, entry_deserializers, module)
             deserializer = _get_deserialize_callable_from_annotation(
-                annotation.__args__[0], module, rf  # pyright: ignore
+                annotation.__args__[0], module, rf, is_field_type=False  # pyright: ignore
             )
 
             return functools.partial(_deserialize_sequence, deserializer, module)
