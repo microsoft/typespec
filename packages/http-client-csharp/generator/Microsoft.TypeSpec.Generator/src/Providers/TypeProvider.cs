@@ -396,8 +396,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private IReadOnlyList<MethodBodyStatement>? _attributes;
 
-        // Snapshot of the attributes as they were before the first Update call
+        // Snapshot before visitor updates, used to distinguish generated attributes from visitor changes.
         private HashSet<MethodBodyStatement>? _originalAttributes;
+        private AttributeStatement? _generatedDeprecationAttribute;
 
         public IReadOnlyList<AttributeStatement> Attributes
         {
@@ -769,14 +770,48 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 attributes.Add(attribute);
             }
-            var obsoleteAttribute = DeprecationApiHelpers.BuildAttribute(Deprecated);
-            if (obsoleteAttribute is not null
-                && CustomCodeView?.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute) != true
-                && (LastContractView is null || LastContractView.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute)))
+            _generatedDeprecationAttribute ??= DeprecationApiHelpers.BuildAttribute(Deprecated);
+            if (_generatedDeprecationAttribute is not null && ShouldEmitDeprecationAttribute())
             {
-                attributes.Add(obsoleteAttribute);
+                attributes.Add(_generatedDeprecationAttribute);
             }
             return attributes;
+        }
+
+        private bool ShouldEmitDeprecationAttribute()
+            => CustomCodeView?.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute) != true
+                && (LastContractView is null || LastContractView.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute));
+
+        private void RefreshGeneratedDeprecationAttribute()
+        {
+            if (_attributes is null || _generatedDeprecationAttribute is not { } attribute)
+            {
+                return;
+            }
+            bool included = _attributes.Contains(attribute);
+            if (!included && _originalAttributes?.Contains(attribute) == true)
+            {
+                // A visitor explicitly removed or replaced the generated attribute.
+                return;
+            }
+            bool shouldInclude = ShouldEmitDeprecationAttribute()
+                && !_attributes.OfType<AttributeStatement>().Any(a =>
+                    !ReferenceEquals(a, attribute) && DeprecationApiHelpers.IsObsoleteAttribute(a));
+            if (included == shouldInclude)
+            {
+                return;
+            }
+            _attributes = shouldInclude
+                ? [.. _attributes, attribute]
+                : [.. _attributes.Where(a => !ReferenceEquals(a, attribute))];
+            if (shouldInclude)
+            {
+                _originalAttributes?.Add(attribute);
+            }
+            else
+            {
+                _originalAttributes?.Remove(attribute);
+            }
         }
 
         private CSharpType? _enumUnderlyingType;
@@ -869,6 +904,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             _enumUnderlyingType = null;
             _attributes = null;
             _originalAttributes = null;
+            _generatedDeprecationAttribute = null;
             _deprecated = null;
             _description = null;
             _type = null;
@@ -960,9 +996,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
             if (attributes != null)
             {
-                // For providers whose generated attributes are rebuilt at write time, remember the attributes
-                // as they were before the first update so GetAttributesForWrite can preserve the additions.
-                if (!ShouldAnalyzeAttributesInReferenceMap)
+                // Preserve visitor changes when generated attributes are refreshed after identity changes or at write time.
+                if (!ShouldAnalyzeAttributesInReferenceMap || Deprecated is not null)
                 {
                     _originalAttributes ??= [.. Attributes];
                 }
@@ -978,6 +1013,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 ResetMembersBasedOnIdentityChange(@namespace: @namespace);
             }
+
+            RefreshGeneratedDeprecationAttribute();
 
             // Rebuild the canonical view
             _canonicalView = new(BuildCanonicalView);
