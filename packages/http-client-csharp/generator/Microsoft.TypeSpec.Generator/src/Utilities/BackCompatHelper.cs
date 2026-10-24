@@ -543,7 +543,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 .. obsolete is not null && previousMethod.Signature.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute) ? new[] { obsolete } : []
             ]);
             overload.Update(suppressions: ExperimentalApiHelpers.MergeSuppressions(overload.Suppressions, currentMethod.Suppressions,
-                obsolete is null ? [] : DeprecationApiHelpers.GetSuppressions()));
+                obsolete is null ? [] : DeprecationApiHelpers.GetSuppressions(obsolete)));
         }
 
         // Returns true when both signatures have the same return type (matched by name); a null return type

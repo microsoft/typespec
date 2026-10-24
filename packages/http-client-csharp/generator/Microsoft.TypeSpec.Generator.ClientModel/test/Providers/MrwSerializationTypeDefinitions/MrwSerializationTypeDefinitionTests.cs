@@ -7,6 +7,7 @@ using System.ClientModel.Primitives;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
+using System.Threading.Tasks;
 using Microsoft.TypeSpec.Generator.ClientModel.Providers;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Input;
@@ -62,6 +63,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.MrwSerializat
             var expectedJsonModelTInterface = new CSharpType(typeof(IJsonModel<>), model.Type);
 
             Assert.That(interfaces.Any(i => i.Equals(expectedJsonModelTInterface)));
+        }
+
+        [Test]
+        public async Task SerializationReferencesHonorCustomObsoleteDiagnostic()
+        {
+            var legacy = InputFactory.Model("Legacy");
+            var envelope = InputFactory.Model("Envelope", properties:
+                [InputFactory.Property("legacy", legacy)]);
+            await MockHelpers.LoadMockGeneratorAsync(inputModels: () => [legacy, envelope],
+                compilation: () => Helpers.GetCompilationFromDirectoryAsync());
+            var model = ScmCodeModelGenerator.Instance.TypeFactory.CreateModel(envelope)!;
+            var serialization = model.SerializationProviders.OfType<MrwSerializationTypeDefinition>().Single();
+            var method = serialization.Methods.Single(method => method.Signature.Name == "DeserializeEnvelope");
+            using var writer = new CodeWriter();
+            writer.WriteMethod(method);
+
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), writer.ToString(false));
         }
 
         [TestCase(false, false, false)]

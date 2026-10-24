@@ -92,10 +92,13 @@ namespace Microsoft.TypeSpec.Generator.Utilities
         public static SuppressionStatement[] GetAttributeSuppressions(IEnumerable<AttributeStatement> attributes)
         {
             var ids = new List<string>();
-            bool obsolete = false;
+            var obsoleteSuppressions = new List<SuppressionStatement>();
             foreach (var attribute in attributes)
             {
-                obsolete |= DeprecationApiHelpers.IsObsoleteAttribute(attribute);
+                if (DeprecationApiHelpers.IsObsoleteAttribute(attribute))
+                {
+                    obsoleteSuppressions.AddRange(DeprecationApiHelpers.GetSuppressions(attribute));
+                }
                 if (!IsExperimentalAttribute(attribute))
                 {
                     continue;
@@ -111,7 +114,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 }
                 ids.Add(id);
             }
-            return MergeSuppressions(CreateSuppressions(ids), obsolete ? DeprecationApiHelpers.GetSuppressions() : []);
+            return MergeSuppressions(CreateSuppressions(ids), obsoleteSuppressions);
         }
 
         public static SuppressionStatement[] GetMemberSuppressions(PropertyProvider property)
@@ -154,11 +157,11 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 return new SuppressionStatement(null, Literal(id), "This generated code depends on experimental functionality.");
             })];
 
-        private static void ValidateDiagnosticId(string diagnosticId)
+        internal static void ValidateDiagnosticId(string diagnosticId)
         {
             if (!Regex.IsMatch(diagnosticId, @"\A(?:[A-Za-z_][A-Za-z0-9_]*|[0-9]+)\z", RegexOptions.CultureInvariant))
             {
-                throw new ArgumentException("Experimental diagnostic IDs must be single C# warning identifiers or decimal warning numbers.", nameof(diagnosticId));
+                throw new ArgumentException("Diagnostic IDs must be single C# warning identifiers or decimal warning numbers.", nameof(diagnosticId));
             }
         }
 

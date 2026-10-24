@@ -74,6 +74,51 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreEqual("\"Custom message\"", provider.CustomCodeView!.Attributes.Single().Arguments.Single().ToDisplayString());
         }
 
+        [TestCase(null)]
+        [TestCase("")]
+        [TestCase("OBS001")]
+        public void CustomObsoleteDiagnosticsArePreserved(string? diagnosticId)
+        {
+            var attribute = new AttributeStatement(typeof(ObsoleteAttribute), [Snippet.Literal("Custom message")],
+                [new(nameof(ObsoleteAttribute.DiagnosticId), Snippet.Literal(diagnosticId))]);
+            var suppressions = ExperimentalApiHelpers.GetAttributeSuppressions([attribute, attribute]);
+
+            CollectionAssert.AreEqual(
+                (string.IsNullOrEmpty(diagnosticId) ? new[] { "CS0612", "CS0618" } : [diagnosticId])
+                    .Select(id => Snippet.Literal(id).ToDisplayString()),
+                suppressions.Select(suppression => suppression.Code.ToDisplayString()));
+        }
+
+        [TestCase("OBS,001")]
+        [TestCase("OBS\n#pragma warning disable")]
+        public void CustomObsoleteDiagnosticsRejectInvalidWarningIdentifiers(string diagnosticId)
+        {
+            var attribute = new AttributeStatement(typeof(ObsoleteAttribute), [],
+                [new(nameof(ObsoleteAttribute.DiagnosticId), Snippet.Literal(diagnosticId))]);
+
+            Assert.Throws<ArgumentException>(() => ExperimentalApiHelpers.GetAttributeSuppressions([attribute]));
+        }
+
+        [TestCase("model")]
+        [TestCase("enum")]
+        [TestCase("collection")]
+        public async Task CustomObsoleteTypeReferencesUseDiagnosticId(string shape)
+        {
+            var model = InputFactory.Model("Legacy", deprecation: "Generated message");
+            var choice = InputFactory.StringEnum("LegacyChoice", [("One", "one")], isExtensible: true);
+            await MockHelpers.LoadMockGeneratorAsync(inputModelTypes: [model], inputEnumTypes: [choice],
+                compilation: () => Helpers.GetCompilationFromDirectoryAsync());
+            var factory = CodeModelGenerator.Instance.TypeFactory;
+            var type = shape == "enum" ? factory.CreateEnum(choice)!.Type : factory.CreateModel(model)!.Type;
+            if (shape == "collection")
+            {
+                type = new CSharpType(typeof(IReadOnlyList<>), type);
+            }
+
+            CollectionAssert.AreEqual(new[] { "\"OBS001\"" },
+                ExperimentalApiHelpers.GetReferenceSuppressions(type).Select(suppression => suppression.Code.ToDisplayString()));
+        }
+
         [TestCase("StableModel", "model", false)]
         [TestCase("ObsoleteModel", "model", true)]
         [TestCase("PreviewModel", "model", true)]
@@ -198,9 +243,11 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             Assert.AreSame(visitorAttribute, provider.Attributes.Single());
         }
 
-        [TestCase(false)]
-        [TestCase(true)]
-        public async Task DeprecationPreservesBackCompatOverloads(bool previouslyObsolete)
+        [TestCase(false, null)]
+        [TestCase(true, null)]
+        [TestCase(false, "OBS001")]
+        [TestCase(true, "OBS001")]
+        public async Task DeprecationPreservesBackCompatOverloads(bool previouslyObsolete, string? diagnosticId)
         {
             await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: () => Helpers.GetCompilationFromDirectoryAsync());
             var provider = new TestTypeProvider(name: previouslyObsolete ? "ObsoleteClient" : "LegacyClient", ns: "Sample");
@@ -210,7 +257,8 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                     new ParameterProvider("value", $"", typeof(int)),
                     new ParameterProvider("added", $"", typeof(bool), defaultValue: Snippet.Default, location: ParameterLocation.Query)
                 ],
-                Attributes: [new AttributeStatement(typeof(ObsoleteAttribute), [Snippet.Literal("Current message")])]),
+                Attributes: [new AttributeStatement(typeof(ObsoleteAttribute), [Snippet.Literal("Current message")],
+                    diagnosticId is null ? [] : [new(nameof(ObsoleteAttribute.DiagnosticId), Snippet.Literal(diagnosticId))])]),
                 MethodBodyStatement.Empty, provider);
             provider.Update(methods: [method]);
             provider.ProcessTypeForBackCompatibility();
@@ -223,7 +271,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
             {
                 Assert.AreEqual("\"Current message\"", previous.Signature.Attributes.Single(a => a.Type.Equals(typeof(ObsoleteAttribute))).Arguments.Single().ToDisplayString());
             }
-            Assert.IsTrue(previous.Suppressions.Any(s => s.Code.ToDisplayString() == "\"CS0618\""));
+            Assert.IsTrue(previous.Suppressions.Any(s => s.Code.ToDisplayString() == Snippet.Literal(diagnosticId ?? "CS0618").ToDisplayString()));
         }
 
         [Test]

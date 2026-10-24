@@ -300,10 +300,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             var convenienceMethod = new ScmMethodProvider(methodSignature, methodBody, EnclosingType, ScmMethodKind.Convenience, collectionDefinition: collection, serviceMethod: ServiceMethod);
             ExperimentalApiHelpers.AddDependencySuppressions(convenienceMethod, ServiceMethod.Operation);
-            if (protocolMethod.Signature.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute))
+            var obsoleteProtocol = protocolMethod.Signature.Attributes.FirstOrDefault(DeprecationApiHelpers.IsObsoleteAttribute);
+            if (obsoleteProtocol is not null)
             {
                 convenienceMethod.Update(suppressions: ExperimentalApiHelpers.MergeSuppressions(
-                    convenienceMethod.Suppressions, DeprecationApiHelpers.GetSuppressions()));
+                    convenienceMethod.Suppressions, DeprecationApiHelpers.GetSuppressions(obsoleteProtocol)));
             }
 
             if (convenienceMethod.XmlDocs != null)

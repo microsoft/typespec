@@ -629,7 +629,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 else if (attribute.Type.Equals(typeof(ObsoleteAttribute)))
                 {
                     string justification = $"{typeProvider.Type} is obsolete and may be removed in future versions.";
-                    suppressions.Add(new SuppressionStatement(null, Literal(DefaultObsoleteDiagnosticId), justification));
+                    suppressions.Add(new SuppressionStatement(null,
+                        Literal(DeprecationApiHelpers.GetDiagnosticId(attribute) ?? DefaultObsoleteDiagnosticId), justification));
                 }
             }
             attributes.Add(key, ExperimentalApiHelpers.Suppress(attributeStatement, suppressions));

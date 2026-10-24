@@ -1254,6 +1254,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
         }
 
         [Test]
+        public async Task CustomObsoleteDiagnosticIdsAreSuppressed()
+        {
+            var model = InputFactory.Model("CustomizedObsoleteModel", deprecation: "Generated message");
+            await MockHelpers.LoadMockGeneratorAsync(
+                inputModels: () => [model, InputFactory.Model("RegularModel")],
+                compilation: () => Helpers.GetCompilationFromDirectoryAsync());
+            var context = new ModelReaderWriterContextDefinition();
+
+            Assert.AreEqual(2, context.Attributes.Count);
+            Assert.AreEqual(Helpers.GetExpectedFromFile(), new TypeProviderWriter(context).Write().Content);
+        }
+
+        [Test]
         public void ValidateObsoleteGeneratedTypeHasAttributeSuppression()
         {
             var mockGenerator = MockHelpers.LoadMockGenerator(
