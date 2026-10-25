@@ -1,10 +1,17 @@
 import { resolveCompilerOptions } from "../../../../config/config-to-options.js";
 import { omitUndefined } from "../../../../utils/misc.js";
 import { createDiagnosticCollector } from "../../../diagnostics.js";
+import { linterRuleSetFilePrefix } from "../../../linter-ruleset-file.js";
 import { createDiagnostic } from "../../../messages.js";
 import type { CompilerOptions } from "../../../options.js";
 import { resolvePath } from "../../../path-utils.js";
-import type { CompilerHost, Diagnostic } from "../../../types.js";
+import type {
+  CompilerHost,
+  Diagnostic,
+  LinterRuleEnableValue,
+  RuleRef,
+  RuleSetRef,
+} from "../../../types.js";
 import { NoTarget } from "../../../types.js";
 import { parseCliArgsArgOption } from "../../utils.js";
 
@@ -26,6 +33,15 @@ export interface CompileCliArgs {
   "warn-as-error"?: boolean;
   "list-files"?: boolean;
   "no-emit"?: boolean;
+  /** Disable all linter rules for this compilation without suppressing other diagnostics. */
+  "no-linter"?: boolean;
+  /**
+   * Ruleset references replacing the configured extends list, in CLI order.
+   * Relative `file:` references resolve from the current working directory.
+   */
+  "linter-ruleset"?: string[];
+  /** Ordered `<rule-reference>=<value>` overrides accepting JSON booleans or options objects. */
+  "linter-rule"?: string[];
   "dry-run"?: boolean;
   "ignore-deprecated"?: boolean;
   args?: string[];
@@ -48,6 +64,7 @@ export async function getCompilerOptions(
     : undefined;
 
   const cliOptions = diagnostics.pipe(resolveCliOptions(args));
+  const linterOverrides = diagnostics.pipe(resolveCliLinterOptions(args, cwd));
   const resolvedOptions = diagnostics.pipe(
     await resolveCompilerOptions(host, {
       entrypoint,
@@ -74,13 +91,88 @@ export async function getCompilerOptions(
   } else if (args["ignore-deprecated"]) {
     resolvedOptions.ignoreDeprecated = true;
   }
+  if (args["no-linter"]) {
+    resolvedOptions.linterRuleSet = undefined;
+  }
 
   return diagnostics.wrap(
     omitUndefined({
       ...resolvedOptions,
       miscOptions: cliOptions.miscOptions,
+      linterRuleSetOverrides: linterOverrides,
     }),
   );
+}
+
+function resolveCliLinterOptions(
+  args: CompileCliArgs,
+  cwd: string,
+): [CompilerOptions["linterRuleSetOverrides"], readonly Diagnostic[]] {
+  const diagnostics = createDiagnosticCollector();
+  if (args["no-linter"] && (args["linter-ruleset"] || args["linter-rule"])) {
+    diagnostics.add(createDiagnostic({ code: "conflicting-linter-flags", target: NoTarget }));
+    return diagnostics.wrap(undefined);
+  }
+  if (args["linter-ruleset"] === undefined && args["linter-rule"] === undefined) {
+    return diagnostics.wrap(undefined);
+  }
+
+  const ruleSets: RuleSetRef[] = [];
+  for (const ref of args["linter-ruleset"] ?? []) {
+    if (ref.startsWith(linterRuleSetFilePrefix) && ref.length > linterRuleSetFilePrefix.length) {
+      ruleSets.push(`file:${resolvePath(cwd, ref.slice(linterRuleSetFilePrefix.length))}`);
+    } else if (isRuleRef(ref)) {
+      ruleSets.push(ref);
+    } else {
+      diagnostics.add(
+        createDiagnostic({ code: "invalid-rule-ref", format: { ref }, target: NoTarget }),
+      );
+    }
+  }
+
+  const rules: [RuleRef, LinterRuleEnableValue][] = [];
+  for (const option of args["linter-rule"] ?? []) {
+    const separator = option.indexOf("=");
+    const ref = option.slice(0, separator);
+    let value: unknown;
+    if (separator !== -1 && isRuleRef(ref)) {
+      try {
+        value = JSON.parse(option.slice(separator + 1));
+      } catch (error) {
+        if (!(error instanceof SyntaxError)) {
+          throw error;
+        }
+      }
+    }
+    if (!isRuleRef(ref) || !isLinterRuleEnableValue(value)) {
+      diagnostics.add(
+        createDiagnostic({
+          code: "invalid-linter-rule-flag",
+          format: { value: option },
+          target: NoTarget,
+        }),
+      );
+      continue;
+    }
+    rules.push([ref, value]);
+  }
+
+  return diagnostics.wrap({
+    extends: args["linter-ruleset"] === undefined ? undefined : ruleSets,
+    rules,
+  });
+}
+
+function isLinterRuleEnableValue(value: unknown): value is LinterRuleEnableValue {
+  return (
+    typeof value === "boolean" ||
+    (typeof value === "object" && value !== null && !Array.isArray(value))
+  );
+}
+
+function isRuleRef(ref: string): ref is RuleRef {
+  const separator = ref.lastIndexOf("/");
+  return separator > 0 && separator < ref.length - 1;
 }
 
 function resolveCliOptions(args: CompileCliArgs): [

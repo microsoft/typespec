@@ -4,7 +4,9 @@ import { stringify } from "yaml";
 import type { TypeSpecRawConfig } from "../src/config/types.js";
 import type { CompileCliArgs } from "../src/core/cli/actions/compile/args.js";
 import { getCompilerOptions } from "../src/core/cli/actions/compile/args.js";
+import { createLinterRule, paramMessage } from "../src/core/library.js";
 import type { CompilerOptions } from "../src/core/options.js";
+import { NoTarget } from "../src/core/types.js";
 import type { TestHost } from "../src/testing/index.js";
 import {
   createTestHost,
@@ -288,6 +290,257 @@ describe("compiler: cli", () => {
     testUnifiedOptions("trace", "trace", {
       default: undefined,
       set: [{ in: ["one", "two"], expected: ["one", "two"], alt: ["three"] }],
+    });
+
+    describe("linter overrides", () => {
+      const unusedUsing = "@typespec/compiler/unused-using";
+      const unusedTemplate = "@typespec/compiler/unused-template-parameter";
+      const allRules: TypeSpecRawConfig = { linter: { extends: ["@typespec/compiler/all"] } };
+
+      beforeEach(() => {
+        host.addTypeSpecFile(
+          "ws/main.tsp",
+          "namespace Unused {} using Unused; model Example<T> {}",
+        );
+      });
+
+      async function diagnose(args: CompileCliArgs = {}, config = allRules) {
+        host.addTypeSpecFile("ws/tspconfig.yaml", stringify(config));
+        const [options, diagnostics] = await getCompilerOptions(
+          host.compilerHost,
+          resolveVirtualPath("ws/main.tsp"),
+          cwd,
+          args,
+          {},
+        );
+        expectDiagnosticEmpty(diagnostics);
+        ok(options);
+        return host.diagnose("ws/main.tsp", options);
+      }
+
+      it("disables linting without resolving configured rulesets, alongside --no-emit", async () => {
+        expectDiagnosticEmpty(
+          await diagnose(
+            { "no-linter": true, "no-emit": true },
+            {
+              linter: {
+                extends: ["not-installed/all"],
+                enable: { [unusedUsing]: true },
+              },
+            },
+          ),
+        );
+      });
+
+      it("does not disable linting with --no-linter=false", async () => {
+        expectDiagnostics(await diagnose({ "no-linter": false }), [
+          { code: unusedUsing },
+          { code: unusedTemplate },
+        ]);
+      });
+
+      it("replaces configured extends but retains configured rule overrides", async () => {
+        host.addTypeSpecFile(
+          "ws/template-rules.yaml",
+          stringify({ enable: { [unusedTemplate]: true } }),
+        );
+        expectDiagnostics(
+          await diagnose(
+            { "linter-ruleset": ["file:./template-rules.yaml"] },
+            {
+              linter: {
+                extends: ["not-installed/all"],
+                enable: { [unusedUsing]: true },
+                disable: { [unusedTemplate]: "Not applicable" },
+              },
+            },
+          ),
+          { code: unusedUsing },
+        );
+      });
+
+      it("combines repeated rulesets and resolves CLI files relative to cwd", async () => {
+        host.addTypeSpecFile("ws/configs/override.yaml", stringify({}));
+        host.addTypeSpecFile("ws/rules/first.yaml", stringify({ enable: { [unusedUsing]: true } }));
+        host.addTypeSpecFile(
+          "ws/rules/second.yaml",
+          stringify({
+            extends: ["file:./nested.yaml"],
+          }),
+        );
+        host.addTypeSpecFile(
+          "ws/rules/nested.yaml",
+          stringify({ enable: { [unusedTemplate]: true } }),
+        );
+
+        expectDiagnostics(
+          await diagnose({
+            config: "configs/override.yaml",
+            "linter-ruleset": ["file:./rules/first.yaml", "file:./rules/second.yaml"],
+          }),
+          [{ code: unusedUsing }, { code: unusedTemplate }],
+        );
+      });
+
+      it("does not blame a CLI ruleset reference on an unrelated YAML entry", async () => {
+        const diagnostics = await diagnose({
+          "linter-ruleset": ["file:./not-found.yaml"],
+        });
+        expectDiagnostics(diagnostics, { code: "file-not-found" });
+        strictEqual(diagnostics[0].target, NoTarget);
+      });
+
+      it("disables an inherited rule with false, including through its short name", async () => {
+        expectDiagnostics(await diagnose({ "linter-rule": ["compiler/unused-using=false"] }), {
+          code: unusedTemplate,
+        });
+      });
+
+      it("re-enables a configured disabled rule using its other spelling", async () => {
+        expectDiagnostics(
+          await diagnose(
+            { "linter-rule": ["compiler/unused-using=true"] },
+            { linter: { disable: { [unusedUsing]: "Disabled in config" } } },
+          ),
+          { code: unusedUsing },
+        );
+      });
+
+      function addBannedNameLinter() {
+        const rule = createLinterRule({
+          name: "banned-name",
+          description: "Disallow a configurable model name",
+          severity: "warning",
+          messages: { default: paramMessage`${"message"}` },
+          defaultOptions: { name: "Example", message: "Disallowed model name" },
+          optionSchema: {
+            type: "object",
+            properties: { name: { type: "string" }, message: { type: "string" } },
+            required: [],
+            additionalProperties: false,
+          },
+          create(context) {
+            return {
+              model(model) {
+                if (model.name === context.options.name) {
+                  context.reportDiagnostic({
+                    target: model,
+                    format: { message: context.options.message },
+                  });
+                }
+              },
+            };
+          },
+        });
+        host.addTypeSpecFile("ws/main.tsp", 'import "@typespec/test-linter"; model Example {}');
+        host.addTypeSpecFile(
+          "ws/node_modules/@typespec/test-linter/package.json",
+          JSON.stringify({ name: "@typespec/test-linter", main: "index.js" }),
+        );
+        host.addJsFile("ws/node_modules/@typespec/test-linter/index.js", {
+          $linter: {
+            rules: [rule],
+            ruleSets: {
+              invalid: {
+                enable: { "@typespec/test-linter/banned-name": { name: 123 } },
+              },
+            },
+          },
+        });
+      }
+
+      it("replaces configured options with JSON values containing =", async () => {
+        addBannedNameLinter();
+        expectDiagnostics(
+          await diagnose(
+            { "linter-rule": ['@typespec/test-linter/banned-name={"message":"a=b"}'] },
+            {
+              linter: {
+                enable: { "@typespec/test-linter/banned-name": { name: "Other" } },
+              },
+            },
+          ),
+          { code: "@typespec/test-linter/banned-name", message: "a=b" },
+        );
+      });
+
+      it("validates only the final CLI settings for a canonical rule", async () => {
+        addBannedNameLinter();
+        const valid = "test-linter/banned-name={}";
+        const invalid = '@typespec/test-linter/banned-name={"name":123}';
+        const config: TypeSpecRawConfig = {
+          linter: { enable: { "@typespec/test-linter/banned-name": { name: 123 } } },
+        };
+
+        expectDiagnostics(await diagnose({ "linter-rule": [invalid, valid] }, config), {
+          code: "@typespec/test-linter/banned-name",
+        });
+        expectDiagnostics(await diagnose({ "linter-rule": [valid, invalid] }, config), {
+          code: "invalid-rule-options",
+        });
+      });
+
+      it.each(["library", "file"])(
+        "overrides invalid options inherited from a %s ruleset",
+        async (source) => {
+          addBannedNameLinter();
+          host.addTypeSpecFile(
+            "ws/rules/outer.yaml",
+            stringify({ extends: ["file:./inner.yaml"] }),
+          );
+          host.addTypeSpecFile(
+            "ws/rules/inner.yaml",
+            stringify({
+              enable: { "@typespec/test-linter/banned-name": { name: 123 } },
+            }),
+          );
+          const config: TypeSpecRawConfig =
+            source === "library" ? { linter: { extends: ["@typespec/test-linter/invalid"] } } : {};
+          const args: CompileCliArgs =
+            source === "file" ? { "linter-ruleset": ["file:./rules/outer.yaml"] } : {};
+
+          expectDiagnostics(await diagnose(args, config), { code: "invalid-rule-options" });
+          expectDiagnostics(
+            await diagnose({ ...args, "linter-rule": ["compiler/unused-using=false"] }, config),
+            { code: "invalid-rule-options" },
+          );
+          expectDiagnostics(
+            await diagnose(
+              {
+                ...args,
+                "linter-rule": ['test-linter/banned-name={"name":"Example"}'],
+              },
+              config,
+            ),
+            { code: "@typespec/test-linter/banned-name" },
+          );
+          expectDiagnosticEmpty(
+            await diagnose(
+              { ...args, "linter-rule": ["@typespec/test-linter/banned-name=false"] },
+              config,
+            ),
+          );
+        },
+      );
+
+      for (const value of [
+        "compiler/unused-using",
+        "=true",
+        "compiler/unused-using={",
+        "compiler/unused-using=null",
+        "compiler/unused-using=[]",
+      ]) {
+        it(`reports invalid rule override ${value}`, async () => {
+          const [, diagnostics] = await getCompilerOptions(
+            host.compilerHost,
+            resolveVirtualPath("ws/main.tsp"),
+            cwd,
+            { "linter-rule": [value] },
+            {},
+          );
+          expectDiagnostics(diagnostics, { code: "invalid-linter-rule-flag" });
+        });
+      }
     });
   });
 

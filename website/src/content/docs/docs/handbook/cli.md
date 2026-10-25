@@ -32,6 +32,18 @@ Options:
   --version  Show version number                                       [boolean]
 ```
 
+## Linter overrides
+
+Control linting for a single compilation without editing `tspconfig.yaml`:
+
+```bash
+tsp compile . --no-linter
+tsp compile . --linter-ruleset @typespec/http/all
+tsp compile . --linter-rule @typespec/compiler/unused-using=true
+```
+
+See [linter CLI configuration](./configuration/configuration.mdx#overriding-linter-configuration-from-the-cli) for ruleset selection, per-rule options, and precedence.
+
 ## Environment Variables
 
 ### `TYPESPEC_NPM_REGISTRY`
