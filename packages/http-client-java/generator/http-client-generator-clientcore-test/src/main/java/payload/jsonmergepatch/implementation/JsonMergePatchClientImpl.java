@@ -1,20 +1,21 @@
 package payload.jsonmergepatch.implementation;
 
 import io.clientcore.core.annotations.ReturnType;
-import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.annotations.BodyParam;
-import io.clientcore.core.http.annotations.HeaderParam;
-import io.clientcore.core.http.annotations.HostParam;
-import io.clientcore.core.http.annotations.HttpRequestInformation;
-import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
+import io.clientcore.core.http.models.HttpHeaderName;
 import io.clientcore.core.http.models.HttpMethod;
+import io.clientcore.core.http.models.HttpRequest;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.instrumentation.Instrumentation;
-import java.lang.reflect.InvocationTargetException;
+import io.clientcore.core.instrumentation.logging.ClientLogger;
+import io.clientcore.core.models.binarydata.BinaryData;
+import io.clientcore.core.serialization.SerializationFormat;
+import io.clientcore.core.serialization.json.JsonSerializer;
+import io.clientcore.core.utils.CoreUtils;
+import io.clientcore.core.utils.GeneratedCodeUtils;
 import payload.jsonmergepatch.Resource;
 import payload.jsonmergepatch.ResourcePatch;
 
@@ -83,50 +84,166 @@ public final class JsonMergePatchClientImpl {
         this.service = JsonMergePatchClientService.getNewInstance(this.httpPipeline);
     }
 
-    /**
-     * The interface defining all the services for JsonMergePatchClient to be used by the proxy service to perform REST
-     * calls.
-     */
-    @ServiceInterface(name = "JsonMergePatchClient", host = "{endpoint}")
     public interface JsonMergePatchClientService {
         static JsonMergePatchClientService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("payload.jsonmergepatch.implementation.JsonMergePatchClientServiceImpl");
-                return (JsonMergePatchClientService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
+            return new JsonMergePatchClientServiceImpl(pipeline);
         }
 
-        @HttpRequestInformation(
-            method = HttpMethod.PUT,
-            path = "/json-merge-patch/create/resource",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<Resource> createResource(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
-            @BodyParam("application/json") Resource body, RequestContext requestContext);
-
-        @HttpRequestInformation(
-            method = HttpMethod.PATCH,
-            path = "/json-merge-patch/update/resource",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<Resource> updateResource(@HostParam("endpoint") String endpoint,
-            @HeaderParam("content-type") String contentType, @HeaderParam("Accept") String accept,
-            @BodyParam("application/merge-patch+json") ResourcePatch body, RequestContext requestContext);
-
-        @HttpRequestInformation(
-            method = HttpMethod.PATCH,
-            path = "/json-merge-patch/update/resource/optional",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<Resource> updateOptionalResource(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Accept") String accept, @BodyParam("application/merge-patch+json") ResourcePatch body,
+        Response<Resource> createResource(String endpoint, String contentType, String accept, Resource body,
             RequestContext requestContext);
+
+        Response<Resource> updateResource(String endpoint, String contentType, String accept, ResourcePatch body,
+            RequestContext requestContext);
+
+        Response<Resource> updateOptionalResource(String endpoint, String accept, ResourcePatch body,
+            RequestContext requestContext);
+    }
+
+    private static final class JsonMergePatchClientServiceImpl implements JsonMergePatchClientService {
+        private static final ClientLogger LOGGER = new ClientLogger(JsonMergePatchClientServiceImpl.class);
+
+        private final HttpPipeline httpPipeline;
+
+        private final JsonSerializer jsonSerializer = JsonSerializer.getInstance();
+
+        private JsonMergePatchClientServiceImpl(HttpPipeline pipeline) {
+            this.httpPipeline = pipeline;
+        }
+
+        @Override
+        public Response<Resource> createResource(String endpoint, String contentType, String accept, Resource body,
+            RequestContext requestContext) {
+            HttpRequest httpRequest
+                = new HttpRequest().setMethod(HttpMethod.PUT).setUri(endpoint + "/json-merge-patch/create/resource");
+            if (contentType != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("Content-Type"), contentType);
+            }
+            if (accept != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("Accept"), accept);
+            }
+            if (body != null) {
+                if (httpRequest.getHeaders().get(HttpHeaderName.CONTENT_TYPE) == null) {
+                    httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, "application/json");
+                }
+                httpRequest.setBody(BinaryData.fromObject(body, this.jsonSerializer));
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 200)) {
+                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == SerializationFormat.XML) {
+                    try {
+                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer, null,
+                    null, null, JsonMergePatchClientServiceImpl.LOGGER);
+            }
+            try {
+                Resource deserializedResult;
+                deserializedResult = CoreUtils.decodeNetworkResponse(networkResponse.getValue(), this.jsonSerializer,
+                    CoreUtils.createParameterizedType(Response.class, Resource.class));
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(),
+                    deserializedResult);
+            } finally {
+                networkResponse.close();
+            }
+        }
+
+        @Override
+        public Response<Resource> updateResource(String endpoint, String contentType, String accept, ResourcePatch body,
+            RequestContext requestContext) {
+            HttpRequest httpRequest
+                = new HttpRequest().setMethod(HttpMethod.PATCH).setUri(endpoint + "/json-merge-patch/update/resource");
+            if (contentType != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("content-type"), contentType);
+            }
+            if (accept != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("Accept"), accept);
+            }
+            if (body != null) {
+                if (httpRequest.getHeaders().get(HttpHeaderName.CONTENT_TYPE) == null) {
+                    httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, "application/merge-patch+json");
+                }
+                httpRequest.setBody(BinaryData.fromObject(body, this.jsonSerializer));
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 200)) {
+                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == SerializationFormat.XML) {
+                    try {
+                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer, null,
+                    null, null, JsonMergePatchClientServiceImpl.LOGGER);
+            }
+            try {
+                Resource deserializedResult;
+                deserializedResult = CoreUtils.decodeNetworkResponse(networkResponse.getValue(), this.jsonSerializer,
+                    CoreUtils.createParameterizedType(Response.class, Resource.class));
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(),
+                    deserializedResult);
+            } finally {
+                networkResponse.close();
+            }
+        }
+
+        @Override
+        public Response<Resource> updateOptionalResource(String endpoint, String accept, ResourcePatch body,
+            RequestContext requestContext) {
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.PATCH)
+                .setUri(endpoint + "/json-merge-patch/update/resource/optional");
+            if (accept != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("Accept"), accept);
+            }
+            if (body != null) {
+                if (httpRequest.getHeaders().get(HttpHeaderName.CONTENT_TYPE) == null) {
+                    httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, "application/merge-patch+json");
+                }
+                httpRequest.setBody(BinaryData.fromObject(body, this.jsonSerializer));
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 200)) {
+                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == SerializationFormat.XML) {
+                    try {
+                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer, null,
+                    null, null, JsonMergePatchClientServiceImpl.LOGGER);
+            }
+            try {
+                Resource deserializedResult;
+                deserializedResult = CoreUtils.decodeNetworkResponse(networkResponse.getValue(), this.jsonSerializer,
+                    CoreUtils.createParameterizedType(Response.class, Resource.class));
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(),
+                    deserializedResult);
+            } finally {
+                networkResponse.close();
+            }
+        }
     }
 
     /**
@@ -187,4 +304,6 @@ public final class JsonMergePatchClientImpl {
                 return service.updateOptionalResource(this.getEndpoint(), accept, body, updatedContext);
             });
     }
+
+    private static final ClientLogger LOGGER = new ClientLogger(JsonMergePatchClientImpl.class);
 }

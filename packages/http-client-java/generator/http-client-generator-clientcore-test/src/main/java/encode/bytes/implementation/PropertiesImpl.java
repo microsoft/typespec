@@ -5,25 +5,25 @@ import encode.bytes.Base64urlArrayBytesProperty;
 import encode.bytes.Base64urlBytesProperty;
 import encode.bytes.DefaultBytesProperty;
 import io.clientcore.core.annotations.ReturnType;
-import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.annotations.BodyParam;
-import io.clientcore.core.http.annotations.HeaderParam;
-import io.clientcore.core.http.annotations.HostParam;
-import io.clientcore.core.http.annotations.HttpRequestInformation;
-import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
+import io.clientcore.core.http.models.HttpHeaderName;
 import io.clientcore.core.http.models.HttpMethod;
+import io.clientcore.core.http.models.HttpRequest;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.instrumentation.Instrumentation;
-import java.lang.reflect.InvocationTargetException;
+import io.clientcore.core.instrumentation.logging.ClientLogger;
+import io.clientcore.core.models.binarydata.BinaryData;
+import io.clientcore.core.serialization.json.JsonSerializer;
+import io.clientcore.core.utils.CoreUtils;
 
 /**
  * An instance of this class provides access to all the operations defined in Properties.
  */
 public final class PropertiesImpl {
+
     /**
      * The proxy service used to perform REST calls.
      */
@@ -41,7 +41,7 @@ public final class PropertiesImpl {
 
     /**
      * Initializes an instance of PropertiesImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     PropertiesImpl(BytesClientImpl client) {
@@ -50,63 +50,141 @@ public final class PropertiesImpl {
         this.instrumentation = client.getInstrumentation();
     }
 
-    /**
-     * The interface defining all the services for BytesClientProperties to be used by the proxy service to perform REST
-     * calls.
-     */
-    @ServiceInterface(name = "BytesClientProperties", host = "{endpoint}")
     public interface PropertiesService {
-        static PropertiesService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("encode.bytes.implementation.PropertiesServiceImpl");
-                return (PropertiesService) clazz.getMethod("getNewInstance", HttpPipeline.class).invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
 
+        static PropertiesService getNewInstance(HttpPipeline pipeline) {
+            return new PropertiesServiceImpl(pipeline);
         }
 
-        @HttpRequestInformation(
-            method = HttpMethod.POST,
-            path = "/encode/bytes/property/default",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<DefaultBytesProperty> defaultMethod(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
-            @BodyParam("application/json") DefaultBytesProperty body, RequestContext requestContext);
+        Response<DefaultBytesProperty> defaultMethod(String endpoint, String contentType, String accept,
+            DefaultBytesProperty body, RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.POST,
-            path = "/encode/bytes/property/base64",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<Base64BytesProperty> base64(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
-            @BodyParam("application/json") Base64BytesProperty body, RequestContext requestContext);
+        Response<Base64BytesProperty> base64(String endpoint, String contentType, String accept,
+            Base64BytesProperty body, RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.POST,
-            path = "/encode/bytes/property/base64url",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<Base64urlBytesProperty> base64url(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
-            @BodyParam("application/json") Base64urlBytesProperty body, RequestContext requestContext);
+        Response<Base64urlBytesProperty> base64url(String endpoint, String contentType, String accept,
+            Base64urlBytesProperty body, RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.POST,
-            path = "/encode/bytes/property/base64url-array",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<Base64urlArrayBytesProperty> base64urlArray(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
-            @BodyParam("application/json") Base64urlArrayBytesProperty body, RequestContext requestContext);
+        Response<Base64urlArrayBytesProperty> base64urlArray(String endpoint, String contentType, String accept,
+            Base64urlArrayBytesProperty body, RequestContext requestContext);
+    }
+
+    private static final class PropertiesServiceImpl implements PropertiesService {
+
+        private static final ClientLogger LOGGER = new ClientLogger(PropertiesServiceImpl.class);
+
+        private final HttpPipeline httpPipeline;
+
+        private static final JsonSerializer JSON_SERIALIZER = JsonSerializer.getInstance();
+
+        private PropertiesServiceImpl(HttpPipeline pipeline) {
+            this.httpPipeline = pipeline;
+        }
+
+        @Override
+        public Response<DefaultBytesProperty> defaultMethod(String endpoint, String contentType, String accept,
+            DefaultBytesProperty body, RequestContext requestContext) {
+            HttpRequest httpRequest
+                = new HttpRequest().setMethod(HttpMethod.POST).setUri(endpoint + "/encode/bytes/property/default");
+            if (contentType != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, contentType);
+            }
+            if (accept != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.ACCEPT, accept);
+            }
+            ClientCoreProtocolUtils.setBody(httpRequest, body, "application/json",
+                () -> BinaryData.fromObject(body, PropertiesServiceImpl.JSON_SERIALIZER));
+            Response<BinaryData> networkResponse
+                = ClientCoreProtocolUtils.send(this.httpPipeline, httpRequest, requestContext);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 200)) {
+                ClientCoreProtocolUtils.handleUnexpectedResponse(networkResponse, PropertiesServiceImpl.JSON_SERIALIZER,
+                    null, null, null, PropertiesServiceImpl.LOGGER);
+            }
+            return ClientCoreProtocolUtils.mapResponse(networkResponse,
+                () -> CoreUtils.decodeNetworkResponse(networkResponse.getValue(), PropertiesServiceImpl.JSON_SERIALIZER,
+                    EncodeBytesConstants.RESPONSE_OF_DEFAULT_BYTES_PROPERTY_TYPE));
+        }
+
+        @Override
+        public Response<Base64BytesProperty> base64(String endpoint, String contentType, String accept,
+            Base64BytesProperty body, RequestContext requestContext) {
+            HttpRequest httpRequest
+                = new HttpRequest().setMethod(HttpMethod.POST).setUri(endpoint + "/encode/bytes/property/base64");
+            if (contentType != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, contentType);
+            }
+            if (accept != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.ACCEPT, accept);
+            }
+            ClientCoreProtocolUtils.setBody(httpRequest, body, "application/json",
+                () -> BinaryData.fromObject(body, PropertiesServiceImpl.JSON_SERIALIZER));
+            Response<BinaryData> networkResponse
+                = ClientCoreProtocolUtils.send(this.httpPipeline, httpRequest, requestContext);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 200)) {
+                ClientCoreProtocolUtils.handleUnexpectedResponse(networkResponse, PropertiesServiceImpl.JSON_SERIALIZER,
+                    null, null, null, PropertiesServiceImpl.LOGGER);
+            }
+            return ClientCoreProtocolUtils.mapResponse(networkResponse,
+                () -> CoreUtils.decodeNetworkResponse(networkResponse.getValue(), PropertiesServiceImpl.JSON_SERIALIZER,
+                    EncodeBytesConstants.RESPONSE_OF_BASE64_BYTES_PROPERTY_TYPE));
+        }
+
+        @Override
+        public Response<Base64urlBytesProperty> base64url(String endpoint, String contentType, String accept,
+            Base64urlBytesProperty body, RequestContext requestContext) {
+            HttpRequest httpRequest
+                = new HttpRequest().setMethod(HttpMethod.POST).setUri(endpoint + "/encode/bytes/property/base64url");
+            if (contentType != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, contentType);
+            }
+            if (accept != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.ACCEPT, accept);
+            }
+            ClientCoreProtocolUtils.setBody(httpRequest, body, "application/json",
+                () -> BinaryData.fromObject(body, PropertiesServiceImpl.JSON_SERIALIZER));
+            Response<BinaryData> networkResponse
+                = ClientCoreProtocolUtils.send(this.httpPipeline, httpRequest, requestContext);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 200)) {
+                ClientCoreProtocolUtils.handleUnexpectedResponse(networkResponse, PropertiesServiceImpl.JSON_SERIALIZER,
+                    null, null, null, PropertiesServiceImpl.LOGGER);
+            }
+            return ClientCoreProtocolUtils.mapResponse(networkResponse,
+                () -> CoreUtils.decodeNetworkResponse(networkResponse.getValue(), PropertiesServiceImpl.JSON_SERIALIZER,
+                    EncodeBytesConstants.RESPONSE_OF_BASE64URL_BYTES_PROPERTY_TYPE));
+        }
+
+        @Override
+        public Response<Base64urlArrayBytesProperty> base64urlArray(String endpoint, String contentType, String accept,
+            Base64urlArrayBytesProperty body, RequestContext requestContext) {
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.POST)
+                .setUri(endpoint + "/encode/bytes/property/base64url-array");
+            if (contentType != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, contentType);
+            }
+            if (accept != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.ACCEPT, accept);
+            }
+            ClientCoreProtocolUtils.setBody(httpRequest, body, "application/json",
+                () -> BinaryData.fromObject(body, PropertiesServiceImpl.JSON_SERIALIZER));
+            Response<BinaryData> networkResponse
+                = ClientCoreProtocolUtils.send(this.httpPipeline, httpRequest, requestContext);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 200)) {
+                ClientCoreProtocolUtils.handleUnexpectedResponse(networkResponse, PropertiesServiceImpl.JSON_SERIALIZER,
+                    null, null, null, PropertiesServiceImpl.LOGGER);
+            }
+            return ClientCoreProtocolUtils.mapResponse(networkResponse,
+                () -> CoreUtils.decodeNetworkResponse(networkResponse.getValue(), PropertiesServiceImpl.JSON_SERIALIZER,
+                    EncodeBytesConstants.RESPONSE_OF_BASE64URL_ARRAY_BYTES_PROPERTY_TYPE));
+        }
     }
 
     /**
      * The defaultMethod operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -127,7 +205,7 @@ public final class PropertiesImpl {
 
     /**
      * The base64 operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -147,7 +225,7 @@ public final class PropertiesImpl {
 
     /**
      * The base64url operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -168,7 +246,7 @@ public final class PropertiesImpl {
 
     /**
      * The base64urlArray operation.
-     * 
+     *
      * @param body The body parameter.
      * @param requestContext The context to configure the HTTP request before HTTP client sends it.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -186,4 +264,6 @@ public final class PropertiesImpl {
                 return service.base64urlArray(this.client.getEndpoint(), contentType, accept, body, updatedContext);
             });
     }
+
+    private static final ClientLogger LOGGER = new ClientLogger(PropertiesImpl.class);
 }

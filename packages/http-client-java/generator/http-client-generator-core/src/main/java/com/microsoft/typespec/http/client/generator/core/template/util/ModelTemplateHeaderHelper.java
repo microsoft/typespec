@@ -133,14 +133,25 @@ public final class ModelTemplateHeaderHelper {
                 return "HttpHeaderName.fromString(" + ClassType.STRING.defaultValueExpression(headerName) + ")";
             }
         } else {
-            if (CLIENTCORE_HEADER_TO_KNOWN_HTTPHEADERNAME.containsKey(caseInsensitiveName)) {
+            String constantName = getKnownClientCoreHttpHeaderNameConstant(headerName);
+            if (constantName != null) {
                 // known name
-                return "HttpHeaderName." + HEADER_TO_KNOWN_HTTPHEADERNAME.get(caseInsensitiveName);
+                return "HttpHeaderName." + constantName;
             } else {
                 return "HttpHeaderName.fromString(" + ClassType.STRING.defaultValueExpression(headerName) + ")";
             }
         }
 
+    }
+
+    /**
+     * Gets the ClientCore {@link HttpHeaderName} constant for a known header, ignoring case.
+     *
+     * @param headerName the HTTP header name.
+     * @return the public constant's field name, or {@code null} for a custom header.
+     */
+    public static String getKnownClientCoreHttpHeaderNameConstant(String headerName) {
+        return CLIENTCORE_HEADER_TO_KNOWN_HTTPHEADERNAME.get(headerName);
     }
 
     /**

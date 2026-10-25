@@ -1,14 +1,10 @@
 package payload.pageable.implementation;
 
 import io.clientcore.core.annotations.ReturnType;
-import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.annotations.HeaderParam;
-import io.clientcore.core.http.annotations.HostParam;
-import io.clientcore.core.http.annotations.HttpRequestInformation;
-import io.clientcore.core.http.annotations.PathParam;
-import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
+import io.clientcore.core.http.models.HttpHeaderName;
 import io.clientcore.core.http.models.HttpMethod;
+import io.clientcore.core.http.models.HttpRequest;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
@@ -17,7 +13,11 @@ import io.clientcore.core.http.paging.PagedResponse;
 import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.instrumentation.Instrumentation;
 import io.clientcore.core.instrumentation.logging.ClientLogger;
-import java.lang.reflect.InvocationTargetException;
+import io.clientcore.core.models.binarydata.BinaryData;
+import io.clientcore.core.serialization.SerializationFormat;
+import io.clientcore.core.serialization.json.JsonSerializer;
+import io.clientcore.core.utils.CoreUtils;
+import io.clientcore.core.utils.GeneratedCodeUtils;
 import payload.pageable.Pet;
 import payload.pageable.serverdrivenpagination.implementation.LinkResponse;
 import payload.pageable.serverdrivenpagination.implementation.LinkStringResponse;
@@ -53,65 +53,252 @@ public final class ServerDrivenPaginationsImpl {
         this.instrumentation = client.getInstrumentation();
     }
 
-    /**
-     * The interface defining all the services for PageableClientServerDrivenPaginations to be used by the proxy service
-     * to perform REST calls.
-     */
-    @ServiceInterface(name = "PageableClientServerDrivenPaginations", host = "{endpoint}")
     public interface ServerDrivenPaginationsService {
         static ServerDrivenPaginationsService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("payload.pageable.implementation.ServerDrivenPaginationsServiceImpl");
-                return (ServerDrivenPaginationsService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
+            return new ServerDrivenPaginationsServiceImpl(pipeline);
         }
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/payload/pageable/server-driven-pagination/link",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<LinkResponse> link(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
+        Response<LinkResponse> link(String endpoint, String accept, RequestContext requestContext);
+
+        Response<LinkStringResponse> linkString(String endpoint, String accept, RequestContext requestContext);
+
+        Response<NestedLinkResponse> nestedLink(String endpoint, String accept, RequestContext requestContext);
+
+        Response<LinkResponse> linkNext(String nextLink, String endpoint, String accept, RequestContext requestContext);
+
+        Response<LinkStringResponse> linkStringNext(String nextLink, String endpoint, String accept,
             RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/payload/pageable/server-driven-pagination/link-string",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<LinkStringResponse> linkString(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Accept") String accept, RequestContext requestContext);
-
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/payload/pageable/server-driven-pagination/nested-link",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<NestedLinkResponse> nestedLink(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Accept") String accept, RequestContext requestContext);
-
-        @HttpRequestInformation(method = HttpMethod.GET, path = "{nextLink}", expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<LinkResponse> linkNext(@PathParam(value = "nextLink", encoded = true) String nextLink,
-            @HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
+        Response<NestedLinkResponse> nestedLinkNext(String nextLink, String endpoint, String accept,
             RequestContext requestContext);
+    }
 
-        @HttpRequestInformation(method = HttpMethod.GET, path = "{nextLink}", expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<LinkStringResponse> linkStringNext(@PathParam(value = "nextLink", encoded = true) String nextLink,
-            @HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
-            RequestContext requestContext);
+    private static final class ServerDrivenPaginationsServiceImpl implements ServerDrivenPaginationsService {
+        private static final ClientLogger LOGGER = new ClientLogger(ServerDrivenPaginationsServiceImpl.class);
 
-        @HttpRequestInformation(method = HttpMethod.GET, path = "{nextLink}", expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<NestedLinkResponse> nestedLinkNext(@PathParam(value = "nextLink", encoded = true) String nextLink,
-            @HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
-            RequestContext requestContext);
+        private final HttpPipeline httpPipeline;
+
+        private final JsonSerializer jsonSerializer = JsonSerializer.getInstance();
+
+        private ServerDrivenPaginationsServiceImpl(HttpPipeline pipeline) {
+            this.httpPipeline = pipeline;
+        }
+
+        @Override
+        public Response<LinkResponse> link(String endpoint, String accept, RequestContext requestContext) {
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.GET)
+                .setUri(endpoint + "/payload/pageable/server-driven-pagination/link");
+            if (accept != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("Accept"), accept);
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 200)) {
+                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == SerializationFormat.XML) {
+                    try {
+                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer, null,
+                    null, null, ServerDrivenPaginationsServiceImpl.LOGGER);
+            }
+            try {
+                LinkResponse deserializedResult;
+                deserializedResult = CoreUtils.decodeNetworkResponse(networkResponse.getValue(), this.jsonSerializer,
+                    CoreUtils.createParameterizedType(Response.class, LinkResponse.class));
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(),
+                    deserializedResult);
+            } finally {
+                networkResponse.close();
+            }
+        }
+
+        @Override
+        public Response<LinkStringResponse> linkString(String endpoint, String accept, RequestContext requestContext) {
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.GET)
+                .setUri(endpoint + "/payload/pageable/server-driven-pagination/link-string");
+            if (accept != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("Accept"), accept);
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 200)) {
+                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == SerializationFormat.XML) {
+                    try {
+                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer, null,
+                    null, null, ServerDrivenPaginationsServiceImpl.LOGGER);
+            }
+            try {
+                LinkStringResponse deserializedResult;
+                deserializedResult = CoreUtils.decodeNetworkResponse(networkResponse.getValue(), this.jsonSerializer,
+                    CoreUtils.createParameterizedType(Response.class, LinkStringResponse.class));
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(),
+                    deserializedResult);
+            } finally {
+                networkResponse.close();
+            }
+        }
+
+        @Override
+        public Response<NestedLinkResponse> nestedLink(String endpoint, String accept, RequestContext requestContext) {
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.GET)
+                .setUri(endpoint + "/payload/pageable/server-driven-pagination/nested-link");
+            if (accept != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("Accept"), accept);
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 200)) {
+                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == SerializationFormat.XML) {
+                    try {
+                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer, null,
+                    null, null, ServerDrivenPaginationsServiceImpl.LOGGER);
+            }
+            try {
+                NestedLinkResponse deserializedResult;
+                deserializedResult = CoreUtils.decodeNetworkResponse(networkResponse.getValue(), this.jsonSerializer,
+                    CoreUtils.createParameterizedType(Response.class, NestedLinkResponse.class));
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(),
+                    deserializedResult);
+            } finally {
+                networkResponse.close();
+            }
+        }
+
+        @Override
+        public Response<LinkResponse> linkNext(String nextLink, String endpoint, String accept,
+            RequestContext requestContext) {
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.GET).setUri(nextLink);
+            if (accept != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("Accept"), accept);
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 200)) {
+                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == SerializationFormat.XML) {
+                    try {
+                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer, null,
+                    null, null, ServerDrivenPaginationsServiceImpl.LOGGER);
+            }
+            try {
+                LinkResponse deserializedResult;
+                deserializedResult = CoreUtils.decodeNetworkResponse(networkResponse.getValue(), this.jsonSerializer,
+                    CoreUtils.createParameterizedType(Response.class, LinkResponse.class));
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(),
+                    deserializedResult);
+            } finally {
+                networkResponse.close();
+            }
+        }
+
+        @Override
+        public Response<LinkStringResponse> linkStringNext(String nextLink, String endpoint, String accept,
+            RequestContext requestContext) {
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.GET).setUri(nextLink);
+            if (accept != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("Accept"), accept);
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 200)) {
+                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == SerializationFormat.XML) {
+                    try {
+                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer, null,
+                    null, null, ServerDrivenPaginationsServiceImpl.LOGGER);
+            }
+            try {
+                LinkStringResponse deserializedResult;
+                deserializedResult = CoreUtils.decodeNetworkResponse(networkResponse.getValue(), this.jsonSerializer,
+                    CoreUtils.createParameterizedType(Response.class, LinkStringResponse.class));
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(),
+                    deserializedResult);
+            } finally {
+                networkResponse.close();
+            }
+        }
+
+        @Override
+        public Response<NestedLinkResponse> nestedLinkNext(String nextLink, String endpoint, String accept,
+            RequestContext requestContext) {
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.GET).setUri(nextLink);
+            if (accept != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("Accept"), accept);
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 200)) {
+                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == SerializationFormat.XML) {
+                    try {
+                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer, null,
+                    null, null, ServerDrivenPaginationsServiceImpl.LOGGER);
+            }
+            try {
+                NestedLinkResponse deserializedResult;
+                deserializedResult = CoreUtils.decodeNetworkResponse(networkResponse.getValue(), this.jsonSerializer,
+                    CoreUtils.createParameterizedType(Response.class, NestedLinkResponse.class));
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(),
+                    deserializedResult);
+            } finally {
+                networkResponse.close();
+            }
+        }
     }
 
     /**

@@ -72,11 +72,10 @@ public class EncodeBytesTests {
         binary = responseClient.customContentType();
         Assertions.assertArrayEquals(PNG, binary.toBytes());
 
-        // array lengths differ
-//        bytes = responseClient.base64();
-//        Assertions.assertArrayEquals(DATA, bytes);
+        byte[] bytes = responseClient.base64();
+        Assertions.assertArrayEquals(DATA, bytes);
 
-        byte[] bytes = responseClient.base64url();
+        bytes = responseClient.base64url();
         Assertions.assertArrayEquals(DATA, bytes);
     }
 

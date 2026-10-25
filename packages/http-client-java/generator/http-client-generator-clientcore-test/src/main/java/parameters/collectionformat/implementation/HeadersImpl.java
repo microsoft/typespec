@@ -1,19 +1,21 @@
 package parameters.collectionformat.implementation;
 
 import io.clientcore.core.annotations.ReturnType;
-import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.annotations.HeaderParam;
-import io.clientcore.core.http.annotations.HostParam;
-import io.clientcore.core.http.annotations.HttpRequestInformation;
-import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
+import io.clientcore.core.http.models.HttpHeaderName;
 import io.clientcore.core.http.models.HttpMethod;
+import io.clientcore.core.http.models.HttpRequest;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.instrumentation.Instrumentation;
-import java.lang.reflect.InvocationTargetException;
+import io.clientcore.core.instrumentation.logging.ClientLogger;
+import io.clientcore.core.models.binarydata.BinaryData;
+import io.clientcore.core.serialization.SerializationFormat;
+import io.clientcore.core.serialization.json.JsonSerializer;
+import io.clientcore.core.utils.CoreUtils;
+import io.clientcore.core.utils.GeneratedCodeUtils;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -48,30 +50,54 @@ public final class HeadersImpl {
         this.instrumentation = client.getInstrumentation();
     }
 
-    /**
-     * The interface defining all the services for CollectionFormatClientHeaders to be used by the proxy service to
-     * perform REST calls.
-     */
-    @ServiceInterface(name = "CollectionFormatClientHeaders", host = "{endpoint}")
     public interface HeadersService {
         static HeadersService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("parameters.collectionformat.implementation.HeadersServiceImpl");
-                return (HeadersService) clazz.getMethod("getNewInstance", HttpPipeline.class).invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
+            return new HeadersServiceImpl(pipeline);
         }
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/parameters/collection-format/header/csv",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> csv(@HostParam("endpoint") String endpoint, @HeaderParam("colors") String colors,
-            RequestContext requestContext);
+        Response<Void> csv(String endpoint, String colors, RequestContext requestContext);
+    }
+
+    private static final class HeadersServiceImpl implements HeadersService {
+        private static final ClientLogger LOGGER = new ClientLogger(HeadersServiceImpl.class);
+
+        private final HttpPipeline httpPipeline;
+
+        private HeadersServiceImpl(HttpPipeline pipeline) {
+            this.httpPipeline = pipeline;
+        }
+
+        @Override
+        public Response<Void> csv(String endpoint, String colors, RequestContext requestContext) {
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.GET)
+                .setUri(endpoint + "/parameters/collection-format/header/csv");
+            if (colors != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("colors"), colors);
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 204)) {
+                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == SerializationFormat.XML) {
+                    try {
+                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, JsonSerializer.getInstance(),
+                    null, null, null, HeadersServiceImpl.LOGGER);
+            }
+            try {
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
+            } finally {
+                networkResponse.close();
+            }
+        }
     }
 
     /**
@@ -94,4 +120,6 @@ public final class HeadersImpl {
                 return service.csv(this.client.getEndpoint(), colorsConverted, updatedContext);
             });
     }
+
+    private static final ClientLogger LOGGER = new ClientLogger(HeadersImpl.class);
 }

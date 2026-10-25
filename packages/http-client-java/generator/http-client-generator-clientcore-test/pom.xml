@@ -81,45 +81,16 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.15.0</version>
-        <executions>
-          <execution>
-            <id>run-annotation-processing</id>
-            <phase>generate-sources</phase>
-            <goals>
-              <goal>compile</goal>
-            </goals>
-            <configuration>
-              <source>1.8</source>
-              <target>1.8</target>
-              <release>8</release>
-              <proc>only</proc>
-              <generatedSourcesDirectory>${project.build.directory}/generated-sources/</generatedSourcesDirectory>
-              <annotationProcessorPaths>
-                <annotationProcessorPath>
-                  <groupId>io.clientcore</groupId>
-                  <artifactId>annotation-processor</artifactId>
-                  <version>1.0.0-beta.4</version>
-                </annotationProcessorPath>
-              </annotationProcessorPaths>
-              <annotationProcessors>
-                <annotationProcessor>io.clientcore.annotation.processor.AnnotationProcessor</annotationProcessor>
-              </annotationProcessors>
-              <compilerArgs>
-                <arg>-Xlint:-options</arg>
-              </compilerArgs>
-              <excludes>
-                <exclude>module-info.java</exclude>
-              </excludes>
-            </configuration>
-          </execution>
-        </executions>
-        <dependencies>
-          <dependency>
-            <groupId>io.clientcore</groupId>
-            <artifactId>annotation-processor</artifactId>
-            <version>1.0.0-beta.4</version>
-          </dependency>
-        </dependencies>
+        <configuration>
+          <!-- Generated service implementations must compile without an annotation processor. -->
+          <proc>none</proc>
+          <compilerArgs>
+            <arg>-Xlint:-options</arg>
+          </compilerArgs>
+          <excludes>
+            <exclude>module-info.java</exclude>
+          </excludes>
+        </configuration>
       </plugin>
     </plugins>
   </build>

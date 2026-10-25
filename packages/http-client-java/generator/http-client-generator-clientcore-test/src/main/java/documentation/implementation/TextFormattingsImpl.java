@@ -1,18 +1,20 @@
 package documentation.implementation;
 
 import io.clientcore.core.annotations.ReturnType;
-import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.annotations.HostParam;
-import io.clientcore.core.http.annotations.HttpRequestInformation;
-import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
 import io.clientcore.core.http.models.HttpMethod;
+import io.clientcore.core.http.models.HttpRequest;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.instrumentation.Instrumentation;
-import java.lang.reflect.InvocationTargetException;
+import io.clientcore.core.instrumentation.logging.ClientLogger;
+import io.clientcore.core.models.binarydata.BinaryData;
+import io.clientcore.core.serialization.SerializationFormat;
+import io.clientcore.core.serialization.json.JsonSerializer;
+import io.clientcore.core.utils.CoreUtils;
+import io.clientcore.core.utils.GeneratedCodeUtils;
 
 /**
  * An instance of this class provides access to all the operations defined in TextFormattings.
@@ -44,44 +46,113 @@ public final class TextFormattingsImpl {
         this.instrumentation = client.getInstrumentation();
     }
 
-    /**
-     * The interface defining all the services for DocumentationClientTextFormattings to be used by the proxy service to
-     * perform REST calls.
-     */
-    @ServiceInterface(name = "DocumentationClientTextFormattings", host = "{endpoint}")
     public interface TextFormattingsService {
         static TextFormattingsService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("documentation.implementation.TextFormattingsServiceImpl");
-                return (TextFormattingsService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
+            return new TextFormattingsServiceImpl(pipeline);
         }
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/documentation/text-formatting/bold",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> boldText(@HostParam("endpoint") String endpoint, RequestContext requestContext);
+        Response<Void> boldText(String endpoint, RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/documentation/text-formatting/italic",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> italicText(@HostParam("endpoint") String endpoint, RequestContext requestContext);
+        Response<Void> italicText(String endpoint, RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/documentation/text-formatting/combined",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> combinedFormatting(@HostParam("endpoint") String endpoint, RequestContext requestContext);
+        Response<Void> combinedFormatting(String endpoint, RequestContext requestContext);
+    }
+
+    private static final class TextFormattingsServiceImpl implements TextFormattingsService {
+        private static final ClientLogger LOGGER = new ClientLogger(TextFormattingsServiceImpl.class);
+
+        private final HttpPipeline httpPipeline;
+
+        private TextFormattingsServiceImpl(HttpPipeline pipeline) {
+            this.httpPipeline = pipeline;
+        }
+
+        @Override
+        public Response<Void> boldText(String endpoint, RequestContext requestContext) {
+            HttpRequest httpRequest
+                = new HttpRequest().setMethod(HttpMethod.GET).setUri(endpoint + "/documentation/text-formatting/bold");
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 204)) {
+                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == SerializationFormat.XML) {
+                    try {
+                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, JsonSerializer.getInstance(),
+                    null, null, null, TextFormattingsServiceImpl.LOGGER);
+            }
+            try {
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
+            } finally {
+                networkResponse.close();
+            }
+        }
+
+        @Override
+        public Response<Void> italicText(String endpoint, RequestContext requestContext) {
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.GET)
+                .setUri(endpoint + "/documentation/text-formatting/italic");
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 204)) {
+                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == SerializationFormat.XML) {
+                    try {
+                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, JsonSerializer.getInstance(),
+                    null, null, null, TextFormattingsServiceImpl.LOGGER);
+            }
+            try {
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
+            } finally {
+                networkResponse.close();
+            }
+        }
+
+        @Override
+        public Response<Void> combinedFormatting(String endpoint, RequestContext requestContext) {
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.GET)
+                .setUri(endpoint + "/documentation/text-formatting/combined");
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 204)) {
+                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == SerializationFormat.XML) {
+                    try {
+                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, JsonSerializer.getInstance(),
+                    null, null, null, TextFormattingsServiceImpl.LOGGER);
+            }
+            try {
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
+            } finally {
+                networkResponse.close();
+            }
+        }
     }
 
     /**
@@ -141,4 +212,6 @@ public final class TextFormattingsImpl {
                 return service.combinedFormatting(this.client.getEndpoint(), updatedContext);
             });
     }
+
+    private static final ClientLogger LOGGER = new ClientLogger(TextFormattingsImpl.class);
 }

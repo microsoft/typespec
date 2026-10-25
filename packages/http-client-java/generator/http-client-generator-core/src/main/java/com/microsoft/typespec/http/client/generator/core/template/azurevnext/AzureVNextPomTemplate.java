@@ -159,8 +159,7 @@ public class AzureVNextPomTemplate extends PomTemplate {
      */
     protected void writeBuildBlock(XmlBlock projectBlock, Pom pom) {
         if (pom.isRequireCompilerPlugins()) {
-            projectBlock.block("build",
-                buildBlock -> buildBlock.block("plugins", pluginsBlock -> writePlugins(projectBlock)));
+            projectBlock.block("build", buildBlock -> buildBlock.block("plugins", this::writePlugins));
         }
     }
 
@@ -175,45 +174,7 @@ public class AzureVNextPomTemplate extends PomTemplate {
             pluginBlock.tag("groupId", "org.apache.maven.plugins");
             pluginBlock.tag("artifactId", "maven-compiler-plugin");
             pluginBlock.tag("version", "3.13.0");
-
-            pluginBlock.block("executions", executionsBlock -> executionsBlock.block("execution", executionBlock -> {
-                executionBlock.tag("id", "run-annotation-processing");
-                executionBlock.tag("phase", "generate-sources");
-                executionBlock.block("goals", goalsBlock -> goalsBlock.tag("goal", "compile"));
-
-                executionBlock.block("configuration", configurationBlock -> {
-                    configurationBlock.tag("source", "1.8");
-                    configurationBlock.tag("target", "1.8");
-                    configurationBlock.tag("release", "8");
-                    configurationBlock.tag("proc", "only");
-                    configurationBlock.tag("generatedSourcesDirectory",
-                        "${project.build.directory}/generated-sources/");
-                    configurationBlock.block("annotationProcessorPaths",
-                        annotationProcessorPathsBlock -> annotationProcessorPathsBlock.block("annotationProcessorPath",
-                            pathBlock -> {
-                                pathBlock.tag("groupId", "io.clientcore");
-                                pathBlock.tag("artifactId", "annotation-processor");
-                                pathBlock.tagWithInlineComment("version", "1.0.0-beta.4",
-                                    "{x-version-update;io.clientcore:annotation-processor;dependency}");
-                            }));
-                    configurationBlock.block("annotationProcessors",
-                        annotationProcessorsBlock -> annotationProcessorsBlock.tag("annotationProcessor",
-                            "io.clientcore.annotation.processor.AnnotationProcessor"));
-                    configurationBlock.block("compilerArgs",
-                        compilerArgsBlock -> compilerArgsBlock.tag("arg", "-Xlint:-options"));
-                    configurationBlock.block("excludes",
-                        excludesBlock -> excludesBlock.tag("exclude", "module-info.java"));
-                });
-
-            }));
-
-            pluginsBlock.block("dependencies",
-                dependenciesBlock -> dependenciesBlock.block("dependency", dependencyBlock -> {
-                    dependencyBlock.tag("groupId", "io.clientcore");
-                    dependencyBlock.tag("artifactId", "annotation-processor");
-                    dependencyBlock.tagWithInlineComment("version", "1.0.0-beta.3",
-                        "{x-version-update;io.clientcore:annotation-processor;dependency}");
-                }));
+            pluginBlock.block("configuration", configurationBlock -> configurationBlock.tag("release", "11"));
         });
     }
 }

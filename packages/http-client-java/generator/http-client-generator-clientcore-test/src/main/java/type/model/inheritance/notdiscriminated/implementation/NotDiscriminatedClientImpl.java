@@ -1,20 +1,21 @@
 package type.model.inheritance.notdiscriminated.implementation;
 
 import io.clientcore.core.annotations.ReturnType;
-import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.annotations.BodyParam;
-import io.clientcore.core.http.annotations.HeaderParam;
-import io.clientcore.core.http.annotations.HostParam;
-import io.clientcore.core.http.annotations.HttpRequestInformation;
-import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
+import io.clientcore.core.http.models.HttpHeaderName;
 import io.clientcore.core.http.models.HttpMethod;
+import io.clientcore.core.http.models.HttpRequest;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.instrumentation.Instrumentation;
-import java.lang.reflect.InvocationTargetException;
+import io.clientcore.core.instrumentation.logging.ClientLogger;
+import io.clientcore.core.models.binarydata.BinaryData;
+import io.clientcore.core.serialization.SerializationFormat;
+import io.clientcore.core.serialization.json.JsonSerializer;
+import io.clientcore.core.utils.CoreUtils;
+import io.clientcore.core.utils.GeneratedCodeUtils;
 import type.model.inheritance.notdiscriminated.Siamese;
 
 /**
@@ -82,50 +83,150 @@ public final class NotDiscriminatedClientImpl {
         this.service = NotDiscriminatedClientService.getNewInstance(this.httpPipeline);
     }
 
-    /**
-     * The interface defining all the services for NotDiscriminatedClient to be used by the proxy service to perform
-     * REST calls.
-     */
-    @ServiceInterface(name = "NotDiscriminatedClient", host = "{endpoint}")
     public interface NotDiscriminatedClientService {
         static NotDiscriminatedClientService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName(
-                    "type.model.inheritance.notdiscriminated.implementation.NotDiscriminatedClientServiceImpl");
-                return (NotDiscriminatedClientService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
+            return new NotDiscriminatedClientServiceImpl(pipeline);
         }
 
-        @HttpRequestInformation(
-            method = HttpMethod.POST,
-            path = "/type/model/inheritance/not-discriminated/valid",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> postValid(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @BodyParam("application/json") Siamese input,
-            RequestContext requestContext);
+        Response<Void> postValid(String endpoint, String contentType, Siamese input, RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/type/model/inheritance/not-discriminated/valid",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<Siamese> getValid(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
-            RequestContext requestContext);
+        Response<Siamese> getValid(String endpoint, String accept, RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.PUT,
-            path = "/type/model/inheritance/not-discriminated/valid",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<Siamese> putValid(@HostParam("endpoint") String endpoint,
-            @HeaderParam("Content-Type") String contentType, @HeaderParam("Accept") String accept,
-            @BodyParam("application/json") Siamese input, RequestContext requestContext);
+        Response<Siamese> putValid(String endpoint, String contentType, String accept, Siamese input,
+            RequestContext requestContext);
+    }
+
+    private static final class NotDiscriminatedClientServiceImpl implements NotDiscriminatedClientService {
+        private static final ClientLogger LOGGER = new ClientLogger(NotDiscriminatedClientServiceImpl.class);
+
+        private final HttpPipeline httpPipeline;
+
+        private final JsonSerializer jsonSerializer = JsonSerializer.getInstance();
+
+        private NotDiscriminatedClientServiceImpl(HttpPipeline pipeline) {
+            this.httpPipeline = pipeline;
+        }
+
+        @Override
+        public Response<Void> postValid(String endpoint, String contentType, Siamese input,
+            RequestContext requestContext) {
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.POST)
+                .setUri(endpoint + "/type/model/inheritance/not-discriminated/valid");
+            if (contentType != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("Content-Type"), contentType);
+            }
+            if (input != null) {
+                if (httpRequest.getHeaders().get(HttpHeaderName.CONTENT_TYPE) == null) {
+                    httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, "application/json");
+                }
+                httpRequest.setBody(BinaryData.fromObject(input, this.jsonSerializer));
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 204)) {
+                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == SerializationFormat.XML) {
+                    try {
+                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer, null,
+                    null, null, NotDiscriminatedClientServiceImpl.LOGGER);
+            }
+            try {
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
+            } finally {
+                networkResponse.close();
+            }
+        }
+
+        @Override
+        public Response<Siamese> getValid(String endpoint, String accept, RequestContext requestContext) {
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.GET)
+                .setUri(endpoint + "/type/model/inheritance/not-discriminated/valid");
+            if (accept != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("Accept"), accept);
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 200)) {
+                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == SerializationFormat.XML) {
+                    try {
+                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer, null,
+                    null, null, NotDiscriminatedClientServiceImpl.LOGGER);
+            }
+            try {
+                Siamese deserializedResult;
+                deserializedResult = CoreUtils.decodeNetworkResponse(networkResponse.getValue(), this.jsonSerializer,
+                    CoreUtils.createParameterizedType(Response.class, Siamese.class));
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(),
+                    deserializedResult);
+            } finally {
+                networkResponse.close();
+            }
+        }
+
+        @Override
+        public Response<Siamese> putValid(String endpoint, String contentType, String accept, Siamese input,
+            RequestContext requestContext) {
+            HttpRequest httpRequest = new HttpRequest().setMethod(HttpMethod.PUT)
+                .setUri(endpoint + "/type/model/inheritance/not-discriminated/valid");
+            if (contentType != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("Content-Type"), contentType);
+            }
+            if (accept != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("Accept"), accept);
+            }
+            if (input != null) {
+                if (httpRequest.getHeaders().get(HttpHeaderName.CONTENT_TYPE) == null) {
+                    httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, "application/json");
+                }
+                httpRequest.setBody(BinaryData.fromObject(input, this.jsonSerializer));
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 200)) {
+                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == SerializationFormat.XML) {
+                    try {
+                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer, null,
+                    null, null, NotDiscriminatedClientServiceImpl.LOGGER);
+            }
+            try {
+                Siamese deserializedResult;
+                deserializedResult = CoreUtils.decodeNetworkResponse(networkResponse.getValue(), this.jsonSerializer,
+                    CoreUtils.createParameterizedType(Response.class, Siamese.class));
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(),
+                    deserializedResult);
+            } finally {
+                networkResponse.close();
+            }
+        }
     }
 
     /**
@@ -184,4 +285,6 @@ public final class NotDiscriminatedClientImpl {
                 return service.putValid(this.getEndpoint(), contentType, accept, input, updatedContext);
             });
     }
+
+    private static final ClientLogger LOGGER = new ClientLogger(NotDiscriminatedClientImpl.class);
 }

@@ -1,20 +1,21 @@
 package type.union.implementation;
 
 import io.clientcore.core.annotations.ReturnType;
-import io.clientcore.core.annotations.ServiceInterface;
 import io.clientcore.core.annotations.ServiceMethod;
-import io.clientcore.core.http.annotations.BodyParam;
-import io.clientcore.core.http.annotations.HeaderParam;
-import io.clientcore.core.http.annotations.HostParam;
-import io.clientcore.core.http.annotations.HttpRequestInformation;
-import io.clientcore.core.http.annotations.UnexpectedResponseExceptionDetail;
+import io.clientcore.core.http.models.HttpHeaderName;
 import io.clientcore.core.http.models.HttpMethod;
+import io.clientcore.core.http.models.HttpRequest;
 import io.clientcore.core.http.models.HttpResponseException;
 import io.clientcore.core.http.models.RequestContext;
 import io.clientcore.core.http.models.Response;
 import io.clientcore.core.http.pipeline.HttpPipeline;
 import io.clientcore.core.instrumentation.Instrumentation;
-import java.lang.reflect.InvocationTargetException;
+import io.clientcore.core.instrumentation.logging.ClientLogger;
+import io.clientcore.core.models.binarydata.BinaryData;
+import io.clientcore.core.serialization.SerializationFormat;
+import io.clientcore.core.serialization.json.JsonSerializer;
+import io.clientcore.core.utils.CoreUtils;
+import io.clientcore.core.utils.GeneratedCodeUtils;
 import type.union.GetResponse7;
 import type.union.StringAndArrayCases;
 
@@ -48,39 +49,102 @@ public final class StringAndArraysImpl {
         this.instrumentation = client.getInstrumentation();
     }
 
-    /**
-     * The interface defining all the services for UnionClientStringAndArrays to be used by the proxy service to perform
-     * REST calls.
-     */
-    @ServiceInterface(name = "UnionClientStringAndArrays", host = "{endpoint}")
     public interface StringAndArraysService {
         static StringAndArraysService getNewInstance(HttpPipeline pipeline) {
-            try {
-                Class<?> clazz = Class.forName("type.union.implementation.StringAndArraysServiceImpl");
-                return (StringAndArraysService) clazz.getMethod("getNewInstance", HttpPipeline.class)
-                    .invoke(null, pipeline);
-            } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException
-                | InvocationTargetException e) {
-                throw new RuntimeException(e);
-            }
-
+            return new StringAndArraysServiceImpl(pipeline);
         }
 
-        @HttpRequestInformation(
-            method = HttpMethod.GET,
-            path = "/type/union/string-and-array",
-            expectedStatusCodes = { 200 })
-        @UnexpectedResponseExceptionDetail
-        Response<GetResponse7> get(@HostParam("endpoint") String endpoint, @HeaderParam("Accept") String accept,
-            RequestContext requestContext);
+        Response<GetResponse7> get(String endpoint, String accept, RequestContext requestContext);
 
-        @HttpRequestInformation(
-            method = HttpMethod.POST,
-            path = "/type/union/string-and-array",
-            expectedStatusCodes = { 204 })
-        @UnexpectedResponseExceptionDetail
-        Response<Void> send(@HostParam("endpoint") String endpoint, @HeaderParam("Content-Type") String contentType,
-            @BodyParam("application/json") SendRequest7 sendRequest7, RequestContext requestContext);
+        Response<Void> send(String endpoint, String contentType, SendRequest7 sendRequest7,
+            RequestContext requestContext);
+    }
+
+    private static final class StringAndArraysServiceImpl implements StringAndArraysService {
+        private static final ClientLogger LOGGER = new ClientLogger(StringAndArraysServiceImpl.class);
+
+        private final HttpPipeline httpPipeline;
+
+        private final JsonSerializer jsonSerializer = JsonSerializer.getInstance();
+
+        private StringAndArraysServiceImpl(HttpPipeline pipeline) {
+            this.httpPipeline = pipeline;
+        }
+
+        @Override
+        public Response<GetResponse7> get(String endpoint, String accept, RequestContext requestContext) {
+            HttpRequest httpRequest
+                = new HttpRequest().setMethod(HttpMethod.GET).setUri(endpoint + "/type/union/string-and-array");
+            if (accept != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("Accept"), accept);
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 200)) {
+                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == SerializationFormat.XML) {
+                    try {
+                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer, null,
+                    null, null, StringAndArraysServiceImpl.LOGGER);
+            }
+            try {
+                GetResponse7 deserializedResult;
+                deserializedResult = CoreUtils.decodeNetworkResponse(networkResponse.getValue(), this.jsonSerializer,
+                    CoreUtils.createParameterizedType(Response.class, GetResponse7.class));
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(),
+                    deserializedResult);
+            } finally {
+                networkResponse.close();
+            }
+        }
+
+        @Override
+        public Response<Void> send(String endpoint, String contentType, SendRequest7 sendRequest7,
+            RequestContext requestContext) {
+            HttpRequest httpRequest
+                = new HttpRequest().setMethod(HttpMethod.POST).setUri(endpoint + "/type/union/string-and-array");
+            if (contentType != null) {
+                httpRequest.getHeaders().set(HttpHeaderName.fromString("Content-Type"), contentType);
+            }
+            if (sendRequest7 != null) {
+                if (httpRequest.getHeaders().get(HttpHeaderName.CONTENT_TYPE) == null) {
+                    httpRequest.getHeaders().set(HttpHeaderName.CONTENT_TYPE, "application/json");
+                }
+                httpRequest.setBody(BinaryData.fromObject(sendRequest7, this.jsonSerializer));
+            }
+            if (requestContext != null) {
+                httpRequest.setContext(requestContext);
+                requestContext.getRequestCallback().accept(httpRequest);
+            }
+            Response<BinaryData> networkResponse = this.httpPipeline.send(httpRequest);
+            int responseCode = networkResponse.getStatusCode();
+            if (!(responseCode == 204)) {
+                if (CoreUtils.serializationFormatFromContentType(networkResponse.getHeaders())
+                    == SerializationFormat.XML) {
+                    try {
+                        throw new HttpResponseException("Unexpected XML response.", networkResponse, (Object) null);
+                    } finally {
+                        networkResponse.close();
+                    }
+                }
+                GeneratedCodeUtils.handleUnexpectedResponse(responseCode, networkResponse, this.jsonSerializer, null,
+                    null, null, StringAndArraysServiceImpl.LOGGER);
+            }
+            try {
+                return new Response<>(networkResponse.getRequest(), responseCode, networkResponse.getHeaders(), null);
+            } finally {
+                networkResponse.close();
+            }
+        }
     }
 
     /**
@@ -120,4 +184,6 @@ public final class StringAndArraysImpl {
                 return service.send(this.client.getEndpoint(), contentType, sendRequest7, updatedContext);
             });
     }
+
+    private static final ClientLogger LOGGER = new ClientLogger(StringAndArraysImpl.class);
 }

@@ -18,7 +18,7 @@ public class DatetimeValueClientTest {
     public void get() {
         Map<String, OffsetDateTime> response = client.get();
         Assertions.assertTrue(response.containsKey("k1"));
-        Assertions.assertEquals("2022-08-26T18:38:00Z", response.get("k1"));
+        Assertions.assertEquals(OffsetDateTime.parse("2022-08-26T18:38:00Z"), response.get("k1"));
     }
 
     @Test
