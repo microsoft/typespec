@@ -1,6 +1,6 @@
 # Documentation dependencies
 -r base.txt
-pip
+pip>=26.2.2
 pylint
 pkginfo
 sphinx>=7.0.0
