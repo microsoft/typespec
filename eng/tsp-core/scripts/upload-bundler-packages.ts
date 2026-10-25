@@ -1,12 +1,20 @@
 // @ts-check
+import { parseArgs } from "node:util";
 import {
   bundleAndUploadPackages,
   getPackageVersion,
 } from "../../../packages/bundle-uploader/dist/src/index.js";
 import { repoRoot } from "../../common/scripts/helpers.ts";
 
+const { values } = parseArgs({
+  options: {
+    overwrite: { type: "boolean", default: false },
+  },
+});
+
 await bundleAndUploadPackages({
   repoRoot: repoRoot,
+  overwrite: values.overwrite,
   indexName: "typespec",
   indexVersion: await getPackageVersion(repoRoot, "@typespec/compiler"),
   packages: [

@@ -22,9 +22,14 @@ export interface PackageIndex {
 
 export class TypeSpecBundledPackageUploader {
   #container: ContainerClient;
+  #overwrite: boolean;
 
-  constructor(credential?: StorageSharedKeyCredential | AnonymousCredential | TokenCredential) {
+  constructor(
+    credential?: StorageSharedKeyCredential | AnonymousCredential | TokenCredential,
+    options: { overwrite?: boolean } = {},
+  ) {
     this.#container = getCoverageContainer(storageAccountName, credential);
+    this.#overwrite = options.overwrite ?? false;
   }
 
   async createIfNotExists() {
@@ -88,13 +93,11 @@ export class TypeSpecBundledPackageUploader {
         blobHTTPHeaders: {
           blobContentType: contentType,
         },
-        conditions: {
-          ifNoneMatch: "*",
-        },
+        conditions: this.#overwrite ? undefined : { ifNoneMatch: "*" },
       });
       return { status: "uploaded", url };
     } catch (e: any) {
-      if (e.code === "BlobAlreadyExists") {
+      if (!this.#overwrite && e.code === "BlobAlreadyExists") {
         return { status: "already-exists", url };
       }
       throw e;
@@ -159,12 +162,10 @@ export class TypeSpecBundledPackageUploader {
         blobHTTPHeaders: {
           blobContentType: "application/json; charset=utf-8",
         },
-        conditions: {
-          ifNoneMatch: "*",
-        },
+        conditions: this.#overwrite ? undefined : { ifNoneMatch: "*" },
       });
     } catch (e: any) {
-      if (e.code === "BlobAlreadyExists") {
+      if (!this.#overwrite && e.code === "BlobAlreadyExists") {
         return false;
       }
       throw e;
@@ -180,9 +181,7 @@ export class TypeSpecBundledPackageUploader {
       blobHTTPHeaders: {
         blobContentType: "application/javascript; charset=utf-8",
       },
-      conditions: {
-        ifNoneMatch: "*",
-      },
+      conditions: this.#overwrite ? undefined : { ifNoneMatch: "*" },
     });
   }
 }
