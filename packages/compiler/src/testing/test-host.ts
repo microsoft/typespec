@@ -92,7 +92,7 @@ export async function findFilesFromPattern(directory: string, pattern: string): 
   const results: string[] = [];
   for await (const file of glob(pattern, {
     cwd: directory,
-    exclude: ["**/*.{test,spec}.{ts,tsx,js,jsx}"],
+    exclude: (file) => /\.(test|spec)\.[jt]sx?$/.test(typeof file === "string" ? file : file.name),
   })) {
     results.push(file);
   }
