@@ -2,12 +2,23 @@ import type { Refkey } from "@alloy-js/core";
 import { refkey } from "@alloy-js/core";
 import type { ModelProperty, Operation, StringLiteral, Type } from "@typespec/compiler";
 import { type Typekit } from "@typespec/compiler/typekit";
+import type { HttpAuth } from "@typespec/http";
 import { getHttpService, resolveAuthentication } from "@typespec/http";
 import type { InternalClient } from "../interfaces.js";
 import { authSchemeSymbol, credentialSymbol } from "../types/credential-symbol.js";
 import { getStringValue, getUniqueTypes } from "./helpers.js";
 
-const credentialCache = new Map<Refkey, ModelProperty>();
+const programCredentialCaches = new WeakMap<object, Map<Refkey, ModelProperty>>();
+
+function getCredentialCache(program: object): Map<Refkey, ModelProperty> {
+  let cache = programCredentialCaches.get(program);
+  if (!cache) {
+    cache = new Map<Refkey, ModelProperty>();
+    programCredentialCaches.set(program, cache);
+  }
+  return cache;
+}
+
 /**
  * Creates or reuses the client's synthetic `credential` constructor parameter.
  * Its type is an authentication-kind string literal, or a union of literals for multiple schemes;
@@ -29,6 +40,7 @@ export function getCredentialParameter(
     return schemeLiteral;
   });
 
+  const credentialCache = getCredentialCache($.program);
   const cacheKey = getCredRefkey(credTypes);
 
   if (credentialCache.has(cacheKey)) {
@@ -55,7 +67,18 @@ export function getCredentialParameter(
 }
 
 function getCredRefkey(credentials: StringLiteral[]): Refkey {
-  return refkey(credentials.map((c) => c.value).join());
+  return refkey(
+    credentials
+      .map((c) => {
+        const scheme = c[authSchemeSymbol] as HttpAuth | undefined;
+        if (scheme) {
+          const schemeName = scheme.id ?? (scheme as any).scheme ?? "";
+          return `${scheme.type}:${schemeName}`;
+        }
+        return c.value;
+      })
+      .join(),
+  );
 }
 
 /**

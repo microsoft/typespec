@@ -26,7 +26,11 @@ The client structure should be MyApi class with no operations and 2 members, Bar
 export class MyApiClient {
   fooClient: FooClient;
   barClient: BarClient;
-  constructor(endpoint: string, credential: BasicCredential, options?: MyApiClientOptions) {
+  constructor(
+    endpoint: string,
+    credential: BearerTokenCredential,
+    options?: MyApiClientOptions,
+  ) {
     this.fooClient = new FooClient(endpoint, credential, options);
     this.barClient = new BarClient(endpoint, credential, options);
   }

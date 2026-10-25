@@ -14,16 +14,20 @@ export function buildClientParameters(
   suffixRefkey: Refkey,
 ): ts.ParameterDescriptor[] {
   const { $ } = useTsp();
+  const auth = $.client.getAuth(client);
+  const isAuthOptional = auth.defaultAuth.options.some((opt) =>
+    opt.all.some((ref) => ref.auth.type === "noAuth"),
+  );
   const clientConstructor = $.client.getConstructor(client);
   const parameters = $.operation.getClientSignature(client, clientConstructor);
   const params = parameters.flatMap(
     (param) => {
-      const descriptor = buildClientParameterDescriptor(param, suffixRefkey);
+      const descriptor = buildClientParameterDescriptor(param, suffixRefkey, isAuthOptional);
       if (!descriptor) {
         return [];
       }
 
-      if (!descriptor.optional) {
+      if (!descriptor.optional || descriptor.name === "credential") {
         return [descriptor];
       }
 
@@ -47,6 +51,7 @@ export function buildClientParameters(
 function buildClientParameterDescriptor(
   modelProperty: ModelProperty,
   suffixRefkey: Refkey,
+  isAuthOptional: boolean = false,
 ): ts.ParameterDescriptor | undefined {
   const { $ } = useTsp();
   const authSchemes = $.modelProperty.getCredentialAuth(modelProperty);
@@ -62,7 +67,7 @@ function buildClientParameterDescriptor(
     return {
       name: "credential",
       refkey: refkey(modelProperty, suffixRefkey),
-      optional: modelProperty.optional,
+      optional: modelProperty.optional || isAuthOptional,
       type: mapJoin(
         () => credentialType,
         (t) => t,
