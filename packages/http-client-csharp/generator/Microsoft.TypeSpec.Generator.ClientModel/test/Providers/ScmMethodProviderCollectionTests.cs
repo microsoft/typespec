@@ -154,6 +154,45 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             }
         }
 
+        [TestCase(null)]
+        [TestCase("Generated message")]
+        public async Task VisitorDeprecationPreservesPublishedMethods(string? generatedMessage)
+        {
+            var operation = InputFactory.Operation("Bar", deprecated: generatedMessage);
+            var inputClient = InputFactory.Client("TestClient", methods: [InputFactory.BasicServiceMethod("Bar", operation)]);
+            await MockHelpers.LoadMockGeneratorAsync(clients: () => [inputClient],
+                lastContractCompilation: () => Helpers.GetCompilationFromDirectoryAsync(method: nameof(DeprecationPreservesLastContractMethods)));
+            var generator = ScmCodeModelGenerator.Instance;
+            var client = generator.TypeFactory.CreateClient(inputClient)!;
+            client.EnsureBuilt();
+            var visitor = new MethodDeprecationVisitor();
+
+            visitor.VisitLibrary(generator.OutputLibrary);
+            client.ProcessTypeForBackCompatibility();
+
+            var methods = client.Methods.OfType<ScmMethodProvider>().ToArray();
+            Assert.AreEqual(4, methods.Length);
+            foreach (var method in methods)
+            {
+                Assert.AreSame(visitor.Attribute, method.Signature.Attributes.Single(a => a.Type.Equals(typeof(ObsoleteAttribute))));
+            }
+        }
+
+        private sealed class MethodDeprecationVisitor : LibraryVisitor
+        {
+            public AttributeStatement Attribute { get; } = new(typeof(ObsoleteAttribute), [Snippet.Literal("Visitor message")],
+                [new(nameof(ObsoleteAttribute.DiagnosticId), Snippet.Literal("VISITOR001"))]);
+
+            protected internal override MethodProvider? VisitMethod(MethodProvider method)
+            {
+                if (method is ScmMethodProvider { Kind: ScmMethodKind.Protocol or ScmMethodKind.Convenience })
+                {
+                    method.Signature.Update(attributes: [.. method.Signature.Attributes.Where(a => !a.Type.Equals(typeof(ObsoleteAttribute))), Attribute]);
+                }
+                return method;
+            }
+        }
+
         [Test]
         public async Task DeprecationPreservesObsoleteOverloadsBesideStableSignatures()
         {

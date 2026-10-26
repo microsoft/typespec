@@ -260,7 +260,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 Attributes: [new AttributeStatement(typeof(ObsoleteAttribute), [Snippet.Literal("Current message")],
                     diagnosticId is null ? [] : [new(nameof(ObsoleteAttribute.DiagnosticId), Snippet.Literal(diagnosticId))])]),
                 MethodBodyStatement.Empty, provider);
-            provider.Update(methods: [method]);
+            provider = new TestTypeProvider(name: provider.Name, ns: "Sample", methods: [method]);
             provider.ProcessTypeForBackCompatibility();
 
             Assert.AreEqual(2, provider.Methods.Count);
@@ -272,6 +272,53 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 Assert.AreEqual("\"Current message\"", previous.Signature.Attributes.Single(a => a.Type.Equals(typeof(ObsoleteAttribute))).Arguments.Single().ToDisplayString());
             }
             Assert.IsTrue(previous.Suppressions.Any(s => s.Code.ToDisplayString() == Snippet.Literal(diagnosticId ?? "CS0618").ToDisplayString()));
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public async Task VisitorMethodDeprecationSurvivesCompatibilityOverloadRestoration(bool hasAddedParameter)
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: () =>
+                Helpers.GetCompilationFromDirectoryAsync(method: nameof(DeprecationPreservesBackCompatOverloads)));
+            var provider = new TestTypeProvider(name: "LegacyClient", ns: "Sample");
+            ParameterProvider[] parameters = hasAddedParameter
+                ? [new("value", $"", typeof(int)), new("added", $"", typeof(bool), defaultValue: Snippet.Default, location: ParameterLocation.Query)]
+                : [new("value", $"", typeof(int))];
+            var method = new MethodProvider(
+                new MethodSignature("Read", null, MethodSignatureModifiers.Public, null, null, parameters),
+                MethodBodyStatement.Empty, provider);
+            provider = new TestTypeProvider(name: "LegacyClient", ns: "Sample", methods: [method]);
+            provider.EnsureBuilt();
+            var attribute = new AttributeStatement(typeof(ObsoleteAttribute), [Snippet.Literal("Visitor message")]);
+            provider.Methods.Single().Signature.Update(attributes: [attribute]);
+
+            provider.ProcessTypeForBackCompatibility();
+
+            Assert.AreEqual(hasAddedParameter ? 2 : 1, provider.Methods.Count);
+            foreach (var updated in provider.Methods)
+            {
+                Assert.AreSame(attribute, updated.Signature.Attributes.Single(a => a.Type.Equals(typeof(ObsoleteAttribute))));
+            }
+        }
+
+        [Test]
+        public async Task VisitorMethodDeprecationDoesNotKeepAutomaticGaDeprecation()
+        {
+            await MockHelpers.LoadMockGeneratorAsync(lastContractCompilation: () =>
+                Helpers.GetCompilationFromDirectoryAsync(method: nameof(DeprecationPreservesBackCompatOverloads)));
+            var method = new MethodProvider(
+                new MethodSignature("Read", null, MethodSignatureModifiers.Public, null, null,
+                    [new ParameterProvider("value", $"", typeof(int))],
+                    Attributes: [DeprecationApiHelpers.BuildAttribute("Generated message")!]),
+                MethodBodyStatement.Empty, new TestTypeProvider());
+            var provider = new TestTypeProvider(name: "LegacyClient", ns: "Sample", methods: [method]);
+            provider.EnsureBuilt();
+            var attribute = new AttributeStatement(typeof(ObsoleteAttribute), [Snippet.Literal("Visitor message")]);
+            provider.Methods.Single().Signature.Update(attributes: [.. method.Signature.Attributes, attribute]);
+
+            provider.ProcessTypeForBackCompatibility();
+
+            Assert.AreSame(attribute, provider.Methods.Single().Signature.Attributes.Single());
         }
 
         [Test]
@@ -288,7 +335,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers
                 ],
                 Attributes: [new AttributeStatement(typeof(ObsoleteAttribute), [Snippet.Literal("Current message")])]),
                 Snippet.Return(Snippet.Null), provider);
-            provider.Update(methods: [method]);
+            provider = new TestTypeProvider(name: provider.Name, ns: "Sample", methods: [method]);
             provider.ProcessTypeForBackCompatibility();
 
             CollectionAssert.AreEqual(new[] { "name", "value" }, provider.Methods.Single().Signature.Parameters.Select(p => p.Name));

@@ -341,7 +341,22 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public IReadOnlyList<PropertyProvider> Properties => _properties ??= ApplyCustomizationFilter(BuildProperties());
 
         private IReadOnlyList<MethodProvider>? _methods;
-        public IReadOnlyList<MethodProvider> Methods => _methods ??= ApplyCustomizationFilter(BuildMethods());
+        private HashSet<AttributeStatement>? _generatedMethodDeprecationAttributes;
+        public IReadOnlyList<MethodProvider> Methods => _methods ??= ApplyCustomizationFilter(BuildMethodsWithDeprecationTracking());
+
+        private MethodProvider[] BuildMethodsWithDeprecationTracking()
+        {
+            var methods = BuildMethods();
+            // Track instances before library visitors add or replace attributes.
+            foreach (var attribute in methods.SelectMany(method => method.Signature.Attributes).Where(DeprecationApiHelpers.IsObsoleteAttribute))
+            {
+                (_generatedMethodDeprecationAttributes ??= []).Add(attribute);
+            }
+            return methods;
+        }
+
+        internal bool IsGeneratedMethodDeprecationAttribute(AttributeStatement attribute)
+            => _generatedMethodDeprecationAttributes?.Contains(attribute) == true;
 
         private IReadOnlyList<ConstructorProvider>? _constructors;
 
@@ -875,6 +890,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public void ResetMethods()
         {
             _methods = null;
+            _generatedMethodDeprecationAttributes = null;
         }
 
         /// <summary>
@@ -884,6 +900,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
         public virtual void Reset()
         {
             _methods = null;
+            _generatedMethodDeprecationAttributes = null;
             _properties = null;
             _generatedPropertiesBySpecName.Clear();
             _fields = null;
@@ -1057,7 +1074,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
             // Filtering is deferred to CSharpGen.ExecuteAsync after visitors have had a chance
             // to transform members (e.g., merging parameters). This ensures visitors see the
             // full set of members before customization filtering is applied.
-            _methods ??= BuildMethods();
+            _methods ??= BuildMethodsWithDeprecationTracking();
             _constructors ??= BuildConstructors();
             _properties ??= BuildProperties();
             _fields ??= BuildFields();
@@ -1284,13 +1301,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             foreach (var method in methods)
             {
-                if (method.Signature.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute)
+                if (method.Signature.Attributes.Any(IsGeneratedMethodDeprecationAttribute)
                     && previousMethods.Any(previous => MethodSignatureHelper.IsPublicApi(previous.Signature)
                         && MethodSignatureBase.SignatureComparer.Equals(previous.Signature, method.Signature)
                         && !previous.Signature.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute)))
                 {
-                    method.Signature.Update(attributes: [.. method.Signature.Attributes.Where(a => !DeprecationApiHelpers.IsObsoleteAttribute(a))]);
-                    method.Update(suppressions: ExperimentalApiHelpers.MergeSuppressions(method.Suppressions, DeprecationApiHelpers.GetSuppressions()));
+                    var generatedAttributes = method.Signature.Attributes.Where(IsGeneratedMethodDeprecationAttribute).ToArray();
+                    method.Signature.Update(attributes: [.. method.Signature.Attributes.Where(a => !IsGeneratedMethodDeprecationAttribute(a))]);
+                    method.Update(suppressions: ExperimentalApiHelpers.MergeSuppressions(method.Suppressions,
+                        generatedAttributes.SelectMany(attribute => DeprecationApiHelpers.GetSuppressions(attribute))));
                 }
             }
 

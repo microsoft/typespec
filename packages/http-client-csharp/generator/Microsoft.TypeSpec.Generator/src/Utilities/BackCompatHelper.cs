@@ -532,6 +532,8 @@ namespace Microsoft.TypeSpec.Generator.Utilities
             var attribute = customMethod?.Signature.Attributes.FirstOrDefault(ExperimentalApiHelpers.IsExperimentalAttribute)
                 ?? currentMethod.Signature.Attributes.FirstOrDefault(ExperimentalApiHelpers.IsExperimentalAttribute);
             var obsolete = customMethod?.Signature.Attributes.FirstOrDefault(DeprecationApiHelpers.IsObsoleteAttribute)
+                ?? currentMethod.Signature.Attributes.FirstOrDefault(a => DeprecationApiHelpers.IsObsoleteAttribute(a)
+                    && !enclosingType.IsGeneratedMethodDeprecationAttribute(a))
                 ?? currentMethod.Signature.Attributes.FirstOrDefault(DeprecationApiHelpers.IsObsoleteAttribute);
 
             // Graduation and custom partial attributes follow the current API, not the last contract.
@@ -540,7 +542,8 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 .. overload.Signature.Attributes.Where(a => !ExperimentalApiHelpers.IsExperimentalAttribute(a)
                     && !DeprecationApiHelpers.IsObsoleteAttribute(a)),
                 .. attribute is null ? Array.Empty<AttributeStatement>() : [attribute],
-                .. obsolete is not null && previousMethod.Signature.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute) ? [obsolete] : Array.Empty<AttributeStatement>()
+                .. obsolete is not null && (!enclosingType.IsGeneratedMethodDeprecationAttribute(obsolete)
+                    || previousMethod.Signature.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute)) ? [obsolete] : Array.Empty<AttributeStatement>()
             ]);
             overload.Update(suppressions: ExperimentalApiHelpers.MergeSuppressions(overload.Suppressions, currentMethod.Suppressions,
                 obsolete is null ? [] : DeprecationApiHelpers.GetSuppressions(obsolete)));
