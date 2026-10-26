@@ -788,8 +788,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             // Map framework types to their Utf8JsonReader method names
             var readerMethodName = frameworkType switch
             {
+                Type t when t == typeof(short) => nameof(Utf8JsonReader.GetInt16),
+                Type t when t == typeof(ushort) => nameof(Utf8JsonReader.GetUInt16),
                 Type t when t == typeof(int) => nameof(Utf8JsonReader.GetInt32),
+                Type t when t == typeof(uint) => nameof(Utf8JsonReader.GetUInt32),
                 Type t when t == typeof(long) => nameof(Utf8JsonReader.GetInt64),
+                Type t when t == typeof(ulong) => nameof(Utf8JsonReader.GetUInt64),
                 Type t when t == typeof(bool) => nameof(Utf8JsonReader.GetBoolean),
                 Type t when t == typeof(double) => nameof(Utf8JsonReader.GetDouble),
                 Type t when t == typeof(float) => nameof(Utf8JsonReader.GetSingle),
@@ -1056,10 +1060,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return type.Equals(typeof(string)) ||
+                   type.Equals(typeof(short)) ||
+                   type.Equals(typeof(short?)) ||
+                   type.Equals(typeof(ushort)) ||
+                   type.Equals(typeof(ushort?)) ||
                    type.Equals(typeof(int)) ||
                    type.Equals(typeof(int?)) ||
+                   type.Equals(typeof(uint)) ||
+                   type.Equals(typeof(uint?)) ||
                    type.Equals(typeof(long)) ||
                    type.Equals(typeof(long?)) ||
+                   type.Equals(typeof(ulong)) ||
+                   type.Equals(typeof(ulong?)) ||
                    type.Equals(typeof(double)) ||
                    type.Equals(typeof(double?)) ||
                    type.Equals(typeof(float)) ||
@@ -1098,10 +1110,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return type.Equals(typeof(string)) ||
+                   type.Equals(typeof(short)) ||
+                   type.Equals(typeof(short?)) ||
+                   type.Equals(typeof(ushort)) ||
+                   type.Equals(typeof(ushort?)) ||
                    type.Equals(typeof(int)) ||
                    type.Equals(typeof(int?)) ||
+                   type.Equals(typeof(uint)) ||
+                   type.Equals(typeof(uint?)) ||
                    type.Equals(typeof(long)) ||
                    type.Equals(typeof(long?)) ||
+                   type.Equals(typeof(ulong)) ||
+                   type.Equals(typeof(ulong?)) ||
                    type.Equals(typeof(double)) ||
                    type.Equals(typeof(double?)) ||
                    type.Equals(typeof(float)) ||
