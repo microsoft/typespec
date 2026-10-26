@@ -99,8 +99,12 @@ public final class LocationResourceImpl
         azure.resourcemanager.resources.ResourcesManager serviceManager) {
         this.innerObject = innerObject;
         this.serviceManager = serviceManager;
-        this.location = ResourceManagerUtils.getValueFromIdByName(innerObject.id(), "locations");
-        this.locationResourceName = ResourceManagerUtils.getValueFromIdByName(innerObject.id(), "locationResources");
+        this.location = ResourceManagerUtils.getValueFromIdByParameterName(innerObject.id(),
+            "/subscriptions/{subscriptionId}/providers/Azure.ResourceManager.Resources/locations/{location}/locationResources/{locationResourceName}",
+            "location");
+        this.locationResourceName = ResourceManagerUtils.getValueFromIdByParameterName(innerObject.id(),
+            "/subscriptions/{subscriptionId}/providers/Azure.ResourceManager.Resources/locations/{location}/locationResources/{locationResourceName}",
+            "locationResourceName");
     }
 
     public LocationResource refresh() {
