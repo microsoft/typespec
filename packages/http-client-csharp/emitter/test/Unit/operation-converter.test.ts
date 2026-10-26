@@ -1,5 +1,5 @@
 import type { TestHost } from "@typespec/compiler/testing";
-import { ok, strictEqual } from "assert";
+import { deepStrictEqual, ok, strictEqual } from "assert";
 import { beforeEach, describe, it } from "vitest";
 import { serializeCodeModel } from "../../src/code-model-writer.js";
 import { createModel } from "../../src/lib/client-model-builder.js";
@@ -17,6 +17,60 @@ describe("Operation Converter", () => {
 
   beforeEach(async () => {
     runner = await createEmitterTestHost();
+  });
+
+  it.each([
+    { start: 200, end: 299 },
+    { start: 204, end: 204 },
+  ])("preserves exactly the $start-$end response status range", async ({ start, end }) => {
+    const program = await typeSpecCompile(
+      `
+        model RangedResponse {
+          @statusCode @minValue(${start}) @maxValue(${end})
+          code: int32;
+        }
+        @get op read(): RangedResponse;
+      `,
+      runner,
+    );
+    const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+    const [root] = createModel(sdkContext);
+    const responses = root.clients[0].methods[0].operation.responses;
+    const expected = Array.from({ length: end - start + 1 }, (_, index) => start + index);
+
+    strictEqual(responses.length, 1);
+    deepStrictEqual(responses[0].statusCodes, expected);
+    const serialized = JSON.parse(serializeCodeModel(sdkContext, root));
+    deepStrictEqual(serialized.clients[0].methods[0].operation.responses[0].statusCodes, expected);
+  });
+
+  it.each([
+    { decorator: "@responseAsBool", enabled: true },
+    { decorator: '@responseAsBool("csharp")', enabled: true },
+    { decorator: '@responseAsBool("java")', enabled: false },
+    { decorator: "", enabled: false },
+  ])("preserves HEAD response-as-bool metadata for $decorator", async ({ decorator, enabled }) => {
+    const program = await typeSpecCompile(
+      `
+        ${decorator}
+        @head op exists(): void;
+      `,
+      runner,
+      { IsTCGCNeeded: true },
+    );
+    const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+    const [root] = createModel(sdkContext);
+    const method = root.clients[0].methods[0];
+    const serialized = JSON.parse(serializeCodeModel(sdkContext, root));
+    const operation = serialized.clients[0].methods[0].operation;
+
+    strictEqual(operation.responseAsBool, enabled ? true : undefined);
+    strictEqual(method.response.type?.kind, enabled ? "boolean" : undefined);
+    deepStrictEqual(
+      method.operation.responses.flatMap((response) => response.statusCodes),
+      enabled ? [204, 404] : [204],
+    );
+    ok(method.operation.responses.every((response) => response.bodyType === undefined));
   });
 
   it.each([

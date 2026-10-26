@@ -294,10 +294,10 @@ public class Main {
         return options;
     }
 
-    private static CodeModel loadCodeModel(String filename) throws IOException {
-        String file = Files.readString(Paths.get(filename));
-        CodeModel codeModel = getYaml().loadAs(file, CodeModel.class);
-        return codeModel;
+    static CodeModel loadCodeModel(String filename) throws IOException {
+        try (BufferedReader reader = Files.newBufferedReader(Paths.get(filename), StandardCharsets.UTF_8)) {
+            return getYaml().loadAs(reader, CodeModel.class);
+        }
     }
 
     private static Yaml getYaml() {

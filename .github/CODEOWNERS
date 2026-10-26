@@ -15,9 +15,9 @@ cspell.yaml
 ######################
 # CSharp
 ######################
-/packages/http-client-csharp/                @m-nash @JoshLove-msft @jorgerangel-msft @jogiles @joseharriaga
-/docs/samples/client/csharp                  @JoshLove-msft @jorgerangel-msft @jogiles @joseharriaga
-/website/src/content/docs/docs/emitters/clients/http-client-csharp/ @JoshLove-msft @jorgerangel-msft @jogiles @joseharriaga
+/packages/http-client-csharp/                @m-nash @JoshLove-msft @jorgerangel-msft @jogiles @joseharriaga @alzimmermsft
+/docs/samples/client/csharp                  @JoshLove-msft @jorgerangel-msft @jogiles @joseharriaga @alzimmermsft
+/website/src/content/docs/docs/emitters/clients/http-client-csharp/ @JoshLove-msft @jorgerangel-msft @jogiles @joseharriaga @alzimmermsft
 
 ######################
 # Java

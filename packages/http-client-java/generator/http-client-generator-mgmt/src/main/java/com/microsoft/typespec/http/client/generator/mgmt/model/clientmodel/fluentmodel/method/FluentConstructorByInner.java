@@ -13,11 +13,8 @@ import com.microsoft.typespec.http.client.generator.mgmt.model.arm.UrlPathSegmen
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.FluentResourceModel;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.ModelNaming;
 import com.microsoft.typespec.http.client.generator.mgmt.model.clientmodel.fluentmodel.ResourceLocalVariables;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class FluentConstructorByInner extends FluentMethod {
 
@@ -43,26 +40,12 @@ public class FluentConstructorByInner extends FluentMethod {
                 block.line(String.format("this.%1$s = %2$s;", ModelNaming.MODEL_PROPERTY_MANAGER,
                     ModelNaming.MODEL_PROPERTY_MANAGER));
 
-                List<UrlPathSegments.ParameterSegment> segments = urlPathSegments.getReverseParameterSegments();
-                Collections.reverse(segments);
-                Map<String, String> urlSegmentNameByParameterName = urlPathSegments.getReverseParameterSegments()
-                    .stream()
-                    .collect(Collectors.toMap(UrlPathSegments.ParameterSegment::getParameterName,
-                        UrlPathSegments.ParameterSegment::getSegmentName));
-
                 // init from resource id
                 pathParameters.forEach(p -> {
-                    String valueFromIdText;
-                    if (urlPathSegments.hasScope()) {
-                        valueFromIdText
-                            = String.format("%1$s.getValueFromIdByParameterName(%2$s.id(), \"%3$s\", \"%4$s\")",
-                                ModelNaming.CLASS_RESOURCE_MANAGER_UTILS, ModelNaming.MODEL_PROPERTY_INNER,
-                                urlPathSegments.getPath(), p.getSerializedName());
-                    } else {
-                        valueFromIdText = String.format("%1$s.getValueFromIdByName(%2$s.id(), \"%3$s\")",
+                    String valueFromIdText
+                        = String.format("%1$s.getValueFromIdByParameterName(%2$s.id(), \"%3$s\", \"%4$s\")",
                             ModelNaming.CLASS_RESOURCE_MANAGER_UTILS, ModelNaming.MODEL_PROPERTY_INNER,
-                            urlSegmentNameByParameterName.get(p.getSerializedName()));
-                    }
+                            urlPathSegments.getPath(), p.getSerializedName());
                     if (p.getClientMethodParameter().getClientType() != ClassType.STRING) {
                         valueFromIdText = String.format("%1$s.fromString(%2$s)",
                             p.getClientMethodParameter().getClientType().toString(), valueFromIdText);

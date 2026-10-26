@@ -402,6 +402,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
         private MemberExpression? _asMember;
 
+        internal void SynchronizePropertyShape()
+        {
+            _asMember?.Update(memberName: Name);
+            AsParameter.SynchronizePropertyShape();
+        }
+
         public static implicit operator MemberExpression(PropertyProvider property)
             => property._asMember ??= new MemberExpression(null, property.Name);
 
