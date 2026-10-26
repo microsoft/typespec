@@ -52,6 +52,20 @@ public class SseNamingResolverTests {
     }
 
     @Test
+    public void escapesDigitLeadingNamesBeforeCheckingCollisions() {
+        SseNamingResolver.Names names
+            = SseNamingResolver.resolve(metadata("RetrievalStreamEvents", "retrieval.started", "123.done"));
+        Assertions.assertEquals("OneTwoThreeDoneStreamEvent", names.getEventWrapperName("123.done"));
+
+        names = SseNamingResolver.resolve(metadata("123Events", "done"));
+        Assertions.assertEquals("OneTwoThreeEvent", names.getBaseEventName());
+        Assertions.assertEquals("OneTwoThreeEventConverter", names.getConverterName());
+
+        Assertions.assertThrows(IllegalStateException.class, () -> SseNamingResolver
+            .resolve(metadata("RetrievalStreamEvents", "retrieval.started", "123.done", "oneTwoThree.done")));
+    }
+
+    @Test
     public void resolvesServiceImplementationMethodNames() {
         Assertions.assertEquals("retrieveStreamWithResponse",
             SseNamingResolver.getServiceImplementationMethodName("retrieveStreamWithResponseInternal"));

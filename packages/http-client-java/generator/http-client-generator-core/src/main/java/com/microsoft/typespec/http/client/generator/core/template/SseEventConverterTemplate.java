@@ -48,7 +48,7 @@ public final class SseEventConverterTemplate implements IJavaTemplate<SseMetadat
         baseEventType.addImportsTo(imports, false);
         for (SseEventMetadata event : metadata.getEvents()) {
             SseUtil.getEventType(metadata, names.getEventWrapperName(event.getName())).addImportsTo(imports, false);
-            Mappers.getSchemaMapper().map(event.getPayload()).getClientType().addImportsTo(imports, false);
+            addPayloadImports(Mappers.getSchemaMapper().map(event.getPayload()).getClientType(), imports);
         }
         javaFile.declareImportPreservingOrder(imports);
 
@@ -155,6 +155,17 @@ public final class SseEventConverterTemplate implements IJavaTemplate<SseMetadat
                 });
             javaClass.blankLine();
         });
+    }
+
+    private static void addPayloadImports(IType type, Set<String> imports) {
+        type.addImportsTo(imports, false);
+        if (type instanceof IterableType) {
+            addPayloadImports(((IterableType) type).getElementType(), imports);
+        } else if (type instanceof MapType) {
+            addPayloadImports(((MapType) type).getValueType(), imports);
+        } else if (ClassType.DATE_TIME.equals(type)) {
+            ClassType.CORE_UTILS.addImportsTo(imports, false);
+        }
     }
 
     private static String getJsonReadCallback(IType type) {

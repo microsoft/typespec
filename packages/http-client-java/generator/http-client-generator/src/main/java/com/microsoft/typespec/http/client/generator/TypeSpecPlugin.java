@@ -15,6 +15,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Clien
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ConvenienceMethod;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ModuleInfo;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.TypeSpecMetadata;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaFile;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaPackage;
@@ -134,6 +135,14 @@ public class TypeSpecPlugin extends Javagen {
                 javaPackage.addJavaFromResources(runtimePackage, "ServerSentEventStream");
                 javaPackage.addJavaFromResources(runtimePackage, "ServerSentEventStreamResponse");
                 sseMetadata.values().forEach(javaPackage::addSseEventFiles);
+                List<ModuleInfo.ExportModule> exports = client.getModuleInfo().getExportModules();
+                sseMetadata.values()
+                    .stream()
+                    .map(SseUtil::getEventPackage)
+                    .distinct()
+                    .map(ModuleInfo.ExportModule::new)
+                    .filter(export -> !exports.contains(export))
+                    .forEach(exports::add);
             }
         }
 

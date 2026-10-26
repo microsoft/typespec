@@ -3,25 +3,36 @@
 
 package com.microsoft.typespec.http.client.generator.core.mapper;
 
+import com.microsoft.typespec.http.client.generator.core.MockUnitJavagen;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ConvenienceApi;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Language;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Languages;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Operation;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.OperationGroup;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Protocol;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Protocols;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Request;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Response;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Schema;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseEventMetadata;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseMetadata;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.StringSchema;
+import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings.SyncMethodsGeneration;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodParameter;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethodType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.GenericType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodParameter;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Versioning;
+import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import io.clientcore.core.http.models.HttpMethod;
+import io.clientcore.core.utils.IOExceptionCheckedFunction;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -29,8 +40,81 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Isolated;
 
+@Isolated
 public class ClientMethodMapperTests {
+    @Test
+    public void preservesInternalSseWrapperVisibility() {
+        new MockUnitJavagen() {
+            @Override
+            public <T> T getValue(String key, IOExceptionCheckedFunction<String, T> converter) {
+                if ("sync-methods".equals(key)) {
+                    try {
+                        return converter.apply("all");
+                    } catch (IOException exception) {
+                        throw new UncheckedIOException(exception);
+                    }
+                }
+                return super.getValue(key, converter);
+            }
+        };
+        JavaSettings.clear();
+        try {
+            for (boolean internal : List.of(false, true)) {
+                Operation operation = operationWithNoDesc();
+                operation.getLanguage().getDefault().setName("read");
+                operation.getLanguage().setJava(operation.getLanguage().getDefault());
+                OperationGroup group = new OperationGroup();
+                Languages groupLanguages = new Languages();
+                Language groupLanguage = new Language();
+                groupLanguage.setName("");
+                groupLanguages.setDefault(groupLanguage);
+                groupLanguages.setJava(groupLanguage);
+                group.setLanguage(groupLanguages);
+                operation.setOperationGroup(group);
+                operation.setInternalApi(internal);
+                Request request = operation.getRequests().get(0);
+                request.setLanguage(operation.getLanguage());
+                request.getProtocol().getHttp().setMethod("GET");
+                request.getProtocol().getHttp().setUri("https://example.org");
+                request.getProtocol().getHttp().setPath("/stream");
+                Response response = operation.getResponses().get(0);
+                Protocol http = new Protocol();
+                http.setStatusCodes(List.of("200"));
+                Protocols protocols = new Protocols();
+                protocols.setHttp(http);
+                response.setProtocol(protocols);
+                StringSchema payload = new StringSchema();
+                payload.setType(Schema.AllSchemaTypes.STRING);
+                response.setSchema(payload);
+                SseEventMetadata event = new SseEventMetadata();
+                event.setName("message");
+                event.setPayload(payload);
+                SseMetadata metadata = new SseMetadata();
+                metadata.setStreamName("TestEvents");
+                metadata.setModelNamespace("com.azure.mock");
+                metadata.setEvents(List.of(event));
+                operation.setSseMetadata(metadata);
+
+                List<ClientMethod> sseMethods = ClientMethodMapper.getInstance()
+                    .map(operation, false)
+                    .stream()
+                    .filter(method -> method.getType() == ClientMethodType.SseSync
+                        || method.getType() == ClientMethodType.SseAsync)
+                    .collect(Collectors.toList());
+                Assertions.assertEquals(java.util.Set.of(ClientMethodType.SseSync, ClientMethodType.SseAsync),
+                    sseMethods.stream().map(ClientMethod::getType).collect(Collectors.toSet()));
+                sseMethods.forEach(
+                    method -> Assertions.assertEquals(internal ? JavaVisibility.PackagePrivate : JavaVisibility.Public,
+                        method.getMethodVisibilityInWrapperClient()));
+            }
+        } finally {
+            new MockUnitJavagen();
+            JavaSettings.clear();
+        }
+    }
+
     @Test
     public void sseSyncOnlyModeDoesNotGenerateAsyncMethods() {
         Assertions.assertFalse(ClientMethodMapper.shouldGenerateAsyncSseMethod(false, SyncMethodsGeneration.SYNC_ONLY));

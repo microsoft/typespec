@@ -1424,9 +1424,11 @@ public class ClientMethodTemplate extends ClientMethodTemplateBase {
 
     protected void generateSyncMethod(ClientMethod clientMethod, JavaType typeBlock, JavaSettings settings) {
         String asyncMethodName = MethodNamer.getSimpleAsyncMethodName(clientMethod.getName());
-        String effectiveAsyncMethodName = asyncMethodName;
+        String effectiveAsyncMethodName = SseUtil.isSseMethod(clientMethod)
+            ? SseNamingResolver.getServiceImplementationMethodName(asyncMethodName)
+            : asyncMethodName;
         addServiceMethodAnnotation(typeBlock, ReturnType.SINGLE);
-        writeMethod(typeBlock, clientMethod.getMethodVisibility(), clientMethod.getDeclaration(), function -> {
+        writeServiceMethod(typeBlock, clientMethod, function -> {
             addOptionalVariables(function, clientMethod);
             if (clientMethod.getReturnValue().getType() == ClassType.INPUT_STREAM) {
                 function.line(

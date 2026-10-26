@@ -5,6 +5,7 @@ package com.microsoft.typespec.http.client.generator.core.model.javamodel;
 
 import com.microsoft.typespec.http.client.generator.core.MockUnitJavagen;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ArraySchema;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.DateTimeSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.DictionarySchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Schema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseEventMetadata;
@@ -131,6 +132,29 @@ public class JavaPackageSseTests {
             "accessor.createArrayMap(read(eventName, data, reader -> reader.readArray(reader1 -> reader1.readMap(reader2 -> reader2.getString()))))"));
         Assertions.assertTrue(converterSource.contains(
             "accessor.createNestedMap(read(eventName, data, reader -> reader.readMap(reader1 -> reader1.readMap(reader2 -> reader2.readArray(reader3 -> reader3.getString())))))"));
+    }
+
+    @Test
+    public void importsDateTimeDeserializationDependenciesForScalarAndCollectionPayloads() {
+        JavaSettings.clear();
+        DateTimeSchema dateTime = new DateTimeSchema();
+        dateTime.setType(Schema.AllSchemaTypes.DATE_TIME);
+        for (Schema payload : List.of(dateTime, dictionary(array(dateTime)))) {
+            JavaPackage javaPackage = new JavaPackage(mockJavagenWithGeneratedHeader());
+            SseMetadata metadata = metadata();
+            metadata.setEvents(List.of(event("time", payload)));
+
+            javaPackage.addSseEventFiles(metadata);
+
+            String converterSource = javaPackage.getJavaFiles().get(2).getContents().toString();
+            Assertions.assertTrue(converterSource.contains("import com.azure.core.util.CoreUtils;"));
+            Assertions
+                .assertTrue(converterSource.contains("CoreUtils.parseBestOffsetDateTime(nonNullReader.getString())"));
+            if (payload instanceof DictionarySchema) {
+                Assertions
+                    .assertTrue(converterSource.contains("reader -> reader.readMap(reader1 -> reader1.readArray("));
+            }
+        }
     }
 
     @Test

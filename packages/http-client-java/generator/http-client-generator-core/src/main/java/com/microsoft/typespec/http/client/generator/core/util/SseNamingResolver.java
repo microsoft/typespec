@@ -32,6 +32,7 @@ public final class SseNamingResolver {
         String streamName = CodeNamer.toPascalCase(metadata.getStreamName());
         String baseEventName
             = streamName.endsWith("Events") ? streamName.substring(0, streamName.length() - 1) : streamName + "Event";
+        baseEventName = CodeNamer.toPascalCase(CodeNamer.removeInvalidCharacters(baseEventName));
         String baseStem = baseEventName.endsWith(STREAM_EVENT_SUFFIX)
             ? baseEventName.substring(0, baseEventName.length() - STREAM_EVENT_SUFFIX.length())
             : baseEventName;
@@ -49,6 +50,7 @@ public final class SseNamingResolver {
         Map<String, String> wireNamesByWrapperName = new LinkedHashMap<>();
         for (SseEventMetadata event : metadata.getEvents()) {
             String wrapperName = streamEventPrefix + normalizeEventName(event.getName()) + STREAM_EVENT_SUFFIX;
+            wrapperName = CodeNamer.toPascalCase(CodeNamer.removeInvalidCharacters(wrapperName));
             String collidingWireName = wireNamesByWrapperName.putIfAbsent(wrapperName, event.getName());
             if (wrapperName.equals(baseEventName) || collidingWireName != null) {
                 throw new IllegalStateException(

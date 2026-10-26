@@ -306,7 +306,6 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             .type(methodType)
             .returnValue(new ReturnValue("the stream of server-sent events", returnType))
             .methodVisibility(JavaVisibility.Public)
-            .methodVisibilityInWrapperClient(JavaVisibility.Public)
             .sseMetadata(operation.getSseMetadata())
             .build();
         methods.add(sseMethod);
