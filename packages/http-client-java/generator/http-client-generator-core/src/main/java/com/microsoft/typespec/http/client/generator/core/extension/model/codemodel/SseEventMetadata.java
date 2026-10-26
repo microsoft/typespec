@@ -4,12 +4,25 @@
 package com.microsoft.typespec.http.client.generator.core.extension.model.codemodel;
 
 /**
- * Describes one named event in a server-sent event operation.
+ * Describes one event variant in a server-sent event definition.
  */
 public class SseEventMetadata {
     private String name;
     private Schema payload;
     private boolean terminal;
+    private String payloadContentType = "application/json";
+
+    public String getPayloadContentType() {
+        return payloadContentType;
+    }
+
+    public void setPayloadContentType(String payloadContentType) {
+        this.payloadContentType = payloadContentType;
+    }
+
+    public String getWireName() {
+        return name == null || name.isEmpty() ? "message" : name;
+    }
 
     public String getName() {
         return name;

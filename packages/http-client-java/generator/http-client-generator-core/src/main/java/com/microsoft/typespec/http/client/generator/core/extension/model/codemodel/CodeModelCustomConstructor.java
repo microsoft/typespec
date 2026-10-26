@@ -80,6 +80,12 @@ public class CodeModelCustomConstructor extends Constructor {
             for (NodeTuple tuple : mappingNode.getValue()) {
                 ScalarNode key = (ScalarNode) tuple.getKeyNode();
                 switch (key.getValue()) {
+                    case "sseStreams": {
+                        MappingNode value = (MappingNode) tuple.getValueNode();
+                        value.setTypes(String.class, SseMetadata.class);
+                        break;
+                    }
+
                     case "arrays": {
                         SequenceNode value = (SequenceNode) tuple.getValueNode();
                         value.setListType(ArraySchema.class);
@@ -250,6 +256,14 @@ public class CodeModelCustomConstructor extends Constructor {
                     case "schema": {
                         MappingNode value = (MappingNode) tuple.getValueNode();
                         value.setType(getSchemaTypeFromMappingNode(value));
+                        break;
+                    }
+
+                    case "payload": {
+                        if (node.getType().equals(SseEventMetadata.class)) {
+                            MappingNode value = (MappingNode) tuple.getValueNode();
+                            value.setType(getSchemaTypeFromMappingNode(value));
+                        }
                         break;
                     }
 

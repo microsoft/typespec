@@ -3,6 +3,7 @@
 
 package com.microsoft.typespec.http.client.generator.core.model.clientmodel;
 
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseMetadata;
 import java.util.List;
 
 /**
@@ -65,6 +66,11 @@ public class Client {
     private final List<UnionModel> unionModels;
     private final List<ClientMethodExample> clientMethodExamples;
     private final GraalVmConfig graalVmConfig;
+    private final List<SseMetadata> sseStreams;
+
+    public List<SseMetadata> getSseStreams() {
+        return sseStreams;
+    }
 
     /**
      * Create a new Client with the provided values.
@@ -91,7 +97,7 @@ public class Client {
         List<ServiceClient> serviceClients, ModuleInfo moduleInfo, List<AsyncSyncClient> syncClients,
         List<AsyncSyncClient> asyncClients, List<ClientBuilder> clientBuilders, List<ProtocolExample> protocolExamples,
         List<LiveTests> liveTests, List<UnionModel> unionModels, List<ClientMethodExample> clientMethodExamples,
-        ApiMetadata apiMetadata, GraalVmConfig graalVmConfig) {
+        ApiMetadata apiMetadata, GraalVmConfig graalVmConfig, List<SseMetadata> sseStreams) {
         this.clientName = clientName;
         this.clientDescription = clientDescription;
         this.enums = enums;
@@ -113,6 +119,7 @@ public class Client {
         this.clientMethodExamples = clientMethodExamples;
         this.apiMetadata = apiMetadata;
         this.graalVmConfig = graalVmConfig;
+        this.sseStreams = List.copyOf(sseStreams);
     }
 
     public ApiMetadata getApiMetadata() {
@@ -207,6 +214,18 @@ public class Client {
     }
 
     public static class Builder {
+        private final java.util.Set<SseMetadata> sseStreams = new java.util.LinkedHashSet<>();
+
+        public Builder sseStreams(List<SseMetadata> sseStreams) {
+            this.sseStreams.clear();
+            this.sseStreams.addAll(sseStreams);
+            return this;
+        }
+
+        public void addSseStream(SseMetadata metadata) {
+            sseStreams.add(metadata);
+        }
+
         private String clientName;
         private String clientDescription;
         private List<EnumType> enums;
@@ -444,7 +463,7 @@ public class Client {
             return new Client(clientName, clientDescription, enums, exceptions, xmlSequenceWrappers, responseModels,
                 models, packageInfos, manager, serviceClient, serviceClients, moduleInfo, syncClients, asyncClients,
                 clientBuilders, protocolExamples, liveTests, unionModels, clientMethodExamples, apiMetadata,
-                graalVmConfig);
+                graalVmConfig, List.copyOf(sseStreams));
         }
     }
 }

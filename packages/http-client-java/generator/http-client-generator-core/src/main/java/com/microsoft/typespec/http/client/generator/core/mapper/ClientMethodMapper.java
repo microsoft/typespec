@@ -6,6 +6,7 @@ package com.microsoft.typespec.http.client.generator.core.mapper;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ConvenienceApi;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Operation;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Request;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseMetadata;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings.SyncMethodsGeneration;
 import com.microsoft.typespec.http.client.generator.core.implementation.OperationInstrumentationInfo;
@@ -26,7 +27,6 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Retur
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.util.MethodNamer;
 import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
-import com.microsoft.typespec.http.client.generator.core.util.SseNamingResolver;
 import com.microsoft.typespec.http.client.generator.core.util.SseUtil;
 import io.clientcore.core.utils.CoreUtils;
 import java.util.ArrayList;
@@ -75,6 +75,20 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
     protected ClientMethodMapper() {
     }
 
+    private java.util.function.Consumer<SseMetadata> sseUsage = ignored -> {
+    };
+
+    public <T> T withSseUsage(java.util.function.Consumer<SseMetadata> recorder,
+        java.util.function.Supplier<T> mapping) {
+        var previous = sseUsage;
+        sseUsage = recorder;
+        try {
+            return mapping.get();
+        } finally {
+            sseUsage = previous;
+        }
+    }
+
     /**
      * Gets the global {@link ClientMethodMapper} instance.
      *
@@ -99,13 +113,12 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
     public List<ClientMethod> map(Operation operation, boolean isProtocolMethod) {
         CacheKey cacheKey = new CacheKey(operation, isProtocolMethod);
         List<ClientMethod> clientMethods = parsed.get(cacheKey);
-        if (clientMethods != null) {
-            return clientMethods;
+        if (clientMethods == null) {
+            clientMethods = createClientMethods(operation, isProtocolMethod);
+            parsed.put(cacheKey, clientMethods);
         }
 
-        clientMethods = createClientMethods(operation, isProtocolMethod);
-        parsed.put(cacheKey, clientMethods);
-
+        clientMethods.stream().map(ClientMethod::getSseMetadata).filter(Objects::nonNull).forEach(sseUsage);
         return clientMethods;
     }
 
@@ -294,8 +307,7 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
 
     private void createSseClientMethods(boolean isSync, Operation operation, ClientMethod baseMethod,
         List<ClientMethod> methods, CreateMethodArgs createMethodArgs) {
-        IType eventType = SseUtil.getEventType(operation.getSseMetadata(),
-            SseNamingResolver.resolve(operation.getSseMetadata()).getBaseEventName());
+        IType eventType = SseUtil.getElementType(operation.getSseMetadata());
         IType returnType = isSync ? GenericType.closeableIterableStream(eventType) : GenericType.flux(eventType);
         MethodNamer methodNamer = createMethodArgs.methodNamer;
         String methodName = isSync ? methodNamer.getMethodName() : methodNamer.getSimpleAsyncMethodName();

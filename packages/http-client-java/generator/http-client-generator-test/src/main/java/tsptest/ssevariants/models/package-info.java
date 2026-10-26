@@ -4,8 +4,7 @@
 
 /**
  * <!-- start generated doc -->
- * Package containing the data models for Sse.
- * Test of server-sent events (SSE) streaming.
+ * Package containing the data models for SseVariants.
  * <!-- end generated doc -->
  */
-package streaming.sse.protocol.data.models;
+package tsptest.ssevariants.models;

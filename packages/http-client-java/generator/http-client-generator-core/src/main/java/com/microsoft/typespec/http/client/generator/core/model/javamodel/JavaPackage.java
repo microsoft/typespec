@@ -107,21 +107,26 @@ public class JavaPackage {
         SseNamingResolver.Names names = SseNamingResolver.resolve(metadata);
         List<SseEventMetadata> events = metadata.getEvents();
         String eventPackage = SseUtil.getEventPackage(metadata);
-        JavaFile baseFile = javaFileFactory.createSourceFile(eventPackage, names.getBaseEventName());
-        List<JavaFile> eventFiles = events.stream()
-            .map(event -> javaFileFactory.createSourceFile(eventPackage, names.getEventWrapperName(event.getName())))
+        boolean direct = SseUtil.isDirect(metadata);
+        JavaFile baseFile = direct ? null : javaFileFactory.createSourceFile(eventPackage, names.getBaseEventName());
+        List<JavaFile> eventFiles = (direct ? java.util.stream.Stream.<SseEventMetadata>empty() : events.stream())
+            .map(event -> javaFileFactory.createSourceFile(eventPackage, names.getEventWrapperName(event)))
             .collect(Collectors.toList());
         JavaFile converterFile
             = javaFileFactory.createSourceFile(SseUtil.getConverterPackage(), names.getConverterName());
         List<JavaFile> sseFiles = new ArrayList<>();
-        sseFiles.add(baseFile);
+        if (!direct) {
+            sseFiles.add(baseFile);
+        }
         sseFiles.addAll(eventFiles);
         sseFiles.add(converterFile);
         validateSseSourcePaths(sseFiles);
 
-        SseEventModelTemplate.getInstance().writeBase(metadata, baseFile);
-        addJavaFile(baseFile);
-        for (int i = 0; i < events.size(); i++) {
+        if (!direct) {
+            SseEventModelTemplate.getInstance().writeBase(metadata, baseFile);
+            addJavaFile(baseFile);
+        }
+        for (int i = 0; i < eventFiles.size(); i++) {
             JavaFile eventFile = eventFiles.get(i);
             SseEventMetadata event = events.get(i);
             SseEventModelTemplate.getInstance().writeEvent(metadata, event, eventFile);

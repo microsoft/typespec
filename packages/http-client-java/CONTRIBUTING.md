@@ -107,6 +107,27 @@ then falls back to `external_dependencies.txt`. Unlisted dependencies are unchan
 
 Run the script's offline tests with `pwsh eng\versioning\Sync-Versions.Tests.ps1`.
 
+## SSE generation checks
+
+SSE definitions are transported once in `CodeModel.sseStreams`, keyed by the streamed
+union's cross-language definition ID. Operations carry `sseStreamId`; Java resolves
+those references after preprocessing and records only definitions actually used by
+typed method mapping. Distinct effective union owners claiming one ID are errors,
+not candidates for schema fingerprinting or structural deduplication. Generated Java
+names and strict source-path collision preflight remain generator-owned.
+
+For focused changes, run the test module's `Setup.ps1`, then compile `tsp/sse.tsp`,
+`tsp/sse-variants.tsp`, or the Spector `streaming/sse/main.tsp` into separate output
+directories using its default `tspconfig.yaml`. Do not run full `Generate.ps1`.
+Compare the named fixture's sources before copying affected generated sources and
+metadata, excluding `module-info.java`. `tsp/sse-scalar.tsp` additionally verifies
+module-enabled direct scalar clients without synthetic model-package exports.
+
+Run the generator's catalog, naming, path-preflight, and mapper tests; the test module's
+`tsptest.ssevariants.SseVariantsTests` and existing SSE lifecycle tests exercise actual
+generated converters. `streaming.sse.SseTests` requires a running Spector server and
+checks unnamed, named, and retrieval streams in both asynchronous and synchronous APIs.
+
 ## Format Code
 
 Before creating pull request, the code is required to be well-formatted.

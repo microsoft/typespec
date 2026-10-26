@@ -163,9 +163,8 @@ public final class ProtocolAsyncClient {
      * {@link streaming.sse.protocol.models.ProtocolEventMessageStreamEvent#getValue()}. Unrecognized events expose only
      * their names through {@link ProtocolEvent#getEventName()}; their payloads are not available.
      *
-     * If received, the terminal event is emitted before the stream completes. End-of-stream without a terminal event
-     * completes normally. Transport and decoding failures are propagated through the reactive error path. The client
-     * does not reconnect automatically.
+     * The stream completes at end-of-stream. End-of-stream without a terminal event completes normally. Transport and
+     * decoding failures are propagated through the reactive error path. The client does not reconnect automatically.
      *
      * @return A stream of typed protocol event events.
      */
@@ -184,9 +183,8 @@ public final class ProtocolAsyncClient {
      * {@link streaming.sse.protocol.models.ProtocolEventMessageStreamEvent#getValue()}. Unrecognized events expose only
      * their names through {@link ProtocolEvent#getEventName()}; their payloads are not available.
      *
-     * If received, the terminal event is emitted before the stream completes. End-of-stream without a terminal event
-     * completes normally. Transport and decoding failures are propagated through the reactive error path. The client
-     * does not reconnect automatically.
+     * The stream completes at end-of-stream. End-of-stream without a terminal event completes normally. Transport and
+     * decoding failures are propagated through the reactive error path. The client does not reconnect automatically.
      *
      * @return A stream of typed protocol event events.
      */
@@ -205,9 +203,8 @@ public final class ProtocolAsyncClient {
      * {@link streaming.sse.protocol.models.ProtocolEventMessageStreamEvent#getValue()}. Unrecognized events expose only
      * their names through {@link ProtocolEvent#getEventName()}; their payloads are not available.
      *
-     * If received, the terminal event is emitted before the stream completes. End-of-stream without a terminal event
-     * completes normally. Transport and decoding failures are propagated through the reactive error path. The client
-     * does not reconnect automatically.
+     * The stream completes at end-of-stream. End-of-stream without a terminal event completes normally. Transport and
+     * decoding failures are propagated through the reactive error path. The client does not reconnect automatically.
      *
      * @return A stream of typed protocol event events.
      */
@@ -226,9 +223,8 @@ public final class ProtocolAsyncClient {
      * {@link streaming.sse.protocol.models.ProtocolEventMessageStreamEvent#getValue()}. Unrecognized events expose only
      * their names through {@link ProtocolEvent#getEventName()}; their payloads are not available.
      *
-     * If received, the terminal event is emitted before the stream completes. End-of-stream without a terminal event
-     * completes normally. Transport and decoding failures are propagated through the reactive error path. The client
-     * does not reconnect automatically.
+     * The stream completes at end-of-stream. End-of-stream without a terminal event completes normally. Transport and
+     * decoding failures are propagated through the reactive error path. The client does not reconnect automatically.
      *
      * @return A stream of typed protocol event events.
      */
@@ -247,9 +243,8 @@ public final class ProtocolAsyncClient {
      * {@link streaming.sse.protocol.models.ProtocolEventMessageStreamEvent#getValue()}. Unrecognized events expose only
      * their names through {@link ProtocolEvent#getEventName()}; their payloads are not available.
      *
-     * If received, the terminal event is emitted before the stream completes. End-of-stream without a terminal event
-     * completes normally. Transport and decoding failures are propagated through the reactive error path. The client
-     * does not reconnect automatically.
+     * The stream completes at end-of-stream. End-of-stream without a terminal event completes normally. Transport and
+     * decoding failures are propagated through the reactive error path. The client does not reconnect automatically.
      *
      * @return A stream of typed protocol event events.
      */

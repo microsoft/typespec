@@ -1,5 +1,5 @@
 import type { Client } from "./client.js";
-import type { OperationGroup } from "./operation.js";
+import type { OperationGroup, SseMetadata } from "./operation.js";
 import type { Schemas } from "./schemas.js";
 import { createSchemas } from "./schemas.js";
 import type { Info, Metadata, ModelOptions, Parameter, Security } from "./schemas/model.js";
@@ -30,6 +30,9 @@ export interface CodeModel extends Metadata {
   // cross-language metadata
   crossLanguagePackageId?: string;
   crossLanguageVersion?: string;
+
+  /** Canonical streamed union definitions, keyed by cross-language definition ID. */
+  sseStreams?: Record<string, SseMetadata>;
 }
 
 export function createCodeModel(

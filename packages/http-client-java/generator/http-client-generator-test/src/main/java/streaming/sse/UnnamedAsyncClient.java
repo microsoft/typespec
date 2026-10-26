@@ -15,9 +15,12 @@ import com.azure.core.exception.ResourceNotFoundException;
 import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
-import com.azure.core.util.FluxUtil;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import streaming.sse.implementation.UnnamedEventConverter;
 import streaming.sse.implementation.UnnamedsImpl;
+import streaming.sse.models.implementation.sse.ServerSentEventStreams;
+import streaming.sse.unnamed.models.Info;
 
 /**
  * Initializes a new instance of the asynchronous SseClient type.
@@ -29,7 +32,7 @@ public final class UnnamedAsyncClient {
 
     /**
      * Initializes an instance of UnnamedAsyncClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      */
     @Generated
@@ -40,13 +43,13 @@ public final class UnnamedAsyncClient {
     /**
      * The receive operation.
      * <p><strong>Response Body Schema</strong></p>
-     * 
+     *
      * <pre>
      * {@code
      * BinaryData
      * }
      * </pre>
-     * 
+     *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -62,19 +65,19 @@ public final class UnnamedAsyncClient {
 
     /**
      * The receive operation.
-     * 
-     * @throws HttpResponseException thrown if the request is rejected by server.
-     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
-     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
-     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response body on successful completion of {@link Mono}.
+     *
+     * Each default message event yields one non-null typed payload. Arrays are emitted as a single payload, not
+     * flattened. Unexpected named events and invalid payloads fail the stream.
+     *
+     * The stream completes at end-of-stream. End-of-stream without a terminal event completes normally. Transport and
+     * decoding failures are propagated through the reactive error path. The client does not reconnect automatically.
+     *
+     * @return A stream of typed unnamed event events.
      */
     @Generated
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<BinaryData> receive() {
-        // Generated convenience method for receiveWithResponse
+    public Flux<Info> receive() {
         RequestOptions requestOptions = new RequestOptions();
-        return receiveWithResponse(requestOptions).flatMap(FluxUtil::toMono);
+        return receiveWithResponse(requestOptions)
+            .flatMapMany(response -> ServerSentEventStreams.toFlux(response, UnnamedEventConverter::convert));
     }
 }

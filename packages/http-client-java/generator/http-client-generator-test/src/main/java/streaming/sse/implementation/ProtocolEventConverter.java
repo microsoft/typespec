@@ -81,6 +81,7 @@ public final class ProtocolEventConverter {
      * @return The typed stream event.
      */
     public static ProtocolEvent convert(String eventName, String data) {
+        eventName = eventName == null || eventName.isEmpty() ? "message" : eventName;
         ConstructorAccessor accessor = getConstructorAccessor();
         switch (eventName) {
             case "message":

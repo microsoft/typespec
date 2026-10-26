@@ -84,8 +84,12 @@ public class ClientMapper implements IMapper<CodeModel, Client> {
 
     @Override
     public Client map(CodeModel codeModel) {
-        JavaSettings settings = JavaSettings.getInstance();
         Client.Builder builder = new Client.Builder();
+        return Mappers.getClientMethodMapper().withSseUsage(builder::addSseStream, () -> map(codeModel, builder));
+    }
+
+    private Client map(CodeModel codeModel, Client.Builder builder) {
+        JavaSettings settings = JavaSettings.getInstance();
 
         // enum model
         final List<EnumType> enumTypes = new ArrayList<>();

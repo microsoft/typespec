@@ -4,7 +4,12 @@
 package com.microsoft.typespec.http.client.generator.core.extension.model.codemodel;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.IdentityHashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Represents a code model.
@@ -19,6 +24,55 @@ public class CodeModel extends Client {
 
     private String crossLanguagePackageId;
     private String crossLanguageVersion;
+    private Map<String, SseMetadata> sseStreams = new LinkedHashMap<>();
+
+    public Map<String, SseMetadata> getSseStreams() {
+        return sseStreams;
+    }
+
+    public void setSseStreams(Map<String, SseMetadata> sseStreams) {
+        this.sseStreams = new LinkedHashMap<>(sseStreams);
+    }
+
+    /**
+     * Resolves operation references after code-model transformations, before mapping.
+     */
+    public void resolveSseStreams() {
+        sseStreams.forEach((id, metadata) -> {
+            if (id == null
+                || id.isEmpty()
+                || metadata == null
+                || metadata.getStreamName() == null
+                || metadata.getStreamName().isEmpty()
+                || metadata.getModelNamespace() == null
+                || metadata.getModelNamespace().isEmpty()
+                || metadata.getEvents() == null
+                || metadata.getEvents().isEmpty()
+                || metadata.getEvents().stream().anyMatch(event -> event == null || event.getPayload() == null)) {
+                throw new IllegalStateException("Invalid SSE catalog entry '" + id + "'.");
+            }
+        });
+        Set<Client> visited = Collections.newSetFromMap(new IdentityHashMap<>());
+        resolveSseStreams(this, visited);
+        clients.forEach(client -> resolveSseStreams(client, visited));
+    }
+
+    private void resolveSseStreams(Client client, Set<Client> visited) {
+        if (!visited.add(client)) {
+            return;
+        }
+        client.getOperationGroups().forEach(group -> group.getOperations().forEach(operation -> {
+            String id = operation.getSseStreamId();
+            if (id != null) {
+                SseMetadata metadata = sseStreams.get(id);
+                if (id.isEmpty() || metadata == null) {
+                    throw new IllegalStateException("Invalid SSE stream reference '" + id + "'.");
+                }
+                operation.setSseMetadata(metadata);
+            }
+        }));
+        client.getSubClients().forEach(child -> resolveSseStreams(child, visited));
+    }
 
     /**
      * Creates a new instance of the CodeModel class.

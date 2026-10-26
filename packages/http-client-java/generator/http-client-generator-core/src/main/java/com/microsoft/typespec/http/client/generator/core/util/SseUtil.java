@@ -3,10 +3,13 @@
 
 package com.microsoft.typespec.http.client.generator.core.util;
 
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ConstantSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseMetadata;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
+import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClassType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
+import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import java.util.Locale;
 
 /**
@@ -16,6 +19,25 @@ public final class SseUtil {
     public static final String SERVER_SENT_EVENT_STREAMS = "ServerSentEventStreams";
 
     private SseUtil() {
+    }
+
+    public static boolean isDirect(SseMetadata metadata) {
+        return metadata.getEvents().size() == 1
+            && metadata.getEvents().get(0).getName() == null
+            && !(metadata.getEvents().get(0).getPayload() instanceof ConstantSchema);
+    }
+
+    public static IType getElementType(SseMetadata metadata) {
+        return isDirect(metadata)
+            ? Mappers.getSchemaMapper().map(metadata.getEvents().get(0).getPayload()).getClientType().asNullable()
+            : getEventType(metadata, SseNamingResolver.resolve(metadata).getBaseEventName());
+    }
+
+    public static String getTerminalPredicate(SseMetadata metadata) {
+        if (isDirect(metadata)) {
+            return metadata.getEvents().get(0).isTerminal() ? ", value -> true" : "";
+        }
+        return ", " + SseNamingResolver.resolve(metadata).getBaseEventName() + "::isTerminal";
     }
 
     public static String getEventPackage(SseMetadata metadata) {

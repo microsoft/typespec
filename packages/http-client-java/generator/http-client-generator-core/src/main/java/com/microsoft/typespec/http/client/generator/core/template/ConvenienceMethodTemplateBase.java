@@ -340,33 +340,42 @@ abstract class ConvenienceMethodTemplateBase {
         String firstSentence = firstSentenceEnd < 0 ? description : description.substring(0, firstSentenceEnd + 1);
         comment.description(firstSentence.replaceAll("\\s+", " "));
 
-        String representativeEventName = SseNamingResolver.getRepresentativeEventName(metadata);
-        String representativeEvent = representativeEventName == null
+        var representative = SseNamingResolver.getRepresentativeEvent(metadata);
+        String representativeEvent = representative == null
             ? null
-            : SseUtil.getEventPackage(metadata) + "." + names.getEventWrapperName(representativeEventName);
+            : SseUtil.getEventPackage(metadata) + "." + names.getEventWrapperName(representative);
         String payloadExample
             = representativeEvent == null ? "" : ", for example {@link " + representativeEvent + "#getValue()}";
-        comment.paragraph("Events are polymorphic: see {@link " + baseEventName
-            + "} for the known subtypes. Use a known subtype's {@code getValue()} to access its typed payload"
-            + payloadExample + ". Unrecognized events expose only their names through {@link " + baseEventName
-            + "#getEventName()}; their payloads are not available.");
+        if (SseUtil.isDirect(metadata)) {
+            comment.paragraph("Each default message event yields one non-null typed payload. Arrays are emitted as a "
+                + "single payload, not flattened. Unexpected named events and invalid payloads fail the stream.");
+        } else {
+            comment.paragraph("Events are polymorphic: see {@link " + baseEventName
+                + "} for the known subtypes. Use a known subtype's {@code getValue()} to access its typed payload"
+                + payloadExample + ". Unrecognized events expose only their names through {@link " + baseEventName
+                + "#getEventName()}; their payloads are not available.");
+        }
 
         List<String> terminalEventNames = SseNamingResolver.getTerminalEventNames(metadata);
         String terminalEvents = terminalEventNames.stream()
             .map(eventName -> "{@code " + eventName + "}")
             .collect(Collectors.joining(" or "));
         if (isMethodAsync(method)) {
-            comment.paragraph("If received, the terminal " + terminalEvents
-                + " event is emitted before the stream completes. End-of-stream without a terminal event completes "
+            comment.paragraph((terminalEventNames.isEmpty()
+                ? "The stream completes at end-of-stream. "
+                : "If received, the terminal " + terminalEvents + " event is emitted before the stream completes. ")
+                + "End-of-stream without a terminal event completes "
                 + "normally. Transport and decoding failures are propagated through the reactive error path. The "
                 + "client does not reconnect automatically.");
         } else {
             comment.paragraph("Events are decoded lazily by a single iterator. Use try-with-resources to close the "
                 + "stream when iteration ends early. The response is also closed on end-of-stream, a terminal event, "
                 + "or an iteration failure. Closing the stream is idempotent and may throw {@link java.io.IOException}.");
-            comment.paragraph("If received, the terminal " + terminalEvents
-                + " event is emitted before iteration ends. A failure while closing after a terminal event is "
-                + "reported by the next iterator access or explicit close, after the terminal event is delivered. "
+            comment.paragraph((terminalEventNames.isEmpty()
+                ? "The stream completes at end-of-stream. "
+                : "If received, the terminal " + terminalEvents
+                    + " event is emitted before iteration ends. A failure while closing after a terminal event is "
+                    + "reported by the next iterator access or explicit close, after the terminal event is delivered. ")
                 + "End-of-stream without a terminal event completes normally. Transport and decoding failures are "
                 + "thrown during iteration. The client does not reconnect automatically.");
         }

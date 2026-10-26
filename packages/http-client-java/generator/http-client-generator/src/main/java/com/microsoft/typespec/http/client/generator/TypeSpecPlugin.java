@@ -12,7 +12,6 @@ import com.microsoft.typespec.http.client.generator.core.mapper.Mappers;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.AsyncSyncClient;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Client;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientException;
-import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientModel;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ConvenienceMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ModuleInfo;
@@ -22,7 +21,6 @@ import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaPac
 import com.microsoft.typespec.http.client.generator.core.preprocessor.Preprocessor;
 import com.microsoft.typespec.http.client.generator.core.preprocessor.tranformer.Transformer;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
-import com.microsoft.typespec.http.client.generator.core.util.SseMetadataRegistry;
 import com.microsoft.typespec.http.client.generator.core.util.SseUtil;
 import com.microsoft.typespec.http.client.generator.mapper.TypeSpecAzureVNextMapperFactory;
 import com.microsoft.typespec.http.client.generator.mapper.TypeSpecClientCoreMapperFactory;
@@ -39,7 +37,6 @@ import java.nio.file.Paths;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
@@ -54,6 +51,7 @@ public class TypeSpecPlugin extends Javagen {
     public Client processClient(CodeModel codeModel) {
         // transform code model
         codeModel = new Transformer().transform(Preprocessor.convertOptionalConstantsToEnum(codeModel));
+        codeModel.resolveSseStreams();
 
         // map to client model
         return Mappers.getClientMapper().map(codeModel);
@@ -109,35 +107,16 @@ public class TypeSpecPlugin extends Javagen {
     protected void writeHelperClasses(Client client, CodeModel codeModel, JavaPackage javaPackage,
         JavaSettings settings) {
         if (settings.isAzureV1()) {
-            SseMetadataRegistry sseMetadata = new SseMetadataRegistry();
-            client.getServiceClients().forEach(serviceClient -> {
-                collectSseMetadata(serviceClient.getClientMethods(), sseMetadata);
-                serviceClient.getMethodGroupClients()
-                    .forEach(group -> collectSseMetadata(group.getClientMethods(), sseMetadata));
-            });
-            client.getAsyncClients()
-                .stream()
-                .flatMap(asyncClient -> asyncClient.getConvenienceMethods().stream())
-                .flatMap(convenienceMethod -> convenienceMethod.getConvenienceMethods().stream())
-                .map(ClientMethod::getSseMetadata)
-                .filter(Objects::nonNull)
-                .forEach(sseMetadata::add);
-            client.getSyncClients()
-                .stream()
-                .flatMap(syncClient -> syncClient.getConvenienceMethods().stream())
-                .flatMap(convenienceMethod -> convenienceMethod.getConvenienceMethods().stream())
-                .map(ClientMethod::getSseMetadata)
-                .filter(Objects::nonNull)
-                .forEach(sseMetadata::add);
-            if (!sseMetadata.values().isEmpty()) {
+            if (!client.getSseStreams().isEmpty()) {
                 String runtimePackage = SseUtil.getRuntimePackage();
                 javaPackage.addJavaFromResources(runtimePackage, SseUtil.SERVER_SENT_EVENT_STREAMS);
                 javaPackage.addJavaFromResources(runtimePackage, "ServerSentEventStream");
                 javaPackage.addJavaFromResources(runtimePackage, "ServerSentEventStreamResponse");
-                sseMetadata.values().forEach(javaPackage::addSseEventFiles);
+                client.getSseStreams().forEach(javaPackage::addSseEventFiles);
                 List<ModuleInfo.ExportModule> exports = client.getModuleInfo().getExportModules();
-                sseMetadata.values()
+                client.getSseStreams()
                     .stream()
+                    .filter(metadata -> !SseUtil.isDirect(metadata))
                     .map(SseUtil::getEventPackage)
                     .distinct()
                     .map(ModuleInfo.ExportModule::new)
@@ -201,10 +180,6 @@ public class TypeSpecPlugin extends Javagen {
             }
 
         }
-    }
-
-    private static void collectSseMetadata(List<ClientMethod> methods, SseMetadataRegistry metadata) {
-        methods.stream().map(ClientMethod::getSseMetadata).filter(Objects::nonNull).forEach(metadata::add);
     }
 
     @Override

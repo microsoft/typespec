@@ -44,6 +44,117 @@ import { createResponseErrorSchema } from "../src/external-schemas.js";
 import { cloneOperationParameter } from "../src/operation-utils.js";
 
 describe("code model characterization", () => {
+  it.each(["sse-generic", "sse-generic-encoded", "sse-generic-reused"])(
+    "checks effective generic union ownership: %s",
+    async (fixture) => {
+      const program = await compile(
+        NodeHost,
+        fileURLToPath(new URL(`./fixtures/${fixture}.tsp`, import.meta.url)),
+        { noEmit: true },
+      );
+      expectDiagnosticEmpty(program.diagnostics);
+      const builder = new CodeModelBuilder(program, {
+        program,
+        emitterOutputDir: "/code-model-test-output",
+        options: { flavor: "azure" },
+        perf: {
+          startTimer: () => ({ end: () => 0 }),
+          time: (_label, callback) => callback(),
+          timeAsync: (_label, callback) => callback(),
+          report: () => {},
+        },
+      });
+      if (fixture === "sse-generic-reused") {
+        const model = await builder.build();
+        expect(Object.keys(model.sseStreams ?? {})).toHaveLength(1);
+        const operations = model.clients
+          .flatMap((client) => client.operationGroups)
+          .flatMap((group) => group.operations ?? []);
+        expect(operations.map((operation) => operation.sseStreamId)).toEqual([
+          "SseGenericReused.GenericEvents",
+          "SseGenericReused.GenericEvents",
+        ]);
+      } else {
+        await expect(builder.build()).rejects.toThrow(
+          "Distinct SSE unions claim cross-language definition ID",
+        );
+      }
+    },
+  );
+  it("catalogs unnamed, mixed and primitive literal streams without inventing event names", async () => {
+    const program = await compile(
+      NodeHost,
+      fileURLToPath(new URL("./fixtures/sse-variants.tsp", import.meta.url)),
+      { noEmit: true },
+    );
+    expectDiagnosticEmpty(program.diagnostics);
+    const model = await new CodeModelBuilder(program, {
+      program,
+      emitterOutputDir: "/code-model-test-output",
+      options: { flavor: "azure" },
+      perf: {
+        startTimer: () => ({ end: () => 0 }),
+        time: (_label, callback) => callback(),
+        timeAsync: (_label, callback) => callback(),
+        report: () => {},
+      },
+    }).build();
+    expect(model.sseStreams?.["SseVariants.Direct"].events).toMatchObject([
+      { payload: { type: SchemaType.String }, terminal: false },
+    ]);
+    expect(model.sseStreams?.["SseVariants.Direct"].events[0].name).toBeUndefined();
+    expect(model.sseStreams?.["SseVariants.Collections"].events[0].payload).toMatchObject({
+      type: SchemaType.Array,
+      elementType: { type: SchemaType.Dictionary, elementType: { type: SchemaType.Array } },
+    });
+    expect(model.sseStreams?.["SseVariants.Mixed"].events.map((event) => event.name)).toEqual([
+      undefined,
+      "update",
+    ]);
+    expect(model.sseStreams?.["SseVariants.Literals"].events).toMatchObject([
+      { payload: { type: SchemaType.String }, payloadContentType: "application/json" },
+      {
+        payload: { type: SchemaType.Constant, value: { value: "[DONE]" } },
+        terminal: true,
+        payloadContentType: "text/plain",
+      },
+      { payload: { type: SchemaType.Constant, value: { value: true } } },
+      { payload: { type: SchemaType.Constant, value: { value: 42 } } },
+    ]);
+    expect(model.sseStreams?.["SseVariants.Ambiguous"]).toBeUndefined();
+    expect(model.sseStreams?.["SseVariants.MessageConflict"]).toBeUndefined();
+    for (const name of [
+      "NumericOverlap",
+      "EncodingOverlap",
+      "NumericEncodingOverlap",
+      "UnsupportedEncoding",
+      "UnsupportedPayloadEncoding",
+      "RoundedNumericLiteral",
+      "OutOfRangeNumericLiteral",
+    ]) {
+      expect(model.sseStreams?.[`SseVariants.${name}`]).toBeUndefined();
+    }
+    expect(model.sseStreams?.["SseVariants.StringLiteralOnly"].events).toMatchObject([
+      { payload: { type: SchemaType.Constant, value: { value: "stop" } }, terminal: true },
+    ]);
+    expect(model.sseStreams?.["SseVariants.DistinctPreciseWireValues"].events).toHaveLength(2);
+    expectDiagnostics(
+      program.diagnostics.filter(
+        (diagnostic) => diagnostic.code === "@typespec/http-client-java/sse-unsupported",
+      ),
+      [
+        { code: "@typespec/http-client-java/sse-unsupported", severity: "warning" },
+        { code: "@typespec/http-client-java/sse-unsupported", severity: "warning" },
+        { code: "@typespec/http-client-java/sse-unsupported", severity: "warning" },
+        { code: "@typespec/http-client-java/sse-unsupported", severity: "warning" },
+        { code: "@typespec/http-client-java/sse-unsupported", severity: "warning" },
+        { code: "@typespec/http-client-java/sse-unsupported", severity: "warning" },
+        { code: "@typespec/http-client-java/sse-unsupported", severity: "warning" },
+        { code: "@typespec/http-client-java/sse-unsupported", severity: "warning" },
+        { code: "@typespec/http-client-java/sse-unsupported", severity: "warning" },
+      ],
+    );
+  });
   it("generates SSE metadata for direct scalar payloads", async () => {
     const program = await compile(
       NodeHost,
@@ -75,7 +186,7 @@ describe("code model characterization", () => {
       .flatMap((client) => client.operationGroups)
       .flatMap((group) => group.operations ?? [])
       .find((operation) => operation.language.default.name === "scalarEvents")!;
-    expect(operation.sseMetadata?.events).toMatchObject([
+    expect(codeModel.sseStreams?.[operation.sseStreamId!]?.events).toMatchObject([
       { name: "first", payload: { type: SchemaType.String } },
       { name: "second", payload: { type: SchemaType.String } },
     ]);
@@ -113,7 +224,7 @@ describe("code model characterization", () => {
       .flatMap((client) => client.operationGroups)
       .flatMap((group) => group.operations ?? [])
       .find((operation) => operation.language.default.name === "recursiveDictionaryEvents")!;
-    expect(operation.sseMetadata?.events).toMatchObject([
+    expect(codeModel.sseStreams?.[operation.sseStreamId!]?.events).toMatchObject([
       {
         name: "direct",
         payload: { type: SchemaType.Dictionary, elementType: { type: SchemaType.String } },
@@ -178,7 +289,7 @@ describe("code model characterization", () => {
     for (const flavor of ["standard", "azurev2"]) {
       const operations = (await build(flavor)).clients[0].operationGroups[0].operations!;
       for (const operation of operations) {
-        expect(operation.sseMetadata).toBeUndefined();
+        expect(operation.sseStreamId).toBeUndefined();
         expect(operation.responses?.[0]).toMatchObject({ binary: true });
       }
     }
@@ -188,12 +299,14 @@ describe("code model characterization", () => {
       ),
     );
 
-    const enabledOperations = (await build("azure")).clients[0].operationGroups[0].operations!;
+    const enabledModel = await build("azure");
+    const enabledOperations = enabledModel.clients[0].operationGroups[0].operations!;
     const enabledOperation = enabledOperations.find(
       (operation) => operation.language.default.name === "retrieve",
     )!;
     expect(enabledOperation.generateProtocolApi).toBe(true);
-    expect(enabledOperation.sseMetadata).toMatchObject({
+    expect(enabledOperation.sseStreamId).toBe("SseTest.RetrievalStreamEvents");
+    expect(enabledModel.sseStreams?.[enabledOperation.sseStreamId!]).toMatchObject({
       streamName: "RetrievalStreamEvents",
       modelNamespace: "ssetest.retrieve",
       events: [
@@ -217,7 +330,10 @@ describe("code model characterization", () => {
     const protocolOnlyOperation = enabledOperations.find(
       (operation) => operation.language.default.name === "retrieveProtocol",
     )!;
-    expect(protocolOnlyOperation.sseMetadata).toBeDefined();
+    expect(protocolOnlyOperation.sseStreamId).toBe(enabledOperation.sseStreamId);
+    const serialized = parse(stringify(enabledModel));
+    expect(serialized.sseStreams[enabledOperation.sseStreamId!]).toBeDefined();
+    expect(serialized.clients[0].operationGroups[0].operations[0].sseMetadata).toBeUndefined();
     expect(protocolOnlyOperation.convenienceApi).toBeUndefined();
     expect(protocolOnlyOperation.generateProtocolApi).toBe(true);
     expect(protocolOnlyOperation.responses?.[0]).toMatchObject({ binary: true });
@@ -241,7 +357,7 @@ describe("code model characterization", () => {
     const jacksonOperation = jacksonOperations.find(
       (operation) => operation.language.default.name === "retrieve",
     )!;
-    expect(jacksonOperation.sseMetadata).toBeUndefined();
+    expect(jacksonOperation.sseStreamId).toBeUndefined();
     expect(jacksonOperation.responses?.[0]).toMatchObject({ binary: true });
     expectDiagnostics(
       program.diagnostics.filter(

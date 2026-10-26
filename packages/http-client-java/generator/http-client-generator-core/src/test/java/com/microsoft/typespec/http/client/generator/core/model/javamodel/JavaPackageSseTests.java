@@ -5,8 +5,11 @@ package com.microsoft.typespec.http.client.generator.core.model.javamodel;
 
 import com.microsoft.typespec.http.client.generator.core.MockUnitJavagen;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ArraySchema;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ConstantSchema;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ConstantValue;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.DateTimeSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.DictionarySchema;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.NumberSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Schema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseEventMetadata;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseMetadata;
@@ -199,12 +202,116 @@ public class JavaPackageSseTests {
         }
     }
 
+    @Test
+    public void rejectsCrossStreamCollisionsAtomically() {
+        for (List<String> streams : List.of(List.of("Foo_BarEvents", "FooBarEvents"),
+            List.of("BarEventFooStreamEvents", "BarEvents"), List.of("FooEvents", "FooEvents"))) {
+            JavaSettings.clear();
+            JavaPackage javaPackage = new JavaPackage(new MockUnitJavagen());
+            SseMetadata first = metadata();
+            first.setStreamName(streams.get(0));
+            first.setEvents(List.of(event("bar.started", stringSchema())));
+            SseMetadata second = metadata();
+            second.setStreamName(streams.get(1));
+            second.setEvents(List.of(event("foo", stringSchema())));
+            javaPackage.addSseEventFiles(first);
+            int size = javaPackage.getJavaFiles().size();
+            Assertions.assertThrows(IllegalStateException.class, () -> javaPackage.addSseEventFiles(second));
+            Assertions.assertEquals(size, javaPackage.getJavaFiles().size());
+        }
+    }
+
+    @Test
+    public void neverDeduplicatesIncompatibleNumericOrEncodedDefinitions() {
+        for (boolean encoded : List.of(false, true)) {
+            JavaSettings.clear();
+            JavaPackage javaPackage = new JavaPackage(new MockUnitJavagen());
+            NumberSchema int32 = new NumberSchema();
+            int32.setType(Schema.AllSchemaTypes.INTEGER);
+            int32.setPrecision(32);
+            NumberSchema int64 = new NumberSchema();
+            int64.setType(Schema.AllSchemaTypes.INTEGER);
+            int64.setPrecision(encoded ? 32 : 64);
+            if (encoded) {
+                int64.setEncode("string");
+            }
+            SseMetadata first = metadata();
+            first.setEvents(List.of(event("value", dictionary(int32))));
+            SseMetadata second = metadata();
+            second.setEvents(List.of(event("value", dictionary(int64))));
+            javaPackage.addSseEventFiles(first);
+            int size = javaPackage.getJavaFiles().size();
+            Assertions.assertThrows(IllegalStateException.class, () -> javaPackage.addSseEventFiles(second));
+            Assertions.assertEquals(size, javaPackage.getJavaFiles().size());
+        }
+    }
+
+    @Test
+    public void emitsOnlyConverterForDirectUnnamedPayload() {
+        JavaSettings.clear();
+        JavaPackage javaPackage = new JavaPackage(new MockUnitJavagen());
+        SseMetadata metadata = metadata();
+        metadata.setEvents(List.of(event(null, dictionary(array(stringSchema())))));
+        javaPackage.addSseEventFiles(metadata);
+        Assertions.assertEquals(1, javaPackage.getJavaFiles().size());
+        String source = javaPackage.getJavaFiles().get(0).getContents().toString();
+        Assertions.assertTrue(source.contains("Map<String, List<String>> convert("));
+        Assertions.assertTrue(source.contains("Unexpected SSE event name"));
+        Assertions.assertTrue(source.contains("Objects.requireNonNull"));
+        Assertions.assertFalse(source.contains("ConstructorAccessor"));
+    }
+
+    @Test
+    public void emitsTypedDefaultSubtypeAlongsideNamedEvents() {
+        JavaSettings.clear();
+        JavaPackage javaPackage = new JavaPackage(new MockUnitJavagen());
+        SseMetadata metadata = metadata();
+        metadata.setEvents(List.of(event(null, stringSchema()), event("update", stringSchema())));
+        javaPackage.addSseEventFiles(metadata);
+        Assertions.assertEquals(4, javaPackage.getJavaFiles().size());
+        String source = javaPackage.getJavaFiles().get(3).getContents().toString();
+        Assertions.assertTrue(source.contains("case \"message\":"));
+        Assertions.assertTrue(source.contains("createDefault("));
+        Assertions.assertTrue(source.contains("unknownEvent(eventName)"));
+    }
+
+    @Test
+    public void explicitMessageIdentityAlsoNormalizesAbsentNames() {
+        JavaSettings.clear();
+        JavaPackage javaPackage = new JavaPackage(mockJavagenWithGeneratedHeader());
+        SseMetadata metadata = metadata();
+        metadata.setEvents(List.of(event("message", stringSchema())));
+        javaPackage.addSseEventFiles(metadata);
+        String source = javaPackage.getJavaFiles().get(2).getContents().toString();
+        Assertions.assertTrue(
+            source.contains("eventName = eventName == null || eventName.isEmpty() ? \"message\" : eventName;"));
+    }
+
     private static SseMetadata metadata() {
         SseMetadata metadata = new SseMetadata();
         metadata.setStreamName("RetrievalStreamEvents");
         metadata.setModelNamespace("com.azure.mock");
         metadata.setEvents(List.of(event("retrieval.started", stringSchema())));
         return metadata;
+    }
+
+    @Test
+    public void rejectsDefaultAndLiteralFactoryNameCollisionsBeforeAddingFiles() {
+        for (boolean literal : List.of(false, true)) {
+            JavaSettings.clear();
+            JavaPackage javaPackage = new JavaPackage(new MockUnitJavagen());
+            SseMetadata metadata = metadata();
+            ConstantSchema constant = new ConstantSchema();
+            constant.setType(Schema.AllSchemaTypes.CONSTANT);
+            constant.setValueType(stringSchema());
+            ConstantValue value = new ConstantValue();
+            value.setValue("marker");
+            constant.setValue(value);
+            metadata.setEvents(List.of(event(null, literal ? constant : stringSchema()),
+                event(literal ? "literal1" : "default", stringSchema())));
+            Assertions.assertThrows(IllegalStateException.class, () -> javaPackage.addSseEventFiles(metadata));
+            Assertions.assertTrue(javaPackage.getJavaFiles().isEmpty());
+        }
     }
 
     private static SseEventMetadata event(String name, Schema payload) {

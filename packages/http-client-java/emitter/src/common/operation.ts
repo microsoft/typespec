@@ -66,19 +66,22 @@ export interface Operation extends Aspect {
   /** the long-running operation metadata */
   lroMetadata?: LongRunningMetadata;
 
-  /** Server-sent event metadata. */
-  sseMetadata?: SseMetadata;
+  /** CID of the canonical server-sent event definition in CodeModel.sseStreams. */
+  sseStreamId?: string;
 }
 
 export interface SseEventMetadata {
   /** SSE event field value. */
-  name: string;
+  name?: string;
 
   /** Typed event payload. */
   payload: Schema;
 
   /** Whether this event inclusively terminates the stream. */
   terminal: boolean;
+
+  /** Effective payload encoding, independent of the envelope content type. */
+  payloadContentType: string;
 }
 
 export interface SseMetadata {
@@ -88,7 +91,7 @@ export interface SseMetadata {
   /** Java namespace used as the base for generated event models. */
   modelNamespace: string;
 
-  /** Supported named event variants. */
+  /** Supported event variants, preserving absent names. */
   events: SseEventMetadata[];
 }
 

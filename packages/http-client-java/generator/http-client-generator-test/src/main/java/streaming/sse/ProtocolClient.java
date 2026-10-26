@@ -166,10 +166,8 @@ public final class ProtocolClient {
      * early. The response is also closed on end-of-stream, a terminal event, or an iteration failure. Closing the
      * stream is idempotent and may throw {@link java.io.IOException}.
      *
-     * If received, the terminal event is emitted before iteration ends. A failure while closing after a terminal event
-     * is reported by the next iterator access or explicit close, after the terminal event is delivered. End-of-stream
-     * without a terminal event completes normally. Transport and decoding failures are thrown during iteration. The
-     * client does not reconnect automatically.
+     * The stream completes at end-of-stream. End-of-stream without a terminal event completes normally. Transport and
+     * decoding failures are thrown during iteration. The client does not reconnect automatically.
      *
      * @return A closeable stream of typed protocol event events.
      */
@@ -192,10 +190,8 @@ public final class ProtocolClient {
      * early. The response is also closed on end-of-stream, a terminal event, or an iteration failure. Closing the
      * stream is idempotent and may throw {@link java.io.IOException}.
      *
-     * If received, the terminal event is emitted before iteration ends. A failure while closing after a terminal event
-     * is reported by the next iterator access or explicit close, after the terminal event is delivered. End-of-stream
-     * without a terminal event completes normally. Transport and decoding failures are thrown during iteration. The
-     * client does not reconnect automatically.
+     * The stream completes at end-of-stream. End-of-stream without a terminal event completes normally. Transport and
+     * decoding failures are thrown during iteration. The client does not reconnect automatically.
      *
      * @return A closeable stream of typed protocol event events.
      */
@@ -218,10 +214,8 @@ public final class ProtocolClient {
      * early. The response is also closed on end-of-stream, a terminal event, or an iteration failure. Closing the
      * stream is idempotent and may throw {@link java.io.IOException}.
      *
-     * If received, the terminal event is emitted before iteration ends. A failure while closing after a terminal event
-     * is reported by the next iterator access or explicit close, after the terminal event is delivered. End-of-stream
-     * without a terminal event completes normally. Transport and decoding failures are thrown during iteration. The
-     * client does not reconnect automatically.
+     * The stream completes at end-of-stream. End-of-stream without a terminal event completes normally. Transport and
+     * decoding failures are thrown during iteration. The client does not reconnect automatically.
      *
      * @return A closeable stream of typed protocol event events.
      */
@@ -244,10 +238,8 @@ public final class ProtocolClient {
      * early. The response is also closed on end-of-stream, a terminal event, or an iteration failure. Closing the
      * stream is idempotent and may throw {@link java.io.IOException}.
      *
-     * If received, the terminal event is emitted before iteration ends. A failure while closing after a terminal event
-     * is reported by the next iterator access or explicit close, after the terminal event is delivered. End-of-stream
-     * without a terminal event completes normally. Transport and decoding failures are thrown during iteration. The
-     * client does not reconnect automatically.
+     * The stream completes at end-of-stream. End-of-stream without a terminal event completes normally. Transport and
+     * decoding failures are thrown during iteration. The client does not reconnect automatically.
      *
      * @return A closeable stream of typed protocol event events.
      */
@@ -270,10 +262,8 @@ public final class ProtocolClient {
      * early. The response is also closed on end-of-stream, a terminal event, or an iteration failure. Closing the
      * stream is idempotent and may throw {@link java.io.IOException}.
      *
-     * If received, the terminal event is emitted before iteration ends. A failure while closing after a terminal event
-     * is reported by the next iterator access or explicit close, after the terminal event is delivered. End-of-stream
-     * without a terminal event completes normally. Transport and decoding failures are thrown during iteration. The
-     * client does not reconnect automatically.
+     * The stream completes at end-of-stream. End-of-stream without a terminal event completes normally. Transport and
+     * decoding failures are thrown during iteration. The client does not reconnect automatically.
      *
      * @return A closeable stream of typed protocol event events.
      */

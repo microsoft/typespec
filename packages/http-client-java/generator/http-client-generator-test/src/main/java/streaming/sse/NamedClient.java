@@ -15,7 +15,11 @@ import com.azure.core.exception.ResourceNotFoundException;
 import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
+import com.azure.core.util.CloseableIterableStream;
 import streaming.sse.implementation.NamedsImpl;
+import streaming.sse.implementation.ResponseEventConverter;
+import streaming.sse.models.implementation.sse.ServerSentEventStreams;
+import streaming.sse.named.models.ResponseEvent;
 
 /**
  * Initializes a new instance of the synchronous SseClient type.
@@ -27,7 +31,7 @@ public final class NamedClient {
 
     /**
      * Initializes an instance of NamedClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      */
     @Generated
@@ -38,13 +42,13 @@ public final class NamedClient {
     /**
      * The receive operation.
      * <p><strong>Response Body Schema</strong></p>
-     * 
+     *
      * <pre>
      * {@code
      * BinaryData
      * }
      * </pre>
-     * 
+     *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -60,19 +64,27 @@ public final class NamedClient {
 
     /**
      * The receive operation.
-     * 
-     * @throws HttpResponseException thrown if the request is rejected by server.
-     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
-     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
-     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     *
+     * Events are polymorphic: see {@link ResponseEvent} for the known subtypes. Use a known subtype's
+     * {@code getValue()} to access its typed payload, for example
+     * {@link streaming.sse.named.models.ResponseEventResponseDeltaStreamEvent#getValue()}. Unrecognized events expose
+     * only their names through {@link ResponseEvent#getEventName()}; their payloads are not available.
+     *
+     * Events are decoded lazily by a single iterator. Use try-with-resources to close the stream when iteration ends
+     * early. The response is also closed on end-of-stream, a terminal event, or an iteration failure. Closing the
+     * stream is idempotent and may throw {@link java.io.IOException}.
+     *
+     * If received, the terminal {@code message} event is emitted before iteration ends. A failure while closing after a
+     * terminal event is reported by the next iterator access or explicit close, after the terminal event is delivered.
+     * End-of-stream without a terminal event completes normally. Transport and decoding failures are thrown during
+     * iteration. The client does not reconnect automatically.
+     *
+     * @return A closeable stream of typed response event events.
      */
     @Generated
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public BinaryData receive() {
-        // Generated convenience method for receiveWithResponse
+    public CloseableIterableStream<ResponseEvent> receive() {
         RequestOptions requestOptions = new RequestOptions();
-        return receiveWithResponse(requestOptions).getValue();
+        return ServerSentEventStreams.toIterableStream(receiveWithResponse(requestOptions),
+            ResponseEventConverter::convert, ResponseEvent::isTerminal);
     }
 }
