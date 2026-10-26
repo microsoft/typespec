@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System.Collections;
 using System.Collections.Generic;
 using Microsoft.TypeSpec.Generator.Expressions;
 using Microsoft.TypeSpec.Generator.Primitives;
@@ -41,14 +42,14 @@ namespace Microsoft.TypeSpec.Generator.Statements
         public ForEachStatement(string itemName, ScopedApi enumerable, out VariableExpression item)
             : this(null, new CodeWriterDeclaration(itemName), enumerable, false)
         {
-            item = new VariableExpression(enumerable.Type.Equals(typeof(System.Collections.IEnumerable)) ? typeof(object) : enumerable.Type.Arguments[0], Item);
+            item = new VariableExpression(enumerable.Type.Equals(typeof(IEnumerable)) ? typeof(object) : enumerable.Type.Arguments[0], Item);
             ItemVariable = item;
         }
 
         public ForEachStatement(string itemName, ScopedApi enumerable, bool isAsync, out VariableExpression item)
             : this(null, new CodeWriterDeclaration(itemName), enumerable, isAsync)
         {
-            item = new VariableExpression(enumerable.Type.Equals(typeof(System.Collections.IEnumerable)) ? typeof(object) : enumerable.Type.Arguments[0], Item);
+            item = new VariableExpression(enumerable.Type.Equals(typeof(IEnumerable)) ? typeof(object) : enumerable.Type.Arguments[0], Item);
             ItemVariable = item;
         }
 
