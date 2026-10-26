@@ -118,8 +118,8 @@ catalogs:
       specifier: ^1.1.1
       version: 1.1.1
     '@playwright/test':
-      specifier: ^1.63.0
-      version: 1.63.0
+      specifier: ^1.64.1
+      version: 1.64.1
     '@scalar/json-magic':
       specifier: ^0.15.5
       version: 0.15.5
@@ -205,11 +205,11 @@ catalogs:
       specifier: ^6.1.0
       version: 6.1.2
     '@vitest/coverage-v8':
-      specifier: ^5.0.0
-      version: 5.0.3
+      specifier: ^5.0.5
+      version: 5.0.5
     '@vitest/ui':
-      specifier: ^5.0.0
-      version: 5.0.3
+      specifier: ^5.0.5
+      version: 5.0.5
     '@vscode/extension-telemetry':
       specifier: ^1.5.2
       version: 1.5.2
@@ -340,8 +340,8 @@ catalogs:
       specifier: ^1.1.1
       version: 1.1.1
     playwright:
-      specifier: ^1.63.0
-      version: 1.63.0
+      specifier: ^1.64.1
+      version: 1.64.1
     plist:
       specifier: ^5.0.0
       version: 5.0.0
@@ -454,8 +454,8 @@ catalogs:
       specifier: ^0.14.5
       version: 0.14.5
     vitest:
-      specifier: ^5.0.0
-      version: 5.0.3
+      specifier: ^5.0.5
+      version: 5.0.5
     vscode-languageclient:
       specifier: ^10.1.0
       version: 10.1.2
@@ -527,7 +527,7 @@ importers:
         version: 26.6.4
       '@vitest/coverage-v8':
         specifier: 'catalog:'
-        version: 5.0.3(vitest@5.0.3)
+        version: 5.0.5(vitest@5.0.5)
       c8:
         specifier: 'catalog:'
         version: 12.0.0
@@ -551,7 +551,7 @@ importers:
         version: 1.1.1
       playwright:
         specifier: 'catalog:'
-        version: 1.63.0
+        version: 1.64.1
       prettier:
         specifier: 'catalog:'
         version: 3.9.9
@@ -578,7 +578,7 @@ importers:
         version: typescript@7.0.2
       vitest:
         specifier: 'catalog:'
-        version: 5.0.3(@types/node@26.6.4)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.3)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
+        version: 5.0.5(@types/node@26.6.4)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
       yaml:
         specifier: 'catalog:'
         version: 2.9.1
@@ -595,10 +595,10 @@ importers:
         version: link:../compiler
       '@vitest/coverage-v8':
         specifier: 'catalog:'
-        version: 5.0.3(vitest@5.0.3)
+        version: 5.0.5(vitest@5.0.5)
       '@vitest/ui':
         specifier: 'catalog:'
-        version: 5.0.3(vitest@5.0.3)
+        version: 5.0.5(vitest@5.0.5)
       rimraf:
         specifier: 'catalog:'
         version: 6.1.3
@@ -607,7 +607,7 @@ importers:
         version: '@typescript/typescript6@6.0.2'
       vitest:
         specifier: 'catalog:'
-        version: 5.0.3(@types/node@26.6.4)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.3)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
+        version: 5.0.5(@types/node@26.6.4)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
 
   packages/astro-utils:
     dependencies:
@@ -653,10 +653,10 @@ importers:
         version: link:../compiler
       '@vitest/coverage-v8':
         specifier: 'catalog:'
-        version: 5.0.3(vitest@5.0.3)
+        version: 5.0.5(vitest@5.0.5)
       '@vitest/ui':
         specifier: 'catalog:'
-        version: 5.0.3(vitest@5.0.3)
+        version: 5.0.5(vitest@5.0.5)
       rimraf:
         specifier: 'catalog:'
         version: 6.1.3
@@ -665,7 +665,7 @@ importers:
         version: '@typescript/typescript6@6.0.2'
       vitest:
         specifier: 'catalog:'
-        version: 5.0.3(@types/node@26.6.4)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.3)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
+        version: 5.0.5(@types/node@26.6.4)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
 
   packages/bundle-uploader:
     dependencies:
@@ -696,10 +696,10 @@ importers:
         version: 7.8.0
       '@vitest/coverage-v8':
         specifier: 'catalog:'
-        version: 5.0.3(vitest@5.0.3)
+        version: 5.0.5(vitest@5.0.5)
       '@vitest/ui':
         specifier: 'catalog:'
-        version: 5.0.3(vitest@5.0.3)
+        version: 5.0.5(vitest@5.0.5)
       rimraf:
         specifier: 'catalog:'
         version: 6.1.3
@@ -708,7 +708,7 @@ importers:
         version: '@typescript/typescript6@6.0.2'
       vitest:
         specifier: 'catalog:'
-        version: 5.0.3(@types/node@26.6.4)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.3)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
+        version: 5.0.5(@types/node@26.6.4)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
 
   packages/bundler:
     dependencies:
@@ -736,10 +736,10 @@ importers:
         version: 17.0.35
       '@vitest/coverage-v8':
         specifier: 'catalog:'
-        version: 5.0.3(vitest@5.0.3)
+        version: 5.0.5(vitest@5.0.5)
       '@vitest/ui':
         specifier: 'catalog:'
-        version: 5.0.3(vitest@5.0.3)
+        version: 5.0.5(vitest@5.0.5)
       rimraf:
         specifier: 'catalog:'
         version: 6.1.3
@@ -751,7 +751,7 @@ importers:
         version: 8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1)
       vitest:
         specifier: 'catalog:'
-        version: 5.0.3(@types/node@26.6.4)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.3)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
+        version: 5.0.5(@types/node@26.6.4)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
 
   packages/compiler:
     dependencies:
@@ -833,10 +833,10 @@ importers:
         version: link:../internal-build-utils
       '@vitest/coverage-v8':
         specifier: 'catalog:'
-        version: 5.0.3(vitest@5.0.3)
+        version: 5.0.5(vitest@5.0.5)
       '@vitest/ui':
         specifier: 'catalog:'
-        version: 5.0.3(vitest@5.0.3)
+        version: 5.0.5(vitest@5.0.5)
       pathe:
         specifier: 'catalog:'
         version: 2.0.3
@@ -851,7 +851,7 @@ importers:
         version: '@typescript/typescript6@6.0.2'
       vitest:
         specifier: 'catalog:'
-        version: 5.0.3(@types/node@26.6.4)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.3)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
+        version: 5.0.5(@types/node@26.6.4)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
       vscode-oniguruma:
         specifier: 'catalog:'
         version: 2.0.1
@@ -914,7 +914,7 @@ importers:
         version: '@typescript/typescript6@6.0.2'
       vitest:
         specifier: 'catalog:'
-        version: 5.0.3(@types/node@26.6.4)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.3)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
+        version: 5.0.5(@types/node@26.6.4)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
       web-tree-sitter:
         specifier: 'catalog:'
         version: 0.27.0
@@ -935,10 +935,10 @@ importers:
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: 'catalog:'
-        version: 5.0.3(vitest@5.0.3)
+        version: 5.0.5(vitest@5.0.5)
       '@vitest/ui':
         specifier: 'catalog:'
-        version: 5.0.3(vitest@5.0.3)
+        version: 5.0.5(vitest@5.0.5)
       rimraf:
         specifier: 'catalog:'
         version: 6.1.3
@@ -947,7 +947,7 @@ importers:
         version: '@typescript/typescript6@6.0.2'
       vitest:
         specifier: 'catalog:'
-        version: 5.0.3(@types/node@26.6.4)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.3)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
+        version: 5.0.5(@types/node@26.6.4)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
 
   packages/graphql:
     dependencies:
@@ -1002,7 +1002,7 @@ importers:
         version: '@typescript/typescript6@6.0.2'
       vitest:
         specifier: 'catalog:'
-        version: 5.0.3(@types/node@26.6.4)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.3)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
+        version: 5.0.5(@types/node@26.6.4)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
 
   packages/html-program-viewer:
     dependencies:
@@ -1033,7 +1033,7 @@ importers:
         version: 10.4.2
       '@testing-library/jest-dom':
         specifier: 'catalog:'
-        version: 7.0.1(@testing-library/dom@10.4.2)(vitest@5.0.3)
+        version: 7.0.1(@testing-library/dom@10.4.2)(vitest@5.0.5)
       '@testing-library/react':
         specifier: 'catalog:'
         version: 16.3.3(@testing-library/dom@10.4.2)(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
@@ -1057,10 +1057,10 @@ importers:
         version: 6.1.2(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
       '@vitest/coverage-v8':
         specifier: 'catalog:'
-        version: 5.0.3(vitest@5.0.3)
+        version: 5.0.5(vitest@5.0.5)
       '@vitest/ui':
         specifier: 'catalog:'
-        version: 5.0.3(vitest@5.0.3)
+        version: 5.0.5(vitest@5.0.5)
       concurrently:
         specifier: 'catalog:'
         version: 10.0.5
@@ -1078,7 +1078,7 @@ importers:
         version: 0.14.5(@typescript/typescript6@6.0.2)(oxlint@1.87.0(oxlint-tsgolint@7.0.2003))(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
       vitest:
         specifier: 'catalog:'
-        version: 5.0.3(@types/node@26.6.4)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.3)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
+        version: 5.0.5(@types/node@26.6.4)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
 
   packages/http:
     devDependencies:
@@ -1099,10 +1099,10 @@ importers:
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: 'catalog:'
-        version: 5.0.3(vitest@5.0.3)
+        version: 5.0.5(vitest@5.0.5)
       '@vitest/ui':
         specifier: 'catalog:'
-        version: 5.0.3(vitest@5.0.3)
+        version: 5.0.5(vitest@5.0.5)
       rimraf:
         specifier: 'catalog:'
         version: 6.1.3
@@ -1111,7 +1111,7 @@ importers:
         version: '@typescript/typescript6@6.0.2'
       vitest:
         specifier: 'catalog:'
-        version: 5.0.3(@types/node@26.6.4)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.3)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
+        version: 5.0.5(@types/node@26.6.4)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
 
   packages/http-canonicalization:
     dependencies:
@@ -1178,7 +1178,7 @@ importers:
         version: '@typescript/typescript6@6.0.2'
       vitest:
         specifier: 'catalog:'
-        version: 5.0.3(@types/node@26.6.4)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.3)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
+        version: 5.0.5(@types/node@26.6.4)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
 
   packages/http-client-js:
     dependencies:
@@ -1236,7 +1236,7 @@ importers:
         version: link:../versioning
       '@vitest/ui':
         specifier: 'catalog:'
-        version: 5.0.3(vitest@5.0.3)
+        version: 5.0.5(vitest@5.0.5)
       change-case:
         specifier: 'catalog:'
         version: 5.4.4
@@ -1266,7 +1266,7 @@ importers:
         version: 2.0.0
       vitest:
         specifier: 'catalog:'
-        version: 5.0.3(@types/node@26.6.4)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.3)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
+        version: 5.0.5(@types/node@26.6.4)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
       yargs:
         specifier: 'catalog:'
         version: 18.2.0
@@ -1357,10 +1357,10 @@ importers:
         version: link:../versioning
       '@vitest/coverage-v8':
         specifier: 'catalog:'
-        version: 5.0.3(vitest@5.0.3)
+        version: 5.0.5(vitest@5.0.5)
       '@vitest/ui':
         specifier: 'catalog:'
-        version: 5.0.3(vitest@5.0.3)
+        version: 5.0.5(vitest@5.0.5)
       ora:
         specifier: 'catalog:'
         version: 9.4.1
@@ -1375,7 +1375,7 @@ importers:
         version: '@typescript/typescript6@6.0.2'
       vitest:
         specifier: 'catalog:'
-        version: 5.0.3(@types/node@26.6.4)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.3)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
+        version: 5.0.5(@types/node@26.6.4)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
 
   packages/http-server-js:
     dependencies:
@@ -1424,10 +1424,10 @@ importers:
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: 'catalog:'
-        version: 5.0.3(vitest@5.0.3)
+        version: 5.0.5(vitest@5.0.5)
       '@vitest/ui':
         specifier: 'catalog:'
-        version: 5.0.3(vitest@5.0.3)
+        version: 5.0.5(vitest@5.0.5)
       decimal.js:
         specifier: 'catalog:'
         version: 10.6.0
@@ -1460,7 +1460,7 @@ importers:
         version: '@typescript/typescript6@6.0.2'
       vitest:
         specifier: 'catalog:'
-        version: 5.0.3(@types/node@26.6.4)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.3)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
+        version: 5.0.5(@types/node@26.6.4)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
       yargs:
         specifier: 'catalog:'
         version: 18.2.0
@@ -1546,10 +1546,10 @@ importers:
         version: 17.0.35
       '@vitest/coverage-v8':
         specifier: 'catalog:'
-        version: 5.0.3(vitest@5.0.3)
+        version: 5.0.5(vitest@5.0.5)
       '@vitest/ui':
         specifier: 'catalog:'
-        version: 5.0.3(vitest@5.0.3)
+        version: 5.0.5(vitest@5.0.5)
       chokidar:
         specifier: 'catalog:'
         version: 5.0.0
@@ -1561,7 +1561,7 @@ importers:
         version: '@typescript/typescript6@6.0.2'
       vitest:
         specifier: 'catalog:'
-        version: 5.0.3(@types/node@26.6.4)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.3)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
+        version: 5.0.5(@types/node@26.6.4)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
 
   packages/json-schema:
     dependencies:
@@ -1589,10 +1589,10 @@ importers:
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: 'catalog:'
-        version: 5.0.3(vitest@5.0.3)
+        version: 5.0.5(vitest@5.0.5)
       '@vitest/ui':
         specifier: 'catalog:'
-        version: 5.0.3(vitest@5.0.3)
+        version: 5.0.5(vitest@5.0.5)
       ajv:
         specifier: 'catalog:'
         version: 8.20.0
@@ -1607,7 +1607,7 @@ importers:
         version: '@typescript/typescript6@6.0.2'
       vitest:
         specifier: 'catalog:'
-        version: 5.0.3(@types/node@26.6.4)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.3)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
+        version: 5.0.5(@types/node@26.6.4)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
 
   packages/library-linter:
     devDependencies:
@@ -1619,10 +1619,10 @@ importers:
         version: link:../compiler
       '@vitest/coverage-v8':
         specifier: 'catalog:'
-        version: 5.0.3(vitest@5.0.3)
+        version: 5.0.5(vitest@5.0.5)
       '@vitest/ui':
         specifier: 'catalog:'
-        version: 5.0.3(vitest@5.0.3)
+        version: 5.0.5(vitest@5.0.5)
       rimraf:
         specifier: 'catalog:'
         version: 6.1.3
@@ -1631,7 +1631,7 @@ importers:
         version: '@typescript/typescript6@6.0.2'
       vitest:
         specifier: 'catalog:'
-        version: 5.0.3(@types/node@26.6.4)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.3)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
+        version: 5.0.5(@types/node@26.6.4)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
 
   packages/monarch:
     dependencies:
@@ -1644,10 +1644,10 @@ importers:
         version: 26.6.4
       '@vitest/coverage-v8':
         specifier: 'catalog:'
-        version: 5.0.3(vitest@5.0.3)
+        version: 5.0.5(vitest@5.0.5)
       '@vitest/ui':
         specifier: 'catalog:'
-        version: 5.0.3(vitest@5.0.3)
+        version: 5.0.5(vitest@5.0.5)
       happy-dom:
         specifier: 20.11.6
         version: 20.11.6
@@ -1659,7 +1659,7 @@ importers:
         version: '@typescript/typescript6@6.0.2'
       vitest:
         specifier: 'catalog:'
-        version: 5.0.3(@types/node@26.6.4)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.3)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
+        version: 5.0.5(@types/node@26.6.4)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
 
   packages/mutator-framework:
     devDependencies:
@@ -1698,10 +1698,10 @@ importers:
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: 'catalog:'
-        version: 5.0.3(vitest@5.0.3)
+        version: 5.0.5(vitest@5.0.5)
       '@vitest/ui':
         specifier: 'catalog:'
-        version: 5.0.3(vitest@5.0.3)
+        version: 5.0.5(vitest@5.0.5)
       rimraf:
         specifier: 'catalog:'
         version: 6.1.3
@@ -1710,7 +1710,7 @@ importers:
         version: '@typescript/typescript6@6.0.2'
       vitest:
         specifier: 'catalog:'
-        version: 5.0.3(@types/node@26.6.4)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.3)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
+        version: 5.0.5(@types/node@26.6.4)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
 
   packages/openapi3:
     dependencies:
@@ -1777,10 +1777,10 @@ importers:
         version: link:../xml
       '@vitest/coverage-v8':
         specifier: 'catalog:'
-        version: 5.0.3(vitest@5.0.3)
+        version: 5.0.5(vitest@5.0.5)
       '@vitest/ui':
         specifier: 'catalog:'
-        version: 5.0.3(vitest@5.0.3)
+        version: 5.0.5(vitest@5.0.5)
       cross-env:
         specifier: 'catalog:'
         version: 10.1.0
@@ -1792,7 +1792,7 @@ importers:
         version: '@typescript/typescript6@6.0.2'
       vitest:
         specifier: 'catalog:'
-        version: 5.0.3(@types/node@26.6.4)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.3)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
+        version: 5.0.5(@types/node@26.6.4)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
 
   packages/pack:
     dependencies:
@@ -1808,10 +1808,10 @@ importers:
         version: 26.6.4
       '@vitest/coverage-v8':
         specifier: 'catalog:'
-        version: 5.0.3(vitest@5.0.3)
+        version: 5.0.5(vitest@5.0.5)
       '@vitest/ui':
         specifier: 'catalog:'
-        version: 5.0.3(vitest@5.0.3)
+        version: 5.0.5(vitest@5.0.5)
       rimraf:
         specifier: 'catalog:'
         version: 6.1.3
@@ -1823,7 +1823,7 @@ importers:
         version: 8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1)
       vitest:
         specifier: 'catalog:'
-        version: 5.0.3(@types/node@26.6.4)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.3)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
+        version: 5.0.5(@types/node@26.6.4)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
 
   packages/playground:
     dependencies:
@@ -1899,7 +1899,7 @@ importers:
         version: 8.0.7
       '@playwright/test':
         specifier: 'catalog:'
-        version: 1.63.0
+        version: 1.64.1
       '@storybook/react-vite':
         specifier: 'catalog:'
         version: 10.6.2(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(@typescript/typescript6@6.0.2)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(storybook@10.6.2(@types/react@19.3.0)(prettier@3.9.9)(react@19.3.1))(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
@@ -1908,7 +1908,7 @@ importers:
         version: 10.4.2
       '@testing-library/jest-dom':
         specifier: 'catalog:'
-        version: 7.0.1(@testing-library/dom@10.4.2)(vitest@5.0.3)
+        version: 7.0.1(@testing-library/dom@10.4.2)(vitest@5.0.5)
       '@testing-library/react':
         specifier: 'catalog:'
         version: 16.3.3(@testing-library/dom@10.4.2)(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
@@ -1959,7 +1959,7 @@ importers:
         version: 0.14.5(@typescript/typescript6@6.0.2)(oxlint@1.87.0(oxlint-tsgolint@7.0.2003))(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
       vitest:
         specifier: 'catalog:'
-        version: 5.0.3(@types/node@26.6.4)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.3)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
+        version: 5.0.5(@types/node@26.6.4)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
 
   packages/playground-website:
     dependencies:
@@ -2044,7 +2044,7 @@ importers:
         version: 8.0.7
       '@playwright/test':
         specifier: 'catalog:'
-        version: 1.63.0
+        version: 1.64.1
       '@types/debounce':
         specifier: 'catalog:'
         version: 1.2.4
@@ -2065,10 +2065,10 @@ importers:
         version: 6.1.2(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
       '@vitest/coverage-v8':
         specifier: 'catalog:'
-        version: 5.0.3(vitest@5.0.3)
+        version: 5.0.5(vitest@5.0.5)
       '@vitest/ui':
         specifier: 'catalog:'
-        version: 5.0.3(vitest@5.0.3)
+        version: 5.0.5(vitest@5.0.5)
       cross-env:
         specifier: 'catalog:'
         version: 10.1.0
@@ -2086,7 +2086,7 @@ importers:
         version: 8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1)
       vitest:
         specifier: 'catalog:'
-        version: 5.0.3(@types/node@26.6.4)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.3)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
+        version: 5.0.5(@types/node@26.6.4)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
 
   packages/prettier-plugin-typespec:
     dependencies:
@@ -2105,7 +2105,7 @@ importers:
         version: 0.28.2
       vitest:
         specifier: 'catalog:'
-        version: 5.0.3(@types/node@26.6.4)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.3)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
+        version: 5.0.5(@types/node@26.6.4)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
 
   packages/protobuf:
     dependencies:
@@ -2130,10 +2130,10 @@ importers:
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: 'catalog:'
-        version: 5.0.3(vitest@5.0.3)
+        version: 5.0.5(vitest@5.0.5)
       '@vitest/ui':
         specifier: 'catalog:'
-        version: 5.0.3(vitest@5.0.3)
+        version: 5.0.5(vitest@5.0.5)
       micromatch:
         specifier: 'catalog:'
         version: 4.0.8
@@ -2145,7 +2145,7 @@ importers:
         version: '@typescript/typescript6@6.0.2'
       vitest:
         specifier: 'catalog:'
-        version: 5.0.3(@types/node@26.6.4)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.3)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
+        version: 5.0.5(@types/node@26.6.4)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
 
   packages/react-components:
     dependencies:
@@ -2170,7 +2170,7 @@ importers:
         version: 10.4.2
       '@testing-library/jest-dom':
         specifier: 'catalog:'
-        version: 7.0.1(@testing-library/dom@10.4.2)(vitest@5.0.3)
+        version: 7.0.1(@testing-library/dom@10.4.2)(vitest@5.0.5)
       '@testing-library/react':
         specifier: 'catalog:'
         version: 16.3.3(@testing-library/dom@10.4.2)(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
@@ -2188,10 +2188,10 @@ importers:
         version: 6.1.2(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
       '@vitest/coverage-v8':
         specifier: 'catalog:'
-        version: 5.0.3(vitest@5.0.3)
+        version: 5.0.5(vitest@5.0.5)
       '@vitest/ui':
         specifier: 'catalog:'
-        version: 5.0.3(vitest@5.0.3)
+        version: 5.0.5(vitest@5.0.5)
       concurrently:
         specifier: 'catalog:'
         version: 10.0.5
@@ -2209,7 +2209,7 @@ importers:
         version: 0.14.5(@typescript/typescript6@6.0.2)(oxlint@1.87.0(oxlint-tsgolint@7.0.2003))(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
       vitest:
         specifier: 'catalog:'
-        version: 5.0.3(@types/node@26.6.4)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.3)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
+        version: 5.0.5(@types/node@26.6.4)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
 
   packages/rest:
     devDependencies:
@@ -2230,10 +2230,10 @@ importers:
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: 'catalog:'
-        version: 5.0.3(vitest@5.0.3)
+        version: 5.0.5(vitest@5.0.5)
       '@vitest/ui':
         specifier: 'catalog:'
-        version: 5.0.3(vitest@5.0.3)
+        version: 5.0.5(vitest@5.0.5)
       rimraf:
         specifier: 'catalog:'
         version: 6.1.3
@@ -2242,7 +2242,7 @@ importers:
         version: '@typescript/typescript6@6.0.2'
       vitest:
         specifier: 'catalog:'
-        version: 5.0.3(@types/node@26.6.4)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.3)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
+        version: 5.0.5(@types/node@26.6.4)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
 
   packages/samples:
     dependencies:
@@ -2306,10 +2306,10 @@ importers:
         version: link:../internal-build-utils
       '@vitest/coverage-v8':
         specifier: 'catalog:'
-        version: 5.0.3(vitest@5.0.3)
+        version: 5.0.5(vitest@5.0.5)
       '@vitest/ui':
         specifier: 'catalog:'
-        version: 5.0.3(vitest@5.0.3)
+        version: 5.0.5(vitest@5.0.5)
       cross-env:
         specifier: 'catalog:'
         version: 10.1.0
@@ -2321,7 +2321,7 @@ importers:
         version: '@typescript/typescript6@6.0.2'
       vitest:
         specifier: 'catalog:'
-        version: 5.0.3(@types/node@26.6.4)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.3)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
+        version: 5.0.5(@types/node@26.6.4)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
 
   packages/spec:
     devDependencies:
@@ -2355,10 +2355,10 @@ importers:
         version: 26.6.4
       '@vitest/coverage-v8':
         specifier: 'catalog:'
-        version: 5.0.3(vitest@5.0.3)
+        version: 5.0.5(vitest@5.0.5)
       '@vitest/ui':
         specifier: 'catalog:'
-        version: 5.0.3(vitest@5.0.3)
+        version: 5.0.5(vitest@5.0.5)
       rimraf:
         specifier: 'catalog:'
         version: 6.1.3
@@ -2367,7 +2367,7 @@ importers:
         version: '@typescript/typescript6@6.0.2'
       vitest:
         specifier: 'catalog:'
-        version: 5.0.3(@types/node@26.6.4)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.3)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
+        version: 5.0.5(@types/node@26.6.4)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
 
   packages/spec-coverage-sdk:
     dependencies:
@@ -2544,10 +2544,10 @@ importers:
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: 'catalog:'
-        version: 5.0.3(vitest@5.0.3)
+        version: 5.0.5(vitest@5.0.5)
       '@vitest/ui':
         specifier: 'catalog:'
-        version: 5.0.3(vitest@5.0.3)
+        version: 5.0.5(vitest@5.0.5)
       rimraf:
         specifier: 'catalog:'
         version: 6.1.3
@@ -2556,7 +2556,7 @@ importers:
         version: '@typescript/typescript6@6.0.2'
       vitest:
         specifier: 'catalog:'
-        version: 5.0.3(@types/node@26.6.4)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.3)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
+        version: 5.0.5(@types/node@26.6.4)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
 
   packages/standalone:
     dependencies:
@@ -2569,10 +2569,10 @@ importers:
         version: 26.6.4
       '@vitest/coverage-v8':
         specifier: 'catalog:'
-        version: 5.0.3(vitest@5.0.3)
+        version: 5.0.5(vitest@5.0.5)
       '@vitest/ui':
         specifier: 'catalog:'
-        version: 5.0.3(vitest@5.0.3)
+        version: 5.0.5(vitest@5.0.5)
       esbuild:
         specifier: 'catalog:'
         version: 0.28.2
@@ -2590,7 +2590,7 @@ importers:
         version: '@typescript/typescript6@6.0.2'
       vitest:
         specifier: 'catalog:'
-        version: 5.0.3(@types/node@26.6.4)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.3)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
+        version: 5.0.5(@types/node@26.6.4)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
 
   packages/streams:
     devDependencies:
@@ -2608,10 +2608,10 @@ importers:
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: 'catalog:'
-        version: 5.0.3(vitest@5.0.3)
+        version: 5.0.5(vitest@5.0.5)
       '@vitest/ui':
         specifier: 'catalog:'
-        version: 5.0.3(vitest@5.0.3)
+        version: 5.0.5(vitest@5.0.5)
       rimraf:
         specifier: 'catalog:'
         version: 6.1.3
@@ -2620,7 +2620,7 @@ importers:
         version: '@typescript/typescript6@6.0.2'
       vitest:
         specifier: 'catalog:'
-        version: 5.0.3(@types/node@26.6.4)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.3)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
+        version: 5.0.5(@types/node@26.6.4)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
 
   packages/tmlanguage-generator:
     dependencies:
@@ -2676,7 +2676,7 @@ importers:
         version: '@typescript/typescript6@6.0.2'
       vitest:
         specifier: 'catalog:'
-        version: 5.0.3(@types/node@26.6.4)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.3)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
+        version: 5.0.5(@types/node@26.6.4)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
 
   packages/tspd:
     dependencies:
@@ -2740,10 +2740,10 @@ importers:
         version: link:../prettier-plugin-typespec
       '@vitest/coverage-v8':
         specifier: 'catalog:'
-        version: 5.0.3(vitest@5.0.3)
+        version: 5.0.5(vitest@5.0.5)
       '@vitest/ui':
         specifier: 'catalog:'
-        version: 5.0.3(vitest@5.0.3)
+        version: 5.0.5(vitest@5.0.5)
       rimraf:
         specifier: 'catalog:'
         version: 6.1.3
@@ -2752,7 +2752,7 @@ importers:
         version: '@typescript/typescript6@6.0.2'
       vitest:
         specifier: 'catalog:'
-        version: 5.0.3(@types/node@26.6.4)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.3)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
+        version: 5.0.5(@types/node@26.6.4)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
 
   packages/typespec-vs:
     devDependencies:
@@ -2788,10 +2788,10 @@ importers:
         version: link:../internal-build-utils
       '@vitest/coverage-v8':
         specifier: 'catalog:'
-        version: 5.0.3(vitest@5.0.3)
+        version: 5.0.5(vitest@5.0.5)
       '@vitest/ui':
         specifier: 'catalog:'
-        version: 5.0.3(vitest@5.0.3)
+        version: 5.0.5(vitest@5.0.5)
       '@vscode/extension-telemetry':
         specifier: 'catalog:'
         version: 1.5.2(tslib@2.8.1)
@@ -2815,7 +2815,7 @@ importers:
         version: 0.28.2
       playwright:
         specifier: 'catalog:'
-        version: 1.63.0
+        version: 1.64.1
       rimraf:
         specifier: 'catalog:'
         version: 6.1.3
@@ -2830,7 +2830,7 @@ importers:
         version: '@typescript/typescript6@6.0.2'
       vitest:
         specifier: 'catalog:'
-        version: 5.0.3(@types/node@26.6.4)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.3)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
+        version: 5.0.5(@types/node@26.6.4)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
       vscode-languageclient:
         specifier: 'catalog:'
         version: 10.1.2
@@ -2857,10 +2857,10 @@ importers:
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: 'catalog:'
-        version: 5.0.3(vitest@5.0.3)
+        version: 5.0.5(vitest@5.0.5)
       '@vitest/ui':
         specifier: 'catalog:'
-        version: 5.0.3(vitest@5.0.3)
+        version: 5.0.5(vitest@5.0.5)
       rimraf:
         specifier: 'catalog:'
         version: 6.1.3
@@ -2869,7 +2869,7 @@ importers:
         version: '@typescript/typescript6@6.0.2'
       vitest:
         specifier: 'catalog:'
-        version: 5.0.3(@types/node@26.6.4)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.3)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
+        version: 5.0.5(@types/node@26.6.4)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
 
   packages/xml:
     devDependencies:
@@ -2887,10 +2887,10 @@ importers:
         version: link:../tspd
       '@vitest/coverage-v8':
         specifier: 'catalog:'
-        version: 5.0.3(vitest@5.0.3)
+        version: 5.0.5(vitest@5.0.5)
       '@vitest/ui':
         specifier: 'catalog:'
-        version: 5.0.3(vitest@5.0.3)
+        version: 5.0.5(vitest@5.0.5)
       rimraf:
         specifier: 'catalog:'
         version: 6.1.3
@@ -2899,7 +2899,7 @@ importers:
         version: '@typescript/typescript6@6.0.2'
       vitest:
         specifier: 'catalog:'
-        version: 5.0.3(@types/node@26.6.4)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.3)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
+        version: 5.0.5(@types/node@26.6.4)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
 
   website:
     dependencies:
@@ -3038,7 +3038,7 @@ importers:
         version: 0.44.2(astro@7.3.6(@astrojs/markdown-remark@7.3.2)(@azure/identity@4.13.3)(@azure/storage-blob@12.34.0)(@types/node@26.6.4)(yaml@2.9.1))
       rehype-mermaid:
         specifier: 'catalog:'
-        version: 3.0.0(playwright@1.63.0)
+        version: 3.0.0(playwright@1.64.1)
       remark-heading-id:
         specifier: 'catalog:'
         version: 1.0.1
@@ -5890,8 +5890,8 @@ packages:
     resolution: {integrity: sha512-m2daAx2QmBFeO8iqVjeCrYlihlhw1FchLQayCCZsZ2IdvA7Uk7sFsjNm7RleAt2rDARH/ZEtXQi7e65WB1VGPQ==}
     engines: {node: '>=20'}
 
-  '@playwright/test@1.63.0':
-    resolution: {integrity: sha512-oxMK4vllB9RK5NQ2l1pq1IfOf2AvnEuj/vYGDj0H2nMtmtZpKtCwt/l00GEO6xjGfpBNAvjovvYdCm50dRQkpQ==}
+  '@playwright/test@1.64.1':
+    resolution: {integrity: sha512-IaYGml/nSOiZWROfPtuIL7neuu9qDOZ3TNvNljUIrhDMxiGTgPjzj/g9p9RxpS2tSepPDRY+UwAaEeiKtUvIAg==}
     engines: {node: '>=20'}
     hasBin: true
 
@@ -6758,11 +6758,11 @@ packages:
       oxc-transform-react:
         optional: true
 
-  '@vitest/coverage-v8@5.0.3':
-    resolution: {integrity: sha512-+klsyz7BvT1vCU28Zkfzms1Ia78XD0V41U3FUtRaa3S+vOr/EXvK1O6BvVD7l1RzEjm6SONR2aybOvDDf9u0mQ==}
+  '@vitest/coverage-v8@5.0.5':
+    resolution: {integrity: sha512-4KpkGdIrSqBihx/JyP/e+S+IKB98etg1XDQiLAxksLfcShnwi1VReGeOT9NI43hLHbknosKp/1CCLn9Zgcs8mg==}
     peerDependencies:
-      '@vitest/browser': 5.0.3
-      vitest: 5.0.3
+      '@vitest/browser': 5.0.5
+      vitest: 5.0.5
     peerDependenciesMeta:
       '@vitest/browser':
         optional: true
@@ -6778,10 +6778,10 @@ packages:
     resolution: {integrity: sha512-gUsfXZJbzPamoIY5TvHFiMMoXESBrUMo+xqaj+rYrWI69+EnvRlYBlP96ZnHPY4vX8kyUpgAnFUCg5wZG/HkDQ==}
     engines: {node: '>=22'}
 
-  '@vitest/mocker@5.0.3':
-    resolution: {integrity: sha512-T8sWAIbkSyAjkwTcaEc3Iu0o9A27X1/kdXrizhZkGuSKScRQtRzclfAMpOTcGdXCsqxeWlpGy3XjqaW8CpLORg==}
+  '@vitest/mocker@5.0.5':
+    resolution: {integrity: sha512-xLL3lkDegJZw+MGoGaCCsFayDZthGgpAtr3Vziyfc4p7xH89K7KRPcRBBh/kEYm0Aqkt5DtTmkYpBtRV/FrHZg==}
     peerDependencies:
-      msw: ^2.4.9
+      msw: ^2.4.9 || ^3.0.0
       vite: ^6.0.0 || ^7.0.0 || ^8.0.0
     peerDependenciesMeta:
       msw:
@@ -6792,25 +6792,25 @@ packages:
   '@vitest/pretty-format@3.2.4':
     resolution: {integrity: sha512-IVNZik8IVRJRTr9fxlitMKeJeXFFFN0JaB9PHPGQ8NKQbGpfjlTx9zO4RefN8gp7eqjNy8nyK3NZmBzOPeIxtA==}
 
-  '@vitest/pretty-format@5.0.3':
-    resolution: {integrity: sha512-3hr5eV5z2ff0l2Q1vaKQbB4j3M3tElw8stDokEOTqXJB3Es5VrT8gBRIMY59gGuFp8Y61sWlWFK1aNUH5dHDYw==}
+  '@vitest/pretty-format@5.0.5':
+    resolution: {integrity: sha512-24sSdIlMA9DVPXnYiB9siwU0bTd887Y9jX3+vabztCSsvHwo7ipvJ/a2L3Rljw8+2rK1f5fCj3h5U9I/Jsqgbw==}
 
   '@vitest/spy@3.2.4':
     resolution: {integrity: sha512-vAfasCOe6AIK70iP5UD11Ac4siNUNJ9i/9PZ3NKx07sG6sUxeag1LWdNrMWeKKYBLlzuK+Gn65Yd5nyL6ds+nw==}
 
-  '@vitest/spy@5.0.3':
-    resolution: {integrity: sha512-XhFysQTB8AZ+P4gMi+Lpo99vg2AZi0qKpaB9yXQl37+CaMEAPO3iH/wGVnSyL5MPERiLezpqTVtrR6UZH5GCXg==}
+  '@vitest/spy@5.0.5':
+    resolution: {integrity: sha512-lwJRExuH417257Q5wv9QYugN9IMJkoxcrKrYxGPQkBzl7wlNpTUxD/5yNX4ESKVUIShKPgkGchYPFMWOOk0wzw==}
 
-  '@vitest/ui@5.0.3':
-    resolution: {integrity: sha512-9dfvqDBvSbHM6y9YVXxAypkl2z7mrWozK/JFo237qI0cj/3M/kzDKiVZqzi3TE54Ler7Jditud7OMBZCyUvRHA==}
+  '@vitest/ui@5.0.5':
+    resolution: {integrity: sha512-dCoGUOdgmCaSB2g+WQ/spPCBkytAWdNUkFSXY4z+eYp2d8JEOY8v0uDRaJTG9qf/kTlTVZ4CuYMYMz/f1HS/qQ==}
     peerDependencies:
-      vitest: 5.0.3
+      vitest: 5.0.5
 
   '@vitest/utils@3.2.4':
     resolution: {integrity: sha512-fB2V0JFrQSMsCo9HiSq3Ezpdv4iYaXRG1Sx8edX3MwxfyNn83mKiGzOcH+Fkxt4MHxr3y42fQi1oeAInqgX2QA==}
 
-  '@vitest/utils@5.0.3':
-    resolution: {integrity: sha512-77fDTZv8eu1CzlIfgPU2yrl5MXSUaUAOvgdZEeVm3X3WIxUubIX2SforqS6176lT32HCF6uBVMYVqfHxw7o6eg==}
+  '@vitest/utils@5.0.5':
+    resolution: {integrity: sha512-/rBu7gzLDQI/SC79Tn98b5DwOgaHU/Gt4I9OVeP3YofzNaYtbImRCOJQmT1S6vOJg9gEIlWC+r3QxKkjuSa1nQ==}
 
   '@volar/kit@2.4.28':
     resolution: {integrity: sha512-cKX4vK9dtZvDRaAzeoUdaAJEew6IdxHNCRrdp5Kvcl6zZOqb6jTOfk3kXkIkG3T7oTFXguEMt5+9ptyqYR84Pg==}
@@ -9555,8 +9555,13 @@ packages:
     engines: {node: '>=20'}
     hasBin: true
 
-  playwright@1.63.0:
-    resolution: {integrity: sha512-+7ziBLidS4NaNCdt57SUDT+wYmmd5fmiQejUic/kb+YsYSCPyOOE9sebzMjNmQrsnNpDJqd4WHvV/8lfKfUDUg==}
+  playwright-core@1.64.1:
+    resolution: {integrity: sha512-BC4s8y6SEVA6Q1rSxZTto8hI1KUI3xXlHGZgvGqP4IqPdI/a6FX9H29IDNz7vKo9l21b6LfYosScPL6M3xxyDQ==}
+    engines: {node: '>=20'}
+    hasBin: true
+
+  playwright@1.64.1:
+    resolution: {integrity: sha512-HCrVhHr5QQuwYoswEUGTb7gGp522yflbv/ST8nF4sFWGuLjQCt17Q/EubpGGSNKYn1tsTCPZxqHhHCfVURu7UA==}
     engines: {node: '>=20'}
     hasBin: true
 
@@ -10340,8 +10345,8 @@ packages:
   tiny-invariant@1.3.3:
     resolution: {integrity: sha512-+FbBPE1o9QAYvviau/qC5SE3caw21q3xkvWKBtja5vgqOWIHHJ3ioaq1VPfn/Szqctz2bU/oYeKd9/z5BL+PVg==}
 
-  tinybench@6.2.1:
-    resolution: {integrity: sha512-IAbQaPJIIdhVxi0mqy9lez1wEwje0UQf9F1vwtbelEG5Nbgn0nPOxCvU+mNeNS9gyJTAhrHp74CbUaSynQpZcQ==}
+  tinybench@6.2.2:
+    resolution: {integrity: sha512-nIZ2N2dFpjBsg2hgitKu7mA+FvsIJuGJOwysRngmVRRmWgR/UyPjwJj8c/fT/dhm8EkHnF5EOogRf+0Z2qrimA==}
     engines: {node: '>=20.0.0'}
 
   tinyclip@1.0.3:
@@ -10880,20 +10885,20 @@ packages:
       vite:
         optional: true
 
-  vitest@5.0.3:
-    resolution: {integrity: sha512-xMw97S3rjdtj5dkVat7jCsqWBpvchs3RlpQctUqwJD0KkERk40vz2fJ77lDwW/Vzh/pk18eItYAzkodhSes3jQ==}
+  vitest@5.0.5:
+    resolution: {integrity: sha512-cPODOMF8YnkiiYtDdHo6n4wWmBrOBBbOIYH2d33M4l3CdNn72h+qMmO6uXffUN6A5AZFXNND/d+krS9mgkXRfg==}
     engines: {node: ^22.12.0 || ^24.0.0 || >=26.0.0}
     hasBin: true
     peerDependencies:
       '@edge-runtime/vm': '*'
       '@opentelemetry/api': ^1.9.0
       '@types/node': ^22.0.0 || >=24.0.0
-      '@vitest/browser-playwright': 5.0.3
-      '@vitest/browser-preview': 5.0.3
+      '@vitest/browser-playwright': 5.0.5
+      '@vitest/browser-preview': 5.0.5
       '@vitest/browser-webdriverio': ^5.0.0-beta.5 || >=5.0.0
-      '@vitest/coverage-istanbul': 5.0.3
-      '@vitest/coverage-v8': 5.0.3
-      '@vitest/ui': 5.0.3
+      '@vitest/coverage-istanbul': 5.0.5
+      '@vitest/coverage-v8': 5.0.5
+      '@vitest/ui': 5.0.5
       happy-dom: 20.11.6
       jsdom: '*'
       vite: ^6.4.0 || ^7.0.0 || ^8.0.0
@@ -14796,9 +14801,9 @@ snapshots:
     dependencies:
       playwright-core: 1.63.0
 
-  '@playwright/test@1.63.0':
+  '@playwright/test@1.64.1':
     dependencies:
-      playwright: 1.63.0
+      playwright: 1.64.1
 
   '@polka/url@1.0.0-next.29': {}
 
@@ -15153,7 +15158,7 @@ snapshots:
       picocolors: 1.1.1
       redent: 3.0.0
 
-  '@testing-library/jest-dom@7.0.1(@testing-library/dom@10.4.2)(vitest@5.0.3)':
+  '@testing-library/jest-dom@7.0.1(@testing-library/dom@10.4.2)(vitest@5.0.5)':
     dependencies:
       '@adobe/css-tools': 4.5.0
       '@testing-library/dom': 10.4.2
@@ -15163,7 +15168,7 @@ snapshots:
       picocolors: 1.1.1
       redent: 3.0.0
     optionalDependencies:
-      vitest: 5.0.3(@types/node@26.6.4)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.3)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
+      vitest: 5.0.5(@types/node@26.6.4)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
 
   '@testing-library/react@16.3.3(@testing-library/dom@10.4.2)(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
     dependencies:
@@ -15606,17 +15611,17 @@ snapshots:
       '@rolldown/pluginutils': 1.0.1
       vite: 8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1)
 
-  '@vitest/coverage-v8@5.0.3(vitest@5.0.3)':
+  '@vitest/coverage-v8@5.0.5(vitest@5.0.5)':
     dependencies:
       '@bcoe/v8-coverage': 1.0.2
       '@vitest/istanbul-lib-coverage': 1.0.2
       '@vitest/istanbul-lib-report': 1.0.2
       ast-v8-to-istanbul: 1.0.7
       magicast: 0.5.5
-      obug: 2.2.1
+      obug: 3.0.0
       std-env: 4.3.0
       tinyrainbow: 3.2.0
-      vitest: 5.0.3(@types/node@26.6.4)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.3)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
+      vitest: 5.0.5(@types/node@26.6.4)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
 
   '@vitest/expect@3.2.4':
     dependencies:
@@ -15632,10 +15637,10 @@ snapshots:
     dependencies:
       '@vitest/istanbul-lib-coverage': 1.0.2
 
-  '@vitest/mocker@5.0.3(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))':
+  '@vitest/mocker@5.0.5(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))':
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
-      '@vitest/spy': 5.0.3
+      '@vitest/spy': 5.0.5
       estree-walker: 3.0.3
       magic-string: 1.4.3
     optionalDependencies:
@@ -15645,7 +15650,7 @@ snapshots:
     dependencies:
       tinyrainbow: 2.0.0
 
-  '@vitest/pretty-format@5.0.3':
+  '@vitest/pretty-format@5.0.5':
     dependencies:
       tinyrainbow: 3.2.0
 
@@ -15653,17 +15658,17 @@ snapshots:
     dependencies:
       tinyspy: 4.0.6
 
-  '@vitest/spy@5.0.3': {}
+  '@vitest/spy@5.0.5': {}
 
-  '@vitest/ui@5.0.3(vitest@5.0.3)':
+  '@vitest/ui@5.0.5(vitest@5.0.5)':
     dependencies:
-      '@vitest/utils': 5.0.3
+      '@vitest/utils': 5.0.5
       fflate: 0.8.3
       flatted: 3.4.4
       pathe: 2.0.3
       sirv: 3.0.2
       tinyrainbow: 3.2.0
-      vitest: 5.0.3(@types/node@26.6.4)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.3)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
+      vitest: 5.0.5(@types/node@26.6.4)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
 
   '@vitest/utils@3.2.4':
     dependencies:
@@ -15671,9 +15676,9 @@ snapshots:
       loupe: 3.2.1
       tinyrainbow: 2.0.0
 
-  '@vitest/utils@5.0.3':
+  '@vitest/utils@5.0.5':
     dependencies:
-      '@vitest/pretty-format': 5.0.3
+      '@vitest/pretty-format': 5.0.5
       convert-source-map: 2.0.0
       tinyrainbow: 3.2.0
 
@@ -15760,7 +15765,7 @@ snapshots:
       koa-mount: 4.2.0
       koa-static: 5.0.0
       minimist: 1.2.8
-      playwright: 1.63.0
+      playwright: 1.64.1
       tar-fs: 3.1.3
       tinyglobby: 0.2.17
       vscode-uri: 3.2.0
@@ -18360,13 +18365,13 @@ snapshots:
 
   merge2@1.4.1: {}
 
-  mermaid-isomorphic@3.1.0(playwright@1.63.0):
+  mermaid-isomorphic@3.1.0(playwright@1.64.1):
     dependencies:
       '@fortawesome/fontawesome-free': 6.7.2
       katex: 0.16.47
       mermaid: 11.17.2
     optionalDependencies:
-      playwright: 1.63.0
+      playwright: 1.64.1
 
   mermaid@11.17.2:
     dependencies:
@@ -19101,9 +19106,11 @@ snapshots:
 
   playwright-core@1.63.0: {}
 
-  playwright@1.63.0:
+  playwright-core@1.64.1: {}
+
+  playwright@1.64.1:
     dependencies:
-      playwright-core: 1.63.0
+      playwright-core: 1.64.1
 
   plist@5.0.0:
     dependencies:
@@ -19403,19 +19410,19 @@ snapshots:
     dependencies:
       expressive-code: 0.44.2
 
-  rehype-mermaid@3.0.0(playwright@1.63.0):
+  rehype-mermaid@3.0.0(playwright@1.64.1):
     dependencies:
       '@types/hast': 3.0.5
       hast-util-from-html-isomorphic: 2.0.0
       hast-util-to-text: 4.0.2
-      mermaid-isomorphic: 3.1.0(playwright@1.63.0)
+      mermaid-isomorphic: 3.1.0(playwright@1.64.1)
       mini-svg-data-uri: 1.4.4
       space-separated-tokens: 2.0.2
       unified: 11.0.5
       unist-util-visit-parents: 6.0.2
       vfile: 6.0.3
     optionalDependencies:
-      playwright: 1.63.0
+      playwright: 1.64.1
 
   rehype-raw@7.0.0:
     dependencies:
@@ -20088,7 +20095,7 @@ snapshots:
 
   tiny-invariant@1.3.3: {}
 
-  tinybench@6.2.1: {}
+  tinybench@6.2.2: {}
 
   tinyclip@1.0.3: {}
 
@@ -20473,26 +20480,26 @@ snapshots:
     optionalDependencies:
       vite: 8.3.3(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1)
 
-  vitest@5.0.3(@types/node@26.6.4)(@vitest/coverage-v8@5.0.3)(@vitest/ui@5.0.3)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1)):
+  vitest@5.0.5(@types/node@26.6.4)(@vitest/coverage-v8@5.0.5)(@vitest/ui@5.0.5)(happy-dom@20.11.6)(jsdom@25.0.1)(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1)):
     dependencies:
       '@types/chai': 5.2.3
-      '@vitest/mocker': 5.0.3(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
+      '@vitest/mocker': 5.0.5(vite@8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1))
       chai: 6.3.0
       es-module-lexer: 2.3.2
       expect-type: 1.4.0
       magic-string: 1.4.3
-      obug: 2.2.1
+      obug: 3.0.0
       picomatch: 4.0.7
       std-env: 4.3.0
-      tinybench: 6.2.1
+      tinybench: 6.2.2
       tinyexec: 1.3.1
       tinyglobby: 0.2.17
       vite: 8.3.4(@types/node@26.6.4)(esbuild@0.28.2)(yaml@2.9.1)
       why-is-node-running: 3.2.1
     optionalDependencies:
       '@types/node': 26.6.4
-      '@vitest/coverage-v8': 5.0.3(vitest@5.0.3)
-      '@vitest/ui': 5.0.3(vitest@5.0.3)
+      '@vitest/coverage-v8': 5.0.5(vitest@5.0.5)
+      '@vitest/ui': 5.0.5(vitest@5.0.5)
       happy-dom: 20.11.6
       jsdom: 25.0.1
     transitivePeerDependencies:
