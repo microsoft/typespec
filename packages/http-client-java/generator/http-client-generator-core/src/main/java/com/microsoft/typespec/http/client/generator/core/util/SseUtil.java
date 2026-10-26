@@ -11,6 +11,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Class
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ClientMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import java.util.Locale;
+import java.util.Set;
 
 /**
  * Utilities for server-sent event generation.
@@ -33,9 +34,11 @@ public final class SseUtil {
             : getEventType(metadata, SseNamingResolver.resolve(metadata).getBaseEventName());
     }
 
-    public static String getTerminalPredicate(SseMetadata metadata) {
+    public static String getTerminalPredicate(SseMetadata metadata, Set<String> usedNames) {
         if (isDirect(metadata)) {
-            return metadata.getEvents().get(0).isTerminal() ? ", value -> true" : "";
+            return metadata.getEvents().get(0).isTerminal()
+                ? ", " + MethodUtil.getAvailableVariableName("value", usedNames) + " -> true"
+                : "";
         }
         return ", " + SseNamingResolver.resolve(metadata).getBaseEventName() + "::isTerminal";
     }

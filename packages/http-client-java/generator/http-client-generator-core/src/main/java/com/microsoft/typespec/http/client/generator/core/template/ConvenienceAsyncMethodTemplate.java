@@ -13,6 +13,7 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Gener
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.IType;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.PrimitiveType;
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaBlock;
+import com.microsoft.typespec.http.client.generator.core.util.MethodUtil;
 import com.microsoft.typespec.http.client.generator.core.util.SseNamingResolver;
 import com.microsoft.typespec.http.client.generator.core.util.SseUtil;
 import com.microsoft.typespec.http.client.generator.core.util.TemplateUtil;
@@ -79,10 +80,12 @@ public class ConvenienceAsyncMethodTemplate extends ConvenienceMethodTemplateBas
 
         if (convenienceMethod.getType() == ClientMethodType.SseAsync) {
             SseNamingResolver.Names names = SseNamingResolver.resolve(convenienceMethod.getSseMetadata());
-            methodBlock.methodReturn(String.format(
-                "%1$s(%2$s).flatMapMany(response -> ServerSentEventStreams.toFlux(response, %3$s::convert%4$s))",
-                getMethodName(protocolMethod), invocationExpression, names.getConverterName(),
-                SseUtil.getTerminalPredicate(convenienceMethod.getSseMetadata())));
+            Set<String> usedNames = MethodUtil.getMethodVariableNames(convenienceMethod);
+            String responseName = MethodUtil.getAvailableVariableName("response", usedNames);
+            methodBlock.methodReturn(
+                String.format("%1$s(%2$s).flatMapMany(%5$s -> ServerSentEventStreams.toFlux(%5$s, %3$s::convert%4$s))",
+                    getMethodName(protocolMethod), invocationExpression, names.getConverterName(),
+                    SseUtil.getTerminalPredicate(convenienceMethod.getSseMetadata(), usedNames), responseName));
             return;
         }
 

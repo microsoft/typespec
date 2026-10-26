@@ -122,6 +122,8 @@ directories using its default `tspconfig.yaml`. Do not run full `Generate.ps1`.
 Compare the named fixture's sources before copying affected generated sources and
 metadata, excluding `module-info.java`. `tsp/sse-scalar.tsp` additionally verifies
 module-enabled direct scalar clients without synthetic model-package exports.
+Compile `tsp/sse-name-collisions.tsp` and its generated Maven project to check SSE
+lambda names against request parameters, grouped-parameter locals, and numeric suffixes.
 
 Run the generator's catalog, naming, path-preflight, and mapper tests; the test module's
 `tsptest.ssevariants.SseVariantsTests` and existing SSE lifecycle tests exercise actual

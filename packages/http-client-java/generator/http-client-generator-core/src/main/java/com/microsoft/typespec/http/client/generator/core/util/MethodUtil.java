@@ -61,6 +61,39 @@ public class MethodUtil {
         = EnumSet.of(HttpMethod.PUT, HttpMethod.PATCH, HttpMethod.DELETE, HttpMethod.POST);
 
     /**
+     * Gets the parameter and transformation-local names reserved within a method.
+     *
+     * @param clientMethod the method
+     * @return a mutable set of reserved variable names
+     */
+    public static Set<String> getMethodVariableNames(ClientMethod clientMethod) {
+        Set<String> names = clientMethod.getParameters()
+            .stream()
+            .map(ClientMethodParameter::getName)
+            .collect(Collectors.toCollection(LinkedHashSet::new));
+        if (clientMethod.getParameterTransformations() != null) {
+            names.addAll(clientMethod.getParameterTransformations().getOutParameterNames());
+        }
+        return names;
+    }
+
+    /**
+     * Allocates and reserves a variable name, adding a numeric suffix only when needed.
+     *
+     * @param baseName the preferred variable name
+     * @param usedNames the names already reserved in the enclosing scope
+     * @return the allocated name
+     */
+    public static String getAvailableVariableName(String baseName, Set<String> usedNames) {
+        String name = baseName;
+        int suffix = 1;
+        while (!usedNames.add(name)) {
+            name = baseName + suffix++;
+        }
+        return name;
+    }
+
+    /**
      * Checks that method include special headers for Repeatable Requests Version 1.0 ("repeatability-request-id")
      * 
      * @param proxyMethod the proxy method
