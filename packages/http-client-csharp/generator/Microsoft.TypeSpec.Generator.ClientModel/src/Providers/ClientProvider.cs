@@ -351,10 +351,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                         continue;
                     }
 
-                    var candidateNames = GetEmittedMethodNames(serviceMethod, candidatePublicName, kind);
-                    var otherNames = GetEmittedMethodNames(other, otherPublicName, kind);
-                    if (candidateNames.Intersect(otherNames, StringComparer.Ordinal).Any() &&
-                        HasEquivalentEmittedSignatures(serviceMethod, other, kind))
+                    if (HasEquivalentEmittedSignatures(
+                        serviceMethod,
+                        candidatePublicName,
+                        other,
+                        otherPublicName,
+                        kind))
                     {
                         var candidateNamesBeforeProjection = GetEmittedMethodNames(serviceMethod, normalizedName, kind);
                         var otherNamesBeforeProjection = GetEmittedMethodNames(
@@ -404,30 +406,40 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return [.. signatures];
         }
 
-        private bool HasEquivalentEmittedSignatures(InputServiceMethod first, InputServiceMethod second, ScmMethodKind kind)
+        private bool HasEquivalentEmittedSignatures(
+            InputServiceMethod first,
+            string firstName,
+            InputServiceMethod second,
+            string secondName,
+            ScmMethodKind kind)
         {
+            var firstSignatures = GetEmittedMethodSignatures(first, firstName, kind);
+            var secondSignatures = GetEmittedMethodSignatures(second, secondName, kind);
+            return firstSignatures.Any(firstSignature => secondSignatures.Any(secondSignature =>
+                firstSignature.Name == secondSignature.Name &&
+                HasEquivalentParameterTypes(firstSignature.Parameters, secondSignature.Parameters)));
+        }
+
+        private (string Name, IReadOnlyList<ParameterProvider> Parameters)[] GetEmittedMethodSignatures(
+            InputServiceMethod method,
+            string operationName,
+            ScmMethodKind kind)
+        {
+            var names = GetEmittedMethodNames(method, operationName, kind);
             if (kind != ScmMethodKind.Protocol)
             {
-                return HasEquivalentParameterTypes(
-                    RestClientProvider.GetMethodParameters(first, kind, this),
-                    RestClientProvider.GetMethodParameters(second, kind, this));
+                var parameters = RestClientProvider.GetMethodParameters(method, kind, this);
+                return [.. names.Select(name => (name, (IReadOnlyList<ParameterProvider>)parameters))];
             }
 
-            // Compare the final protocol signatures, which reorder required parameters ahead of optional ones.
-            // Sync and async variants may order parameters differently, so any matching variant collides.
-            foreach (var isAsync in new[] { false, true })
+            var shouldMakeParametersRequired = ScmMethodProviderCollection.ShouldMakeProtocolMethodParametersRequired(method, this);
+            return [.. names.Select(name =>
             {
-                var firstParameters = ScmMethodProviderCollection.BuildProtocolParameters(
-                    first, this, isAsync, ScmMethodProviderCollection.ShouldMakeProtocolMethodParametersRequired(first, this), out _);
-                var secondParameters = ScmMethodProviderCollection.BuildProtocolParameters(
-                    second, this, isAsync, ScmMethodProviderCollection.ShouldMakeProtocolMethodParametersRequired(second, this), out _);
-                if (HasEquivalentParameterTypes(firstParameters, secondParameters))
-                {
-                    return true;
-                }
-            }
-
-            return false;
+                var isAsync = name != operationName;
+                var parameters = ScmMethodProviderCollection.BuildProtocolParameters(
+                    method, this, isAsync, shouldMakeParametersRequired, out _);
+                return (name, (IReadOnlyList<ParameterProvider>)parameters);
+            })];
         }
 
         private static bool HasEquivalentParameterTypes(IReadOnlyList<ParameterProvider> first, IReadOnlyList<ParameterProvider> second)

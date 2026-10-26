@@ -2894,6 +2894,64 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.AreEqual(expectedListName, listMethod.Name);
         }
 
+        [TestCase(true, "ListWidgets")]
+        [TestCase(false, "GetWidgets")]
+        public void ListNormalizationComparesNamedProtocolVariants(bool crossVariantCollision, string expectedListName)
+        {
+            var resource = InputFactory.Model("Resource");
+            var listPathType = crossVariantCollision ? InputPrimitiveType.String : InputPrimitiveType.Int32;
+            InputType listQueryType = crossVariantCollision
+                ? new InputNullableType(InputPrimitiveType.Int32)
+                : InputPrimitiveType.String;
+            InputType getPathType = crossVariantCollision
+                ? InputPrimitiveType.Int32
+                : new InputNullableType(InputPrimitiveType.Int32);
+            var getPathIsRequired = !crossVariantCollision;
+            var getQueryType = InputPrimitiveType.String;
+            var listOperation = InputFactory.Operation(
+                "ListWidgets",
+                parameters:
+                [
+                    InputFactory.PathParameter("listPath", listPathType, isRequired: false),
+                    InputFactory.QueryParameter("listQuery", listQueryType, isRequired: true)
+                ],
+                responses: [InputFactory.OperationResponse([200], resource)]);
+            var listMethod = InputFactory.BasicServiceMethod(
+                "ListWidgets",
+                listOperation,
+                parameters:
+                [
+                    InputFactory.MethodParameter("listPath", listPathType, isRequired: false, location: InputRequestLocation.Path),
+                    InputFactory.MethodParameter("listQuery", listQueryType, isRequired: true, location: InputRequestLocation.Query)
+                ],
+                response: InputFactory.ServiceMethodResponse(resource, null));
+            var getOperation = InputFactory.Operation(
+                "GetWidgetsAsync",
+                parameters:
+                [
+                    InputFactory.PathParameter("getPath", getPathType, isRequired: getPathIsRequired),
+                    InputFactory.QueryParameter("getQuery", getQueryType, isRequired: true)
+                ],
+                responses: [InputFactory.OperationResponse([200], resource)],
+                isExactName: true,
+                generateConvenienceMethod: crossVariantCollision);
+            var getMethod = InputFactory.BasicServiceMethod(
+                "GetWidgetsAsync",
+                getOperation,
+                parameters:
+                [
+                    InputFactory.MethodParameter("getPath", getPathType, isRequired: getPathIsRequired, location: InputRequestLocation.Path),
+                    InputFactory.MethodParameter("getQuery", getQueryType, isRequired: true, location: InputRequestLocation.Query)
+                ],
+                response: InputFactory.ServiceMethodResponse(resource, null),
+                isExactName: true);
+            var inputClient = InputFactory.Client("TestClient", methods: [listMethod, getMethod]);
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient], inputModels: () => [resource]);
+            _ = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+
+            Assert.AreEqual(expectedListName, listMethod.Name);
+        }
+
         private static IEnumerable<TestCaseData> ListNormalizationOverloadCases()
         {
             yield return new TestCaseData(InputPrimitiveType.String, null);
