@@ -4,7 +4,20 @@ import {
   DIAGNOSTIC_DOCS_BASE_PATH,
   DIAGNOSTIC_DOCS_BASE_URL,
   DIAGNOSTIC_DOCS_EXCLUDED,
+  EmitterOptionsSchema,
 } from "../src/options.js";
+
+describe("emitter options", () => {
+  it("does not expose the Azure wrapper flavor option", () => {
+    expect(EmitterOptionsSchema.properties).not.toHaveProperty("flavor");
+  });
+
+  it("does not expose an SSE developer option", () => {
+    expect(EmitterOptionsSchema.properties["dev-options"]).not.toHaveProperty(
+      "properties.enable-sse",
+    );
+  });
+});
 
 describe("diagnostic documentation", () => {
   it("links documented diagnostics to their documentation", () => {

@@ -26,6 +26,8 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.Retur
 import com.microsoft.typespec.http.client.generator.core.model.javamodel.JavaVisibility;
 import com.microsoft.typespec.http.client.generator.core.util.MethodNamer;
 import com.microsoft.typespec.http.client.generator.core.util.SchemaUtil;
+import com.microsoft.typespec.http.client.generator.core.util.SseNamingResolver;
+import com.microsoft.typespec.http.client.generator.core.util.SseUtil;
 import io.clientcore.core.utils.CoreUtils;
 import java.util.ArrayList;
 import java.util.List;
@@ -248,7 +250,17 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
                 } else {
                     // Create Simple Client Methods.
                     //
-                    if (proxyMethod.isSync()) {
+                    if (operation.getSseMetadata() != null && settings.isAzureV1() && !isProtocolMethod) {
+                        if (shouldGenerateSyncSseMethod(proxyMethod.isSync(), settings.getSyncMethods(),
+                            settings.isSyncStackEnabled())) {
+                            createSimpleWithResponseClientMethods(true, baseMethod, methods, createMethodArgs);
+                            createSseClientMethods(true, operation, baseMethod, methods, createMethodArgs);
+                        }
+                        if (shouldGenerateAsyncSseMethod(proxyMethod.isSync(), settings.getSyncMethods())) {
+                            createSimpleWithResponseClientMethods(false, baseMethod, methods, createMethodArgs);
+                            createSseClientMethods(false, operation, baseMethod, methods, createMethodArgs);
+                        }
+                    } else if (proxyMethod.isSync()) {
                         createSimpleClientMethods(true, baseMethod, methods, createMethodArgs);
                     } else {
                         if (settings.getSyncMethods() != SyncMethodsGeneration.SYNC_ONLY) {
@@ -267,6 +279,40 @@ public class ClientMethodMapper implements IMapper<Operation, List<ClientMethod>
             .filter(m -> m.getMethodVisibility() != NOT_GENERATE)
             .distinct()
             .collect(Collectors.toList());
+    }
+
+    static boolean shouldGenerateAsyncSseMethod(boolean proxyMethodSync, SyncMethodsGeneration syncMethods) {
+        return !proxyMethodSync && syncMethods != SyncMethodsGeneration.SYNC_ONLY;
+    }
+
+    static boolean shouldGenerateSyncSseMethod(boolean proxyMethodSync, SyncMethodsGeneration syncMethods,
+        boolean syncStackEnabled) {
+        return proxyMethodSync
+            || (!syncStackEnabled
+                && (syncMethods == SyncMethodsGeneration.ALL || syncMethods == SyncMethodsGeneration.SYNC_ONLY));
+    }
+
+    private void createSseClientMethods(boolean isSync, Operation operation, ClientMethod baseMethod,
+        List<ClientMethod> methods, CreateMethodArgs createMethodArgs) {
+        IType eventType = SseUtil.getEventType(operation.getSseMetadata(),
+            SseNamingResolver.resolve(operation.getSseMetadata()).getBaseEventName());
+        IType returnType = isSync ? GenericType.closeableIterableStream(eventType) : GenericType.flux(eventType);
+        MethodNamer methodNamer = createMethodArgs.methodNamer;
+        String methodName = isSync ? methodNamer.getMethodName() : methodNamer.getSimpleAsyncMethodName();
+        ClientMethodType methodType = isSync ? ClientMethodType.SseSync : ClientMethodType.SseAsync;
+
+        ClientMethod sseMethod = baseMethod.newBuilder()
+            .name(methodName)
+            .type(methodType)
+            .returnValue(new ReturnValue("the stream of server-sent events", returnType))
+            .methodVisibility(JavaVisibility.Public)
+            .methodVisibilityInWrapperClient(JavaVisibility.Public)
+            .sseMetadata(operation.getSseMetadata())
+            .build();
+        methods.add(sseMethod);
+        if (createMethodArgs.generateRequiredOnlyParamsMethodOverload) {
+            methods.add(sseMethod.newBuilder().onlyRequiredParameters(true).build());
+        }
     }
 
     /**

@@ -15,9 +15,12 @@ import com.azure.core.exception.ResourceNotFoundException;
 import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
-import com.azure.core.util.FluxUtil;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import streaming.sse.implementation.DataEventConverter;
 import streaming.sse.implementation.ProtocolDatasImpl;
+import streaming.sse.models.implementation.sse.ServerSentEventStreams;
+import streaming.sse.protocol.data.models.DataEvent;
 
 /**
  * Initializes a new instance of the asynchronous SseClient type.
@@ -29,7 +32,7 @@ public final class ProtocolDataAsyncClient {
 
     /**
      * Initializes an instance of ProtocolDataAsyncClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      */
     @Generated
@@ -40,13 +43,13 @@ public final class ProtocolDataAsyncClient {
     /**
      * The withEnvelope operation.
      * <p><strong>Response Body Schema</strong></p>
-     * 
+     *
      * <pre>
      * {@code
      * BinaryData
      * }
      * </pre>
-     * 
+     *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -63,13 +66,13 @@ public final class ProtocolDataAsyncClient {
     /**
      * The withoutEnvelope operation.
      * <p><strong>Response Body Schema</strong></p>
-     * 
+     *
      * <pre>
      * {@code
      * BinaryData
      * }
      * </pre>
-     * 
+     *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -85,37 +88,43 @@ public final class ProtocolDataAsyncClient {
 
     /**
      * The withEnvelope operation.
-     * 
-     * @throws HttpResponseException thrown if the request is rejected by server.
-     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
-     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
-     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response body on successful completion of {@link Mono}.
+     *
+     * Events are polymorphic: see {@link DataEvent} for the known subtypes. Use a known subtype's {@code getValue()} to
+     * access its typed payload, for example
+     * {@link streaming.sse.protocol.data.models.DataEventWithoutEnvelopeStreamEvent#getValue()}. Unrecognized events
+     * expose only their names through {@link DataEvent#getEventName()}; their payloads are not available.
+     *
+     * If received, the terminal event is emitted before the stream completes. End-of-stream without a terminal event
+     * completes normally. Transport and decoding failures are propagated through the reactive error path. The client
+     * does not reconnect automatically.
+     *
+     * @return A stream of typed data event events.
      */
     @Generated
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<BinaryData> withEnvelope() {
-        // Generated convenience method for withEnvelopeWithResponse
+    public Flux<DataEvent> withEnvelope() {
         RequestOptions requestOptions = new RequestOptions();
-        return withEnvelopeWithResponse(requestOptions).flatMap(FluxUtil::toMono);
+        return withEnvelopeWithResponse(requestOptions).flatMapMany(
+            response -> ServerSentEventStreams.toFlux(response, DataEventConverter::convert, DataEvent::isTerminal));
     }
 
     /**
      * The withoutEnvelope operation.
-     * 
-     * @throws HttpResponseException thrown if the request is rejected by server.
-     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
-     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
-     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response body on successful completion of {@link Mono}.
+     *
+     * Events are polymorphic: see {@link DataEvent} for the known subtypes. Use a known subtype's {@code getValue()} to
+     * access its typed payload, for example
+     * {@link streaming.sse.protocol.data.models.DataEventWithoutEnvelopeStreamEvent#getValue()}. Unrecognized events
+     * expose only their names through {@link DataEvent#getEventName()}; their payloads are not available.
+     *
+     * If received, the terminal event is emitted before the stream completes. End-of-stream without a terminal event
+     * completes normally. Transport and decoding failures are propagated through the reactive error path. The client
+     * does not reconnect automatically.
+     *
+     * @return A stream of typed data event events.
      */
     @Generated
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public Mono<BinaryData> withoutEnvelope() {
-        // Generated convenience method for withoutEnvelopeWithResponse
+    public Flux<DataEvent> withoutEnvelope() {
         RequestOptions requestOptions = new RequestOptions();
-        return withoutEnvelopeWithResponse(requestOptions).flatMap(FluxUtil::toMono);
+        return withoutEnvelopeWithResponse(requestOptions).flatMapMany(
+            response -> ServerSentEventStreams.toFlux(response, DataEventConverter::convert, DataEvent::isTerminal));
     }
 }

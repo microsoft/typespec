@@ -3,6 +3,8 @@
 
 package com.microsoft.typespec.http.client.generator.core.model.javamodel;
 
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseEventMetadata;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.SseMetadata;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.JavaSettings;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.NewPlugin;
 import com.microsoft.typespec.http.client.generator.core.extension.plugin.PluginLogger;
@@ -36,12 +38,16 @@ import com.microsoft.typespec.http.client.generator.core.template.ProtocolTestBa
 import com.microsoft.typespec.http.client.generator.core.template.ProtocolTestTemplate;
 import com.microsoft.typespec.http.client.generator.core.template.ReadmeTemplate;
 import com.microsoft.typespec.http.client.generator.core.template.ServiceSyncClientTemplate;
+import com.microsoft.typespec.http.client.generator.core.template.SseEventConverterTemplate;
+import com.microsoft.typespec.http.client.generator.core.template.SseEventModelTemplate;
 import com.microsoft.typespec.http.client.generator.core.template.Templates;
 import com.microsoft.typespec.http.client.generator.core.template.TestProxyAssetsTemplate;
 import com.microsoft.typespec.http.client.generator.core.util.ClassNameUtil;
 import com.microsoft.typespec.http.client.generator.core.util.ClientModelUtil;
 import com.microsoft.typespec.http.client.generator.core.util.ConstantStringTooLongException;
 import com.microsoft.typespec.http.client.generator.core.util.PossibleCredentialException;
+import com.microsoft.typespec.http.client.generator.core.util.SseNamingResolver;
+import com.microsoft.typespec.http.client.generator.core.util.SseUtil;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -52,6 +58,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 
 public class JavaPackage {
@@ -94,6 +101,45 @@ public class JavaPackage {
         JavaFile javaFile = javaFileFactory.createSourceFile(packageKeyword, name);
         Templates.getServiceClientTemplate().write(model, javaFile);
         addJavaFile(javaFile);
+    }
+
+    public final void addSseEventFiles(SseMetadata metadata) {
+        SseNamingResolver.Names names = SseNamingResolver.resolve(metadata);
+        List<SseEventMetadata> events = metadata.getEvents();
+        String eventPackage = SseUtil.getEventPackage(metadata);
+        JavaFile baseFile = javaFileFactory.createSourceFile(eventPackage, names.getBaseEventName());
+        List<JavaFile> eventFiles = events.stream()
+            .map(event -> javaFileFactory.createSourceFile(eventPackage, names.getEventWrapperName(event.getName())))
+            .collect(Collectors.toList());
+        JavaFile converterFile
+            = javaFileFactory.createSourceFile(SseUtil.getConverterPackage(), names.getConverterName());
+        List<JavaFile> sseFiles = new ArrayList<>();
+        sseFiles.add(baseFile);
+        sseFiles.addAll(eventFiles);
+        sseFiles.add(converterFile);
+        validateSseSourcePaths(sseFiles);
+
+        SseEventModelTemplate.getInstance().writeBase(metadata, baseFile);
+        addJavaFile(baseFile);
+        for (int i = 0; i < events.size(); i++) {
+            JavaFile eventFile = eventFiles.get(i);
+            SseEventMetadata event = events.get(i);
+            SseEventModelTemplate.getInstance().writeEvent(metadata, event, eventFile);
+            addJavaFile(eventFile);
+        }
+        SseEventConverterTemplate.getInstance().write(metadata, converterFile);
+        addJavaFile(converterFile);
+    }
+
+    private void validateSseSourcePaths(List<JavaFile> sseFiles) {
+        Set<String> sseFilePaths = new LinkedHashSet<>();
+        for (JavaFile javaFile : sseFiles) {
+            String filePath = javaFile.getFilePath();
+            if (filePaths.contains(filePath) || !sseFilePaths.add(filePath)) {
+                throw new IllegalStateException(
+                    "SSE generated source file '" + filePath + "' conflicts with another generated source file.");
+            }
+        }
     }
 
     public final void addAsyncServiceClient(String packageKeyWord, AsyncSyncClient asyncClient) {

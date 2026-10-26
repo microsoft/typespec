@@ -44,6 +44,216 @@ import { createResponseErrorSchema } from "../src/external-schemas.js";
 import { cloneOperationParameter } from "../src/operation-utils.js";
 
 describe("code model characterization", () => {
+  it("generates SSE metadata for direct scalar payloads", async () => {
+    const program = await compile(
+      NodeHost,
+      fileURLToPath(new URL("./fixtures/sse.tsp", import.meta.url)),
+      { noEmit: true },
+    );
+    expectDiagnosticEmpty(program.diagnostics);
+
+    const codeModel = await new CodeModelBuilder(program, {
+      program,
+      emitterOutputDir: "/code-model-test-output",
+      options: {
+        flavor: "azure",
+      } as any,
+      perf: {
+        startTimer: () => ({ end: () => 0 }),
+        time: (_label, callback) => callback(),
+        timeAsync: (_label, callback) => callback(),
+        report: () => {},
+      },
+    }).build();
+
+    expectDiagnosticEmpty(
+      program.diagnostics.filter(
+        (diagnostic) => diagnostic.code === "@typespec/http-client-java/sse-unsupported",
+      ),
+    );
+    const operation = codeModel.clients
+      .flatMap((client) => client.operationGroups)
+      .flatMap((group) => group.operations ?? [])
+      .find((operation) => operation.language.default.name === "scalarEvents")!;
+    expect(operation.sseMetadata?.events).toMatchObject([
+      { name: "first", payload: { type: SchemaType.String } },
+      { name: "second", payload: { type: SchemaType.String } },
+    ]);
+    expect(operation.responses?.[0]).toMatchObject({ binary: true });
+  });
+
+  it("generates SSE metadata for recursive dictionary payloads", async () => {
+    const program = await compile(
+      NodeHost,
+      fileURLToPath(new URL("./fixtures/sse.tsp", import.meta.url)),
+      { noEmit: true },
+    );
+    expectDiagnosticEmpty(program.diagnostics);
+
+    const codeModel = await new CodeModelBuilder(program, {
+      program,
+      emitterOutputDir: "/code-model-test-output",
+      options: {
+        flavor: "azure",
+      } as any,
+      perf: {
+        startTimer: () => ({ end: () => 0 }),
+        time: (_label, callback) => callback(),
+        timeAsync: (_label, callback) => callback(),
+        report: () => {},
+      },
+    }).build();
+
+    expectDiagnosticEmpty(
+      program.diagnostics.filter(
+        (diagnostic) => diagnostic.code === "@typespec/http-client-java/sse-unsupported",
+      ),
+    );
+    const operation = codeModel.clients
+      .flatMap((client) => client.operationGroups)
+      .flatMap((group) => group.operations ?? [])
+      .find((operation) => operation.language.default.name === "recursiveDictionaryEvents")!;
+    expect(operation.sseMetadata?.events).toMatchObject([
+      {
+        name: "direct",
+        payload: { type: SchemaType.Dictionary, elementType: { type: SchemaType.String } },
+      },
+      {
+        name: "array",
+        payload: {
+          type: SchemaType.Array,
+          elementType: {
+            type: SchemaType.Dictionary,
+            elementType: { type: SchemaType.String },
+          },
+        },
+      },
+      {
+        name: "nested",
+        payload: {
+          type: SchemaType.Dictionary,
+          elementType: {
+            type: SchemaType.Dictionary,
+            elementType: {
+              type: SchemaType.Array,
+              elementType: { type: SchemaType.String },
+            },
+          },
+        },
+      },
+      {
+        name: "modelMap",
+        payload: {
+          type: SchemaType.Dictionary,
+          elementType: { type: SchemaType.Object },
+        },
+      },
+    ]);
+    expect(operation.responses?.[0]).toMatchObject({ binary: true });
+  });
+
+  it("generates supported Azure v1 SSE metadata without developer options", async () => {
+    const program = await compile(
+      NodeHost,
+      fileURLToPath(new URL("./fixtures/sse.tsp", import.meta.url)),
+      { noEmit: true },
+    );
+    expectDiagnosticEmpty(program.diagnostics);
+
+    const build = async (flavor: string) =>
+      new CodeModelBuilder(program, {
+        program,
+        emitterOutputDir: "/code-model-test-output",
+        options: {
+          flavor,
+        } as any,
+        perf: {
+          startTimer: () => ({ end: () => 0 }),
+          time: (_label, callback) => callback(),
+          timeAsync: (_label, callback) => callback(),
+          report: () => {},
+        },
+      }).build();
+
+    for (const flavor of ["standard", "azurev2"]) {
+      const operations = (await build(flavor)).clients[0].operationGroups[0].operations!;
+      for (const operation of operations) {
+        expect(operation.sseMetadata).toBeUndefined();
+        expect(operation.responses?.[0]).toMatchObject({ binary: true });
+      }
+    }
+    expectDiagnosticEmpty(
+      program.diagnostics.filter(
+        (diagnostic) => diagnostic.code === "@typespec/http-client-java/sse-unsupported",
+      ),
+    );
+
+    const enabledOperations = (await build("azure")).clients[0].operationGroups[0].operations!;
+    const enabledOperation = enabledOperations.find(
+      (operation) => operation.language.default.name === "retrieve",
+    )!;
+    expect(enabledOperation.generateProtocolApi).toBe(true);
+    expect(enabledOperation.sseMetadata).toMatchObject({
+      streamName: "RetrievalStreamEvents",
+      modelNamespace: "ssetest.retrieve",
+      events: [
+        {
+          name: "retrieval.started",
+          terminal: false,
+          payload: {
+            language: { default: { name: "RetrievalStarted" } },
+          },
+        },
+        {
+          name: "response.completed",
+          terminal: true,
+          payload: {
+            language: { default: { name: "ResponseCompleted" } },
+          },
+        },
+      ],
+    });
+
+    const protocolOnlyOperation = enabledOperations.find(
+      (operation) => operation.language.default.name === "retrieveProtocol",
+    )!;
+    expect(protocolOnlyOperation.sseMetadata).toBeDefined();
+    expect(protocolOnlyOperation.convenienceApi).toBeUndefined();
+    expect(protocolOnlyOperation.generateProtocolApi).toBe(true);
+    expect(protocolOnlyOperation.responses?.[0]).toMatchObject({ binary: true });
+
+    const jacksonOperations = (
+      await new CodeModelBuilder(program, {
+        program,
+        emitterOutputDir: "/code-model-test-output",
+        options: {
+          flavor: "azure",
+          "stream-style-serialization": false,
+        } as any,
+        perf: {
+          startTimer: () => ({ end: () => 0 }),
+          time: (_label, callback) => callback(),
+          timeAsync: (_label, callback) => callback(),
+          report: () => {},
+        },
+      }).build()
+    ).clients[0].operationGroups[0].operations!;
+    const jacksonOperation = jacksonOperations.find(
+      (operation) => operation.language.default.name === "retrieve",
+    )!;
+    expect(jacksonOperation.sseMetadata).toBeUndefined();
+    expect(jacksonOperation.responses?.[0]).toMatchObject({ binary: true });
+    expectDiagnostics(
+      program.diagnostics.filter(
+        (diagnostic) => diagnostic.code === "@typespec/http-client-java/sse-unsupported",
+      ),
+      jacksonOperations.map(() => ({
+        code: "@typespec/http-client-java/sse-unsupported",
+        severity: "warning",
+      })),
+    );
+  });
+
   it.each(["azure", "standard"] as const)(
     "propagates %s usage to tagged descendants through an untagged intermediate",
     async (flavor) => {

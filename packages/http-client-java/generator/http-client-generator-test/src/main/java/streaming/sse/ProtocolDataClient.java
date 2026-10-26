@@ -15,7 +15,11 @@ import com.azure.core.exception.ResourceNotFoundException;
 import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
+import com.azure.core.util.CloseableIterableStream;
+import streaming.sse.implementation.DataEventConverter;
 import streaming.sse.implementation.ProtocolDatasImpl;
+import streaming.sse.models.implementation.sse.ServerSentEventStreams;
+import streaming.sse.protocol.data.models.DataEvent;
 
 /**
  * Initializes a new instance of the synchronous SseClient type.
@@ -27,7 +31,7 @@ public final class ProtocolDataClient {
 
     /**
      * Initializes an instance of ProtocolDataClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      */
     @Generated
@@ -38,13 +42,13 @@ public final class ProtocolDataClient {
     /**
      * The withEnvelope operation.
      * <p><strong>Response Body Schema</strong></p>
-     * 
+     *
      * <pre>
      * {@code
      * BinaryData
      * }
      * </pre>
-     * 
+     *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -61,13 +65,13 @@ public final class ProtocolDataClient {
     /**
      * The withoutEnvelope operation.
      * <p><strong>Response Body Schema</strong></p>
-     * 
+     *
      * <pre>
      * {@code
      * BinaryData
      * }
      * </pre>
-     * 
+     *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -83,37 +87,53 @@ public final class ProtocolDataClient {
 
     /**
      * The withEnvelope operation.
-     * 
-     * @throws HttpResponseException thrown if the request is rejected by server.
-     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
-     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
-     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     *
+     * Events are polymorphic: see {@link DataEvent} for the known subtypes. Use a known subtype's {@code getValue()} to
+     * access its typed payload, for example
+     * {@link streaming.sse.protocol.data.models.DataEventWithoutEnvelopeStreamEvent#getValue()}. Unrecognized events
+     * expose only their names through {@link DataEvent#getEventName()}; their payloads are not available.
+     *
+     * Events are decoded lazily by a single iterator. Use try-with-resources to close the stream when iteration ends
+     * early. The response is also closed on end-of-stream, a terminal event, or an iteration failure. Closing the
+     * stream is idempotent and may throw {@link java.io.IOException}.
+     *
+     * If received, the terminal event is emitted before iteration ends. A failure while closing after a terminal event
+     * is reported by the next iterator access or explicit close, after the terminal event is delivered. End-of-stream
+     * without a terminal event completes normally. Transport and decoding failures are thrown during iteration. The
+     * client does not reconnect automatically.
+     *
+     * @return A closeable stream of typed data event events.
      */
     @Generated
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public BinaryData withEnvelope() {
-        // Generated convenience method for withEnvelopeWithResponse
+    public CloseableIterableStream<DataEvent> withEnvelope() {
         RequestOptions requestOptions = new RequestOptions();
-        return withEnvelopeWithResponse(requestOptions).getValue();
+        return ServerSentEventStreams.toIterableStream(withEnvelopeWithResponse(requestOptions),
+            DataEventConverter::convert, DataEvent::isTerminal);
     }
 
     /**
      * The withoutEnvelope operation.
-     * 
-     * @throws HttpResponseException thrown if the request is rejected by server.
-     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
-     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
-     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     *
+     * Events are polymorphic: see {@link DataEvent} for the known subtypes. Use a known subtype's {@code getValue()} to
+     * access its typed payload, for example
+     * {@link streaming.sse.protocol.data.models.DataEventWithoutEnvelopeStreamEvent#getValue()}. Unrecognized events
+     * expose only their names through {@link DataEvent#getEventName()}; their payloads are not available.
+     *
+     * Events are decoded lazily by a single iterator. Use try-with-resources to close the stream when iteration ends
+     * early. The response is also closed on end-of-stream, a terminal event, or an iteration failure. Closing the
+     * stream is idempotent and may throw {@link java.io.IOException}.
+     *
+     * If received, the terminal event is emitted before iteration ends. A failure while closing after a terminal event
+     * is reported by the next iterator access or explicit close, after the terminal event is delivered. End-of-stream
+     * without a terminal event completes normally. Transport and decoding failures are thrown during iteration. The
+     * client does not reconnect automatically.
+     *
+     * @return A closeable stream of typed data event events.
      */
     @Generated
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public BinaryData withoutEnvelope() {
-        // Generated convenience method for withoutEnvelopeWithResponse
+    public CloseableIterableStream<DataEvent> withoutEnvelope() {
         RequestOptions requestOptions = new RequestOptions();
-        return withoutEnvelopeWithResponse(requestOptions).getValue();
+        return ServerSentEventStreams.toIterableStream(withoutEnvelopeWithResponse(requestOptions),
+            DataEventConverter::convert, DataEvent::isTerminal);
     }
 }

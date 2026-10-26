@@ -66,7 +66,8 @@ public class JavaFileFactory {
     private void addCommentAndPackage(JavaFile javaFile, String packageName) {
         String headerComment = settings.getFileHeaderText();
         if (headerComment != null && !headerComment.isEmpty()) {
-            javaFile.lineComment(comment -> comment.line(headerComment));
+            String finalHeaderComment = headerComment;
+            javaFile.lineComment(comment -> comment.line(finalHeaderComment));
             javaFile.line();
         }
 

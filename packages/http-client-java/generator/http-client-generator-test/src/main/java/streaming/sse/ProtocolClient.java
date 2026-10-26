@@ -15,7 +15,11 @@ import com.azure.core.exception.ResourceNotFoundException;
 import com.azure.core.http.rest.RequestOptions;
 import com.azure.core.http.rest.Response;
 import com.azure.core.util.BinaryData;
+import com.azure.core.util.CloseableIterableStream;
+import streaming.sse.implementation.ProtocolEventConverter;
 import streaming.sse.implementation.ProtocolsImpl;
+import streaming.sse.models.implementation.sse.ServerSentEventStreams;
+import streaming.sse.protocol.models.ProtocolEvent;
 
 /**
  * Initializes a new instance of the synchronous SseClient type.
@@ -27,7 +31,7 @@ public final class ProtocolClient {
 
     /**
      * Initializes an instance of ProtocolClient class.
-     * 
+     *
      * @param serviceClient the service client implementation.
      */
     @Generated
@@ -38,13 +42,13 @@ public final class ProtocolClient {
     /**
      * The id operation.
      * <p><strong>Response Body Schema</strong></p>
-     * 
+     *
      * <pre>
      * {@code
      * BinaryData
      * }
      * </pre>
-     * 
+     *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -61,13 +65,13 @@ public final class ProtocolClient {
     /**
      * The invalidId operation.
      * <p><strong>Response Body Schema</strong></p>
-     * 
+     *
      * <pre>
      * {@code
      * BinaryData
      * }
      * </pre>
-     * 
+     *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -84,13 +88,13 @@ public final class ProtocolClient {
     /**
      * The retry operation.
      * <p><strong>Response Body Schema</strong></p>
-     * 
+     *
      * <pre>
      * {@code
      * BinaryData
      * }
      * </pre>
-     * 
+     *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -107,13 +111,13 @@ public final class ProtocolClient {
     /**
      * The invalidRetry operation.
      * <p><strong>Response Body Schema</strong></p>
-     * 
+     *
      * <pre>
      * {@code
      * BinaryData
      * }
      * </pre>
-     * 
+     *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -130,13 +134,13 @@ public final class ProtocolClient {
     /**
      * The reconnect operation.
      * <p><strong>Response Body Schema</strong></p>
-     * 
+     *
      * <pre>
      * {@code
      * BinaryData
      * }
      * </pre>
-     * 
+     *
      * @param requestOptions The options to configure the HTTP request before HTTP client sends it.
      * @throws HttpResponseException thrown if the request is rejected by server.
      * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
@@ -152,91 +156,131 @@ public final class ProtocolClient {
 
     /**
      * The id operation.
-     * 
-     * @throws HttpResponseException thrown if the request is rejected by server.
-     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
-     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
-     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     *
+     * Events are polymorphic: see {@link ProtocolEvent} for the known subtypes. Use a known subtype's
+     * {@code getValue()} to access its typed payload, for example
+     * {@link streaming.sse.protocol.models.ProtocolEventMessageStreamEvent#getValue()}. Unrecognized events expose only
+     * their names through {@link ProtocolEvent#getEventName()}; their payloads are not available.
+     *
+     * Events are decoded lazily by a single iterator. Use try-with-resources to close the stream when iteration ends
+     * early. The response is also closed on end-of-stream, a terminal event, or an iteration failure. Closing the
+     * stream is idempotent and may throw {@link java.io.IOException}.
+     *
+     * If received, the terminal event is emitted before iteration ends. A failure while closing after a terminal event
+     * is reported by the next iterator access or explicit close, after the terminal event is delivered. End-of-stream
+     * without a terminal event completes normally. Transport and decoding failures are thrown during iteration. The
+     * client does not reconnect automatically.
+     *
+     * @return A closeable stream of typed protocol event events.
      */
     @Generated
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public BinaryData id() {
-        // Generated convenience method for idWithResponse
+    public CloseableIterableStream<ProtocolEvent> id() {
         RequestOptions requestOptions = new RequestOptions();
-        return idWithResponse(requestOptions).getValue();
+        return ServerSentEventStreams.toIterableStream(idWithResponse(requestOptions), ProtocolEventConverter::convert,
+            ProtocolEvent::isTerminal);
     }
 
     /**
      * The invalidId operation.
-     * 
-     * @throws HttpResponseException thrown if the request is rejected by server.
-     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
-     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
-     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     *
+     * Events are polymorphic: see {@link ProtocolEvent} for the known subtypes. Use a known subtype's
+     * {@code getValue()} to access its typed payload, for example
+     * {@link streaming.sse.protocol.models.ProtocolEventMessageStreamEvent#getValue()}. Unrecognized events expose only
+     * their names through {@link ProtocolEvent#getEventName()}; their payloads are not available.
+     *
+     * Events are decoded lazily by a single iterator. Use try-with-resources to close the stream when iteration ends
+     * early. The response is also closed on end-of-stream, a terminal event, or an iteration failure. Closing the
+     * stream is idempotent and may throw {@link java.io.IOException}.
+     *
+     * If received, the terminal event is emitted before iteration ends. A failure while closing after a terminal event
+     * is reported by the next iterator access or explicit close, after the terminal event is delivered. End-of-stream
+     * without a terminal event completes normally. Transport and decoding failures are thrown during iteration. The
+     * client does not reconnect automatically.
+     *
+     * @return A closeable stream of typed protocol event events.
      */
     @Generated
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public BinaryData invalidId() {
-        // Generated convenience method for invalidIdWithResponse
+    public CloseableIterableStream<ProtocolEvent> invalidId() {
         RequestOptions requestOptions = new RequestOptions();
-        return invalidIdWithResponse(requestOptions).getValue();
+        return ServerSentEventStreams.toIterableStream(invalidIdWithResponse(requestOptions),
+            ProtocolEventConverter::convert, ProtocolEvent::isTerminal);
     }
 
     /**
      * The retry operation.
-     * 
-     * @throws HttpResponseException thrown if the request is rejected by server.
-     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
-     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
-     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     *
+     * Events are polymorphic: see {@link ProtocolEvent} for the known subtypes. Use a known subtype's
+     * {@code getValue()} to access its typed payload, for example
+     * {@link streaming.sse.protocol.models.ProtocolEventMessageStreamEvent#getValue()}. Unrecognized events expose only
+     * their names through {@link ProtocolEvent#getEventName()}; their payloads are not available.
+     *
+     * Events are decoded lazily by a single iterator. Use try-with-resources to close the stream when iteration ends
+     * early. The response is also closed on end-of-stream, a terminal event, or an iteration failure. Closing the
+     * stream is idempotent and may throw {@link java.io.IOException}.
+     *
+     * If received, the terminal event is emitted before iteration ends. A failure while closing after a terminal event
+     * is reported by the next iterator access or explicit close, after the terminal event is delivered. End-of-stream
+     * without a terminal event completes normally. Transport and decoding failures are thrown during iteration. The
+     * client does not reconnect automatically.
+     *
+     * @return A closeable stream of typed protocol event events.
      */
     @Generated
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public BinaryData retry() {
-        // Generated convenience method for retryWithResponse
+    public CloseableIterableStream<ProtocolEvent> retry() {
         RequestOptions requestOptions = new RequestOptions();
-        return retryWithResponse(requestOptions).getValue();
+        return ServerSentEventStreams.toIterableStream(retryWithResponse(requestOptions),
+            ProtocolEventConverter::convert, ProtocolEvent::isTerminal);
     }
 
     /**
      * The invalidRetry operation.
-     * 
-     * @throws HttpResponseException thrown if the request is rejected by server.
-     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
-     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
-     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     *
+     * Events are polymorphic: see {@link ProtocolEvent} for the known subtypes. Use a known subtype's
+     * {@code getValue()} to access its typed payload, for example
+     * {@link streaming.sse.protocol.models.ProtocolEventMessageStreamEvent#getValue()}. Unrecognized events expose only
+     * their names through {@link ProtocolEvent#getEventName()}; their payloads are not available.
+     *
+     * Events are decoded lazily by a single iterator. Use try-with-resources to close the stream when iteration ends
+     * early. The response is also closed on end-of-stream, a terminal event, or an iteration failure. Closing the
+     * stream is idempotent and may throw {@link java.io.IOException}.
+     *
+     * If received, the terminal event is emitted before iteration ends. A failure while closing after a terminal event
+     * is reported by the next iterator access or explicit close, after the terminal event is delivered. End-of-stream
+     * without a terminal event completes normally. Transport and decoding failures are thrown during iteration. The
+     * client does not reconnect automatically.
+     *
+     * @return A closeable stream of typed protocol event events.
      */
     @Generated
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public BinaryData invalidRetry() {
-        // Generated convenience method for invalidRetryWithResponse
+    public CloseableIterableStream<ProtocolEvent> invalidRetry() {
         RequestOptions requestOptions = new RequestOptions();
-        return invalidRetryWithResponse(requestOptions).getValue();
+        return ServerSentEventStreams.toIterableStream(invalidRetryWithResponse(requestOptions),
+            ProtocolEventConverter::convert, ProtocolEvent::isTerminal);
     }
 
     /**
      * The reconnect operation.
-     * 
-     * @throws HttpResponseException thrown if the request is rejected by server.
-     * @throws ClientAuthenticationException thrown if the request is rejected by server on status code 401.
-     * @throws ResourceNotFoundException thrown if the request is rejected by server on status code 404.
-     * @throws ResourceModifiedException thrown if the request is rejected by server on status code 409.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     *
+     * Events are polymorphic: see {@link ProtocolEvent} for the known subtypes. Use a known subtype's
+     * {@code getValue()} to access its typed payload, for example
+     * {@link streaming.sse.protocol.models.ProtocolEventMessageStreamEvent#getValue()}. Unrecognized events expose only
+     * their names through {@link ProtocolEvent#getEventName()}; their payloads are not available.
+     *
+     * Events are decoded lazily by a single iterator. Use try-with-resources to close the stream when iteration ends
+     * early. The response is also closed on end-of-stream, a terminal event, or an iteration failure. Closing the
+     * stream is idempotent and may throw {@link java.io.IOException}.
+     *
+     * If received, the terminal event is emitted before iteration ends. A failure while closing after a terminal event
+     * is reported by the next iterator access or explicit close, after the terminal event is delivered. End-of-stream
+     * without a terminal event completes normally. Transport and decoding failures are thrown during iteration. The
+     * client does not reconnect automatically.
+     *
+     * @return A closeable stream of typed protocol event events.
      */
     @Generated
-    @ServiceMethod(returns = ReturnType.SINGLE)
-    public BinaryData reconnect() {
-        // Generated convenience method for reconnectWithResponse
+    public CloseableIterableStream<ProtocolEvent> reconnect() {
         RequestOptions requestOptions = new RequestOptions();
-        return reconnectWithResponse(requestOptions).getValue();
+        return ServerSentEventStreams.toIterableStream(reconnectWithResponse(requestOptions),
+            ProtocolEventConverter::convert, ProtocolEvent::isTerminal);
     }
 }

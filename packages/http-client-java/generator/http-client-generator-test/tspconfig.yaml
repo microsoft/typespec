@@ -8,8 +8,3 @@ options:
     generate-tests: true
     examples-dir: "{project-root}/tsp/examples"
     flavor: "Azure"
-    dev-options:
-      generate-code-model: true
-      loglevel: info
-      debug: false
-      profile: false
