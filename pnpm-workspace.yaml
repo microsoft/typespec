@@ -62,7 +62,7 @@ catalog:
   "@octokit/core": ^7.0.7
   "@octokit/plugin-paginate-graphql": ^6.0.0
   "@octokit/plugin-rest-endpoint-methods": ^18.0.0
-  "@playwright/test": ^1.63.0
+  "@playwright/test": ^1.64.1
   "@pinterest/alloy-graphql": ^1.1.1
   "@scalar/json-magic": ^0.15.5
   "@scalar/openapi-parser": ^0.29.1
@@ -92,8 +92,8 @@ catalog:
   "@types/yargs": ^17.0.35
   "@typespec/ts-http-runtime": 0.3.9
   "@vitejs/plugin-react": ^6.1.0
-  "@vitest/coverage-v8": ^5.0.0
-  "@vitest/ui": ^5.0.0
+  "@vitest/coverage-v8": ^5.0.5
+  "@vitest/ui": ^5.0.5
   "@vscode/extension-telemetry": ^1.5.2
   "@vscode/test-electron": ^3.1.0
   "@vscode/test-web": ^0.0.81
@@ -126,7 +126,7 @@ catalog:
   express: ^5.2.1
   fast-xml-parser: ^5.11.0
   graphql: ^17.0.2
-  happy-dom: ^20.11.6
+  happy-dom: ^21.0.3
   is-unicode-supported: ^2.1.0
   log-symbols: ^7.0.1
   lzutf8: 0.6.3
@@ -142,7 +142,7 @@ catalog:
   p-limit: ^7.3.1
   pathe: ^2.0.3
   picocolors: ^1.1.1
-  playwright: ^1.63.0
+  playwright: ^1.64.1
   plist: ^5.0.0
   prettier: ^3.9.6
   prettier-plugin-astro: ^1.1.0
@@ -180,7 +180,7 @@ catalog:
   uri-template: ^2.0.0
   vite: ^8.3.4
   vite-plugin-checker: ^0.14.5
-  vitest: ^5.0.0
+  vitest: ^5.0.5
   vscode-languageclient: ^10.1.0
   vscode-languageserver: ^10.1.0
   vscode-languageserver-textdocument: ^1.0.13
