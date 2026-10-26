@@ -1369,28 +1369,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return conversions;
         }
 
-        private ScmMethodProvider BuildProtocolMethod(MethodProvider createRequestMethod, bool isAsync, bool shouldMakeParametersRequired)
+        // Projects the final protocol parameter list so naming collision checks use the same ordering as emission.
+        internal static ParameterProvider[] BuildProtocolParameters(
+            InputServiceMethod serviceMethod,
+            ClientProvider client,
+            bool isAsync,
+            bool shouldMakeParametersRequired,
+            out ParameterProvider requestOptionsParameter)
         {
-            if (EnclosingType is not ClientProvider client)
-            {
-                throw new InvalidOperationException("Protocol methods can only be built for client types.");
-            }
-
-            var methodModifiers = ServiceMethod.Accessibility == "public" && ServiceMethod.Operation.GenerateProtocolMethod ?
-                MethodSignatureModifiers.Public :
-                MethodSignatureModifiers.Internal;
-
-            methodModifiers |= MethodSignatureModifiers.Virtual;
-
-            if (isAsync && _pagingServiceMethod == null)
-            {
-                methodModifiers |= MethodSignatureModifiers.Async;
-            }
-
             var requiredParameters = new List<ParameterProvider>();
             var optionalParameters = new List<ParameterProvider>();
             var convertedRequiredParameters = new List<ParameterProvider>();
-            var protocolParameters = RestClientProvider.GetMethodParameters(ServiceMethod, ScmMethodKind.Protocol, Client);
+            var protocolParameters = RestClientProvider.GetMethodParameters(serviceMethod, ScmMethodKind.Protocol, client);
             var contentIndex = protocolParameters.FindIndex(parameter => parameter.IsContentParameter);
             var hasOptionalContent = contentIndex >= 0 && protocolParameters[contentIndex].DefaultValue != null;
             var makeOptionalRequired = shouldMakeParametersRequired
@@ -1436,7 +1426,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
             }
             requiredParameters.AddRange(convertedRequiredParameters);
-            var requestOptionsParameter = ScmKnownParameters.CreateRequestOptions(
+            requestOptionsParameter = ScmKnownParameters.CreateRequestOptions(
                 optional: !shouldMakeParametersRequired || contentIndex >= 0);
 
             // A grouped options bag adopted by the protocol method can carry the same name as the request
@@ -1447,7 +1437,63 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 requiredParameters,
                 optionalParameters);
 
-            ParameterProvider[] parameters = [.. requiredParameters, .. optionalParameters, requestOptionsParameter];
+            return [.. requiredParameters, .. optionalParameters, requestOptionsParameter];
+        }
+
+        internal static bool ShouldMakeProtocolMethodParametersRequired(InputServiceMethod serviceMethod, ClientProvider client)
+        {
+            if (!serviceMethod.Operation.GenerateConvenienceMethod)
+            {
+                return false;
+            }
+            var convenienceParameters = RestClientProvider.GetMethodParameters(serviceMethod, ScmMethodKind.Convenience, client);
+            var convenienceMethodParameterCount = convenienceParameters.Count;
+            if (convenienceMethodParameterCount == 0)
+            {
+                return true;
+            }
+
+            var protocolParameters = RestClientProvider.GetMethodParameters(serviceMethod, ScmMethodKind.Protocol, client);
+            for (int i = 0; i < convenienceMethodParameterCount; i++)
+            {
+                // If protocol parameter is required, and convenience is optional, we don't need any changes.
+                if (protocolParameters[i].DefaultValue == null && convenienceParameters[i].DefaultValue != null)
+                {
+                    return false;
+                }
+                // If convenience is optional, and protocol is optional, we do need to make the protocol required.
+                if (convenienceParameters[i].DefaultValue != null)
+                {
+                    return true;
+                }
+                if (!protocolParameters[i].Type.Equals(convenienceParameters[i].Type))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private ScmMethodProvider BuildProtocolMethod(MethodProvider createRequestMethod, bool isAsync, bool shouldMakeParametersRequired)
+        {
+            if (EnclosingType is not ClientProvider client)
+            {
+                throw new InvalidOperationException("Protocol methods can only be built for client types.");
+            }
+
+            var methodModifiers = ServiceMethod.Accessibility == "public" && ServiceMethod.Operation.GenerateProtocolMethod ?
+                MethodSignatureModifiers.Public :
+                MethodSignatureModifiers.Internal;
+
+            methodModifiers |= MethodSignatureModifiers.Virtual;
+
+            if (isAsync && _pagingServiceMethod == null)
+            {
+                methodModifiers |= MethodSignatureModifiers.Async;
+            }
+
+            var parameters = BuildProtocolParameters(ServiceMethod, Client, isAsync, shouldMakeParametersRequired, out var requestOptionsParameter);
             var methodName = isAsync ? ServiceMethod.Name + "Async" : ServiceMethod.Name;
 
             // Detect a partial method declaration in the client's custom code matching this protocol method.
@@ -2070,39 +2116,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 ServiceMethod.Parameters.Any(parameter => parameter.Type is InputStreamingType);
 
         private bool ShouldMakeProtocolMethodParametersRequired()
-        {
-            if (!_generateConvenienceMethod)
-            {
-                return false;
-            }
-            var convenienceParameters = RestClientProvider.GetMethodParameters(ServiceMethod, ScmMethodKind.Convenience, Client);
-            var convenienceMethodParameterCount = convenienceParameters.Count;
-            if (convenienceMethodParameterCount == 0)
-            {
-                return true;
-            }
-
-            var protocolParameters = RestClientProvider.GetMethodParameters(ServiceMethod, ScmMethodKind.Protocol, Client);
-            for (int i = 0; i < convenienceMethodParameterCount; i++)
-            {
-                // If protocol parameter is required, and convenience is optional, we don't need any changes.
-                if (protocolParameters[i].DefaultValue == null && convenienceParameters[i].DefaultValue != null)
-                {
-                    return false;
-                }
-                // If convenience is optional, and protocol is optional, we do need to make the protocol required.
-                if (convenienceParameters[i].DefaultValue != null)
-                {
-                    return true;
-                }
-                if (!protocolParameters[i].Type.Equals(convenienceParameters[i].Type))
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
+            => ShouldMakeProtocolMethodParametersRequired(ServiceMethod, Client);
 
         private static bool ShouldUseJsonDocForDeserializingType(CSharpType type)
         {

@@ -356,9 +356,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     var candidateNames = GetEmittedMethodNames(serviceMethod, candidatePublicName, kind);
                     var otherNames = GetEmittedMethodNames(other, otherPublicName, kind);
                     if (candidateNames.Intersect(otherNames, StringComparer.Ordinal).Any() &&
-                        HasEquivalentParameterTypes(
-                            RestClientProvider.GetMethodParameters(serviceMethod, kind, this),
-                            RestClientProvider.GetMethodParameters(other, kind, this)))
+                        HasEquivalentEmittedSignatures(serviceMethod, other, kind))
                     {
                         var candidateNamesBeforeProjection = GetEmittedMethodNames(serviceMethod, normalizedName, kind);
                         var otherNamesBeforeProjection = GetEmittedMethodNames(
@@ -375,6 +373,32 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return true;
+        }
+
+        private bool HasEquivalentEmittedSignatures(InputServiceMethod first, InputServiceMethod second, ScmMethodKind kind)
+        {
+            if (kind != ScmMethodKind.Protocol)
+            {
+                return HasEquivalentParameterTypes(
+                    RestClientProvider.GetMethodParameters(first, kind, this),
+                    RestClientProvider.GetMethodParameters(second, kind, this));
+            }
+
+            // Compare the final protocol signatures, which reorder required parameters ahead of optional ones.
+            // Sync and async variants may order parameters differently, so any matching variant collides.
+            foreach (var isAsync in new[] { false, true })
+            {
+                var firstParameters = ScmMethodProviderCollection.BuildProtocolParameters(
+                    first, this, isAsync, ScmMethodProviderCollection.ShouldMakeProtocolMethodParametersRequired(first, this), out _);
+                var secondParameters = ScmMethodProviderCollection.BuildProtocolParameters(
+                    second, this, isAsync, ScmMethodProviderCollection.ShouldMakeProtocolMethodParametersRequired(second, this), out _);
+                if (HasEquivalentParameterTypes(firstParameters, secondParameters))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private static bool HasEquivalentParameterTypes(IReadOnlyList<ParameterProvider> first, IReadOnlyList<ParameterProvider> second)
