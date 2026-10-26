@@ -801,15 +801,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
             {
                 return;
             }
-            _attributes = shouldInclude
-                ? [.. _attributes, attribute]
-                : [.. _attributes.Where(a => !ReferenceEquals(a, attribute))];
             if (shouldInclude)
             {
+                _attributes = [.. _attributes, attribute];
                 _originalAttributes?.Add(attribute);
             }
             else
             {
+                _attributes = [.. _attributes.Where(a => !ReferenceEquals(a, attribute))];
                 _originalAttributes?.Remove(attribute);
             }
         }

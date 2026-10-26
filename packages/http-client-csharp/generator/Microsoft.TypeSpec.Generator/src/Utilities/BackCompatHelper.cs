@@ -540,7 +540,7 @@ namespace Microsoft.TypeSpec.Generator.Utilities
                 .. overload.Signature.Attributes.Where(a => !ExperimentalApiHelpers.IsExperimentalAttribute(a)
                     && !DeprecationApiHelpers.IsObsoleteAttribute(a)),
                 .. attribute is null ? Array.Empty<AttributeStatement>() : [attribute],
-                .. obsolete is not null && previousMethod.Signature.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute) ? new[] { obsolete } : []
+                .. obsolete is not null && previousMethod.Signature.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute) ? [obsolete] : Array.Empty<AttributeStatement>()
             ]);
             overload.Update(suppressions: ExperimentalApiHelpers.MergeSuppressions(overload.Suppressions, currentMethod.Suppressions,
                 obsolete is null ? [] : DeprecationApiHelpers.GetSuppressions(obsolete)));
