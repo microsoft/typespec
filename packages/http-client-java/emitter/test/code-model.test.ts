@@ -1,9 +1,10 @@
 import { NodeHost, compile } from "@typespec/compiler";
 import { expectDiagnosticEmpty, expectDiagnostics } from "@typespec/compiler/testing";
 import { fileURLToPath } from "node:url";
-import { describe, expect, it } from "vitest";
+import { assert, describe, expect, it } from "vitest";
 import { parse, stringify } from "yaml";
 import { CodeModelBuilder } from "../src/code-model-builder.js";
+import type { PageableContinuationToken } from "../src/common/client.js";
 import { addSubClient, createClient } from "../src/common/client.js";
 import { addGlobalParameter, createCodeModel } from "../src/common/code-model.js";
 import {
@@ -17,6 +18,7 @@ import { createChoiceSchema } from "../src/common/schemas/choice.js";
 import { createConstantSchema, createConstantValue } from "../src/common/schemas/constant.js";
 import {
   ImplementationLocation,
+  KnownMediaType,
   ParameterLocation,
   SchemaType,
   createAnySchema,
@@ -24,6 +26,7 @@ import {
   createBinaryResponse,
   createByteArraySchema,
   createDateTimeSchema,
+  createDiscriminator,
   createGroupProperty,
   createKeySecurityScheme,
   createNumberSchema,
@@ -36,10 +39,119 @@ import {
   createVirtualParameter,
   isSchemaResponse,
 } from "../src/common/schemas/model.js";
+import { SchemaContext } from "../src/common/schemas/usage.js";
 import { createResponseErrorSchema } from "../src/external-schemas.js";
 import { cloneOperationParameter } from "../src/operation-utils.js";
 
 describe("code model characterization", () => {
+  it.each(["azure", "standard"] as const)(
+    "propagates %s usage to tagged descendants through an untagged intermediate",
+    async (flavor) => {
+      const program = await compile(
+        NodeHost,
+        fileURLToPath(new URL("./fixtures/code-model.tsp", import.meta.url)),
+        { noEmit: true },
+      );
+      expectDiagnosticEmpty(program.diagnostics);
+      const builder = new CodeModelBuilder(program, {
+        program,
+        emitterOutputDir: "/code-model-test-output",
+        options: { flavor, "dev-options": {} },
+        perf: {
+          startTimer: () => ({ end: () => 0 }),
+          time: (_label, callback) => callback(),
+          timeAsync: (_label, callback) => callback(),
+          report: () => {},
+        },
+      });
+      const discriminator = createDiscriminator(
+        createProperty("kind", "", createStringSchema("string", "")),
+      );
+      const usage = [SchemaContext.Input, SchemaContext.Output, SchemaContext.Public];
+      const root = createObjectSchema("PetBase", "", {
+        discriminator,
+        usage,
+        serializationFormats: [KnownMediaType.Json],
+      });
+      const intermediate = createObjectSchema("Mammal", "", {
+        parents: { immediate: [root], all: [root] },
+      });
+      const cat = createObjectSchema("Cat", "", {
+        discriminatorValue: "cat",
+        parents: { immediate: [intermediate], all: [intermediate, root] },
+      });
+      const unused = createObjectSchema("Unused", "", {
+        parents: { immediate: [intermediate], all: [intermediate, root] },
+      });
+      root.children = { immediate: [intermediate], all: [intermediate, cat, unused] };
+      intermediate.children = { immediate: [cat, unused], all: [cat, unused] };
+      discriminator.all.cat = cat;
+
+      builder["propagateSchemaUsage"](root);
+
+      for (const schema of [intermediate, cat]) {
+        expect(schema.usage).toEqual(expect.arrayContaining(usage));
+        expect(schema.serializationFormats).toEqual([KnownMediaType.Json]);
+      }
+      expect(unused.usage).toBeUndefined();
+      expect(unused.serializationFormats).toBeUndefined();
+    },
+  );
+
+  it.each(["azure", "standard"] as const)(
+    "reads continuation-token visibility from the request parameter for %s",
+    async (flavor) => {
+      const program = await compile(
+        NodeHost,
+        fileURLToPath(new URL("./fixtures/continuation-token.tsp", import.meta.url)),
+        { noEmit: true },
+      );
+      expectDiagnosticEmpty(program.diagnostics);
+      const model = await new CodeModelBuilder(program, {
+        program,
+        emitterOutputDir: "/code-model-test-output",
+        options: { flavor, "dev-options": {} },
+        perf: {
+          startTimer: () => ({ end: () => 0 }),
+          time: (_label, callback) => callback(),
+          timeAsync: (_label, callback) => callback(),
+          report: () => {},
+        },
+      }).build();
+      expectDiagnosticEmpty(program.diagnostics);
+      const operations = model.clients.flatMap((client) =>
+        client.operationGroups.flatMap((group) => group.operations ?? []),
+      );
+      expect(operations).toHaveLength(4);
+      for (const operation of operations) {
+        const name = operation.language.default.name;
+        const pageable = operation.extensions?.["x-ms-pageable"] as
+          { continuationToken?: PageableContinuationToken; nextLinkName?: string } | undefined;
+        assert.isDefined(pageable?.continuationToken);
+        const token = pageable.continuationToken;
+        expect(token.includeContinuationTokenParameter).toBe(
+          name === "queryBody" || name === "headerHeader",
+        );
+        expect(token.parameter).toBe(
+          operation.parameters?.find((p) => p.language.default.serializedName === "token"),
+        );
+        expect(token.parameter.protocol.http?.in).toBe(
+          name.startsWith("query") ? "query" : "header",
+        );
+        expect(pageable.nextLinkName).toBeUndefined();
+        if (name.endsWith("Header")) {
+          expect(token.responseHeader?.header).toBe("next-token");
+          expect(token.responseProperty).toBeUndefined();
+        } else {
+          expect(token.responseProperty?.map((p) => p.serializedName)).toEqual(
+            name === "queryBody" ? ["next", "token"] : ["nextToken"],
+          );
+          expect(token.responseHeader).toBeUndefined();
+        }
+      }
+    },
+  );
+
   it("preserves metadata defaults and supplied schema references", () => {
     const schema = createStringSchema("string", "A string");
     const property = createProperty("value", "A value", schema, {
@@ -237,6 +349,11 @@ describe("code model characterization", () => {
       },
     }).build();
     expect(program.diagnostics.filter((d) => d.severity === "error")).toEqual([]);
+    const animal = model.schemas.objects!.find(
+      (schema) => schema.language.default.name === "Animal",
+    )!;
+    const cat = model.schemas.objects!.find((schema) => schema.language.default.name === "Cat")!;
+    expect(animal.discriminator!.all.cat).toBe(cat);
     assertPlainGraph(model);
     expect(stringify(sortGraph(model), { version: "1.1" })).toMatchSnapshot();
   });
@@ -339,10 +456,10 @@ describe("code model characterization", () => {
         if (operation === voidOperation && flavor !== "azure") {
           expect(operation.responses![0].protocol.http).not.toHaveProperty("mediaTypes");
         } else {
-          expect(operation.responses![0].protocol.http.mediaTypes).toEqual(["application/json"]);
+          expect(operation.responses![0].protocol.http?.mediaTypes).toEqual(["application/json"]);
         }
         expect(operation.exceptions).toHaveLength(1);
-        expect(operation.exceptions![0].protocol.http.statusCodes).toEqual(["400"]);
+        expect(operation.exceptions![0].protocol.http?.statusCodes).toEqual(["400"]);
         expect(isSchemaResponse(operation.exceptions![0])).toBe(true);
         expect(operation.exceptions![0]).toMatchObject({
           schema: {
@@ -487,7 +604,8 @@ describe("code model characterization", () => {
         expect(operation.internalApi).toBe(internalApi);
         expect(operation.responses).toHaveLength(1);
         expect(operation.responses![0]).toMatchObject({ schema: bodySchema });
-        const header = operation.responses![0].protocol.http.headers![0];
+        const header = operation.responses![0].protocol.http?.headers?.[0];
+        assert.isDefined(header);
         expect(header).toMatchObject({
           header: "x-response-state",
           schema: { language: { default: { name: "ResponseState" } } },

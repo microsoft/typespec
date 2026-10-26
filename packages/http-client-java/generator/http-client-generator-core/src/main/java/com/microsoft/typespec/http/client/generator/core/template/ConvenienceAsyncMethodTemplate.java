@@ -93,17 +93,22 @@ public class ConvenienceAsyncMethodTemplate extends ConvenienceMethodTemplateBas
                 protocolMethod.getProxyMethod().getResponseContentTypes(), typeReferenceStaticClasses);
             if (expressionMapFromBinaryData == null) {
                 // no need to do the map
-                methodBlock
-                    .methodReturn(String.format("%1$s(%2$s)", getMethodName(protocolMethod), invocationExpression));
+                methodBlock.methodReturn(
+                    String.format("%1$s(%2$s)", getProtocolMethodInvocationName(protocolMethod), invocationExpression));
             } else {
-                methodBlock.line("PagedFlux<BinaryData> pagedFluxResponse = %1$s(%2$s);", getMethodName(protocolMethod),
-                    invocationExpression);
+                methodBlock.line("PagedFlux<BinaryData> pagedFluxResponse = %1$s(%2$s);",
+                    getProtocolMethodInvocationName(protocolMethod), invocationExpression);
 
                 methodBlock.methodReturn(String.format(
                     "PagedFlux.create(() -> (continuationTokenParam, pageSizeParam) -> {\n"
-                        + "    Flux<PagedResponse<BinaryData>> flux = (continuationTokenParam == null)\n"
-                        + "        ? pagedFluxResponse.byPage().take(1)\n"
-                        + "        : pagedFluxResponse.byPage(continuationTokenParam).take(1);\n"
+                        + "    Flux<PagedResponse<BinaryData>> flux;\n" + "    if (pageSizeParam == null) {\n"
+                        + "        flux = (continuationTokenParam == null)\n"
+                        + "            ? pagedFluxResponse.byPage().take(1)\n"
+                        + "            : pagedFluxResponse.byPage(continuationTokenParam).take(1);\n" + "    } else {\n"
+                        + "        flux = (continuationTokenParam == null)\n"
+                        + "            ? pagedFluxResponse.byPage(pageSizeParam).take(1)\n"
+                        + "            : pagedFluxResponse.byPage(continuationTokenParam, pageSizeParam).take(1);\n"
+                        + "    }\n"
                         + "    return flux.map(pagedResponse -> new PagedResponseBase<Void, %1$s>(pagedResponse.getRequest(),\n"
                         + "        pagedResponse.getStatusCode(),\n" + "        pagedResponse.getHeaders(),\n"
                         + "        pagedResponse.getValue().stream().map(%2$s).collect(Collectors.toList()),\n"

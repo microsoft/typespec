@@ -4,6 +4,7 @@ import type { Operation } from "@typespec/compiler";
 import { useTsp } from "../../../core/context/tsp-context.js";
 import { buildParameterDescriptor } from "../../utils/operation.js";
 
+/** Operation source for a flat descriptor list, without keyword-only regrouping. */
 export interface CallableParametersProps {
   /**
    * The operation to extract parameters from.

@@ -389,9 +389,12 @@ export class OpenAPI31SchemaEmitter extends OpenAPI3SchemaEmitterBase<OpenAPISch
   }
 
   tupleLiteral(tuple: Tuple): EmitterOutput<Record<string, any>> {
+    const size = tuple.values.length;
     return new ObjectBuilder({
       type: "array",
       prefixItems: this.emitter.emitTupleLiteralValues(tuple),
+      minItems: size,
+      maxItems: size,
     });
   }
 

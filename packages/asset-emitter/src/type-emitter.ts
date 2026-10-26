@@ -36,11 +36,15 @@ import type {
   TypeSpecDeclaration,
 } from "./types.js";
 
+/**
+ * Callback output, either an explicit emit result or an inline value.
+ * The coordinator wraps bare values and placeholders in raw-code results.
+ */
 export type EmitterOutput<T> = EmitEntity<T> | Placeholder<T> | T;
 
 /**
  * Implement emitter logic by extending this class and passing it to
- * `emitContext.createAssetEmitter`. This class should not be constructed
+ * `createAssetEmitter`. This class should not be constructed
  * directly.
  *
  * TypeEmitters serve two primary purposes:
@@ -147,6 +151,20 @@ export type EmitterOutput<T> = EmitEntity<T> | Placeholder<T> | T;
  *
  * And we set reference context for the Person model, Pet will be emitted twice,
  * once without context and once with the reference context.
+ *
+ * ## Callback lifecycle
+ *
+ * The coordinator establishes context before invoking an emit callback and caches
+ * its result by callback, type, and context. Context hooks may themselves be cached;
+ * they should compute context, not perform output side effects. Their default
+ * implementations return empty objects. Request child emission through
+ * `this.emitter` so context and result caching remain active.
+ *
+ * Named declarations establish their own lexical containment chain. Literals
+ * retain the surrounding chain, as do model and union instantiations for which
+ * `declarationName` returns undefined. Reference context crosses declaration
+ * boundaries, while lexical context is recomputed from the target's containers.
+ * Source-file serialization and writing happen separately from traversal.
  */
 export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
   /**
@@ -343,10 +361,12 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
     return this.emitter.result.none();
   }
 
+  /** Add lexical values for the property-list callback and the model members it emits. */
   modelPropertiesContext(model: Model): Context {
     return {};
   }
 
+  /** Add values carried from the property list into members and their referenced types. */
   modelPropertiesReferenceContext(model: Model): Context {
     return {};
   }
@@ -401,31 +421,45 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
     return this.emitter.result.none();
   }
 
+  /**
+   * Emit a named model with an integer indexer, such as `model Names is Array<string>`.
+   * By default, visits the element type directly and returns no output.
+   * `name` is supplied by `declarationName`; `elementType` is the indexer's value type.
+   */
   arrayDeclaration(array: Model, name: string, elementType: Type): EmitterOutput<T> {
     this.emitter.emitType(array.indexer!.value);
     return this.emitter.result.none();
   }
 
+  /** Establish lexical values for a named array in its own declaration context. */
   arrayDeclarationContext(array: Model, name: string, elementType: Type): Context {
     return {};
   }
 
+  /** Add context carried into a named array's contents and references. */
   arrayDeclarationReferenceContext(array: Model, name: string, elementType: Type): Context {
     return {};
   }
 
+  /**
+   * Emit an inline array such as `string[]`, with the element type passed separately.
+   * Unlike `arrayDeclaration`, the default neither visits the element nor emits output.
+   */
   arrayLiteral(array: Model, elementType: Type): EmitterOutput<T> {
     return this.emitter.result.none();
   }
 
+  /** Add lexical values for an inline array without leaving its surrounding declaration scope. */
   arrayLiteralContext(array: Model, elementType: Type): Context {
     return {};
   }
 
+  /** Add context carried into types referenced while emitting an inline array. */
   arrayLiteralReferenceContext(array: Model, elementType: Type): Context {
     return {};
   }
 
+  /** Emit a named scalar; by default, visits its base scalar, if any, then returns no output. */
   scalarDeclaration(scalar: Scalar, name: string): EmitterOutput<T> {
     if (scalar.baseScalar) {
       this.emitter.emitType(scalar.baseScalar);
@@ -433,62 +467,80 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
     return this.emitter.result.none();
   }
 
+  /** Establish lexical values for a scalar declaration, using its computed output name. */
   scalarDeclarationContext(scalar: Scalar, name: string): Context {
     return {};
   }
 
+  /** Add context carried into types reached while emitting a scalar declaration. */
   scalarDeclarationReferenceContext(scalar: Scalar, name: string): Context {
     return {};
   }
 
+  /**
+   * Emit a scalar with template arguments; the computed name may be undefined.
+   * The default returns no output and does not visit a base scalar.
+   */
   scalarInstantiation(scalar: Scalar, name: string | undefined): EmitterOutput<T> {
     return this.emitter.result.none();
   }
 
+  /** Establish lexical values for a scalar instantiation before its emit callback runs. */
   scalarInstantiationContext(scalar: Scalar, name: string | undefined): Context {
     return {};
   }
 
+  /** Handle compiler intrinsic types such as `unknown`, `void`, and `never`; emits nothing by default. */
   intrinsic(intrinsic: IntrinsicType, name: string): EmitterOutput<T> {
     return this.emitter.result.none();
   }
 
+  /** Add lexical values for an intrinsic type without establishing a new declaration scope. */
   intrinsicContext(intrinsic: IntrinsicType, name: string): Context {
     return {};
   }
 
+  /** Add lexical values for one boolean literal within the enclosing emit context. */
   booleanLiteralContext(boolean: BooleanLiteral): Context {
     return {};
   }
 
+  /** Convert a boolean literal to output; the default returns no output rather than its textual value. */
   booleanLiteral(boolean: BooleanLiteral): EmitterOutput<T> {
     return this.emitter.result.none();
   }
 
+  /** Add lexical values for a string template before its output is computed. */
   stringTemplateContext(string: StringTemplate): Context {
     return {};
   }
 
+  /** Handle a string template; the default emits nothing and does not traverse its spans. */
   stringTemplate(stringTemplate: StringTemplate): EmitterOutput<T> {
     return this.emitter.result.none();
   }
 
+  /** Add lexical values for a string literal, retaining the surrounding declaration context. */
   stringLiteralContext(string: StringLiteral): Context {
     return {};
   }
 
+  /** Convert a string literal to output; quoting and escaping are left to overrides. Emits nothing by default. */
   stringLiteral(string: StringLiteral): EmitterOutput<T> {
     return this.emitter.result.none();
   }
 
+  /** Add lexical values for a numeric literal within the enclosing emit context. */
   numericLiteralContext(number: NumericLiteral): Context {
     return {};
   }
 
+  /** Convert a numeric literal to output; the default returns no output rather than formatting the number. */
   numericLiteral(number: NumericLiteral): EmitterOutput<T> {
     return this.emitter.result.none();
   }
 
+  /** Emit a standalone operation; by default, visits parameters then return type and returns no output. */
   operationDeclaration(operation: Operation, name: string): EmitterOutput<T> {
     this.emitter.emitOperationParameters(operation);
     this.emitter.emitOperationReturnType(operation);
@@ -496,67 +548,86 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
     return this.emitter.result.none();
   }
 
+  /** Establish lexical values for a standalone operation and the signature parts it emits. */
   operationDeclarationContext(operation: Operation, name: string): Context {
     return {};
   }
 
+  /** Add context carried from a standalone operation into its signature's referenced types. */
   operationDeclarationReferenceContext(operation: Operation, name: string): Context {
     return {};
   }
 
+  /** Add lexical values for an interface's operation-list callback and its member operations. */
   interfaceDeclarationOperationsContext(iface: Interface): Context {
     return {};
   }
 
+  /** Add context carried through the operation list into member signatures and their references. */
   interfaceDeclarationOperationsReferenceContext(iface: Interface): Context {
     return {};
   }
 
+  /** Add lexical values for an operation emitted as an interface member, using its computed name. */
   interfaceOperationDeclarationContext(operation: Operation, name: string): Context {
     return {};
   }
 
+  /** Add context carried from an interface operation into types referenced by its signature. */
   interfaceOperationDeclarationReferenceContext(operation: Operation, name: string): Context {
     return {};
   }
 
+  /**
+   * Handle the parameter model separately from the operation's return type.
+   * The default emits nothing; override to traverse or render the parameter properties.
+   */
   operationParameters(operation: Operation, parameters: Model): EmitterOutput<T> {
     return this.emitter.result.none();
   }
 
+  /** Add lexical values for a parameter list and any children emitted by its callback. */
   operationParametersContext(operation: Operation, parameters: Model): Context {
     return {};
   }
 
+  /** Add context carried into parameter types without applying it to the operation's return-type callback. */
   operationParametersReferenceContext(operation: Operation, parameters: Model): Context {
     return {};
   }
 
+  /** Handle the return type separately from parameters; the default does not traverse it and emits nothing. */
   operationReturnType(operation: Operation, returnType: Type): EmitterOutput<T> {
     return this.emitter.result.none();
   }
 
+  /** Add lexical values for a return-type callback and any children it emits. */
   operationReturnTypeContext(operation: Operation, returnType: Type): Context {
     return {};
   }
 
+  /** Add context carried into return-type references without applying it to the parameter-list callback. */
   operationReturnTypeReferenceContext(operation: Operation, returnType: Type): Context {
     return {};
   }
 
+  /** Emit a named interface; by default, visits its operation list and returns no output. */
   interfaceDeclaration(iface: Interface, name: string): EmitterOutput<T> {
     this.emitter.emitInterfaceOperations(iface);
     return this.emitter.result.none();
   }
 
+  /** Establish lexical values for an interface declaration using its computed output name. */
   interfaceDeclarationContext(iface: Interface, name: string): Context {
     return {};
   }
 
+  /** Add context carried into the interface's members and any types they reference. */
   interfaceDeclarationReferenceContext(iface: Interface, name: string): Context {
     return {};
   }
 
+  /** Visit interface operations in map iteration order as members, discarding their outputs by default. */
   interfaceDeclarationOperations(iface: Interface): EmitterOutput<T> {
     for (const op of iface.operations.values()) {
       this.emitter.emitInterfaceOperation(op);
@@ -564,6 +635,7 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
     return this.emitter.result.none();
   }
 
+  /** Emit an interface member's parameters then return type; the default returns no output. */
   interfaceOperationDeclaration(operation: Operation, name: string): EmitterOutput<T> {
     this.emitter.emitOperationParameters(operation);
     this.emitter.emitOperationReturnType(operation);
@@ -571,19 +643,23 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
     return this.emitter.result.none();
   }
 
+  /** Emit a named enum; by default, visits its member-list callback and returns no output. */
   enumDeclaration(en: Enum, name: string): EmitterOutput<T> {
     this.emitter.emitEnumMembers(en);
     return this.emitter.result.none();
   }
 
+  /** Establish lexical values for an enum declaration and its members. */
   enumDeclarationContext(en: Enum, name: string): Context {
     return {};
   }
 
+  /** Add reference-context values available while emitting an enum and its members. */
   enumDeclarationReferenceContext(en: Enum, name: string): Context {
     return {};
   }
 
+  /** Visit enum members in map iteration order, discarding their outputs by default. */
   enumMembers(en: Enum): EmitterOutput<T> {
     for (const member of en.members.values()) {
       this.emitter.emitType(member);
@@ -591,57 +667,74 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
     return this.emitter.result.none();
   }
 
+  /** Add lexical values for the enum's member-list callback and each member it visits. */
   enumMembersContext(en: Enum): Context {
     return {};
   }
 
+  /** Handle an enum member within its declaration, not a reference to it; emits nothing by default. */
   enumMember(member: EnumMember): EmitterOutput<T> {
     return this.emitter.result.none();
   }
 
+  /** Add lexical values for one enum member while retaining its enum's context. */
   enumMemberContext(member: EnumMember) {
     return {};
   }
 
+  /** Emit a named union; by default, visits its variant list and returns no output. */
   unionDeclaration(union: Union, name: string): EmitterOutput<T> {
     this.emitter.emitUnionVariants(union);
     return this.emitter.result.none();
   }
 
+  /** Establish lexical values for a named union and the variants it emits. */
   unionDeclarationContext(union: Union): Context {
     return {};
   }
 
+  /** Add context carried through a named union's variants into their referenced types. */
   unionDeclarationReferenceContext(union: Union): Context {
     return {};
   }
 
+  /**
+   * Emit a named union with template arguments; by default, visits its variants
+   * and returns no output. The coordinator retains surrounding lexical context
+   * when the computed declaration name is unavailable.
+   */
   unionInstantiation(union: Union, name: string): EmitterOutput<T> {
     this.emitter.emitUnionVariants(union);
     return this.emitter.result.none();
   }
 
+  /** Add lexical values for an instantiated union before emitting its variants. */
   unionInstantiationContext(union: Union, name: string): Context {
     return {};
   }
 
+  /** Add context carried through an instantiated union's variants and their references. */
   unionInstantiationReferenceContext(union: Union, name: string): Context {
     return {};
   }
 
+  /** Emit an unnamed union expression; by default, visits its variants and returns no output. */
   unionLiteral(union: Union): EmitterOutput<T> {
     this.emitter.emitUnionVariants(union);
     return this.emitter.result.none();
   }
 
+  /** Add lexical values for an inline union without leaving the surrounding declaration context. */
   unionLiteralContext(union: Union): Context {
     return {};
   }
 
+  /** Add context carried from an inline union into its variants and their referenced types. */
   unionLiteralReferenceContext(union: Union): Context {
     return {};
   }
 
+  /** Visit union variants in map iteration order, discarding their outputs by default. */
   unionVariants(union: Union): EmitterOutput<T> {
     for (const variant of union.variants.values()) {
       this.emitter.emitType(variant);
@@ -649,35 +742,43 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
     return this.emitter.result.none();
   }
 
+  /** Add lexical values for the variant-list callback and the variants it emits. */
   unionVariantsContext(): Context {
     return {};
   }
 
+  /** Add context carried from a variant list into each variant's referenced type. */
   unionVariantsReferenceContext(): Context {
     return {};
   }
 
+  /** Visit a variant's type as a reference, then return no output by default. */
   unionVariant(variant: UnionVariant): EmitterOutput<T> {
     this.emitter.emitTypeReference(variant.type);
     return this.emitter.result.none();
   }
+  /** Add lexical values for a single variant; the coordinator supplies the variant being visited. */
   unionVariantContext(union: Union): Context {
     return {};
   }
 
+  /** Add context carried into the visited variant's referenced type. */
   unionVariantReferenceContext(union: Union): Context {
     return {};
   }
 
+  /** Emit an inline tuple; by default, visits its value-list callback and returns no output. */
   tupleLiteral(tuple: Tuple): EmitterOutput<T> {
     this.emitter.emitTupleLiteralValues(tuple);
     return this.emitter.result.none();
   }
 
+  /** Add lexical values for a tuple and its values within the enclosing declaration context. */
   tupleLiteralContext(tuple: Tuple): Context {
     return {};
   }
 
+  /** Visit tuple values as references in positional order, discarding their outputs by default. */
   tupleLiteralValues(tuple: Tuple): EmitterOutput<T> {
     for (const value of tuple.values.values()) {
       this.emitter.emitTypeReference(value);
@@ -685,18 +786,26 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
     return this.emitter.result.none();
   }
 
+  /** Add lexical values for the tuple's value-list callback and the values it emits. */
   tupleLiteralValuesContext(tuple: Tuple): Context {
     return {};
   }
 
+  /** Add context carried through a tuple's value list into each referenced value type. */
   tupleLiteralValuesReferenceContext(tuple: Tuple): Context {
     return {};
   }
 
+  /** Add context carried from an inline tuple into its values and their references. */
   tupleLiteralReferenceContext(tuple: Tuple): Context {
     return {};
   }
 
+  /**
+   * Serialize a populated file without writing it. By default, concatenates only
+   * root-scope declaration values in registration order, each followed by a newline.
+   * Overrides must render imports and nested scopes if their output requires them.
+   */
   sourceFile(sourceFile: SourceFile<T>): Promise<EmittedSourceFile> | EmittedSourceFile {
     const emittedSourceFile: EmittedSourceFile = {
       path: sourceFile.path,
@@ -710,6 +819,10 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
     return emittedSourceFile;
   }
 
+  /**
+   * Serialize and write files sequentially in the supplied order through the compiler host.
+   * Called by the coordinator's `writeOutput`, not automatically after type traversal.
+   */
   async writeOutput(sourceFiles: SourceFile<T>[]) {
     for (const file of sourceFiles) {
       const outputFile = await this.emitter.emitSourceFile(file);
@@ -720,6 +833,15 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
     }
   }
 
+  /**
+   * Construct a reference to a completed declaration; the default emits nothing.
+   * Both paths are ordered outermost to innermost and exclude `commonScope`.
+   * For different source files, the common scope is null and paths include file roots.
+   * @param targetDeclaration - Named result being referenced.
+   * @param pathUp - Scopes belonging only to the caller's chain, not traversal-step order.
+   * @param pathDown - Scopes belonging only to the target's chain.
+   * @param commonScope - Deepest scope shared by caller and target, or null.
+   */
   reference(
     targetDeclaration: Declaration<T>,
     pathUp: Scope<T>[],
@@ -731,7 +853,8 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
 
   /**
    * Handle circular references. When this method is called it means we are resolving a circular reference.
-   * By default if the target is a declaration it will call to {@link reference} otherwise it means we have an inline reference
+   * The default rejects cycles with no declaration. Otherwise, a declaration target
+   * is passed to {@link TypeEmitter.reference}, while an inline target is returned unchanged.
    * @param target Reference target.
    * @param scope Current scope.
    * @returns Resolved reference entity.
@@ -757,6 +880,17 @@ export class TypeEmitter<T, TOptions extends object = Record<string, never>> {
     return this.reference(target, pathUp, pathDown, commonScope);
   }
 
+  /**
+   * Compute an output name, using the TypeSpec name for ordinary declarations.
+   * For template instantiations, appends capitalized names of named type arguments;
+   * returns undefined when a type argument has no usable declaration name.
+   * Resolved value entities are skipped without causing undefined, so names need
+   * not distinguish instantiations differing only in those values. Indeterminate
+   * arguments are checked as types. Operations in interfaces keep their own names
+   * rather than incorporating template arguments.
+   * Override to apply output-language naming rules, distinguish value arguments,
+   * or choose which instantiations to inline.
+   */
   declarationName(declarationType: TypeSpecDeclaration): string | undefined {
     compilerAssert(
       declarationType.name !== undefined,
@@ -840,6 +974,7 @@ export class CodeTypeEmitter<TOptions extends object = Record<string, never>> ex
     return this.emitter.result.rawCode(builder.reduce());
   }
 
+  /** Join emitted interface operations with commas in map iteration order, preserving deferred values. */
   interfaceDeclarationOperations(iface: Interface): EmitterOutput<string> {
     const builder = new StringBuilder();
     let i = 0;
@@ -852,6 +987,7 @@ export class CodeTypeEmitter<TOptions extends object = Record<string, never>> ex
     return builder.reduce();
   }
 
+  /** Join emitted enum members with commas in map iteration order, preserving deferred values. */
   enumMembers(en: Enum): EmitterOutput<string> {
     const builder = new StringBuilder();
     let i = 0;
@@ -862,6 +998,7 @@ export class CodeTypeEmitter<TOptions extends object = Record<string, never>> ex
     return builder.reduce();
   }
 
+  /** Join emitted union variants with commas in map iteration order, preserving deferred values. */
   unionVariants(union: Union): EmitterOutput<string> {
     const builder = new StringBuilder();
     let i = 0;
@@ -872,6 +1009,7 @@ export class CodeTypeEmitter<TOptions extends object = Record<string, never>> ex
     return builder.reduce();
   }
 
+  /** Join references to tuple values with commas in positional order, preserving deferred values. */
   tupleLiteralValues(tuple: Tuple): EmitterOutput<string> {
     const builder = new StringBuilder();
     let i = 0;
@@ -882,6 +1020,10 @@ export class CodeTypeEmitter<TOptions extends object = Record<string, never>> ex
     return builder.reduce();
   }
 
+  /**
+   * Qualify the declaration name with the names in `pathDown`, separated by dots.
+   * Does not use `pathUp` or emit imports; override for other qualification rules.
+   */
   reference(
     targetDeclaration: Declaration<string>,
     pathUp: Scope<string>[],

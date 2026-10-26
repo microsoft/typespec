@@ -17,6 +17,7 @@ import com.azure.core.exception.ClientAuthenticationException;
 import com.azure.core.exception.HttpResponseException;
 import com.azure.core.exception.ResourceModifiedException;
 import com.azure.core.exception.ResourceNotFoundException;
+import com.azure.core.http.HttpHeaderName;
 import com.azure.core.http.rest.PagedFlux;
 import com.azure.core.http.rest.PagedIterable;
 import com.azure.core.http.rest.PagedResponse;
@@ -27,6 +28,7 @@ import com.azure.core.http.rest.RestProxy;
 import com.azure.core.util.BinaryData;
 import com.azure.core.util.Context;
 import com.azure.core.util.FluxUtil;
+import com.azure.core.util.UrlBuilder;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -215,7 +217,7 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
             .withContext(
                 context -> service.requestQueryResponseBody(this.client.getEndpoint(), accept, requestOptions, context))
             .map(res -> new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
-                getValues(res.getValue(), "pets"), null, null));
+                getValues(res.getValue(), "pets"), getNextLink(res.getValue(), "nextToken"), null));
     }
 
     /**
@@ -255,7 +257,35 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedFlux<BinaryData> requestQueryResponseBodyAsync(RequestOptions requestOptions) {
-        return new PagedFlux<>(() -> requestQueryResponseBodySinglePageAsync(requestOptions));
+        return requestQueryResponseBodyAsync(null, requestOptions);
+    }
+
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedFlux<BinaryData> requestQueryResponseBodyAsync(String initialContinuationToken,
+        RequestOptions requestOptions) {
+        return new PagedFlux<>(() -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> {
+                UrlBuilder urlBuilder = UrlBuilder.parse(requestLocal.getUrl());
+                urlBuilder.setQueryParameter("token", null);
+                requestLocal.setUrl(urlBuilder.toString());
+            });
+            if (initialContinuationToken != null) {
+                requestOptionsLocal.addQueryParam("token", initialContinuationToken, false);
+            }
+            return requestQueryResponseBodySinglePageAsync(requestOptionsLocal);
+        }, (token) -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> {
+                UrlBuilder urlBuilder = UrlBuilder.parse(requestLocal.getUrl());
+                urlBuilder.setQueryParameter("token", null);
+                requestLocal.setUrl(urlBuilder.toString());
+            });
+            if (token != null) {
+                requestOptionsLocal.addQueryParam("token", token, false);
+            }
+            return requestQueryResponseBodySinglePageAsync(requestOptionsLocal);
+        });
     }
 
     /**
@@ -299,7 +329,7 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
         Response<BinaryData> res
             = service.requestQueryResponseBodySync(this.client.getEndpoint(), accept, requestOptions, Context.NONE);
         return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
-            getValues(res.getValue(), "pets"), null, null);
+            getValues(res.getValue(), "pets"), getNextLink(res.getValue(), "nextToken"), null);
     }
 
     /**
@@ -339,7 +369,35 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<BinaryData> requestQueryResponseBody(RequestOptions requestOptions) {
-        return new PagedIterable<>(() -> requestQueryResponseBodySinglePage(requestOptions));
+        return requestQueryResponseBody(null, requestOptions);
+    }
+
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<BinaryData> requestQueryResponseBody(String initialContinuationToken,
+        RequestOptions requestOptions) {
+        return new PagedIterable<>(() -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> {
+                UrlBuilder urlBuilder = UrlBuilder.parse(requestLocal.getUrl());
+                urlBuilder.setQueryParameter("token", null);
+                requestLocal.setUrl(urlBuilder.toString());
+            });
+            if (initialContinuationToken != null) {
+                requestOptionsLocal.addQueryParam("token", initialContinuationToken, false);
+            }
+            return requestQueryResponseBodySinglePage(requestOptionsLocal);
+        }, (token) -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> {
+                UrlBuilder urlBuilder = UrlBuilder.parse(requestLocal.getUrl());
+                urlBuilder.setQueryParameter("token", null);
+                requestLocal.setUrl(urlBuilder.toString());
+            });
+            if (token != null) {
+                requestOptionsLocal.addQueryParam("token", token, false);
+            }
+            return requestQueryResponseBodySinglePage(requestOptionsLocal);
+        });
     }
 
     /**
@@ -383,7 +441,7 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
         return FluxUtil.withContext(
             context -> service.requestHeaderResponseBody(this.client.getEndpoint(), accept, requestOptions, context))
             .map(res -> new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
-                getValues(res.getValue(), "pets"), null, null));
+                getValues(res.getValue(), "pets"), getNextLink(res.getValue(), "nextToken"), null));
     }
 
     /**
@@ -423,7 +481,27 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedFlux<BinaryData> requestHeaderResponseBodyAsync(RequestOptions requestOptions) {
-        return new PagedFlux<>(() -> requestHeaderResponseBodySinglePageAsync(requestOptions));
+        return requestHeaderResponseBodyAsync(null, requestOptions);
+    }
+
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedFlux<BinaryData> requestHeaderResponseBodyAsync(String initialContinuationToken,
+        RequestOptions requestOptions) {
+        return new PagedFlux<>(() -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> requestLocal.getHeaders().remove("token"));
+            if (initialContinuationToken != null) {
+                requestOptionsLocal.setHeader("token", initialContinuationToken);
+            }
+            return requestHeaderResponseBodySinglePageAsync(requestOptionsLocal);
+        }, (token) -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> requestLocal.getHeaders().remove("token"));
+            if (token != null) {
+                requestOptionsLocal.setHeader("token", token);
+            }
+            return requestHeaderResponseBodySinglePageAsync(requestOptionsLocal);
+        });
     }
 
     /**
@@ -467,7 +545,7 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
         Response<BinaryData> res
             = service.requestHeaderResponseBodySync(this.client.getEndpoint(), accept, requestOptions, Context.NONE);
         return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
-            getValues(res.getValue(), "pets"), null, null);
+            getValues(res.getValue(), "pets"), getNextLink(res.getValue(), "nextToken"), null);
     }
 
     /**
@@ -507,7 +585,27 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<BinaryData> requestHeaderResponseBody(RequestOptions requestOptions) {
-        return new PagedIterable<>(() -> requestHeaderResponseBodySinglePage(requestOptions));
+        return requestHeaderResponseBody(null, requestOptions);
+    }
+
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<BinaryData> requestHeaderResponseBody(String initialContinuationToken,
+        RequestOptions requestOptions) {
+        return new PagedIterable<>(() -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> requestLocal.getHeaders().remove("token"));
+            if (initialContinuationToken != null) {
+                requestOptionsLocal.setHeader("token", initialContinuationToken);
+            }
+            return requestHeaderResponseBodySinglePage(requestOptionsLocal);
+        }, (token) -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> requestLocal.getHeaders().remove("token"));
+            if (token != null) {
+                requestOptionsLocal.setHeader("token", token);
+            }
+            return requestHeaderResponseBodySinglePage(requestOptionsLocal);
+        });
     }
 
     /**
@@ -551,7 +649,8 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
         return FluxUtil.withContext(
             context -> service.requestQueryResponseHeader(this.client.getEndpoint(), accept, requestOptions, context))
             .map(res -> new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
-                getValues(res.getValue(), "pets"), null, null));
+                getValues(res.getValue(), "pets"), res.getHeaders().getValue(HttpHeaderName.fromString("next-token")),
+                null));
     }
 
     /**
@@ -591,7 +690,35 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedFlux<BinaryData> requestQueryResponseHeaderAsync(RequestOptions requestOptions) {
-        return new PagedFlux<>(() -> requestQueryResponseHeaderSinglePageAsync(requestOptions));
+        return requestQueryResponseHeaderAsync(null, requestOptions);
+    }
+
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedFlux<BinaryData> requestQueryResponseHeaderAsync(String initialContinuationToken,
+        RequestOptions requestOptions) {
+        return new PagedFlux<>(() -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> {
+                UrlBuilder urlBuilder = UrlBuilder.parse(requestLocal.getUrl());
+                urlBuilder.setQueryParameter("token", null);
+                requestLocal.setUrl(urlBuilder.toString());
+            });
+            if (initialContinuationToken != null) {
+                requestOptionsLocal.addQueryParam("token", initialContinuationToken, false);
+            }
+            return requestQueryResponseHeaderSinglePageAsync(requestOptionsLocal);
+        }, (token) -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> {
+                UrlBuilder urlBuilder = UrlBuilder.parse(requestLocal.getUrl());
+                urlBuilder.setQueryParameter("token", null);
+                requestLocal.setUrl(urlBuilder.toString());
+            });
+            if (token != null) {
+                requestOptionsLocal.addQueryParam("token", token, false);
+            }
+            return requestQueryResponseHeaderSinglePageAsync(requestOptionsLocal);
+        });
     }
 
     /**
@@ -635,7 +762,8 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
         Response<BinaryData> res
             = service.requestQueryResponseHeaderSync(this.client.getEndpoint(), accept, requestOptions, Context.NONE);
         return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
-            getValues(res.getValue(), "pets"), null, null);
+            getValues(res.getValue(), "pets"), res.getHeaders().getValue(HttpHeaderName.fromString("next-token")),
+            null);
     }
 
     /**
@@ -675,7 +803,35 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<BinaryData> requestQueryResponseHeader(RequestOptions requestOptions) {
-        return new PagedIterable<>(() -> requestQueryResponseHeaderSinglePage(requestOptions));
+        return requestQueryResponseHeader(null, requestOptions);
+    }
+
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<BinaryData> requestQueryResponseHeader(String initialContinuationToken,
+        RequestOptions requestOptions) {
+        return new PagedIterable<>(() -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> {
+                UrlBuilder urlBuilder = UrlBuilder.parse(requestLocal.getUrl());
+                urlBuilder.setQueryParameter("token", null);
+                requestLocal.setUrl(urlBuilder.toString());
+            });
+            if (initialContinuationToken != null) {
+                requestOptionsLocal.addQueryParam("token", initialContinuationToken, false);
+            }
+            return requestQueryResponseHeaderSinglePage(requestOptionsLocal);
+        }, (token) -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> {
+                UrlBuilder urlBuilder = UrlBuilder.parse(requestLocal.getUrl());
+                urlBuilder.setQueryParameter("token", null);
+                requestLocal.setUrl(urlBuilder.toString());
+            });
+            if (token != null) {
+                requestOptionsLocal.addQueryParam("token", token, false);
+            }
+            return requestQueryResponseHeaderSinglePage(requestOptionsLocal);
+        });
     }
 
     /**
@@ -719,7 +875,8 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
         return FluxUtil.withContext(
             context -> service.requestHeaderResponseHeader(this.client.getEndpoint(), accept, requestOptions, context))
             .map(res -> new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
-                getValues(res.getValue(), "pets"), null, null));
+                getValues(res.getValue(), "pets"), res.getHeaders().getValue(HttpHeaderName.fromString("next-token")),
+                null));
     }
 
     /**
@@ -759,7 +916,27 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedFlux<BinaryData> requestHeaderResponseHeaderAsync(RequestOptions requestOptions) {
-        return new PagedFlux<>(() -> requestHeaderResponseHeaderSinglePageAsync(requestOptions));
+        return requestHeaderResponseHeaderAsync(null, requestOptions);
+    }
+
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedFlux<BinaryData> requestHeaderResponseHeaderAsync(String initialContinuationToken,
+        RequestOptions requestOptions) {
+        return new PagedFlux<>(() -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> requestLocal.getHeaders().remove("token"));
+            if (initialContinuationToken != null) {
+                requestOptionsLocal.setHeader("token", initialContinuationToken);
+            }
+            return requestHeaderResponseHeaderSinglePageAsync(requestOptionsLocal);
+        }, (token) -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> requestLocal.getHeaders().remove("token"));
+            if (token != null) {
+                requestOptionsLocal.setHeader("token", token);
+            }
+            return requestHeaderResponseHeaderSinglePageAsync(requestOptionsLocal);
+        });
     }
 
     /**
@@ -803,7 +980,8 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
         Response<BinaryData> res
             = service.requestHeaderResponseHeaderSync(this.client.getEndpoint(), accept, requestOptions, Context.NONE);
         return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
-            getValues(res.getValue(), "pets"), null, null);
+            getValues(res.getValue(), "pets"), res.getHeaders().getValue(HttpHeaderName.fromString("next-token")),
+            null);
     }
 
     /**
@@ -843,7 +1021,27 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<BinaryData> requestHeaderResponseHeader(RequestOptions requestOptions) {
-        return new PagedIterable<>(() -> requestHeaderResponseHeaderSinglePage(requestOptions));
+        return requestHeaderResponseHeader(null, requestOptions);
+    }
+
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<BinaryData> requestHeaderResponseHeader(String initialContinuationToken,
+        RequestOptions requestOptions) {
+        return new PagedIterable<>(() -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> requestLocal.getHeaders().remove("token"));
+            if (initialContinuationToken != null) {
+                requestOptionsLocal.setHeader("token", initialContinuationToken);
+            }
+            return requestHeaderResponseHeaderSinglePage(requestOptionsLocal);
+        }, (token) -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> requestLocal.getHeaders().remove("token"));
+            if (token != null) {
+                requestOptionsLocal.setHeader("token", token);
+            }
+            return requestHeaderResponseHeaderSinglePage(requestOptionsLocal);
+        });
     }
 
     /**
@@ -889,7 +1087,8 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
             .withContext(context -> service.requestQueryNestedResponseBody(this.client.getEndpoint(), accept,
                 requestOptions, context))
             .map(res -> new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
-                getValues(res.getValue(), "nestedItems", "pets"), null, null));
+                getValues(res.getValue(), "nestedItems", "pets"),
+                getNextLink(res.getValue(), "nestedNext", "nextToken"), null));
     }
 
     /**
@@ -929,7 +1128,35 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedFlux<BinaryData> requestQueryNestedResponseBodyAsync(RequestOptions requestOptions) {
-        return new PagedFlux<>(() -> requestQueryNestedResponseBodySinglePageAsync(requestOptions));
+        return requestQueryNestedResponseBodyAsync(null, requestOptions);
+    }
+
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedFlux<BinaryData> requestQueryNestedResponseBodyAsync(String initialContinuationToken,
+        RequestOptions requestOptions) {
+        return new PagedFlux<>(() -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> {
+                UrlBuilder urlBuilder = UrlBuilder.parse(requestLocal.getUrl());
+                urlBuilder.setQueryParameter("token", null);
+                requestLocal.setUrl(urlBuilder.toString());
+            });
+            if (initialContinuationToken != null) {
+                requestOptionsLocal.addQueryParam("token", initialContinuationToken, false);
+            }
+            return requestQueryNestedResponseBodySinglePageAsync(requestOptionsLocal);
+        }, (token) -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> {
+                UrlBuilder urlBuilder = UrlBuilder.parse(requestLocal.getUrl());
+                urlBuilder.setQueryParameter("token", null);
+                requestLocal.setUrl(urlBuilder.toString());
+            });
+            if (token != null) {
+                requestOptionsLocal.addQueryParam("token", token, false);
+            }
+            return requestQueryNestedResponseBodySinglePageAsync(requestOptionsLocal);
+        });
     }
 
     /**
@@ -973,7 +1200,8 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
         Response<BinaryData> res = service.requestQueryNestedResponseBodySync(this.client.getEndpoint(), accept,
             requestOptions, Context.NONE);
         return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
-            getValues(res.getValue(), "nestedItems", "pets"), null, null);
+            getValues(res.getValue(), "nestedItems", "pets"), getNextLink(res.getValue(), "nestedNext", "nextToken"),
+            null);
     }
 
     /**
@@ -1013,7 +1241,35 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<BinaryData> requestQueryNestedResponseBody(RequestOptions requestOptions) {
-        return new PagedIterable<>(() -> requestQueryNestedResponseBodySinglePage(requestOptions));
+        return requestQueryNestedResponseBody(null, requestOptions);
+    }
+
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<BinaryData> requestQueryNestedResponseBody(String initialContinuationToken,
+        RequestOptions requestOptions) {
+        return new PagedIterable<>(() -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> {
+                UrlBuilder urlBuilder = UrlBuilder.parse(requestLocal.getUrl());
+                urlBuilder.setQueryParameter("token", null);
+                requestLocal.setUrl(urlBuilder.toString());
+            });
+            if (initialContinuationToken != null) {
+                requestOptionsLocal.addQueryParam("token", initialContinuationToken, false);
+            }
+            return requestQueryNestedResponseBodySinglePage(requestOptionsLocal);
+        }, (token) -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> {
+                UrlBuilder urlBuilder = UrlBuilder.parse(requestLocal.getUrl());
+                urlBuilder.setQueryParameter("token", null);
+                requestLocal.setUrl(urlBuilder.toString());
+            });
+            if (token != null) {
+                requestOptionsLocal.addQueryParam("token", token, false);
+            }
+            return requestQueryNestedResponseBodySinglePage(requestOptionsLocal);
+        });
     }
 
     /**
@@ -1059,7 +1315,8 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
             .withContext(context -> service.requestHeaderNestedResponseBody(this.client.getEndpoint(), accept,
                 requestOptions, context))
             .map(res -> new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
-                getValues(res.getValue(), "nestedItems", "pets"), null, null));
+                getValues(res.getValue(), "nestedItems", "pets"),
+                getNextLink(res.getValue(), "nestedNext", "nextToken"), null));
     }
 
     /**
@@ -1099,7 +1356,27 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedFlux<BinaryData> requestHeaderNestedResponseBodyAsync(RequestOptions requestOptions) {
-        return new PagedFlux<>(() -> requestHeaderNestedResponseBodySinglePageAsync(requestOptions));
+        return requestHeaderNestedResponseBodyAsync(null, requestOptions);
+    }
+
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedFlux<BinaryData> requestHeaderNestedResponseBodyAsync(String initialContinuationToken,
+        RequestOptions requestOptions) {
+        return new PagedFlux<>(() -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> requestLocal.getHeaders().remove("token"));
+            if (initialContinuationToken != null) {
+                requestOptionsLocal.setHeader("token", initialContinuationToken);
+            }
+            return requestHeaderNestedResponseBodySinglePageAsync(requestOptionsLocal);
+        }, (token) -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> requestLocal.getHeaders().remove("token"));
+            if (token != null) {
+                requestOptionsLocal.setHeader("token", token);
+            }
+            return requestHeaderNestedResponseBodySinglePageAsync(requestOptionsLocal);
+        });
     }
 
     /**
@@ -1143,7 +1420,8 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
         Response<BinaryData> res = service.requestHeaderNestedResponseBodySync(this.client.getEndpoint(), accept,
             requestOptions, Context.NONE);
         return new PagedResponseBase<>(res.getRequest(), res.getStatusCode(), res.getHeaders(),
-            getValues(res.getValue(), "nestedItems", "pets"), null, null);
+            getValues(res.getValue(), "nestedItems", "pets"), getNextLink(res.getValue(), "nestedNext", "nextToken"),
+            null);
     }
 
     /**
@@ -1183,7 +1461,27 @@ public final class ServerDrivenPaginationContinuationTokensImpl {
      */
     @ServiceMethod(returns = ReturnType.COLLECTION)
     public PagedIterable<BinaryData> requestHeaderNestedResponseBody(RequestOptions requestOptions) {
-        return new PagedIterable<>(() -> requestHeaderNestedResponseBodySinglePage(requestOptions));
+        return requestHeaderNestedResponseBody(null, requestOptions);
+    }
+
+    @ServiceMethod(returns = ReturnType.COLLECTION)
+    public PagedIterable<BinaryData> requestHeaderNestedResponseBody(String initialContinuationToken,
+        RequestOptions requestOptions) {
+        return new PagedIterable<>(() -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> requestLocal.getHeaders().remove("token"));
+            if (initialContinuationToken != null) {
+                requestOptionsLocal.setHeader("token", initialContinuationToken);
+            }
+            return requestHeaderNestedResponseBodySinglePage(requestOptionsLocal);
+        }, (token) -> {
+            RequestOptions requestOptionsLocal = requestOptions == null ? new RequestOptions() : requestOptions;
+            requestOptionsLocal.addRequestCallback(requestLocal -> requestLocal.getHeaders().remove("token"));
+            if (token != null) {
+                requestOptionsLocal.setHeader("token", token);
+            }
+            return requestHeaderNestedResponseBodySinglePage(requestOptionsLocal);
+        });
     }
 
     private List<BinaryData> getValues(BinaryData binaryData, String... path) {

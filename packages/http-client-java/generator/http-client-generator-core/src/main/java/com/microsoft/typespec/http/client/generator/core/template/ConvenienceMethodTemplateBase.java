@@ -376,11 +376,17 @@ abstract class ConvenienceMethodTemplateBase {
             && protocolMethod.getProxyMethod() != null
             && "application/merge-patch+json".equalsIgnoreCase(protocolMethod.getProxyMethod().getRequestContentType());
         Map<String, String> parameterExpressionsMap = new LinkedHashMap<>();
+        boolean hasInitialContinuationToken = needsInitialContinuationToken(protocolMethod);
+        String initialTokenExpression = "null";
         for (Map.Entry<MethodParameter, MethodParameter> entry : parametersMap.entrySet()) {
             MethodParameter parameter = entry.getKey();
             MethodParameter protocolParameter = entry.getValue();
 
-            if (parameter.getProxyMethodParameter() != null
+            if (hasInitialContinuationToken
+                && ClientMethodTemplateBase.isContinuationTokenParameter(protocolMethod,
+                    parameter.getProxyMethodParameter())) {
+                initialTokenExpression = parameter.getName();
+            } else if (parameter.getProxyMethodParameter() != null
                 && parameter.getProxyMethodParameter().getOrigin() == ParameterSynthesizedOrigin.CONTEXT) {
                 // Context
                 methodBlock.line(String.format("requestOptions.setContext(%s);", parameter.getName()));
@@ -430,27 +436,35 @@ abstract class ConvenienceMethodTemplateBase {
         }
 
         // invocation with protocol method parameters and RequestOptions
-        String invocationExpression = protocolMethod.getMethodInputParameters().stream().map(p -> {
-            String parameterName = p.getName();
-            String expression = parameterExpressionsMap.get(parameterName);
-            IType parameterRawType = p.getRawType();
-            if (isJsonMergePatchOperation
-                && ClientModelUtil.isClientModel(parameterRawType)
-                && RequestParameterLocation.BODY.equals(p.getRequestParameterLocation())
-                && ClientModelUtil.isJsonMergePatchModel(
-                    ClientModelUtil.getClientModel(((ClassType) parameterRawType).getName()),
-                    JavaSettings.getInstance())) {
-                ClientModel clientModel = ClientModelUtil.getClientModel(((ClassType) parameterRawType).getName());
-                // If it is polymorphic model, we need to enable json merge patch through root parent model
-                ClientModel rootParentModel = ClientModelUtil.getRootParent(clientModel);
-                IType rootParentModelType = rootParentModel.getType();
+        String invocationExpression = protocolMethod.getMethodInputParameters()
+            .stream()
+            .filter(p -> !protocolMethod.isPageStreamingType()
+                || !protocolMethod.getMethodPageDetails().shouldHideParameter(p))
+            .map(p -> {
+                String parameterName = p.getName();
+                String expression = parameterExpressionsMap.get(parameterName);
+                IType parameterRawType = p.getRawType();
+                if (isJsonMergePatchOperation
+                    && ClientModelUtil.isClientModel(parameterRawType)
+                    && RequestParameterLocation.BODY.equals(p.getRequestParameterLocation())
+                    && ClientModelUtil.isJsonMergePatchModel(
+                        ClientModelUtil.getClientModel(((ClassType) parameterRawType).getName()),
+                        JavaSettings.getInstance())) {
+                    ClientModel clientModel = ClientModelUtil.getClientModel(((ClassType) parameterRawType).getName());
+                    // If it is polymorphic model, we need to enable json merge patch through root parent model
+                    ClientModel rootParentModel = ClientModelUtil.getRootParent(clientModel);
+                    IType rootParentModelType = rootParentModel.getType();
 
-                return writeParameterConversionExpressionWithJsonMergePatchEnabled(methodBlock,
-                    rootParentModelType.toString(), parameterName, expression);
-            } else {
-                return expression == null ? parameterName : expression;
-            }
-        }).collect(Collectors.joining(", "));
+                    return writeParameterConversionExpressionWithJsonMergePatchEnabled(methodBlock,
+                        rootParentModelType.toString(), parameterName, expression);
+                } else {
+                    return expression == null ? parameterName : expression;
+                }
+            })
+            .collect(Collectors.joining(", "));
+        if (hasInitialContinuationToken) {
+            invocationExpression = initialTokenExpression + ", " + invocationExpression;
+        }
 
         // write the invocation of protocol method, and related type conversion
         writeInvocationAndConversion(convenienceMethod, protocolMethod, invocationExpression, methodBlock,
@@ -731,6 +745,18 @@ abstract class ConvenienceMethodTemplateBase {
         } else {
             return method.getName();
         }
+    }
+
+    protected String getProtocolMethodInvocationName(ClientMethod method) {
+        return needsInitialContinuationToken(method) ? "serviceClient." + method.getName() : getMethodName(method);
+    }
+
+    private static boolean needsInitialContinuationToken(ClientMethod method) {
+        return JavaSettings.getInstance().isAzureV1()
+            && JavaSettings.getInstance().isDataPlaneClient()
+            && method.isPageStreamingType()
+            && method.getMethodPageDetails().getContinuationToken() != null
+            && method.getMethodPageDetails().getContinuationToken().getClientMethodParameter() == null;
     }
 
     /**
@@ -1062,7 +1088,9 @@ abstract class ConvenienceMethodTemplateBase {
                     if (property.getWireType() instanceof PrimitiveType) {
                         stringExpression = String.format("String.valueOf(%s)", stringExpression);
                     } else if (property.getWireType() != ClassType.STRING) {
-                        stringExpression = String.format("Objects.toString(%s)", stringExpression);
+                        stringExpression = String.format(
+                            property.isRequired() ? "Objects.toString(%s)" : "Objects.toString(%s, null)",
+                            stringExpression);
                     }
                     builder.append(String.format(".serializeTextField(%1$s, %2$s)",
                         ClassType.STRING.defaultValueExpression(property.getSerializedName()), stringExpression));

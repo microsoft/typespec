@@ -54,9 +54,20 @@ public class ModelPropertyMapper implements IMapper<Property, ClientModelPropert
                 .required(property.isRequired())
                 .readOnly(property.isReadOnly());
 
+        List<ClientModelProperty.Mutability> mutabilities = null;
+        if (property.getExtensions() != null && property.getExtensions().getXmsMutability() != null) {
+            mutabilities = property.getExtensions()
+                .getXmsMutability()
+                .stream()
+                .map(m -> ClientModelProperty.Mutability.valueOf(m.toUpperCase(Locale.ROOT)))
+                .collect(Collectors.toList());
+            builder.mutabilities(mutabilities);
+        }
+
         if (mutableAsOptional && !property.isReadOnly() && !property.isIsDiscriminator()) {
             builder.required(false);
-            builder.requiredForCreate(property.isRequired());
+            builder.requiredForCreate(property.isRequired()
+                && (mutabilities == null || mutabilities.contains(ClientModelProperty.Mutability.CREATE)));
         }
 
         String description;
@@ -225,17 +236,6 @@ public class ModelPropertyMapper implements IMapper<Property, ClientModelPropert
             builder.constant(property.isRequired());
             builder.defaultValue(
                 objValue == null ? null : propertyClientType.defaultValueExpression(String.valueOf(objValue)));
-        }
-
-        // x-ms-mutability
-        if (property.getExtensions() != null) {
-            List<String> xmsMutability = property.getExtensions().getXmsMutability();
-            if (xmsMutability != null) {
-                List<ClientModelProperty.Mutability> mutabilities = xmsMutability.stream()
-                    .map(m -> ClientModelProperty.Mutability.valueOf(m.toUpperCase(Locale.ROOT)))
-                    .collect(Collectors.toList());
-                builder.mutabilities(mutabilities);
-            }
         }
 
         // handle x-ms-client-default for primitive type, enum, boxed type and string

@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
@@ -127,7 +128,7 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             foreach (var previousMethod in LastContractView.Methods)
             {
-                if (!MethodSignatureHelper.IsPublicApi(previousMethod.Signature.Modifiers))
+                if (!MethodSignatureHelper.IsPublicApi(previousMethod.Signature))
                 {
                     continue;
                 }
@@ -141,6 +142,15 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 if (matchingCurrentMethod is not null)
                 {
                     bool isGeneratedMethod = factoryMethods.Any(method => ReferenceEquals(method, matchingCurrentMethod));
+                    // A visitor may have restored an all-required hidden compatibility shim
+                    // before this pass. Treat it like a shim synthesized below: do not reapply
+                    // published defaults or let it constrain the current overload's optionality.
+                    // Optional hidden methods and custom overloads still follow the normal path.
+                    if (isGeneratedMethod && IsRequiredHiddenCompatibilityMethod(matchingCurrentMethod.Signature))
+                    {
+                        continue;
+                    }
+
                     if (isGeneratedMethod)
                     {
                         for (int i = 0; i < previousMethod.Signature.Parameters.Count; i++)
@@ -362,6 +372,43 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
             }
             return [.. factoryMethods];
+        }
+
+        private static bool IsRequiredHiddenCompatibilityMethod(MethodSignature signature)
+        {
+            if (signature.Parameters.Any(parameter => parameter.DefaultValue is not null || parameter.IsParams))
+            {
+                return false;
+            }
+
+            return signature.Attributes.Any(IsEditorBrowsableNeverAttribute);
+        }
+
+        private static bool IsEditorBrowsableNeverAttribute(AttributeStatement attribute)
+        {
+            if (!attribute.Type.Equals(typeof(EditorBrowsableAttribute)) || attribute.Arguments.Count != 1)
+            {
+                return false;
+            }
+
+            return IsEditorBrowsableNeverState(attribute.Arguments[0]);
+        }
+
+        private static bool IsEditorBrowsableNeverState(ValueExpression expression)
+        {
+            if (expression is ScopedApi scoped)
+            {
+                expression = scoped.Original;
+            }
+
+            return expression switch
+            {
+                MemberExpression { Inner: TypeReferenceExpression { Type: { } type }, MemberName: nameof(EditorBrowsableState.Never) }
+                    => type.Equals(typeof(EditorBrowsableState)),
+                LiteralExpression { Literal: int state } => state == (int)EditorBrowsableState.Never,
+                LiteralExpression { Literal: EditorBrowsableState state } => state == EditorBrowsableState.Never,
+                _ => false,
+            };
         }
 
         private IReadOnlyList<MethodSignature> GetCurrentOverloadSignatures(
@@ -752,6 +799,12 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 : null;
         }
 
+        /// <summary>
+        /// Selects the serialization constructor and its additional-data parameter for the model factory.
+        /// Handwritten constructor parameters lack generated property metadata, so matching discriminator
+        /// parameters recover that link by name, type, and passing modifiers. This lets known variants
+        /// keep their fixed discriminator while unknown variants expose the caller's value.
+        /// </summary>
         private static (ParameterProvider? BinaryDataParam, ConstructorProvider FullCtor) GetBinaryDataParamAndFullCtorForFactoryMethod(
             ModelProvider modelProvider)
         {
@@ -769,6 +822,25 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     if (constructor.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Internal)
                         && customCtorParamCount >= fullCtorParamCount)
                     {
+                        foreach (var parameter in constructor.Signature.Parameters)
+                        {
+                            if (parameter.Property is null && parameter.Field is null)
+                            {
+                                var generatedParameter = fullConstructor.Signature.Parameters.FirstOrDefault(candidate =>
+                                    candidate.Name == parameter.Name &&
+                                    candidate.Type.Namespace == parameter.Type.Namespace &&
+                                    candidate.IsRef == parameter.IsRef &&
+                                    candidate.IsOut == parameter.IsOut &&
+                                    candidate.IsIn == parameter.IsIn &&
+                                    candidate.IsParams == parameter.IsParams &&
+                                    candidate.Type.AreNamesEqual(parameter.Type));
+                                if (generatedParameter?.Property is { IsDiscriminator: true } property)
+                                {
+                                    parameter.Update(property: property);
+                                }
+                            }
+                        }
+
                         binaryDataParam = constructor.Signature.Parameters
                             .FirstOrDefault(p => p?.Type.Equals(typeof(IDictionary<string, BinaryData>)) == true, binaryDataParam);
 
@@ -814,7 +886,9 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 }
 
                 // skip discriminator parameters if the model has a discriminator value as those shouldn't be exposed in the factory methods
-                if (param.Property?.IsDiscriminator == true && modelProvider.DiscriminatorValue != null)
+                if (param.Property?.IsDiscriminator == true &&
+                    modelProvider.DiscriminatorValue != null &&
+                    !modelProvider.IsUnknownDiscriminatorModel)
                 {
                     continue;
                 }
@@ -836,7 +910,10 @@ namespace Microsoft.TypeSpec.Generator.Providers
                 parameter.Name,
                 parameter.Description,
                 // in order to avoid exposing discriminator enums as public, we will use the underlying types in the model factory methods
-                IsEnumDiscriminator(parameter) ? parameter.Type.UnderlyingEnumType : parameter.Type.InputType,
+                // Resolve generated types referenced by custom constructors before converting to the input collection shape.
+                IsEnumDiscriminator(parameter)
+                    ? parameter.Type.UnderlyingEnumType
+                    : parameter.Type.ApplyInputSpecProperty(null).InputType,
                 Default,
                 parameter.IsRef,
                 parameter.IsOut,

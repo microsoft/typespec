@@ -107,10 +107,12 @@ export function createTypeSpecLibrary<
   }
 }
 
+/** Type-check compiler-recognized library package flags and return the supplied object unchanged. */
 export function definePackageFlags(flags: PackageFlags): PackageFlags {
   return flags;
 }
 
+/** Type-check a library's linter definition and return it unchanged for export as `$linter`. */
 export function defineLinter(def: LinterDefinition): LinterDefinition {
   return def;
 }

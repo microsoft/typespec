@@ -1,20 +1,30 @@
 import { code, type Children } from "@alloy-js/core";
 import * as py from "@alloy-js/python";
 
+/** Pydantic validation phases: before/after built-in validation, a replacement, or a wrapping callback. */
 export type PydanticValidationMode = "before" | "after" | "plain" | "wrap";
 
+/** Optional keywords emitted by {@link fieldValidatorDecorator}; absent values are not emitted. */
 export interface PydanticFieldValidatorOptions {
+  /** Validation phase passed as `mode`; omission leaves Pydantic's default in effect. */
   mode?: PydanticValidationMode;
+  /** Value for `check_fields`, which controls whether the named fields must exist on the model. */
   checkFields?: boolean;
 }
 
+/** Keywords for a model-wide validator; plain replacement validation is not available here. */
 export interface PydanticModelValidatorOptions {
+  /** Validation phase emitted as `mode`; no mode keyword is generated when omitted. */
   mode?: Exclude<PydanticValidationMode, "plain">;
 }
 
+/** Optional keywords for a field serializer decorator; omitted keywords are left to Pydantic. */
 export interface PydanticFieldSerializerOptions {
+  /** Plain replacement serialization or wrapping the normal serializer. */
   mode?: "plain" | "wrap";
+  /** Raw Python type expression emitted as `return_type`, without string quoting. */
   returnType?: string;
+  /** Restricts when the serializer runs, such as only for JSON or only for non-None values. */
   whenUsed?: "always" | "unless-none" | "json" | "json-unless-none";
 }
 

@@ -29,4 +29,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+  <!-- Reuse the build-resolved analyzer for the in-memory compilation tests. -->
+  <Target Name="ReferenceModelReaderWriterSourceGenerator" BeforeTargets="ResolveAssemblyReferences" DependsOnTargets="ResolvePackageAssets">
+    <ItemGroup>
+      <Reference Include="@(Analyzer->WithMetadataValue('Filename', 'System.ClientModel.SourceGeneration'))">
+        <Private>true</Private>
+      </Reference>
+    </ItemGroup>
+  </Target>
 </Project>
