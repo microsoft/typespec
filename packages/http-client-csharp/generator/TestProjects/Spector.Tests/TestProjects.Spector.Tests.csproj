@@ -20,6 +20,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Microsoft.TypeSpec.Generator\test\common\Microsoft.TypeSpec.Generator.Tests.Common.csproj" />
     <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\azure\client-generator-core\response-as-bool\src\_Specs_.Azure.ClientGenerator.Core.ResponseAsBool.csproj" />
+    <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\azure\client-generator-core\response-replacement\src\_Specs_.Azure.ClientGenerator.Core.ResponseReplacement.csproj" />
     <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\type\array\src\Type.Array.csproj" />
     <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\type\enum\extensible\src\Type.Enum.Extensible.csproj" />
     <ProjectReference Include="$(RepoRoot)\TestProjects\Spector\http\type\enum\fixed\src\Type.Enum.Fixed.csproj" />

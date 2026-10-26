@@ -68,6 +68,10 @@ updates:
       scalar:
         patterns:
           - "@scalar/*"
+      security:
+        applies-to: security-updates
+        patterns:
+          - "*"
       testing:
         patterns:
           - vitest
@@ -130,6 +134,13 @@ updates:
       - dependency-name: "github/gh-aw-actions/**" # Managed by gh aw compile. Version-locked to the gh-aw compiler; do not bump.
     labels: []
     package-ecosystem: github-actions
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+  - directory: /packages/typespec-vs/src
+    labels: []
+    package-ecosystem: nuget
     schedule:
       interval: weekly
     cooldown:
