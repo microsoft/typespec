@@ -792,8 +792,9 @@ op internalProtocol(@body body: Thing): Thing;
 op stillConvenient(): void;
 
 @route("/headAsBoolean")
-@doc("head as boolean.")
+@doc("Check whether a resource exists: return true for success, false for 404, and throw for unexpected responses.")
 @head
+@responseAsBool
 @convenientAPI(true, "csharp")
 op headAsBoolean(@path id: string): void;
 

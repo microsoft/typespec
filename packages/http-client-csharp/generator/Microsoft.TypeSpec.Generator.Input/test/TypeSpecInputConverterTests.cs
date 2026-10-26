@@ -10,6 +10,34 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
 {
     public class TypeSpecInputConverterTests
     {
+        [TestCase(null, false)]
+        [TestCase(false, false)]
+        [TestCase(true, true)]
+        public void LoadsResponseAsBool(bool? responseAsBool, bool expected)
+        {
+            var json = $$"""
+                {
+                  "$id": "1",
+                  "name": "exists",
+                  {{(responseAsBool.HasValue ? $"\"responseAsBool\": {responseAsBool.Value.ToString().ToLowerInvariant()}," : "")}}
+                  "httpMethod": "HEAD",
+                  "uri": "https://example.com",
+                  "path": "/widgets",
+                  "crossLanguageDefinitionId": "Test.exists"
+                }
+                """;
+            var options = new JsonSerializerOptions
+            {
+                Converters = { new InputOperationConverter(new TypeSpecReferenceHandler()) }
+            };
+            var operation = JsonSerializer.Deserialize<InputOperation>(json, options);
+
+            Assert.IsNotNull(operation);
+            Assert.AreEqual(expected, operation!.ResponseAsBool);
+            operation.Update(responseAsBool: !expected);
+            Assert.AreEqual(!expected, operation.ResponseAsBool);
+        }
+
         [TestCase(false)]
         [TestCase(true)]
         public void LoadsOperationWithoutResourceName(bool includeLegacyResourceName)
