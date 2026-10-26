@@ -190,6 +190,46 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return method;
         }
 
+        internal static List<ParameterProvider> GetNextLinkRequestParameters(
+            InputServiceMethod serviceMethod,
+            List<ParameterProvider> parameters)
+        {
+            // For next link requests, filter parameters to only include reinjected ones
+            var pagingServiceMethod = serviceMethod as InputPagingServiceMethod;
+            var nextLink = pagingServiceMethod?.PagingMetadata.NextLink;
+            var reinjectedParamNames = new HashSet<string>(StringComparer.Ordinal);
+
+            // Add parameters from nextLink.ReInjectedParameters
+            if (nextLink?.ReInjectedParameters != null)
+            {
+                foreach (var param in nextLink.ReInjectedParameters)
+                {
+                    reinjectedParamNames.Add(param.Name);
+                }
+            }
+
+            var pageSizeParameterName = GetPageSizeParameterName(pagingServiceMethod);
+
+            // Only filter if there are reinjected parameters specified
+            if (reinjectedParamNames.Count > 0 || pageSizeParameterName != null)
+            {
+                parameters = parameters
+                    .Where(p =>
+                    {
+                        var name = p.InputParameter?.Name ?? p.Name;
+                        // Reinjected names must match exactly so that parameters differing only by casing are
+                        // not conflated. The page size name is matched case-insensitively because the operation
+                        // and method parameters intentionally differ in casing.
+                        return reinjectedParamNames.Contains(name) ||
+                            (pageSizeParameterName != null &&
+                                name.Equals(pageSizeParameterName, StringComparison.OrdinalIgnoreCase));
+                    })
+                    .ToList();
+            }
+
+            return [ScmKnownParameters.NextPage, .. parameters];
+        }
+
         private ScmMethodProvider BuildCreateRequestMethod(InputServiceMethod serviceMethod, bool isNextLinkRequest = false)
         {
             var options = ScmKnownParameters.CreateRequestOptions();
@@ -197,40 +237,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             if (isNextLinkRequest)
             {
-                // For next link requests, filter parameters to only include reinjected ones
-                var pagingServiceMethod = serviceMethod as InputPagingServiceMethod;
-                var nextLink = pagingServiceMethod?.PagingMetadata.NextLink;
-                var reinjectedParamNames = new HashSet<string>(StringComparer.Ordinal);
-
-                // Add parameters from nextLink.ReInjectedParameters
-                if (nextLink?.ReInjectedParameters != null)
-                {
-                    foreach (var param in nextLink.ReInjectedParameters)
-                    {
-                        reinjectedParamNames.Add(param.Name);
-                    }
-                }
-
-                var pageSizeParameterName = GetPageSizeParameterName(pagingServiceMethod);
-
-                // Only filter if there are reinjected parameters specified
-                if (reinjectedParamNames.Count > 0 || pageSizeParameterName != null)
-                {
-                    parameters = parameters
-                        .Where(p =>
-                        {
-                            var name = p.InputParameter?.Name ?? p.Name;
-                            // Reinjected names must match exactly so that parameters differing only by casing are
-                            // not conflated. The page size name is matched case-insensitively because the operation
-                            // and method parameters intentionally differ in casing.
-                            return reinjectedParamNames.Contains(name) ||
-                                (pageSizeParameterName != null &&
-                                    name.Equals(pageSizeParameterName, StringComparison.OrdinalIgnoreCase));
-                        })
-                        .ToList();
-                }
-
-                parameters = [ScmKnownParameters.NextPage, .. parameters];
+                parameters = GetNextLinkRequestParameters(serviceMethod, parameters);
             }
 
             var operationName = ClientProvider.GetRestOperationName(serviceMethod);

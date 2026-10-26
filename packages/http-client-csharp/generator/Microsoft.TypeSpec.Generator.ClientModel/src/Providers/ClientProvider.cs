@@ -317,12 +317,23 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 }
 
                 var otherRestName = (other.IsExactName ? otherInputName.ToIdentifierName() : NormalizeName(otherInputName)).ToIdentifierName();
-                if (otherRestName == normalizedName &&
-                    HasEquivalentParameterTypes(
-                        RestClientProvider.GetMethodParameters(serviceMethod, ScmMethodKind.CreateRequest, this, applyBackCompat: false),
-                        RestClientProvider.GetMethodParameters(other, ScmMethodKind.CreateRequest, this, applyBackCompat: false)))
+                if (otherRestName == normalizedName)
                 {
-                    return false;
+                    var candidateRestParameters = RestClientProvider.GetMethodParameters(serviceMethod, ScmMethodKind.CreateRequest, this, applyBackCompat: false);
+                    var otherRestParameters = RestClientProvider.GetMethodParameters(other, ScmMethodKind.CreateRequest, this, applyBackCompat: false);
+                    if (HasEquivalentParameterTypes(candidateRestParameters, otherRestParameters))
+                    {
+                        return false;
+                    }
+
+                    if (serviceMethod is InputPagingServiceMethod { PagingMetadata.NextLink: not null } &&
+                        other is InputPagingServiceMethod { PagingMetadata.NextLink: not null } &&
+                        HasEquivalentParameterTypes(
+                            RestClientProvider.GetNextLinkRequestParameters(serviceMethod, candidateRestParameters),
+                            RestClientProvider.GetNextLinkRequestParameters(other, otherRestParameters)))
+                    {
+                        return false;
+                    }
                 }
 
                 if (!checkPublicCollisions)

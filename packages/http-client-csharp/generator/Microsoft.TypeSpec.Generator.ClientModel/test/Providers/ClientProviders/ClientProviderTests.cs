@@ -2753,6 +2753,61 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                     .Where(name => name.StartsWith("Get", StringComparison.Ordinal)));
         }
 
+        [Test]
+        public void ListNormalizationPreservesNameWhenNextLinkRequestsCollide()
+        {
+            var resource = InputFactory.Model("Resource");
+            var page = InputFactory.Model("Page", properties:
+            [
+                InputFactory.Property("value", InputFactory.Array(resource)),
+                InputFactory.Property("nextLink", InputPrimitiveType.String)
+            ]);
+            InputServiceMethod CreateMethod(string name, InputType idType, out InputOperation operation)
+            {
+                operation = InputFactory.Operation(
+                    name,
+                    parameters:
+                    [
+                        InputFactory.QueryParameter("id", idType, isRequired: true),
+                        InputFactory.QueryParameter("maxPageSize", InputPrimitiveType.Int32, isRequired: false)
+                    ],
+                    responses: [InputFactory.OperationResponse([200], page)]);
+                return InputFactory.PagingServiceMethod(
+                    name,
+                    operation,
+                    parameters:
+                    [
+                        InputFactory.MethodParameter("id", idType, isRequired: true, location: InputRequestLocation.Query),
+                        InputFactory.MethodParameter("maxPageSize", InputPrimitiveType.Int32, isRequired: false, location: InputRequestLocation.Query)
+                    ],
+                    response: InputFactory.ServiceMethodResponse(page, null),
+                    pagingMetadata: new InputPagingServiceMetadata(
+                        ["value"],
+                        new InputNextLink(null, ["nextLink"], InputResponseLocation.Body, null),
+                        null,
+                        ["maxPageSize"]));
+            }
+
+            var getMethod = CreateMethod("GetWidgets", InputPrimitiveType.String, out var getOperation);
+            var listMethod = CreateMethod("ListWidgets", InputPrimitiveType.Int32, out var listOperation);
+            var inputClient = InputFactory.Client("TestClient", methods: [getMethod, listMethod]);
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient], inputModels: () => [resource, page]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+
+            Assert.AreEqual("GetWidgets", getMethod.Name);
+            Assert.AreEqual("ListWidgets", listMethod.Name);
+            Assert.AreEqual("CreateNextGetWidgetsRequest", client.RestClient.GetCreateNextLinkRequestMethod(getOperation).Signature.Name);
+            Assert.AreEqual("CreateNextListWidgetsRequest", client.RestClient.GetCreateNextLinkRequestMethod(listOperation).Signature.Name);
+
+            var syntax = CSharpSyntaxTree.ParseText(new TypeProviderWriter(client.RestClient).Write().Content).GetRoot();
+            var signatures = syntax.DescendantNodes().OfType<MethodDeclarationSyntax>()
+                .Select(method => (
+                    method.Identifier.ValueText,
+                    Parameters: string.Join(",", method.ParameterList.Parameters.Select(parameter => parameter.Type!.ToString()))))
+                .ToArray();
+            Assert.AreEqual(signatures.Length, signatures.Distinct().Count());
+        }
+
         private static IEnumerable<TestCaseData> ListNormalizationOverloadCases()
         {
             yield return new TestCaseData(InputPrimitiveType.String, null);
