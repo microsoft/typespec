@@ -2808,6 +2808,47 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.AreEqual(signatures.Length, signatures.Distinct().Count());
         }
 
+        [Test]
+        public void ListNormalizationPreservesNameWhenInitialAndNextLinkRequestsCollide()
+        {
+            var resource = InputFactory.Model("Resource");
+            var page = InputFactory.Model("Page", properties:
+            [
+                InputFactory.Property("value", InputFactory.Array(resource)),
+                InputFactory.Property("nextLink", InputPrimitiveType.Url)
+            ]);
+            var listOperation = InputFactory.Operation(
+                "ListWidgets",
+                responses: [InputFactory.OperationResponse([200], page)]);
+            var listMethod = InputFactory.PagingServiceMethod(
+                "ListWidgets",
+                listOperation,
+                response: InputFactory.ServiceMethodResponse(page, null),
+                pagingMetadata: InputFactory.NextLinkPagingMetadata(["value"], ["nextLink"], InputResponseLocation.Body));
+            var nextOperation = InputFactory.Operation(
+                "NextGetWidgets",
+                parameters: [InputFactory.PathParameter("nextPage", InputPrimitiveType.Url, isRequired: true)],
+                responses: [InputFactory.OperationResponse([200], resource)]);
+            var nextMethod = InputFactory.BasicServiceMethod(
+                "NextGetWidgets",
+                nextOperation,
+                parameters: [InputFactory.MethodParameter("nextPage", InputPrimitiveType.Url, isRequired: true, location: InputRequestLocation.Path)],
+                response: InputFactory.ServiceMethodResponse(resource, null));
+            var inputClient = InputFactory.Client("TestClient", methods: [listMethod, nextMethod]);
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient], inputModels: () => [resource, page]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+
+            Assert.AreEqual("ListWidgets", listMethod.Name);
+            var initialNextRequest = client.RestClient.GetCreateRequestMethod(nextOperation);
+            var listNextLinkRequest = client.RestClient.GetCreateNextLinkRequestMethod(listOperation);
+            Assert.AreEqual("CreateNextGetWidgetsRequest", initialNextRequest.Signature.Name);
+            Assert.AreEqual("CreateNextListWidgetsRequest", listNextLinkRequest.Signature.Name);
+            Assert.AreNotEqual(initialNextRequest.Signature.Name, listNextLinkRequest.Signature.Name);
+            CollectionAssert.AreEqual(
+                initialNextRequest.Signature.Parameters.Select(parameter => parameter.Type),
+                listNextLinkRequest.Signature.Parameters.Select(parameter => parameter.Type));
+        }
+
         [TestCase(true, "ListWidgets")]
         [TestCase(false, "GetWidgets")]
         public void ListNormalizationComparesFinalProtocolSignatures(bool collides, string expectedListName)

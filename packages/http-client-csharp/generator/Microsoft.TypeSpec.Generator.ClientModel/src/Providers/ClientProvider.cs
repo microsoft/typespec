@@ -316,21 +316,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     continue;
                 }
 
+                var candidateRestName = normalizedName.ToIdentifierName();
                 var otherRestName = (other.IsExactName ? otherInputName.ToIdentifierName() : NormalizeName(otherInputName)).ToIdentifierName();
-                if (otherRestName == normalizedName)
+                var candidateBuilderNames = GetRestRequestBuilderNames(serviceMethod, candidateRestName);
+                var otherBuilderNames = GetRestRequestBuilderNames(other, otherRestName);
+                if (candidateBuilderNames.Intersect(otherBuilderNames, StringComparer.Ordinal).Any())
                 {
                     var candidateRestParameters = RestClientProvider.GetMethodParameters(serviceMethod, ScmMethodKind.CreateRequest, this, applyBackCompat: false);
                     var otherRestParameters = RestClientProvider.GetMethodParameters(other, ScmMethodKind.CreateRequest, this, applyBackCompat: false);
-                    if (HasEquivalentParameterTypes(candidateRestParameters, otherRestParameters))
-                    {
-                        return false;
-                    }
-
-                    if (serviceMethod is InputPagingServiceMethod { PagingMetadata.NextLink: not null } &&
-                        other is InputPagingServiceMethod { PagingMetadata.NextLink: not null } &&
-                        HasEquivalentParameterTypes(
-                            RestClientProvider.GetNextLinkRequestParameters(serviceMethod, candidateRestParameters),
-                            RestClientProvider.GetNextLinkRequestParameters(other, otherRestParameters)))
+                    var candidateSignatures = GetRestRequestSignatures(serviceMethod, candidateRestName, candidateRestParameters);
+                    var otherSignatures = GetRestRequestSignatures(other, otherRestName, otherRestParameters);
+                    if (candidateSignatures.Any(candidate => otherSignatures.Any(otherSignature =>
+                        candidate.Name == otherSignature.Name &&
+                        HasEquivalentParameterTypes(candidate.Parameters, otherSignature.Parameters))))
                     {
                         return false;
                     }
@@ -373,6 +371,37 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             return true;
+        }
+
+        private static string[] GetRestRequestBuilderNames(InputServiceMethod serviceMethod, string operationName)
+        {
+            var names = new List<string> { $"Create{operationName}Request" };
+            if (serviceMethod is InputPagingServiceMethod { PagingMetadata.NextLink: not null })
+            {
+                names.Add($"CreateNext{operationName}Request");
+            }
+
+            return [.. names];
+        }
+
+        private static (string Name, List<ParameterProvider> Parameters)[] GetRestRequestSignatures(
+            InputServiceMethod serviceMethod,
+            string operationName,
+            List<ParameterProvider> parameters)
+        {
+            var requestOptions = ScmKnownParameters.CreateRequestOptions();
+            var signatures = new List<(string Name, List<ParameterProvider> Parameters)>
+            {
+                ($"Create{operationName}Request", [.. parameters, requestOptions])
+            };
+            if (serviceMethod is InputPagingServiceMethod { PagingMetadata.NextLink: not null })
+            {
+                signatures.Add((
+                    $"CreateNext{operationName}Request",
+                    [.. RestClientProvider.GetNextLinkRequestParameters(serviceMethod, parameters), requestOptions]));
+            }
+
+            return [.. signatures];
         }
 
         private bool HasEquivalentEmittedSignatures(InputServiceMethod first, InputServiceMethod second, ScmMethodKind kind)
