@@ -215,6 +215,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             ApplyExperimentalAttributes(methodSignature, customSignature, BuildConvenienceMethodAttributes() ?? []);
+            ApplyDeprecationAttribute(methodSignature, customSignature);
 
             // Recompute the response body type so we can branch the body accordingly.
             GetResponseType(ServiceMethod.Operation.Responses, true, isAsync, out var responseBodyType);
@@ -299,6 +300,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             var convenienceMethod = new ScmMethodProvider(methodSignature, methodBody, EnclosingType, ScmMethodKind.Convenience, collectionDefinition: collection, serviceMethod: ServiceMethod);
             ExperimentalApiHelpers.AddDependencySuppressions(convenienceMethod, ServiceMethod.Operation);
+            var customProtocol = client.CustomCodeView?.Methods.FirstOrDefault(method =>
+                MethodSignatureBase.SignatureComparer.Equals(method.Signature, protocolMethod.Signature));
+            var declarationSuppressions = ExperimentalApiHelpers.GetAttributeSuppressions(
+                methodSignature.Attributes.Concat(customSignature?.Attributes ?? []));
+            convenienceMethod.Update(suppressions: ExperimentalApiHelpers.MergeSuppressions(
+                convenienceMethod.Suppressions,
+                ExperimentalApiHelpers.GetAttributeSuppressions(
+                    protocolMethod.Signature.Attributes.Concat(customProtocol?.Signature.Attributes ?? []))
+                    .ExceptBy(declarationSuppressions.Select(suppression => suppression.Code.ToDisplayString()),
+                        suppression => suppression.Code.ToDisplayString())));
 
             if (convenienceMethod.XmlDocs != null)
             {
@@ -314,6 +325,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             MethodSignatureModifiers modifiers,
             IReadOnlyList<ParameterProvider> signatureParameters)
         {
+            modifiers &= ~MethodSignatureModifiers.Partial;
             // The convenience method's public/internal accessibility follows the service method's
             // accessibility, independent of the protocol method. The protocol method may be internal
             // (e.g. when `@protocolAPI(false)` sets GenerateProtocolMethod to false) while the
@@ -1158,14 +1170,20 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             MethodSignature? customSignature,
             IReadOnlyList<AttributeStatement> generatedAttributes)
         {
-            if (customSignature?.Attributes.Any(ExperimentalApiHelpers.IsExperimentalAttribute) == true)
-            {
-                // The defining partial declaration already carries the custom experiment.
-                signature.Update(attributes: [.. signature.Attributes.Where(a => !ExperimentalApiHelpers.IsExperimentalAttribute(a))]);
-            }
-            else if (generatedAttributes.Count > 0)
+            if (customSignature?.Attributes.Any(ExperimentalApiHelpers.IsExperimentalAttribute) != true
+                && generatedAttributes.Count > 0)
             {
                 signature.Update(attributes: [.. signature.Attributes, .. generatedAttributes]);
+            }
+        }
+
+        private void ApplyDeprecationAttribute(MethodSignature signature, MethodSignature? customSignature)
+        {
+            if (customSignature?.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute) != true
+                && !signature.Attributes.Any(DeprecationApiHelpers.IsObsoleteAttribute)
+                && DeprecationApiHelpers.BuildAttribute(ServiceMethod.Operation.Deprecated) is { } attribute)
+            {
+                signature.Update(attributes: [.. signature.Attributes, attribute]);
             }
         }
 
@@ -1512,6 +1530,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             }
 
             ApplyExperimentalAttributes(methodSignature, customSignature, ExperimentalApiHelpers.BuildAttributes(ServiceMethod.Operation.Experimental));
+            ApplyDeprecationAttribute(methodSignature, customSignature);
 
             TypeProvider? collection = null;
             MethodBodyStatement[] methodBody;
