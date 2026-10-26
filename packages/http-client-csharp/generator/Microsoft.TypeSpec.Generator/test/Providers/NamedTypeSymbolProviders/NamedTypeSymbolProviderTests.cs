@@ -494,6 +494,31 @@ namespace Microsoft.TypeSpec.Generator.Tests.Providers.NamedTypeSymbolProviders
             Assert.IsTrue(provider.SignatureDependencyTypes.Any(type => type.FullyQualifiedName == "Sample.Models.GeneratedModel"));
         }
 
+        [TestCase("RelativeClient", "Sample.TestClient.GetItemsCollectionResult")]
+        [TestCase("AbsoluteClient", "TestClient.GetItemsCollectionResult")]
+        [TestCase("ResolvedClient", "External.TestClient+GetItemsCollectionResult")]
+        [TestCase("ResolvedQualifierClient", "External.OtherClient.GetItemsCollectionResult")]
+        [TestCase("ParentScopeClient", "Sample.TestClient.GetItemsCollectionResult")]
+        public async Task QualifiedBodyDependenciesPreserveReferenceScope(string name, string expectedDependency)
+        {
+            var compilation = await Helpers.GetCompilationFromDirectoryAsync();
+            var ns = name == "ParentScopeClient" ? "Sample.Child" : "Sample";
+            var symbol = compilation.GetTypeByMetadataName($"{ns}.{name}");
+            Assert.IsNotNull(symbol);
+            var provider = new NamedTypeSymbolProvider(symbol!, compilation);
+            var dependencies = provider.BodyDependencyTypes
+                .Where(type => type.Name == "GetItemsCollectionResult")
+                .Select(type => $"{type.Namespace}.{type.ClrMetadataName}")
+                .ToArray();
+
+            CollectionAssert.Contains(dependencies, expectedDependency);
+            if (name != "RelativeClient" && name != "ParentScopeClient")
+            {
+                CollectionAssert.DoesNotContain(dependencies, "Sample.TestClient.GetItemsCollectionResult");
+                CollectionAssert.DoesNotContain(dependencies, ".GetItemsCollectionResult");
+            }
+        }
+
         [Test]
         public async Task PublicNestedMemberSignatureDependenciesAreIncluded()
         {

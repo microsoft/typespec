@@ -45,7 +45,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
 
         [Test]
         public void PagingCollectionsFollowClientIdentity(
-            [Values] bool rename, [Values] bool relocate, [Values("None", "Helpers", "All")] string materialization)
+            [Values("None", "Rename", "Collision")] string rename,
+            [Values] bool relocate, [Values("None", "Helpers", "All")] string materialization)
         {
             CreatePagingOperation(InputResponseLocation.Body);
             var inputClient = ScmCodeModelGenerator.Instance.InputLibrary.InputNamespace.Clients.Single();
@@ -70,7 +71,12 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
                 }
             }
 
-            var expectedName = rename ? "RenamedCatClient" : client.Name;
+            var expectedName = rename switch
+            {
+                "Rename" => "RenamedCatClient",
+                "Collision" => "GetCatsCollectionResult",
+                _ => client.Name
+            };
             var expectedNamespace = relocate ? "Sample.Relocated" : client.Type.Namespace;
             client.Update(name: expectedName, @namespace: expectedNamespace);
 
@@ -85,6 +91,11 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
             }
             foreach (var helper in updatedCollections.NestedTypes)
             {
+                Assert.AreNotEqual(expectedName, helper.Name);
+                if (rename == "Collision")
+                {
+                    CollectionAssert.Contains(updatedCollections.NestedTypes.Select(t => t.Name), "GetCatsCollectionResult2");
+                }
                 Assert.AreEqual(expectedNamespace, helper.Type.Namespace);
                 Assert.AreSame(client.Type, helper.Type.DeclaringType);
                 Assert.AreEqual(updatedCollections.RelativeFilePath, helper.RelativeFilePath);
@@ -94,6 +105,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.CollectionRes
                     foreach (var constructor in helper.Constructors)
                     {
                         Assert.AreSame(helper.Type, constructor.Signature.Type);
+                        Assert.AreEqual(helper.Name, constructor.Signature.Name);
                         Assert.AreEqual("Customized paging constructor.", constructor.Signature.Description!.ToString());
                     }
                 }

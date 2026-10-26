@@ -534,7 +534,18 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 {
                     // Identity updates reset constructors; retain customizations from earlier visitors.
                     var constructors = helper.Constructors;
-                    helper.Update(@namespace: Type.Namespace);
+                    if (helper is CollectionResultDefinition collectionResult)
+                    {
+                        collectionResult.UpdateClientIdentity();
+                    }
+                    else
+                    {
+                        helper.Update(@namespace: Type.Namespace);
+                    }
+                    foreach (var constructor in constructors)
+                    {
+                        constructor.Signature.Update(name: helper.Name);
+                    }
                     helper.Update(constructors: constructors);
                 }
             }

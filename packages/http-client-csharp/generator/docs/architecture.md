@@ -103,9 +103,12 @@ operation-specific providers returned by `ClientResponseApi.CreateClientCollecti
 including helpers for customized paging methods. Only the main client declaration
 synthesizes compatibility overloads; the collections partial does not duplicate them.
 Client identity updates synchronize the collections partial and nested helper
-namespaces while retaining constructor customizations applied by visitors.
+namespaces and reallocate helper names against the updated client identity while
+retaining constructor customizations applied by visitors.
 Nested paging helpers are retained by actual generated or custom-code references,
-not by their containing client alone. With `RemoveOrInternalize`, unused helpers
+not by their containing client alone. Unresolved qualified references in handwritten
+code are resolved against their lexical scope; absolute and resolved references
+keep their exact identities. With `RemoveOrInternalize`, unused helpers
 and their otherwise-unreferenced dependencies are pruned, and the collections writer
 omits removed nested types. Other nested types keep the default ownership-based
 retention behavior.

@@ -551,7 +551,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
 
             foreach (var type in node.DescendantNodesAndSelf().OfType<TypeSyntax>())
             {
-                if (type.IsPartOfStructuredTrivia())
+                if (type.IsPartOfStructuredTrivia() ||
+                    type.Parent is QualifiedNameSyntax or AliasQualifiedNameSyntax)
                 {
                     continue;
                 }
@@ -632,8 +633,14 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     }
                     break;
                 case QualifiedNameSyntax qualifiedName:
-                    AddQualifiedUnresolvedDependencyType(dependencies, qualifiedName);
-                    AddSyntaxTypeReference(qualifiedName.Right, dependencies, semanticModel, namespaceCandidates);
+                    AddQualifiedUnresolvedDependencyType(dependencies, qualifiedName, semanticModel, namespaceCandidates);
+                    if (qualifiedName.Right is GenericNameSyntax qualifiedGenericName)
+                    {
+                        foreach (var argument in qualifiedGenericName.TypeArgumentList.Arguments)
+                        {
+                            AddSyntaxTypeReference(argument, dependencies, semanticModel, namespaceCandidates);
+                        }
+                    }
                     break;
                 case AliasQualifiedNameSyntax aliasQualifiedName:
                     AddSyntaxTypeReference(aliasQualifiedName.Name, dependencies, semanticModel, namespaceCandidates);
@@ -687,16 +694,41 @@ namespace Microsoft.TypeSpec.Generator.Providers
             }
         }
 
-        private static void AddQualifiedUnresolvedDependencyType(HashSet<CSharpType> dependencies, QualifiedNameSyntax qualifiedName)
+        private static void AddQualifiedUnresolvedDependencyType(
+            HashSet<CSharpType> dependencies,
+            QualifiedNameSyntax qualifiedName,
+            SemanticModel semanticModel,
+            IReadOnlyList<string> namespaceCandidates)
         {
-            var fullName = qualifiedName.ToString();
-            var lastDot = fullName.LastIndexOf('.');
-            if (lastDot <= 0 || lastDot == fullName.Length - 1)
+            var name = qualifiedName.Right.Identifier.ValueText;
+            var arity = qualifiedName.Right is GenericNameSyntax genericName ? genericName.Arity : 0;
+            var qualifier = qualifiedName.Left.ToString();
+            if (qualifier.StartsWith("global::", StringComparison.Ordinal))
             {
+                dependencies.Add(CreateDependencyType(name, qualifier.Substring("global::".Length), arity));
                 return;
             }
 
-            dependencies.Add(CreateDependencyType(fullName.Substring(lastDot + 1), fullName.Substring(0, lastDot)));
+            var qualifierSymbol = semanticModel.GetSymbolInfo(qualifiedName.Left).Symbol;
+            if (qualifierSymbol is INamespaceSymbol ||
+                qualifierSymbol is INamedTypeSymbol { TypeKind: not TypeKind.Error })
+            {
+                dependencies.Add(CreateDependencyType(name, qualifierSymbol.ToDisplayString(), arity));
+                return;
+            }
+
+            dependencies.Add(CreateDependencyType(name, qualifier, arity));
+            foreach (var ns in namespaceCandidates)
+            {
+                dependencies.Add(CreateDependencyType(name, $"{ns}.{qualifier}", arity));
+            }
+            for (var scope = semanticModel.GetEnclosingSymbol(qualifiedName.SpanStart); scope != null; scope = scope.ContainingSymbol)
+            {
+                if (scope is INamedTypeSymbol || scope is INamespaceSymbol { IsGlobalNamespace: false })
+                {
+                    dependencies.Add(CreateDependencyType(name, $"{scope.ToDisplayString()}.{qualifier}", arity));
+                }
+            }
         }
 
         private static CSharpType CreateDependencyType(string name, string ns, int genericArgumentCount = 0)

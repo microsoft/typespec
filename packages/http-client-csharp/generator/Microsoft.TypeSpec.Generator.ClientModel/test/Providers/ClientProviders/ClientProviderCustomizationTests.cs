@@ -321,12 +321,15 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             CollectionAssert.Contains(collectionResultDefinitions, "GetItemsAsyncCollectionResultOfT");
         }
 
-        [TestCase(false, false)]
-        [TestCase(true, false)]
-        [TestCase(false, true)]
-        [TestCase(true, true)]
-        public async Task SuppressedPagingMethodsPruneUnreferencedHelpers(bool customReference, bool keepAll)
+        [TestCase("False", false)]
+        [TestCase("True", false)]
+        [TestCase("False", true)]
+        [TestCase("True", true)]
+        [TestCase("Qualified", false)]
+        [TestCase("Qualified", true)]
+        public async Task SuppressedPagingMethodsPruneUnreferencedHelpers(string reference, bool keepAll)
         {
+            var customReference = reference != "False";
             var item = InputFactory.Model("item", properties: [InputFactory.Property("color", InputPrimitiveType.String)]);
             var page = InputFactory.Model("page", access: "internal", usage: InputModelTypeUsage.Output | InputModelTypeUsage.Json, properties:
             [
@@ -347,7 +350,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
                 configuration: keepAll
                     ? """{"unreferenced-types-handling":"keepAll"}"""
                     : """{"unreferenced-types-handling":"removeOrInternalize"}""",
-                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(customReference.ToString()));
+                compilation: async () => await Helpers.GetCompilationFromDirectoryAsync(reference));
             var providers = generator.Object.OutputLibrary.TypeProviders;
             var client = providers.OfType<ClientProvider>().Single(p => p.Name == "TestClient");
             var otherClient = providers.OfType<ClientProvider>().Single(p => p.Name == "OtherClient");
