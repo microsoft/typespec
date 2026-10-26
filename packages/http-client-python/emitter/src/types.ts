@@ -477,7 +477,7 @@ const sdkScalarKindToPythonKind: Record<string, string> = {
 const supportedPythonEncodings = new Map<string, ReadonlySet<string>>([
   ["boolean", new Set(["string"])],
   ["integer", new Set(["string"])],
-  ["bytes", new Set(["base64", "base64url"])],
+  ["bytes", new Set(["bytes", "base64", "base64url"])],
 ]);
 
 function emitBuiltInType(

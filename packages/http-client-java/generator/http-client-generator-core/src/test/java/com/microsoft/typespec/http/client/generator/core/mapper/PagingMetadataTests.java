@@ -30,12 +30,16 @@ import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ListT
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.MethodPageDetails;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ProxyMethod;
 import com.microsoft.typespec.http.client.generator.core.model.clientmodel.ReturnValue;
+import com.microsoft.typespec.http.client.generator.core.template.DefaultTemplateFactory;
+import com.microsoft.typespec.http.client.generator.core.template.Templates;
+import io.clientcore.core.utils.IOExceptionCheckedFunction;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Isolated;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 @Isolated
 public class PagingMetadataTests {
@@ -44,11 +48,20 @@ public class PagingMetadataTests {
         ClientModels.getInstance().clear();
         new MockUnitJavagen();
         JavaSettings.clear();
+        Mappers.setFactory(new DefaultMapperFactory());
+        Templates.setFactory(new DefaultTemplateFactory());
     }
 
-    @Test
-    public void prefersNextLinkOverContinuationToken() {
-        new MockUnitJavagen();
+    @ParameterizedTest
+    @CsvSource({ "azure,false", "azure,true", "unbranded,false", "unbranded,true" })
+    public void prefersNextLinkOverContinuationToken(String flavor, boolean includeToken) {
+        new MockUnitJavagen() {
+            @Override
+            @SuppressWarnings("unchecked")
+            public <T> T getValue(String key, IOExceptionCheckedFunction<String, T> converter) {
+                return "flavor".equals(key) ? (T) flavor : super.getValue(key, converter);
+            }
+        };
         JavaSettings.clear();
         ClientModel model = new ClientModel.Builder().name("PagingMetadataResponse")
             .packageName("com.azure.test")
@@ -86,6 +99,7 @@ public class PagingMetadataTests {
         PageableContinuationToken continuationToken = new PageableContinuationToken();
         continuationToken.setParameter(parameter);
         continuationToken.setResponseHeader(header);
+        continuationToken.setIncludeContinuationTokenParameter(includeToken);
         XmsPageable pageable = new XmsPageable();
         pageable.setItemName("items");
         pageable.setContinuationToken(continuationToken);
@@ -117,7 +131,8 @@ public class PagingMetadataTests {
                     .returnValue(new ReturnValue("The items.",
                         sync ? GenericType.pagedIterable(ClassType.STRING) : GenericType.pagedFlux(ClassType.STRING)))
                     .build();
-                Assertions.assertEquals(nextLink, method.getParametersDeclaration().contains("String token"));
+                Assertions.assertEquals(nextLink || ("azure".equals(flavor) && includeToken),
+                    method.getParametersDeclaration().contains("String token"));
             }
         }
     }

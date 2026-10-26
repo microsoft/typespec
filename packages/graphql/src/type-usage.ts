@@ -23,17 +23,40 @@ export enum GraphQLTypeUsage {
   Output = "Output",
 }
 
+/**
+ * Usage and emission-reachability information for the original TypeSpec types
+ * in a schema. Keeping an unreferenced declaration does not give it usage flags.
+ */
 export interface TypeUsageResolver {
+  /**
+   * Returns the recorded input/output usages, or undefined if no operation
+   * references the type. The returned set is resolver-owned; treat it as read-only.
+   */
   getUsage(type: Type): Set<GraphQLTypeUsage> | undefined;
+  /**
+   * Whether the type is outside the resolver's reachable set. When unreachable
+   * types are retained, unreferenced schema declarations return false here.
+   */
   isUnreachable(type: Type): boolean;
   /**
-   * Returns true if the model is used by both @query and @mutation operations
-   * AND the visibility filters produce different property sets for each context.
-   * When true, two separate input types are needed (e.g., UserQueryInput + UserMutationInput).
+   * Whether a model used by query/subscription inputs and mutation inputs has
+   * different visible own-property sets in those contexts. When true, separate
+   * input types are needed, such as UserQueryInput and UserMutationInput.
    */
   hasInputOperationVariance(type: Type): boolean;
 }
 
+/**
+ * Tracks model, scalar, enum, and union usage from operations in `root` and its
+ * nested namespaces and interfaces, following referenced types transitively.
+ *
+ * Query and subscription inputs share a usage category; mutation inputs use a
+ * separate category for visibility-based input splitting. Usage tracks source
+ * references before visibility filtering.
+ *
+ * @param omitUnreachableTypes - When false, also retains unreferenced model,
+ * scalar, enum, and union declarations in the schema without assigning usages.
+ */
 export function resolveTypeUsage(
   program: Program,
   root: Namespace,

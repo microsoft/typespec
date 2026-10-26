@@ -703,7 +703,7 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
                 null,
                 operation,
                 parameters ?? [],
-                response ?? ServiceMethodResponse(null, null),
+                response ?? ServiceMethodResponse(operation.Responses.FirstOrDefault(r => !r.IsErrorResponse)?.BodyType, null),
                 exception,
                 false,
                 true,
@@ -762,7 +762,6 @@ namespace Microsoft.TypeSpec.Generator.Tests.Common
         {
             var operation = new InputOperation(
                 name,
-                null,
                 "",
                 $"{name} description",
                 null,

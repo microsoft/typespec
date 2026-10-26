@@ -10,6 +10,67 @@ namespace Microsoft.TypeSpec.Generator.Input.Tests
 {
     public class TypeSpecInputConverterTests
     {
+        [TestCase(null, false)]
+        [TestCase(false, false)]
+        [TestCase(true, true)]
+        public void LoadsResponseAsBool(bool? responseAsBool, bool expected)
+        {
+            var json = $$"""
+                {
+                  "$id": "1",
+                  "name": "exists",
+                  {{(responseAsBool.HasValue ? $"\"responseAsBool\": {responseAsBool.Value.ToString().ToLowerInvariant()}," : "")}}
+                  "httpMethod": "HEAD",
+                  "uri": "https://example.com",
+                  "path": "/widgets",
+                  "crossLanguageDefinitionId": "Test.exists"
+                }
+                """;
+            var options = new JsonSerializerOptions
+            {
+                Converters = { new InputOperationConverter(new TypeSpecReferenceHandler()) }
+            };
+            var operation = JsonSerializer.Deserialize<InputOperation>(json, options);
+
+            Assert.IsNotNull(operation);
+            Assert.AreEqual(expected, operation!.ResponseAsBool);
+            operation.Update(responseAsBool: !expected);
+            Assert.AreEqual(!expected, operation.ResponseAsBool);
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void LoadsOperationWithoutResourceName(bool includeLegacyResourceName)
+        {
+            var json = $$"""
+                {
+                  "$id": "1",
+                  "name": "getWidget",
+                  {{(includeLegacyResourceName ? "\"resourceName\": \"Widget\"," : "")}}
+                  "summary": "Gets a widget",
+                  "httpMethod": "GET",
+                  "uri": "https://example.com",
+                  "path": "/widgets",
+                  "crossLanguageDefinitionId": "Test.getWidget"
+                }
+                """;
+            var options = new JsonSerializerOptions
+            {
+                Converters = { new InputOperationConverter(new TypeSpecReferenceHandler()) }
+            };
+
+            var operation = JsonSerializer.Deserialize<InputOperation>(json, options);
+
+            Assert.IsNotNull(operation);
+            Assert.AreEqual("getWidget", operation!.Name);
+            Assert.AreEqual("Gets a widget", operation.Summary);
+            Assert.AreEqual("GET", operation.HttpMethod);
+            Assert.AreEqual("https://example.com", operation.Uri);
+            Assert.AreEqual("/widgets", operation.Path);
+            Assert.AreEqual("Test.getWidget", operation.CrossLanguageDefinitionId);
+            Assert.IsNull(typeof(InputOperation).GetProperty("ResourceName"));
+        }
+
         [TestCase("model", "\"properties\": []")]
         [TestCase("enum", "\"values\": [], \"valueType\": {\"kind\":\"string\"}")]
         [TestCase("string", "\"crossLanguageDefinitionId\": \"External.Value\"")]

@@ -1,5 +1,9 @@
 import { createTypeSpecLibrary, paramMessage } from "@typespec/compiler";
 
+/**
+ * Spector's TypeSpec library definition, providing scenario state keys and diagnostics
+ * for scenario declarations and their implementation guidance.
+ */
 export const $lib = createTypeSpecLibrary({
   name: "@typespec/spector",
   diagnostics: {

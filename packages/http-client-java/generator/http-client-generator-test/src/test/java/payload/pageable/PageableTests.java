@@ -110,6 +110,40 @@ public class PageableTests {
     }
 
     @Test
+    public void testRepeatedContinuationTokenEnumeration() {
+        ServerDrivenPaginationContinuationTokenClient client
+            = builder.buildServerDrivenPaginationContinuationTokenClient();
+        List<PagedIterable<Pet>> results = List.of(client.requestQueryResponseBody("foo", "bar"),
+            client.requestHeaderResponseBody("foo", "bar"), client.requestQueryResponseHeader("foo", "bar"),
+            client.requestHeaderResponseHeader("foo", "bar"), client.requestQueryNestedResponseBody("foo", "bar"),
+            client.requestHeaderNestedResponseBody("foo", "bar"));
+        for (PagedIterable<Pet> result : results) {
+            assertPetIds(result);
+            assertPetIds(result);
+        }
+        ServerDrivenPaginationContinuationTokenAsyncClient asyncClient
+            = builder.buildServerDrivenPaginationContinuationTokenAsyncClient();
+        List<Flux<Pet>> asyncResults = List.of(asyncClient.requestQueryResponseBody("foo", "bar"),
+            asyncClient.requestHeaderResponseBody("foo", "bar"), asyncClient.requestQueryResponseHeader("foo", "bar"),
+            asyncClient.requestHeaderResponseHeader("foo", "bar"),
+            asyncClient.requestQueryNestedResponseBody("foo", "bar"),
+            asyncClient.requestHeaderNestedResponseBody("foo", "bar"));
+        for (Flux<Pet> result : asyncResults) {
+            for (int i = 0; i < 2; i++) {
+                Assertions.assertEquals(List.of("1", "2", "3", "4"),
+                    result.map(Pet::getId).collectList().block(Duration.ofSeconds(10)));
+            }
+        }
+        Assertions.assertEquals(List.of("3", "4"),
+            builder.buildXmlPaginationClient()
+                .listWithContinuation()
+                .streamByPage("page2")
+                .flatMap(page -> page.getValue().stream())
+                .map(XmlPet::getId)
+                .collect(Collectors.toList()));
+    }
+
+    @Test
     public void testProtocolContinuationTokenPreservesOptions() {
         RequestOptions options = new RequestOptions().addHeader("foo", "foo").addQueryParam("bar", "bar");
         ServerDrivenPaginationContinuationTokenClient client

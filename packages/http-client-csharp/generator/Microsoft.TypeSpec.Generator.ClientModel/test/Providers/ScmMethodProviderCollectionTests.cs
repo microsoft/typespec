@@ -32,6 +32,28 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
 {
     internal class ScmMethodProviderCollectionTests
     {
+        [TestCase(true)]
+        [TestCase(false)]
+        public void HeadResponseAsBoolReturnsTypedResults(bool responseAsBool)
+        {
+            var operation = InputFactory.Operation("Exists", httpMethod: "HEAD");
+            operation.Update(responseAsBool: responseAsBool);
+            var serviceMethod = InputFactory.BasicServiceMethod("Exists", operation);
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+            var methods = new ScmMethodProviderCollection(serviceMethod, client);
+
+            Assert.AreEqual(4, methods.Count);
+            foreach (var method in methods)
+            {
+                var isAsync = method.Signature.Modifiers.HasFlag(MethodSignatureModifiers.Async);
+                CSharpType resultType = responseAsBool ? typeof(ClientResult<bool>) : typeof(ClientResult);
+                var expectedType = isAsync ? new CSharpType(typeof(Task<>), resultType) : resultType;
+                Assert.AreEqual(expectedType, method.Signature.ReturnType);
+            }
+        }
+
         [Test]
         public void ExperimentalApiHelpersAreSharedInternally()
         {
@@ -2963,6 +2985,44 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers
             using var writer = new CodeWriter();
             writer.WriteMethod(method);
             Assert.AreEqual(Helpers.GetExpectedFromFile(), writer.ToString(false));
+        }
+
+        [TestCase(false, false)]
+        [TestCase(false, true)]
+        [TestCase(true, false)]
+        [TestCase(true, true)]
+        public void ResponseReplacementUsesMethodResponse(bool isAsync, bool useBytes)
+        {
+            var model = InputFactory.Model("Widget", properties:
+            [
+                InputFactory.Property("name", InputPrimitiveType.String, isRequired: true)
+            ]);
+            var response = InputFactory.OperationResponse([200], model, contentTypes: ["application/json"]);
+            var operation = InputFactory.Operation("GetWidget", responses: [response]);
+            var methodResponse = useBytes ? InputPrimitiveType.Base64 : null;
+            var serviceMethod = InputFactory.BasicServiceMethod(
+                "GetWidget", operation, response: InputFactory.ServiceMethodResponse(methodResponse, null));
+            var inputClient = InputFactory.Client("TestClient", methods: [serviceMethod]);
+            MockHelpers.LoadMockGenerator(inputModels: () => [model], clients: () => [inputClient]);
+            var client = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+            var methods = new ScmMethodProviderCollection(serviceMethod, client);
+            var methodName = isAsync ? "GetWidgetAsync" : "GetWidget";
+            var convenience = methods.Single(m => m.Kind == ScmMethodKind.Convenience && m.Signature.Name == methodName);
+            var protocol = methods.Single(m => m.Kind == ScmMethodKind.Protocol && m.Signature.Name == methodName);
+            CSharpType expectedType = useBytes ? typeof(ClientResult<BinaryData>) : typeof(ClientResult);
+            if (isAsync)
+            {
+                expectedType = new CSharpType(typeof(Task<>), expectedType);
+            }
+
+            Assert.AreEqual(expectedType, convenience.Signature.ReturnType);
+            Assert.AreEqual(new CSharpType(isAsync ? typeof(Task<ClientResult>) : typeof(ClientResult)), protocol.Signature.ReturnType);
+            Assert.AreSame(model, response.BodyType);
+            CollectionAssert.AreEqual(new[] { 200 }, response.StatusCodes);
+            CollectionAssert.AreEqual(new[] { "application/json" }, response.ContentTypes);
+            using var writer = new CodeWriter();
+            writer.WriteMethod(convenience);
+            Assert.AreEqual(Helpers.GetExpectedFromFile($"{isAsync},{useBytes}"), writer.ToString(false));
         }
 
         [Test]

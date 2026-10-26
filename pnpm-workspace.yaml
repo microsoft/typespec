@@ -6,6 +6,10 @@ packages:
   - "!packages/http-client-java/**"
   - "!packages/http-client-python/**"
 
+engineStrict: true
+pmOnFail: download
+updateNotifier: false
+
 allowBuilds:
   "@playwright/browser-chromium": false
   "@scarf/scarf": false
@@ -35,7 +39,7 @@ catalog:
   "@azure/identity": ^4.13.2
   "@azure/storage-blob": ^12.34.0
   "@babel/code-frame": ^8.0.0
-  "@babel/core": ^8.0.1
+  "@babel/core": ^8.0.7
   "@chronus/chronus": ^1.5.0
   "@chronus/github": ^1.2.0
   "@chronus/github-pr-commenter": ^1.1.1
@@ -45,7 +49,7 @@ catalog:
   # Pinned to pre-upgrade versions: newer @fluentui/react-components pulls tabster@8.8.0,
   # whose entry-point change breaks ESM named imports. See https://github.com/microsoft/tabster/issues/532
   "@fluentui/react-components": 9.74.9
-  "@fluentui/react-icons": 2.0.343
+  "@fluentui/react-icons": 2.0.344
   "@fluentui/react-list": 9.6.19
   "@inquirer/checkbox": ^5.2.2
   "@inquirer/confirm": ^6.3.3
@@ -64,7 +68,7 @@ catalog:
   "@scalar/openapi-parser": ^0.29.1
   "@scalar/openapi-types": ^0.9.5
   "@scalar/types": ^0.23.0
-  "@storybook/react-vite": ^10.6.1
+  "@storybook/react-vite": ^10.6.2
   "@testing-library/dom": ^10.4.1
   "@testing-library/jest-dom": ^7.0.1
   "@testing-library/react": ^16.3.2
@@ -145,8 +149,8 @@ catalog:
   prettier-plugin-organize-imports: ^4.3.0
   prettier-plugin-sh: ^0.20.2
   prism-react-renderer: ^2.4.1
-  react: ^19.3.0
-  react-dom: ^19.3.0
+  react: ^19.3.1
+  react-dom: ^19.3.1
   react-error-boundary: ^6.1.3
   react-hotkeys-hook: ^5.3.3
   react-markdown: ^10.1.0
@@ -157,7 +161,7 @@ catalog:
   semver: ^7.8.5
   sharp: ^0.35.5
   simple-git: ^4.0.2
-  storybook: ^10.6.1
+  storybook: ^10.6.2
   strip-json-comments: ^5.0.3
   swagger-ui-dist: ^5.33.1
   swagger-ui-express: ^5.0.1
@@ -174,7 +178,7 @@ catalog:
   typescript: npm:@typescript/typescript6@~6.0.2
   typescript-native: npm:typescript@~7.0.2
   uri-template: ^2.0.0
-  vite: ^8.3.1
+  vite: ^8.3.4
   vite-plugin-checker: ^0.14.5
   vitest: ^5.0.0
   vscode-languageclient: ^10.1.0

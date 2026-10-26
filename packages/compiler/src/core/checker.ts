@@ -191,6 +191,7 @@ import {
   SyntaxKind,
 } from "./types.js";
 
+/** Properties supplied to create a type before the checker adds its identity and finishing state. */
 export type CreateTypeProps = Omit<Type, "isFinished" | "entityKind" | keyof TypePrototype>;
 
 enum CheckFlags {
@@ -334,6 +335,11 @@ class CheckContext<Mapper extends TypeMapper | undefined = TypeMapper | undefine
   }
 }
 
+/**
+ * Advanced access to semantic checking and type creation for a program.
+ * These APIs have weaker stability guarantees than ordinary library APIs; see the
+ * {@link https://typespec.io/docs/handbook/breaking-change-policy/ | breaking change policy}.
+ */
 export interface Checker {
   /** @internal */
   typePrototype: TypePrototype;
@@ -357,25 +363,41 @@ export interface Checker {
   getLiteralType(node: BooleanLiteralNode): BooleanLiteral;
   /** @internal */
   getLiteralType(node: LiteralNode): LiteralType;
+  /**
+   * Clone a type and its owned members, applying optional property overrides.
+   * Decorators run again for a finished type. Referenced types are not recursively cloned.
+   * The overrides must not change the type's kind.
+   */
   cloneType<T extends Type>(type: T, additionalProps?: { [P in keyof T]?: T[P] }): T;
   /** @internal */
   resolveRelatedSymbols(node: IdentifierNode): Sym[] | undefined;
   /** @internal */
   resolveCompletions(node: IdentifierNode): Map<string, TypeSpecCompletionItem>;
+  /**
+   * Initialize the supplied object as an unfinished type, mutating and returning that object.
+   * Call {@link Checker.finishType} once its properties and decorators are ready.
+   */
   createType<T extends (Type extends any ? CreateTypeProps : never)>(
     typeDef: T,
   ): T & TypePrototype & { isFinished: boolean; readonly entityKind: "Type" };
+  /** Create a type and immediately finish it, including running its decorators. */
   createAndFinishType<T extends (Type extends any ? CreateTypeProps : never)>(
     typeDef: T,
   ): T & TypePrototype;
+  /** Run a type's decorators and finishing validators, mark it finished, and return the same object. */
   finishType<T extends Type>(typeDef: T): T;
+  /** Get or create the program's cached string literal type for the supplied value. */
   createLiteralType(value: string, node?: StringLiteralNode): StringLiteral;
+  /** Get or create a numeric literal type, preserving precise {@link Numeric} values. */
   createLiteralType(value: number | Numeric, node?: NumericLiteralNode): NumericLiteral;
+  /** Get or create the program's cached boolean literal type for the supplied value. */
   createLiteralType(value: boolean, node?: BooleanLiteralNode): BooleanLiteral;
+  /** Get or create a literal type matching the JavaScript primitive's kind. */
   createLiteralType(
     value: string | number | boolean,
     node?: StringLiteralNode | NumericLiteralNode | BooleanLiteralNode,
   ): StringLiteral | NumericLiteral | BooleanLiteral;
+  /** Get or create a literal type matching the JavaScript primitive's kind. */
   createLiteralType(
     value: string | number | boolean,
     node?: StringLiteralNode | NumericLiteralNode | BooleanLiteralNode,
@@ -483,6 +505,7 @@ export interface CheckerStats {
   finishedTypes: number;
 }
 
+/** Shared prototype attached to types created by a checker; currently has no public members. */
 interface TypePrototype {}
 
 export interface TypeSpecCompletionItem {
@@ -1447,7 +1470,14 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         return checkDeprecatedNode(node);
       case SyntaxKind.IntersectionExpression:
       case SyntaxKind.UnionExpression:
+      case SyntaxKind.ArrayExpression:
+      case SyntaxKind.TupleExpression:
+      case SyntaxKind.ModelExpression:
       case SyntaxKind.ModelProperty:
+      case SyntaxKind.ModelSpreadProperty:
+      case SyntaxKind.TypeReference:
+      case SyntaxKind.TemplateArgument:
+      case SyntaxKind.TemplateParameterDeclaration:
       case SyntaxKind.OperationSignatureDeclaration:
       case SyntaxKind.OperationSignatureReference:
         return isTypeReferenceContextDeprecated(node.parent!);

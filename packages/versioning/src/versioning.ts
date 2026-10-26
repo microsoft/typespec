@@ -19,6 +19,15 @@ import type { Version, VersionResolution } from "./types.js";
 import { getCachedNamespaceDependencies } from "./validate.js";
 import { TimelineMoment, VersioningTimeline } from "./versioning-timeline.js";
 
+/**
+ * Gets dependency version selections, combining explicit `@useDependency`
+ * metadata with namespace references collected during validation.
+ * A referenced versioned namespace without an explicit selection uses its last
+ * enum member, not the greatest enum value.
+ *
+ * Returns `undefined` when neither explicit metadata nor cached usage exists.
+ * Result maps contain shared version objects and should be treated as read-only.
+ */
 export function getVersionDependencies(
   program: Program,
   namespace: Namespace,
@@ -71,9 +80,12 @@ function resolveDependencyVersions(
   return resolutions;
 }
 /**
- * Resolve the version to use for all namespace for each of the root namespace versions.
- * @param program
- * @param rootNs Root namespace.
+ * Resolves the root and transitive dependency versions for each root version,
+ * in version enum order. An unversioned root produces one resolution with an
+ * undefined `rootVersion`; its map is empty when there are no versioned dependencies.
+ *
+ * Resolution reads metadata without applying a snapshot or changing source types.
+ * @param namespace Root namespace whose version selections should be resolved.
  */
 export function resolveVersions(program: Program, namespace: Namespace): VersionResolution[] {
   const [rootNs, versions] = getVersions(program, namespace);
@@ -114,6 +126,11 @@ function cacheVersion(key: Type, versions: [Namespace, VersionMap] | []) {
   return versions;
 }
 
+/**
+ * Gets the version map registered directly on the enum's containing namespace.
+ * Returns an empty tuple when the enum has no namespace or that namespace is
+ * not directly versioned. This does not verify that the enum is the registered version enum.
+ */
 export function getVersionsForEnum(program: Program, en: Enum): [Namespace, VersionMap] | [] {
   const namespace = en.namespace;
 
@@ -128,6 +145,16 @@ export function getVersionsForEnum(program: Program, en: Enum): [Namespace, Vers
   return [namespace, nsVersion];
 }
 
+/**
+ * Finds the namespace and version map associated with a type.
+ * Members follow their containing declaration, and copied properties follow
+ * `sourceProperty`. A namespace can inherit its parent's version map while
+ * remaining the namespace returned in the tuple.
+ *
+ * An empty tuple means the type has no applicable namespace. The second tuple
+ * element can be `undefined` at runtime for an unversioned namespace, despite
+ * the declared return type. Treat the cached tuple and version map as read-only.
+ */
 export function getVersions(p: Program, t: Type): [Namespace, VersionMap] | [] {
   const existing = versionCache.get(t);
   if (existing) {
@@ -188,6 +215,12 @@ function resolveVersionsForNamespace(
   }
 }
 
+/**
+ * Gets versions registered directly on the namespace returned by {@link getVersions}.
+ * Returns `undefined` when that namespace has no direct version registration,
+ * even if `getVersions` found an inherited map. The new array is in enum order
+ * and contains shared version objects.
+ */
 export function getAllVersions(p: Program, t: Type): Version[] | undefined {
   const [namespace, _] = getVersions(p, t);
   if (namespace === undefined) return undefined;
@@ -195,10 +228,15 @@ export function getAllVersions(p: Program, t: Type): Version[] | undefined {
   return getVersion(p, namespace)?.getVersions();
 }
 
+/** Presence of a type at a version, distinguishing change boundaries from continuing states. */
 export enum Availability {
+  /** Absent at this version, without a removal occurring at this version. */
   Unavailable = "Unavailable",
+  /** Becomes available at this version, including a re-addition after removal. */
   Added = "Added",
+  /** Remains available after an earlier addition. */
   Available = "Available",
+  /** Becomes unavailable at this version; removal takes effect immediately. */
   Removed = "Removed",
 }
 
@@ -316,6 +354,16 @@ function resolveRemoved(added: Version[], removed: Version[], parentRemoved?: Ve
   return [];
 }
 
+/**
+ * Computes availability keyed by version enum member name, in enum order.
+ * Returns `undefined` when no direct version list is available or the type has
+ * no addition, removal, property-type-change, or return-type-change metadata.
+ * Absence of a map is not evidence that the type is unavailable.
+ *
+ * Addition boundaries can be inferred from a containing model or interface,
+ * and a parent's removal is used when no explicit removal is recorded.
+ * The returned map is newly allocated.
+ */
 export function getAvailabilityMap(
   program: Program,
   type: Type,
@@ -367,6 +415,17 @@ export function getAvailabilityMap(
   return avail;
 }
 
+/**
+ * Computes availability across a combined dependency timeline, using the
+ * timeline's moment objects as keys in timeline order.
+ * Returns `undefined` when no addition, removal, or type-change metadata applies
+ * to the timeline; renames and optionality changes alone do not create a map.
+ *
+ * An implicit first addition can follow the containing model or interface.
+ * Unlike {@link getAvailabilityMap}, parent removal is not inferred here.
+ * The newly allocated map contains entries for every moment, not just the
+ * versions declared by the type's namespace.
+ */
 export function getAvailabilityMapInTimeline(
   program: Program,
   type: Type,
@@ -430,6 +489,11 @@ export function getAvailabilityMapInTimeline(
   return avail;
 }
 
+/**
+ * Gets the shared version metadata for a member of a namespace's registered
+ * version enum. Returns `undefined` if no registration contains this exact
+ * member; matching a name or enum value is not sufficient.
+ */
 export function getVersionForEnumMember(program: Program, member: EnumMember): Version | undefined {
   // Always lookup for the original type. This ensure reference equality when comparing versions.
   const parentEnum = member.enum;
