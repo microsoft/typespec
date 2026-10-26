@@ -1253,7 +1253,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ScmMethodKind methodType,
             ClientProvider client,
             bool applyBackCompat = true,
-            bool contentTypeBeforeBody = false)
+            bool contentTypeBeforeBody = false,
+            string? operationName = null)
         {
             SortedList<int, ParameterProvider> sortedParams = [];
             int path = 0;
@@ -1402,7 +1403,10 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     case ParameterLocation.Query:
                     case ParameterLocation.Header:
                         if (IsContentTypeParameter(inputParam)
-                            && !(contentTypeBeforeBody || (applyBackCompat && HasContentTypeBeforeBodyInLastContract(serviceMethod, client.BackCompatProvider))))
+                            && !(contentTypeBeforeBody || (applyBackCompat && HasContentTypeBeforeBodyInLastContract(
+                                serviceMethod,
+                                client.BackCompatProvider,
+                                operationName ?? serviceMethod.Name))))
                         {
                             sortedParams.Add(contentType++, parameter);
                         }
@@ -1549,12 +1553,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
         /// a "contentType" parameter appears before the body parameter.
         /// If so, we should preserve that ordering for backward compatibility.
         /// </summary>
-        private static bool HasContentTypeBeforeBodyInLastContract(InputServiceMethod serviceMethod, TypeProvider backCompatProvider) =>
-            GetContentTypeOrderInLastContract(serviceMethod, backCompatProvider) == LastContractContentTypeOrder.BeforeBody;
+        private static bool HasContentTypeBeforeBodyInLastContract(
+            InputServiceMethod serviceMethod,
+            TypeProvider backCompatProvider,
+            string operationName) =>
+            GetContentTypeOrderInLastContract(serviceMethod, backCompatProvider, operationName) == LastContractContentTypeOrder.BeforeBody;
 
         private static LastContractContentTypeOrder GetContentTypeOrderInLastContract(
             InputServiceMethod serviceMethod,
-            TypeProvider backCompatProvider)
+            TypeProvider backCompatProvider,
+            string operationName)
         {
             const string contentTypeParamName = "contentType";
 
@@ -1564,8 +1572,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 return LastContractContentTypeOrder.NoMatchingMethod;
             }
 
-            var syncMethodName = serviceMethod.Name;
-            var asyncMethodName = serviceMethod.Name + "Async";
+            var syncMethodName = operationName;
+            var asyncMethodName = operationName + "Async";
             var bodyParameterNames = GetBodyParameterNames(serviceMethod);
             var matchedMethod = false;
             var foundAfterBody = false;

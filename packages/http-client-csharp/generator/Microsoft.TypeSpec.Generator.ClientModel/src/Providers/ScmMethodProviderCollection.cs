@@ -1375,12 +1375,17 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             ClientProvider client,
             bool isAsync,
             bool shouldMakeParametersRequired,
-            out ParameterProvider requestOptionsParameter)
+            out ParameterProvider requestOptionsParameter,
+            string? operationName = null)
         {
             var requiredParameters = new List<ParameterProvider>();
             var optionalParameters = new List<ParameterProvider>();
             var convertedRequiredParameters = new List<ParameterProvider>();
-            var protocolParameters = RestClientProvider.GetMethodParameters(serviceMethod, ScmMethodKind.Protocol, client);
+            var protocolParameters = RestClientProvider.GetMethodParameters(
+                serviceMethod,
+                ScmMethodKind.Protocol,
+                client,
+                operationName: operationName);
             var contentIndex = protocolParameters.FindIndex(parameter => parameter.IsContentParameter);
             var hasOptionalContent = contentIndex >= 0 && protocolParameters[contentIndex].DefaultValue != null;
             var makeOptionalRequired = shouldMakeParametersRequired
@@ -1440,20 +1445,31 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             return [.. requiredParameters, .. optionalParameters, requestOptionsParameter];
         }
 
-        internal static bool ShouldMakeProtocolMethodParametersRequired(InputServiceMethod serviceMethod, ClientProvider client)
+        internal static bool ShouldMakeProtocolMethodParametersRequired(
+            InputServiceMethod serviceMethod,
+            ClientProvider client,
+            string? operationName = null)
         {
             if (!serviceMethod.Operation.GenerateConvenienceMethod)
             {
                 return false;
             }
-            var convenienceParameters = RestClientProvider.GetMethodParameters(serviceMethod, ScmMethodKind.Convenience, client);
+            var convenienceParameters = RestClientProvider.GetMethodParameters(
+                serviceMethod,
+                ScmMethodKind.Convenience,
+                client,
+                operationName: operationName);
             var convenienceMethodParameterCount = convenienceParameters.Count;
             if (convenienceMethodParameterCount == 0)
             {
                 return true;
             }
 
-            var protocolParameters = RestClientProvider.GetMethodParameters(serviceMethod, ScmMethodKind.Protocol, client);
+            var protocolParameters = RestClientProvider.GetMethodParameters(
+                serviceMethod,
+                ScmMethodKind.Protocol,
+                client,
+                operationName: operationName);
             for (int i = 0; i < convenienceMethodParameterCount; i++)
             {
                 // If protocol parameter is required, and convenience is optional, we don't need any changes.

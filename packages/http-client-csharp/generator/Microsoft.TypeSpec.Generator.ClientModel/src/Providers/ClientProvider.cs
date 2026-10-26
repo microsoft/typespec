@@ -440,16 +440,16 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             var names = GetEmittedMethodNames(method, operationName, kind);
             if (kind != ScmMethodKind.Protocol)
             {
-                var parameters = RestClientProvider.GetMethodParameters(method, kind, this);
+                var parameters = RestClientProvider.GetMethodParameters(method, kind, this, operationName: operationName);
                 return [.. names.Select(name => (name, (IReadOnlyList<ParameterProvider>)parameters))];
             }
 
-            var shouldMakeParametersRequired = ScmMethodProviderCollection.ShouldMakeProtocolMethodParametersRequired(method, this);
+            var shouldMakeParametersRequired = ScmMethodProviderCollection.ShouldMakeProtocolMethodParametersRequired(method, this, operationName);
             return [.. names.Select(name =>
             {
                 var isAsync = name != operationName;
                 var parameters = ScmMethodProviderCollection.BuildProtocolParameters(
-                    method, this, isAsync, shouldMakeParametersRequired, out _);
+                    method, this, isAsync, shouldMakeParametersRequired, out _, operationName);
                 return (name, (IReadOnlyList<ParameterProvider>)parameters);
             })];
         }

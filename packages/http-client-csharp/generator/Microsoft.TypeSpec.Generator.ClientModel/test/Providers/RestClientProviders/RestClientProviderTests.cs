@@ -945,7 +945,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.RestClientPro
             var provider = new LastContractTestTypeProvider(lastContractView);
             var method = typeof(RestClientProvider).GetMethod("HasContentTypeBeforeBodyInLastContract", BindingFlags.NonPublic | BindingFlags.Static)!;
 
-            var shouldPreserveOrder = (bool)method.Invoke(null, [serviceMethod, provider])!;
+            var shouldPreserveOrder = (bool)method.Invoke(null, [serviceMethod, provider, "Upload"])!;
 
             Assert.IsTrue(shouldPreserveOrder);
         }
