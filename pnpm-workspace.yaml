@@ -144,8 +144,8 @@ catalog:
   picocolors: ^1.1.1
   playwright: ^1.64.1
   plist: ^5.0.0
-  prettier: ^3.9.6
-  prettier-plugin-astro: ^1.1.0
+  prettier: ^3.9.10
+  prettier-plugin-astro: ^1.1.1
   prettier-plugin-organize-imports: ^4.3.0
   prettier-plugin-sh: ^0.20.2
   prism-react-renderer: ^2.4.1
