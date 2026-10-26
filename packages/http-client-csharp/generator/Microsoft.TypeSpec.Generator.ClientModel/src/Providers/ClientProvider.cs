@@ -322,10 +322,9 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                 var otherBuilderNames = GetRestRequestBuilderNames(other, otherRestName);
                 if (candidateBuilderNames.Intersect(otherBuilderNames, StringComparer.Ordinal).Any())
                 {
-                    var candidateRestParameters = RestClientProvider.GetMethodParameters(serviceMethod, ScmMethodKind.CreateRequest, this, applyBackCompat: false);
-                    var otherRestParameters = RestClientProvider.GetMethodParameters(other, ScmMethodKind.CreateRequest, this, applyBackCompat: false);
-                    var candidateSignatures = GetRestRequestSignatures(serviceMethod, candidateRestName, candidateRestParameters);
-                    var otherSignatures = GetRestRequestSignatures(other, otherRestName, otherRestParameters);
+                    // Compatibility with a published contract can place Content-Type before the body, so compare both orderings.
+                    var candidateSignatures = GetRestRequestSignatureVariants(serviceMethod, candidateRestName);
+                    var otherSignatures = GetRestRequestSignatureVariants(other, otherRestName);
                     if (candidateSignatures.Any(candidate => otherSignatures.Any(otherSignature =>
                         candidate.Name == otherSignature.Name &&
                         HasEquivalentParameterTypes(candidate.Parameters, otherSignature.Parameters))))
@@ -385,6 +384,19 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
 
             return [.. names];
         }
+
+        private (string Name, List<ParameterProvider> Parameters)[] GetRestRequestSignatureVariants(
+            InputServiceMethod serviceMethod,
+            string operationName)
+            => [.. new[] { false, true }.SelectMany(contentTypeBeforeBody => GetRestRequestSignatures(
+                serviceMethod,
+                operationName,
+                RestClientProvider.GetMethodParameters(
+                    serviceMethod,
+                    ScmMethodKind.CreateRequest,
+                    this,
+                    applyBackCompat: false,
+                    contentTypeBeforeBody: contentTypeBeforeBody)))];
 
         private static (string Name, List<ParameterProvider> Parameters)[] GetRestRequestSignatures(
             InputServiceMethod serviceMethod,

@@ -2894,6 +2894,51 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
             Assert.AreEqual(expectedListName, listMethod.Name);
         }
 
+        [Test]
+        public void ListNormalizationPreservesNameWhenCompatOrderingCollidesRequestBuilders()
+        {
+            var requestBody = InputFactory.Model("RequestBody");
+            var listOperation = InputFactory.Operation(
+                "ListWidgets",
+                parameters:
+                [
+                    InputFactory.HeaderParameter("contentType", InputPrimitiveType.String, isRequired: true, isContentType: true, serializedName: "Content-Type"),
+                    InputFactory.BodyParameter("body", requestBody, isRequired: true)
+                ],
+                httpMethod: "POST",
+                generateConvenienceMethod: false);
+            var listMethod = InputFactory.BasicServiceMethod(
+                "ListWidgets",
+                listOperation,
+                parameters:
+                [
+                    InputFactory.MethodParameter("contentType", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Header, serializedName: "Content-Type"),
+                    InputFactory.MethodParameter("body", requestBody, isRequired: true, location: InputRequestLocation.Body)
+                ]);
+            var getOperation = InputFactory.Operation(
+                "GetWidgets",
+                parameters:
+                [
+                    InputFactory.QueryParameter("filter", InputPrimitiveType.String, isRequired: true),
+                    InputFactory.BodyParameter("body", requestBody, isRequired: true)
+                ],
+                httpMethod: "POST",
+                generateConvenienceMethod: false);
+            var getMethod = InputFactory.BasicServiceMethod(
+                "GetWidgets",
+                getOperation,
+                parameters:
+                [
+                    InputFactory.MethodParameter("filter", InputPrimitiveType.String, isRequired: true, location: InputRequestLocation.Query),
+                    InputFactory.MethodParameter("body", requestBody, isRequired: true, location: InputRequestLocation.Body)
+                ]);
+            var inputClient = InputFactory.Client("TestClient", methods: [listMethod, getMethod]);
+            MockHelpers.LoadMockGenerator(clients: () => [inputClient], inputModels: () => [requestBody]);
+            _ = ScmCodeModelGenerator.Instance.TypeFactory.CreateClient(inputClient)!;
+
+            Assert.AreEqual("ListWidgets", listMethod.Name);
+        }
+
         [TestCase(true, "ListWidgets")]
         [TestCase(false, "GetWidgets")]
         public void ListNormalizationComparesNamedProtocolVariants(bool crossVariantCollision, string expectedListName)

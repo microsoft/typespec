@@ -1252,7 +1252,8 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
             InputServiceMethod serviceMethod,
             ScmMethodKind methodType,
             ClientProvider client,
-            bool applyBackCompat = true)
+            bool applyBackCompat = true,
+            bool contentTypeBeforeBody = false)
         {
             SortedList<int, ParameterProvider> sortedParams = [];
             int path = 0;
@@ -1401,7 +1402,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     case ParameterLocation.Query:
                     case ParameterLocation.Header:
                         if (IsContentTypeParameter(inputParam)
-                            && (!applyBackCompat || !HasContentTypeBeforeBodyInLastContract(serviceMethod, client.BackCompatProvider)))
+                            && !(contentTypeBeforeBody || (applyBackCompat && HasContentTypeBeforeBodyInLastContract(serviceMethod, client.BackCompatProvider))))
                         {
                             sortedParams.Add(contentType++, parameter);
                         }
