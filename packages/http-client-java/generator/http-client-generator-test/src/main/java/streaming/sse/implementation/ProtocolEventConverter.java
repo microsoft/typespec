@@ -35,7 +35,7 @@ public final class ProtocolEventConverter {
          * @param eventName The event name.
          * @return The event.
          */
-        ProtocolEvent createEvent(String eventName);
+        ProtocolEvent unknownEvent(String eventName);
 
         /**
          * Creates a message event.
@@ -87,7 +87,7 @@ public final class ProtocolEventConverter {
                 return accessor.createMessage(read(eventName, data, ProtocolInfo::fromJson));
 
             default:
-                return accessor.createEvent(eventName);
+                return accessor.unknownEvent(eventName);
         }
     }
 

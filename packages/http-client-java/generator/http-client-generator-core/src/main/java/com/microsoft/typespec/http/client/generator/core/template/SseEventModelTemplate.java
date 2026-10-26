@@ -86,7 +86,7 @@ public final class SseEventModelTemplate {
                     .line(converterName + ".setConstructorAccessor(new " + converterName + ".ConstructorAccessor() {");
                 staticBlock.indent(() -> {
                     staticBlock.line("@Override");
-                    staticBlock.block("public " + baseEventName + " createEvent(String eventName)",
+                    staticBlock.block("public " + baseEventName + " unknownEvent(String eventName)",
                         method -> method.methodReturn("new " + baseEventName + "(eventName) {}"));
                     for (SseEventMetadata event : metadata.getEvents()) {
                         IType payloadType = Mappers.getSchemaMapper().map(event.getPayload()).getClientType();

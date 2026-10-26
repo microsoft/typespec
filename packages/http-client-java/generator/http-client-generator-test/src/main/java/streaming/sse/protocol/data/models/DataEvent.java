@@ -54,7 +54,7 @@ public abstract class DataEvent {
     static {
         DataEventConverter.setConstructorAccessor(new DataEventConverter.ConstructorAccessor() {
             @Override
-            public DataEvent createEvent(String eventName) {
+            public DataEvent unknownEvent(String eventName) {
                 return new DataEvent(eventName) {
                 };
             }

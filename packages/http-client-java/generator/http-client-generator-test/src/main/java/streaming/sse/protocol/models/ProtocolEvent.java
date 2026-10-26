@@ -53,7 +53,7 @@ public abstract class ProtocolEvent {
     static {
         ProtocolEventConverter.setConstructorAccessor(new ProtocolEventConverter.ConstructorAccessor() {
             @Override
-            public ProtocolEvent createEvent(String eventName) {
+            public ProtocolEvent unknownEvent(String eventName) {
                 return new ProtocolEvent(eventName) {
                 };
             }

@@ -4,6 +4,7 @@
 package com.microsoft.typespec.http.client.generator.core.util;
 
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ArraySchema;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.DictionarySchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Language;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Languages;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.Schema;
@@ -114,6 +115,8 @@ public final class SseMetadataRegistry {
         key.add(languageName(schema.getLanguage()));
         if (schema instanceof ArraySchema) {
             key.add(schemaKey(((ArraySchema) schema).getElementType()));
+        } else if (schema instanceof DictionarySchema) {
+            key.add(schemaKey(((DictionarySchema) schema).getElementType()));
         }
         return key;
     }

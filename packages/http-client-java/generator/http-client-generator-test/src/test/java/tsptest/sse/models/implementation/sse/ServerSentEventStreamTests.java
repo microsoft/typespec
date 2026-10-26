@@ -32,6 +32,7 @@ import tsptest.sse.SseClient;
 import tsptest.sse.implementation.TestStreamEventConverter;
 import tsptest.sse.stream.models.TestCollectionsStreamEvent;
 import tsptest.sse.stream.models.TestCompletedStreamEvent;
+import tsptest.sse.stream.models.TestEventStreamEvent;
 import tsptest.sse.stream.models.TestMapStreamEvent;
 import tsptest.sse.stream.models.TestModelMapStreamEvent;
 import tsptest.sse.stream.models.TestStartedStreamEvent;
@@ -83,6 +84,17 @@ public class ServerSentEventStreamTests {
         Assertions.assertEquals(List.of("one", "two"), completed.getValue().getResult());
         Assertions.assertTrue(completed.isTerminal());
         Assertions.assertTrue(cancelled.get());
+    }
+
+    @Test
+    public void decodesNamedEventWithoutCollidingWithUnknownEventFactory() {
+        TestStreamEvent known = CONVERTER.apply("event", "\"payload\"");
+        Assertions.assertEquals("event", known.getEventName());
+        Assertions.assertEquals("payload", Assertions.assertInstanceOf(TestEventStreamEvent.class, known).getValue());
+
+        TestStreamEvent unknown = CONVERTER.apply("unknown.event", "not JSON");
+        Assertions.assertEquals("unknown.event", unknown.getEventName());
+        Assertions.assertFalse(unknown.isTerminal());
     }
 
     @Test

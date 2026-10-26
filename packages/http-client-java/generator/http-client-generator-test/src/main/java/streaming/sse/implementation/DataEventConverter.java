@@ -36,7 +36,7 @@ public final class DataEventConverter {
          * @param eventName The event name.
          * @return The event.
          */
-        DataEvent createEvent(String eventName);
+        DataEvent unknownEvent(String eventName);
 
         /**
          * Creates a withEnvelope event.
@@ -99,7 +99,7 @@ public final class DataEventConverter {
                 return accessor.createWithoutEnvelope(read(eventName, data, WithEnvelope1::fromJson));
 
             default:
-                return accessor.createEvent(eventName);
+                return accessor.unknownEvent(eventName);
         }
     }
 

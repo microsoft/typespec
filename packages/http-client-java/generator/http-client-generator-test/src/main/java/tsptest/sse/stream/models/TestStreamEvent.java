@@ -20,6 +20,7 @@ import tsptest.sse.models.StartedPayload;
  *
  * @see TestStartedStreamEvent
  * @see TestTextStreamEvent
+ * @see TestEventStreamEvent
  * @see TestMapStreamEvent
  * @see TestCollectionsStreamEvent
  * @see TestModelMapStreamEvent
@@ -62,7 +63,7 @@ public abstract class TestStreamEvent {
     static {
         TestStreamEventConverter.setConstructorAccessor(new TestStreamEventConverter.ConstructorAccessor() {
             @Override
-            public TestStreamEvent createEvent(String eventName) {
+            public TestStreamEvent unknownEvent(String eventName) {
                 return new TestStreamEvent(eventName) {
                 };
             }
@@ -75,6 +76,11 @@ public abstract class TestStreamEvent {
             @Override
             public TestTextStreamEvent createText(String value) {
                 return new TestTextStreamEvent(value);
+            }
+
+            @Override
+            public TestEventStreamEvent createEvent(String value) {
+                return new TestEventStreamEvent(value);
             }
 
             @Override

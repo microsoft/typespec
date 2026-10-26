@@ -71,7 +71,7 @@ public final class SseEventConverterTemplate implements IJavaTemplate<SseMetadat
                         comment.param("eventName", "The event name.");
                         comment.methodReturns("The event.");
                     });
-                    interfaceBlock.publicMethod(baseEventType + " createEvent(String eventName)");
+                    interfaceBlock.publicMethod(baseEventType + " unknownEvent(String eventName)");
                     for (SseEventMetadata event : metadata.getEvents()) {
                         IType wrapperType = SseUtil.getEventType(metadata, names.getEventWrapperName(event.getName()));
                         IType payloadType = Mappers.getSchemaMapper().map(event.getPayload()).getClientType();
@@ -136,7 +136,7 @@ public final class SseEventConverterTemplate implements IJavaTemplate<SseMetadat
                         method.line();
                     }
                     method.line("default:");
-                    method.indent(() -> method.methodReturn("accessor.createEvent(eventName)"));
+                    method.indent(() -> method.methodReturn("accessor.unknownEvent(eventName)"));
                 });
                 method.line("}");
             });

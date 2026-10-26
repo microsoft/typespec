@@ -158,6 +158,26 @@ public class JavaPackageSseTests {
     }
 
     @Test
+    public void separatesUnknownEventFactoryFromNamedEventFactories() {
+        JavaSettings.clear();
+        JavaPackage javaPackage = new JavaPackage(mockJavagenWithGeneratedHeader());
+        SseMetadata metadata = metadata();
+        metadata.setEvents(List.of(event("event", stringSchema()), event("unknownEvent", stringSchema())));
+
+        javaPackage.addSseEventFiles(metadata);
+
+        String baseSource = javaPackage.getJavaFiles().get(0).getContents().toString();
+        String converterSource = javaPackage.getJavaFiles().get(3).getContents().toString();
+        Assertions.assertTrue(converterSource.contains("RetrievalStreamEvent unknownEvent(String eventName)"));
+        Assertions.assertTrue(converterSource.contains("RetrievalEventStreamEvent createEvent(String value)"));
+        Assertions.assertTrue(converterSource.contains("accessor.createEvent(read(eventName, data,"));
+        Assertions.assertTrue(converterSource.contains("accessor.unknownEvent(eventName)"));
+        Assertions.assertTrue(baseSource.contains("public RetrievalStreamEvent unknownEvent(String eventName)"));
+        Assertions.assertTrue(baseSource.contains("public RetrievalEventStreamEvent createEvent(String value)"));
+        Assertions.assertTrue(baseSource.contains("createUnknownEvent(String value)"));
+    }
+
+    @Test
     public void rejectsOrdinaryModelCollisionsBeforeAddingSseFiles() {
         for (String collidingClassName : List.of("RetrievalStreamEvent", "RetrievalStartedStreamEvent",
             "RetrievalStreamEventConverter")) {

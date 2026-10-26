@@ -17,6 +17,7 @@ import tsptest.sse.models.CompletedPayload;
 import tsptest.sse.models.StartedPayload;
 import tsptest.sse.stream.models.TestCollectionsStreamEvent;
 import tsptest.sse.stream.models.TestCompletedStreamEvent;
+import tsptest.sse.stream.models.TestEventStreamEvent;
 import tsptest.sse.stream.models.TestMapStreamEvent;
 import tsptest.sse.stream.models.TestModelMapStreamEvent;
 import tsptest.sse.stream.models.TestStartedStreamEvent;
@@ -43,7 +44,7 @@ public final class TestStreamEventConverter {
          * @param eventName The event name.
          * @return The event.
          */
-        TestStreamEvent createEvent(String eventName);
+        TestStreamEvent unknownEvent(String eventName);
 
         /**
          * Creates a started event.
@@ -60,6 +61,14 @@ public final class TestStreamEventConverter {
          * @return The event.
          */
         TestTextStreamEvent createText(String value);
+
+        /**
+         * Creates an event event.
+         *
+         * @param value The decoded payload.
+         * @return The event.
+         */
+        TestEventStreamEvent createEvent(String value);
 
         /**
          * Creates a map event.
@@ -137,6 +146,9 @@ public final class TestStreamEventConverter {
             case "text":
                 return accessor.createText(read(eventName, data, reader -> reader.getString()));
 
+            case "event":
+                return accessor.createEvent(read(eventName, data, reader -> reader.getString()));
+
             case "map":
                 return accessor
                     .createMap(read(eventName, data, reader -> reader.readMap(reader1 -> reader1.getString())));
@@ -153,7 +165,7 @@ public final class TestStreamEventConverter {
                 return accessor.createCompleted(read(eventName, data, CompletedPayload::fromJson));
 
             default:
-                return accessor.createEvent(eventName);
+                return accessor.unknownEvent(eventName);
         }
     }
 

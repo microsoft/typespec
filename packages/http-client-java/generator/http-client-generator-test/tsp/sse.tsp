@@ -62,6 +62,7 @@ model CompletedEnvelope {
 union TestStreamEvents {
   started: StartedEnvelope,
   text: ScalarEnvelope,
+  event: ScalarEnvelope,
   map: DictionaryEnvelope,
   collections: CollectionsEnvelope,
   modelMap: ModelMapEnvelope,
