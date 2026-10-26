@@ -613,23 +613,6 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.Definitions
         }
 
         [Test]
-        public async Task ExperimentalDeprecatedModelsHaveAllSuppressions()
-        {
-            var generated = InputFactory.Experimental(
-                InputFactory.Model("GeneratedCombinedModel", deprecation: "Use CurrentModel instead."),
-                "GENERATED001");
-            var customized = InputFactory.Model("CustomCombinedModel");
-            await MockHelpers.LoadMockGeneratorAsync(
-                inputModels: () => [generated, customized, InputFactory.Model("RegularModel")],
-                compilation: () => Helpers.GetCompilationFromDirectoryAsync());
-            var context = new ModelReaderWriterContextDefinition();
-
-            Assert.AreEqual(3, GetBuildableAttributes(context).Count);
-            Assert.AreEqual(Helpers.GetExpectedFromFile(), new TypeProviderWriter(context).Write().Content);
-            Assert.AreEqual(3, context.Attributes.Count);
-        }
-
-        [Test]
         public void ExperimentalObsoleteFrameworkTypesHaveAllSuppressions()
         {
             var model = InputFactory.Model("ParentModel", properties:

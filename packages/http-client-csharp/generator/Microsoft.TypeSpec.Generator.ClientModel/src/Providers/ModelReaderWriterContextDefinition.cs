@@ -626,7 +626,7 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Providers
                     string justification = $"{typeProvider.Type} is experimental and may change in future versions.";
                     suppressions.Add(new SuppressionStatement(null, attribute.Arguments[0], justification));
                 }
-                else if (attribute.Type.Equals(typeof(ObsoleteAttribute)))
+                else if (DeprecationApiHelpers.IsObsoleteAttribute(attribute))
                 {
                     string justification = $"{typeProvider.Type} is obsolete and may be removed in future versions.";
                     suppressions.Add(new SuppressionStatement(null,
