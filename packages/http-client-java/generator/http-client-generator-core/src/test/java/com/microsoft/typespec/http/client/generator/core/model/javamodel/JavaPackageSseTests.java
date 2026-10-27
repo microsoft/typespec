@@ -5,6 +5,7 @@ package com.microsoft.typespec.http.client.generator.core.model.javamodel;
 
 import com.microsoft.typespec.http.client.generator.core.MockUnitJavagen;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.ArraySchema;
+import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.DateSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.DateTimeSchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.DictionarySchema;
 import com.microsoft.typespec.http.client.generator.core.extension.model.codemodel.DurationSchema;
@@ -291,10 +292,11 @@ public class JavaPackageSseTests {
     @Test
     public void fullyQualifiesPayloadTypesThatCollideWithSseTypesOrImports(@TempDir Path tempDir) throws IOException {
         JavaSettings.clear();
-        List<String> collidingPayloadNames
-            = List.of("RetrievalStreamEvent", "ConstructorAccessor", "ClientLogger", "JsonProviders", "JsonReader",
-                "ReadValueCallback", "IOException", "UncheckedIOException", "Objects", "Generated", "Immutable",
-                "Override", "String", "Class", "ClassNotFoundException", "LinkageError", "IllegalStateException");
+        List<String> collidingPayloadNames = List.of("RetrievalStreamEvent", "ConstructorAccessor", "ClientLogger",
+            "JsonProviders", "JsonReader", "ReadValueCallback", "IOException", "UncheckedIOException", "Objects",
+            "Generated", "Immutable", "Override", "String", "Boolean", "Byte", "Character", "Double", "Float",
+            "Integer", "Long", "Object", "Short", "Void", "Class", "ClassNotFoundException", "LinkageError",
+            "IllegalStateException", "LocalDate", "Duration", "OffsetDateTime");
         List<ObjectSchema> collidingPayloads = collidingPayloadNames.stream()
             .map(name -> objectSchema(name, "com.azure.payload"))
             .collect(Collectors.toList());
@@ -309,22 +311,23 @@ public class JavaPackageSseTests {
         events.add(event("nested", dictionary(array(dictionary(collidingPayloads.get(1))))));
         events.add(event("shared.first", firstSharedPayload));
         events.add(event("shared.second", dictionary(array(secondSharedPayload))));
+        NumberSchema int64 = new NumberSchema();
+        int64.setType(Schema.AllSchemaTypes.INTEGER);
+        int64.setPrecision(64);
+        DateSchema plainDate = new DateSchema();
+        plainDate.setType(Schema.AllSchemaTypes.DATE);
+        DurationSchema duration = new DurationSchema();
+        duration.setType(Schema.AllSchemaTypes.DURATION);
+        DateTimeSchema dateTime = new DateTimeSchema();
+        dateTime.setType(Schema.AllSchemaTypes.DATE_TIME);
+        dateTime.setFormat(DateTimeSchema.Format.DATE_TIME);
+        events.add(event("long.values", array(int64)));
+        events.add(event("date.values", dictionary(array(plainDate))));
+        events.add(event("duration.values", dictionary(array(duration))));
+        events.add(event("dateTime.values", dictionary(array(dateTime))));
         metadata.setEvents(events);
 
         javaPackage.addSseEventFiles(metadata);
-
-        String generatedSources = javaPackage.getJavaFiles()
-            .stream()
-            .map(javaFile -> javaFile.getContents().toString())
-            .collect(Collectors.joining());
-        Assertions.assertTrue(generatedSources.contains("com.azure.payload.models.ConstructorAccessor::fromJson"));
-        Assertions.assertTrue(
-            generatedSources.contains("Map<String, List<Map<String, com.azure.payload.models.ConstructorAccessor>>>"));
-        Assertions.assertTrue(generatedSources.contains("com.azure.first.models.SharedPayload"));
-        Assertions.assertTrue(generatedSources.contains("com.azure.second.models.SharedPayload"));
-        Assertions.assertFalse(generatedSources.contains("import com.azure.payload.models.ConstructorAccessor;"));
-        Assertions.assertFalse(generatedSources.contains("import com.azure.first.models.SharedPayload;"));
-        Assertions.assertFalse(generatedSources.contains("import com.azure.second.models.SharedPayload;"));
 
         List<Path> sources = new ArrayList<>();
         for (JavaFile javaFile : javaPackage.getJavaFiles()) {
@@ -348,6 +351,31 @@ public class JavaPackageSseTests {
         Assertions.assertEquals(0,
             ToolProvider.getSystemJavaCompiler().run(null, diagnostics, diagnostics, arguments.toArray(new String[0])),
             diagnostics.toString(StandardCharsets.UTF_8));
+
+        String generatedSources = javaPackage.getJavaFiles()
+            .stream()
+            .map(javaFile -> javaFile.getContents().toString())
+            .collect(Collectors.joining());
+        Assertions.assertTrue(generatedSources.contains("com.azure.payload.models.ConstructorAccessor::fromJson"));
+        Assertions.assertTrue(
+            generatedSources.contains("Map<String, List<Map<String, com.azure.payload.models.ConstructorAccessor>>>"));
+        Assertions.assertTrue(generatedSources.contains("com.azure.first.models.SharedPayload"));
+        Assertions.assertTrue(generatedSources.contains("com.azure.second.models.SharedPayload"));
+        Assertions.assertFalse(generatedSources.contains("import com.azure.payload.models.ConstructorAccessor;"));
+        Assertions.assertFalse(generatedSources.contains("import com.azure.first.models.SharedPayload;"));
+        Assertions.assertFalse(generatedSources.contains("import com.azure.second.models.SharedPayload;"));
+        for (String scalarName : List.of("Boolean", "Byte", "Character", "Double", "Float", "Integer", "Long", "Object",
+            "Short", "Void", "LocalDate", "Duration", "OffsetDateTime")) {
+            Assertions.assertTrue(generatedSources.contains("com.azure.payload.models." + scalarName));
+            Assertions.assertFalse(generatedSources.contains("import com.azure.payload.models." + scalarName + ";"));
+        }
+        Assertions.assertTrue(generatedSources.contains("List<Long>"));
+        Assertions.assertTrue(generatedSources.contains("import java.time.LocalDate;"));
+        Assertions.assertTrue(generatedSources.contains("import java.time.Duration;"));
+        Assertions.assertTrue(generatedSources.contains("import java.time.OffsetDateTime;"));
+        Assertions.assertTrue(generatedSources.contains("LocalDate.parse("));
+        Assertions.assertTrue(generatedSources.contains("Duration.parse("));
+        Assertions.assertTrue(generatedSources.contains("CoreUtils.parseBestOffsetDateTime("));
     }
 
     private static Path writePayloadSource(Path tempDir, String packageName, String payloadName) throws IOException {

@@ -26,7 +26,8 @@ import java.util.stream.Collectors;
  */
 public final class SseUtil {
     public static final String SERVER_SENT_EVENT_STREAMS = "ServerSentEventStreams";
-    private static final Set<String> TEMPLATE_DECLARED_TYPE_NAMES = Set.of("ConstructorAccessor", "String", "Class",
+    private static final Set<String> TEMPLATE_DECLARED_TYPE_NAMES = Set.of("ConstructorAccessor", "String", "Boolean",
+        "Byte", "Character", "Double", "Float", "Integer", "Long", "Object", "Short", "Void", "Class",
         "ClassNotFoundException", "LinkageError", "IllegalStateException", "Override");
     private static final Set<String> TEMPLATE_IMPORTS
         = Set.of("com.azure.json.JsonProviders", "com.azure.json.JsonReader", "com.azure.json.ReadValueCallback",
@@ -62,22 +63,24 @@ public final class SseUtil {
 
         Set<String> fullyQualifiedTypeNames = new LinkedHashSet<>();
         Map<String, String> importsBySimpleName = new HashMap<>();
-        TEMPLATE_IMPORTS.forEach(
-            importName -> trackImport(importName, importsBySimpleName, reservedSimpleNames, fullyQualifiedTypeNames));
-        trackImport(ClassType.CLIENT_LOGGER.getFullName(), importsBySimpleName, reservedSimpleNames,
-            fullyQualifiedTypeNames);
-        trackImport(Annotation.GENERATED.getFullName(), importsBySimpleName, reservedSimpleNames,
-            fullyQualifiedTypeNames);
-        trackImport(Annotation.IMMUTABLE.getFullName(), importsBySimpleName, reservedSimpleNames,
-            fullyQualifiedTypeNames);
+        Set<String> preferredImports = new LinkedHashSet<>();
+        TEMPLATE_IMPORTS.forEach(importName -> trackImport(importName, true, importsBySimpleName, preferredImports,
+            reservedSimpleNames, fullyQualifiedTypeNames));
+        trackImport(ClassType.CLIENT_LOGGER.getFullName(), true, importsBySimpleName, preferredImports,
+            reservedSimpleNames, fullyQualifiedTypeNames);
+        trackImport(Annotation.GENERATED.getFullName(), true, importsBySimpleName, preferredImports,
+            reservedSimpleNames, fullyQualifiedTypeNames);
+        trackImport(Annotation.IMMUTABLE.getFullName(), true, importsBySimpleName, preferredImports,
+            reservedSimpleNames, fullyQualifiedTypeNames);
         metadata.getEvents().forEach(event -> {
             IType wirePayloadType = Mappers.getSchemaMapper().map(event.getPayload());
-            trackTypeImports(wirePayloadType, importsBySimpleName, reservedSimpleNames, fullyQualifiedTypeNames);
-            trackTypeImports(wirePayloadType.getClientType(), importsBySimpleName, reservedSimpleNames,
+            trackTypeImports(wirePayloadType, importsBySimpleName, preferredImports, reservedSimpleNames,
                 fullyQualifiedTypeNames);
+            trackTypeImports(wirePayloadType.getClientType(), importsBySimpleName, preferredImports,
+                reservedSimpleNames, fullyQualifiedTypeNames);
             if (wirePayloadType.contains(ClassType.DATE_TIME)) {
-                trackImport(ClassType.CORE_UTILS.getFullName(), importsBySimpleName, reservedSimpleNames,
-                    fullyQualifiedTypeNames);
+                trackImport(ClassType.CORE_UTILS.getFullName(), true, importsBySimpleName, preferredImports,
+                    reservedSimpleNames, fullyQualifiedTypeNames);
             }
         });
         return fullyQualifiedTypeNames;
@@ -120,23 +123,52 @@ public final class SseUtil {
     }
 
     private static void trackTypeImports(IType type, Map<String, String> importsBySimpleName,
-        Set<String> reservedSimpleNames, Set<String> fullyQualifiedTypeNames) {
+        Set<String> preferredImports, Set<String> reservedSimpleNames, Set<String> fullyQualifiedTypeNames) {
         Set<String> imports = new LinkedHashSet<>();
         type.addImportsTo(imports, false);
-        imports.forEach(
-            importName -> trackImport(importName, importsBySimpleName, reservedSimpleNames, fullyQualifiedTypeNames));
+        Set<String> preferredTypeImports = new LinkedHashSet<>();
+        collectPreferredTypeImports(type, preferredTypeImports);
+        imports.forEach(importName -> trackImport(importName, preferredTypeImports.contains(importName),
+            importsBySimpleName, preferredImports, reservedSimpleNames, fullyQualifiedTypeNames));
     }
 
-    private static void trackImport(String importName, Map<String, String> importsBySimpleName,
-        Set<String> reservedSimpleNames, Set<String> fullyQualifiedTypeNames) {
+    private static void trackImport(String importName, boolean preferred, Map<String, String> importsBySimpleName,
+        Set<String> preferredImports, Set<String> reservedSimpleNames, Set<String> fullyQualifiedTypeNames) {
         String simpleName = importName.substring(importName.lastIndexOf('.') + 1);
-        if (reservedSimpleNames.contains(simpleName)) {
+        if (reservedSimpleNames.contains(simpleName) && !preferred) {
             fullyQualifiedTypeNames.add(importName);
         }
         String existingImport = importsBySimpleName.putIfAbsent(simpleName, importName);
+        if (preferred) {
+            preferredImports.add(importName);
+        }
         if (existingImport != null && !existingImport.equals(importName)) {
-            fullyQualifiedTypeNames.add(existingImport);
-            fullyQualifiedTypeNames.add(importName);
+            boolean existingPreferred = preferredImports.contains(existingImport);
+            if (existingPreferred && !preferred) {
+                fullyQualifiedTypeNames.add(importName);
+            } else if (!existingPreferred && preferred) {
+                fullyQualifiedTypeNames.add(existingImport);
+                importsBySimpleName.put(simpleName, importName);
+            } else {
+                fullyQualifiedTypeNames.add(existingImport);
+                fullyQualifiedTypeNames.add(importName);
+            }
+        }
+    }
+
+    private static void collectPreferredTypeImports(IType type, Set<String> preferredImports) {
+        if (type instanceof ClassType) {
+            ClassType classType = (ClassType) type;
+            if (!classType.isSwaggerType()) {
+                classType.addImportsTo(preferredImports, false);
+            }
+        } else if (type instanceof GenericType) {
+            GenericType genericType = (GenericType) type;
+            preferredImports.add(genericType.getPackage() + "." + genericType.getName());
+            Arrays.stream(genericType.getTypeArguments())
+                .forEach(typeArgument -> collectPreferredTypeImports(typeArgument, preferredImports));
+        } else if (type instanceof ArrayType) {
+            collectPreferredTypeImports(((ArrayType) type).getElementType(), preferredImports);
         }
     }
 
