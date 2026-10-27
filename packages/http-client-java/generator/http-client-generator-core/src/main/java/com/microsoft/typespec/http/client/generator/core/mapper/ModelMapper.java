@@ -69,9 +69,8 @@ public class ModelMapper implements IMapper<ObjectSchema, ClientModel>, NeedsPla
             }
 
             if (usages.contains(ImplementationDetails.Usage.JSON_MERGE_PATCH)
-                && !usages.contains(ImplementationDetails.Usage.INPUT)) {
-                // Remove the usage of JSON merge patch if the model isn't used as INPUT to the service. JSON merge
-                // patch logic is only used for INPUT.
+                && (settings.isFluent() || !usages.contains(ImplementationDetails.Usage.INPUT))) {
+                // JSON merge patch models are only supported for non-Fluent input models.
                 usages.remove(ImplementationDetails.Usage.JSON_MERGE_PATCH);
             }
 
@@ -357,7 +356,7 @@ public class ModelMapper implements IMapper<ObjectSchema, ClientModel>, NeedsPla
 
             if (isPolymorphic && !CoreUtils.isNullOrEmpty(derivedTypes)) {
                 // Preserve the fixed outer discriminator when a child starts a nested discriminator hierarchy.
-                for (ClientModel derivedType : derivedTypes) {
+                for (ClientModel derivedType : result.getDirectPolymorphicDerivedModels()) {
                     if (!Objects.equals(polymorphicDiscriminator, derivedType.getPolymorphicDiscriminatorName())) {
                         ClientModelProperty parentDiscriminator = result.getPolymorphicDiscriminator()
                             .newBuilder()

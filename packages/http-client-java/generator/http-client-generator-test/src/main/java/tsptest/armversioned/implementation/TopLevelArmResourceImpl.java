@@ -140,9 +140,12 @@ public final class TopLevelArmResourceImpl
         tsptest.armversioned.ArmVersionedManager serviceManager) {
         this.innerObject = innerObject;
         this.serviceManager = serviceManager;
-        this.resourceGroupName = ResourceManagerUtils.getValueFromIdByName(innerObject.id(), "resourceGroups");
-        this.topLevelArmResourcePropertiesName
-            = ResourceManagerUtils.getValueFromIdByName(innerObject.id(), "topLevelArmResources");
+        this.resourceGroupName = ResourceManagerUtils.getValueFromIdByParameterName(innerObject.id(),
+            "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmVersioned/topLevelArmResources/{topLevelArmResourcePropertiesName}",
+            "resourceGroupName");
+        this.topLevelArmResourcePropertiesName = ResourceManagerUtils.getValueFromIdByParameterName(innerObject.id(),
+            "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/TspTest.ArmVersioned/topLevelArmResources/{topLevelArmResourcePropertiesName}",
+            "topLevelArmResourcePropertiesName");
     }
 
     public TopLevelArmResource refresh() {

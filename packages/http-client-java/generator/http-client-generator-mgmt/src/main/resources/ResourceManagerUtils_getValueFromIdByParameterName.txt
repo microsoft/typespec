@@ -1,30 +1,36 @@
-if (id == null || pathTemplate == null) {
+if (id == null || pathTemplate == null || parameterName == null) {
     return null;
 }
-String parameterNameParentheses = "{" + parameterName +  "}";
-List<String> idSegmentsReverted = Arrays.asList(id.split("/"));
-List<String> pathSegments = Arrays.asList(pathTemplate.split("/"));
-Collections.reverse(idSegmentsReverted);
-Iterator<String> idItrReverted = idSegmentsReverted.iterator();
-int pathIndex = pathSegments.size();
-while (idItrReverted.hasNext() && pathIndex > 0) {
-    String idSegment = idItrReverted.next();
-    String pathSegment = pathSegments.get(--pathIndex);
-    if (!CoreUtils.isNullOrEmpty(idSegment) && !CoreUtils.isNullOrEmpty(pathSegment)) {
-        if (pathSegment.equalsIgnoreCase(parameterNameParentheses)) {
-            if (pathIndex == 0 || (pathIndex == 1 && pathSegments.get(0).isEmpty())) {
-                List<String> segments = new ArrayList<>();
-                segments.add(idSegment);
-                idItrReverted.forEachRemaining(segments::add);
-                Collections.reverse(segments);
-                if (!segments.isEmpty() && segments.get(0).isEmpty()) {
-                    segments.remove(0);
-                }
-                return String.join("/", segments);
-            } else {
-                return idSegment;
-            }
-        }
+String[] idSegments = id.split("/", -1);
+String[] pathSegments = pathTemplate.split("/", -1);
+int idStart = idSegments[0].isEmpty() ? 1 : 0;
+int pathStart = pathSegments[0].isEmpty() ? 1 : 0;
+if (idStart == idSegments.length || pathStart == pathSegments.length) {
+    return null;
+}
+for (int i = idStart; i < idSegments.length; ++i) {
+    if (idSegments[i].isEmpty()) {
+        return null;
     }
 }
-return null;
+String parameterPlaceholder = "{" + parameterName + "}";
+String value = null;
+int idIndex = idSegments.length - 1;
+for (int pathIndex = pathSegments.length - 1; pathIndex >= pathStart; --pathIndex, --idIndex) {
+    String pathSegment = pathSegments[pathIndex];
+    boolean isParameter = pathSegment.startsWith("{") && pathSegment.endsWith("}");
+    if (pathIndex == pathStart && isParameter) {
+        // A leading scope can span multiple segments, or be empty for tenant resources.
+        if (pathSegment.equalsIgnoreCase(parameterPlaceholder)) {
+            value = String.join("/", Arrays.copyOfRange(idSegments, idStart, idIndex + 1));
+        }
+        idIndex = idStart;
+    } else if (idIndex < idStart) {
+        return null;
+    } else if (!isParameter && !pathSegment.equalsIgnoreCase(idSegments[idIndex])) {
+        return null;
+    } else if (pathSegment.equalsIgnoreCase(parameterPlaceholder)) {
+        value = idSegments[idIndex];
+    }
+}
+return idIndex < idStart ? value : null;

@@ -1412,6 +1412,11 @@ export class CodeModelBuilder {
             continuationTokenParameter,
             continuationTokenResponseProperty,
             continuationTokenResponseHeader,
+            continuationTokenParameterSegment !== undefined &&
+              getClientOptions(
+                continuationTokenParameterSegment,
+                "includeContinuationTokenParameter",
+              ) === true,
           )
         : undefined,
       nextLinkReInjectedParameters: nextLinkReInjectedParameters,
@@ -3089,10 +3094,12 @@ export class CodeModelBuilder {
         this.processModelProperty(type.discriminatorProperty),
       );
       if (type.discriminatedSubtypes) {
-        for (const discriminatorValue in type.discriminatedSubtypes) {
-          const subType = type.discriminatedSubtypes[discriminatorValue];
-          this.processSchema(subType, subType.name);
-        }
+        objectSchema.discriminator.all = Object.fromEntries(
+          Object.entries(type.discriminatedSubtypes).map(([value, subType]): [string, Schema] => [
+            value,
+            this.processSchema(subType, subType.name),
+          ]),
+        );
       }
     }
 
@@ -3830,8 +3837,10 @@ export class CodeModelBuilder {
             if (schema.discriminator) {
               // propagate access/usage to immediate children, if the schema is a discriminated model
               // if the schema is not a discriminated model, its children likely not valid for the mode/API
-              // TODO: it does not handle the case that concrete model (kind: "type1") for the discriminated model have depth larger than 1 (e.g. kind: "type1" | "type2" in middle)
               schema.children?.immediate?.forEach((c) => innerApplySchemaUsage(c, schemaUsage));
+              Object.values(schema.discriminator.all).forEach((c) =>
+                innerApplySchemaUsage(c, schemaUsage),
+              );
             }
 
             if (schema.discriminator?.property?.schema) {

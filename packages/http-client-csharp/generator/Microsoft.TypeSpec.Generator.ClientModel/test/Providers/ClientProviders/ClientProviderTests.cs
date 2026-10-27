@@ -32,6 +32,21 @@ namespace Microsoft.TypeSpec.Generator.ClientModel.Tests.Providers.ClientProvide
 {
     public class ClientProviderTests
     {
+        [Test]
+        public void ClientProviderLookupFollowsIdentityUpdates()
+        {
+            var input = InputFactory.Client("OriginalClient");
+            MockHelpers.LoadMockGenerator(clients: () => [input]);
+            var factory = ScmCodeModelGenerator.Instance.TypeFactory;
+            var client = factory.CreateClient(input)!;
+            var originalIdentity = client.Type.WithNullable(true);
+
+            client.Update(name: "RenamedClient", @namespace: "Renamed");
+
+            Assert.IsFalse(factory.CSharpTypeMap.ContainsKey(originalIdentity));
+            Assert.AreSame(client, factory.CSharpTypeMap[client.Type.WithNullable(true)]);
+        }
+
         [TestCase(false)]
         [TestCase(true)]
         public async Task ExperimentalPolyfilledCustomDeclarationsCompile(bool sourceAnnotated)

@@ -376,11 +376,17 @@ abstract class ConvenienceMethodTemplateBase {
             && protocolMethod.getProxyMethod() != null
             && "application/merge-patch+json".equalsIgnoreCase(protocolMethod.getProxyMethod().getRequestContentType());
         Map<String, String> parameterExpressionsMap = new LinkedHashMap<>();
+        boolean hasInitialContinuationToken = needsInitialContinuationToken(protocolMethod);
+        String initialTokenExpression = "null";
         for (Map.Entry<MethodParameter, MethodParameter> entry : parametersMap.entrySet()) {
             MethodParameter parameter = entry.getKey();
             MethodParameter protocolParameter = entry.getValue();
 
-            if (parameter.getProxyMethodParameter() != null
+            if (hasInitialContinuationToken
+                && ClientMethodTemplateBase.isContinuationTokenParameter(protocolMethod,
+                    parameter.getProxyMethodParameter())) {
+                initialTokenExpression = parameter.getName();
+            } else if (parameter.getProxyMethodParameter() != null
                 && parameter.getProxyMethodParameter().getOrigin() == ParameterSynthesizedOrigin.CONTEXT) {
                 // Context
                 methodBlock.line(String.format("requestOptions.setContext(%s);", parameter.getName()));
@@ -456,6 +462,9 @@ abstract class ConvenienceMethodTemplateBase {
                 }
             })
             .collect(Collectors.joining(", "));
+        if (hasInitialContinuationToken) {
+            invocationExpression = initialTokenExpression + ", " + invocationExpression;
+        }
 
         // write the invocation of protocol method, and related type conversion
         writeInvocationAndConversion(convenienceMethod, protocolMethod, invocationExpression, methodBlock,
@@ -736,6 +745,18 @@ abstract class ConvenienceMethodTemplateBase {
         } else {
             return method.getName();
         }
+    }
+
+    protected String getProtocolMethodInvocationName(ClientMethod method) {
+        return needsInitialContinuationToken(method) ? "serviceClient." + method.getName() : getMethodName(method);
+    }
+
+    private static boolean needsInitialContinuationToken(ClientMethod method) {
+        return JavaSettings.getInstance().isAzureV1()
+            && JavaSettings.getInstance().isDataPlaneClient()
+            && method.isPageStreamingType()
+            && method.getMethodPageDetails().getContinuationToken() != null
+            && method.getMethodPageDetails().getContinuationToken().getClientMethodParameter() == null;
     }
 
     /**

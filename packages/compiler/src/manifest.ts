@@ -12,6 +12,7 @@ try {
 
 export const typespecVersion = manifest.version;
 
+/** Compiler build identity, including the published version and originating source revision. */
 export interface TypeSpecManifest {
   /**
    * Version of the tsp compiler.
@@ -29,4 +30,5 @@ export interface TypeSpecManifest {
   pr?: number;
 }
 
+/** Build metadata embedded in this compiler distribution. */
 export const MANIFEST: TypeSpecManifest = manifest;

@@ -1,9 +1,10 @@
-import { strictEqual } from "assert";
+import { ok, strictEqual } from "assert";
 import { describe, it } from "vitest";
 import { getNodeForTarget } from "../../src/core/diagnostics.js";
 import { SyntaxKind } from "../../src/core/types.js";
 import type { SourceLocationOptions } from "../../src/index.js";
 import { getSourceLocation } from "../../src/index.js";
+import { t } from "../../src/testing/marked-template.js";
 import { extractSquiggles } from "../../src/testing/source-utils.js";
 import { Tester } from "../tester.js";
 
@@ -35,6 +36,34 @@ describe("getSourceLocation", () => {
     `,
       { locateId: true },
     ));
+
+  describe("type references", () => {
+    async function expectReferenceLocation(
+      reference: string,
+      highlighted: string,
+      options: SourceLocationOptions = {},
+    ) {
+      const { prop } = await Tester.compile(t.code`
+        model Foo<T> {}
+        namespace N { model Foo<T> {} }
+        model Test {
+          ${t.modelProperty("prop")}: ${reference};
+        }
+      `);
+      ok(prop.node?.kind === SyntaxKind.ModelProperty);
+      const location = getSourceLocation(prop.node.value, options);
+      strictEqual(location.file.text.slice(location.pos, location.end), highlighted);
+    }
+
+    it("includes template arguments by default", () =>
+      expectReferenceLocation("N.Foo<string>", "N.Foo<string>"));
+
+    it("highlights only the reference target with locateId", () =>
+      expectReferenceLocation("Foo<string>", "Foo", { locateId: true }));
+
+    it("preserves the qualified target without template arguments with locateId", () =>
+      expectReferenceLocation("N.Foo<string>", "N.Foo", { locateId: true }));
+  });
 });
 
 describe("getNodeForTarget", () => {

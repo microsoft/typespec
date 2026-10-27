@@ -64,6 +64,7 @@ export class EnumMemberHttpCanonicalization
     return this.engine.subgraphMatchesPredicate(this, predicate);
   }
 
+  /** Supplies an option-based cache key for an enum member, which needs no encoding codec. */
   static mutationInfo(
     engine: HttpCanonicalizer,
     sourceType: EnumMember,
@@ -79,6 +80,10 @@ export class EnumMemberHttpCanonicalization
     };
   }
 
+  /**
+   * Creates language and wire nodes that preserve the member's name and value.
+   * Enum members are leaves; no child canonicalizations are required.
+   */
   constructor(
     engine: HttpCanonicalizer,
     sourceType: EnumMember,

@@ -34,8 +34,8 @@
     <!-- The 'MessagePack' is not used directly but referenced by nuget package 'Microsoft.VisualStudio.SDK', 'Microsoft.VisualStudio.Workspace' and 'Microsoft.VisualStudio.VSIntegration' -->
     <!-- Have to add it explicitly here because the version used by 'Microsoft.VisualStudio...' report vulnerabilities now -->
     <!-- TODO: [#5368] remove this explicit reference after 'Microsoft.VisualStudio...' releases new version having 'MessagePack' updated to vulnerability free version-->
-    <PackageReference Include="MessagePack" Version="2.5.301" />
-    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2" />
+    <PackageReference Include="MessagePack" Version="3.1.12" />
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" />
     <Content Include="Icons\logo.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
@@ -60,15 +60,15 @@
     <PackageReference Include="Microsoft.VisualStudio.Workspace" Version="17.12.19" ExcludeAssets="Runtime" />
     <PackageReference Include="Microsoft.VisualStudio.Workspace.VSIntegration" Version="17.12.19" ExcludeAssets="Runtime" />
     <!-- https://github.com/advisories/GHSA-w3q9-fxm7-j8fq -->
-    <PackageReference Include="Microsoft.Build" Version="17.14.28"/>
-    <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="17.14.2120">
+    <PackageReference Include="Microsoft.Build" Version="18.11.0"/>
+    <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="18.5.40034">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <!-- Use latest 17.x for build tools-->
     <!-- Align with VS 17.0 version here:
     https://devblogs.microsoft.com/visualstudio/using-newtonsoft-json-in-a-visual-studio-extension/-->
-    <PackageReference Include="NewtonSoft.JSON" Version="13.0.3" ExcludeAssets="Runtime" />
+    <PackageReference Include="NewtonSoft.JSON" Version="13.0.4" ExcludeAssets="Runtime" />
   </ItemGroup>
   <Import Sdk="Microsoft.NET.Sdk" Project="Sdk.targets" />
   <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets"

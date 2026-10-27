@@ -20,6 +20,26 @@ describe("Discriminator property", () => {
     runner = await createEmitterTestHost();
   });
 
+  it.each([undefined, "", 'Use "Current" instead.\nSee C:\\sdk.'])(
+    "preserves model and enum deprecation metadata: %s",
+    async (message) => {
+      const directive = message === undefined ? "" : `#deprecated ${JSON.stringify(message)}`;
+      const program = await typeSpecCompile(
+        `${directive}
+         enum LegacyChoice { one, two }
+         ${directive}
+         model Legacy { choice: LegacyChoice; }
+         #suppress "deprecated" "Testing deprecated model references."
+         @get op read(): Legacy;`,
+        runner,
+      );
+      const sdkContext = await createCSharpSdkContext(createEmitterContext(program));
+      const [root] = createModel(sdkContext);
+      strictEqual(root.models.find((m) => m.name === "Legacy")?.deprecation, message);
+      strictEqual(root.enums.find((e) => e.name === "LegacyChoice")?.deprecation, message);
+    },
+  );
+
   it("Base model has discriminator property", async () => {
     const program = await typeSpecCompile(
       `

@@ -37,8 +37,13 @@ function isGraphQLIdScalar(scalar: Scalar): boolean {
   return false;
 }
 
-/** GraphQL-specific Scalar mutation */
+/** Normalizes custom scalars and preserves specification URLs for GraphQL emission. */
 export class GraphQLScalarMutation extends SimpleScalarMutation<SimpleMutationOptions> {
+  /**
+   * Initializes a scalar transformation using the engine's references and cache
+   * identity. Prefer `GraphQLMutationEngine.mutateScalar` to obtain the
+   * cached transformation for a program.
+   */
   constructor(
     engine: SimpleMutationEngine<SimpleMutations<SimpleMutationOptions>>,
     sourceType: Scalar,
@@ -49,6 +54,12 @@ export class GraphQLScalarMutation extends SimpleScalarMutation<SimpleMutationOp
     super(engine, sourceType, referenceTypes, options, info);
   }
 
+  /**
+   * Maps GraphQL ID descendants to ID and normalizes custom scalar names,
+   * removing their base scalar. Standard TypeSpec scalars keep their names for
+   * mapping at emission time. Explicit specification URLs take precedence over
+   * URLs inherited from the scalar mapping table.
+   */
   mutate() {
     const tk = this.engine.$;
     const program = tk.program;

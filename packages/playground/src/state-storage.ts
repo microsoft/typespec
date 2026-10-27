@@ -1,22 +1,30 @@
 import lzutf8 from "lzutf8";
 
+/** Synchronous persistence of a subset of playground state; callers supply any missing defaults. */
 export interface StateStorage<T extends object> {
+  /** Read persisted fields without filling in defaults for missing values. */
   load(): Partial<T>;
+  /** Persist the supplied state subset according to the storage implementation's policy. */
   save(t: Partial<T>): void;
 }
 
+/** State storage that can also construct shareable query parameters without changing the browser URL. */
 export interface UrlStateStorage<T extends object> extends StateStorage<T> {
+  /** Serialize the supplied fields into new parameters, without merging the current query string. */
   resolveSearchParams(t: Partial<T>): URLSearchParams;
 }
 
+/** Maps each state field to its query parameter and serialization settings. */
 export type UrlStorageSchema<T> = {
   [key in keyof T]: UrlStorageItem;
 };
 
+/** Serialization settings for one state field in URL storage. */
 export interface UrlStorageItem {
   /** Name of the query parameter where the data will be serialized. */
   queryParam: string;
 
+  /** Use JSON serialization for `"object"`; otherwise store the value as a string. */
   type?: "string" | "object";
 
   /** Encoding the data should be compressed with. If undefined param will not be compressed. */
@@ -24,9 +32,13 @@ export interface UrlStorageItem {
 }
 
 /**
- * Generic storage mechanism for data in the playground.
- * @param schema Schema of the data to be serialized in the query
- * @returns
+ * Store state in the current browser URL using the supplied schema.
+ *
+ * Loading omits empty values, invalid compressed or JSON values, and falsy decoded values.
+ * Saving pushes a history entry, preserves unrelated query parameters, and removes schema
+ * parameters whose supplied values are falsy or absent. `resolveSearchParams` instead
+ * creates a fresh query string without modifying browser history.
+ * @param schema Mapping from state fields to query parameters and encodings.
  */
 export function createUrlStateStorage<const T extends object>(
   schema: UrlStorageSchema<T>,

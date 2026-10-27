@@ -107,11 +107,15 @@ public final class NestedProxyResourceImpl
         azure.resourcemanager.resources.ResourcesManager serviceManager) {
         this.innerObject = innerObject;
         this.serviceManager = serviceManager;
-        this.resourceGroupName = ResourceManagerUtils.getValueFromIdByName(innerObject.id(), "resourceGroups");
-        this.topLevelTrackedResourceName
-            = ResourceManagerUtils.getValueFromIdByName(innerObject.id(), "topLevelTrackedResources");
-        this.nextedProxyResourceName
-            = ResourceManagerUtils.getValueFromIdByName(innerObject.id(), "nestedProxyResources");
+        this.resourceGroupName = ResourceManagerUtils.getValueFromIdByParameterName(innerObject.id(),
+            "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.Resources/topLevelTrackedResources/{topLevelTrackedResourceName}/nestedProxyResources/{nextedProxyResourceName}",
+            "resourceGroupName");
+        this.topLevelTrackedResourceName = ResourceManagerUtils.getValueFromIdByParameterName(innerObject.id(),
+            "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.Resources/topLevelTrackedResources/{topLevelTrackedResourceName}/nestedProxyResources/{nextedProxyResourceName}",
+            "topLevelTrackedResourceName");
+        this.nextedProxyResourceName = ResourceManagerUtils.getValueFromIdByParameterName(innerObject.id(),
+            "/subscriptions/{subscriptionId}/resourceGroups/{resourceGroupName}/providers/Azure.ResourceManager.Resources/topLevelTrackedResources/{topLevelTrackedResourceName}/nestedProxyResources/{nextedProxyResourceName}",
+            "nextedProxyResourceName");
     }
 
     public NestedProxyResource refresh() {

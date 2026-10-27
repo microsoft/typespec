@@ -191,6 +191,7 @@ import {
   SyntaxKind,
 } from "./types.js";
 
+/** Properties supplied to create a type before the checker adds its identity and finishing state. */
 export type CreateTypeProps = Omit<Type, "isFinished" | "entityKind" | keyof TypePrototype>;
 
 enum CheckFlags {
@@ -334,6 +335,11 @@ class CheckContext<Mapper extends TypeMapper | undefined = TypeMapper | undefine
   }
 }
 
+/**
+ * Advanced access to semantic checking and type creation for a program.
+ * These APIs have weaker stability guarantees than ordinary library APIs; see the
+ * {@link https://typespec.io/docs/handbook/breaking-change-policy/ | breaking change policy}.
+ */
 export interface Checker {
   /** @internal */
   typePrototype: TypePrototype;
@@ -357,25 +363,41 @@ export interface Checker {
   getLiteralType(node: BooleanLiteralNode): BooleanLiteral;
   /** @internal */
   getLiteralType(node: LiteralNode): LiteralType;
+  /**
+   * Clone a type and its owned members, applying optional property overrides.
+   * Decorators run again for a finished type. Referenced types are not recursively cloned.
+   * The overrides must not change the type's kind.
+   */
   cloneType<T extends Type>(type: T, additionalProps?: { [P in keyof T]?: T[P] }): T;
   /** @internal */
   resolveRelatedSymbols(node: IdentifierNode): Sym[] | undefined;
   /** @internal */
   resolveCompletions(node: IdentifierNode): Map<string, TypeSpecCompletionItem>;
+  /**
+   * Initialize the supplied object as an unfinished type, mutating and returning that object.
+   * Call {@link Checker.finishType} once its properties and decorators are ready.
+   */
   createType<T extends (Type extends any ? CreateTypeProps : never)>(
     typeDef: T,
   ): T & TypePrototype & { isFinished: boolean; readonly entityKind: "Type" };
+  /** Create a type and immediately finish it, including running its decorators. */
   createAndFinishType<T extends (Type extends any ? CreateTypeProps : never)>(
     typeDef: T,
   ): T & TypePrototype;
+  /** Run a type's decorators and finishing validators, mark it finished, and return the same object. */
   finishType<T extends Type>(typeDef: T): T;
+  /** Get or create the program's cached string literal type for the supplied value. */
   createLiteralType(value: string, node?: StringLiteralNode): StringLiteral;
+  /** Get or create a numeric literal type, preserving precise {@link Numeric} values. */
   createLiteralType(value: number | Numeric, node?: NumericLiteralNode): NumericLiteral;
+  /** Get or create the program's cached boolean literal type for the supplied value. */
   createLiteralType(value: boolean, node?: BooleanLiteralNode): BooleanLiteral;
+  /** Get or create a literal type matching the JavaScript primitive's kind. */
   createLiteralType(
     value: string | number | boolean,
     node?: StringLiteralNode | NumericLiteralNode | BooleanLiteralNode,
   ): StringLiteral | NumericLiteral | BooleanLiteral;
+  /** Get or create a literal type matching the JavaScript primitive's kind. */
   createLiteralType(
     value: string | number | boolean,
     node?: StringLiteralNode | NumericLiteralNode | BooleanLiteralNode,
@@ -483,6 +505,7 @@ export interface CheckerStats {
   finishedTypes: number;
 }
 
+/** Shared prototype attached to types created by a checker; currently has no public members. */
 interface TypePrototype {}
 
 export interface TypeSpecCompletionItem {
@@ -696,6 +719,14 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     }
   }
 
+  function getDeclarationContext(ctx: CheckContext, node: Node): CheckContext {
+    // Named concrete declarations are independent of an enclosing template; expressions are not.
+    if (node.symbol.flags & SymbolFlags.Declaration && !isTemplatedNode(node)) {
+      return ctx.maskFlags(CheckFlags.InTemplateDeclaration).exitTemplateObserverScope();
+    }
+    return ctx;
+  }
+
   /**
    * Check a member symbol.
    * @param sym Symbol binding a member node.
@@ -706,7 +737,8 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     const symbolLinks = getSymbolLinks(sym);
     const parentNode = getSymNode(sym.parent!);
     compilerAssert(parentNode, "Expected member container parent symbol to have a node");
-    const memberContainer = getTypeForNode(parentNode, ctx);
+    const innerCtx = getDeclarationContext(ctx, parentNode);
+    const memberContainer = getTypeForNode(parentNode, innerCtx);
     const type = symbolLinks.declaredType ?? symbolLinks.type;
 
     if (type) {
@@ -714,7 +746,11 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
     } else {
       const memberNode = getSymNode(sym);
       compilerAssert(memberNode, "Expected member symbol to have a node");
-      return checkMember(ctx, memberNode as MemberNode, memberContainer as MemberContainerType)!;
+      return checkMember(
+        innerCtx,
+        memberNode as MemberNode,
+        memberContainer as MemberContainerType,
+      )!;
     }
   }
 
@@ -1447,7 +1483,14 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
         return checkDeprecatedNode(node);
       case SyntaxKind.IntersectionExpression:
       case SyntaxKind.UnionExpression:
+      case SyntaxKind.ArrayExpression:
+      case SyntaxKind.TupleExpression:
+      case SyntaxKind.ModelExpression:
       case SyntaxKind.ModelProperty:
+      case SyntaxKind.ModelSpreadProperty:
+      case SyntaxKind.TypeReference:
+      case SyntaxKind.TemplateArgument:
+      case SyntaxKind.TemplateParameterDeclaration:
       case SyntaxKind.OperationSignatureDeclaration:
       case SyntaxKind.OperationSignatureReference:
         return isTypeReferenceContextDeprecated(node.parent!);
@@ -1724,19 +1767,15 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
       sym.flags &
         (SymbolFlags.Model |
           SymbolFlags.Scalar |
+          SymbolFlags.Enum |
           SymbolFlags.Alias |
           SymbolFlags.Interface |
           SymbolFlags.Operation |
           SymbolFlags.Union)
     ) {
-      const decl = sym.declarations[0] as TemplateableNode;
+      const decl = sym.declarations[0] as TemplateableNode | EnumStatementNode;
       if (!isTemplatedNode(decl)) {
-        // Not a templated node, and we are moving through a typeref to a new declaration.
-        // Therefore, we are no longer in a template declaration if we were before, and we are
-        // visiting a new declaration, so we exit the active template observer scope, if any.
-        const innerCtx = ctx
-          .maskFlags(CheckFlags.InTemplateDeclaration)
-          .exitTemplateObserverScope();
+        const innerCtx = getDeclarationContext(ctx, decl);
         if (argumentNodes.length > 0) {
           reportCheckerDiagnostic(
             createDiagnostic({
@@ -1882,7 +1921,7 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   }
 
   /**
-   * Check the declared type of a templatable node.
+   * Check the declared type of a referenced declaration.
    * @param node Declaration node
    * @param sym Node Symbol
    * @param mapper Type mapper for template resolution
@@ -1891,20 +1930,22 @@ export function createChecker(program: Program, resolver: NameResolver): Checker
   function checkDeclaredTypeOrIndeterminate(
     ctx: CheckContext,
     sym: Sym,
-    node: TemplateableNode,
+    node: TemplateableNode | EnumStatementNode,
   ): Type | IndeterminateEntity {
     const type =
       sym.flags & SymbolFlags.Model
         ? checkModelStatement(ctx, node as ModelStatementNode)
         : sym.flags & SymbolFlags.Scalar
           ? checkScalar(ctx, node as ScalarStatementNode)
-          : sym.flags & SymbolFlags.Alias
-            ? checkAlias(ctx, node as AliasStatementNode)
-            : sym.flags & SymbolFlags.Interface
-              ? checkInterface(ctx, node as InterfaceStatementNode)
-              : sym.flags & SymbolFlags.Operation
-                ? checkOperation(ctx, node as OperationStatementNode)
-                : checkUnion(ctx, node as UnionStatementNode);
+          : sym.flags & SymbolFlags.Enum
+            ? checkEnum(ctx, node as EnumStatementNode)
+            : sym.flags & SymbolFlags.Alias
+              ? checkAlias(ctx, node as AliasStatementNode)
+              : sym.flags & SymbolFlags.Interface
+                ? checkInterface(ctx, node as InterfaceStatementNode)
+                : sym.flags & SymbolFlags.Operation
+                  ? checkOperation(ctx, node as OperationStatementNode)
+                  : checkUnion(ctx, node as UnionStatementNode);
 
     return type;
   }

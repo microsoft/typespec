@@ -214,6 +214,10 @@ export default defineConfig({
           color: "000000",
           description: "Issues/PR created by github agentic workflows",
         },
+        "auto-merge": {
+          color: "0e8a16",
+          description: "Automatically merge the pull request after all requirements pass",
+        },
         "good first issue": {
           color: "7057ff",
           description: "Good for newcomers",

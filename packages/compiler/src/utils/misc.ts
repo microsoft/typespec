@@ -298,22 +298,27 @@ export class TwoLevelMap<K1, K2, V> extends Map<K1, Map<K2, V>> {
 }
 
 // Adapted from https://github.com/microsoft/TypeScript/blob/bc52ff6f4be9347981de415a35da90497eae84ac/src/compiler/core.ts#L1507
+/** A first-in, first-out collection that releases references to removed elements. */
 export class Queue<T> {
   #elements: T[];
   #headIndex = 0;
 
+  /** Initialize a queue with a copy of the optional initial elements, in their array order. */
   constructor(elements?: T[]) {
     this.#elements = elements?.slice() ?? [];
   }
 
+  /** Whether all queued elements have been removed. */
   isEmpty(): boolean {
     return this.#headIndex === this.#elements.length;
   }
 
+  /** Append items in the supplied order after the elements already queued. */
   enqueue(...items: T[]): void {
     this.#elements.push(...items);
   }
 
+  /** Remove and return the oldest element; throws when the queue is empty. */
   dequeue(): T {
     if (this.isEmpty()) {
       throw new Error("Queue is empty.");
@@ -386,6 +391,7 @@ class CaseInsensitiveMap<T> extends Map<string, T> {
   }
 }
 
+/** Create an insertion-ordered map that can change an entry's key without moving its iteration position. */
 export function createRekeyableMap<K, V>(entries?: Iterable<[K, V]>): RekeyableMap<K, V> {
   return new RekeyableMapImpl<K, V>(entries);
 }

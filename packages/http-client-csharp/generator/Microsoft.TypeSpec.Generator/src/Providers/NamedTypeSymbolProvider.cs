@@ -399,7 +399,8 @@ namespace Microsoft.TypeSpec.Generator.Providers
                     GetSymbolXmlDoc(methodSymbol, "returns"),
                     [.. methodSymbol.Parameters.Select(p => ConvertToParameterProvider(methodSymbol, p))],
                     Attributes: [.. methodSymbol.GetAttributes()
-                        .Where(a => a.AttributeClass?.ToDisplayString() == typeof(ExperimentalAttribute).FullName)
+                        .Where(a => a.AttributeClass?.ToDisplayString() is { } name
+                            && (name == typeof(ExperimentalAttribute).FullName || name == typeof(ObsoleteAttribute).FullName))
                         .Select(a => new AttributeStatement(a))],
                     GenericArguments: methodSymbol.TypeParameters.IsEmpty
                         ? null
