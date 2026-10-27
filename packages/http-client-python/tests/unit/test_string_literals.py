@@ -14,10 +14,19 @@ import pytest
 from jinja2 import Environment, PackageLoader
 
 from pygen import OptionsDict
-from pygen.codegen.models import CodeModel, build_type
+from pygen.codegen.models import (
+    BodyParameter,
+    CodeModel,
+    Operation,
+    ParameterList,
+    RequestBuilder,
+    Response,
+    build_type,
+)
+from pygen.codegen.models.parameter_list import RequestBuilderParameterList
 from pygen.codegen.models.primitive_types import StringType
 from pygen.codegen.serializers.enum_serializer import EnumSerializer
-from pygen.codegen.serializers.builder_serializer import _get_polymorphic_subtype_template
+from pygen.codegen.serializers.builder_serializer import OperationSerializer, _get_polymorphic_subtype_template
 from pygen.codegen.serializers.model_serializer import DpgModelSerializer
 from pygen.codegen.serializers.types_serializer import TypesSerializer
 from pygen.codegen.serializers.utils import json_dumps_template
@@ -73,6 +82,137 @@ def env():
 def test_string_declarations_are_literals(code_model, value):
     declaration = StringType({"type": "string"}, code_model).get_declaration(value)
     assert ast.literal_eval(declaration) == value
+
+
+@pytest.mark.parametrize("value", VALUES)
+@pytest.mark.parametrize("models_mode", ["dpg", "typeddict"])
+def test_complete_model_docstrings_preserve_literals(code_model, env, value, models_mode):
+    code_model.options["models-mode"] = models_mode
+    model = build_type(
+        {
+            "type": "model",
+            "base": models_mode,
+            "name": "Example",
+            "snakeCaseName": "example",
+            "properties": [
+                {
+                    "wireName": "value",
+                    "clientName": "value",
+                    "optional": False,
+                    "type": {"type": "constant", "value": value, "valueType": {"type": "string"}},
+                }
+            ],
+        },
+        code_model,
+    )
+    serializer_type = DpgModelSerializer if models_mode == "dpg" else TypesSerializer
+    source = serializer_type(code_model, env, models=[model]).serialize()
+    module = ast.parse(source)
+    declaration = next(node for node in module.body if isinstance(node, ast.ClassDef))
+    documentation = " ".join(ast.get_docstring(declaration).split())
+    assert repr(value) in documentation
+    if models_mode == "typeddict":
+        assert f"Literal[{repr(value)}]" in documentation
+
+
+@pytest.mark.parametrize("wire_name", [name for name in VALUES if name])
+def test_complete_polymorphic_examples_preserve_wire_names(code_model, env, wire_name):
+    code_model.options["models-mode"] = "none"
+    base = build_type(
+        {
+            "type": "model",
+            "base": "json",
+            "name": "Base",
+            "snakeCaseName": "base",
+            "properties": [
+                {
+                    "wireName": wire_name,
+                    "clientName": "kind",
+                    "optional": False,
+                    "isDiscriminator": True,
+                    "type": {"type": "string"},
+                }
+            ],
+        },
+        code_model,
+    )
+    child = build_type(
+        {
+            "type": "model",
+            "base": "json",
+            "name": "Child",
+            "snakeCaseName": "child",
+            "discriminatorValue": "child",
+            "properties": [
+                {
+                    "wireName": wire_name,
+                    "clientName": "kind",
+                    "optional": False,
+                    "isDiscriminator": True,
+                    "type": {"type": "constant", "value": "child", "valueType": {"type": "string"}},
+                }
+            ],
+        },
+        code_model,
+    )
+    child.parents = [base]
+    base.discriminated_subtypes = {"child": child}
+    client = code_model.clients[0]
+    yaml_data = {
+        "url": "/example",
+        "method": "POST",
+        "groupName": "",
+        "isOverload": False,
+        "apiVersions": [],
+        "description": "Example operation.",
+    }
+    body = BodyParameter(
+        {
+            "wireName": "body",
+            "clientName": "body",
+            "location": "body",
+            "optional": False,
+            "contentTypes": ["application/json"],
+            "defaultContentType": "application/json",
+            "description": "Example body.",
+        },
+        code_model,
+        type=base,
+    )
+    operation = Operation(
+        yaml_data,
+        code_model,
+        client,
+        "example",
+        RequestBuilder(
+            yaml_data,
+            code_model,
+            client,
+            "build_example_request",
+            RequestBuilderParameterList({}, code_model, parameters=[]),
+        ),
+        ParameterList({}, code_model, parameters=[], body_parameter=body),
+        responses=[Response({"statusCodes": [200], "defaultContentType": "application/json"}, code_model, type=base)],
+        exceptions=[],
+    )
+    serializer = OperationSerializer(code_model, async_mode=False, client_namespace="sample")
+    template = "\n".join(serializer.example_template(operation))
+    for direction in ("input", "response"):
+        assert (
+            f"# The {direction} is polymorphic. The following are possible polymorphic "
+            f"{direction}s based off discriminator {wire_name!r}:"
+        ) in template.splitlines()
+    ast.parse(template)
+    documentation = env.from_string(
+        '{% import "operation_tools.jinja2" as tools %}{{ tools.description(builder, serializer) }}'
+    ).render(builder=operation, serializer=serializer)
+    function = ast.parse("def example():\n" + textwrap.indent(documentation.strip(), "    ")).body[0]
+    example = textwrap.dedent(ast.get_docstring(function).split(".. code-block:: python\n", 1)[1])
+    assignments = [node for node in ast.parse(example).body if isinstance(node, ast.Assign)]
+    assert len(assignments) == 3
+    for assignment in assignments[::2]:
+        assert ast.literal_eval(assignment.value) == {wire_name: "child"}
+    assert example.count(f"based off discriminator {wire_name!r}:") == 2
 
 
 def test_json_template_preserves_nested_python_expressions():

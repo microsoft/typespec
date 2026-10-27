@@ -385,7 +385,7 @@ class _BuilderBaseSerializer(Generic[BuilderType]):
             discriminator_name = cast(Property, polymorphic_subtypes[0].discriminator).wire_name
             template.append(
                 "# The input is polymorphic. The following are possible polymorphic "
-                f'inputs based off discriminator "{discriminator_name}":'
+                f"inputs based off discriminator {discriminator_name!r}:"
             )
             for idx in range(
                 min(
@@ -582,7 +582,7 @@ class _OperationSerializer(_BuilderBaseSerializer[OperationType]):
                 retval.append("")
                 retval.append(
                     "# The response is polymorphic. The following are possible polymorphic "
-                    f'responses based off discriminator "{discriminator_name}":'
+                    f"responses based off discriminator {discriminator_name!r}:"
                 )
                 for idx in range(
                     min(

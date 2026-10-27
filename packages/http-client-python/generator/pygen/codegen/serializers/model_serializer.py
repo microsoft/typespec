@@ -85,13 +85,14 @@ def _documentation_string(
     # Strip repr's delimiters and escape double quotes for the enclosing docstring.
     doc_name = repr(escape_sphinx_field_name(doc_name))[1:-1].replace('"', '\\"')
     sphinx_prefix = f":{description_keyword} {doc_name}:"
-    description = prop.description(is_operation_file=False).replace("\\", "\\\\")
+    description = prop.description(is_operation_file=False).replace("\\", "\\\\").replace('"', '\\"')
     retval.append(f"{sphinx_prefix} {description}" if description else sphinx_prefix)
     # In the types file, use type_annotation (the serialized form) for docstrings
     if kwargs.get("serialize_namespace_type") == NamespaceType.TYPES_FILE:
         doc_type = prop.type.type_annotation(**kwargs)
     else:
         doc_type = prop.type.docstring_type(**kwargs)
+    doc_type = doc_type.replace("\\", "\\\\").replace('"', '\\"')
     retval.append(f":{docstring_type_keyword} {doc_name}: {doc_type}")
     return retval
 
